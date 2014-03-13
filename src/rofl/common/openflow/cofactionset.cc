@@ -10,6 +10,7 @@
  */
 
 #include "cofactionset.h"
+#include "../logging.h"
 
 using namespace rofl;
 
@@ -61,7 +62,8 @@ cofactionset::get_action_index(uint16_t action_type)
 void
 cofactionset::actionset_clear(cofinst& inst)
 {
-	WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
+	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
+	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
 	acset.clear();
 
 	cofactions::iterator at;
@@ -91,15 +93,18 @@ cofactionset::actionset_clear()
 void
 cofactionset::actionset_write_actions(cofinst& inst)
 {
-	WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
+	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
+	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.actions.size() << std::endl;
 
 	for (std::list<cofaction*>::iterator
 			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
 		cofaction& action = *(*at);
 
-		WRITELOG(COFACTION, DBG, "write action %u at position %u",
+		/*WRITELOG(COFACTION, DBG, "write action %u at position %u",
 				be16toh(action.oac_header->type),
 				cofactionset::action_indices[be16toh(action.oac_header->type)]);
+		*/
+		logging::debug << "[rofl]"<<this<<" write action "<< be16toh(action.oac_header->type)<<" at position "<<cofactionset::action_indices[be16toh(action.oac_header->type)]<< std::endl;
 
 		switch (be16toh(action.oac_header->type)) {
 		case openflow12::OFPAT_SET_FIELD: {

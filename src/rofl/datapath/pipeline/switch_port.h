@@ -299,10 +299,19 @@ void switch_port_set_current_max_speed(switch_port_t* port, port_features_t spee
 // Snapshots
 //
 
-/*
-* Internal calls for port snapshoting
-*/
+//Internal call for port snapshoting
 switch_port_snapshot_t* __switch_port_get_snapshot(switch_port_t* port);
+
+/**
+* @brief Clone a snapshot
+* @ingroup  mgmt
+*/
+switch_port_snapshot_t* switch_port_clone_snapshot(switch_port_snapshot_t* orig);
+
+/**
+* @brief Destroy a switch port snapshot 
+* @ingroup  mgmt
+*/
 void switch_port_destroy_snapshot(switch_port_snapshot_t* snapshot);
 
 /**

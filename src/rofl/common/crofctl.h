@@ -14,6 +14,7 @@
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
+#include "rofl/common/openflow/coftables.h"
 
 
 
@@ -346,6 +347,19 @@ public:
 	send_group_features_stats_reply(
 		uint32_t xid,
 		cofgroup_features_stats_reply const& group_features_stats,
+		uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a TABLE-FEATURES-STATS.reply to a controller entity.
+	 *
+	 * @param xid transaction ID from received STATS.request
+	 * @param tables tables body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_table_features_stats_reply(
+		uint32_t xid,
+		rofl::openflow::coftables const& tables,
 		uint16_t stats_flags = 0) = 0;
 
 	/**

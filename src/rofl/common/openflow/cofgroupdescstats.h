@@ -9,7 +9,6 @@
 #define COFGROUPDESCSTATS_H_ 1
 
 #include "../cmemory.h"
-#include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
 #include "cofbuckets.h"

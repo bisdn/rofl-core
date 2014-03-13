@@ -8,15 +8,17 @@ using namespace rofl;
 cofmsg_table_features_request::cofmsg_table_features_request(
 		uint8_t of_version,
 		uint32_t xid,
-		uint16_t stats_flags) :
+		uint16_t stats_flags,
+		rofl::openflow::coftables const tables) :
 	cofmsg_stats_request(of_version, xid, 0, stats_flags),
-	tables(of_version)
+	tables(tables)
 {
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
 
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
+		this->tables.set_version(of_version);
 		set_type(rofl::openflow13::OFPT_MULTIPART_REQUEST);
 		set_stats_type(rofl::openflow13::OFPMP_TABLE_FEATURES);
 	} break;
@@ -180,6 +182,7 @@ cofmsg_table_features_reply::cofmsg_table_features_reply(
 
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
+		this->tables.set_version(of_version);
 		set_type(rofl::openflow13::OFPT_MULTIPART_REPLY);
 		set_stats_type(rofl::openflow13::OFPMP_TABLE_FEATURES);
 	} break;
@@ -280,6 +283,8 @@ cofmsg_table_features_reply::pack(uint8_t *buf, size_t buflen)
 	if (buflen < length()) {
 		throw eInval();
 	}
+
+	set_length(length());
 
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {

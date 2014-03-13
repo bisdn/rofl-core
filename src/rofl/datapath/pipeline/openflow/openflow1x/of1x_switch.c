@@ -105,7 +105,7 @@ rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsign
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
 	
-	if(sw->logical_ports[port_num].attachment_state){
+	if(sw->logical_ports[port_num].attachment_state != LOGICAL_PORT_STATE_FREE){
 		platform_mutex_unlock(sw->mutex);
 		return ROFL_FAILURE;
 	}
@@ -173,7 +173,9 @@ rofl_result_t __of1x_detach_port_from_switch_by_port_num(of1x_switch_t* sw, unsi
 	sw->logical_ports[port_num].port->attached_sw = NULL;
 	sw->logical_ports[port_num].port->of_port_num = 0;
 
-	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+	//sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+	//Marking it as free so it can be reused
+	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_FREE;
 	sw->logical_ports[port_num].port = NULL;
 	sw->num_of_ports--;
 	
@@ -200,7 +202,9 @@ rofl_result_t __of1x_detach_port_from_switch(of1x_switch_t* sw, switch_port_t* p
 			sw->logical_ports[i].port->of_port_num = 0;
 
 			//Detach
-			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+			//sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+			//Marking it as free so it can be reused
+			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_FREE;
 			sw->logical_ports[i].port = NULL;
 			sw->num_of_ports--;
 
@@ -228,7 +232,9 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw){
 			sw->logical_ports[i].port->attached_sw = NULL;
 		
 		//Detach
-		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+		//sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+		//Marking it as free so it can be reused
+		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_FREE;
 		sw->logical_ports[i].port = NULL;
 	}	
 	
@@ -243,7 +249,7 @@ void of1x_dump_switch(of1x_switch_t* sw){
 	ROFL_PIPELINE_INFO("========================\n");
 	ROFL_PIPELINE_INFO("Name: %s\n",sw->name);
 	ROFL_PIPELINE_INFO("OpenFlow version: %d\n",sw->of_ver);
-	ROFL_PIPELINE_INFO("OpenFlow datapathid: %" PRIu64 "\n",sw->dpid);
+	ROFL_PIPELINE_INFO("OpenFlow datapathid: 0x%" PRIx64 "\n",sw->dpid);
 }
 
 void of1x_full_dump_switch(of1x_switch_t* sw){

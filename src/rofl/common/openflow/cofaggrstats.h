@@ -12,7 +12,6 @@
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofinstructions.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 

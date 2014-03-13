@@ -19,7 +19,6 @@
 #include "rofl/common/cvastring.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/cpacket.h"
-#include "rofl/platform/unix/csyslog.h"
 
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofmatch.h"
@@ -57,8 +56,7 @@ class eOFpacketHeaderInval 	: public eOFpacketBase {}; // invalid header
  * - stores pointer to cofbase entity the packet was received from
  *   (either cfwdelem or cofrpc)
  */
-class cofmsg :
-	public csyslog
+class cofmsg
 {
 public: // static
 

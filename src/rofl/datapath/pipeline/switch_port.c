@@ -178,6 +178,19 @@ switch_port_snapshot_t* __switch_port_get_snapshot(switch_port_t* port){
 		
 	return s;
 }
+
+switch_port_snapshot_t* switch_port_clone_snapshot(switch_port_snapshot_t* orig){
+	
+	switch_port_snapshot_t* copy = platform_malloc_shared(sizeof(switch_port_snapshot_t));
+	
+	if(!copy)
+		return NULL;
+
+	memcpy(copy, orig, sizeof(switch_port_snapshot_t));	
+	
+	return copy;
+}
+
 void switch_port_destroy_snapshot(switch_port_snapshot_t* port){
 	if(port)
 		platform_free_shared(port);

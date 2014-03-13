@@ -9,7 +9,6 @@
 #define COFQUEUESTATS_H_ 1
 
 #include "rofl/common/cmemory.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
@@ -152,6 +151,8 @@ private: // data structures
 	uint64_t		tx_bytes;
 	uint64_t		tx_packets;
 	uint64_t		tx_errors;
+	uint32_t	 	duration_sec;
+	uint32_t	 	duration_nsec;
 
 public: // data structures
 
@@ -172,7 +173,9 @@ public:
 			uint32_t queue_id,
 			uint64_t tx_bytes,
 			uint64_t tx_packets,
-			uint64_t tx_errors);
+			uint64_t tx_errors,
+			uint32_t duration_sec,
+			uint32_t duration_nsec);
 
 	/**
 	 *
@@ -265,6 +268,18 @@ public:
 	/**
 	 *
 	 */
+	uint32_t
+	get_duration_sec() const { return duration_sec; };
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_duration_nsec() const { return duration_nsec; };
+
+	/**
+	 *
+	 */
 	void
 	set_port_no(uint32_t port_no) { this->port_no = port_no; };
 
@@ -292,6 +307,18 @@ public:
 	void
 	set_tx_errors(uint64_t tx_errors) { this->tx_errors = tx_errors; };
 
+	/**
+	 *
+	 */
+	void
+	set_duration_sec(uint32_t duration_sec) { this->duration_sec = duration_sec; };
+
+	/**
+	 *
+	 */
+	void
+	set_duration_nsec(uint32_t duration_nsec) { this->duration_nsec = duration_nsec; };
+
 public:
 
 	friend std::ostream&
@@ -302,6 +329,14 @@ public:
 		os << indent(2) << "<tx-packets: " 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
 		os << indent(2) << "<tx-bytes: " 	<< (unsigned long long)r.get_tx_bytes() 	<< " >" << std::endl;
 		os << indent(2) << "<tx-errors: " 	<< (unsigned long long)r.get_tx_errors() 	<< " >" << std::endl;
+		switch (r.get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(2) << "<duration-sec: " 	<< (unsigned long long)r.get_duration_sec() 	<< " >" << std::endl;
+			os << indent(2) << "<duration-nsec: " 	<< (unsigned long long)r.get_duration_nsec() 	<< " >" << std::endl;
+		} break;
+		default: {
+		};
+		}
 		return os;
 	};
 };

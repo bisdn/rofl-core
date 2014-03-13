@@ -13,3 +13,14 @@
 	const char ROFL_BUILD_DESCRIBE[]=ROFL_DESCRIBE;
 
 #endif
+
+//C++ extern C
+ROFL_BEGIN_DECLS
+
+// autoconf AC_CHECK_LIB helper function as C-declaration
+void librofl_is_present(void) {};
+
+//C++ extern C
+ROFL_END_DECLS
+
+

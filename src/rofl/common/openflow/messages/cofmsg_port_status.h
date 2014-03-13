@@ -8,7 +8,7 @@
 #ifndef COFMSG_PORT_STATUS_H_
 #define COFMSG_PORT_STATUS_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 
 namespace rofl

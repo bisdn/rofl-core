@@ -12,6 +12,8 @@ cofgroup_features_stats_reply::cofgroup_features_stats_reply(
 				types(0),
 				capabilities(0)
 {
+	max_groups.resize(4);
+	actions.resize(4);
 	if ((buflen > 0) && (0 != buf)) {
 		unpack(buf, buflen);
 	}
@@ -74,11 +76,11 @@ void
 cofgroup_features_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		struct openflow12::ofp_group_features_stats *fs = (struct openflow12::ofp_group_features_stats*)buf;
+		struct rofl::openflow12::ofp_group_features_stats *fs = (struct rofl::openflow12::ofp_group_features_stats*)buf;
 		fs->types				= htobe32(types);
 		fs->capabilities		= htobe32(capabilities);
 		for (unsigned int i = 0; i < 4; i++) {
@@ -97,12 +99,12 @@ void
 cofgroup_features_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		if (buflen < sizeof(struct openflow12::ofp_group_features_stats))
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct rofl::openflow12::ofp_group_features_stats))
 			throw eInval();
 
-		struct openflow12::ofp_group_features_stats* fs = (struct openflow12::ofp_group_features_stats*)buf;
+		struct rofl::openflow12::ofp_group_features_stats* fs = (struct rofl::openflow12::ofp_group_features_stats*)buf;
 		types				= be32toh(fs->types);
 		capabilities		= be32toh(fs->capabilities);
 		for (unsigned int i = 0; i < 4; i++) {
@@ -121,9 +123,9 @@ size_t
 cofgroup_features_stats_reply::length() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		return (sizeof(struct openflow12::ofp_group_features_stats));
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow12::ofp_group_features_stats));
 	} break;
 	default:
 		throw eBadVersion();
@@ -182,15 +184,29 @@ cofgroup_features_stats_reply::set_capabilities(uint32_t capabilities)
 
 
 std::vector<uint32_t>&
-cofgroup_features_stats_reply::get_max_groups()
+cofgroup_features_stats_reply::set_max_groups()
 {
 	return max_groups;
 }
 
 
 
+std::vector<uint32_t> const&
+cofgroup_features_stats_reply::get_max_groups() const
+{
+	return max_groups;
+}
+
+
 std::vector<uint32_t>&
-cofgroup_features_stats_reply::get_actions()
+cofgroup_features_stats_reply::set_actions()
+{
+	return actions;
+}
+
+
+std::vector<uint32_t> const&
+cofgroup_features_stats_reply::get_actions() const
 {
 	return actions;
 }

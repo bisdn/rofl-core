@@ -58,6 +58,7 @@ class crofdpt_impl :
 private: // data structures
 
 		enum crofdpt_impl_timer_t {
+			TIMER_SIGNAL_DISCONNECT						= 0,
 		};
 
 		enum crofdpt_impl_state_t {
@@ -66,7 +67,7 @@ private: // data structures
 			STATE_CONNECTED								= 2,
 			STATE_FEATURES_RCVD 						= 3,
 			STATE_GET_CONFIG_RCVD						= 4,
-			STATE_PORT_DESC_RCVD						= 5,
+			STATE_TABLE_FEATURES_RCVD					= 5,
 			STATE_ESTABLISHED							= 6,
 		};
 
@@ -500,7 +501,7 @@ private:
 	void
 	event_get_config_request_expired();
 
-#if 0
+
 	/**
 	 *
 	 */
@@ -536,8 +537,6 @@ private:
 	 */
 	void
 	event_port_desc_request_expired();
-#endif
-
 
 
 private:
@@ -1122,6 +1121,9 @@ public:
 		} break;
 		case STATE_GET_CONFIG_RCVD: {
 			os << indent(2) << "<state: -GET-CONFIG-RCVD- >" << std::endl;
+		} break;
+		case STATE_TABLE_FEATURES_RCVD: {
+			os << indent(2) << "<state: -TABLE-FEATURES-RCVD- >" << std::endl;
 		} break;
 		default: {
 			os << indent(2) << "<state: -UNKNOWN- >" << std::endl;

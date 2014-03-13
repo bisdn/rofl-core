@@ -262,11 +262,13 @@ cofmsg_port_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
+	set_length(length());
+
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		ports.pack(ofh13_pds_reply->body, ports.length());
+		ports.pack(buf + sizeof(struct openflow13::ofp_multipart_reply), ports.length());
 	} break;
 	default:
 		throw eBadVersion();

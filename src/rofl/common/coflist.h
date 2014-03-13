@@ -13,8 +13,6 @@
 #include "croflexception.h"
 #include "logging.h"
 
-#include "rofl/platform/unix/csyslog.h"
-
 namespace rofl
 {
 
@@ -25,7 +23,7 @@ class eOFlistOutOfRange : public eOFlistBase {}; // out of range
 
 
 template<class T>
-class coflist : public csyslog {
+class coflist{
 public: // static methods + data structures
 
 

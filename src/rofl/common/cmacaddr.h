@@ -193,14 +193,15 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cmacaddr const& maddr) {
-		os << std::setw(2) << std::setfill('0') << std::hex;
-		os << (int)(maddr.somem()[0]) << ":";
-		os << (int)(maddr.somem()[1]) << ":";
-		os << (int)(maddr.somem()[2]) << ":";
-		os << (int)(maddr.somem()[3]) << ":";
-		os << (int)(maddr.somem()[4]) << ":";
-		os << (int)(maddr.somem()[5]);
-		os << std::dec << std::setfill(' ') << std::setw(0);
+		char mac[18];
+		snprintf(mac, sizeof(mac), "%02x:%02x:%02x:%02x:%02x:%02x",
+				maddr.somem()[0],
+				maddr.somem()[1],
+				maddr.somem()[2],
+				maddr.somem()[3],
+				maddr.somem()[4],
+				maddr.somem()[5]);
+		os << mac;
 		return os;
 	};
 

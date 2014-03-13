@@ -17,14 +17,13 @@
 #include <string>
 
 #include "rofl/common/cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
 namespace rofl
 {
 
-class cofactionset : public csyslog
+class cofactionset
 {
 public:
 

@@ -350,7 +350,8 @@ monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitor
 		return NULL;
 	
 	//Lock rwlock (read)
-	platform_rwlock_rdlock(monitoring->rwlock);	
+	if(monitoring->rwlock)
+		platform_rwlock_rdlock(monitoring->rwlock);	
 	
 	//Copy the state
 	memcpy(sn, monitoring, sizeof(monitoring_state_t));
@@ -366,7 +367,8 @@ monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitor
 	}
 
 	//Release the rdlock
-	platform_rwlock_rdunlock(monitoring->rwlock);	
+	if(monitoring->rwlock)
+		platform_rwlock_rdunlock(monitoring->rwlock);	
 
 	//Mark as snapshot
 	sn->is_snapshot = true;

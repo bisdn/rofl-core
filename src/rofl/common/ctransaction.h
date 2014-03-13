@@ -34,6 +34,11 @@ public:
 	/**
 	 *
 	 */
+	ctransaction();
+
+	/**
+	 *
+	 */
 	ctransaction(uint32_t xid, cclock const& delta, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	/**

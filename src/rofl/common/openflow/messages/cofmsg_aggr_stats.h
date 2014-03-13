@@ -8,7 +8,7 @@
 #ifndef COFMSG_AGGR_STATS_H
 #define COFMSG_AGGR_STATS_H 1
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofaggrstats.h"
 
 namespace rofl
@@ -26,15 +26,15 @@ private:
 
 	union {
 		uint8_t											*ofhu_aggr_stats;
-		struct openflow10::ofp_aggregate_stats_request 	*ofhu10_aggr_stats;
-		struct openflow12::ofp_aggregate_stats_request	*ofhu12_aggr_stats;
-		// TODO: OF1.3
+		struct rofl::openflow10::ofp_aggregate_stats_request 	*ofhu10_aggr_stats;
+		struct rofl::openflow12::ofp_aggregate_stats_request	*ofhu12_aggr_stats;
+		struct rofl::openflow13::ofp_aggregate_stats_request	*ofhu13_aggr_stats;
 	} ofhu;
 
 #define ofh_aggr_stats   			ofhu.ofhu_aggr_stats
 #define ofh10_aggr_stats 			ofhu.ofhu10_aggr_stats
 #define ofh12_aggr_stats 			ofhu.ofhu12_aggr_stats
-// TODO OF1.3
+#define ofh13_aggr_stats 			ofhu.ofhu13_aggr_stats
 
 public:
 
@@ -153,15 +153,15 @@ private:
 
 	union {
 		uint8_t*								ofhu_aggr_stats;
-		struct openflow10::ofp_aggregate_stats_reply*		ofhu10_aggr_stats;
-		struct openflow12::ofp_aggregate_stats_reply*		ofhu12_aggr_stats;
-		// TODO: OF1.3
+		struct rofl::openflow10::ofp_aggregate_stats_reply*		ofhu10_aggr_stats;
+		struct rofl::openflow12::ofp_aggregate_stats_reply*		ofhu12_aggr_stats;
+		struct rofl::openflow13::ofp_aggregate_stats_reply*		ofhu13_aggr_stats;
 	} ofhu;
 
 #define ofh_aggr_stats   			ofhu.ofhu_aggr_stats
 #define ofh10_aggr_stats 			ofhu.ofhu10_aggr_stats
 #define ofh12_aggr_stats 			ofhu.ofhu12_aggr_stats
-// TODO OF1.3
+#define ofh13_aggr_stats 			ofhu.ofhu13_aggr_stats
 
 public:
 
@@ -247,12 +247,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	cofaggr_stats_reply&
-	get_aggr_stats();
+	set_aggr_stats();
+
+	/**
+	 *
+	 */
+	cofaggr_stats_reply const&
+	get_aggr_stats() const;
 
 public:
 

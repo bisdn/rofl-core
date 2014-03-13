@@ -290,6 +290,14 @@ cmemory::unpack(
 
 
 
+std::string
+cmemory::toString() const
+{
+	return std::string((const char*)somem(), memlen());
+}
+
+
+
 void
 cmemory::mallocate(
 		size_t len)

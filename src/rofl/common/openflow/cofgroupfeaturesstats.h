@@ -12,7 +12,6 @@
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofinstructions.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
@@ -144,14 +143,25 @@ public:
 	 *
 	 */
 	std::vector<uint32_t>&
-	get_max_groups();
+	set_max_groups();
 
+	/**
+	 *
+	 */
+	std::vector<uint32_t> const&
+	get_max_groups() const;
 
 	/**
 	 *
 	 */
 	std::vector<uint32_t>&
-	get_actions();
+	set_actions();
+
+	/**
+	 *
+	 */
+	std::vector<uint32_t> const&
+	get_actions() const;
 
 public:
 

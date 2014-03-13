@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = openflow
+SUBDIRS = openflow protocols
 
 export INCLUDES += -I$(abs_srcdir)/../src/
 

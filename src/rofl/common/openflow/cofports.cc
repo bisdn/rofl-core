@@ -104,15 +104,15 @@ cofports::pack(
 	case rofl::openflow12::OFP_VERSION: {
 		for (cofports::iterator it = begin(); it != end(); ++it) {
 			cofport& port = *(it->second);
-			port.pack(buf, sizeof(struct rofl::openflow12::ofp_port));
-			buf += sizeof(struct rofl::openflow12::ofp_port);
+			port.pack(buf, port.length());
+			buf += port.length();
 		}
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		for (cofports::iterator it = begin(); it != end(); ++it) {
 			cofport& port = *(it->second);
-			port.pack(buf, sizeof(struct rofl::openflow13::ofp_port));
-			buf += sizeof(struct rofl::openflow13::ofp_port);
+			port.pack(buf, port.length());
+			buf += port.length();
 		}
 	} break;
 	default:

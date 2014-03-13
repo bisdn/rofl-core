@@ -26,11 +26,13 @@ TODO: add pipeline changes
     - each timer is referred to by a uint32_t timer_id assigned by the cioloop IO subsystem
     - canceling or resetting timers must be done using this timer_id, the opaque value cannot
       be used anymore
+[+][common] added OF13 support to various statistics classes including support for duration fields
 
 v0.3.4
 
 [+][common] Added LLC basic frame support in fetherframe.h/cc 
-[B][buildsystem] missing _DEPENDENCIES of matching algorithms library added
+[B][common] fixed bug for OF10. Added cofaclist instance (named actions) to avoid use of cofinlist for OF1.0
+[B][pipeline] missing _DEPENDENCIES of matching algorithms library added
 
 v0.3.3
 

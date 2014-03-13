@@ -1,4 +1,4 @@
-#include "cofmsg_port_status.h"
+#include "rofl/common/openflow/messages/cofmsg_port_status.h"
 
 using namespace rofl;
 
@@ -7,7 +7,7 @@ cofmsg_port_status::cofmsg_port_status(
 		uint32_t xid,
 		uint8_t reason,
 		cofport const& port) :
-	cofmsg(sizeof(struct openflow::ofp_header)),
+	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	port(port)
 {
 	ofh_port_status = soframe();
@@ -16,29 +16,29 @@ cofmsg_port_status::cofmsg_port_status(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_PORT_STATUS);
-		resize(sizeof(struct openflow10::ofp_port_status));
-		set_length(sizeof(struct openflow10::ofp_port_status));
+	case rofl::openflow10::OFP_VERSION: {
+		set_type(rofl::openflow10::OFPT_PORT_STATUS);
+		resize(sizeof(struct rofl::openflow10::ofp_port_status));
+		set_length(sizeof(struct rofl::openflow10::ofp_port_status));
 
 		ofh10_port_status->reason			= reason;
-		this->port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
+		this->port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct rofl::openflow10::ofp_port));
 	} break;
-	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_PORT_STATUS);
-		resize(sizeof(struct openflow12::ofp_port_status));
-		set_length(sizeof(struct openflow12::ofp_port_status));
+	case rofl::openflow12::OFP_VERSION: {
+		set_type(rofl::openflow12::OFPT_PORT_STATUS);
+		resize(sizeof(struct rofl::openflow12::ofp_port_status));
+		set_length(sizeof(struct rofl::openflow12::ofp_port_status));
 
 		ofh12_port_status->reason			= reason;
-		this->port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
+		this->port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct rofl::openflow12::ofp_port));
 	} break;
-	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_PORT_STATUS);
-		resize(sizeof(struct openflow13::ofp_port_status));
-		set_length(sizeof(struct openflow13::ofp_port_status));
+	case rofl::openflow13::OFP_VERSION: {
+		set_type(rofl::openflow13::OFPT_PORT_STATUS);
+		resize(sizeof(struct rofl::openflow13::ofp_port_status));
+		set_length(sizeof(struct rofl::openflow13::ofp_port_status));
 
 		ofh13_port_status->reason			= reason;
-		this->port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
+		this->port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct rofl::openflow13::ofp_port));
 	} break;
 	default:
 		throw eBadVersion();
@@ -110,14 +110,14 @@ size_t
 cofmsg_port_status::length() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		return sizeof(struct openflow10::ofp_port_status);
+	case rofl::openflow10::OFP_VERSION: {
+		return sizeof(struct rofl::openflow10::ofp_port_status);
 	} break;
-	case openflow12::OFP_VERSION: {
-		return sizeof(struct openflow12::ofp_port_status);
+	case rofl::openflow12::OFP_VERSION: {
+		return sizeof(struct rofl::openflow12::ofp_port_status);
 	} break;
-	case openflow13::OFP_VERSION: {
-		return sizeof(struct openflow13::ofp_port_status);
+	case rofl::openflow13::OFP_VERSION: {
+		return sizeof(struct rofl::openflow13::ofp_port_status);
 	} break;
 	default:
 		throw eBadVersion();
@@ -139,16 +139,16 @@ cofmsg_port_status::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (ofh_header->version) {
-	case openflow10::OFP_VERSION: {
-		port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
+	case rofl::openflow10::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct rofl::openflow10::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow12::OFP_VERSION: {
-		port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
+	case rofl::openflow12::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct rofl::openflow12::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow13::OFP_VERSION: {
-		port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
+	case rofl::openflow13::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct rofl::openflow13::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
 	default:
@@ -176,23 +176,23 @@ cofmsg_port_status::validate()
 	ofh_port_status = soframe();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow10::ofp_port_status))
+	case rofl::openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow10::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
+		port.unpack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct rofl::openflow10::ofp_port));
 	} break;
-	case openflow12::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow12::ofp_port_status))
+	case rofl::openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow12::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
+		port.unpack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct rofl::openflow12::ofp_port));
 	} break;
-	case openflow13::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow13::ofp_port_status))
+	case rofl::openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
+		port.unpack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct rofl::openflow13::ofp_port));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -205,13 +205,13 @@ uint8_t
 cofmsg_port_status::get_reason() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return (ofh10_port_status->reason);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return (ofh12_port_status->reason);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		return (ofh13_port_status->reason);
 	} break;
 	default:
@@ -226,13 +226,13 @@ void
 cofmsg_port_status::set_reason(uint8_t reason)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_port_status->reason = (reason);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_port_status->reason = (reason);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		ofh13_port_status->reason = (reason);
 	} break;
 	default:
