@@ -1,5 +1,6 @@
 #include "of1x_action.h"
 #include "../../../common/datapacket.h"
+#include "../../../common/protocol_constants.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -579,12 +580,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
 				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_set_eth_type(pkt, ETH_TYPE_8021Q);
 				platform_packet_set_vlan_pcp(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
 				pkt_matches->vlan_pcp = 0; 
-				pkt_matches->eth_type= OF1X_ETH_TYPE_8021Q; 
+				pkt_matches->eth_type= ETH_TYPE_8021Q; 
 				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
@@ -597,12 +598,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
 				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_set_eth_type(pkt, ETH_TYPE_8021Q);
 				platform_packet_set_vlan_vid(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
 				pkt_matches->vlan_vid = 0x0; 
-				pkt_matches->eth_type= OF1X_ETH_TYPE_8021Q; 
+				pkt_matches->eth_type= ETH_TYPE_8021Q; 
 				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
@@ -645,12 +646,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 		//NW
 		case OF1X_AT_SET_FIELD_NW_PROTO:
-			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ip_proto(pkt, action->field.u8);
 				//Update match
 				pkt_matches->ip_proto = action->field.u8;
-			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
 				//Call plattform
 				platform_packet_set_arp_opcode(pkt, action->field.u8);
 				//Update match
@@ -659,12 +660,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
-			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ipv4_src(pkt, action->field.u32);
 				//Update match
 				pkt_matches->ipv4_src = action->field.u32;
-			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
 				//Call platform
 				platform_packet_set_arp_spa(pkt, action->field.u32);
 				//Update match
@@ -672,12 +673,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			}
 			break;
 		case OF1X_AT_SET_FIELD_NW_DST:
-			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ipv4_dst(pkt, action->field.u32);
 				//Update match
 				pkt_matches->ipv4_dst = action->field.u32;
-			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
 				//Call platform
 				platform_packet_set_arp_tpa(pkt, action->field.u32);
 				//Update match
@@ -721,17 +722,17 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 		//TP
 		case OF1X_AT_SET_FIELD_TP_SRC:  
-			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
+			if((pkt_matches->ip_proto == IP_PROTO_TCP)){
 				//Call platform
 				platform_packet_set_tcp_src(pkt, action->field.u16);
 				//Update match
 				pkt_matches->tcp_src = action->field.u16;
-			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
+			}else if((pkt_matches->ip_proto == IP_PROTO_UDP)){
 				//Call platform
 				platform_packet_set_udp_src(pkt, action->field.u16);
 				//Update match
 				pkt_matches->udp_src = action->field.u16;
-			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
+			}else if((pkt_matches->ip_proto == IP_PROTO_ICMPV4)){
 				//Call platform
 				platform_packet_set_icmpv4_type(pkt, action->field.u8);
 				//Update match
@@ -739,17 +740,17 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
-			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
+			if((pkt_matches->ip_proto == IP_PROTO_TCP)){
 				//Call platform
 				platform_packet_set_tcp_dst(pkt, action->field.u16);
 				//Update match
 				pkt_matches->tcp_dst = action->field.u16;
-			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
+			}else if((pkt_matches->ip_proto == IP_PROTO_UDP)){
 				//Call platform
 				platform_packet_set_udp_dst(pkt, action->field.u16);
 				//Update match
 				pkt_matches->udp_dst = action->field.u16;
-			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
+			}else if((pkt_matches->ip_proto == IP_PROTO_ICMPV4)){
 				//Call platform
 				platform_packet_set_icmpv4_code(pkt, action->field.u8);
 				//Update match

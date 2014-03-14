@@ -70,27 +70,6 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_2_BITS_MASK	0x0000000000000003
 	#define OF1X_1_BIT_MASK		0x0000000000000001
 
-	/*
-	* Protocol related constants 
-	*/
-
-	//Useful ETH_TYPE values
-	#define OF1X_ETH_TYPE_MPLS_UNICAST	0x8847
-	#define OF1X_ETH_TYPE_MPLS_MULTICAST	0x8848
-	#define OF1X_ETH_TYPE_8021Q		0x8100 
-	#define OF1X_ETH_TYPE_IPV4		0x0800
-	#define OF1X_ETH_TYPE_IPV6		0x86DD
-	#define OF1X_ETH_TYPE_PPPOE_DISCOVERY	0x8863
-	#define OF1X_ETH_TYPE_PPPOE_SESSION	0x8864
-	#define OF1X_ETH_TYPE_ARP		0x0806
-	#define OF1X_ETH_TYPE_PBB		0x88E7
-
-	//Useful UDP destination port values
-	#define OF1X_UDP_DST_PORT_GTPC		2123
-	#define OF1X_UDP_DST_PORT_GTPU		2152
-	#define OF1X_UDP_DST_PORT_GTPC		0x084B //2123
-	#define OF1X_UDP_DST_PORT_GTPU		0x0868 //2152
-
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	
 	/*
@@ -115,43 +94,9 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_3_BITS_MASK	0xE0
 	#define OF1X_2_BITS_MASK	0xC0
 	#define OF1X_1_BIT_MASK		0x80
-
-	/*
-	* Protocol related constants 
-	*/
-
-	//Useful ETH_TYPE values
-	#define OF1X_ETH_TYPE_MPLS_UNICAST	0x4788
-	#define OF1X_ETH_TYPE_MPLS_MULTICAST	0x4888
-	#define OF1X_ETH_TYPE_8021Q		0x0081 
-	#define OF1X_ETH_TYPE_IPV4		0x0008
-	#define OF1X_ETH_TYPE_IPV6		0xDD86
-	#define OF1X_ETH_TYPE_PPPOE_DISCOVERY	0x6388
-	#define OF1X_ETH_TYPE_PPPOE_SESSION	0x6488
-	#define OF1X_ETH_TYPE_ARP		0x0608
-	#define OF1X_ETH_TYPE_PBB		0xE788
-
-	//Useful UDP destination port values
-	#define OF1X_UDP_DST_PORT_GTPC		0x4B08 //2123
-	#define OF1X_UDP_DST_PORT_GTPU		0x6808 //2152
 #else
 	#error Unknwon endianness
 #endif
-
-/*
-* Endianness agnostic (8bit or less)
-*/
-
-//Useful IP_PROTO values
-#define OF1X_IP_PROTO_TCP 6
-#define OF1X_IP_PROTO_UDP 17
-#define OF1X_IP_PROTO_SCTP 132
-#define OF1X_IP_PROTO_ICMPV4 1
-#define OF1X_IP_PROTO_ICMPV6 58
-
-//PPP PROTO values
-#define OF1X_PPP_PROTO_IP4 0x21 
-#define OF1X_PPP_PROTO_IP6 0x57
 
 /*
 * Align to 64bit
