@@ -12,6 +12,8 @@
 
 #include "cofmsg_stats.h"
 #include "rofl/common/openflow/cofflowstats.h"
+#include "rofl/common/openflow/cofflowstatsarray.h"
+
 
 namespace rofl
 {
@@ -157,19 +159,19 @@ class cofmsg_flow_stats_reply :
 {
 private:
 
-	std::vector<cofflow_stats_reply> 	flow_stats;
+	rofl::openflow::cofflowstatsarray					flowstatsarray;
 
 	union {
-		uint8_t*						ofhu_flow_stats;
+		uint8_t*										ofhu_flow_stats;
 		struct rofl::openflow10::ofp_flow_stats*		ofhu10_flow_stats;
 		struct rofl::openflow12::ofp_flow_stats*		ofhu12_flow_stats;
-		// TODO: OF1.3
+		struct rofl::openflow13::ofp_flow_stats*		ofhu13_flow_stats;
 	} ofhu;
 
 #define ofh_flow_stats   			ofhu.ofhu_flow_stats
 #define ofh10_flow_stats 			ofhu.ofhu10_flow_stats
 #define ofh12_flow_stats 			ofhu.ofhu12_flow_stats
-// TODO OF1.3
+#define ofh13_flow_stats 			ofhu.ofhu13_flow_stats
 
 public:
 
@@ -181,7 +183,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofflow_stats_reply> const& flow_stats = std::vector<cofflow_stats_reply>(0));
+			rofl::openflow::cofflowstatsarray const& flow_stats = rofl::openflow::cofflowstatsarray());
 
 
 	/**
@@ -258,15 +260,15 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofflow_stats_reply>&
-	set_flow_stats();
+	rofl::openflow::cofflowstatsarray&
+	set_flow_stats_array() { return flowstatsarray; };
 
 
 	/**
 	 *
 	 */
-	std::vector<cofflow_stats_reply> const&
-	get_flow_stats() const;
+	rofl::openflow::cofflowstatsarray const&
+	get_flow_stats_array() const { return flowstatsarray; };
 
 
 public:
@@ -276,10 +278,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_flow_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofflow_stats_reply>::const_iterator
-				it = msg.flow_stats.begin(); it != msg.flow_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.flowstatsarray;
 		return os;
 	};
 };

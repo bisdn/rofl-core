@@ -484,7 +484,7 @@ public:
 	virtual void
 	send_flow_stats_reply(
 		uint32_t xid,
-		std::vector<cofflow_stats_reply> const& flow_stats,
+		cofflowstatsarray const& flow_stats,
 		uint16_t stats_flags = 0);
 
 	/**

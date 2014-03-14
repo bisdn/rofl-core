@@ -99,21 +99,9 @@ etherswitch::handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg,
 		return;
 	}
 
-	std::vector<cofflow_stats_reply>& replies = msg.set_flow_stats();
-
-	std::vector<cofflow_stats_reply>::iterator it;
-	for (it = replies.begin(); it != replies.end(); ++it) {
-		switch (it->get_version()) {
-		case openflow12::OFP_VERSION: {
-			std::cerr << "FLOW-STATS-REPLY: " << std::endl;
-			std::cerr << "match: " << it->get_match() << std::endl;
-			std::cerr << "instructions: " << it->get_instructions() << std::endl;
-		} break;
-		default: {
-			// do nothing
-		} break;
-		}
-	}
+	rofl::openflow::cofflowstatsarray& replies = msg.set_flow_stats_array();
+	std::cerr << "FLOW-STATS-REPLY: " << std::endl;
+	std::cerr << replies;
 }
 
 

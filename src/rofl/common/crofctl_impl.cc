@@ -806,7 +806,7 @@ crofctl_impl::send_desc_stats_reply(
 void
 crofctl_impl::send_flow_stats_reply(
 	uint32_t xid,
-	std::vector<cofflow_stats_reply> const& flow_stats,
+	cofflowstatsarray const& flowstatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -819,7 +819,7 @@ crofctl_impl::send_flow_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					flow_stats);
+					flowstatsarray);
 
 	rofchan.send_message(msg, 0);
 }
