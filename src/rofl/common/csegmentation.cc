@@ -78,9 +78,9 @@ csegmsg const&
 csegmentation::get_transaction(uint32_t xid) const
 {
 	if (segmsgs.find(xid) == segmsgs.end()) {
-		throw;
+		throw eSegmentationNotFound();
 	}
-	return segmsgs[xid];
+	return segmsgs.at(xid);
 }
 
 

@@ -14,6 +14,7 @@
 
 #include "rofl/common/cclock.h"
 #include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_desc_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_flow_stats.h"
@@ -34,9 +35,14 @@ class csegmsg {
 
 	cclock				expires;	// time this cmultipart message will expire
 	uint32_t 			xid;		// transaction id used by this multipart message
-	cofmsg_stats*		msg;		// stitched multipart message
+	cofmsg_stats*		msg;		// stitched multipart message, allocated on heap
 
 public:
+
+	/**
+	 *
+	 */
+	csegmsg();
 
 	/**
 	 *
@@ -52,14 +58,42 @@ public:
 	/**
 	 *
 	 */
-	csegmsg(csegmsg const& msg);
+	csegmsg(csegmsg const& segmsg);
 
 	/**
 	 *
 	 */
 	csegmsg&
-	operator= (csegmsg const& msg);
+	operator= (csegmsg const& segmsg);
 
+public:
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_xid() const { return xid; };
+
+	/**
+	 *
+	 */
+	cofmsg_stats const&
+	get_msg() const { return *msg; };
+
+
+public:
+
+	/**
+	 * @brief	Merges payload from msg within this->msg. Checks stats sub-type first.
+	 */
+	void
+	store_and_merge_msg(cofmsg_stats const& msg);
+
+	/**
+	 * @brief	Returns pointer to this->msg and sets this->msg to NULL. The object resides on heap and must be destroyed by the calling entity.
+	 */
+	cofmsg_stats*
+	retrieve_and_detach_msg();
 
 public:
 

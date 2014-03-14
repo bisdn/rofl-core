@@ -23,6 +23,7 @@ extern "C" {
 #include "rofl/common/openflow/cofhelloelems.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
+#include "rofl/common/csegmentation.h"
 
 namespace rofl {
 namespace openflow {
@@ -59,6 +60,7 @@ class crofconn :
 	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
 	std::map<int, uint32_t>			timer_ids;				// timer-ids obtained from ciosrv
+	csegmentation					sar;					// segmentation and reassembly for multipart messages
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,

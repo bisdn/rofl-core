@@ -20,6 +20,10 @@
 namespace rofl {
 namespace openflow {
 
+class eSegmentationBase 		: public RoflException {};
+class eSegmentationInval		: public eSegmentationBase {};
+class eSegmentationNotFound		: public eSegmentationBase {};
+
 class csegmentation {
 
 	std::map<uint32_t, csegmsg> 		segmsgs;		// all current pending transactions with fragments

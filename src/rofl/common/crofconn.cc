@@ -506,11 +506,11 @@ crofconn::recv_message(
 
 		switch (msg->get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-#if 0
+
 			// start new or continue pending transaction
 			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
 
-				sar.set_transaction(msg->get_xid()).append_msg(msg);
+				sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<cofmsg_stats const&>(*msg));
 				delete msg; // delete msg here, we store a copy in the transaction
 
 			// end pending transaction or multipart message with single message only
@@ -518,10 +518,15 @@ crofconn::recv_message(
 
 				if (sar.has_transaction(msg->get_xid())) {
 
-					sar.set_transaction(msg->get_xid()).append_msg(msg);
+					sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<cofmsg_stats const&>(*msg));
+
+					cofmsg* reassembled_msg = sar.set_transaction(msg->get_xid()).retrieve_and_detach_msg();
+
+					sar.drop_transaction(msg->get_xid());
+
 					delete msg; // delete msg here, we may get an exception from the next line
 
-					env->recv_message(this, sar.set_transaction(msg->get_xid()).set_msg());
+					env->recv_message(this, reassembled_msg);
 
 				} else {
 					// do not delete msg here, will be done by higher layers
@@ -530,7 +535,7 @@ crofconn::recv_message(
 				}
 
 			}
-#endif
+
 		} break;
 		default: {
 			// no segmentation and reassembly below OF13, so send message directly to rofchan
