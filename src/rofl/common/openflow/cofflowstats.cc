@@ -665,26 +665,77 @@ cofflow_stats_reply::get_byte_count() const
 
 
 
-cofmatch&
-cofflow_stats_reply::get_match()
+void
+cofflow_stats_reply::set_table_id(uint8_t table_id)
 {
-	return match;
+	this->table_id = table_id;
 }
 
 
 
-cofactions&
-cofflow_stats_reply::get_actions()
+void
+cofflow_stats_reply::set_duration_sec(uint32_t duration_sec)
 {
-	return actions;
+	this->duration_sec = duration_sec;
 }
 
 
 
-cofinstructions&
-cofflow_stats_reply::get_instructions()
+void
+cofflow_stats_reply::set_duration_nsec(uint32_t duration_nsec)
 {
-	return instructions;
+	this->duration_nsec = duration_nsec;
 }
+
+
+
+void
+cofflow_stats_reply::set_priority(uint16_t priority)
+{
+	this->priority = priority;
+}
+
+
+
+void
+cofflow_stats_reply::set_idle_timeout(uint16_t idle_timeout)
+{
+	this->idle_timeout = idle_timeout;
+}
+
+
+
+void
+cofflow_stats_reply::set_hard_timeout(uint16_t hard_timeout)
+{
+	this->hard_timeout = hard_timeout;
+}
+
+
+
+void
+cofflow_stats_reply::set_cookie(uint64_t cookie)
+{
+	this->cookie = cookie;
+}
+
+
+
+void
+cofflow_stats_reply::set_packet_count(uint64_t packet_count)
+{
+	this->packet_count = packet_count;
+}
+
+
+
+void
+cofflow_stats_reply::set_byte_count(uint64_t byte_count)
+{
+	this->byte_count = byte_count;
+}
+
+
+
 
 

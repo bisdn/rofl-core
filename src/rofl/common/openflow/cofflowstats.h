@@ -408,23 +408,108 @@ public:
 	uint64_t
 	get_byte_count() const;
 
+
+
+
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_table_id(uint8_t table_id);
+
+	/**
+	 *
+	 */
+	void
+	set_duration_sec(uint32_t duration_sec);
+
+	/**
+	 *
+	 */
+	void
+	set_duration_nsec(uint32_t duration_nsec);
+
+	/**
+	 *
+	 */
+	void
+	set_priority(uint16_t priority);
+
+	/**
+	 *
+	 */
+	void
+	set_idle_timeout(uint16_t idle_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_hard_timeout(uint16_t hard_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_cookie(uint64_t cookie);
+
+	/**
+	 *
+	 */
+	void
+	set_packet_count(uint64_t packet_count);
+
+	/**
+	 *
+	 */
+	void
+	set_byte_count(uint64_t byte_count);
+
+
+
+
+
+
 	/**
 	 *
 	 */
 	cofmatch&
-	get_match();
+	set_match() { return match; };
 
 	/**
 	 *
 	 */
 	cofactions&
-	get_actions();
+	set_actions() { return actions; };
 
 	/**
 	 *
 	 */
 	cofinstructions&
-	get_instructions();
+	set_instructions() { return instructions; };
+
+
+	/**
+	 *
+	 */
+	cofmatch const&
+	get_match() const { return match; };
+
+	/**
+	 *
+	 */
+	cofactions const&
+	get_actions() const { return actions; };
+
+	/**
+	 *
+	 */
+	cofinstructions const&
+	get_instructions() const { return instructions; };
+
 
 public:
 
