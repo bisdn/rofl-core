@@ -31,6 +31,10 @@
 namespace rofl {
 namespace openflow {
 
+class eSegmentedMessageBase			: public RoflException {};
+class eSegmentedMessageInval		: public eSegmentedMessageBase {};
+class eSegmentedMessageNotFound		: public eSegmentedMessageBase {};
+
 class csegmsg {
 
 	cclock				expires;	// time this cmultipart message will expire
@@ -94,6 +98,14 @@ public:
 	 */
 	cofmsg_stats*
 	retrieve_and_detach_msg();
+
+private:
+
+	/**
+	 *
+	 */
+	void
+	clone(cofmsg_stats const& msg);
 
 public:
 

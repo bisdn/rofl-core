@@ -117,7 +117,9 @@ library_include_HEADERS= \
 		thread_helper.h \
 		ctransaction.h \
 		ctransactions.h \
-		logging.h
+		logging.h \
+		csegmentation.h \
+		csegmsg.h
 
 if HAVE_OPENSSL
 library_include_HEADERS += \

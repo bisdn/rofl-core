@@ -54,6 +54,13 @@ public:
 	operator= (
 			coftables const& tables);
 
+	/**
+	 *
+	 */
+	coftables&
+	operator+= (
+			coftables const& tables);
+
 
 public:
 
