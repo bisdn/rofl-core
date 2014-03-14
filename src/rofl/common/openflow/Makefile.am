@@ -47,6 +47,8 @@ libopenflow_la_SOURCES= \
 	cofaggrstats.cc \
 	coftablestats.h \
 	coftablestats.cc \
+	coftablestatsarray.h \
+	coftablestatsarray.cc \
 	cofportstats.h \
 	cofportstats.cc \
 	cofportstatsarray.h \
@@ -124,6 +126,7 @@ library_include_HEADERS = \
 	cofflowstats.h \
 	cofaggrstats.h \
 	coftablestats.h \
+	coftablestatsarray.h \
 	cofportstats.h \
 	cofportstatsarray.h \
 	cofqueuestats.h \

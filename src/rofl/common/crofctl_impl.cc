@@ -852,7 +852,7 @@ crofctl_impl::send_aggr_stats_reply(
 void
 crofctl_impl::send_table_stats_reply(
 	uint32_t xid,
-	std::vector<coftable_stats_reply> const& table_stats,
+	coftablestatsarray const& tablestatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -865,7 +865,7 @@ crofctl_impl::send_table_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					table_stats);
+					tablestatsarray);
 
 	rofchan.send_message(msg, 0);
 }

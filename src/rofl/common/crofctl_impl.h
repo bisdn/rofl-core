@@ -510,7 +510,7 @@ public:
 	virtual void
 	send_table_stats_reply(
 		uint32_t xid,
-		std::vector<coftable_stats_reply> const& table_stats,
+		coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -523,7 +523,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		cofportstatsarray const& port_stats,
+		cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**

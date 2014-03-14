@@ -15,6 +15,7 @@
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
 #include "rofl/common/openflow/coftables.h"
+#include "rofl/common/openflow/coftablestatsarray.h"
 #include "rofl/common/openflow/cofportstatsarray.h"
 #include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
@@ -285,7 +286,7 @@ public:
 	virtual void
 	send_table_stats_reply(
 		uint32_t xid,
-		std::vector<coftable_stats_reply> const& table_stats,
+		rofl::openflow::coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
