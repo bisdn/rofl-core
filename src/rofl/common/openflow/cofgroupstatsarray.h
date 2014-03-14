@@ -16,40 +16,40 @@
 namespace rofl {
 namespace openflow {
 
-class cofgroups {
+class cofgroupstatsarray {
 
 	uint8_t											ofp_version;
-	std::map<uint32_t, cofgroup_stats_reply>		groups;
+	std::map<uint32_t, cofgroup_stats_reply>		array;
 
 public:
 
 	/**
 	 *
 	 */
-	cofgroups(uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+	cofgroupstatsarray(uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 	/**
 	 *
 	 */
 	virtual
-	~cofgroups();
+	~cofgroupstatsarray();
 
 	/**
 	 *
 	 */
-	cofgroups(cofgroups const& groups);
+	cofgroupstatsarray(cofgroupstatsarray const& groups);
 
 	/**
 	 *
 	 */
-	cofgroups&
-	operator= (cofgroups const& groups);
+	cofgroupstatsarray&
+	operator= (cofgroupstatsarray const& groups);
 
 	/**
 	 *
 	 */
-	cofgroups&
-	operator+= (cofgroups const& groups);
+	cofgroupstatsarray&
+	operator+= (cofgroupstatsarray const& groups);
 
 public:
 
@@ -77,7 +77,7 @@ public:
 	 *
 	 */
 	void
-	clear() { groups.clear(); };
+	clear() { array.clear(); };
 
 public:
 
@@ -85,40 +85,40 @@ public:
 	 *
 	 */
 	cofgroup_stats_reply&
-	add_group(uint32_t group_id);
+	add_group_stats(uint32_t group_id);
 
 	/**
 	 *
 	 */
 	void
-	drop_group(uint32_t group_id);
+	drop_group_stats(uint32_t group_id);
 
 	/**
 	 *
 	 */
 	cofgroup_stats_reply&
-	set_group(uint32_t group_id);
+	set_group_stats(uint32_t group_id);
 
 	/**
 	 *
 	 */
 	cofgroup_stats_reply const&
-	get_group(uint32_t group_id);
+	get_group_stats(uint32_t group_id);
 
 	/**
 	 *
 	 */
 	bool
-	has_group(uint32_t group_id);
+	has_group_stats(uint32_t group_id);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofgroups const& groups) {
-		os << "<cofgroups #groups:" << (int)groups.groups.size() << " >" << std::endl;
+	operator<< (std::ostream& os, cofgroupstatsarray const& groupstatsarray) {
+		os << "<cofgroupstatsarray #groups:" << (int)groupstatsarray.array.size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<uint32_t, cofgroup_stats_reply>::const_iterator
-				it = groups.groups.begin(); it != groups.groups.end(); ++it) {
+				it = groupstatsarray.array.begin(); it != groupstatsarray.array.end(); ++it) {
 			os << it->second;
 		}
 		return os;

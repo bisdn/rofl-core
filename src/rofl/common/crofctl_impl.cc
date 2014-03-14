@@ -921,7 +921,7 @@ crofctl_impl::send_queue_stats_reply(
 void
 crofctl_impl::send_group_stats_reply(
 	uint32_t xid,
-	cofgroups const& groups,
+	cofgroupstatsarray const& groups,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {

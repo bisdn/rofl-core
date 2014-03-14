@@ -219,7 +219,7 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		rofl::openflow::cofgroups const& groups) :
+		rofl::openflow::cofgroupstatsarray const& groups) :
 	cofmsg_stats_reply(of_version, xid, 0, flags),
 	groups(groups)
 {

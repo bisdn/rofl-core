@@ -5,42 +5,42 @@
  *      Author: andreas
  */
 
-#include "rofl/common/openflow/cofgroups.h"
+#include "rofl/common/openflow/cofgroupstatsarray.h"
 
 using namespace rofl::openflow;
 
 
-cofgroups::cofgroups(uint8_t ofp_version) :
+cofgroupstatsarray::cofgroupstatsarray(uint8_t ofp_version) :
 		ofp_version(ofp_version)
 {
 
 }
 
 
-cofgroups::~cofgroups()
+cofgroupstatsarray::~cofgroupstatsarray()
 {
 
 }
 
 
-cofgroups::cofgroups(cofgroups const& groups)
+cofgroupstatsarray::cofgroupstatsarray(cofgroupstatsarray const& groups)
 {
 	*this = groups;
 }
 
 
-cofgroups&
-cofgroups::operator= (cofgroups const& groups)
+cofgroupstatsarray&
+cofgroupstatsarray::operator= (cofgroupstatsarray const& groups)
 {
 	if (this == &groups)
 		return *this;
 
-	this->groups.clear();
+	this->array.clear();
 
 	ofp_version = groups.ofp_version;
 	for (std::map<uint32_t, cofgroup_stats_reply>::const_iterator
-			it = groups.groups.begin(); it != groups.groups.end(); ++it) {
-		this->groups[it->first] = it->second;
+			it = groups.array.begin(); it != groups.array.end(); ++it) {
+		this->array[it->first] = it->second;
 	}
 
 	return *this;
@@ -48,15 +48,15 @@ cofgroups::operator= (cofgroups const& groups)
 
 
 
-cofgroups&
-cofgroups::operator+= (cofgroups const& groups)
+cofgroupstatsarray&
+cofgroupstatsarray::operator+= (cofgroupstatsarray const& groups)
 {
 	/*
 	 * this may replace existing group descriptions
 	 */
 	for (std::map<uint32_t, cofgroup_stats_reply>::const_iterator
-			it = groups.groups.begin(); it != groups.groups.end(); ++it) {
-		this->groups[it->first] = it->second;
+			it = groups.array.begin(); it != groups.array.end(); ++it) {
+		this->array[it->first] = it->second;
 	}
 
 	return *this;
@@ -65,11 +65,11 @@ cofgroups::operator+= (cofgroups const& groups)
 
 
 size_t
-cofgroups::length() const
+cofgroupstatsarray::length() const
 {
 	size_t len = 0;
 	for (std::map<uint32_t, cofgroup_stats_reply>::const_iterator
-			it = groups.begin(); it != groups.end(); ++it) {
+			it = array.begin(); it != array.end(); ++it) {
 		len += it->second.length();
 	}
 	return len;
@@ -78,7 +78,7 @@ cofgroups::length() const
 
 
 void
-cofgroups::pack(uint8_t *buf, size_t buflen)
+cofgroupstatsarray::pack(uint8_t *buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
@@ -91,7 +91,7 @@ cofgroups::pack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		for (std::map<uint32_t, cofgroup_stats_reply>::iterator
-				it = groups.begin(); it != groups.end(); ++it) {
+				it = array.begin(); it != array.end(); ++it) {
 			it->second.pack(buf, it->second.length());
 			buf += it->second.length();
 		}
@@ -105,9 +105,9 @@ cofgroups::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofgroups::unpack(uint8_t *buf, size_t buflen)
+cofgroupstatsarray::unpack(uint8_t *buf, size_t buflen)
 {
-	groups.clear();
+	array.clear();
 
 	switch (ofp_version) {
 	case rofl::openflow12::OFP_VERSION:
@@ -122,7 +122,7 @@ cofgroups::unpack(uint8_t *buf, size_t buflen)
 
 			uint32_t group_id = be32toh(((struct rofl::openflow12::ofp_group_stats*)buf)->group_id);
 
-			add_group(group_id).unpack(buf, length);
+			add_group_stats(group_id).unpack(buf, length);
 		}
 	} break;
 	default:
@@ -133,50 +133,50 @@ cofgroups::unpack(uint8_t *buf, size_t buflen)
 
 
 rofl::cofgroup_stats_reply&
-cofgroups::add_group(uint32_t group_id)
+cofgroupstatsarray::add_group_stats(uint32_t group_id)
 {
-	if (groups.find(group_id) != groups.end()) {
-		groups.erase(group_id);
+	if (array.find(group_id) != array.end()) {
+		array.erase(group_id);
 	}
-	return (groups[group_id] = cofgroup_stats_reply(ofp_version));
+	return (array[group_id] = cofgroup_stats_reply(ofp_version));
 }
 
 
 
 void
-cofgroups::drop_group(uint32_t group_id)
+cofgroupstatsarray::drop_group_stats(uint32_t group_id)
 {
-	if (groups.find(group_id) == groups.end()) {
+	if (array.find(group_id) == array.end()) {
 		return;
 	}
-	groups.erase(group_id);
+	array.erase(group_id);
 }
 
 
 
 rofl::cofgroup_stats_reply&
-cofgroups::set_group(uint32_t group_id)
+cofgroupstatsarray::set_group_stats(uint32_t group_id)
 {
-	return (groups[group_id] = cofgroup_stats_reply(ofp_version));
+	return (array[group_id] = cofgroup_stats_reply(ofp_version));
 }
 
 
 
 rofl::cofgroup_stats_reply const&
-cofgroups::get_group(uint32_t group_id)
+cofgroupstatsarray::get_group_stats(uint32_t group_id)
 {
-	if (groups.find(group_id) == groups.end()) {
+	if (array.find(group_id) == array.end()) {
 		throw;
 	}
-	return groups.at(group_id);
+	return array.at(group_id);
 }
 
 
 
 bool
-cofgroups::has_group(uint32_t group_id)
+cofgroupstatsarray::has_group_stats(uint32_t group_id)
 {
-	return (not (groups.find(group_id) == groups.end()));
+	return (not (array.find(group_id) == array.end()));
 }
 
 

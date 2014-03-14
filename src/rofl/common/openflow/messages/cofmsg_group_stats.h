@@ -9,8 +9,8 @@
 #define COFMSG_GROUP_STATS_H_ 1
 
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
+#include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupstats.h"
-#include "rofl/common/openflow/cofgroups.h"
 
 namespace rofl
 {
@@ -155,7 +155,7 @@ class cofmsg_group_stats_reply :
 {
 private:
 
-	rofl::openflow::cofgroups							groups;
+	rofl::openflow::cofgroupstatsarray							groups;
 
 	union {
 		uint8_t*										ofhu_group_stats;
@@ -177,7 +177,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			rofl::openflow::cofgroups const& groups = rofl::openflow::cofgroups());
+			rofl::openflow::cofgroupstatsarray const& groups = rofl::openflow::cofgroupstatsarray());
 
 
 	/**
@@ -254,13 +254,13 @@ public:
 	/**
 	 *
 	 */
-	rofl::openflow::cofgroups&
+	rofl::openflow::cofgroupstatsarray&
 	set_groups() { return groups; };
 
 	/**
 	 *
 	 */
-	rofl::openflow::cofgroups const&
+	rofl::openflow::cofgroupstatsarray const&
 	get_groups() const { return groups; };
 
 public:
