@@ -116,7 +116,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofgroupdescs const& groupdescs) {
-
+		os << rofl::indent(0) << "<cofgroupdescs #groups:" << (int)groupdescs.groupdescs.size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
+				it = groupdescs.groupdescs.begin(); it != groupdescs.groupdescs.end(); ++it) {
+			os << it->second;
+		}
 		return os;
 	}
 };

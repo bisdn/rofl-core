@@ -921,7 +921,7 @@ crofctl_impl::send_queue_stats_reply(
 void
 crofctl_impl::send_group_stats_reply(
 	uint32_t xid,
-	std::vector<cofgroup_stats_reply> const& group_stats,
+	cofgroups const& groups,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -934,7 +934,7 @@ crofctl_impl::send_group_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					group_stats);
+					groups);
 
 	rofchan.send_message(msg, 0);
 }

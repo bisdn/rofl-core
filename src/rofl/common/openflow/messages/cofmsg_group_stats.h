@@ -8,10 +8,9 @@
 #ifndef COFMSG_GROUP_STATS_H_
 #define COFMSG_GROUP_STATS_H_ 1
 
-#include <vector>
-
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofgroupstats.h"
+#include "rofl/common/openflow/cofgroups.h"
 
 namespace rofl
 {
@@ -156,7 +155,7 @@ class cofmsg_group_stats_reply :
 {
 private:
 
-	std::vector<cofgroup_stats_reply> 	group_stats;
+	rofl::openflow::cofgroups							groups;
 
 	union {
 		uint8_t*										ofhu_group_stats;
@@ -178,7 +177,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofgroup_stats_reply> const& group_stats = std::vector<cofgroup_stats_reply>(0));
+			rofl::openflow::cofgroups const& groups = rofl::openflow::cofgroups());
 
 
 	/**
@@ -255,14 +254,14 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofgroup_stats_reply>&
-	set_group_stats();
+	rofl::openflow::cofgroups&
+	set_groups() { return groups; };
 
 	/**
 	 *
 	 */
-	std::vector<cofgroup_stats_reply> const&
-	get_group_stats() const;
+	rofl::openflow::cofgroups const&
+	get_groups() const { return groups; };
 
 public:
 
@@ -271,10 +270,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_group_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofgroup_stats_reply>::const_iterator
-				it = msg.group_stats.begin(); it != msg.group_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.groups;
 		return os;
 	};
 };

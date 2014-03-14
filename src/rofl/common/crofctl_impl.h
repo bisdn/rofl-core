@@ -549,7 +549,7 @@ public:
 	virtual void
 	send_group_stats_reply(
 		uint32_t xid,
-		std::vector<cofgroup_stats_reply> const& group_stats,
+		cofgroups const& groups,
 		uint16_t stats_flags = 0);
 
 	/**
