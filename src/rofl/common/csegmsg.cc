@@ -210,7 +210,7 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 				cofmsg_group_stats_reply const& msg_group_stats =
 						dynamic_cast<cofmsg_group_stats_reply const&>(msg_stats);
 
-				msg_group->set_groups() += msg_group_stats.get_groups();
+				msg_group->set_group_stats_array() += msg_group_stats.get_group_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_GROUP_DESC: {
@@ -221,7 +221,7 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 				cofmsg_group_desc_stats_reply const& msg_group_stats =
 						dynamic_cast<cofmsg_group_desc_stats_reply const&>(msg_stats);
 
-				msg_group->set_group_descs() += msg_group_stats.get_group_descs();
+				msg_group->set_group_desc_stats_array() += msg_group_stats.get_group_desc_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {

@@ -155,7 +155,7 @@ class cofmsg_group_stats_reply :
 {
 private:
 
-	rofl::openflow::cofgroupstatsarray							groups;
+	rofl::openflow::cofgroupstatsarray					groupstatsarray;
 
 	union {
 		uint8_t*										ofhu_group_stats;
@@ -255,13 +255,13 @@ public:
 	 *
 	 */
 	rofl::openflow::cofgroupstatsarray&
-	set_groups() { return groups; };
+	set_group_stats_array() { return groupstatsarray; };
 
 	/**
 	 *
 	 */
 	rofl::openflow::cofgroupstatsarray const&
-	get_groups() const { return groups; };
+	get_group_stats_array() const { return groupstatsarray; };
 
 public:
 
@@ -270,7 +270,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_group_stats_reply >" << std::endl;
 		indent i(4);
-		os << msg.groups;
+		os << msg.groupstatsarray;
 		return os;
 	};
 };

@@ -55,8 +55,8 @@ libopenflow_la_SOURCES= \
 	cofgroupstatsarray.cc \
 	cofgroupstats.h \
 	cofgroupstats.cc \
-	cofgroupdescs.h \
-	cofgroupdescs.cc \
+	cofgroupdescstatsarray.h \
+	cofgroupdescstatsarray.cc \
 	cofgroupdescstats.h \
 	cofgroupdescstats.cc \
 	cofgroupfeaturesstats.h \
@@ -124,7 +124,7 @@ library_include_HEADERS = \
 	cofqueuestats.h \
 	cofgroupstatsarray.h \
 	cofgroupstats.h \
-	cofgroupdescs.h \
+	cofgroupdescstatsarray.h \
 	cofgroupdescstats.h \
 	cofgroupfeaturesstats.h \
 	cofqueueprop.h \

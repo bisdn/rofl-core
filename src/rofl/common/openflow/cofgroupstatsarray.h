@@ -5,8 +5,8 @@
  *      Author: andreas
  */
 
-#ifndef COFGROUPS_H_
-#define COFGROUPS_H_
+#ifndef COFGROUPSTATSARRAY_H_
+#define COFGROUPSTATSARRAY_H_
 
 #include <iostream>
 #include <map>

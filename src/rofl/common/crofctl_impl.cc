@@ -944,7 +944,7 @@ crofctl_impl::send_group_stats_reply(
 void
 crofctl_impl::send_group_desc_stats_reply(
 	uint32_t xid,
-	cofgroupdescs const& groupdescs,
+	cofgroupdescstatsarray const& groupdescs,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {

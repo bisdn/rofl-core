@@ -16,7 +16,7 @@
 #include "rofl/common/openflow/cofpacketqueuelist.h"
 #include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
-#include "rofl/common/openflow/cofgroupdescs.h"
+#include "rofl/common/openflow/cofgroupdescstatsarray.h"
 
 
 
@@ -335,7 +335,7 @@ public:
 	virtual void
 	send_group_desc_stats_reply(
 		uint32_t xid,
-		rofl::openflow::cofgroupdescs const& groupdescs,
+		rofl::openflow::cofgroupdescstatsarray const& groupdescs,
 		uint16_t stats_flags = 0) = 0;
 
 	/**

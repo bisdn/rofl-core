@@ -169,9 +169,9 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		rofl::openflow::cofgroupdescs const& groupdescs) :
+		rofl::openflow::cofgroupdescstatsarray const& groupdescstatsarray) :
 	cofmsg_stats_reply(of_version, xid, 0, flags),
-	groupdescs(groupdescs)
+	groupdescstatsarray(groupdescstatsarray)
 {
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
@@ -198,7 +198,7 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats_reply(memarea),
-	groupdescs(get_version())
+	groupdescstatsarray(get_version())
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
@@ -277,10 +277,10 @@ cofmsg_group_desc_stats_reply::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + groupdescs.length());
+		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + groupdescstatsarray.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + groupdescs.length());
+		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + groupdescstatsarray.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -303,10 +303,10 @@ cofmsg_group_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
-		groupdescs.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), groupdescs.length());
+		groupdescstatsarray.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), groupdescstatsarray.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		groupdescs.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), groupdescs.length());
+		groupdescstatsarray.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), groupdescstatsarray.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -330,19 +330,19 @@ cofmsg_group_desc_stats_reply::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
-	groupdescs.clear();
+	groupdescstatsarray.clear();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
 		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_reply)))
 			throw eBadSyntaxTooShort();
-		groupdescs.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply), get_length() - sizeof(struct rofl::openflow12::ofp_stats_reply));
+		groupdescstatsarray.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply), get_length() - sizeof(struct rofl::openflow12::ofp_stats_reply));
 
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_reply)))
 			throw eBadSyntaxTooShort();
-		groupdescs.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply), get_length() - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+		groupdescstatsarray.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply), get_length() - sizeof(struct rofl::openflow13::ofp_multipart_reply));
 
 	} break;
 	default:

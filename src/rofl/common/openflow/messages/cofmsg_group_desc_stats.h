@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
-#include "rofl/common/openflow/cofgroupdescs.h"
+#include "rofl/common/openflow/cofgroupdescstatsarray.h"
 
 namespace rofl
 {
@@ -126,7 +126,7 @@ class cofmsg_group_desc_stats_reply :
 {
 private:
 
-	rofl::openflow::cofgroupdescs 		groupdescs;
+	rofl::openflow::cofgroupdescstatsarray 				groupdescstatsarray;
 
 	union {
 		uint8_t*										ofhu_group_desc_stats;
@@ -148,7 +148,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			rofl::openflow::cofgroupdescs const& groupdescs = rofl::openflow::cofgroupdescs());
+			rofl::openflow::cofgroupdescstatsarray const& groupdescs = rofl::openflow::cofgroupdescstatsarray());
 
 
 	/**
@@ -226,14 +226,14 @@ public:
 	/**
 	 *
 	 */
-	rofl::openflow::cofgroupdescs&
-	set_group_descs() { return groupdescs; };
+	rofl::openflow::cofgroupdescstatsarray&
+	set_group_desc_stats_array() { return groupdescstatsarray; };
 
 	/**
 	 *
 	 */
-	rofl::openflow::cofgroupdescs const&
-	get_group_descs() const { return groupdescs; };
+	rofl::openflow::cofgroupdescstatsarray const&
+	get_group_desc_stats_array() const { return groupdescstatsarray; };
 
 
 public:
@@ -243,7 +243,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_group_desc_stats_reply >" << std::endl;
 		indent i(4);
-		os << msg.groupdescs;
+		os << msg.groupdescstatsarray;
 		return os;
 	};
 };
