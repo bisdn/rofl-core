@@ -220,13 +220,28 @@ coftable_stats_reply::set_table_id(uint8_t table_id)
 
 
 
-std::string&
-coftable_stats_reply::set_name()
+std::string const&
+coftable_stats_reply::get_name() const
 {
 	switch (of_version) {
 	case rofl::openflow10::OFP_VERSION:
 	case rofl::openflow12::OFP_VERSION: {
 		return name;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+coftable_stats_reply::set_name(std::string const& name)
+{
+	switch (of_version) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION: {
+		this->name = name;
 	} break;
 	default:
 		throw eBadVersion();
@@ -489,12 +504,41 @@ coftable_stats_reply::set_instructions(uint32_t instructions)
 
 
 
-uint32_t&
-coftable_stats_reply::get_config()
+void
+coftable_stats_reply::set_config(uint32_t config)
+{
+	switch (of_version) {
+	case rofl::openflow12::OFP_VERSION: {
+		this->config = config;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint32_t
+coftable_stats_reply::get_config() const
 {
 	switch (of_version) {
 	case rofl::openflow12::OFP_VERSION: {
 		return config;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+coftable_stats_reply::set_max_entries(uint32_t max_entries)
+{
+	switch (of_version) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION: {
+		this->max_entries = max_entries;
 	} break;
 	default:
 		throw eBadVersion();
@@ -510,6 +554,22 @@ coftable_stats_reply::get_max_entries() const
 	case rofl::openflow10::OFP_VERSION:
 	case rofl::openflow12::OFP_VERSION: {
 		return max_entries;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+coftable_stats_reply::set_active_count(uint32_t active_count)
+{
+	switch (of_version) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		this->active_count = active_count;
 	} break;
 	default:
 		throw eBadVersion();
@@ -534,8 +594,24 @@ coftable_stats_reply::get_active_count() const
 
 
 
-uint64_t&
-coftable_stats_reply::get_lookup_count()
+void
+coftable_stats_reply::set_lookup_count(uint64_t lookup_count)
+{
+	switch (of_version) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		this->lookup_count = lookup_count;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint64_t
+coftable_stats_reply::get_lookup_count() const
 {
 	switch (of_version) {
 	case rofl::openflow10::OFP_VERSION:
@@ -550,8 +626,24 @@ coftable_stats_reply::get_lookup_count()
 
 
 
-uint64_t&
-coftable_stats_reply::get_matched_count()
+void
+coftable_stats_reply::set_matched_count(uint64_t matched_count)
+{
+	switch (of_version) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		this->matched_count = matched_count;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint64_t
+coftable_stats_reply::get_matched_count() const
 {
 	switch (of_version) {
 	case rofl::openflow10::OFP_VERSION:

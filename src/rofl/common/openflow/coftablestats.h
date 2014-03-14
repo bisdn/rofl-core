@@ -151,8 +151,14 @@ public:
 	/**
 	 *
 	 */
-	std::string&
-	set_name();
+	std::string const&
+	get_name() const;
+
+	/**
+	 *
+	 */
+	void
+	set_name(std::string const& name);
 
 	/**
 	 *
@@ -265,8 +271,20 @@ public:
 	/**
 	 *
 	 */
-	uint32_t&
-	get_config();
+	void
+	set_config(uint32_t config);
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_config() const;
+
+	/**
+	 *
+	 */
+	void
+	set_max_entries(uint32_t max_entries);
 
 	/**
 	 *
@@ -277,20 +295,38 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_active_count(uint32_t active_count);
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_active_count() const;
 
 	/**
 	 *
 	 */
-	uint64_t&
-	get_lookup_count();
+	void
+	set_lookup_count(uint64_t lookup_count);
 
 	/**
 	 *
 	 */
-	uint64_t&
-	get_matched_count();
+	uint64_t
+	get_lookup_count() const;
+
+	/**
+	 *
+	 */
+	void
+	set_matched_count(uint64_t matched_count);
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_matched_count() const;
 
 	/**
 	 *
