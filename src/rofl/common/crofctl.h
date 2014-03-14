@@ -15,6 +15,7 @@
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
 #include "rofl/common/openflow/coftables.h"
+#include "rofl/common/openflow/cofportstatsarray.h"
 #include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
@@ -297,7 +298,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		std::vector<cofport_stats_reply> const& port_stats,
+		rofl::openflow::cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**

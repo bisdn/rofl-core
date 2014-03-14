@@ -523,7 +523,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		std::vector<cofport_stats_reply> const& port_stats,
+		cofportstatsarray const& port_stats,
 		uint16_t stats_flags = 0);
 
 	/**

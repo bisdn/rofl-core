@@ -96,6 +96,7 @@ cofqueuestatsarray::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION:
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
@@ -122,8 +123,8 @@ cofqueuestatsarray::unpack(uint8_t *buf, size_t buflen)
 	array.clear();
 
 	switch (ofp_version) {
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION: {
 
 		while (buflen >= sizeof(struct rofl::openflow12::ofp_queue_stats)) {
 
@@ -134,6 +135,19 @@ cofqueuestatsarray::unpack(uint8_t *buf, size_t buflen)
 
 			buf += sizeof(struct rofl::openflow12::ofp_queue_stats);
 			buflen -= sizeof(struct rofl::openflow12::ofp_queue_stats);
+		}
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+
+		while (buflen >= sizeof(struct rofl::openflow13::ofp_queue_stats)) {
+
+			uint32_t port_no  = be32toh(((struct rofl::openflow13::ofp_queue_stats*)buf)->port_no);
+			uint32_t queue_id = be32toh(((struct rofl::openflow13::ofp_queue_stats*)buf)->queue_id);
+
+			add_queue_stats(port_no, queue_id).unpack(buf, sizeof(struct rofl::openflow13::ofp_queue_stats));
+
+			buf += sizeof(struct rofl::openflow13::ofp_queue_stats);
+			buflen -= sizeof(struct rofl::openflow13::ofp_queue_stats);
 		}
 	} break;
 	default:

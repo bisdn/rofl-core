@@ -875,7 +875,7 @@ crofctl_impl::send_table_stats_reply(
 void
 crofctl_impl::send_port_stats_reply(
 	uint32_t xid,
-	std::vector<cofport_stats_reply> const& port_stats,
+	cofportstatsarray const& portstatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -888,7 +888,7 @@ crofctl_impl::send_port_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					port_stats);
+					portstatsarray);
 
 	rofchan.send_message(msg, 0);
 }
