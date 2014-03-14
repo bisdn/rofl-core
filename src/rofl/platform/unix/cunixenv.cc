@@ -62,6 +62,7 @@ cunixenv::cunixenv(int argc, char** argv)
 	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
 	arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
 	arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
+	arguments.push_back(coption(true, NO_ARGUMENT, 't', "test-config", "Only test configuration", ""));
 	parsed = false;
 }
 
