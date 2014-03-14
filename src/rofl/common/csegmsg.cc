@@ -202,6 +202,17 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
 
 			switch (msg_stats.get_stats_type()) {
+			case rofl::openflow13::OFPMP_QUEUE: {
+
+				cofmsg_queue_stats_reply* msg_queue =
+						dynamic_cast<cofmsg_queue_stats_reply*>(msg);
+
+				cofmsg_queue_stats_reply const& msg_queue_stats =
+						dynamic_cast<cofmsg_queue_stats_reply const&>(msg_stats);
+
+				msg_queue->set_queue_stats_array() += msg_queue_stats.get_queue_stats_array();
+
+			} break;
 			case rofl::openflow13::OFPMP_GROUP: {
 
 				cofmsg_group_stats_reply* msg_group =

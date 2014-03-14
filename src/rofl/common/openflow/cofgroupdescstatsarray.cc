@@ -122,6 +122,9 @@ cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 			uint32_t group_id = be32toh(((struct rofl::openflow12::ofp_group_desc_stats*)buf)->group_id);
 
 			add_group_desc_stats(group_id).unpack(buf, length);
+
+			buf += length;
+			buflen -= length;
 		}
 	} break;
 	default:

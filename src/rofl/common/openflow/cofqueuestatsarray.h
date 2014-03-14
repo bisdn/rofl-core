@@ -1,0 +1,138 @@
+/*
+ * cofqueues.h
+ *
+ *  Created on: 14.03.2014
+ *      Author: andreas
+ */
+
+#ifndef COFQUEUESTATSARRAY_H_
+#define COFQUEUESTATSARRAY_H_
+
+#include <iostream>
+#include <map>
+
+#include "rofl/common/openflow/cofqueuestats.h"
+
+namespace rofl {
+namespace openflow {
+
+class cofqueuestatsarray {
+
+	uint8_t															ofp_version;
+	std::map<uint32_t, std::map<uint32_t, cofqueue_stats_reply>	>	array;
+
+public:
+
+	/**
+	 *
+	 */
+	cofqueuestatsarray(uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+
+	/**
+	 *
+	 */
+	virtual
+	~cofqueuestatsarray();
+
+	/**
+	 *
+	 */
+	cofqueuestatsarray(cofqueuestatsarray const& groups);
+
+	/**
+	 *
+	 */
+	cofqueuestatsarray&
+	operator= (cofqueuestatsarray const& groups);
+
+	/**
+	 *
+	 */
+	cofqueuestatsarray&
+	operator+= (cofqueuestatsarray const& groups);
+
+public:
+
+	/** returns length of packet in packed state
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	clear() { array.clear(); };
+
+public:
+
+	/**
+	 *
+	 */
+	cofqueue_stats_reply&
+	add_queue_stats(uint32_t port_no, uint32_t queue_id);
+
+	/**
+	 *
+	 */
+	void
+	drop_queue_stats(uint32_t port_no, uint32_t queue_id);
+
+	/**
+	 *
+	 */
+	cofqueue_stats_reply&
+	set_queue_stats(uint32_t port_no, uint32_t queue_id);
+
+	/**
+	 *
+	 */
+	cofqueue_stats_reply const&
+	get_queue_stats(uint32_t port_no, uint32_t queue_id);
+
+	/**
+	 *
+	 */
+	bool
+	has_queue_stats(uint32_t port_no, uint32_t queue_id);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofqueuestatsarray const& groupstatsarray) {
+		os << "<cofqueuestatsarray #ports:" << (int)groupstatsarray.array.size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::map<uint32_t, std::map<uint32_t, cofqueue_stats_reply> >::const_iterator
+				jt = groupstatsarray.array.begin(); jt != groupstatsarray.array.end(); ++jt) {
+			os << rofl::indent(0) << "<portno: " << (int)jt->first << " #queues: " << (int)jt->second.size() << " >" << std::endl;
+			rofl::indent j(2);
+			for (std::map<uint32_t, cofqueue_stats_reply>::const_iterator
+					it = jt->second.begin(); it != jt->second.end(); ++it) {
+				os << it->second;
+			}
+		}
+		return os;
+	}
+};
+
+}; // end of openflow
+}; // end of rofl
+
+
+
+#endif /* COFGROUPS_H_ */

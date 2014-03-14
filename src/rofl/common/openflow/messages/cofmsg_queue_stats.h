@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
+#include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofqueuestats.h"
 
 namespace rofl
@@ -146,10 +147,10 @@ class cofmsg_queue_stats_reply :
 {
 private:
 
-	std::vector<cofqueue_stats_reply> 	queue_stats;
+	rofl::openflow::cofqueuestatsarray					queuestatsarray;
 
 	union {
-		uint8_t*								ofhu_queue_stats;
+		uint8_t*										ofhu_queue_stats;
 		struct rofl::openflow10::ofp_queue_stats*		ofhu10_queue_stats;
 		struct rofl::openflow12::ofp_queue_stats*		ofhu12_queue_stats;
 		struct rofl::openflow13::ofp_queue_stats*		ofhu13_queue_stats;
@@ -170,7 +171,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofqueue_stats_reply> const& queue_stats = std::vector<cofqueue_stats_reply>(0));
+			rofl::openflow::cofqueuestatsarray const& queue_stats = rofl::openflow::cofqueuestatsarray());
 
 
 	/**
@@ -247,14 +248,14 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofqueue_stats_reply>&
-	set_queue_stats();
+	rofl::openflow::cofqueuestatsarray&
+	set_queue_stats_array() { return queuestatsarray; };
 
 	/**
 	 *
 	 */
-	std::vector<cofqueue_stats_reply> const&
-	get_queue_stats() const;
+	rofl::openflow::cofqueuestatsarray const&
+	get_queue_stats_array() const { return queuestatsarray; };
 
 public:
 
@@ -263,10 +264,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_queue_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofqueue_stats_reply>::const_iterator
-				it = msg.queue_stats.begin(); it != msg.queue_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.queuestatsarray;
 		return os;
 	};
 };

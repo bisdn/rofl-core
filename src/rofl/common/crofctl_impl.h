@@ -536,7 +536,7 @@ public:
 	virtual void
 	send_queue_stats_reply(
 		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
+		cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags);
 
 	/**
@@ -549,7 +549,7 @@ public:
 	virtual void
 	send_group_stats_reply(
 		uint32_t xid,
-		cofgroupstatsarray const& groups,
+		cofgroupstatsarray const& groupstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
