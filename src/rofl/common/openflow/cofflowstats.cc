@@ -549,7 +549,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 			matchlen += 8 - pad;
 		}
 
-		if (buflen < (sizeof(struct rofl::openflow12::ofp_flow_stats) - 4 + matchlen))
+		if (buflen < (sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + matchlen))
 			throw eInval();
 
 		match.unpack((uint8_t*)&(fs->match), matchlen);

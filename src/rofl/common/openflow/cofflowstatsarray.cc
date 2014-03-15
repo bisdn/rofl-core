@@ -201,7 +201,7 @@ cofflowstatsarray::set_flow_stats(uint32_t flow_id)
 
 
 cofflow_stats_reply const&
-cofflowstatsarray::get_flow_stats(uint32_t flow_id)
+cofflowstatsarray::get_flow_stats(uint32_t flow_id) const
 {
 	if (array.find(flow_id) == array.end()) {
 		throw eFlowStatsNotFound();

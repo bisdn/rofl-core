@@ -137,7 +137,6 @@ cofflowstatsarray_test::testPackUnpack()
 
 	rofl::openflow::cofflowstatsarray clone(rofl::openflow13::OFP_VERSION);
 	clone.unpack(marray.somem(), marray.memlen());
-	std::cerr << "TTTTTTTTTTTTTT" << std::endl;
 #ifdef DEBUG
 	std::cerr << "clone:" << std::endl << clone;
 #endif

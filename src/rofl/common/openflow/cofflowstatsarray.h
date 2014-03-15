@@ -109,7 +109,7 @@ public:
 	 *
 	 */
 	cofflow_stats_reply const&
-	get_flow_stats(uint32_t flow_id);
+	get_flow_stats(uint32_t flow_id) const;
 
 	/**
 	 *
