@@ -541,7 +541,7 @@ public:
 		switch (flow_stats_reply.of_version) {
 		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
 		case openflow12::OFP_VERSION: os << flow_stats_reply.instructions; break;
-		case openflow13::OFP_VERSION: throw eNotImplemented();
+		case openflow13::OFP_VERSION: os << flow_stats_reply.instructions; break;
 		default: os << "<unknown OFP version >" << std::endl;
 		}
 		return os;
