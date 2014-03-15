@@ -88,6 +88,12 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[0].set_duration_nsec(0xd1d2);
 	stats[0].set_idle_timeout(0x10);
 	stats[0].set_hard_timeout(0x20);
+	stats[0].set_match().set_arp_opcode(0x5555);
+	stats[0].set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
+	stats[0].set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
+	stats[0].set_match().set_eth_type(0x3333);
+	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
+	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_output(6);
 
 	stats[1].set_version(rofl::openflow13::OFP_VERSION);
 	stats[1].set_byte_count(0xa3a4);
@@ -96,6 +102,8 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[1].set_duration_nsec(0xd3d4);
 	stats[1].set_idle_timeout(0x30);
 	stats[1].set_hard_timeout(0x40);
+	stats[1].set_match().set_arp_opcode(0x8888);
+	stats[1].set_match().set_eth_dst(rofl::cmacaddr("44:44:44:44:44:44"));
 
 	std::cerr << "stats[0]=" << stats[0] << std::endl;
 	std::cerr << "stats[0].length()=" << (int)stats[0].length() << std::endl;
@@ -119,13 +127,20 @@ cofflowstatsarray_test::testPackUnpack()
 	rofl::cmemory marray(array.length());
 	array.pack(marray.somem(), marray.memlen());
 
-//#ifdef DEBUG
+#ifdef DEBUG
 	std::cerr << "array:" << std::endl << array;
 	std::cerr << "marray:" << std::endl << marray;
 	std::cerr << "mem:" << std::endl << mem;
-//#endif
+#endif
 
 	CPPUNIT_ASSERT(marray == mem);
+
+	rofl::openflow::cofflowstatsarray clone(rofl::openflow13::OFP_VERSION);
+	clone.unpack(marray.somem(), marray.memlen());
+	std::cerr << "TTTTTTTTTTTTTT" << std::endl;
+#ifdef DEBUG
+	std::cerr << "clone:" << std::endl << clone;
+#endif
 }
 
 

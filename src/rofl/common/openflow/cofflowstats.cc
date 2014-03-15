@@ -333,7 +333,9 @@ cofflow_stats_reply::cofflow_stats_reply(
 				cookie(0),
 				packet_count(0),
 				byte_count(0),
-				match(of_version)
+				match(of_version),
+				actions(of_version),
+				instructions(of_version)
 {
 	if ((buflen > 0) && (0 != buf)) {
 		unpack(buf, buflen);
