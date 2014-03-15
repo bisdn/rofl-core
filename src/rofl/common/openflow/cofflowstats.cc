@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofflowstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofflow_stats_request::cofflow_stats_request(
 		uint8_t of_version,
@@ -114,7 +114,7 @@ cofflow_stats_request::set_match(cofmatch const& match)
 
 
 
-cofmatch&
+rofl::cofmatch&
 cofflow_stats_request::get_match()
 {
 	return match;
@@ -586,6 +586,7 @@ cofflow_stats_reply::set_version(uint8_t of_version)
 {
 	this->actions.ofp_version = of_version;
 	this->instructions.ofp_version = of_version;
+	this->match.set_version(of_version);
 	this->of_version = of_version;
 }
 

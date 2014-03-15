@@ -79,6 +79,12 @@ public:
 	void
 	clear() { array.clear(); };
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
 public:
 
 	/**

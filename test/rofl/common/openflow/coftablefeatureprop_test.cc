@@ -341,6 +341,7 @@ coftablefeaturepropTest::testOxmClass()
 	prop.unpack(mem.somem(), mem.memlen());
 #ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
+	std::cerr << "mem:" << std::endl << mem << std::endl;
 #endif
 	CPPUNIT_ASSERT(6 == prop.get_oxm_ids().size());
 	CPPUNIT_ASSERT(2 == prop.get_oxm_ids_exp().size());
@@ -381,6 +382,8 @@ coftablefeaturepropTest::testOxmClass()
 		CPPUNIT_ASSERT(0 == 1);
 	}
 #ifdef DEBUG
+	std::cerr << "mem:" << std::endl << mem;
+	std::cerr << "get_oxm_ids().size() " << prop.get_oxm_ids().size() << std::endl;
 	std::cerr << "prop:" << std::endl << prop;
 #endif
 	CPPUNIT_ASSERT(0 == prop.get_oxm_ids().size());

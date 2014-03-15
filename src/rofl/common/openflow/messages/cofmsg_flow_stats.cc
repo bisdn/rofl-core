@@ -1,6 +1,6 @@
 #include "cofmsg_flow_stats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 

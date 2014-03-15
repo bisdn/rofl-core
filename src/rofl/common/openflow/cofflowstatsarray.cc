@@ -154,7 +154,7 @@ cofflowstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::cofflow_stats_reply&
+cofflow_stats_reply&
 cofflowstatsarray::add_flow_stats(uint32_t flow_id)
 {
 	if (array.find(flow_id) != array.end()) {
@@ -176,7 +176,7 @@ cofflowstatsarray::drop_flow_stats(uint32_t flow_id)
 
 
 
-rofl::cofflow_stats_reply&
+cofflow_stats_reply&
 cofflowstatsarray::set_flow_stats(uint32_t flow_id)
 {
 	return (array[flow_id] = cofflow_stats_reply(ofp_version));
@@ -184,11 +184,11 @@ cofflowstatsarray::set_flow_stats(uint32_t flow_id)
 
 
 
-rofl::cofflow_stats_reply const&
+cofflow_stats_reply const&
 cofflowstatsarray::get_flow_stats(uint32_t flow_id)
 {
 	if (array.find(flow_id) == array.end()) {
-		throw;
+		throw eFlowStatsNotFound();
 	}
 	return array.at(flow_id);
 }

@@ -15,8 +15,8 @@
 #include "rofl/common/openflow/cofflowstatsarray.h"
 
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 //
 // TODO: arrays of flow-stats !!!
@@ -283,6 +283,7 @@ public:
 	};
 };
 
+} // end of namespace rofl
 } // end of namespace rofl
 
 #endif /* COFMSG_FLOW_STATS_H_ */

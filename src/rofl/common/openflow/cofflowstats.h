@@ -14,9 +14,14 @@
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/croflexception.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
+class eFlowStatsBase		: public RoflException {};
+class eFlowStatsInval		: public eFlowStatsBase {};
+class eFlowStatsNotFound	: public eFlowStatsBase {};
 
 class cofflow_stats_request
 {
@@ -204,7 +209,8 @@ public:
 			os << flow_stats_request.match;
 
 		} break;
-		case openflow12::OFP_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofflow_stats_request >" << std::endl;
 			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
 			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
@@ -215,9 +221,6 @@ public:
 			os << flow_stats_request.match;
 
 		} break;
-		case openflow13::OFP_VERSION: {
-			throw eNotImplemented();
-		}
 		default: {
 			os << "<cofflow_stats_request unknown OFP version >" << std::endl;
 		};
@@ -538,6 +541,7 @@ public:
 
 		};
 		}
+		indent i(2);
 		switch (flow_stats_reply.of_version) {
 		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
 		case openflow12::OFP_VERSION: os << flow_stats_reply.instructions; break;
@@ -548,7 +552,7 @@ public:
 	};
 };
 
-
+} /* end of namespace */
 } /* end of namespace */
 
 #endif /* COFFLOWSTATS_H_ */

@@ -1,14 +1,16 @@
-#include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
+#include "rofl/common/openflow/cofflowstatsarray.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class cofmsgtablefeaturesTest : public CppUnit::TestFixture {
+class cofflowstatsarray_test : public CppUnit::TestFixture {
 
-	CPPUNIT_TEST_SUITE( cofmsgtablefeaturesTest );
+	CPPUNIT_TEST_SUITE( cofflowstatsarray_test );
 	CPPUNIT_TEST( testDefaultConstructor );
 	CPPUNIT_TEST( testCopyConstructor );
+	CPPUNIT_TEST( testPackUnpack );
+	CPPUNIT_TEST( testAddDropSetGetHas );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -20,5 +22,7 @@ public:
 
 	void testDefaultConstructor();
 	void testCopyConstructor();
+	void testPackUnpack();
+	void testAddDropSetGetHas();
 };
 

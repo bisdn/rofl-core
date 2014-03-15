@@ -122,7 +122,34 @@ public: // methods
 	 *
 	 */
 	void
-	set_version(uint8_t ofp_version) { this->of_version = ofp_version; };
+	set_version(uint8_t ofp_version) {
+		this->of_version = ofp_version;
+
+		switch (of_version) {
+		case openflow::OFP_VERSION_UNKNOWN: {
+			memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
+			ofh_match = memarea.somem();
+		} break;
+		case openflow10::OFP_VERSION: {
+			memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
+			ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
+		} break;
+		case openflow12::OFP_VERSION: {
+			memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
+			ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
+			ofh12_match->type 	= htobe16(rofl::openflow::OFPMT_OXM);
+			ofh12_match->length = htobe16(length());
+		} break;
+		case openflow13::OFP_VERSION: {
+			memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
+			ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
+			ofh13_match->type 	= htobe16(rofl::openflow::OFPMT_OXM);
+			ofh13_match->length = htobe16(length());
+		} break;
+		default: {
+		};
+		}
+	};
 
 	/**
 	 *
