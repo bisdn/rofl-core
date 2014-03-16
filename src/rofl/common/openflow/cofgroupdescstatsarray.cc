@@ -150,7 +150,7 @@ cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::cofgroup_desc_stats_reply&
+cofgroup_desc_stats_reply&
 cofgroupdescstatsarray::add_group_desc_stats(uint32_t group_id)
 {
 	if (groupdescstatsarray.find(group_id) != groupdescstatsarray.end()) {
@@ -172,19 +172,22 @@ cofgroupdescstatsarray::drop_group_desc_stats(uint32_t group_id)
 
 
 
-rofl::cofgroup_desc_stats_reply&
+cofgroup_desc_stats_reply&
 cofgroupdescstatsarray::set_group_desc_stats(uint32_t group_id)
 {
-	return (groupdescstatsarray[group_id] = cofgroup_desc_stats_reply(ofp_version));
+	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
+		groupdescstatsarray[group_id] = cofgroup_desc_stats_reply(ofp_version);
+	}
+	return groupdescstatsarray[group_id];
 }
 
 
 
-rofl::cofgroup_desc_stats_reply const&
+cofgroup_desc_stats_reply const&
 cofgroupdescstatsarray::get_group_desc_stats(uint32_t group_id)
 {
 	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
-		throw;
+		throw eGroupDescStatsNotFound();
 	}
 	return groupdescstatsarray.at(group_id);
 }

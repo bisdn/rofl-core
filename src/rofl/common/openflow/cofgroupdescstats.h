@@ -13,10 +13,12 @@
 #include "openflow_rofl_exceptions.h"
 #include "cofbuckets.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
-
+class eGroupDescStatsBase			: public RoflException {};
+class eGroupDescStatsInval			: public eGroupDescStatsBase {};
+class eGroupDescStatsNotFound		: public eGroupDescStatsBase {};
 
 class cofgroup_desc_stats_reply
 {
@@ -64,6 +66,14 @@ public:
 	 */
 	cofgroup_desc_stats_reply&
 	operator= (
+			cofgroup_desc_stats_reply const& stats);
+
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
 			cofgroup_desc_stats_reply const& stats);
 
 
@@ -150,6 +160,7 @@ public:
 	};
 };
 
+}
 }
 
 #endif /* COFGROUPDESCSTATS_H_ */

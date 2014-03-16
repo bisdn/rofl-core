@@ -65,6 +65,21 @@ cofbucket::operator= (const cofbucket& b)
 };
 
 
+bool
+cofbucket::operator== (
+		const cofbucket& b)
+{
+	return ((ofp_version 	== b.ofp_version) &&
+			(actions 		== b.actions) &&
+			(packet_count 	== b.packet_count) &&
+			(byte_count 	== b.byte_count) &&
+			(weight 		== b.weight) &&
+			(watch_group 	== b.watch_group) &&
+			(watch_port 	== b.watch_port));
+}
+
+
+
 
 uint8_t*
 cofbucket::pack(uint8_t* bucket, size_t bclen)

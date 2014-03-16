@@ -72,7 +72,16 @@ public: // per instance methods
 
 	/** assignment operator
 	 */
-	cofbucket& operator= (const cofbucket& b);
+	cofbucket&
+	operator= (
+			const cofbucket& b);
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const cofbucket& b);
 
 	/**
 	 *

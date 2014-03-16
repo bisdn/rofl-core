@@ -114,6 +114,20 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+public:
+
 	friend std::ostream&
 	operator<< (std::ostream& os, cofgroupdescstatsarray const& groupdescstatsarray) {
 		os << rofl::indent(0) << "<cofgroupdescstatsarray #groups:" << (int)groupdescstatsarray.groupdescstatsarray.size() << " >" << std::endl;

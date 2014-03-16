@@ -102,6 +102,27 @@ cofbuckets::operator= (cofbuckets const& buckets)
 
 
 
+bool
+cofbuckets::operator== (
+		cofbuckets const& buckets)
+{
+	if (ofp_version != buckets.ofp_version)
+		return false;
+
+	if (this->size() != buckets.size())
+		return false;
+
+	for (cofbuckets::const_iterator
+			it = buckets.begin(), jt = this->begin(); it != buckets.end(), jt != this->end(); ++it, ++jt) {
+		if (not (**it == **jt))
+			return false;
+	}
+
+	return true;
+}
+
+
+
 void
 cofbuckets::append_bucket(cofbucket const& bucket)
 {

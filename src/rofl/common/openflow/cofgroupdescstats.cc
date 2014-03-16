@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofgroupdescstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 
@@ -53,6 +53,18 @@ cofgroup_desc_stats_reply::operator= (
 	buckets			= stats_reply.buckets;
 
 	return *this;
+}
+
+
+
+bool
+cofgroup_desc_stats_reply::operator== (
+		cofgroup_desc_stats_reply const& stats)
+{
+	return ((of_version == stats.of_version) &&
+			(type 		== stats.type) &&
+			(group_id 	== stats.group_id) &&
+			(buckets 	== stats.buckets));
 }
 
 

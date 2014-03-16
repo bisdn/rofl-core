@@ -58,6 +58,13 @@ public: // methods
 	operator= (
 			cofbuckets const& buckets);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cofbuckets const& buckets);
+
 
 	/**
 	 *

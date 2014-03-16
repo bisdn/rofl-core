@@ -17,7 +17,9 @@ unittest_SOURCES= \
 	cofhelloelemversionbitmaptest.cc \
 	cofhelloelemversionbitmaptest.h \
 	cofflowstatsarray_test.cc \
-	cofflowstatsarray_test.h
+	cofflowstatsarray_test.h \
+	cofgroupdescstatsarray_test.cc \
+	cofgroupdescstatsarray_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
