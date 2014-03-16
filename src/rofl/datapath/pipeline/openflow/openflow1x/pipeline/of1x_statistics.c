@@ -59,7 +59,7 @@ of1x_stats_flow_aggregate_msg_t* __of1x_init_stats_flow_aggregate_msg(){
 
 	//Init counters
 	if(likely(msg!=NULL))
-		memset(msg,0,sizeof(*msg));
+		platform_memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
@@ -142,7 +142,7 @@ of1x_stats_flow_msg_t* __of1x_init_stats_flow_msg(){
 
 	//Init counters
 	if(likely(msg!=NULL))
-		memset(msg,0,sizeof(*msg));
+		platform_memset(msg,0,sizeof(*msg));
 
 	return msg;
 }

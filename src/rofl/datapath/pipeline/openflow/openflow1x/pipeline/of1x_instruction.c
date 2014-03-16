@@ -42,7 +42,7 @@ static void __of1x_destroy_instruction(of1x_instruction_t* inst){
 /* Instruction groups init and destroy */
 void __of1x_init_instruction_group(of1x_instruction_group_t* group){
 	
-	memset(group,0,sizeof(of1x_instruction_group_t));	
+	platform_memset(group,0,sizeof(of1x_instruction_group_t));	
 }
 
 void __of1x_destroy_instruction_group(of1x_instruction_group_t* group){
@@ -87,14 +87,14 @@ rofl_result_t __of1x_update_instructions(of1x_instruction_group_t* group, of1x_i
 		return ROFL_FAILURE;	
 
 	//Make sure apply actions inst is marked as NULL, so that is not released
-	memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)],0,sizeof(of1x_instruction_t));
+	platform_memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)],0,sizeof(of1x_instruction_t));
 
 	//Write actions	
 	if(__of1x_update_write_actions(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure write actions inst is marked as NULL, so that is not freed 
-	memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)],0,sizeof(of1x_instruction_t));
+	platform_memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)],0,sizeof(of1x_instruction_t));
 
 
 	//Static ones
@@ -129,9 +129,9 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 		switch(instructions->instructions[i].type){
 			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 					break;
-    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(pkt);
+    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(&pkt->write_actions.of1x);
 					break;
-			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
+			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(&pkt->write_actions.of1x, instructions->instructions[i].write_actions);
 					break;
     			case OF1X_IT_WRITE_METADATA:
 				{

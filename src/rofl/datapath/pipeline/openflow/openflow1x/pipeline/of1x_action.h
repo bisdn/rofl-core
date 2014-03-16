@@ -8,9 +8,13 @@
 #include <inttypes.h> 
 #include <string.h> 
 #include <stdbool.h>
+#include <assert.h>
 #include "rofl.h"
 #include "of1x_utils.h"
 #include "../../../common/ternary_fields.h"
+#include "../../../common/bitmap.h"
+#include "../../../platform/likely.h"
+#include "../../../platform/memory.h"
 
 /**
 * @file of1x_action.h
@@ -192,6 +196,11 @@ typedef enum{
 
 #define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1 
 
+//Make sure we are not exceeding the bitmap size
+#if OF1X_AT_NUMBER >= 128
+	#error Number of actions beyond 128 not supported by bitmap128_t. Implement bitmap256_t.
+#endif
+
 /**
 * @ingroup core_of1x 
 * Actions enumeration for bitmap usage, in the order defined in OF12 and OF13, plus extensions. This is ONLY
@@ -307,10 +316,14 @@ typedef struct{
 * Write actions structure
 */
 typedef struct{
-	//Presence of action flag => type == 0
-	of1x_packet_action_t write_actions[OF1X_AT_NUMBER];
+
+	//bitmap of actions
+	bitmap128_t bitmap;
 	
-	//Number of actions. Merely for dumping and to skip unnecessary loop iterations
+	//Write actions 0...OF1X_AT_NUMBER-1 at the very beginning of the array
+	of1x_packet_action_t actions[OF1X_AT_NUMBER];
+	
+	//Number of output actions. 
 	unsigned int num_of_actions;
 	unsigned int num_of_output_actions;
 	
@@ -372,13 +385,6 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 //Apply actions
 void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
 
-//Write actions data structure management
-/*
-* Init a write actions group
-*/
-void __of1x_init_packet_write_actions(struct datapacket *const pkt);
-
-
 /**
 * @ingroup core_of1x 
 * Create a write actions group 
@@ -398,8 +404,35 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 */
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 
-void __of1x_update_packet_write_actions(struct datapacket* pkt, const of1x_write_actions_t* entry_write_actions);
-void __of1x_clear_write_actions(struct datapacket* pkt);
+static inline void __of1x_init_packet_write_actions(of1x_write_actions_t* pkt_write_actions){
+	bitmap128_clean(&pkt_write_actions->bitmap);
+	pkt_write_actions->num_of_actions = 0;
+}
+
+static inline void __of1x_update_packet_write_actions(of1x_write_actions_t* packet_write_actions, const of1x_write_actions_t* entry_write_actions){
+	
+	unsigned int i,j;
+
+	for(i=0,j=0;i<entry_write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
+		if(!bitmap128_is_bit_set(&entry_write_actions->bitmap,j))
+			continue;
+		packet_write_actions->actions[j].field = entry_write_actions->actions[j].field;
+		packet_write_actions->actions[j].group = entry_write_actions->actions[j].group;
+		packet_write_actions->actions[j].type = entry_write_actions->actions[j].type;
+		
+		if(!bitmap128_is_bit_set(&packet_write_actions->bitmap,j)){
+			packet_write_actions->num_of_actions++;
+			bitmap128_set(&packet_write_actions->bitmap,j);
+		}
+		i++;
+	}
+}
+
+static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_actions){
+	bitmap128_clean(&pkt_write_actions->bitmap);
+	pkt_write_actions->num_of_actions = 0;
+}
+
 void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, bool replicate_pkts);
 
 //Update apply/write

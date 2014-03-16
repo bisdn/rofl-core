@@ -19,7 +19,7 @@ for ALG in "$@"; do
 	if test -d $SRCDIR/$ALG; then
 		echo "#include \"${ALG}/of1x_${ALG}_match.h\""
 	else
-		echo "#include <rofl/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_match.h>"
+		echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_match.h>"
 	fi
 done
 

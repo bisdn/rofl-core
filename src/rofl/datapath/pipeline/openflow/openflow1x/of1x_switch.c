@@ -21,7 +21,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	strncpy(sw->name,name,LOGICAL_SWITCH_MAX_LEN_NAME);
 
 	//Initialize logical_ports
-	memset(sw->logical_ports,0,sizeof(logical_switch_port_t)*LOGICAL_SWITCH_MAX_LOG_PORTS);
+	platform_memset(sw->logical_ports,0,sizeof(logical_switch_port_t)*LOGICAL_SWITCH_MAX_LOG_PORTS);
 	sw->num_of_ports=0;
 	sw->max_ports=LOGICAL_SWITCH_MAX_LOG_PORTS;
 	

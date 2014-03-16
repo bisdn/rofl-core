@@ -44,13 +44,13 @@ rofl_result_t physical_switch_init(){
 	if(!psw->mutex)
 		return ROFL_FAILURE;
 	
-	memset(psw->logical_switches, 0, sizeof(psw->logical_switches));
+	platform_memset(psw->logical_switches, 0, sizeof(psw->logical_switches));
 	psw->num_of_logical_switches = 0;	
 
-	memset(psw->physical_ports, 0, sizeof(psw->physical_ports));
-	memset(psw->tunnel_ports, 0, sizeof(psw->tunnel_ports));
-	memset(psw->virtual_ports, 0, sizeof(psw->virtual_ports));
-	memset(psw->meta_ports, 0, sizeof(psw->meta_ports));
+	platform_memset(psw->physical_ports, 0, sizeof(psw->physical_ports));
+	platform_memset(psw->tunnel_ports, 0, sizeof(psw->tunnel_ports));
+	platform_memset(psw->virtual_ports, 0, sizeof(psw->virtual_ports));
+	platform_memset(psw->meta_ports, 0, sizeof(psw->meta_ports));
 	
 	//Generate metaports
 	//Flood
@@ -637,7 +637,7 @@ dpid_list_t* physical_switch_get_all_lsi_dpids(void){
 	}
 	
 	//Fill it with 0s	
-	memset(list->dpids,0,sizeof(uint64_t)*list->num_of_lsis);
+	platform_memset(list->dpids,0,sizeof(uint64_t)*list->num_of_lsis);
 	for(i=0,j=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
 		if(psw->logical_switches[i]){
 			list->dpids[j] = psw->logical_switches[i]->dpid; 

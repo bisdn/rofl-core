@@ -31,7 +31,7 @@ static inline monitored_entity_t* __clone_monitored_entity(monitored_entity_t* o
 	if(!entity)
 		return NULL;
 	//memset to zero
-	memset(entity,0,sizeof(*entity));
+	platform_memset(entity,0,sizeof(*entity));
 
 	//Clone fields	
 	__clone_copy_me_fields(entity, orig);
@@ -103,7 +103,7 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 		return NULL;
 
 	//memset to zero
-	memset(entity,0,sizeof(*entity));
+	platform_memset(entity,0,sizeof(*entity));
 
 	//Setting the type
 	entity->type = type;	
@@ -205,7 +205,7 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 rofl_result_t __monitoring_init(monitoring_state_t* monitoring){
 
 	//Clear all
-	memset(monitoring,0,sizeof(*monitoring));
+	platform_memset(monitoring,0,sizeof(*monitoring));
 
 	//General flags	
 	monitoring->last_rev = 1; //Must be one
