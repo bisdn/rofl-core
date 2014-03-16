@@ -240,11 +240,13 @@ public:
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofbucket ";
 				os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
-				os << indent(2) << "<weight:" 		<< (int)bucket.weight 	<< " >" << std::endl;
-				os << indent(2) << "<watch-group:" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
-				os << indent(2) << "<watch-port:" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
-				os << indent(2) << "<packet-count:"	<< (int)bucket.packet_count << " >" << std::endl;
-				os << indent(2) << "<byte-count:" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
+				os << std::hex;
+				os << indent(2) << "<weight: 0x" 		<< (int)bucket.weight 	<< " >" << std::endl;
+				os << indent(2) << "<watch-group: 0x" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
+				os << indent(2) << "<watch-port: 0x" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
+				os << indent(2) << "<packet-count: 0x"	<< (int)bucket.packet_count << " >" << std::endl;
+				os << indent(2) << "<byte-count: 0x" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
+				os << std::dec;
 				os << indent(2) << "<actions: >"	<< std::endl;
 				indent i(4);
 				os << bucket.actions;

@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofflowstatsarray_test );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
@@ -210,8 +210,10 @@ cofflowstatsarray_test::testPackUnpack()
 
 	uint8_t *buf = mem.somem();
 	for (unsigned int i = 0; i < 4; i++) {
+#ifdef DEBUG
 		std::cerr << "stats[" << i << "]=" << stats[i] << std::endl;
 		std::cerr << "stats[" << i << "].length()=" << (int)stats[i].length() << std::endl;
+#endif
 
 		stats[i].pack(buf, stats[i].length());
 		buf += stats[i].length();

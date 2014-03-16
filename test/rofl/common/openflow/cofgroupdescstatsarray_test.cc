@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofgroupdescstatsarray_test );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
@@ -54,8 +54,10 @@ cofgroupdescstatsarray_test::testCopyConstructor()
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_byte_count(0xb1b2b3b4b5b6b7b8);
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_port(0xc3c3c4c4);
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_group(0xd3d3d4d4);
+	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
+	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
 
-	array.set_group_desc_stats(1).set_group_id(0);
+	array.set_group_desc_stats(1).set_group_id(1);
 	array.set_group_desc_stats(1).set_group_type(rofl::openflow13::OFPGT_ALL);
 	array.set_group_desc_stats(1).set_buckets().set_bucket(0).set_packet_count(0xa1a2a3a4a5a6a7a8);
 	array.set_group_desc_stats(1).set_buckets().set_bucket(0).set_byte_count(0xb1b2b3b4b5b6b7b8);
@@ -96,51 +98,56 @@ cofgroupdescstatsarray_test::testCopyConstructor()
 void
 cofgroupdescstatsarray_test::testOperatorPlus()
 {
-#if 0
+
 	std::vector<rofl::openflow::cofgroupdescstatsarray> array;
 	array.push_back(rofl::openflow::cofgroupdescstatsarray(rofl::openflow13::OFP_VERSION));
 	array.push_back(rofl::openflow::cofgroupdescstatsarray(rofl::openflow13::OFP_VERSION));
 
-	array[0].set_flow_stats(0).set_version(rofl::openflow13::OFP_VERSION);
-	array[0].set_flow_stats(0).set_table_id(1);
-	array[0].set_flow_stats(0).set_byte_count(0xa1a2);
-	array[0].set_flow_stats(0).set_packet_count(0xb1b2);
-	array[0].set_flow_stats(0).set_duration_sec(0xc1c2);
-	array[0].set_flow_stats(0).set_duration_nsec(0xd1d2);
-	array[0].set_flow_stats(0).set_idle_timeout(0x10);
-	array[0].set_flow_stats(0).set_hard_timeout(0x20);
-	array[0].set_flow_stats(0).set_match().set_arp_opcode(0x5555);
-	array[0].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
-	array[0].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
-	array[0].set_flow_stats(0).set_match().set_eth_type(0x3333);
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[0].set_group_desc_stats(0).set_group_id(0);
+	array[0].set_group_desc_stats(0).set_group_type(rofl::openflow13::OFPGT_ALL);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(0).set_packet_count(0xa1a2a3a4a5a6a7a8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(0).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(0).set_watch_port(0xc3c3c4c4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(0).set_watch_group(0xd3d3d4d4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(1).set_byte_count(0xa1a2a3a4a5a6a7a8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(1).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(1).set_watch_port(0xc3c3c4c4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(1).set_watch_group(0xd3d3d4d4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_byte_count(0xa1a2a3a4a5a6a7a8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_port(0xc3c3c4c4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_group(0xd3d3d4d4);
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
 
-	array[0].set_flow_stats(1).set_version(rofl::openflow13::OFP_VERSION);
-	array[0].set_flow_stats(1).set_table_id(2);
-	array[0].set_flow_stats(1).set_byte_count(0xa3a4);
-	array[0].set_flow_stats(1).set_packet_count(0xb3b4);
-	array[0].set_flow_stats(1).set_duration_sec(0xc3c4);
-	array[0].set_flow_stats(1).set_duration_nsec(0xd3d4);
-	array[0].set_flow_stats(1).set_idle_timeout(0x30);
-	array[0].set_flow_stats(1).set_hard_timeout(0x40);
-	array[0].set_flow_stats(1).set_match().set_arp_opcode(0x8888);
-	array[0].set_flow_stats(1).set_match().set_eth_dst(rofl::cmacaddr("44:44:44:44:44:44"));
+	array[0].set_group_desc_stats(1).set_group_id(1);
+	array[0].set_group_desc_stats(1).set_group_type(rofl::openflow13::OFPGT_ALL);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(0).set_packet_count(0xa1a2a3a4a5a6a7a8);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(0).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(0).set_watch_port(0x11111111);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(0).set_watch_group(0x22222222);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_byte_count(0xa1a2a3a4a5a6a7a8);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_watch_port(0x88888888);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_watch_group(0xaaaaaaaa);
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("33:33:33:33:33:33")));
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("44:44:44:44:44:44")));
 
-	array[1].set_flow_stats(0).set_version(rofl::openflow13::OFP_VERSION);
-	array[1].set_flow_stats(0).set_table_id(4);
-	array[1].set_flow_stats(0).set_byte_count(0xa1a2);
-	array[1].set_flow_stats(0).set_packet_count(0xb1b2);
-	array[1].set_flow_stats(0).set_duration_sec(0xc1c2);
-	array[1].set_flow_stats(0).set_duration_nsec(0xd1d2);
-	array[1].set_flow_stats(0).set_idle_timeout(0x10);
-	array[1].set_flow_stats(0).set_hard_timeout(0x20);
-	array[1].set_flow_stats(0).set_match().set_arp_opcode(0x9999);
-	array[1].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
-	array[1].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
-	array[1].set_flow_stats(0).set_match().set_eth_type(0x7777);
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[1].set_group_desc_stats(2).set_group_id(2);
+	array[1].set_group_desc_stats(2).set_group_type(rofl::openflow13::OFPGT_ALL);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(0).set_packet_count(0xa1a2a3a4a5a6a7a8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(0).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(0).set_watch_port(0xc3c3c4c4);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(0).set_watch_group(0xd3d3d4d4);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(1).set_byte_count(0xa1a2a3a4a5a6a7a8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(1).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(1).set_watch_port(0xc3c3c4c4);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(1).set_watch_group(0xd3d3d4d4);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(2).set_byte_count(0xa1a2a3a4a5a6a7a8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(2).set_byte_count(0xb1b2b3b4b5b6b7b8);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(2).set_watch_port(0xc3c3c4c4);
+	array[1].set_group_desc_stats(2).set_buckets().set_bucket(2).set_watch_group(0xd3d3d4d4);
+
 
 #ifdef DEBUG
 	std::cerr << "array[0]:" << std::endl << array[0];
@@ -152,15 +159,14 @@ cofgroupdescstatsarray_test::testOperatorPlus()
 
 #ifdef DEBUG
 	std::cerr << "array[0]+array[1]:" << std::endl << merge;
-	std::cerr << "merge.set_flow_stats(0) == array[0].get_flow_stats(0): " << (merge.set_flow_stats(0) == array[0].get_flow_stats(0)) << std::endl;
-	std::cerr << "merge.set_flow_stats(1) == array[0].get_flow_stats(1): " << (merge.set_flow_stats(1) == array[0].get_flow_stats(1)) << std::endl;
-	std::cerr << "merge.set_flow_stats(2) == array[1].get_flow_stats(0): " << (merge.set_flow_stats(2) == array[1].get_flow_stats(0)) << std::endl;
+	std::cerr << "merge.set_group_desc_stats(0) == array[0].get_group_desc_stats(0): " << (merge.set_group_desc_stats(0) == array[0].get_group_desc_stats(0)) << std::endl;
+	std::cerr << "merge.set_group_desc_stats(1) == array[0].get_group_desc_stats(1): " << (merge.set_group_desc_stats(1) == array[0].get_group_desc_stats(1)) << std::endl;
+	std::cerr << "merge.set_group_desc_stats(2) == array[1].get_group_desc_stats(2): " << (merge.set_group_desc_stats(2) == array[1].get_group_desc_stats(2)) << std::endl;
 #endif
 
-	CPPUNIT_ASSERT(merge.set_flow_stats(0) == array[0].get_flow_stats(0));
-	CPPUNIT_ASSERT(merge.set_flow_stats(1) == array[0].get_flow_stats(1));
-	CPPUNIT_ASSERT(merge.set_flow_stats(2) == array[1].get_flow_stats(0));
-#endif
+	CPPUNIT_ASSERT(merge.set_group_desc_stats(0) == array[0].get_group_desc_stats(0));
+	CPPUNIT_ASSERT(merge.set_group_desc_stats(1) == array[0].get_group_desc_stats(1));
+	CPPUNIT_ASSERT(merge.set_group_desc_stats(2) == array[1].get_group_desc_stats(2));
 }
 
 
@@ -216,8 +222,10 @@ cofgroupdescstatsarray_test::testPackUnpack()
 
 	uint8_t *buf = mem.somem();
 	for (unsigned int i = 0; i < 3; i++) {
+#ifdef DEBUG
 		std::cerr << "stats[" << i << "]=" << stats[i] << std::endl;
 		std::cerr << "stats[" << i << "].length()=" << (int)stats[i].length() << std::endl;
+#endif
 
 		stats[i].pack(buf, stats[i].length());
 		buf += stats[i].length();

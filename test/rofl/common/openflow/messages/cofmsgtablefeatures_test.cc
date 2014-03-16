@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofmsgtablefeaturesTest );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
@@ -65,7 +65,7 @@ cofmsgtablefeaturesTest::testCopyConstructor()
 #endif
 	}
 
-	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
+	//std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
 
 	{
 		rofl::cofmsg_table_features_stats_reply msg(rofl::openflow13::OFP_VERSION);
