@@ -25,6 +25,8 @@ libopenflow_la_SOURCES= \
 	cofbuckets.cc \
 	cofbucketcounter.h \
 	cofbucketcounter.cc \
+	cofbucketcounters.h \
+	cofbucketcounters.cc \
 	cofinstruction.h \
 	cofinstruction.cc \
 	cofinstructions.h \
@@ -119,6 +121,7 @@ library_include_HEADERS = \
 	cofbucket.h \
 	cofbuckets.h \
 	cofbucketcounter.h \
+	cofbucketcounters.h \
 	cofinstruction.h \
 	cofinstructions.h \
 	cofmatch.h \

@@ -20,6 +20,10 @@
 namespace rofl {
 namespace openflow {
 
+class eBucketCounterBase			: public RoflException {};
+class eBucketCounterInval			: public eBucketCounterBase {};
+class eBucketCounterNotFound		: public eBucketCounterBase {};
+
 class cofbucket_counter
 {
 	uint8_t		ofp_version;
