@@ -147,7 +147,8 @@ public:
 	 *
 	 */
 	cofgroup_stats_reply(
-			uint8_t of_version = 0);
+			uint8_t of_version = 0,
+			unsigned int num_of_bucket_stats = 0);
 
 	/**
 	 *
@@ -305,14 +306,18 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofgroup_stats_reply const& r) {
 		os << indent(0) << "<cofgroup_stats_reply >" << std::endl;
-		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
-		os << indent(2) << "<ref-count: " << (int)r.get_ref_count() << " >" << std::endl;
-		os << indent(2) << "<packet-count: " << (int)r.get_packet_count() << " >" << std::endl;
-		os << indent(2) << "<byte-count: " << (int)r.get_byte_count() << " >" << std::endl;
+		os << std::hex;
+		os << indent(2) << "<group-id: 0x" << (int)r.get_group_id() << " >" << std::endl;
+		os << indent(2) << "<ref-count: 0x" << (int)r.get_ref_count() << " >" << std::endl;
+		os << indent(2) << "<packet-count: 0x" << (int)r.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count: 0x" << (int)r.get_byte_count() << " >" << std::endl;
+		os << std::dec;
 		switch (r.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-			os << indent(2) << "<duration-sec: " << (int)r.get_duration_sec() << " >" << std::endl;
-			os << indent(2) << "<duration-nsec: " << (int)r.get_duration_nsec() << " >" << std::endl;
+			os << std::hex;
+			os << indent(2) << "<duration-sec: 0x" << (int)r.get_duration_sec() << " >" << std::endl;
+			os << indent(2) << "<duration-nsec: 0x" << (int)r.get_duration_nsec() << " >" << std::endl;
+			os << std::dec;
 		} break;
 		default: {
 		};

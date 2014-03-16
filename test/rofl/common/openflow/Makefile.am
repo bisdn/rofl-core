@@ -19,7 +19,9 @@ unittest_SOURCES= \
 	cofflowstatsarray_test.cc \
 	cofflowstatsarray_test.h \
 	cofgroupdescstatsarray_test.cc \
-	cofgroupdescstatsarray_test.h
+	cofgroupdescstatsarray_test.h \
+	cofgroupstatsarray_test.cc \
+	cofgroupstatsarray_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

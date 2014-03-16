@@ -137,15 +137,30 @@ cofgroup_stats_request::length() const
 
 
 cofgroup_stats_reply::cofgroup_stats_reply(
-		uint8_t of_version) :
+		uint8_t of_version,
+		unsigned int num_of_bucket_stats) :
 				of_version(of_version),
 				group_id(0),
 				ref_count(0),
 				packet_count(0),
 				byte_count(0),
 				duration_sec(0),
-				duration_nsec(0)
-{}
+				duration_nsec(0),
+				bucket_stats(num_of_bucket_stats * sizeof(struct rofl::openflow12::ofp_bucket_counter))
+{
+	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+	} break;
+	default: {
+		throw eBadVersion();
+	};
+	}
+}
 
 
 
