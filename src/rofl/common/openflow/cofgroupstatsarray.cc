@@ -151,7 +151,7 @@ cofgroupstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::cofgroup_stats_reply&
+cofgroup_stats_reply&
 cofgroupstatsarray::add_group_stats(uint32_t group_id)
 {
 	if (array.find(group_id) != array.end()) {
@@ -173,7 +173,7 @@ cofgroupstatsarray::drop_group_stats(uint32_t group_id)
 
 
 
-rofl::cofgroup_stats_reply&
+cofgroup_stats_reply&
 cofgroupstatsarray::set_group_stats(uint32_t group_id)
 {
 	return (array[group_id] = cofgroup_stats_reply(ofp_version));
@@ -181,7 +181,7 @@ cofgroupstatsarray::set_group_stats(uint32_t group_id)
 
 
 
-rofl::cofgroup_stats_reply const&
+cofgroup_stats_reply const&
 cofgroupstatsarray::get_group_stats(uint32_t group_id)
 {
 	if (array.find(group_id) == array.end()) {

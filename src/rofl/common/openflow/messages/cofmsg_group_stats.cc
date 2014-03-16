@@ -9,7 +9,7 @@ cofmsg_group_stats_request::cofmsg_group_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofgroup_stats_request const& group_stats) :
+		rofl::openflow::cofgroup_stats_request const& group_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	group_stats(group_stats)
 {
@@ -197,7 +197,7 @@ cofmsg_group_stats_request::validate()
 
 
 
-cofgroup_stats_request&
+rofl::openflow::cofgroup_stats_request&
 cofmsg_group_stats_request::set_group_stats()
 {
 	return group_stats;
@@ -205,7 +205,7 @@ cofmsg_group_stats_request::set_group_stats()
 
 
 
-cofgroup_stats_request const&
+rofl::openflow::cofgroup_stats_request const&
 cofmsg_group_stats_request::get_group_stats() const
 {
 	return group_stats;

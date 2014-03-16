@@ -15,7 +15,6 @@
 namespace rofl
 {
 
-
 /**
  *
  */
@@ -24,7 +23,7 @@ class cofmsg_group_stats_request :
 {
 private:
 
-	cofgroup_stats_request 	group_stats;
+	rofl::openflow::cofgroup_stats_request 	group_stats;
 
 	union {
 		uint8_t*											ofhu_group_stats;
@@ -46,7 +45,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofgroup_stats_request const& group_stats = cofgroup_stats_request());
+			rofl::openflow::cofgroup_stats_request const& group_stats = rofl::openflow::cofgroup_stats_request());
 
 
 	/**
@@ -123,13 +122,13 @@ public:
 	/**
 	 *
 	 */
-	cofgroup_stats_request&
+	rofl::openflow::cofgroup_stats_request&
 	set_group_stats();
 
 	/**
 	 *
 	 */
-	cofgroup_stats_request const&
+	rofl::openflow::cofgroup_stats_request const&
 	get_group_stats() const;
 
 public:

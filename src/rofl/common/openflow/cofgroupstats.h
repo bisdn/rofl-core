@@ -12,10 +12,8 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
-
-
+namespace rofl {
+namespace openflow {
 
 class cofgroup_stats_request
 {
@@ -321,6 +319,7 @@ public:
 	};
 };
 
+}
 }
 
 #endif /* COFGROUPSTATS_H_ */
