@@ -15,6 +15,10 @@
 namespace rofl {
 namespace openflow {
 
+class eGroupStatsBase 			: public RoflException {};
+class eGroupStatsInval			: public eGroupStatsBase {};
+class eGroupStatsNotFound		: public eGroupStatsBase {};
+
 class cofgroup_stats_request
 {
 private: // data structures

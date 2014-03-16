@@ -176,16 +176,19 @@ cofgroupstatsarray::drop_group_stats(uint32_t group_id)
 cofgroup_stats_reply&
 cofgroupstatsarray::set_group_stats(uint32_t group_id)
 {
-	return (array[group_id] = cofgroup_stats_reply(ofp_version));
+	if (array.find(group_id) == array.end()) {
+		array[group_id] = cofgroup_stats_reply(ofp_version);
+	}
+	return array[group_id];
 }
 
 
 
 cofgroup_stats_reply const&
-cofgroupstatsarray::get_group_stats(uint32_t group_id)
+cofgroupstatsarray::get_group_stats(uint32_t group_id) const
 {
 	if (array.find(group_id) == array.end()) {
-		throw;
+		throw eGroupStatsNotFound();
 	}
 	return array.at(group_id);
 }

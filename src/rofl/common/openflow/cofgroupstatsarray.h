@@ -103,7 +103,7 @@ public:
 	 *
 	 */
 	cofgroup_stats_reply const&
-	get_group_stats(uint32_t group_id);
+	get_group_stats(uint32_t group_id) const;
 
 	/**
 	 *
