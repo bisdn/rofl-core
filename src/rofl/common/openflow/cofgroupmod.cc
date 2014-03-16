@@ -4,7 +4,7 @@
 
 #include "cofgroupmod.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 cofgroupmod::cofgroupmod(uint8_t ofp_version) :
@@ -162,30 +162,3 @@ cofgroupmod::pack()
 
 
 
-
-
-
-
-void
-cofgroupmod::test()
-{
-	cofgroupmod ge(OFP12_VERSION);
-
-	ge.set_command((uint16_t)openflow12::OFPGC_ADD);
-	ge.set_group_id(32);
-	ge.set_type(openflow12::OFPGT_ALL);
-
-	ge.get_buckets().append_bucket(cofbucket(openflow12::OFP_VERSION, /*weight=*/0x0800, /*watch-port=*/8, /*watch-group=*/1));
-	ge.get_buckets().back().get_actions().append_action_output(6);
-
-	ge.get_buckets().append_bucket(cofbucket(openflow12::OFP_VERSION, /*weight=*/0x0800, /*watch-port=*/8, /*watch-group=*/1));
-	ge.get_buckets().back().get_actions().append_action_pop_vlan();
-	ge.get_buckets().back().get_actions().append_action_push_vlan(600);
-	ge.get_buckets().back().get_actions().append_action_dec_nw_ttl();
-	ge.get_buckets().back().get_actions().append_action_set_queue(3);
-	ge.get_buckets().back().get_actions().append_action_copy_ttl_out();
-	ge.get_buckets().back().get_actions().append_action_copy_ttl_in();
-	ge.get_buckets().back().get_actions().append_action_output(16);
-
-	std::cerr << "XXXXXX => " << ge << std::endl;
-}

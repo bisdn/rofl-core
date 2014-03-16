@@ -5,6 +5,7 @@
 #ifndef COFBUCKETLIST_H
 #define COFBUCKETLIST_H 1
 
+#include <map>
 #include <string>
 #include <vector>
 #include <endian.h>
@@ -15,44 +16,42 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofbucket.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eBucketsBase 			: public RoflException {};
 class eBucketsInval 		: public eBucketsBase {};
+class eBucketsNotFound 		: public eBucketsBase {};
 class eBucketsOutOfRange 	: public eBucketsBase {};
 
 
-class cofbuckets : public std::list<cofbucket*>
+class cofbuckets
 {
-	uint8_t ofp_version;
-
-public: // iterators
-
-	typedef typename std::list<cofbucket*>::iterator iterator;
-	typedef typename std::list<cofbucket*>::const_iterator const_iterator;
-
-	typedef typename std::list<cofbucket*>::reverse_iterator reverse_iterator;
-	typedef typename std::list<cofbucket*>::const_reverse_iterator const_reverse_iterator;
+	uint8_t 							ofp_version;
+	std::map<uint32_t, cofbucket>		buckets;
 
 public: // methods
 
-	/** constructor
+	/**
+	 *
 	 */
 	cofbuckets(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN);
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofbuckets();
 
 	/**
+	 *
 	 */
 	cofbuckets(
 			cofbuckets const& buckets);
 
 	/**
+	 *
 	 */
 	cofbuckets&
 	operator= (
@@ -64,7 +63,6 @@ public: // methods
 	bool
 	operator== (
 			cofbuckets const& buckets);
-
 
 	/**
 	 *
@@ -78,87 +76,71 @@ public: // methods
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
-
-	/**
-	 *
-	 */
-	void
-	pop_front();
-
-
-	/**
-	 *
-	 */
-	void
-	pop_back();
-
+public:
 
 	/**
 	 *
 	 */
 	cofbucket&
-	front();
+	add_bucket(uint32_t bucket_id);
 
+	/**
+	 *
+	 */
+	void
+	drop_bucket(uint32_t bucket_id);
 
 	/**
 	 *
 	 */
 	cofbucket&
-	back();
+	set_bucket(uint32_t bucket_id);
 
+	/**
+	 *
+	 */
+	cofbucket const&
+	get_bucket(uint32_t bucket_id) const;
+
+	/**
+	 *
+	 */
+	bool
+	has_bucket(uint32_t bucket_id);
+
+public:
 
 	/**
 	 *
 	 */
 	void
-	clear();
-
-
-	/**
-	 *
-	 * @return
-	 */
-	void
-	unpack(uint8_t* buf, size_t buflen);
-
-
-	/**
-	 *
-	 * @param buckets
-	 * @param bclen
-	 * @return
-	 */
-	uint8_t*
-	pack(uint8_t* buf, size_t buflen);
-
-
-
-	/** returns required length for array of struct ofp_bucket
-	 * for all buckets defined in this->bcvec
-	 */
-	size_t
-	length() const;
-
-
-	/**
-	 *
-	 */
-	void
-	append_bucket(cofbucket const& bucket);
-
-
-	/**
-	 *
-	 */
-	void
-	prepend_bucket(cofbucket const& bucket);
-
+	clear() { buckets.clear(); };
 
 	/**
 	 *
 	 */
 	void
 	check_prerequisites() const;
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	uint8_t*
+	pack(uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	void
+	unpack(uint8_t* buf, size_t buflen);
 
 
 private:
@@ -187,11 +169,11 @@ public:
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofbuckets ";
 			os << "ofp-version:" << (int)buckets.ofp_version << " ";
-			os << "#buckets:" << buckets.size() << " >" << std::endl;
+			os << "#buckets:" << buckets.buckets.size() << " >" << std::endl;
 			indent i(2);
-			for (cofbuckets::const_iterator
-					it = buckets.begin(); it != buckets.end(); ++it) {
-				os << *(*it);
+			for (std::map<uint32_t, cofbucket>::const_iterator
+					it = buckets.buckets.begin(); it != buckets.buckets.end(); ++it) {
+				os << it->second;
 			}
 
 		} break;
@@ -202,6 +184,7 @@ public:
 	};
 };
 
+}; // end of namespace
 }; // end of namespace
 
 #endif

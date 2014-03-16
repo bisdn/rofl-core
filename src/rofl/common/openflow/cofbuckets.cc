@@ -4,7 +4,7 @@
 
 #include "cofbuckets.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofbuckets::cofbuckets(
 		uint8_t ofp_version) :
@@ -22,59 +22,6 @@ cofbuckets::~cofbuckets()
 
 
 
-void
-cofbuckets::pop_front()
-{
-	if (empty())
-		return;
-	delete std::list<cofbucket*>::front();
-	std::list<cofbucket*>::pop_front();
-}
-
-
-
-void
-cofbuckets::pop_back()
-{
-	if (empty())
-		return;
-	delete std::list<cofbucket*>::back();
-	std::list<cofbucket*>::pop_back();
-}
-
-
-
-cofbucket&
-cofbuckets::front()
-{
-	if (empty())
-		throw eBucketsOutOfRange();
-	return *(std::list<cofbucket*>::front());
-}
-
-
-
-cofbucket&
-cofbuckets::back()
-{
-	if (empty())
-		throw eBucketsOutOfRange();
-	return *(std::list<cofbucket*>::back());
-}
-
-
-
-void
-cofbuckets::clear()
-{
-	for (cofbuckets::iterator it = begin(); it != end(); ++it) {
-		delete (*it);
-	}
-	std::list<cofbucket*>::clear();
-}
-
-
-
 cofbuckets::cofbuckets(cofbuckets const& buckets)
 {
 	*this = buckets;
@@ -83,18 +30,18 @@ cofbuckets::cofbuckets(cofbuckets const& buckets)
 
 
 cofbuckets&
-cofbuckets::operator= (cofbuckets const& buckets)
+cofbuckets::operator= (cofbuckets const& bc)
 {
-	if (this == &buckets)
+	if (this == &bc)
 		return *this;
 
-	this->ofp_version = buckets.ofp_version;
+	this->ofp_version = bc.ofp_version;
 
 	clear();
 
-	for (cofbuckets::const_iterator
-			it = buckets.begin(); it != buckets.end(); ++it) {
-		append_bucket(*(*it));
+	for (std::map<uint32_t, cofbucket>::const_iterator
+			it = bc.buckets.begin(); it != bc.buckets.end(); ++it) {
+		buckets[it->first] = it->second;
 	}
 
 	return *this;
@@ -104,17 +51,17 @@ cofbuckets::operator= (cofbuckets const& buckets)
 
 bool
 cofbuckets::operator== (
-		cofbuckets const& buckets)
+		cofbuckets const& bc)
 {
-	if (ofp_version != buckets.ofp_version)
+	if (ofp_version != bc.ofp_version)
 		return false;
 
-	if (this->size() != buckets.size())
+	if (buckets.size() != bc.buckets.size())
 		return false;
 
-	for (cofbuckets::const_iterator
-			it = buckets.begin(), jt = this->begin(); it != buckets.end(), jt != this->end(); ++it, ++jt) {
-		if (not (**it == **jt))
+	for (std::map<uint32_t, cofbucket>::const_iterator
+			it = bc.buckets.begin(); it != bc.buckets.end(); ++it) {
+		if (not (buckets[it->first] == it->second))
 			return false;
 	}
 
@@ -124,26 +71,36 @@ cofbuckets::operator== (
 
 
 void
-cofbuckets::append_bucket(cofbucket const& bucket)
-{
-	push_back(new cofbucket(bucket));
-}
-
-
-
-void
-cofbuckets::prepend_bucket(cofbucket const& bucket)
-{
-	push_front(new cofbucket(bucket));
-}
-
-
-
-void
 cofbuckets::check_prerequisites() const
 {
-	for (cofbuckets::const_iterator it = begin(); it != end(); ++it) {
-		(*it)->check_prerequisites();
+	for (std::map<uint32_t, cofbucket>::const_iterator
+			it = buckets.begin(); it != buckets.end(); ++it) {
+		it->second.check_prerequisites();
+	}
+}
+
+
+
+size_t
+cofbuckets::length() const
+{
+	size_t len = 0;
+	for (std::map<uint32_t, cofbucket>::const_iterator
+			it = buckets.begin(); it != buckets.end(); ++it) {
+		len += it->second.length();
+	}
+	return len;
+}
+
+
+
+uint8_t*
+cofbuckets::pack(uint8_t* buf, size_t buflen)
+{
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION:	return pack_of13(buf, buflen);
+	default:						throw eBadVersion();
 	}
 }
 
@@ -161,15 +118,24 @@ cofbuckets::unpack(uint8_t* buf, size_t buflen)
 
 
 
-
 uint8_t*
-cofbuckets::pack(uint8_t* buf, size_t buflen)
+cofbuckets::pack_of13(
+	uint8_t* buf,
+	size_t buflen)
 {
-	switch (ofp_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION:	return pack_of13(buf, buflen);
-	default:						throw eBadVersion();
+	if (buflen < length())
+		throw eBucketsInval();
+
+	struct openflow::ofp_bucket *bchdr = (struct openflow::ofp_bucket*)buf;
+
+	for (std::map<uint32_t, cofbucket>::iterator
+			it = buckets.begin(); it != buckets.end(); ++it) {
+		cofbucket& bucket = it->second;
+		bchdr = (struct openflow::ofp_bucket*)
+				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
 	}
+
+	return buf;
 }
 
 
@@ -188,11 +154,14 @@ cofbuckets::unpack_of13(
 	// first bucket
 	struct openflow::ofp_bucket *bchdr = (struct openflow::ofp_bucket*)buf;
 
+	uint32_t bucket_id = 0;
+
 	while (buflen > 0) {
+
 		if (be16toh(bchdr->len) < sizeof(struct openflow::ofp_bucket))
 			throw eBucketBadLen();
 
-		append_bucket(cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len)));
+		add_bucket(bucket_id++).unpack((uint8_t*)bchdr, be16toh(bchdr->len));
 
 		buflen -= be16toh(bchdr->len);
 		bchdr = (struct openflow::ofp_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
@@ -201,37 +170,54 @@ cofbuckets::unpack_of13(
 
 
 
-uint8_t*
-cofbuckets::pack_of13(
-	uint8_t* buf,
-	size_t buflen)
+cofbucket&
+cofbuckets::add_bucket(uint32_t bucket_id)
 {
-	if (buflen < length())
-		throw eBucketsInval();
-
-	struct openflow::ofp_bucket *bchdr = (struct openflow::ofp_bucket*)buf;
-
-	for (cofbuckets::iterator it = begin(); it != end(); ++it) {
-		cofbucket& bucket = *(*it);
-		bchdr = (struct openflow::ofp_bucket*)
-				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
+	if (buckets.find(bucket_id) != buckets.end()) {
+		buckets.erase(bucket_id);
 	}
-
-	return buf;
+	return (buckets[bucket_id] = cofbucket(ofp_version));
 }
 
 
 
-size_t
-cofbuckets::length() const
+void
+cofbuckets::drop_bucket(uint32_t bucket_id)
 {
-	size_t len = 0;
-	for (cofbuckets::const_iterator
-			it = begin(); it != end(); ++it) {
-		len += (*it)->length();
+	if (buckets.find(bucket_id) == buckets.end()) {
+		return;
 	}
-	return len;
+	buckets.erase(bucket_id);
 }
 
+
+
+cofbucket&
+cofbuckets::set_bucket(uint32_t bucket_id)
+{
+	if (buckets.find(bucket_id) == buckets.end()) {
+		buckets[bucket_id] = cofbucket(ofp_version);
+	}
+	return buckets[bucket_id];
+}
+
+
+
+cofbucket const&
+cofbuckets::get_bucket(uint32_t bucket_id) const
+{
+	if (buckets.find(bucket_id) == buckets.end()) {
+		throw eBucketsNotFound();
+	}
+	return buckets.at(bucket_id);
+}
+
+
+
+bool
+cofbuckets::has_bucket(uint32_t bucket_id)
+{
+	return (not (buckets.find(bucket_id) == buckets.end()));
+}
 
 

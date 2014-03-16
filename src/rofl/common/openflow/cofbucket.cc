@@ -4,7 +4,7 @@
 
 #include "cofbucket.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofbucket::cofbucket(
 		uint8_t ofp_version,

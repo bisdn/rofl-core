@@ -9,7 +9,8 @@ cofgroup_desc_stats_reply::cofgroup_desc_stats_reply(
 		uint8_t of_version) :
 				of_version(of_version),
 				type(0),
-				group_id(0)
+				group_id(0),
+				buckets(of_version)
 {}
 
 

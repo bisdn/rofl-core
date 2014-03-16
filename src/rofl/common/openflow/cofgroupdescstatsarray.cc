@@ -115,7 +115,7 @@ cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 			size_t length = be16toh(((struct rofl::openflow12::ofp_group_desc_stats*)buf)->length);
 
-			if (length == 0)
+			if (length < sizeof(struct rofl::openflow12::ofp_group_desc_stats))
 				throw eInval();
 
 			uint32_t group_id = be32toh(((struct rofl::openflow12::ofp_group_desc_stats*)buf)->group_id);
@@ -132,7 +132,7 @@ cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 			size_t length = be16toh(((struct rofl::openflow13::ofp_group_desc*)buf)->length);
 
-			if (length == 0)
+			if (length < sizeof(struct rofl::openflow13::ofp_group_desc))
 				throw eInval();
 
 			uint32_t group_id = be32toh(((struct rofl::openflow13::ofp_group_desc*)buf)->group_id);
