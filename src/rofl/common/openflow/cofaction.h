@@ -149,6 +149,11 @@ public: // methods
 	cofaction&
 	operator= (const cofaction& ac);
 
+	/** assignment operator
+	 */
+	bool
+	operator== (const cofaction& ac);
+
 	/** destructor
 	 */
 	virtual ~cofaction();

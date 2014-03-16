@@ -53,6 +53,27 @@ cofactions::operator= (
 
 
 
+bool
+cofactions::operator== (
+		cofactions const& actions)
+{
+	if (ofp_version != actions.ofp_version)
+		return false;
+
+	if (std::list<cofaction*>::size() != actions.size())
+		return false;
+
+	for (std::list<cofaction*>::const_iterator
+			it = actions.begin(), jt = this->begin(); it != actions.end(), jt != this->end(); ++it, ++jt) {
+		if (not (**it == **jt))
+			return false;
+	}
+
+	return true;
+}
+
+
+
 cofactions::~cofactions()
 {
 	clear();

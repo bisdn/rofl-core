@@ -71,6 +71,13 @@ public:
 			cofactions const& aclist);
 
 
+	/**
+	 */
+	bool
+	operator== (
+			cofactions const& aclist);
+
+
 	/** destructor
 	 */
 	virtual

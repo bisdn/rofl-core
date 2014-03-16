@@ -110,6 +110,13 @@ public: // methods
 	cofinst&
 	operator= (const cofinst& inst);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (const cofinst& inst);
+
+
 	/** reset (=clears all actions)
 	 */
 	void

@@ -321,6 +321,14 @@ public:
 	operator= (
 			cofflow_stats_reply const& flowstats);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cofflow_stats_reply const& flowstats);
+
+public:
 
 	/**
 	 *

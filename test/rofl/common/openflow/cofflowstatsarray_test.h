@@ -9,6 +9,7 @@ class cofflowstatsarray_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( cofflowstatsarray_test );
 	CPPUNIT_TEST( testDefaultConstructor );
 	CPPUNIT_TEST( testCopyConstructor );
+	CPPUNIT_TEST( testOperatorPlus );
 	CPPUNIT_TEST( testPackUnpack );
 	CPPUNIT_TEST( testAddDropSetGetHas );
 	CPPUNIT_TEST_SUITE_END();
@@ -22,6 +23,7 @@ public:
 
 	void testDefaultConstructor();
 	void testCopyConstructor();
+	void testOperatorPlus();
 	void testPackUnpack();
 	void testAddDropSetGetHas();
 };

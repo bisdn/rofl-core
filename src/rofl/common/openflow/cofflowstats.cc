@@ -441,6 +441,27 @@ cofflow_stats_reply::operator= (
 
 
 
+bool
+cofflow_stats_reply::operator== (
+		cofflow_stats_reply const& flowstats)
+{
+	return ((of_version 	== flowstats.of_version) &&
+			(table_id 		== flowstats.table_id) &&
+			(duration_sec 	== flowstats.duration_sec) &&
+			(duration_nsec 	== flowstats.duration_nsec) &&
+			(priority 		== flowstats.priority) &&
+			(idle_timeout 	== flowstats.idle_timeout) &&
+			(hard_timeout 	== flowstats.hard_timeout) &&
+			(cookie 		== flowstats.cookie) &&
+			(packet_count 	== flowstats.packet_count) &&
+			(byte_count 	== flowstats.byte_count) &&
+			(match 			== flowstats.match)	&&
+			(actions 		== flowstats.actions) &&
+			(instructions 	== flowstats.instructions));
+}
+
+
+
 void
 cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 {

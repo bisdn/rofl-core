@@ -51,12 +51,19 @@ cofflowstatsarray::operator= (cofflowstatsarray const& flows)
 cofflowstatsarray&
 cofflowstatsarray::operator+= (cofflowstatsarray const& flows)
 {
+	uint32_t flow_id = 0;
+
+	std::map<uint32_t, cofflow_stats_reply>::const_reverse_iterator it;
+	if ((it = array.rbegin()) != array.rend()) {
+		flow_id = it->first + 1;
+	}
+
 	/*
 	 * this may replace existing flow descriptions
 	 */
 	for (std::map<uint32_t, cofflow_stats_reply>::const_iterator
 			it = flows.array.begin(); it != flows.array.end(); ++it) {
-		this->array[it->first] = it->second;
+		array[flow_id++] = it->second;
 	}
 
 	return *this;
@@ -195,7 +202,10 @@ cofflowstatsarray::drop_flow_stats(uint32_t flow_id)
 cofflow_stats_reply&
 cofflowstatsarray::set_flow_stats(uint32_t flow_id)
 {
-	return (array[flow_id] = cofflow_stats_reply(ofp_version));
+	if (array.find(flow_id) == array.end()) {
+		array[flow_id] = cofflow_stats_reply(ofp_version);
+	}
+	return array[flow_id];
 }
 
 

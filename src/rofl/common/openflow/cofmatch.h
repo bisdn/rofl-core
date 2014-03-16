@@ -108,7 +108,13 @@ public: // methods
 	 */
 	cofmatch&
 	operator= (const cofmatch& m);
-	
+
+	/**
+	 *
+	 */
+	bool
+	operator== (const cofmatch& m);
+
 
 #if 0
 	/** less operator

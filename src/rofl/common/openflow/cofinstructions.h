@@ -83,6 +83,13 @@ public: // methods
 
 	/**
 	 *
+ 	 */
+	bool
+	operator== (
+			cofinstructions const& inlist);
+
+	/**
+	 *
 	 */
 	cofinst&
 	operator[] (
