@@ -13,8 +13,12 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
+class eTableStatsBase			: public RoflException {};
+class eTableStatsInval			: public eTableStatsBase {};
+class eTableStatsNotFound		: public eTableStatsBase {};
 
 class coftable_stats_reply
 {
@@ -395,6 +399,7 @@ public:
 	};
 };
 
+}
 }
 
 #endif /* COFTABLESTATS_H_ */

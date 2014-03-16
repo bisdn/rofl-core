@@ -5,7 +5,7 @@
 #endif
 
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 

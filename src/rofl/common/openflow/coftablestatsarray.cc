@@ -154,7 +154,7 @@ coftablestatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::coftable_stats_reply&
+coftable_stats_reply&
 coftablestatsarray::add_table_stats(uint8_t table_id)
 {
 	if (array.find(table_id) != array.end()) {
@@ -176,19 +176,22 @@ coftablestatsarray::drop_table_stats(uint8_t table_id)
 
 
 
-rofl::coftable_stats_reply&
+coftable_stats_reply&
 coftablestatsarray::set_table_stats(uint8_t table_id)
 {
-	return (array[table_id] = coftable_stats_reply(ofp_version));
+	if (array.find(table_id) == array.end()) {
+		array[table_id] = coftable_stats_reply(ofp_version);
+	}
+	return array[table_id];
 }
 
 
 
-rofl::coftable_stats_reply const&
+coftable_stats_reply const&
 coftablestatsarray::get_table_stats(uint8_t table_id)
 {
 	if (array.find(table_id) == array.end()) {
-		throw;
+		throw eTableStatsNotFound();
 	}
 	return array.at(table_id);
 }
