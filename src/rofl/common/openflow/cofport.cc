@@ -139,7 +139,7 @@ cofport::unpack(
 
 
 
-cofport_stats_reply&
+rofl::openflow::cofport_stats_reply&
 cofport::get_port_stats()
 {
 	return port_stats;

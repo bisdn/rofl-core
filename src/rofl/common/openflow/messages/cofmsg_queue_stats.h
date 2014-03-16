@@ -26,7 +26,7 @@ class cofmsg_queue_stats_request :
 {
 private:
 
-	cofqueue_stats_request		queue_stats;
+	rofl::openflow::cofqueue_stats_request		queue_stats;
 
 public:
 
@@ -38,7 +38,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofqueue_stats_request const& queue_stats_request = cofqueue_stats_request());
+			rofl::openflow::cofqueue_stats_request const& queue_stats_request = rofl::openflow::cofqueue_stats_request());
 
 
 	/**
@@ -115,13 +115,13 @@ public:
 	/**
 	 *
 	 */
-	cofqueue_stats_request&
+	rofl::openflow::cofqueue_stats_request&
 	set_queue_stats();
 
 	/**
 	 *
 	 */
-	cofqueue_stats_request const&
+	rofl::openflow::cofqueue_stats_request const&
 	get_queue_stats() const;
 
 public:

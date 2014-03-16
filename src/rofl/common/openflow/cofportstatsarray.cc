@@ -143,7 +143,7 @@ cofportstatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::cofport_stats_reply&
+cofport_stats_reply&
 cofportstatsarray::add_port_stats(uint32_t port_id)
 {
 	if (array.find(port_id) != array.end()) {
@@ -165,19 +165,22 @@ cofportstatsarray::drop_port_stats(uint32_t port_id)
 
 
 
-rofl::cofport_stats_reply&
+cofport_stats_reply&
 cofportstatsarray::set_port_stats(uint32_t port_id)
 {
-	return (array[port_id] = cofport_stats_reply(ofp_version));
+	if (array.find(port_id) == array.end()) {
+		array[port_id] = cofport_stats_reply(ofp_version);
+	}
+	return array[port_id];
 }
 
 
 
-rofl::cofport_stats_reply const&
+cofport_stats_reply const&
 cofportstatsarray::get_port_stats(uint32_t port_id)
 {
 	if (array.find(port_id) == array.end()) {
-		throw;
+		throw ePortStatsNotFound();
 	}
 	return array.at(port_id);
 }

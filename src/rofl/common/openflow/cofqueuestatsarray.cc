@@ -157,7 +157,7 @@ cofqueuestatsarray::unpack(uint8_t *buf, size_t buflen)
 
 
 
-rofl::cofqueue_stats_reply&
+cofqueue_stats_reply&
 cofqueuestatsarray::add_queue_stats(uint32_t port_no, uint32_t queue_id)
 {
 	if (array[port_no].find(queue_id) != array[port_no].end()) {
@@ -179,19 +179,22 @@ cofqueuestatsarray::drop_queue_stats(uint32_t port_no, uint32_t queue_id)
 
 
 
-rofl::cofqueue_stats_reply&
+cofqueue_stats_reply&
 cofqueuestatsarray::set_queue_stats(uint32_t port_no, uint32_t queue_id)
 {
-	return (array[port_no][queue_id] = cofqueue_stats_reply(ofp_version));
+	if (array[port_no].find(queue_id) == array[port_no].end()) {
+		array[port_no][queue_id] = cofqueue_stats_reply(ofp_version);
+	}
+	return array[port_no][queue_id];
 }
 
 
 
-rofl::cofqueue_stats_reply const&
+cofqueue_stats_reply const&
 cofqueuestatsarray::get_queue_stats(uint32_t port_no, uint32_t queue_id)
 {
 	if (array.at(port_no).find(queue_id) == array.at(port_no).end()) {
-		throw;
+		throw eQueueStatsNotFound();
 	}
 	return array.at(port_no).at(queue_id);
 }

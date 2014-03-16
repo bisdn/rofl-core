@@ -28,7 +28,7 @@ class cofmsg_port_stats_request :
 {
 private:
 
-	cofport_stats_request	 							port_stats;
+	rofl::openflow::cofport_stats_request				port_stats;
 
 	union {
 		uint8_t*										ofhu_port_stats;
@@ -52,7 +52,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofport_stats_request const& port_stats = cofport_stats_request());
+			rofl::openflow::cofport_stats_request const& port_stats = rofl::openflow::cofport_stats_request());
 
 
 	/**
@@ -130,13 +130,13 @@ public:
 	/**
 	 *
 	 */
-	cofport_stats_request&
+	rofl::openflow::cofport_stats_request&
 	set_port_stats();
 
 	/**
 	 *
 	 */
-	cofport_stats_request const&
+	rofl::openflow::cofport_stats_request const&
 	get_port_stats() const;
 
 public:

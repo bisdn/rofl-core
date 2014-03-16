@@ -10,7 +10,7 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofport_stats_request const& port_stats) :
+		rofl::openflow::cofport_stats_request const& port_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	port_stats(port_stats)
 {
@@ -221,7 +221,7 @@ cofmsg_port_stats_request::validate()
 
 
 
-cofport_stats_request&
+rofl::openflow::cofport_stats_request&
 cofmsg_port_stats_request::set_port_stats()
 {
 	return port_stats;
@@ -229,7 +229,7 @@ cofmsg_port_stats_request::set_port_stats()
 
 
 
-cofport_stats_request const&
+rofl::openflow::cofport_stats_request const&
 cofmsg_port_stats_request::get_port_stats() const
 {
 	return port_stats;

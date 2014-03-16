@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofportstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofport_stats_request::cofport_stats_request(
 		uint8_t of_version,

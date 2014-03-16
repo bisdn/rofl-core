@@ -42,7 +42,7 @@ class cofport : public cmemory
 private: // data structures
 
 	uint8_t								 ofp_version;	// OpenFlow version of port stored (openflow10::OFP_VERSION, openflow12::OFP_VERSION, ...)
-	cofport_stats_reply					 port_stats;
+	rofl::openflow::cofport_stats_reply	 port_stats;
 
 public: // data structures
 
@@ -128,7 +128,7 @@ public:
 	/**
 	 *
 	 */
-	cofport_stats_reply&
+	rofl::openflow::cofport_stats_reply&
 	get_port_stats();
 
 

@@ -9,7 +9,7 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofqueue_stats_request const& queue_stats) :
+		rofl::openflow::cofqueue_stats_request const& queue_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
@@ -190,7 +190,7 @@ cofmsg_queue_stats_request::validate()
 
 
 
-cofqueue_stats_request&
+rofl::openflow::cofqueue_stats_request&
 cofmsg_queue_stats_request::set_queue_stats()
 {
 	return queue_stats;
@@ -198,7 +198,7 @@ cofmsg_queue_stats_request::set_queue_stats()
 
 
 
-cofqueue_stats_request const&
+rofl::openflow::cofqueue_stats_request const&
 cofmsg_queue_stats_request::get_queue_stats() const
 {
 	return queue_stats;

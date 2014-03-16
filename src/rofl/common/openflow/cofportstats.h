@@ -14,8 +14,12 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
+class ePortStatsBase			: public RoflException {};
+class ePortStatsInval			: public ePortStatsBase {};
+class ePortStatsNotFound		: public ePortStatsBase {};
 
 class cofport_stats_request
 {
@@ -449,7 +453,7 @@ public:
 	};
 };
 
-
+} /* end of namespace */
 } /* end of namespace */
 
 #endif /* COFFLOWSTATS_H_ */

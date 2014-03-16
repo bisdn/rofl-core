@@ -12,10 +12,12 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
-
+class eQueueStatsBase			: public RoflException {};
+class eQueueStatsInval			: public eQueueStatsBase {};
+class eQueueStatsNotFound		: public eQueueStatsBase {};
 
 class cofqueue_stats_request
 {
@@ -341,6 +343,7 @@ public:
 	};
 };
 
+}
 }
 
 #endif /* COFQUEUESTATS_H_ */
