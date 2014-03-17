@@ -23,7 +23,9 @@ unittest_SOURCES= \
 	cofgroupstatsarray_test.cc \
 	cofgroupstatsarray_test.h \
 	cofbucketcounter_test.cc \
-	cofbucketcounter_test.h
+	cofbucketcounter_test.h \
+	cofbucketcounters_test.cc \
+	cofbucketcounters_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
