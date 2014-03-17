@@ -1,8 +1,9 @@
 
-if doc
+.PHONY: doc
 
-doc: all-local
-all-local:
+if have_doxygen 
+
+doc: 
 	@echo -n Generating documentation of ROFL-common \(this may take a while\)...
 	@ SRC_DIR=$(top_srcdir) @DOXYGEN@ doxyfile-common.conf >/dev/null 2>&1
 	@echo done
@@ -16,5 +17,10 @@ all-local:
 	@echo done
 	
 	@echo  The documentation is under: $(builddir)/doc/ 
+else
+
+doc: 
+	@echo "ERROR: unable to generate documentation; DOXYGEN not found!" 
+	@exit -1
 
 endif
