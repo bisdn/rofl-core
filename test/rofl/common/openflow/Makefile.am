@@ -29,7 +29,9 @@ unittest_SOURCES= \
 	cofportstatsarray_test.cc \
 	cofportstatsarray_test.h \
 	cofqueuestatsarray_test.cc \
-	cofqueuestatsarray_test.h
+	cofqueuestatsarray_test.h \
+	coftablestatsarray_test.cc \
+	coftablestatsarray_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

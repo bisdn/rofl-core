@@ -116,8 +116,12 @@ public:
 	operator= (
 			coftable_stats_reply const& table_stats);
 
-
-
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			coftable_stats_reply const& table_stats);
 
 	/**
 	 *
@@ -386,10 +390,12 @@ public:
 		} break;
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<coftable_stats_reply ofp-version:" << (int)tsr.of_version << " >" << std::endl;
-			os << indent(2) << "<table-id:" << (int)(tsr.table_id) << " >" << std::endl;
-			os << indent(2) << "<active-count:" << (unsigned int)tsr.active_count << " >" << std::endl;
-			os << indent(2) << "<lookup-count:" << (unsigned long long)tsr.lookup_count << " >" << std::endl;
-			os << indent(2) << "<matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+			os << std::hex;
+			os << indent(2) << "<table-id: 0x" << (int)(tsr.table_id) << " >" << std::endl;
+			os << indent(2) << "<active-count: 0x" << (unsigned int)tsr.active_count << " >" << std::endl;
+			os << indent(2) << "<lookup-count: 0x" << (unsigned long long)tsr.lookup_count << " >" << std::endl;
+			os << indent(2) << "<matched-count: 0x" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+			os << std::dec;
 		} break;
 		default: {
 			os << indent(0) << "<coftable_stats_reply >";

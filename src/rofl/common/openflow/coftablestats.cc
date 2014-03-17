@@ -172,6 +172,31 @@ coftable_stats_reply::operator= (
 
 
 
+bool
+coftable_stats_reply::operator== (
+		coftable_stats_reply const& ts)
+{
+	return ((of_version 		== ts.of_version) &&
+			(table_id 			== ts.table_id) &&
+			(name 				== ts.name) &&
+			(match 				== ts.match) &&
+			(wildcards 			== ts.wildcards) &&
+			(write_actions 		== ts.write_actions) &&
+			(apply_actions 		== ts.apply_actions) &&
+			(write_setfields 	== ts.write_setfields) &&
+			(apply_setfields 	== ts.apply_setfields) &&
+			(metadata_match 	== ts.metadata_match) &&
+			(metadata_write 	== ts.metadata_write) &&
+			(instructions 		== ts.instructions) &&
+			(config 			== ts.config) &&
+			(max_entries 		== ts.max_entries) &&
+			(active_count 		== ts.active_count) &&
+			(lookup_count 		== ts.lookup_count) &&
+			(matched_count 		== ts.matched_count));
+}
+
+
+
 void
 coftable_stats_reply::set_version(uint8_t of_version)
 {

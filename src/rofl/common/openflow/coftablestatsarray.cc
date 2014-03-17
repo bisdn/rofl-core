@@ -48,6 +48,26 @@ coftablestatsarray::operator= (coftablestatsarray const& tables)
 
 
 
+bool
+coftablestatsarray::operator== (coftablestatsarray const& tables)
+{
+	if (ofp_version != tables.ofp_version)
+		return false;
+
+	if (array.size() != tables.array.size())
+		return false;
+
+	for (std::map<uint8_t, coftable_stats_reply>::const_iterator
+			it = tables.array.begin(); it != tables.array.end(); ++it) {
+		if (not (array[it->first] == it->second))
+			return false;
+	}
+
+	return true;
+}
+
+
+
 coftablestatsarray&
 coftablestatsarray::operator+= (coftablestatsarray const& tables)
 {
