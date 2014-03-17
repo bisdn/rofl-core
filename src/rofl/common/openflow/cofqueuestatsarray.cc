@@ -51,6 +51,33 @@ cofqueuestatsarray::operator= (cofqueuestatsarray const& queues)
 
 
 
+bool
+cofqueuestatsarray::operator== (cofqueuestatsarray const& queues)
+{
+	if (ofp_version != queues.ofp_version)
+		return false;
+
+	if (array.size() != queues.array.size())
+		return false;
+
+	for (std::map<uint32_t, std::map<uint32_t, cofqueue_stats_reply> >::const_iterator
+				it = queues.array.begin(); it != queues.array.end(); ++it) {
+
+		if (array[it->first].size() != it->second.size())
+			return false;
+
+		for (std::map<uint32_t, cofqueue_stats_reply>::const_iterator
+					jt = it->second.begin(); jt != it->second.end(); ++jt) {
+			if (not (array[it->first][jt->first] == jt->second))
+				return false;
+		}
+	}
+
+	return true;
+}
+
+
+
 cofqueuestatsarray&
 cofqueuestatsarray::operator+= (cofqueuestatsarray const& queues)
 {
@@ -193,6 +220,9 @@ cofqueuestatsarray::set_queue_stats(uint32_t port_no, uint32_t queue_id)
 cofqueue_stats_reply const&
 cofqueuestatsarray::get_queue_stats(uint32_t port_no, uint32_t queue_id)
 {
+	if (array.find(port_no) == array.end()) {
+		throw eQueueStatsNotFound();
+	}
 	if (array.at(port_no).find(queue_id) == array.at(port_no).end()) {
 		throw eQueueStatsNotFound();
 	}

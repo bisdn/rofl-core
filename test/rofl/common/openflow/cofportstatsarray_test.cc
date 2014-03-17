@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofportstatsarray_test );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
@@ -41,7 +41,7 @@ cofportstatsarray_test::testCopyConstructor()
 	rofl::openflow::cofportstatsarray array(rofl::openflow13::OFP_VERSION);
 
 	array.set_port_stats(0).set_version(rofl::openflow13::OFP_VERSION);
-	array.set_port_stats(0).set_portno(0);
+	array.set_port_stats(0).set_port_no(0);
 	array.set_port_stats(0).set_rx_packets	(0x1111111111111111);
 	array.set_port_stats(0).set_tx_packets	(0x2222222222222222);
 	array.set_port_stats(0).set_rx_bytes	(0x3333333333333333);
@@ -58,7 +58,7 @@ cofportstatsarray_test::testCopyConstructor()
 	array.set_port_stats(0).set_duration_nsec	(0x22222222);
 
 	array.set_port_stats(1).set_version(rofl::openflow13::OFP_VERSION);
-	array.set_port_stats(1).set_portno(0);
+	array.set_port_stats(1).set_port_no(0);
 	array.set_port_stats(1).set_rx_packets	(0xa1a1a1a1a1a1a1a1);
 	array.set_port_stats(1).set_tx_packets	(0xa2a2a2a2a2a2a2a2);
 	array.set_port_stats(1).set_rx_bytes	(0xa3a3a3a3a3a3a3a3);
@@ -105,7 +105,7 @@ cofportstatsarray_test::testOperatorPlus()
 	array.push_back(rofl::openflow::cofportstatsarray(rofl::openflow13::OFP_VERSION));
 
 	array[0].set_port_stats(0).set_version(rofl::openflow13::OFP_VERSION);
-	array[0].set_port_stats(0).set_portno(0);
+	array[0].set_port_stats(0).set_port_no(0);
 	array[0].set_port_stats(0).set_rx_packets	(0x1111111111111111);
 	array[0].set_port_stats(0).set_tx_packets	(0x2222222222222222);
 	array[0].set_port_stats(0).set_rx_bytes		(0x3333333333333333);
@@ -122,7 +122,7 @@ cofportstatsarray_test::testOperatorPlus()
 	array[0].set_port_stats(0).set_duration_nsec(0x22222222);
 
 	array[0].set_port_stats(1).set_version(rofl::openflow13::OFP_VERSION);
-	array[0].set_port_stats(1).set_portno(1);
+	array[0].set_port_stats(1).set_port_no(1);
 	array[0].set_port_stats(1).set_rx_packets	(0xa1a1a1a1a1a1a1a1);
 	array[0].set_port_stats(1).set_tx_packets	(0xa2a2a2a2a2a2a2a2);
 	array[0].set_port_stats(1).set_rx_bytes		(0xa3a3a3a3a3a3a3a3);
@@ -139,7 +139,7 @@ cofportstatsarray_test::testOperatorPlus()
 	array[0].set_port_stats(1).set_duration_nsec(0xa2a2a2a2);
 
 	array[1].set_port_stats(2).set_version(rofl::openflow13::OFP_VERSION);
-	array[1].set_port_stats(2).set_portno(2);
+	array[1].set_port_stats(2).set_port_no(2);
 	array[1].set_port_stats(2).set_rx_packets	(0x1111111111111111);
 	array[1].set_port_stats(2).set_tx_packets	(0x2222222222222222);
 	array[1].set_port_stats(2).set_rx_bytes		(0x3333333333333333);
@@ -213,7 +213,7 @@ cofportstatsarray_test::testPackUnpack()
 	std::cerr << "unpacked mem:" << std::endl << array;
 #endif
 
-	CPPUNIT_ASSERT(array.get_port_stats(8).get_portno() == 8);
+	CPPUNIT_ASSERT(array.get_port_stats(8).get_port_no() == 8);
 	CPPUNIT_ASSERT(array.get_port_stats(8).get_rx_packets() == 0x1112131415161718);
 	CPPUNIT_ASSERT(array.get_port_stats(8).get_tx_packets() == 0x2122232425262728);
 	CPPUNIT_ASSERT(array.get_port_stats(8).get_rx_bytes() == 0x3132333435363738);
@@ -240,7 +240,7 @@ cofportstatsarray_test::testPackUnpack()
 		CPPUNIT_ASSERT(false);
 	} catch (rofl::openflow::ePortStatsNotFound& e) {};
 
-	array.set_port_stats(8).set_portno(8);
+	array.set_port_stats(8).set_port_no(8);
 	array.set_port_stats(8).set_rx_packets(0x1112131415161718);
 	array.set_port_stats(8).set_tx_packets(0x2122232425262728);
 	array.set_port_stats(8).set_rx_bytes(0x3132333435363738);

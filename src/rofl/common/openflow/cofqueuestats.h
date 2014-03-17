@@ -203,6 +203,13 @@ public:
 	/**
 	 *
 	 */
+	bool
+	operator== (
+			cofqueue_stats_reply const& stats);
+
+	/**
+	 *
+	 */
 	void
 	pack(uint8_t *buf, size_t buflen) const;
 
@@ -326,11 +333,13 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofqueue_stats_reply const& r) {
 		os << indent(0) << "<cofqueue_stats_reply >" << std::endl;
-		os << indent(2) << "<port-no: 0x" << std::hex << (int)r.get_port_no() << std::dec << " >" << std::endl;
-		os << indent(2) << "<queue-id: " << (int)r.get_queue_id() << " >" << std::endl;
-		os << indent(2) << "<tx-packets: " 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
-		os << indent(2) << "<tx-bytes: " 	<< (unsigned long long)r.get_tx_bytes() 	<< " >" << std::endl;
-		os << indent(2) << "<tx-errors: " 	<< (unsigned long long)r.get_tx_errors() 	<< " >" << std::endl;
+		os << std::hex;
+		os << indent(2) << "<port-no: 0x" << (int)r.get_port_no() << " >" << std::endl;
+		os << indent(2) << "<queue-id: 0x" << (int)r.get_queue_id() << " >" << std::endl;
+		os << indent(2) << "<tx-packets: 0x" 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-bytes: 0x" 	<< (unsigned long long)r.get_tx_bytes() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-errors: 0x" 	<< (unsigned long long)r.get_tx_errors() 	<< " >" << std::endl;
+		os << std::dec;
 		switch (r.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(2) << "<duration-sec: " 	<< (unsigned long long)r.get_duration_sec() 	<< " >" << std::endl;

@@ -253,7 +253,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_portno() const;
+	get_port_no() const;
 
 	/**
 	 *
@@ -343,7 +343,7 @@ public:
 	 *
 	 */
 	void
-	set_portno(uint32_t port_no);
+	set_port_no(uint32_t port_no);
 
 	/**
 	 *
@@ -435,7 +435,7 @@ public:
 	operator<< (std::ostream& os, cofport_stats_reply const& r) {
 		os << indent(0) << "<cofport_stats_reply >" << std::endl;
 		os << std::hex;
-		os << indent(2) << "<port-no: 0x" 		<< (int)r.get_portno() << " >" << std::endl;
+		os << indent(2) << "<port-no: 0x" 		<< (int)r.get_port_no() << " >" << std::endl;
 		os << indent(2) << "<rx-packets: 0x" 	<< (unsigned long long)r.get_rx_packets() 	<< " >" << std::endl;
 		os << indent(2) << "<tx-packets: 0x" 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
 		os << indent(2) << "<rx-bytes: 0x" 		<< (unsigned long long)r.get_rx_bytes() 	<< " >" << std::endl;

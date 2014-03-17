@@ -231,6 +231,22 @@ cofqueue_stats_reply::operator= (
 
 
 
+bool
+cofqueue_stats_reply::operator== (
+		cofqueue_stats_reply const& stats)
+{
+	return ((of_version 	== stats.of_version) &&
+			(port_no 		== stats.port_no) &&
+			(queue_id 		== stats.queue_id) &&
+			(tx_bytes 		== stats.tx_bytes) &&
+			(tx_packets 	== stats.tx_packets) &&
+			(tx_errors 		== stats.tx_errors) &&
+			(duration_sec 	== stats.duration_sec) &&
+			(duration_nsec 	== stats.duration_nsec));
+}
+
+
+
 void
 cofqueue_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {

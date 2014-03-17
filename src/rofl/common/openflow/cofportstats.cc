@@ -506,7 +506,7 @@ cofport_stats_reply::get_version() const
 
 
 uint32_t
-cofport_stats_reply::get_portno() const
+cofport_stats_reply::get_port_no() const
 {
 	return port_no;
 }
@@ -638,7 +638,7 @@ cofport_stats_reply::get_duration_nsec() const
 
 
 void
-cofport_stats_reply::set_portno(uint32_t port_no)
+cofport_stats_reply::set_port_no(uint32_t port_no)
 {
 	this->port_no = port_no;
 }
