@@ -54,6 +54,8 @@ std::string coption::parse_argument(char* optarg){
 /* Constructor */ 
 cunixenv::cunixenv(int argc, char** argv)
 {
+	std::stringstream ss("");
+
 	for (int i = 0; i < argc; i++) {
 		cargs.push_back(std::string(argv[i]));
 	}
@@ -61,9 +63,12 @@ cunixenv::cunixenv(int argc, char** argv)
 	/**
 	* Default arguments are debug and help ONLY
 	*/
-	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",logging::EMERG));
+	ss << logging::EMERG; 
+	coption debug = coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",ss.str());
+	arguments.push_back(debug);
 	//arguments.push_back(coption(true,REQUIRED_ARGUMENT,'l',"logfile","log file",std::string(LOGFILE_DEFAULT)));
-	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
+	coption help = coption(true,NO_ARGUMENT,'h',"help","Help message","");
+	arguments.push_back(help);
 	//arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
 	//arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
 	//arguments.push_back(coption(true, NO_ARGUMENT, 't', "test-config", "Only test configuration", ""));
