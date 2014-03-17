@@ -76,6 +76,18 @@ public: // methods
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofbucket>&
+	set_buckets() { return buckets; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofbucket> const&
+	get_buckets() const { return buckets; };
+
 public:
 
 	/**
