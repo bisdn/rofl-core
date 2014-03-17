@@ -60,18 +60,18 @@ cunixenv::cunixenv(int argc, char** argv)
 		cargs.push_back(std::string(argv[i]));
 	}
 
-	/**
+	/*
 	* Default arguments are debug and help ONLY
 	*/
+	
+	//Prepare debug debug level
 	ss << logging::EMERG; 
 	coption debug = coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",ss.str());
 	arguments.push_back(debug);
-	//arguments.push_back(coption(true,REQUIRED_ARGUMENT,'l',"logfile","log file",std::string(LOGFILE_DEFAULT)));
+	
 	coption help = coption(true,NO_ARGUMENT,'h',"help","Help message","");
 	arguments.push_back(help);
-	//arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
-	//arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
-	//arguments.push_back(coption(true, NO_ARGUMENT, 't', "test-config", "Only test configuration", ""));
+	
 	parsed = false;
 }
 
@@ -91,9 +91,9 @@ cunixenv::get_usage(char *argv0)
 		tmp+="--"+it->full_name+"|-"+it->shortcut;
 		
 		if(it->optional)
-			tmp+="]";
+			tmp+="]   ";
 	
-		tmp +=" <"+it->description;
+		tmp +="<"+it->description;
 		if(it->default_value != "")
 			tmp+=". default("+it->default_value+")";
 		tmp+=">\n";
