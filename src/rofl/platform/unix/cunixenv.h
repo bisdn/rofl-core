@@ -108,37 +108,18 @@ public:
 	void
 	update_default_option(const std::string &option_name, const std::string &value);
 
+	/**
+	 * Get usage pre-formatted message
+	 */
+	std::string get_usage(char *argv0);
+
 private:
 
-	/**
-	 * update paths for files so they are still usable in detached mode (called from detach())
-	 */
-	void
-	update_paths();
-
-	static const std::string deamon_dir;
-
 	std::vector<coption> arguments;
-
 	bool parsed;
 
 	// copy of values obtained from (int argc, char** argv)
 	std::vector<std::string> cargs;
-
-	/**
-	 * Usage method
-	 */
-	void usage(char *argv0);
-
-#define DEFAULT_PIDFILE "/var/run/rofl.pid"
-
-	/**
-	 * @brief	Daemonize process
-	 */
-	void
-	detach(
-			std::string const& pidfile = DEFAULT_PIDFILE);
-
 };
 
 }; // end of namespace
