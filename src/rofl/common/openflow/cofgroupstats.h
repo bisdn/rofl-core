@@ -11,6 +11,7 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/cofbucketcounters.h"
 
 namespace rofl {
 namespace openflow {
@@ -130,14 +131,15 @@ class cofgroup_stats_reply
 {
 private: // data structures
 
-	uint8_t 		of_version;
-	uint32_t		group_id;
-	uint32_t		ref_count;
-	uint64_t 		packet_count;
-	uint64_t		byte_count;
-	uint32_t		duration_sec;
-	uint32_t		duration_nsec;
-	cmemory			bucket_stats;
+	uint8_t 				of_version;
+	uint32_t				group_id;
+	uint32_t				ref_count;
+	uint64_t 				packet_count;
+	uint64_t				byte_count;
+	uint32_t				duration_sec;
+	uint32_t				duration_nsec;
+	cofbucket_counters		bucket_counters;
+
 
 public: // data structures
 
@@ -147,8 +149,7 @@ public:
 	 *
 	 */
 	cofgroup_stats_reply(
-			uint8_t of_version = 0,
-			unsigned int num_of_bucket_stats = 0);
+			uint8_t of_version = 0);
 
 	/**
 	 *
@@ -160,8 +161,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			uint32_t duration_sec,
-			uint32_t duration_nsec,
-			unsigned int num_of_bucket_stats = 0);
+			uint32_t duration_nsec);
 
 	/**
 	 *
@@ -188,7 +188,7 @@ public:
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen) const;
+	pack(uint8_t *buf, size_t buflen);
 
 	/**
 	 *
@@ -249,15 +249,16 @@ public:
 	get_duration_nsec() const { return duration_nsec; };
 
 	/**
-	 * FIXME: version dependency
+	 *
 	 */
-	struct rofl::openflow12::ofp_bucket_counter&
-	get_bucket_counter(size_t i) {
-		if (i > (bucket_stats.memlen() / sizeof(struct rofl::openflow12::ofp_bucket_counter))) {
-			throw eInval();
-		}
-		return ((struct rofl::openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
-	};
+	cofbucket_counters&
+	set_bucket_counters() { return bucket_counters; };
+
+	/**
+	 *
+	 */
+	cofbucket_counters const&
+	get_bucket_counters() const { return bucket_counters; };
 
 	/**
 	 *
@@ -323,7 +324,7 @@ public:
 		};
 		}
 		indent i(2);
-		os << r.bucket_stats;
+		os << r.bucket_counters;
 		return os;
 	};
 };

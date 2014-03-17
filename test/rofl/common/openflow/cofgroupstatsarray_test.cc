@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofgroupstatsarray_test );
 
 #if defined DEBUG
-#undef DEBUG
+//#undef DEBUG
 #endif
 
 void
@@ -47,6 +47,10 @@ cofgroupstatsarray_test::testCopyConstructor()
 	array.set_group_stats(0).set_ref_count(0x55667788);
 	array.set_group_stats(0).set_duration_sec(0x77777777);
 	array.set_group_stats(0).set_duration_nsec(0x88888888);
+	array.set_group_stats(0).set_bucket_counters().set_bucket_counter(0).set_packet_count(0x1111111111111111);
+	array.set_group_stats(0).set_bucket_counters().set_bucket_counter(0).set_byte_count  (0x2222222222222222);
+	array.set_group_stats(0).set_bucket_counters().set_bucket_counter(1).set_packet_count(0x3333333333333333);
+	array.set_group_stats(0).set_bucket_counters().set_bucket_counter(1).set_byte_count  (0x4444444444444444);
 
 	array.set_group_stats(1).set_version(rofl::openflow13::OFP_VERSION);
 	array.set_group_stats(1).set_group_id(1);
@@ -94,14 +98,10 @@ cofgroupstatsarray_test::testOperatorPlus()
 	array[0].set_group_stats(0).set_ref_count(0x10101010);
 	array[0].set_group_stats(0).set_duration_sec(0x77777777);
 	array[0].set_group_stats(0).set_duration_nsec(0x88888888);
-#if 0
-	array[0].set_group_stats(0).get_bucket_counter(0).packet_count = 0xf1f2f3f4f5f6f7f8;
-	array[0].set_group_stats(0).get_bucket_counter(0).byte_count = 0xe1e2e3e4e5e6e7e8;
-	array[0].set_group_stats(0).get_bucket_counter(1).packet_count = 0xf1f2f3f4f5f6f7f8;
-	array[0].set_group_stats(0).get_bucket_counter(1).byte_count = 0xe1e2e3e4e5e6e7e8;
-	array[0].set_group_stats(0).get_bucket_counter(2).packet_count = 0xf1f2f3f4f5f6f7f8;
-	array[0].set_group_stats(0).get_bucket_counter(2).byte_count = 0xe1e2e3e4e5e6e7e8;
-#endif
+	array[0].set_group_stats(0).set_bucket_counters().set_bucket_counter(0).set_packet_count(0x1111111111111111);
+	array[0].set_group_stats(0).set_bucket_counters().set_bucket_counter(0).set_byte_count  (0x2222222222222222);
+	array[0].set_group_stats(0).set_bucket_counters().set_bucket_counter(1).set_packet_count(0x3333333333333333);
+	array[0].set_group_stats(0).set_bucket_counters().set_bucket_counter(1).set_byte_count  (0x4444444444444444);
 
 	array[0].set_group_stats(1).set_version(rofl::openflow13::OFP_VERSION);
 	array[0].set_group_stats(1).set_group_id(1);
