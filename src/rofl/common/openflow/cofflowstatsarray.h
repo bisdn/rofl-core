@@ -103,6 +103,18 @@ public:
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofflow_stats_reply> const&
+	get_flow_stats() const { return array; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofflow_stats_reply>&
+	set_flow_stats() { return array; };
+
 public:
 
 	/**

@@ -9,7 +9,7 @@ cofmsg_table_features_stats_request::cofmsg_table_features_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t stats_flags,
-		rofl::openflow::coftables const tables) :
+		rofl::openflow::coftables const& tables) :
 	cofmsg_stats_request(of_version, xid, 0, stats_flags),
 	tables(tables)
 {

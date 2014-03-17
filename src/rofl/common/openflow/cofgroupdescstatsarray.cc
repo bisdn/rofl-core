@@ -34,12 +34,12 @@ cofgroupdescstatsarray::operator= (cofgroupdescstatsarray const& groupdescs)
 	if (this == &groupdescs)
 		return *this;
 
-	this->groupdescstatsarray.clear();
+	this->array.clear();
 
 	ofp_version = groupdescs.ofp_version;
 	for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
-			it = groupdescs.groupdescstatsarray.begin(); it != groupdescs.groupdescstatsarray.end(); ++it) {
-		this->groupdescstatsarray[it->first] = it->second;
+			it = groupdescs.array.begin(); it != groupdescs.array.end(); ++it) {
+		this->array[it->first] = it->second;
 	}
 
 	return *this;
@@ -54,8 +54,8 @@ cofgroupdescstatsarray::operator+= (cofgroupdescstatsarray const& groupdescs)
 	 * this may replace existing group descriptions
 	 */
 	for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
-			it = groupdescs.groupdescstatsarray.begin(); it != groupdescs.groupdescstatsarray.end(); ++it) {
-		this->groupdescstatsarray[it->first] = it->second;
+			it = groupdescs.array.begin(); it != groupdescs.array.end(); ++it) {
+		this->array[it->first] = it->second;
 	}
 
 	return *this;
@@ -68,7 +68,7 @@ cofgroupdescstatsarray::length() const
 {
 	size_t len = 0;
 	for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
-			it = groupdescstatsarray.begin(); it != groupdescstatsarray.end(); ++it) {
+			it = array.begin(); it != array.end(); ++it) {
 		len += it->second.length();
 	}
 	return len;
@@ -90,7 +90,7 @@ cofgroupdescstatsarray::pack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		for (std::map<uint32_t, cofgroup_desc_stats_reply>::iterator
-				it = groupdescstatsarray.begin(); it != groupdescstatsarray.end(); ++it) {
+				it = array.begin(); it != array.end(); ++it) {
 			it->second.pack(buf, it->second.length());
 			buf += it->second.length();
 		}
@@ -106,7 +106,7 @@ cofgroupdescstatsarray::pack(uint8_t *buf, size_t buflen)
 void
 cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 {
-	groupdescstatsarray.clear();
+	array.clear();
 
 	switch (ofp_version) {
 	case rofl::openflow12::OFP_VERSION: {
@@ -153,10 +153,10 @@ cofgroupdescstatsarray::unpack(uint8_t *buf, size_t buflen)
 cofgroup_desc_stats_reply&
 cofgroupdescstatsarray::add_group_desc_stats(uint32_t group_id)
 {
-	if (groupdescstatsarray.find(group_id) != groupdescstatsarray.end()) {
-		groupdescstatsarray.erase(group_id);
+	if (array.find(group_id) != array.end()) {
+		array.erase(group_id);
 	}
-	return (groupdescstatsarray[group_id] = cofgroup_desc_stats_reply(ofp_version));
+	return (array[group_id] = cofgroup_desc_stats_reply(ofp_version));
 }
 
 
@@ -164,10 +164,10 @@ cofgroupdescstatsarray::add_group_desc_stats(uint32_t group_id)
 void
 cofgroupdescstatsarray::drop_group_desc_stats(uint32_t group_id)
 {
-	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
+	if (array.find(group_id) == array.end()) {
 		return;
 	}
-	groupdescstatsarray.erase(group_id);
+	array.erase(group_id);
 }
 
 
@@ -175,10 +175,10 @@ cofgroupdescstatsarray::drop_group_desc_stats(uint32_t group_id)
 cofgroup_desc_stats_reply&
 cofgroupdescstatsarray::set_group_desc_stats(uint32_t group_id)
 {
-	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
-		groupdescstatsarray[group_id] = cofgroup_desc_stats_reply(ofp_version);
+	if (array.find(group_id) == array.end()) {
+		array[group_id] = cofgroup_desc_stats_reply(ofp_version);
 	}
-	return groupdescstatsarray[group_id];
+	return array[group_id];
 }
 
 
@@ -186,10 +186,10 @@ cofgroupdescstatsarray::set_group_desc_stats(uint32_t group_id)
 cofgroup_desc_stats_reply const&
 cofgroupdescstatsarray::get_group_desc_stats(uint32_t group_id) const
 {
-	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
+	if (array.find(group_id) == array.end()) {
 		throw eGroupDescStatsNotFound();
 	}
-	return groupdescstatsarray.at(group_id);
+	return array.at(group_id);
 }
 
 
@@ -197,7 +197,7 @@ cofgroupdescstatsarray::get_group_desc_stats(uint32_t group_id) const
 bool
 cofgroupdescstatsarray::has_group_desc_stats(uint32_t group_id)
 {
-	return (not (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()));
+	return (not (array.find(group_id) == array.end()));
 }
 
 

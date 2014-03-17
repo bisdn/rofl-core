@@ -20,7 +20,7 @@ namespace openflow {
 class cofgroupdescstatsarray {
 
 	uint8_t 										ofp_version;
-	std::map<uint32_t, cofgroup_desc_stats_reply> 	groupdescstatsarray;
+	std::map<uint32_t, cofgroup_desc_stats_reply> 	array;
 
 public:
 
@@ -78,13 +78,25 @@ public:
 	 *
 	 */
 	size_t
-	size() const { return groupdescstatsarray.size(); };
+	size() const { return array.size(); };
 
 	/**
 	 *
 	 */
 	void
-	clear() { groupdescstatsarray.clear(); };
+	clear() { array.clear(); };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofgroup_desc_stats_reply> const&
+	get_group_desc_stats() const { return array; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofgroup_desc_stats_reply>&
+	set_group_desc_stats() { return array; };
 
 public:
 
@@ -136,10 +148,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofgroupdescstatsarray const& groupdescstatsarray) {
-		os << rofl::indent(0) << "<cofgroupdescstatsarray #groups:" << (int)groupdescstatsarray.groupdescstatsarray.size() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofgroupdescstatsarray #groups:" << (int)groupdescstatsarray.array.size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
-				it = groupdescstatsarray.groupdescstatsarray.begin(); it != groupdescstatsarray.groupdescstatsarray.end(); ++it) {
+				it = groupdescstatsarray.array.begin(); it != groupdescstatsarray.array.end(); ++it) {
 			os << it->second;
 		}
 		return os;

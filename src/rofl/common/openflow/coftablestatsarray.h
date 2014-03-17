@@ -103,6 +103,18 @@ public:
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
+	/**
+	 *
+	 */
+	std::map<uint8_t, coftable_stats_reply> const&
+	get_table_stats() const { return array; };
+
+	/**
+	 *
+	 */
+	std::map<uint8_t, coftable_stats_reply>&
+	set_table_stats() { return array; };
+
 public:
 
 	/**

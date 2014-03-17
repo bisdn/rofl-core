@@ -103,6 +103,18 @@ public:
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofport_stats_reply> const&
+	get_port_stats() const { return array; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofport_stats_reply>&
+	set_port_stats() { return array; };
+
 public:
 
 	/**
