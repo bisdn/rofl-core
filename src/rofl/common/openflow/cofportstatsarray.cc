@@ -197,7 +197,7 @@ cofportstatsarray::set_port_stats(uint32_t port_id)
 
 
 cofport_stats_reply const&
-cofportstatsarray::get_port_stats(uint32_t port_id)
+cofportstatsarray::get_port_stats(uint32_t port_id) const
 {
 	if (array.find(port_id) == array.end()) {
 		throw ePortStatsNotFound();

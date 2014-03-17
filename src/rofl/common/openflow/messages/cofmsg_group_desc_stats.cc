@@ -173,6 +173,8 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 	cofmsg_stats_reply(of_version, xid, 0, flags),
 	groupdescstatsarray(groupdescstatsarray)
 {
+	this->groupdescstatsarray.set_version(of_version);
+
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
 
@@ -232,6 +234,8 @@ cofmsg_group_desc_stats_reply::operator= (
 	cofmsg_stats::operator =(stats);
 
 	ofh_group_desc_stats = soframe();
+
+	groupdescstatsarray = stats.groupdescstatsarray;
 
 	return *this;
 }

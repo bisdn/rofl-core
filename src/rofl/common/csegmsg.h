@@ -29,7 +29,6 @@
 #include "rofl/common/openflow/messages/cofmsg_port_desc_stats.h"
 
 namespace rofl {
-namespace openflow {
 
 class eSegmentedMessageBase			: public RoflException {};
 class eSegmentedMessageInval		: public eSegmentedMessageBase {};
@@ -82,7 +81,11 @@ public:
 	 *
 	 */
 	cofmsg_stats const&
-	get_msg() const { return *msg; };
+	get_msg() const {
+		if (0 == msg)
+			throw eInval();
+		return *msg;
+	};
 
 
 public:
@@ -112,8 +115,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, csegmsg const& msg) {
 		os << rofl::indent(0) << "<csegmsg" << " >" << std::endl;
-		os << rofl::indent(2) << "<expires: " << msg.expires << " >" << std::endl;
-		os << rofl::indent(2) << "<xid: " << (int)msg.xid << " >" << std::endl;
+		os << rofl::indent(2) << "<expires: >" << std::endl;
+		{ rofl::indent i(4); os << msg.expires; }
+		os << rofl::indent(2) << "<xid: 0x" << std::hex << (int)msg.xid << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		switch (msg.msg->get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
@@ -126,7 +130,7 @@ public:
 					os << dynamic_cast<cofmsg_desc_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_FLOW: {
-					os << dynamic_cast<cofmsg_flow_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_AGGREGATE: {
 					os << dynamic_cast<cofmsg_aggr_stats_request const&>( *(msg.msg) );
@@ -169,7 +173,7 @@ public:
 					os << dynamic_cast<cofmsg_desc_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_FLOW: {
-					os << dynamic_cast<cofmsg_flow_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_AGGREGATE: {
 					os << dynamic_cast<cofmsg_aggr_stats_reply const&>( *(msg.msg) );
@@ -216,7 +220,6 @@ public:
 	};
 };
 
-}; // end of namespace openflow
 }; // end of namespace rofl
 
 #endif /* CMULTIPART_H_ */

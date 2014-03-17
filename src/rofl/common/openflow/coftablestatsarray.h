@@ -49,7 +49,7 @@ public:
 	 *
 	 */
 	bool
-	operator== (coftablestatsarray const& tables);
+	operator== (coftablestatsarray const& tables) const;
 
 	/**
 	 *
@@ -78,6 +78,12 @@ public:
 	unpack(uint8_t *buf, size_t buflen);
 
 public:
+
+	/**
+	 *
+	 */
+	size_t
+	size() const { return array.size(); };
 
 	/**
 	 *
@@ -121,7 +127,7 @@ public:
 	 *
 	 */
 	coftable_stats_reply const&
-	get_table_stats(uint8_t table_id);
+	get_table_stats(uint8_t table_id) const;
 
 	/**
 	 *
@@ -133,7 +139,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coftablestatsarray const& tablestatsarray) {
-		os << "<coftablestatsarray #tables:" << (int)tablestatsarray.array.size() << " >" << std::endl;
+		os << rofl::indent(0) << "<coftablestatsarray #tables:" << (int)tablestatsarray.array.size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<uint8_t, coftable_stats_reply>::const_iterator
 				it = tablestatsarray.array.begin(); it != tablestatsarray.array.end(); ++it) {

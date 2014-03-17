@@ -319,9 +319,9 @@ crofbase::handle_accepted(
 		caddress const& ra)
 {
 #ifdef HAVE_OPENSSL
-	(new rofl::openflow::crofconn(this, versionbitmap))->accept(newsd, socket.ssl_ctx);
+	(new rofl::crofconn(this, versionbitmap))->accept(newsd, socket.ssl_ctx);
 #else
-	(new rofl::openflow::crofconn(this, versionbitmap))->accept(newsd, NULL);
+	(new rofl::crofconn(this, versionbitmap))->accept(newsd, NULL);
 #endif
 }
 

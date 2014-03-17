@@ -49,7 +49,7 @@ coftablestatsarray::operator= (coftablestatsarray const& tables)
 
 
 bool
-coftablestatsarray::operator== (coftablestatsarray const& tables)
+coftablestatsarray::operator== (coftablestatsarray const& tables) const
 {
 	if (ofp_version != tables.ofp_version)
 		return false;
@@ -59,7 +59,7 @@ coftablestatsarray::operator== (coftablestatsarray const& tables)
 
 	for (std::map<uint8_t, coftable_stats_reply>::const_iterator
 			it = tables.array.begin(); it != tables.array.end(); ++it) {
-		if (not (array[it->first] == it->second))
+		if (not (array.at(it->first) == it->second))
 			return false;
 	}
 
@@ -208,7 +208,7 @@ coftablestatsarray::set_table_stats(uint8_t table_id)
 
 
 coftable_stats_reply const&
-coftablestatsarray::get_table_stats(uint8_t table_id)
+coftablestatsarray::get_table_stats(uint8_t table_id) const
 {
 	if (array.find(table_id) == array.end()) {
 		throw eTableStatsNotFound();

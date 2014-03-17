@@ -7,7 +7,7 @@
 
 #include "rofl/common/csegmentation.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 
 csegmentation::csegmentation()

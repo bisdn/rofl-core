@@ -7,7 +7,7 @@
 
 #include "rofl/common/csegmsg.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 csegmsg::csegmsg() :
 	xid(0),
@@ -75,7 +75,7 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 			msg = new cofmsg_desc_stats_request(dynamic_cast<cofmsg_desc_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
-			msg = new cofmsg_flow_stats_request(dynamic_cast<cofmsg_flow_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_flow_stats_request(dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
 			msg = new cofmsg_aggr_stats_request(dynamic_cast<cofmsg_aggr_stats_request const&>(msg_stats));
@@ -110,6 +110,10 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 		};
 		}
 
+		if (NULL != msg) {
+			msg->set_stats_flags(msg->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		}
+
 	} break;
 	case rofl::openflow13::OFPT_MULTIPART_REPLY: {
 		switch (msg_stats.get_stats_type()) {
@@ -117,7 +121,7 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 			msg = new cofmsg_desc_stats_reply(dynamic_cast<cofmsg_desc_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
-			msg = new cofmsg_flow_stats_reply(dynamic_cast<cofmsg_flow_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
 			msg = new cofmsg_aggr_stats_reply(dynamic_cast<cofmsg_aggr_stats_reply const&>(msg_stats));
@@ -152,11 +156,16 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 		};
 		}
 
+		if (NULL != msg) {
+			msg->set_stats_flags(msg->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+		}
+
 	} break;
 	default: {
 		// oops
 	};
 	}
+
 }
 
 
@@ -204,11 +213,11 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 			switch (msg_stats.get_stats_type()) {
 			case rofl::openflow13::OFPMP_FLOW: {
 
-				cofmsg_flow_stats_reply* msg_flow =
-						dynamic_cast<cofmsg_flow_stats_reply*>(msg);
+				rofl::openflow::cofmsg_flow_stats_reply* msg_flow =
+						dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg);
 
-				cofmsg_flow_stats_reply const& msg_flow_stats =
-						dynamic_cast<cofmsg_flow_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_flow_stats_reply const& msg_flow_stats =
+						dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>(msg_stats);
 
 				msg_flow->set_flow_stats_array() += msg_flow_stats.get_flow_stats_array();
 

@@ -77,6 +77,12 @@ public:
 	/**
 	 *
 	 */
+	size_t
+	size() const { return groupdescstatsarray.size(); };
+
+	/**
+	 *
+	 */
 	void
 	clear() { groupdescstatsarray.clear(); };
 
@@ -104,7 +110,7 @@ public:
 	 *
 	 */
 	cofgroup_desc_stats_reply const&
-	get_group_desc_stats(uint32_t group_id);
+	get_group_desc_stats(uint32_t group_id) const;
 
 	/**
 	 *

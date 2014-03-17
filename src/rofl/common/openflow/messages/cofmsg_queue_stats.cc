@@ -216,6 +216,8 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 	cofmsg_stats_reply(of_version, xid, 0, flags),
 	queuestatsarray(queuestatsarray)
 {
+	this->queuestatsarray.set_version(of_version);
+
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
 
@@ -281,6 +283,8 @@ cofmsg_queue_stats_reply::operator= (
 	cofmsg_stats::operator =(stats);
 
 	ofh_queue_stats = soframe();
+
+	queuestatsarray = stats.queuestatsarray;
 
 	return *this;
 }

@@ -121,7 +121,7 @@ public:
 	 */
 	bool
 	operator== (
-			coftable_stats_reply const& table_stats);
+			coftable_stats_reply const& table_stats) const;
 
 	/**
 	 *

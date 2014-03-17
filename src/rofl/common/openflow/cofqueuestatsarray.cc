@@ -218,7 +218,7 @@ cofqueuestatsarray::set_queue_stats(uint32_t port_no, uint32_t queue_id)
 
 
 cofqueue_stats_reply const&
-cofqueuestatsarray::get_queue_stats(uint32_t port_no, uint32_t queue_id)
+cofqueuestatsarray::get_queue_stats(uint32_t port_no, uint32_t queue_id) const
 {
 	if (array.find(port_no) == array.end()) {
 		throw eQueueStatsNotFound();

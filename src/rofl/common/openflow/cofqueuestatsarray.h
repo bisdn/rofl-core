@@ -82,6 +82,12 @@ public:
 	/**
 	 *
 	 */
+	size_t
+	size() const { return array.size(); };
+
+	/**
+	 *
+	 */
 	void
 	clear() { array.clear(); };
 
@@ -121,7 +127,7 @@ public:
 	 *
 	 */
 	cofqueue_stats_reply const&
-	get_queue_stats(uint32_t port_no, uint32_t queue_id);
+	get_queue_stats(uint32_t port_no, uint32_t queue_id) const;
 
 	/**
 	 *

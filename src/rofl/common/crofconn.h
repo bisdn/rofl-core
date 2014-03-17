@@ -26,7 +26,6 @@ extern "C" {
 #include "rofl/common/csegmentation.h"
 
 namespace rofl {
-namespace openflow {
 
 class eRofConnBase 					: public RoflException {};
 class eRofConnXidSpaceExhausted		: public eRofConnBase {};
@@ -377,7 +376,6 @@ public:
 	};
 };
 
-}; /* namespace openflow */
 }; /* namespace rofl */
 
 #endif /* CROFCHAN_H_ */

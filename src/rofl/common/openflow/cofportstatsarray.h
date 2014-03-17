@@ -82,6 +82,12 @@ public:
 	/**
 	 *
 	 */
+	size_t
+	size() const { return array.size(); };
+
+	/**
+	 *
+	 */
 	void
 	clear() { array.clear(); };
 
@@ -121,7 +127,7 @@ public:
 	 *
 	 */
 	cofport_stats_reply const&
-	get_port_stats(uint32_t port_id);
+	get_port_stats(uint32_t port_id) const;
 
 	/**
 	 *

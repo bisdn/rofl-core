@@ -18,7 +18,6 @@
 #include "rofl/common/csegmsg.h"
 
 namespace rofl {
-namespace openflow {
 
 class eSegmentationBase 		: public RoflException {};
 class eSegmentationInval		: public eSegmentationBase {};
@@ -99,7 +98,6 @@ public:
 	};
 };
 
-}; // end of namespace openflow
 }; // end of namespace rofl
 
 #endif /* CSEGMENTATION_H_ */

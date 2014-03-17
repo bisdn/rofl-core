@@ -247,6 +247,8 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 	cofmsg_stats_reply(of_version, xid, 0, flags),
 	portstatsarray(portstatsarray)
 {
+	this->portstatsarray.set_version(of_version);
+
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
 
@@ -312,6 +314,8 @@ cofmsg_port_stats_reply::operator= (
 	cofmsg_stats::operator =(stats);
 
 	ofh_port_stats = soframe();
+
+	portstatsarray = stats.portstatsarray;
 
 	return *this;
 }

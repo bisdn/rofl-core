@@ -48,6 +48,26 @@ cofflowstatsarray::operator= (cofflowstatsarray const& flows)
 
 
 
+bool
+cofflowstatsarray::operator== (cofflowstatsarray const& flows)
+{
+	if (ofp_version != flows.ofp_version)
+		return false;
+
+	if (array.size() != flows.array.size())
+		return false;
+
+	for (std::map<uint32_t, cofflow_stats_reply>::const_iterator
+			it = flows.array.begin(); it != flows.array.end(); ++it) {
+		if (not (array.at(it->first) == it->second))
+			return false;
+	}
+
+	return true;
+}
+
+
+
 cofflowstatsarray&
 cofflowstatsarray::operator+= (cofflowstatsarray const& flows)
 {

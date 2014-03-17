@@ -184,7 +184,7 @@ cofgroupdescstatsarray::set_group_desc_stats(uint32_t group_id)
 
 
 cofgroup_desc_stats_reply const&
-cofgroupdescstatsarray::get_group_desc_stats(uint32_t group_id)
+cofgroupdescstatsarray::get_group_desc_stats(uint32_t group_id) const
 {
 	if (groupdescstatsarray.find(group_id) == groupdescstatsarray.end()) {
 		throw eGroupDescStatsNotFound();

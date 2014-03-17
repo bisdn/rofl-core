@@ -82,6 +82,12 @@ public:
 	/**
 	 *
 	 */
+	size_t
+	size() const { return array.size(); };
+
+	/**
+	 *
+	 */
 	void
 	clear() { array.clear(); };
 

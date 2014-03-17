@@ -174,7 +174,7 @@ coftable_stats_reply::operator= (
 
 bool
 coftable_stats_reply::operator== (
-		coftable_stats_reply const& ts)
+		coftable_stats_reply const& ts) const
 {
 	return ((of_version 		== ts.of_version) &&
 			(table_id 			== ts.table_id) &&

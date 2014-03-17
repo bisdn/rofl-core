@@ -228,6 +228,8 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 	cofmsg_stats_reply(of_version, xid, 0, flags),
 	flowstatsarray(flowstatsarray)
 {
+	this->flowstatsarray.set_version(of_version);
+
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {
 
@@ -293,6 +295,8 @@ cofmsg_flow_stats_reply::operator= (
 	cofmsg_stats::operator =(stats);
 
 	ofh_flow_stats = soframe();
+
+	flowstatsarray = stats.flowstatsarray;
 
 	return *this;
 }

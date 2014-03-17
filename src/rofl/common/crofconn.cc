@@ -7,7 +7,7 @@
 
 #include "crofconn.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 crofconn::crofconn(
 		crofconn_env *env,
