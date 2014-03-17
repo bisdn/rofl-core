@@ -48,6 +48,12 @@ public:
 	/**
 	 *
 	 */
+	bool
+	operator== (cofportstatsarray const& ports);
+
+	/**
+	 *
+	 */
 	cofportstatsarray&
 	operator+= (cofportstatsarray const& ports);
 
@@ -78,6 +84,18 @@ public:
 	 */
 	void
 	clear() { array.clear(); };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
 public:
 

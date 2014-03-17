@@ -48,6 +48,12 @@ public:
 	/**
 	 *
 	 */
+	bool
+	operator== (cofgroupstatsarray const& groups);
+
+	/**
+	 *
+	 */
 	cofgroupstatsarray&
 	operator+= (cofgroupstatsarray const& groups);
 

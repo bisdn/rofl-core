@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofgroupstatsarray_test );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
@@ -131,14 +131,14 @@ cofgroupstatsarray_test::testOperatorPlus()
 
 #ifdef DEBUG
 	std::cerr << "array[0]+array[1]:" << std::endl << merge;
-	//std::cerr << "merge.set_group_stats(0) == array[0].get_group_stats(0): " << (merge.set_group_stats(0) == array[0].get_group_stats(0)) << std::endl;
-	//std::cerr << "merge.set_group_stats(1) == array[0].get_group_stats(1): " << (merge.set_group_stats(1) == array[0].get_group_stats(1)) << std::endl;
-	//std::cerr << "merge.set_group_stats(2) == array[1].get_group_stats(2): " << (merge.set_group_stats(2) == array[1].get_group_stats(2)) << std::endl;
+	std::cerr << "merge.set_group_stats(0) == array[0].get_group_stats(0): " << (merge.set_group_stats(0) == array[0].get_group_stats(0)) << std::endl;
+	std::cerr << "merge.set_group_stats(1) == array[0].get_group_stats(1): " << (merge.set_group_stats(1) == array[0].get_group_stats(1)) << std::endl;
+	std::cerr << "merge.set_group_stats(2) == array[1].get_group_stats(2): " << (merge.set_group_stats(2) == array[1].get_group_stats(2)) << std::endl;
 #endif
 
-	//CPPUNIT_ASSERT(merge.set_group_stats(0) == array[0].get_group_stats(0));
-	//CPPUNIT_ASSERT(merge.set_group_stats(1) == array[0].get_group_stats(1));
-	//CPPUNIT_ASSERT(merge.set_group_stats(2) == array[1].get_group_stats(2));
+	CPPUNIT_ASSERT(merge.set_group_stats(0) == array[0].get_group_stats(0));
+	CPPUNIT_ASSERT(merge.set_group_stats(1) == array[0].get_group_stats(1));
+	CPPUNIT_ASSERT(merge.set_group_stats(2) == array[1].get_group_stats(2));
 }
 
 

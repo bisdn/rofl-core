@@ -48,6 +48,26 @@ cofportstatsarray::operator= (cofportstatsarray const& ports)
 
 
 
+bool
+cofportstatsarray::operator== (cofportstatsarray const& ports)
+{
+	if (ofp_version != ports.ofp_version)
+		return false;
+
+	if (array.size() != ports.array.size())
+		return false;
+
+	for (std::map<uint32_t, cofport_stats_reply>::const_iterator
+				it = ports.array.begin(); it != ports.array.end(); ++it) {
+		if (not (array[it->first] == it->second))
+			return false;
+	}
+
+	return true;
+}
+
+
+
 cofportstatsarray&
 cofportstatsarray::operator+= (cofportstatsarray const& ports)
 {

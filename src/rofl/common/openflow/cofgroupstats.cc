@@ -217,6 +217,22 @@ cofgroup_stats_reply::operator= (
 
 
 
+bool
+cofgroup_stats_reply::operator== (
+		cofgroup_stats_reply const& stats_reply)
+{
+	return ((of_version 		== stats_reply.of_version) &&
+			(group_id 			== stats_reply.group_id) &&
+			(ref_count 			== stats_reply.ref_count) &&
+			(packet_count 		== stats_reply.packet_count) &&
+			(byte_count 		== stats_reply.byte_count) &&
+			(duration_sec 		== stats_reply.duration_sec) &&
+			(duration_nsec 		== stats_reply.duration_nsec) &&
+			(bucket_counters 	== stats_reply.bucket_counters));
+}
+
+
+
 size_t
 cofgroup_stats_reply::length() const
 {

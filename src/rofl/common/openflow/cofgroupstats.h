@@ -183,6 +183,12 @@ public:
 	operator= (
 			cofgroup_stats_reply const& stats);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cofgroup_stats_reply const& stats);
 
 	/**
 	 *
