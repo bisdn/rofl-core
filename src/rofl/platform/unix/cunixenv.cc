@@ -91,9 +91,14 @@ cunixenv::get_usage(char *argv0)
 		tmp+="--"+it->full_name+"|-"+it->shortcut;
 		
 		if(it->optional)
-			tmp+="]   ";
-	
-		tmp +="<"+it->description;
+			tmp+="]";
+
+		//Tabulate
+		for(int i= 30 - tmp.length();i>0;i--){
+			tmp +=" ";
+		}
+
+		tmp +=" <"+it->description;
 		if(it->default_value != "")
 			tmp+=". default("+it->default_value+")";
 		tmp+=">\n";
@@ -105,9 +110,9 @@ cunixenv::get_usage(char *argv0)
 			
 	}
 	if(mandatory!= "")
-		ss<<"Mandatory parameters:"<<std::endl<<mandatory;	
+		ss<<"\nMandatory parameters:"<<std::endl<<mandatory;	
 	if(optional!= "")
-		ss<<"Optional parameters:"<<std::endl<<optional;	
+		ss<<"\nOptional parameters:"<<std::endl<<optional;	
 	
 	return ss.str();
 }
