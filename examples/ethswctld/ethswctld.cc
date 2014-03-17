@@ -27,13 +27,8 @@ main(int argc, char** argv)
 		// only do this in non
 		std::string ident(env_parser.get_arg("logfile"));
 
-		csyslog::initlog(csyslog::LOGTYPE_FILE,
-				static_cast<csyslog::DebugLevel>(atoi(env_parser.get_arg("debug").c_str())), // todo needs checking
-				env_parser.get_arg("logfile"),
-				ident.c_str());
-
+		logging::init();
 		rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
-
 	} else {
 
 		rofl::cdaemon::daemonize(env_parser.get_arg("pidfile"), env_parser.get_arg("logfile"));

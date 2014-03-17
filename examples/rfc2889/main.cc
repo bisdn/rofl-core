@@ -4,16 +4,15 @@
 int
 main(int argc, char** argv)
 {
+
+	rofl::cunixenv env_parser(argc, argv);
+	
+	//Parse
+	env_parser.parse_args();
+
 	/* update defaults */
-	rofl::csyslog::initlog(
-			rofl::csyslog::LOGTYPE_STDERR,
-			rofl::csyslog::EMERGENCY,
-			std::string("etherswitch.log"),
-			"an example: ");
-
-	rofl::csyslog::set_debug_level("ciosrv", "emergency");
-	rofl::csyslog::set_debug_level("cthread", "emergency");
-
+	rofl::logging::init();
+	rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
 
 	cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);

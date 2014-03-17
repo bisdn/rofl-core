@@ -19,18 +19,11 @@ unsigned int pkt_interval = 500000;
 int
 main(int argc, char** argv)
 {
+
 	parse_args(argc, argv);
 
 	/* update defaults */
-	rofl::csyslog::initlog(
-			rofl::csyslog::LOGTYPE_STDERR,
-			rofl::csyslog::EMERGENCY,
-			std::string("ofperftest.log"),
-			"an example: ");
-
-	rofl::csyslog::set_debug_level("ciosrv", "emergency");
-	rofl::csyslog::set_debug_level("cthread", "emergency");
-
+	rofl::logging::init();
 
 	cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
