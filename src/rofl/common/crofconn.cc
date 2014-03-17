@@ -968,7 +968,7 @@ crofconn::fragment_flow_stats_reply(
 				new cofmsg_flow_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						flowstats));
 
 		flowstats.clear();
@@ -976,7 +976,7 @@ crofconn::fragment_flow_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_flow_stats_reply*>::iterator
@@ -1009,7 +1009,7 @@ crofconn::fragment_table_stats_reply(
 				new cofmsg_table_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						tablestats));
 
 		tablestats.clear();
@@ -1017,7 +1017,7 @@ crofconn::fragment_table_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_table_stats_reply*>::iterator
@@ -1050,7 +1050,7 @@ crofconn::fragment_port_stats_reply(
 				new cofmsg_port_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						portstats));
 
 		portstats.clear();
@@ -1058,7 +1058,7 @@ crofconn::fragment_port_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_port_stats_reply*>::iterator
@@ -1094,7 +1094,7 @@ crofconn::fragment_queue_stats_reply(
 				new cofmsg_queue_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						queuestats));
 
 		queuestats.clear();
@@ -1102,7 +1102,7 @@ crofconn::fragment_queue_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_queue_stats_reply*>::iterator
@@ -1135,7 +1135,7 @@ crofconn::fragment_group_stats_reply(
 				new cofmsg_group_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						groupstats));
 
 		groupstats.clear();
@@ -1143,7 +1143,7 @@ crofconn::fragment_group_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_group_stats_reply*>::iterator
@@ -1176,7 +1176,7 @@ crofconn::fragment_group_desc_stats_reply(
 				new cofmsg_group_desc_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						groupdescstats));
 
 		groupdescstats.clear();
@@ -1184,7 +1184,7 @@ crofconn::fragment_group_desc_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_group_desc_stats_reply*>::iterator
@@ -1217,7 +1217,7 @@ crofconn::fragment_table_features_stats_reply(
 				new cofmsg_table_features_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						tables));
 
 		tables.clear();
@@ -1225,7 +1225,7 @@ crofconn::fragment_table_features_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_table_features_stats_reply*>::iterator
@@ -1258,7 +1258,7 @@ crofconn::fragment_port_desc_stats_reply(
 				new cofmsg_port_desc_stats_reply(
 						msg->get_version(),
 						msg->get_xid(),
-						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
 						ports));
 
 		ports.clear();
@@ -1266,7 +1266,7 @@ crofconn::fragment_port_desc_stats_reply(
 
 	// clear MORE flag on last fragment
 	if (not fragments.empty()) {
-		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
 	for (std::vector<cofmsg_port_desc_stats_reply*>::iterator
