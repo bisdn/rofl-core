@@ -66,7 +66,7 @@ afa_result_t fwd_module_init(const char* extra_params);
 * @name    fwd_module_get_info
 * @brief   Get the information of the forwarding_module (code-name, version, usage...)
 * @ingroup fwd_module_management
-* @warning Calling fwd_module_get_info() before fwd_module_init() has an undefined behaviour
+* @warning This call MUST be able to be called *before* fwd_module_init() is called 
 */
 void fwd_module_get_info(fwd_module_info_t* info);
 
