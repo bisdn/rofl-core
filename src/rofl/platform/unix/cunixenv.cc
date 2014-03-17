@@ -178,6 +178,25 @@ cunixenv::parse_args()
 }
 
 void cunixenv::add_option(const coption &arg){
+
+	std::stringstream error_str;
+	error_str << "Duplicated command line argument: ";
+
+	//Check if it exists
+	std::vector<coption>::iterator it;
+	for(it = this->arguments.begin(); it != this->arguments.end(); ++it){
+		
+		if( (*it).full_name == arg.full_name ){
+			error_str << arg.full_name;
+			throw std::runtime_error(error_str.str());
+		}
+			
+		if( (*it).shortcut == arg.shortcut ){
+			error_str << arg.shortcut;
+			throw std::runtime_error(error_str.str());
+		}
+	}
+
 	arguments.push_back(arg);	
 }
 
