@@ -739,7 +739,7 @@ crofbase::role_request_rcvd(
 	case rofl::openflow13::OFPCR_ROLE_EQUAL: {
 
 		ctl->set_async_config() = async_config_role_default_template;
-		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_SLAVE);
+		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_EQUAL);
 
 	} break;
 	case rofl::openflow13::OFPCR_ROLE_NOCHANGE:
