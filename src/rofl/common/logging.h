@@ -1,10 +1,3 @@
-/*
- * logging.h
- *
- *  Created on: 23.11.2013
- *      Author: andreas
- */
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -39,20 +32,36 @@ public:
 
 public:
 
+
+	/*
+	* Logging levels. It is recommended to use these identifiers
+	* for code portability while setting debug level
+	*/
+	static const unsigned int EMERG 	= 0;
+	static const unsigned int ALERT 	= 1;
+	static const unsigned int CRIT 		= 2;
+	static const unsigned int ERROR 	= 3;
+	static const unsigned int WARN		= 4;
+	static const unsigned int NOTICE	= 5;
+	static const unsigned int INFO		= 6;
+	static const unsigned int DBG		= 7; //Prevent DEBUG macro expansion
+	static const unsigned int TRACE		= 8;
+
 	/**
-	 *
+	 * Initialize C++ logging facility
 	 */
 	static void
 	init();
 
 	/**
-	 *
+	 * Destroy C++ logging facility resources
 	 */
 	static void
 	close();
 
 	/**
-	 *
+	 * Set the debug level. It is recommended, for portability reasons to use
+	 * logging::EMERG, logging::ALERT ... constants
 	 */
 	static void
 	set_debug_level(

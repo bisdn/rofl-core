@@ -15,6 +15,11 @@ export INCLUDES += -I$(abs_srcdir)/src/
 SUBDIRS = src test examples tools doc 
 export LIBROFL=$(PWD)/src/rofl/librofl.la
 
+#Could be improved.. 
+.PHONY: doc
+doc:
+	@cd doc/ && make doc		
+
 install-exec-hook:
 
 uninstall-hook:

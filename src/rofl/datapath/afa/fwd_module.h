@@ -15,6 +15,40 @@
 #include "afa.h"
 #include "afa_utils.h"
 
+
+//fwd_module_info_t char array lengths
+#define FWD_MOD_CODE_NAME_MAX_LEN 16
+#define FWD_MOD_VERSION_MAX_LEN 16 
+#define FWD_MOD_DESCRIPTION_MAX_LEN 2048*4
+#define FWD_MOD_USAGE_MAX_LEN 2048*4
+#define FWD_MOD_EXTRA_PARAMS_MAX_LEN 2048*4
+
+/** 
+* Forwarding 
+*/
+typedef struct{
+	/**
+	* Forwarding module code name aaa-bbb-ccc
+	*/
+	char code_name[FWD_MOD_CODE_NAME_MAX_LEN];
+	/**
+	* Version and (optionally) build number
+	*/
+	char version[FWD_MOD_VERSION_MAX_LEN];
+	/**
+	* Detailed description of the forwarding module
+	*/	
+	char description[FWD_MOD_DESCRIPTION_MAX_LEN];
+	/**
+	* Usage details, specially extra parameters and its synax (if supported)
+	*/	
+	char usage[FWD_MOD_USAGE_MAX_LEN];
+	/**
+	* String containing the *parsed and understood* extra_params
+	*/
+	char extra_params[FWD_MOD_EXTRA_PARAMS_MAX_LEN];	
+}fwd_module_info_t;
+
 //C++ extern C
 AFA_BEGIN_DECLS
 
@@ -23,8 +57,18 @@ AFA_BEGIN_DECLS
 * @name    fwd_module_init
 * @brief   Initialises forward module. Before using the AFA_DRIVER routines, higher layers must allow forward module to initialise itself
 * @ingroup fwd_module_management
+* @param extra_params Forwarding module specific extra parameters string. Refer to the usage for details of this parameter. Most fwd_modules
+* do not use it
 */
-afa_result_t fwd_module_init(void);
+afa_result_t fwd_module_init(const char* extra_params);
+
+/**
+* @name    fwd_module_get_info
+* @brief   Get the information of the forwarding_module (code-name, version, usage...)
+* @ingroup fwd_module_management
+* @warning This call MUST be able to be called *before* fwd_module_init() is called 
+*/
+void fwd_module_get_info(fwd_module_info_t* info);
 
 /**
 * @name    fwd_module_destroy
@@ -33,8 +77,13 @@ afa_result_t fwd_module_init(void);
 */
 afa_result_t fwd_module_destroy(void);
 
+
+/*
+* Monitoring
+*/
+
 /**
-* @name    fwd_module_get_chassis_info_
+* @name    fwd_module_get_chassis_info
 * @brief   Get the chassis information in the form of a monitored entity.
 * @ingroup fwd_module_management
 */

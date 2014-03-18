@@ -12,6 +12,8 @@ v0.4-devel
 
 TODO: add pipeline changes
 
+[+] Change in the build system. Documentation is compiled via 'make doc'.
+
 [+][common] Added a new frame class for L2TPv3 (RFC3931): fl2tpv3frame to rofl/common/protocols
 [+][common] Added a new logging concept in rofl/common/logging.h: 8 output streams exist
     for levels emerg, alert, crit, error, warn, info, notice, debug whose
