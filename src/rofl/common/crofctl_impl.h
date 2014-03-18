@@ -760,22 +760,11 @@ public:
 	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
 	 *
 	 * @param xid transaction ID from GET-CONFIG.request
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
 	 */
 	virtual void
 	send_get_async_config_reply(
 			uint32_t xid,
-			uint32_t packet_in_mask0,
-			uint32_t packet_in_mask1,
-			uint32_t port_status_mask0,
-			uint32_t port_status_mask1,
-			uint32_t flow_removed_mask0,
-			uint32_t flow_removed_mask1);
+			rofl::openflow::cofasync_config const& async_config);
 
 	/**@}*/
 

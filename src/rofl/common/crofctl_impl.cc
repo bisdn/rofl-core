@@ -1280,12 +1280,7 @@ crofctl_impl::send_queue_get_config_reply(
 void
 crofctl_impl::send_get_async_config_reply(
 		uint32_t xid,
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1)
+		rofl::openflow::cofasync_config const& async_config)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
@@ -1296,12 +1291,7 @@ crofctl_impl::send_get_async_config_reply(
 			new cofmsg_get_async_config_reply(
 					rofchan.get_version(),
 					xid,
-					packet_in_mask0,
-					packet_in_mask1,
-					port_status_mask0,
-					port_status_mask1,
-					flow_removed_mask0,
-					flow_removed_mask1);
+					async_config);
 
 	rofchan.send_message(msg, 0);
 }

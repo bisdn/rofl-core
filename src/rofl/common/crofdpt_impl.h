@@ -1052,12 +1052,7 @@ public:
 	 */
 	virtual uint32_t
 	send_set_async_config_message(
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1);
+			rofl::openflow::cofasync_config const& async_config);
 
 	/**
 	 * @brief	Sends an ERROR.message to a data path element.
