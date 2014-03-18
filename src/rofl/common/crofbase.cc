@@ -128,12 +128,60 @@ crofbase::send_flow_removed_message(
 	uint64_t packet_count,
 	uint64_t byte_count)
 {
+	bool sent_out = false;
+
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		// TODO: roles
+		crofctl& ctl = *(*it);
 
-		(*(*it)).send_flow_removed_message(
+		if (not ctl.is_established()) {
+			continue;
+		}
+
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_flow_removed_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_flow_removed_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_flow_removed_message(
 				match,
 				cookie,
 				priority,
@@ -145,8 +193,13 @@ crofbase::send_flow_removed_message(
 				hard_timeout,
 				packet_count,
 				byte_count);
+
+		sent_out = true;
 	}
-	//throw eNotImplemented("crofbase::send_flow_removed_message()");
+
+	if (not sent_out) {
+		throw eRofBaseNotConnected();
+	}
 }
 
 
@@ -156,14 +209,67 @@ crofbase::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
+	bool sent_out = false;
+
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		// TODO: roles
+		crofctl& ctl = *(*it);
 
-		(*(*it)).send_port_status_message(reason, port);
+		if (not ctl.is_established()) {
+			continue;
+		}
+
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_port_status_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_port_status_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_port_status_message(reason, port);
+
+		sent_out = true;
 	}
-	//throw eNotImplemented("crofbase::send_port_status_message()");
+
+	if (not sent_out) {
+		throw eRofBaseNotConnected();
+	}
 }
 
 
