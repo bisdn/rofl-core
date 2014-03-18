@@ -31,7 +31,9 @@ unittest_SOURCES= \
 	cofqueuestatsarray_test.cc \
 	cofqueuestatsarray_test.h \
 	coftablestatsarray_test.cc \
-	coftablestatsarray_test.h
+	coftablestatsarray_test.h \
+	cofasyncconfig_test.cc \
+	cofasyncconfig_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
