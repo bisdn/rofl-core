@@ -234,7 +234,7 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	of1x_flow_entry_t* entry;
 	of1x_group_t *ge, *next;
 	
-	//TODO if the group value is OFP12_GROUP_ALL, delete all groups 
+	//TODO if the group value is OFP1X_GROUP_ALL, delete all groups 
 	if(id == OF1X_GROUP_ALL){
 		for(ge = gt->head; ge; ge=next){
 			next = ge->next;

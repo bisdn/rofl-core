@@ -466,14 +466,7 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 rofl_result_t __of1x_add_match(of1x_match_t* root_match, of1x_match_t* add_match);
 
 /* 
-* Single Match copy
-* TODO: deprecate this in favour of match_group
-*/
-of1x_match_t* __of1x_copy_match(of1x_match_t* match);
-
-/* 
 * Whole (linked list) Match copy
-* TODO: deprecate this in favour of match_group
 */
 of1x_match_t* __of1x_copy_matches(of1x_match_t* matches);
 
