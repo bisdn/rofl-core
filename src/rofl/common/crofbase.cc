@@ -17,26 +17,26 @@ crofbase::crofbase(
 				generation_is_defined(false),
 				cached_generation_id((uint64_t)((int64_t)-1))
 {
-	async_config_role_template.set_packet_in_mask_master() =
+	async_config_role_default_template.set_packet_in_mask_master() =
 			(1 << rofl::openflow13::OFPR_NO_MATCH) ||
 			(1 << rofl::openflow13::OFPR_ACTION);
 
-	async_config_role_template.set_packet_in_mask_slave(0);
+	async_config_role_default_template.set_packet_in_mask_slave(0);
 
-	async_config_role_template.set_port_status_mask_master() =
+	async_config_role_default_template.set_port_status_mask_master() =
 			(1 << rofl::openflow13::OFPPR_ADD) ||
 			(1 << rofl::openflow13::OFPPR_DELETE) ||
 			(1 << rofl::openflow13::OFPPR_MODIFY);
 
-	async_config_role_template.set_port_status_mask_slave(0);
+	async_config_role_default_template.set_port_status_mask_slave(0);
 
-	async_config_role_template.set_flow_removed_mask_master() =
+	async_config_role_default_template.set_flow_removed_mask_master() =
 			(1 << rofl::openflow13::OFPRR_IDLE_TIMEOUT) ||
 			(1 << rofl::openflow13::OFPRR_HARD_TIMEOUT) ||
 			(1 << rofl::openflow13::OFPRR_DELETE) ||
 			(1 << rofl::openflow13::OFPRR_GROUP_DELETE);
 
-	async_config_role_template.set_flow_removed_mask_slave(0);
+	async_config_role_default_template.set_flow_removed_mask_slave(0);
 
 	crofbase::rofbases.insert(this);
 }
@@ -725,20 +725,20 @@ crofbase::role_request_rcvd(
 		}
 
 		// set new master async-config to template retrieved from of-config (or default one)
-		ctl->set_async_config() = async_config_role_template;
+		ctl->set_async_config() = async_config_role_default_template;
 
 		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_MASTER);
 
 	} break;
 	case rofl::openflow13::OFPCR_ROLE_SLAVE: {
 
-		ctl->set_async_config() = async_config_role_template;
+		ctl->set_async_config() = async_config_role_default_template;
 		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_SLAVE);
 
 	} break;
 	case rofl::openflow13::OFPCR_ROLE_EQUAL: {
 
-		ctl->set_async_config() = async_config_role_template;
+		ctl->set_async_config() = async_config_role_default_template;
 		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_SLAVE);
 
 	} break;

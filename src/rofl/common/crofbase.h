@@ -145,7 +145,7 @@ protected:
 	bool						generation_is_defined;		// generation_id used for roles initially defined?
 	uint64_t					cached_generation_id;
 
-	rofl::openflow::cofasync_config		async_config_role_template;
+	rofl::openflow::cofasync_config		async_config_role_default_template;
 
 
 public:
