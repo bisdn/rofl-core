@@ -411,7 +411,7 @@ of1x_write_actions_t* of1x_init_write_actions(){
 	if( unlikely(write_actions==NULL) )
 		return NULL;
 
-	//Memset actions
+	//Clean actions bitmap
 	bitmap128_clean(&write_actions->bitmap);
 
 	for(i=0;i<OF1X_AT_NUMBER;i++)
