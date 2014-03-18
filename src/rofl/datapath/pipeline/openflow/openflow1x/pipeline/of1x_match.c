@@ -1300,163 +1300,163 @@ inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 	
 	switch(it->type){
 		//Phy
-		case OF1X_MATCH_IN_PORT: return __utern_compare32(it->value,pkt->port_in);
+		case OF1X_MATCH_IN_PORT: return __utern_compare32(it->value, &pkt->port_in);
 		case OF1X_MATCH_IN_PHY_PORT: if(!pkt->port_in) return false; //According to spec
-					return __utern_compare32(it->value,pkt->phy_port_in);
+					return __utern_compare32(it->value, &pkt->phy_port_in);
 		//Metadata
-	  	case OF1X_MATCH_METADATA: return __utern_compare64(it->value,pkt->metadata); 
+	  	case OF1X_MATCH_METADATA: return __utern_compare64(it->value, &pkt->metadata); 
 		
 		//802
-   		case OF1X_MATCH_ETH_DST:  return __utern_compare64(it->value,pkt->eth_dst);
-   		case OF1X_MATCH_ETH_SRC:  return __utern_compare64(it->value,pkt->eth_src);
-   		case OF1X_MATCH_ETH_TYPE: return __utern_compare16(it->value,pkt->eth_type);
+   		case OF1X_MATCH_ETH_DST:  return __utern_compare64(it->value, &pkt->eth_dst);
+   		case OF1X_MATCH_ETH_SRC:  return __utern_compare64(it->value, &pkt->eth_src);
+   		case OF1X_MATCH_ETH_TYPE: return __utern_compare16(it->value, &pkt->eth_type);
 		
 		//802.1q
    		case OF1X_MATCH_VLAN_VID: 
 					if( it->vlan_present != pkt->has_vlan )
 						return false;
-					return __utern_compare16(it->value,pkt->vlan_vid);
+					return __utern_compare16(it->value, &pkt->vlan_vid);
    		case OF1X_MATCH_VLAN_PCP: if(!pkt->has_vlan) return false;
-					return __utern_compare8(it->value,pkt->vlan_pcp);
+					return __utern_compare8(it->value, &pkt->vlan_pcp);
 
 		//MPLS
    		case OF1X_MATCH_MPLS_LABEL: if(!(pkt->eth_type == ETH_TYPE_MPLS_UNICAST || pkt->eth_type == ETH_TYPE_MPLS_MULTICAST )) return false;
-					return __utern_compare32(it->value,pkt->mpls_label);
+					return __utern_compare32(it->value, &pkt->mpls_label);
    		case OF1X_MATCH_MPLS_TC: if(!(pkt->eth_type == ETH_TYPE_MPLS_UNICAST || pkt->eth_type == ETH_TYPE_MPLS_MULTICAST )) return false; 
-					return __utern_compare8(it->value,pkt->mpls_tc);
+					return __utern_compare8(it->value, &pkt->mpls_tc);
    		case OF1X_MATCH_MPLS_BOS: if(!(pkt->eth_type == ETH_TYPE_MPLS_UNICAST || pkt->eth_type == ETH_TYPE_MPLS_MULTICAST )) return false; 
-					return __utern_compare8(it->value,pkt->mpls_bos);
+					return __utern_compare8(it->value, (uint8_t*)&pkt->mpls_bos);
 	
 		//ARP
    		case OF1X_MATCH_ARP_OP: if(!(pkt->eth_type == ETH_TYPE_ARP)) return false;
-   					return __utern_compare16(it->value,pkt->arp_opcode);
+   					return __utern_compare16(it->value, &pkt->arp_opcode);
    		case OF1X_MATCH_ARP_SHA: if(!(pkt->eth_type == ETH_TYPE_ARP)) return false;
-   					return __utern_compare64(it->value,pkt->arp_sha);
+   					return __utern_compare64(it->value, &pkt->arp_sha);
    		case OF1X_MATCH_ARP_SPA: if(!(pkt->eth_type == ETH_TYPE_ARP)) return false;
-					return __utern_compare32(it->value, pkt->arp_spa);
+					return __utern_compare32(it->value, &pkt->arp_spa);
    		case OF1X_MATCH_ARP_THA: if(!(pkt->eth_type == ETH_TYPE_ARP)) return false;
-   					return __utern_compare64(it->value,pkt->arp_tha);
+   					return __utern_compare64(it->value, &pkt->arp_tha);
    		case OF1X_MATCH_ARP_TPA: if(!(pkt->eth_type == ETH_TYPE_ARP)) return false;
-					return __utern_compare32(it->value, pkt->arp_tpa);
+					return __utern_compare32(it->value, &pkt->arp_tpa);
 
 		//NW (OF1.0 only)
    		case OF1X_MATCH_NW_PROTO: if(!(pkt->eth_type == ETH_TYPE_IPV4 || pkt->eth_type == ETH_TYPE_IPV6 || pkt->eth_type == ETH_TYPE_ARP || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == PPP_PROTO_IP4 || pkt->ppp_proto == PPP_PROTO_IP6) ))) return false;
 					if(pkt->eth_type == ETH_TYPE_ARP)
-						return __utern_compare8(it->value,pkt->arp_opcode);
+						return __utern_compare16(it->value, &pkt->arp_opcode);
 					else 
-						return __utern_compare8(it->value,pkt->ip_proto);
+						return __utern_compare8(it->value, &pkt->ip_proto);
 	
    		case OF1X_MATCH_NW_SRC:	if((pkt->eth_type == ETH_TYPE_IPV4 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 ))) 
-						return __utern_compare32(it->value, pkt->ipv4_src); 
+						return __utern_compare32(it->value, &pkt->ipv4_src); 
 					if(pkt->eth_type == ETH_TYPE_ARP)
-						return __utern_compare32(it->value, pkt->arp_spa); 
+						return __utern_compare32(it->value, &pkt->arp_spa); 
 					return false;
    		case OF1X_MATCH_NW_DST:	if((pkt->eth_type == ETH_TYPE_IPV4 ||(pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 )))  
-						return __utern_compare32(it->value, pkt->ipv4_dst);
+						return __utern_compare32(it->value, &pkt->ipv4_dst);
 					if(pkt->eth_type == ETH_TYPE_ARP)
-						return __utern_compare32(it->value, pkt->arp_tpa); 
+						return __utern_compare32(it->value, &pkt->arp_tpa); 
 					return false;
 		//IP
    		case OF1X_MATCH_IP_PROTO: if(!(pkt->eth_type == ETH_TYPE_IPV4 || pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == PPP_PROTO_IP4 || pkt->ppp_proto == PPP_PROTO_IP6) ))) return false; 
-					return __utern_compare8(it->value,pkt->ip_proto);
+					return __utern_compare8(it->value, &pkt->ip_proto);
 		case OF1X_MATCH_IP_ECN: if(!(pkt->eth_type == ETH_TYPE_IPV4 || pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
-					return __utern_compare8(it->value,pkt->ip_ecn);
+					return __utern_compare8(it->value, &pkt->ip_ecn);
 	
 		case OF1X_MATCH_IP_DSCP: if(!(pkt->eth_type == ETH_TYPE_IPV4 || pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
-					return __utern_compare8(it->value,pkt->ip_dscp);
+					return __utern_compare8(it->value, &pkt->ip_dscp);
 		
 		//IPv4
    		case OF1X_MATCH_IPV4_SRC: if(!(pkt->eth_type == ETH_TYPE_IPV4 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 ))) return false; 
-					return __utern_compare32(it->value, pkt->ipv4_src);
+					return __utern_compare32(it->value, &pkt->ipv4_src);
    		case OF1X_MATCH_IPV4_DST:if(!(pkt->eth_type == ETH_TYPE_IPV4 ||(pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP4 ))) return false;  
-					return __utern_compare32(it->value, pkt->ipv4_dst);
+					return __utern_compare32(it->value, &pkt->ipv4_dst);
 	
 		//TCP
    		case OF1X_MATCH_TCP_SRC: if(!(pkt->ip_proto == IP_PROTO_TCP)) return false; 
-					return __utern_compare16(it->value,pkt->tcp_src);
+					return __utern_compare16(it->value, &pkt->tcp_src);
    		case OF1X_MATCH_TCP_DST: if(!(pkt->ip_proto == IP_PROTO_TCP)) return false; 
-					return __utern_compare16(it->value,pkt->tcp_dst);
+					return __utern_compare16(it->value, &pkt->tcp_dst);
 	
 		//UDP
    		case OF1X_MATCH_UDP_SRC: if(!(pkt->ip_proto == IP_PROTO_UDP)) return false; 	
-					return __utern_compare16(it->value,pkt->udp_src);
+					return __utern_compare16(it->value, &pkt->udp_src);
    		case OF1X_MATCH_UDP_DST: if(!(pkt->ip_proto == IP_PROTO_UDP)) return false; 
-					return __utern_compare16(it->value,pkt->udp_dst);
+					return __utern_compare16(it->value, &pkt->udp_dst);
 		//SCTP
    		case OF1X_MATCH_SCTP_SRC: if(!(pkt->ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->value,pkt->tcp_src);
+					return __utern_compare16(it->value, &pkt->tcp_src);
    		case OF1X_MATCH_SCTP_DST: if(!(pkt->ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->value,pkt->tcp_dst);
+					return __utern_compare16(it->value, &pkt->tcp_dst);
 	
 		//TP (OF1.0 only)
    		case OF1X_MATCH_TP_SRC: if((pkt->ip_proto == IP_PROTO_TCP))
-						return __utern_compare16(it->value,pkt->tcp_src);
+						return __utern_compare16(it->value, &pkt->tcp_src);
    					if((pkt->ip_proto == IP_PROTO_UDP))
-						return __utern_compare16(it->value,pkt->udp_src);
+						return __utern_compare16(it->value, &pkt->udp_src);
 					if((pkt->ip_proto == IP_PROTO_ICMPV4))
-						return __utern_compare16(it->value,pkt->icmpv4_type);
+						return __utern_compare8(it->value, &pkt->icmpv4_type);
 					return false;
 
    		case OF1X_MATCH_TP_DST: if((pkt->ip_proto == IP_PROTO_TCP))
-						return __utern_compare16(it->value,pkt->tcp_dst);
+						return __utern_compare16(it->value, &pkt->tcp_dst);
    					if((pkt->ip_proto == IP_PROTO_UDP))
-						return __utern_compare16(it->value,pkt->udp_dst);
+						return __utern_compare16(it->value, &pkt->udp_dst);
 					if((pkt->ip_proto == IP_PROTO_ICMPV4))
-						return __utern_compare16(it->value,pkt->icmpv4_code);
+						return __utern_compare8(it->value, &pkt->icmpv4_code);
 					return false;
 		
 		//ICMPv4
 		case OF1X_MATCH_ICMPV4_TYPE: if(!(pkt->ip_proto == IP_PROTO_ICMPV4)) return false; 
-					return __utern_compare8(it->value,pkt->icmpv4_type);
+					return __utern_compare8(it->value, &pkt->icmpv4_type);
    		case OF1X_MATCH_ICMPV4_CODE: if(!(pkt->ip_proto == IP_PROTO_ICMPV4)) return false; 
-					return __utern_compare8(it->value,pkt->icmpv4_code);
+					return __utern_compare8(it->value, &pkt->icmpv4_code);
   		
 		//IPv6
 		case OF1X_MATCH_IPV6_SRC: if(!(pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare128(it->value, pkt->ipv6_src);
+					return __utern_compare128(it->value, &pkt->ipv6_src);
 		case OF1X_MATCH_IPV6_DST: if(!(pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare128(it->value, pkt->ipv6_dst);
+					return __utern_compare128(it->value, &pkt->ipv6_dst);
 		case OF1X_MATCH_IPV6_FLABEL: if(!(pkt->eth_type == ETH_TYPE_IPV6 || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare64(it->value, pkt->ipv6_flabel);
+					return __utern_compare64(it->value, &pkt->ipv6_flabel);
 		case OF1X_MATCH_IPV6_ND_TARGET: if(!(pkt->ip_proto == IP_PROTO_ICMPV6)) return false; 
-					return __utern_compare128(it->value,pkt->ipv6_nd_target);
+					return __utern_compare128(it->value, &pkt->ipv6_nd_target);
 		case OF1X_MATCH_IPV6_ND_SLL: if(!(pkt->ip_proto == IP_PROTO_ICMPV6 && pkt->ipv6_nd_sll)) return false; //NOTE OPTION SLL active
-					return __utern_compare64(it->value, pkt->ipv6_nd_sll);
+					return __utern_compare64(it->value, &pkt->ipv6_nd_sll);
 		case OF1X_MATCH_IPV6_ND_TLL: if(!(pkt->ip_proto == IP_PROTO_ICMPV6 && pkt->ipv6_nd_tll)) return false; //NOTE OPTION TLL active
-					return __utern_compare64(it->value, pkt->ipv6_nd_tll);
+					return __utern_compare64(it->value, &pkt->ipv6_nd_tll);
 		case OF1X_MATCH_IPV6_EXTHDR: //TODO not yet implemented.
 			return false;
 			break;
 					
 		//ICMPv6
 		case OF1X_MATCH_ICMPV6_TYPE: if(!(pkt->ip_proto == IP_PROTO_ICMPV6)) return false; 
-					return __utern_compare64(it->value, pkt->icmpv6_type);
+					return __utern_compare8(it->value, &pkt->icmpv6_type);
 		case OF1X_MATCH_ICMPV6_CODE: if(!(pkt->ip_proto == IP_PROTO_ICMPV6 )) return false; 
-					return __utern_compare64(it->value, pkt->icmpv6_code);
+					return __utern_compare8(it->value, &pkt->icmpv6_code);
 			
 		//PPPoE related extensions
    		case OF1X_MATCH_PPPOE_CODE: if(!(pkt->eth_type == ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == ETH_TYPE_PPPOE_SESSION )) return false;  
-						return __utern_compare8(it->value,pkt->pppoe_code);
+						return __utern_compare8(it->value, &pkt->pppoe_code);
    		case OF1X_MATCH_PPPOE_TYPE: if(!(pkt->eth_type == ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare8(it->value,pkt->pppoe_type);
+						return __utern_compare8(it->value, &pkt->pppoe_type);
    		case OF1X_MATCH_PPPOE_SID: if(!(pkt->eth_type == ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare16(it->value,pkt->pppoe_sid);
+						return __utern_compare16(it->value, &pkt->pppoe_sid);
 
 		//PPP 
    		case OF1X_MATCH_PPP_PROT: if(!(pkt->eth_type == ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare16(it->value,pkt->ppp_proto);
+						return __utern_compare16(it->value, &pkt->ppp_proto);
 	
 		//PBB
    		case OF1X_MATCH_PBB_ISID: if(pkt->eth_type == ETH_TYPE_PBB) return false;	
-						return __utern_compare32(it->value,pkt->pbb_isid);
+						return __utern_compare32(it->value, &pkt->pbb_isid);
 	 	//TUNNEL id
-   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->value,pkt->tunnel_id);
+   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->value, &pkt->tunnel_id);
  
 		//GTP
    		case OF1X_MATCH_GTP_MSG_TYPE: if (!(pkt->ip_proto == IP_PROTO_UDP || pkt->udp_dst == UDP_DST_PORT_GTPU)) return false;
-   						return __utern_compare8(it->value,pkt->gtp_msg_type);
+   						return __utern_compare8(it->value, &pkt->gtp_msg_type);
    		case OF1X_MATCH_GTP_TEID: if (!(pkt->ip_proto == IP_PROTO_UDP || pkt->udp_dst == UDP_DST_PORT_GTPU)) return false;
-   						return __utern_compare32(it->value,pkt->gtp_teid);
+   						return __utern_compare32(it->value, &pkt->gtp_teid);
 		case OF1X_MATCH_MAX:
 				break;
 		//Add more here ...
