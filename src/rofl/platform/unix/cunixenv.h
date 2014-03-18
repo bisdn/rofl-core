@@ -17,6 +17,7 @@
 #include <sys/resource.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <vector>
 #include <iostream>
 #include <string>
 #include <stdexcept>
