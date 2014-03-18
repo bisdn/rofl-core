@@ -263,9 +263,9 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	//Write actions
 	table->config.write_actions = table->config.apply_actions;
 
-	//METADATA
-	table->config.metadata_match = 0x0; //FIXME: implement METADATA
-	table->config.metadata_write = 0x0; //FIXME: implement METADATA
+	//METADATA (full metadata support)
+	table->config.metadata_match = 0xFFFFFFFFFFFFFFFFUL;  
+	table->config.metadata_write = 0xFFFFFFFFFFFFFFFFUL; 
 
 	//Instructions
 	table->config.instructions = 	(1 << OF1X_IT_APPLY_ACTIONS) |
