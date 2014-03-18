@@ -20,7 +20,6 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/croflexception.h"
 
 namespace rofl
