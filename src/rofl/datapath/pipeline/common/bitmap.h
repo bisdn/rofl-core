@@ -8,6 +8,14 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+/**
+* @file bitmap.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+* 
+* @brief Defines common bitmap operations, specially for large types
+*
+*/
+
 //Some helper typdefs for code readability 
 typedef uint32_t bitmap32_t; 
 typedef uint64_t bitmap64_t; 
@@ -41,6 +49,16 @@ static inline void bitmap128_set(bitmap128_t* bitmap, unsigned int pos){
 		bitmap->__submap[1] |= 1UL<<(pos-64);
 	else
 		bitmap->__submap[0] |= 1UL<<(pos);
+}
+
+/**
+* Unset(zero) a bit in the 128bit bitmap
+*/
+static inline void bitmap128_unset(bitmap128_t* bitmap, unsigned int pos){
+	if(pos >= 64)
+		bitmap->__submap[1] &= ~(1UL << (pos-64));
+	else
+		bitmap->__submap[0] &= ~(1UL << pos);
 }
 
 /**
