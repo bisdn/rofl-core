@@ -45,8 +45,8 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.match, OF1X_MATCH_VLAN_PCP);
 	bitmap128_set(&table->config.match, OF1X_MATCH_IP_DSCP);
 	bitmap128_set(&table->config.match, OF1X_MATCH_IP_PROTO);
-	bitmap128_set(&table->config.match, OF1X_MATCH_IPV4_SRC);
-	bitmap128_set(&table->config.match, OF1X_MATCH_IPV4_DST);
+	bitmap128_set(&table->config.match, OF1X_MATCH_NW_SRC);
+	bitmap128_set(&table->config.match, OF1X_MATCH_NW_DST);
 	bitmap128_set(&table->config.match, OF1X_MATCH_TP_SRC); //Only for OF10
 	bitmap128_set(&table->config.match, OF1X_MATCH_TP_DST); //Only for OF10
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPPOE_CODE);
@@ -60,8 +60,8 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_clean(&table->config.wildcards);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_ETH_DST);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_ETH_SRC);
-	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV4_SRC);
-	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV4_DST);
+	bitmap128_set(&table->config.wildcards, OF1X_MATCH_NW_SRC);
+	bitmap128_set(&table->config.wildcards, OF1X_MATCH_NW_DST);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_MPLS_LABEL);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_GTP_TEID);
 
