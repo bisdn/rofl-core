@@ -25,6 +25,7 @@
 #include "rofl/common/crofchan.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 
 namespace rofl
@@ -615,8 +616,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
-			uint32_t role,
-			uint64_t generation_id) = 0;
+			rofl::openflow::cofrole const& role) = 0;
 
 	/**
 	 * @brief 	Sends a FLOW-MOD.message to a data path element.

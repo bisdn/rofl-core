@@ -1204,8 +1204,7 @@ crofdpt_impl::send_barrier_request()
 
 uint32_t
 crofdpt_impl::send_role_request(
-	uint32_t role,
-	uint64_t generation_id)
+	rofl::openflow::cofrole const& role)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][dpt] not connected, dropping Role-Request message" << std::endl;
@@ -1218,8 +1217,7 @@ crofdpt_impl::send_role_request(
 			new cofmsg_role_request(
 					rofchan.get_version(),
 					xid,
-					role,
-					generation_id);
+					role);
 
 	rofchan.send_message(msg, 0);
 

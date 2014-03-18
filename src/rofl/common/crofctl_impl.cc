@@ -1115,8 +1115,7 @@ crofctl_impl::send_barrier_reply(
 void
 crofctl_impl::send_role_reply(
 		uint32_t xid,
-		uint32_t role,
-		uint64_t generation_id)
+		rofl::openflow::cofrole const& role)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][ctl] not connected, dropping Role-Reply message" << std::endl;
@@ -1127,8 +1126,7 @@ crofctl_impl::send_role_reply(
 			new cofmsg_role_reply(
 					rofchan.get_version(),
 					xid,
-					role,
-					generation_id);
+					role);
 
 	rofchan.send_message(msg, 0);
 }

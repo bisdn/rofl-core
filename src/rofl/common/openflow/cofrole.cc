@@ -47,6 +47,15 @@ cofrole::operator= (
 
 
 
+void
+cofrole::clear()
+{
+	role = 0;
+	generation_id = 0;
+}
+
+
+
 size_t
 cofrole::length() const
 {

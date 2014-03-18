@@ -962,8 +962,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
-			uint32_t role,
-			uint64_t generation_id);
+			rofl::openflow::cofrole const& role);
 
 	/**
 	 * @brief 	Sends a FLOW-MOD.message to a data path element.

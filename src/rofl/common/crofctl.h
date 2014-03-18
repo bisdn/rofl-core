@@ -552,8 +552,7 @@ public:
 	virtual void
 	send_role_reply(
 			uint32_t xid,
-			uint32_t role,
-			uint64_t generation_id) = 0;
+			rofl::openflow::cofrole const& role) = 0;
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.

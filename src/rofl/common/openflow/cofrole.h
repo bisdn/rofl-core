@@ -67,6 +67,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	clear();
+
+	/**
+	 *
+	 */
 	virtual size_t
 	length() const;
 
