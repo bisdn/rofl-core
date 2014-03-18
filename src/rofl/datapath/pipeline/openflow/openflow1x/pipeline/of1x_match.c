@@ -1090,8 +1090,13 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 		if(group->ver_req.max_ver > match->ver_req.max_ver)
 			group->ver_req.max_ver = match->ver_req.max_ver;
 
-		if(match->has_wildcard)
+		//Update matches
+		bitmap128_set(&group->match_bm, match->type);
+
+		if(match->has_wildcard){
 			group->has_wildcard = true;
+			bitmap128_set(&group->wildcard_bm, match->type);
+		}
 
 		group->num_elements++;
 
@@ -1103,6 +1108,7 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 	
 	//Add new tail
 	group->tail = match;
+	
 }
 
 /*
