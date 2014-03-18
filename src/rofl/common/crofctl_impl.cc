@@ -2067,65 +2067,30 @@ crofctl_impl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request*
 void
 crofctl_impl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 {
-	cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
-
-	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Role-Request message received" << std::endl << request;
-
 	try {
-#if 0
-		switch (msg->get_role()) {
-		case openflow12::OFPCR_ROLE_MASTER:
-		case openflow12::OFPCR_ROLE_SLAVE:
-			if (role_initialized)
-			{
-				uint64_t gen_id = msg->get_generation_id();
-				uint64_t dist = (gen_id > cached_generation_id) ?
-						(gen_id - cached_generation_id) % std::numeric_limits<uint64_t>::max() :
-						(gen_id + std::numeric_limits<uint64_t>::max() + cached_generation_id) % std::numeric_limits<uint64_t>::max();
+		cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
 
-				if (dist >= (std::numeric_limits<uint64_t>::max() / 2)) {
-					throw eRoleRequestStale();
-				}
-			}
-			else
-			{
-				role_initialized = true;
-			}
-			cached_generation_id = msg->get_generation_id();
-			break;
+		logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+				<< " Role-Request message received" << std::endl << request;
+
+		switch (msg->get_role().get_role()) {
+		// same for OF12 and OF13
+		case rofl::openflow13::OFPCR_ROLE_EQUAL:
+		case rofl::openflow13::OFPCR_ROLE_MASTER:
+		case rofl::openflow13::OFPCR_ROLE_SLAVE:
+		case rofl::openflow13::OFPCR_ROLE_NOCHANGE: {
+			// continue with further checks
+		} break;
 		default:
-			break;
+			throw eRoleRequestBadRole();
 		}
 
-		role = msg->get_role();
+		rofbase->role_request_rcvd(this, msg->get_role().get_role(), msg->get_role().get_generation_id());
 
-#if 0
-		for (std::map<cofbase*, crofctl*>::iterator
-				it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
-		{
-			crofctl* ofctrl = it->second;
-
-			if (ofctrl == this)
-			{
-				continue;
-			}
-
-			if (openflow12::OFPCR_ROLE_MASTER == ofctrl->role)
-			{
-				ofctrl->role = openflow12::OFPCR_ROLE_SLAVE;
-			}
-		}
-#endif
-
-
-#endif
-
-		//pack->ofh_role_request->generation_id;
-
-		rofbase->role_request_rcvd(this);
-
+		// necessary for proxy implementations
 		rofbase->handle_role_request(*this, request, aux_id);
+
+		send_role_reply(msg->get_xid(), role);
 
 		delete msg;
 
@@ -2277,7 +2242,7 @@ crofctl_impl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Async-Config-Request message received" << std::endl << request;
 
-	// TODO: handle request
+	send_get_async_config_reply(msg->get_xid(), async_config);
 
 	delete msg;
 }
@@ -2292,7 +2257,8 @@ crofctl_impl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Async-Config message received" << std::endl << message;
 
-	// TODO: handle request here in this cofctl instance
+	async_config = msg->get_async_config();
+
 	rofbase->handle_set_async_config(*this, message, aux_id);
 
 	delete msg;

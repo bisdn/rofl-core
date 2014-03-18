@@ -9,6 +9,15 @@
 
 using namespace rofl::openflow;
 
+
+/*static*/int64_t
+cofrole::distance(int64_t rcvd_gen_id, int64_t cached_gen_id)
+{
+	return (rcvd_gen_id - cached_gen_id);
+}
+
+
+
 cofrole::cofrole(
 		uint8_t ofp_version) :
 				ofp_version(ofp_version),

@@ -23,7 +23,6 @@ namespace openflow {
 class cofrole
 {
 	uint8_t				ofp_version;
-
 	uint32_t			role;
 	uint64_t			generation_id;
 
@@ -34,6 +33,13 @@ public:
 		uint8_t  pad[4];
 		uint64_t generation_id;
 	};
+
+
+	/**
+	 *
+	 */
+	static int64_t
+	distance(int64_t rcvd_gen_id, int64_t cached_gen_id);
 
 public:
 
