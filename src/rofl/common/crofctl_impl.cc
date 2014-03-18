@@ -1299,18 +1299,13 @@ crofctl_impl::send_get_async_config_reply(
 void
 crofctl_impl::check_role()
 {
-#if 0
 	switch (rofchan.get_version()) {
-	case openflow12::OFP_VERSION: {
-		if (openflow12::OFPCR_ROLE_SLAVE == role)
-			throw eBadRequestIsSlave();
-	} break;
-	case openflow13::OFP_VERSION: {
-		if (openflow12::OFPCR_ROLE_SLAVE == role)
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		if (rofl::openflow13::OFPCR_ROLE_SLAVE == role.get_role())
 			throw eBadRequestIsSlave();
 	} break;
 	}
-#endif
 }
 
 
