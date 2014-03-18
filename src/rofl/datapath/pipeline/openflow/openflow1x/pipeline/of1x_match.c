@@ -140,7 +140,7 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //8021.q
-inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
+inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask, bool vlan_present){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -149,7 +149,8 @@ inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* 
 	match->type = OF1X_MATCH_VLAN_VID; 
 	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
 	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
-	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_VLAN_ID_MASK);
+	match->value = __init_utern16(value&OF1X_VLAN_ID_MASK,mask&OF1X_VLAN_ID_MASK);
+	match->vlan_present = vlan_present;
 	match->prev = prev;
 	match->next = next;
 
@@ -1121,7 +1122,7 @@ inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
    		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
    		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(NULL,NULL,match->value->value.u16);
 
-   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(NULL,NULL,match->value->value.u16,match->value->mask.u16); 
+   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(NULL,NULL,match->value->value.u16,match->value->mask.u16, match->vlan_present); 
    		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(NULL,NULL,match->value->value.u8); 
 
    		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(NULL,NULL,match->value->value.u32); 
@@ -1312,9 +1313,7 @@ inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 		
 		//802.1q
    		case OF1X_MATCH_VLAN_VID: 
-					if( (it->value->value.u16&OF1X_VLAN_PRESENT_MASK) && (!pkt->has_vlan) )
-						return false;
-					if( (!(it->value->value.u16&OF1X_VLAN_PRESENT_MASK)) && (pkt->has_vlan) )
+					if( it->vlan_present != pkt->has_vlan )
 						return false;
 					return __utern_compare16(it->value,pkt->vlan_vid);
    		case OF1X_MATCH_VLAN_PCP: if(!pkt->has_vlan) return false;
@@ -1473,12 +1472,12 @@ void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",COND_NTOHB32(nbo,it->value->value.u32)); 
+			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",nbo,it->value->value.u32); 
 				break;
-			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",COND_NTOHB32(nbo,it->value->value.u32));
+			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",nbo,it->value->value.u32);
 				break; 
 
-			case OF1X_MATCH_METADATA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ",COND_NTOHB64(nbo,it->value->value.u64),COND_NTOHB64(nbo,it->value->mask.u64)); 
+			case OF1X_MATCH_METADATA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ",nbo,it->value->value.u64,nbo,it->value->mask.u64); 
 				break;
 
 			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%"PRIx64"|0x%"PRIx64"],  ",COND_NTOHB64(nbo,it->value->value.u64),COND_NTOHB64(nbo,it->value->mask.u64));
