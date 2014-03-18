@@ -215,12 +215,13 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+//		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN - 2;		// JSP
 
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
-
+// JSP +2 isn't magic - it causes the drop of the first four bytes of data - dest addr.
 	} break;
 	case OFP12_VERSION: {
 		/*

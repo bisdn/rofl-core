@@ -25,7 +25,7 @@ int main(int, char**) {
 	rofl::csyslog::set_all_debug_levels(rofl::csyslog::DBG);
 
 //	rofl::csyslog::set_all_debug_levels(rofl::csyslog::INFO);
-//	rofl::csyslog::set_debug_level("ciosrv", "emergency");
+	rofl::csyslog::set_debug_level("ciosrv", "emergency");
 	rofl::csyslog::set_debug_level("cthread", "emergency");
 
 	rofl::ciosrv::init();

@@ -56,6 +56,10 @@ void ctranslator::handle_ctrl_open (rofl::cofctl *ctl) {
 
 void ctranslator::handle_ctrl_close (rofl::cofctl *ctl) {
 	std::cout << "ctranslator::handle_ctrl_close called with " << (ctl?ctl->c_str():"NULL") << std::endl;
+	// controller disconnected - now disconnect from switch.
+	rpc_disconnect_from_dpt(m_slave);
+	// hopefully dpt will reconnect to us, causing us in turn to reconnect to ctl.
+	
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	if(ctl!=m_master) std::cout << "ctranslator::handle_ctrl_close: was expecting " << (m_master?m_master->c_str():"NULL") << " but got " << (ctl?ctl->c_str():"NULL") << std::endl;
 	m_master=0;	// TODO - m_naster ownership?
@@ -115,6 +119,7 @@ void ctranslator::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_featur
 		m_mxid_sxid[masterxid]=myxid;
 		m_sxid_mxid[myxid]=masterxid;
 	} else std::cout << "handle_features_request from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(pack);
 }
 
 void ctranslator::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_reply * msg ) {
@@ -212,6 +217,16 @@ void ctranslator::handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config *
 void ctranslator::handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t masterxid = msg->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_table_stats_request already exists in m_mxid_sxid" << std::endl;
+	if(m_slave) {
+		uint32_t myxid = send_table_stats_request(m_slave, msg->get_stats_flags());
+		std::cout << func << " called send_table_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from cofmsg_table_stats_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(msg);
 }
 void ctranslator::handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request *pack) {
 	static const char * func = __FUNCTION__;
@@ -225,7 +240,32 @@ void ctranslator::handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow
 void ctranslator::handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	uint32_t masterxid = pack->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming handle_aggregate_stats_request already exists in m_mxid_sxid" << std::endl;
+	if(m_slave) {
+		uint32_t myxid = send_aggr_stats_request(m_slave, pack->get_stats_flags(), pack->get_aggr_stats());
+		std::cout << func << " called send_aggr_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from handle_aggregate_stats_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(pack);
 }
+void ctranslator::handle_aggregate_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_aggr_stats_reply *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	send_aggr_stats_reply(m_master, orig_xid, msg->get_flags(), ??? );
+	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+
+
 void ctranslator::handle_queue_stats_request(rofl::cofctl *ctl, rofl::cofmsg_queue_stats_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
@@ -267,8 +307,8 @@ dumpBytes(std::cout,msg->get_packet().frame()->soframe(), msg->get_packet().fram
 std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
-*** JSP Continue working from here - The data returned by msg->get_packet() is missing the first four bytes, and because of this the printed MAC addresses are wrong.
-** TODO: check who creates msg and figure out why it "starts late"
+// *** JSP Continue working from here - The data returned by msg->get_packet() is missing the first four bytes, and because of this the printed MAC addresses are wrong.
+// ** TODO: check who creates msg and figure out why it "starts late"
 std::cout << "TP" << __LINE__ << std::endl;
 	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 //	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
@@ -304,7 +344,7 @@ void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *
 	std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cpacket packet(pack->get_packet());
 	std::cout << "TP" << __LINE__ << std::endl;
-//	send_packet_out_message(m_slave, pack->get_buffer_id(), pack->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+	send_packet_out_message(m_slave, pack->get_buffer_id(), pack->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << "TP" << __LINE__ << std::endl;
 	delete(pack);
 }
