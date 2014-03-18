@@ -14,8 +14,6 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
@@ -33,8 +31,6 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
@@ -57,8 +53,6 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
@@ -122,11 +116,14 @@ crofctl_impl::ta_expired(
 bool
 crofctl_impl::is_slave() const
 {
+#if 0
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: return (openflow12::OFPCR_ROLE_SLAVE == role);
 	case openflow13::OFP_VERSION: return (openflow13::OFPCR_ROLE_SLAVE == role);
 	default: return false;
 	}
+#endif
+	return false;
 }
 
 
@@ -1304,6 +1301,7 @@ crofctl_impl::send_get_async_config_reply(
 void
 crofctl_impl::check_role()
 {
+#if 0
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: {
 		if (openflow12::OFPCR_ROLE_SLAVE == role)
@@ -1314,6 +1312,7 @@ crofctl_impl::check_role()
 			throw eBadRequestIsSlave();
 	} break;
 	}
+#endif
 }
 
 
@@ -2076,6 +2075,7 @@ crofctl_impl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 			<< " Role-Request message received" << std::endl << request;
 
 	try {
+#if 0
 		switch (msg->get_role()) {
 		case openflow12::OFPCR_ROLE_MASTER:
 		case openflow12::OFPCR_ROLE_SLAVE:
@@ -2120,9 +2120,12 @@ crofctl_impl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 		}
 #endif
 
+
+#endif
+
 		//pack->ofh_role_request->generation_id;
 
-		rofbase->role_request_rcvd(this, role);
+		rofbase->role_request_rcvd(this);
 
 		rofbase->handle_role_request(*this, request, aux_id);
 

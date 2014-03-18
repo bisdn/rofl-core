@@ -45,13 +45,55 @@ crofbase::send_packet_in_message(
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		if (not (*(*it)).is_established()) {
+		crofctl& ctl = *(*it);
+
+		if (not ctl.is_established()) {
 			continue;
 		}
 
-		// TODO: roles
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
 
-		(*(*it)).send_packet_in_message(
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_packet_in_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_packet_in_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_packet_in_message(
 				buffer_id,
 				total_len,
 				reason,
@@ -519,9 +561,9 @@ crofbase::cofdpt_factory(
 
 void
 crofbase::role_request_rcvd(
-		crofctl *ctl,
-		uint32_t role)
+		crofctl *ctl)
 {
+#if 0
 	switch (ctl->get_version()) {
 	case openflow12::OFP_VERSION: {
 		switch (role) {
@@ -574,6 +616,7 @@ crofbase::role_request_rcvd(
 	default:
 		throw eBadVersion();
 	}
+#endif
 }
 
 

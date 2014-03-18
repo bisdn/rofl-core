@@ -50,12 +50,11 @@ private: // data structures
 	crofbase 						*rofbase;				// parent crofbase instance
 	uint16_t 						miss_send_len;			// config: miss_send_len
 	std::set<cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
-	bool 							role_initialized;		// true, when role values have been initialized properly
-	uint16_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
 	rofl::openflow::crofchan		rofchan;				// OFP control channel
 	rofl::openflow::ctransactions	transactions;
-
+	rofl::openflow::cofasync_config	async_config;
+	rofl::openflow::cofrole			role;
 
 public: // methods
 
@@ -147,18 +146,6 @@ public:
 	is_slave() const;
 
 	/**
-	 * @brief	Returns the current role of attached control entity.
-	 */
-	virtual uint32_t
-	get_role() const { return role; };
-
-	/**
-	 * @brief	Sets the new role of attached control of attached control entity.
-	 */
-	virtual void
-	set_role(uint32_t role) { this->role = role; };
-
-	/**
 	 *
 	 */
 	virtual caddress
@@ -191,6 +178,37 @@ public:
 	release_sync_xid(
 			rofl::openflow::crofchan *chan,
 			uint32_t xid);
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config&
+	set_async_config() { return async_config; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config const&
+	get_async_config() const { return async_config; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole&
+	set_role() { return role; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole const&
+	get_role() const { return role; };
 
 private:
 

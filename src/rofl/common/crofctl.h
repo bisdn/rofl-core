@@ -22,6 +22,7 @@
 #include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 
 
@@ -117,6 +118,38 @@ public: // methods
 		crofctl::rofctls.erase(ctlid);
 	};
 
+public:
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config&
+	set_async_config() = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config const&
+	get_async_config() const = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole&
+	set_role() = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole const&
+	get_role() const = 0;
+
 
 
 	/**
@@ -162,18 +195,6 @@ public: // methods
 	get_peer_addr() = 0;
 
 
-	/**
-	 *
-	 */
-	virtual uint32_t
-	get_role() const = 0;
-
-
-	/**
-	 *
-	 */
-	virtual void
-	set_role(uint32_t role) = 0;
 
 public:
 

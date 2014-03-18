@@ -657,7 +657,7 @@ protected:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(crofctl *ctl, uint32_t role);
+	role_request_rcvd(crofctl *ctl);
 
 
 protected:
