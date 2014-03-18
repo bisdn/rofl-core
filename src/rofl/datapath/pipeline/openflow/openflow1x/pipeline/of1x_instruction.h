@@ -165,7 +165,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value);
 
-rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline);
+rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline, unsigned int table_id);
 
 static inline bool  __of1x_process_instructions_must_replicate(const of1x_instruction_group_t* inst_grp){
 

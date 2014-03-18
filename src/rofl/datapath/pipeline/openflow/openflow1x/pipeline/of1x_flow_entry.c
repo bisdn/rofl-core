@@ -340,7 +340,7 @@ rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipelin
 	/*
 	* Validate instructions (and actions)
 	*/
-	if(__of1x_validate_instructions(&entry->inst_grp, pipeline)!=ROFL_SUCCESS)
+	if(__of1x_validate_instructions(&entry->inst_grp, pipeline, table_id)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	if(version == OF_VERSION_10 && entry->matches.head && !entry->matches.has_wildcard)

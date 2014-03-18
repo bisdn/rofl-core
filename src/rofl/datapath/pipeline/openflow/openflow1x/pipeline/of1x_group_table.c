@@ -17,7 +17,6 @@
 #include <stdio.h>
 
 static void __of1x_destroy_group(of1x_group_table_t *gt, of1x_group_t *ge);
-static rofl_of1x_gm_result_t __of1x_validate_group(of1x_action_group_t* actions);
 bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl);
 
 of1x_group_table_t* of1x_init_group_table(){
@@ -33,6 +32,7 @@ of1x_group_table_t* of1x_init_group_table(){
 	gt->tail = NULL;
 	
 	gt->rwlock = platform_rwlock_init(NULL);
+	bitmap128_clean(&gt->config.supported_actions);
 	
 	return gt;
 }
@@ -66,6 +66,28 @@ rofl_result_t of1x_fetch_group_table(of1x_pipeline_t *pipeline, of1x_group_table
 	return ROFL_SUCCESS;
 }
 
+static
+rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_group_t* actions){
+
+	//we dont allow OF1X_AT_GROUP
+	//and neither OF1X_AT_OUTPUT in the case of OF1X_PORT_TABLE
+	of1x_packet_action_t *it;
+	
+	for(it=actions->head; it; it=it->next){
+		if(it->type == OF1X_AT_GROUP)
+			return ROFL_OF1X_GM_CHAIN;
+		if(it->type == OF1X_AT_OUTPUT && it->field.u64 == OF1X_PORT_TABLE)
+			return ROFL_OF1X_GM_INVAL;
+	}
+		
+	//verify apply actions
+	if(__of1x_validate_action_group(&gt->config.supported_actions, actions, gt) != ROFL_SUCCESS)
+		return ROFL_OF1X_GM_INVAL;
+	
+	return ROFL_OF1X_GM_OK;
+}
+
+
 /**
  * Searches in the table for an entry with a specific id
  * returns pointer if found or NULL if not
@@ -91,7 +113,7 @@ rofl_of1x_gm_result_t __of1x_check_group_parameters(of1x_group_table_t *gt, of1x
     
 	//Validate action set
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
-		if((ret_val=__of1x_validate_group(bu_it->actions))!=ROFL_OF1X_GM_OK)
+		if((ret_val=__of1x_validate_group(gt, bu_it->actions))!=ROFL_OF1X_GM_OK)
 			return ret_val;
 	}
 	
@@ -360,27 +382,6 @@ void of1x_destroy_bucket_list(of1x_bucket_list_t *bc_list){
 		platform_free_shared(bk_it);
 	}
 	platform_free_shared(bc_list);
-}
-
-static
-rofl_of1x_gm_result_t __of1x_validate_group(of1x_action_group_t* actions){
-
-	//we dont allow OF1X_AT_GROUP
-	//and neither OF1X_AT_OUTPUT in the case of OF1X_PORT_TABLE
-	of1x_packet_action_t *it;
-	
-	for(it=actions->head; it; it=it->next){
-		if(it->type == OF1X_AT_GROUP)
-			return ROFL_OF1X_GM_CHAIN;
-		if(it->type == OF1X_AT_OUTPUT && it->field.u64 == OF1X_PORT_TABLE)
-			return ROFL_OF1X_GM_INVAL;
-	}
-		
-	//verify apply actions
-	if(__of1x_validate_action_group(actions, NULL) != ROFL_SUCCESS)
-		return ROFL_OF1X_GM_INVAL;
-	
-	return ROFL_OF1X_GM_OK;
 }
 
 bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){

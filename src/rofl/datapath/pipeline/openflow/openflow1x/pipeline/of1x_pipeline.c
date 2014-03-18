@@ -285,7 +285,7 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 	of1x_group_table_t *gt = sw->pipeline.groups;
 
 	//Validate apply_actions_group
-	__of1x_validate_action_group((of1x_action_group_t*)apply_actions_group, gt);
+	__of1x_validate_action_group(NULL, (of1x_action_group_t*)apply_actions_group, gt);
 
 	if(apply_actions_group->num_of_output_actions == 0){
 		//No output actions or groups; drop and return	

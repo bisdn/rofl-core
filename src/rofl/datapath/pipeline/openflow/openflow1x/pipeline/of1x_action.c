@@ -11,6 +11,7 @@
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../of1x_async_events_hooks.h"
+#include "of1x_flow_table.h"
 #include "of1x_utils.h"
 
 //Flood port
@@ -346,6 +347,7 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 	//Fast validation, set min max 
 	action_group->ver_req.min_ver = OF1X_MIN_VERSION;
 	action_group->ver_req.max_ver = OF1X_MAX_VERSION;
+	bitmap128_clean(&action_group->bitmap);
 
 	return action_group;
 }
@@ -367,7 +369,7 @@ void of1x_destroy_action_group(of1x_action_group_t* group){
 /* Addition of an action to an action group */
 void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_action_t* action){
 
-	if( unlikely(action==NULL) ){
+	if( unlikely(action==NULL) || action->type >= OF1X_AT_NUMBER ){
 		assert(0);
 		return;
 	}
@@ -398,7 +400,7 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 		group->ver_req.min_ver = action->ver_req.min_ver;
 	if(group->ver_req.max_ver > action->ver_req.max_ver)
 		group->ver_req.max_ver = action->ver_req.max_ver;
-
+	bitmap128_set(&group->bitmap, action->type);
 }
 
 of1x_write_actions_t* of1x_init_write_actions(){
@@ -410,7 +412,7 @@ of1x_write_actions_t* of1x_init_write_actions(){
 		return NULL;
 
 	//Memset actions
-	platform_memset(&write_actions->bitmap, 0, sizeof(write_actions->bitmap));
+	bitmap128_clean(&write_actions->bitmap);
 
 	for(i=0;i<OF1X_AT_NUMBER;i++)
 		write_actions->actions[i].type = (of1x_packet_action_type_t)i;	
@@ -432,6 +434,11 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions){
 
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
 
+	if( unlikely(write_actions==NULL) || action->type >= OF1X_AT_NUMBER ){
+		assert(0);
+		return;
+	}
+
 	//Update field
 	write_actions->actions[action->type].field = action->field;
 
@@ -452,8 +459,6 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 		write_actions->ver_req.min_ver = action->ver_req.min_ver;
 	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
 		write_actions->ver_req.max_ver = action->ver_req.max_ver;
-
-
 }
 
 /* Contains switch with all the different action functions */
@@ -1485,10 +1490,14 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 	}
 }
 
-rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
+rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, of1x_group_table_t *gt){
 	of1x_packet_action_t *pa_it;
 
 	if(unlikely(ag == NULL))
+		return ROFL_FAILURE;
+
+	//Check supported bitmap (if defined). Won't be defined for packet_outs
+	if( supported && !bitmap128_check_mask(&ag->bitmap, supported) )
 		return ROFL_FAILURE;
 
 	for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
@@ -1508,7 +1517,7 @@ rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_t
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group_table_t *gt){
+rofl_result_t __of1x_validate_write_actions(bitmap128_t* supported, of1x_write_actions_t *wa, of1x_group_table_t *gt){
 
 	if(unlikely(wa == NULL))
 		return ROFL_FAILURE;
@@ -1516,6 +1525,9 @@ rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group
 	if(wa->num_of_actions == 0)
 		return ROFL_SUCCESS;
 
+	if( !bitmap128_check_mask(&wa->bitmap, supported) )
+		return ROFL_FAILURE;
+	
 	if( bitmap128_is_bit_set(&wa->bitmap, OF1X_AT_OUTPUT) )
 		wa->num_of_output_actions++;
 	
