@@ -159,7 +159,8 @@ void
 cofflow_stats_request::set_out_group(uint32_t out_group)
 {
 	switch (of_version) {
-	case rofl::openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 	} break;
 	default:
 		throw eBadVersion();
@@ -174,6 +175,7 @@ cofflow_stats_request::get_out_group() const
 {
 	switch (of_version) {
 	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
 		break;
 	default:
 		throw eBadVersion();
@@ -196,6 +198,7 @@ cofflow_stats_request::get_cookie() const
 {
 	switch (of_version) {
 	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
 		break;
 	default:
 		throw eBadVersion();
@@ -218,6 +221,7 @@ cofflow_stats_request::get_cookie_mask() const
 {
 	switch (of_version) {
 	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
 		break;
 	default:
 		throw eBadVersion();

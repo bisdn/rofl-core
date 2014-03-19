@@ -18,7 +18,7 @@ crofctl_impl::crofctl_impl(
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
-
+	async_config = rofbase->async_config_role_default_template;
 }
 
 
@@ -35,6 +35,7 @@ crofctl_impl::crofctl_impl(
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
+	async_config = rofbase->async_config_role_default_template;
 	rofchan.add_conn(/*aux-id=*/0, newsd);
 }
 
@@ -57,6 +58,7 @@ crofctl_impl::crofctl_impl(
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
+	async_config = rofbase->async_config_role_default_template;
 	rofchan.add_conn(/*aux-id=*/0, domain, type, protocol, ra, ssl_ctx);
 }
 
