@@ -1341,8 +1341,10 @@ inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 
 		//NW (OF1.0 only)
    		case OF1X_MATCH_NW_PROTO: if(!(pkt->eth_type == ETH_TYPE_IPV4 || pkt->eth_type == ETH_TYPE_IPV6 || pkt->eth_type == ETH_TYPE_ARP || (pkt->eth_type == ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == PPP_PROTO_IP4 || pkt->ppp_proto == PPP_PROTO_IP6) ))) return false;
-					if(pkt->eth_type == ETH_TYPE_ARP)
-						return __utern_compare16(it->value, &pkt->arp_opcode);
+					if(pkt->eth_type == ETH_TYPE_ARP){
+						uint8_t *low_byte = ((uint8_t*)&(pkt->arp_opcode));
+						return __utern_compare8(it->value, ++low_byte);
+					}
 					else 
 						return __utern_compare8(it->value, &pkt->ip_proto);
 	
