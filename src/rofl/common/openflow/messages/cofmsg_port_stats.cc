@@ -205,12 +205,12 @@ cofmsg_port_stats_request::validate()
 		port_stats.unpack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_request), sizeof(struct rofl::openflow10::ofp_port_stats_request));
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_request) + sizeof(struct rofl::openflow12::ofp_port_stats)))
+		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_request) + sizeof(struct rofl::openflow12::ofp_port_stats_request)))
 			throw eBadSyntaxTooShort();
 		port_stats.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_request), sizeof(struct rofl::openflow12::ofp_port_stats_request));
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_request) + sizeof(struct rofl::openflow13::ofp_port_stats)))
+		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_request) + sizeof(struct rofl::openflow13::ofp_port_stats_request)))
 			throw eBadSyntaxTooShort();
 		port_stats.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_request), sizeof(struct rofl::openflow13::ofp_port_stats_request));
 	} break;

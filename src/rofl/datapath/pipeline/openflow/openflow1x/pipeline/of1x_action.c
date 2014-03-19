@@ -107,10 +107,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_OUTPUT:
-			if(field.u32 != OF1X_PORT_CONTROLLER  && output_send_len != 0x0)
-				assert(0);
-			if(field.u32 == OF1X_PORT_CONTROLLER)
-				action->send_len = output_send_len;
+			action->send_len = output_send_len;
 			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
