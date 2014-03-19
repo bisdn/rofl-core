@@ -82,6 +82,8 @@
 #include "rofl/common/openflow/messages/cofmsg_experimenter.h"
 #include "rofl/common/openflow/messages/cofmsg_async_config.h"
 #include "rofl/common/ctransactions.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 namespace rofl
 {
@@ -140,6 +142,11 @@ protected:
 	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
 	ctransactions				transactions;
+	bool						generation_is_defined;		// generation_id used for roles initially defined?
+	uint64_t					cached_generation_id;
+
+	rofl::openflow::cofasync_config		async_config_role_default_template;
+
 
 public:
 
@@ -657,7 +664,7 @@ protected:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(crofctl *ctl, uint32_t role);
+	role_request_rcvd(crofctl *ctl, uint32_t role, uint64_t rcvd_generation_id);
 
 
 protected:

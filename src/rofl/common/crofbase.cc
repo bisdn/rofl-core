@@ -13,17 +13,44 @@ using namespace rofl;
 crofbase::crofbase(
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				versionbitmap(versionbitmap),
-				transactions(this)
+				transactions(this),
+				generation_is_defined(false),
+				cached_generation_id((uint64_t)((int64_t)-1)),
+				async_config_role_default_template(rofl::openflow13::OFP_VERSION)
 {
+	async_config_role_default_template.set_packet_in_mask_master() =
+			(1 << rofl::openflow13::OFPR_NO_MATCH) ||
+			(1 << rofl::openflow13::OFPR_ACTION);
+
+	async_config_role_default_template.set_packet_in_mask_slave(0);
+
+	async_config_role_default_template.set_port_status_mask_master() =
+			(1 << rofl::openflow13::OFPPR_ADD) ||
+			(1 << rofl::openflow13::OFPPR_DELETE) ||
+			(1 << rofl::openflow13::OFPPR_MODIFY);
+
+	async_config_role_default_template.set_port_status_mask_slave() =
+			(1 << rofl::openflow13::OFPPR_ADD) ||
+			(1 << rofl::openflow13::OFPPR_DELETE) ||
+			(1 << rofl::openflow13::OFPPR_MODIFY);
+
+	async_config_role_default_template.set_flow_removed_mask_master() =
+			(1 << rofl::openflow13::OFPRR_IDLE_TIMEOUT) ||
+			(1 << rofl::openflow13::OFPRR_HARD_TIMEOUT) ||
+			(1 << rofl::openflow13::OFPRR_DELETE) ||
+			(1 << rofl::openflow13::OFPRR_GROUP_DELETE);
+
+	async_config_role_default_template.set_flow_removed_mask_slave(0);
+
 	crofbase::rofbases.insert(this);
 }
 
 
 crofbase::~crofbase()
 {
-	rpc_close_all();
-	
 	crofbase::rofbases.erase(this);
+
+	rpc_close_all();
 }
 
 
@@ -45,13 +72,55 @@ crofbase::send_packet_in_message(
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		if (not (*(*it)).is_established()) {
+		crofctl& ctl = *(*it);
+
+		if (not ctl.is_established()) {
 			continue;
 		}
 
-		// TODO: roles
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
 
-		(*(*it)).send_packet_in_message(
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_packet_in_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_packet_in_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_packet_in_message(
 				buffer_id,
 				total_len,
 				reason,
@@ -86,12 +155,60 @@ crofbase::send_flow_removed_message(
 	uint64_t packet_count,
 	uint64_t byte_count)
 {
+	bool sent_out = false;
+
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		// TODO: roles
+		crofctl& ctl = *(*it);
 
-		(*(*it)).send_flow_removed_message(
+		if (not ctl.is_established()) {
+			continue;
+		}
+
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_flow_removed_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_flow_removed_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_flow_removed_message(
 				match,
 				cookie,
 				priority,
@@ -103,8 +220,13 @@ crofbase::send_flow_removed_message(
 				hard_timeout,
 				packet_count,
 				byte_count);
+
+		sent_out = true;
 	}
-	//throw eNotImplemented("crofbase::send_flow_removed_message()");
+
+	if (not sent_out) {
+		throw eRofBaseNotConnected();
+	}
 }
 
 
@@ -114,14 +236,67 @@ crofbase::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
+	bool sent_out = false;
+
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-		// TODO: roles
+		crofctl& ctl = *(*it);
 
-		(*(*it)).send_port_status_message(reason, port);
+		if (not ctl.is_established()) {
+			continue;
+		}
+
+		switch (ctl.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			// channel lost?
+			continue;
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+					continue;
+			} break;
+			default: {
+				// master/equal/unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+
+			switch (ctl.get_role().get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (ctl.get_async_config().get_port_status_mask_master() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (ctl.get_async_config().get_port_status_mask_slave() & (1 << reason))) {
+					continue;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+
+		} break;
+		default: {
+			// unknown version: send packet-in to controller
+		};
+		}
+
+		ctl.send_port_status_message(reason, port);
+
+		sent_out = true;
 	}
-	//throw eNotImplemented("crofbase::send_port_status_message()");
+
+	if (not sent_out) {
+		throw eRofBaseNotConnected();
+	}
 }
 
 
@@ -520,59 +695,61 @@ crofbase::cofdpt_factory(
 void
 crofbase::role_request_rcvd(
 		crofctl *ctl,
-		uint32_t role)
+		uint32_t role,
+		uint64_t rcvd_generation_id)
 {
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		switch (role) {
-		case openflow12::OFPCR_ROLE_NOCHANGE: {
-		} break;
-		case openflow12::OFPCR_ROLE_EQUAL: {
-		} break;
-		case openflow12::OFPCR_ROLE_MASTER: {
-			for (std::set<crofctl*>::iterator
-					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-				crofctl *tctl = (*it);
-
-				if (tctl == ctl)
-					continue;
-
-				if (openflow12::OFPCR_ROLE_MASTER == tctl->get_role())
-					tctl->set_role(openflow12::OFPCR_ROLE_SLAVE);
-			}
-		} break;
-		case openflow12::OFPCR_ROLE_SLAVE: {
-		} break;
-		default: {
-		} break;
+	if (generation_is_defined &&
+			(cofrole::distance((int64_t)rcvd_generation_id, (int64_t)cached_generation_id) < 0)) {
+		if ((rofl::openflow13::OFPCR_ROLE_MASTER == role) || (rofl::openflow13::OFPCR_ROLE_SLAVE == role)) {
+			throw eRoleRequestStale();
 		}
-	} break;
-	case openflow13::OFP_VERSION: {
-		switch (role) {
-		case openflow13::OFPCR_ROLE_NOCHANGE: {
-		} break;
-		case openflow13::OFPCR_ROLE_EQUAL: {
-		} break;
-		case openflow13::OFPCR_ROLE_MASTER: {
-			for (std::set<crofctl*>::iterator
-					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-				crofctl *tctl = (*it);
+	} else {
+		cached_generation_id = rcvd_generation_id;
+		generation_is_defined = true;
+	}
 
-				if (tctl == ctl)
-					continue;
+	// in either case: send current generation_id value back to controller
+	ctl->set_role().set_generation_id(cached_generation_id);
 
-				if (openflow13::OFPCR_ROLE_MASTER == tctl->get_role())
-					tctl->set_role(openflow13::OFPCR_ROLE_SLAVE);
+	switch (role) {
+	case rofl::openflow13::OFPCR_ROLE_MASTER: {
+
+		// iterate over all attached controllers and check for an existing master
+		for (std::set<crofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+
+			// ignore ctl who called this method
+			if (*it == ctl)
+				continue;
+
+			// find any other controller and set them back to role SLAVE
+			if (rofl::openflow13::OFPCR_ROLE_MASTER == (*it)->get_role().get_role()) {
+				(*it)->set_role().set_role(rofl::openflow13::OFPCR_ROLE_SLAVE);
 			}
-		} break;
-		case openflow13::OFPCR_ROLE_SLAVE: {
-		} break;
-		default: {
-		} break;
 		}
+
+		// set new master async-config to template retrieved from of-config (or default one)
+		ctl->set_async_config() = async_config_role_default_template;
+
+		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_MASTER);
+
 	} break;
-	default:
-		throw eBadVersion();
+	case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+
+		ctl->set_async_config() = async_config_role_default_template;
+		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_SLAVE);
+
+	} break;
+	case rofl::openflow13::OFPCR_ROLE_EQUAL: {
+
+		ctl->set_async_config() = async_config_role_default_template;
+		ctl->set_role().set_role(rofl::openflow13::OFPCR_ROLE_EQUAL);
+
+	} break;
+	case rofl::openflow13::OFPCR_ROLE_NOCHANGE:
+	default: {
+		// let crofctl_impl send a role-reply with the controller's unaltered current role
+	}
 	}
 }
 

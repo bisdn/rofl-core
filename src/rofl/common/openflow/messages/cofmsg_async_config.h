@@ -5,10 +5,11 @@
  *      Author: andi
  */
 
-#ifndef COFMSG_ASYNC_CONFIG_H_A
-#define COFMSG_ASYNC_CONFIG_H_A 1
+#ifndef COFMSG_ASYNC_CONFIG_H_
+#define COFMSG_ASYNC_CONFIG_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
 
 namespace rofl
 {
@@ -102,6 +103,12 @@ public:
 };
 
 
+
+
+
+
+
+
 /**
  *
  */
@@ -110,13 +117,8 @@ class cofmsg_get_async_config_reply :
 {
 private:
 
-	union {
-		uint8_t*					ofhu_async_config;
-		struct openflow13::ofp_async_config*	ofhu13_async_config;
-	} ofhu;
+	rofl::openflow::cofasync_config			async_config;
 
-#define ofh_async_config   ofhu.ofhu_async_config
-#define ofh13_async_config ofhu.ofhu13_async_config
 
 public:
 
@@ -127,12 +129,7 @@ public:
 	cofmsg_get_async_config_reply(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
-			uint32_t packet_in_mask0 = 0,
-			uint32_t packet_in_mask1 = 0,
-			uint32_t port_status_mask0 = 0,
-			uint32_t port_status_mask1 = 0,
-			uint32_t flow_removed_mask0 = 0,
-			uint32_t flow_removed_mask1 = 0);
+			rofl::openflow::cofasync_config const& async_config = rofl::openflow::cofasync_config());
 
 
 	/**
@@ -162,19 +159,7 @@ public:
 	 */
 	cofmsg_get_async_config_reply(cmemory *memarea);
 
-
-	/** reset packet content
-	 *
-	 */
-	virtual void
-	reset();
-
-
-	/**
-	 *
-	 */
-	virtual uint8_t*
-	resize(size_t len);
+public:
 
 
 	/** returns length of packet in packed state
@@ -206,43 +191,17 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	rofl::openflow::cofasync_config&
+	set_async_config() { return async_config; };
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_packet_in_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_packet_in_mask(unsigned int index, uint32_t mask);
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_port_status_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_port_status_mask(unsigned int index, uint32_t mask);
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_flow_removed_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_flow_removed_mask(unsigned int index, uint32_t mask);
-
+	rofl::openflow::cofasync_config const&
+	get_async_config() const { return async_config; };
 
 public:
 
@@ -250,12 +209,16 @@ public:
 	operator<< (std::ostream& os, cofmsg_get_async_config_reply const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_get_async_config_reply >" << std::endl;
-		os << indent(4) << "<packet-in-mask:0x" << std::hex << msg.get_packet_in_mask(0) << std::dec << " >" << std::endl;
-		os << indent(4) << "<port-status-mask:0x" << std::hex << msg.get_port_status_mask(0) << std::dec << " >" << std::endl;
-		os << indent(4) << "<flow-removed-mask:0x" << std::hex << msg.get_flow_removed_mask(0) << std::dec << " >" << std::endl;
+		rofl::indent i(4);
+		os << msg.async_config;
 		return os;
 	};
 };
+
+
+
+
+
 
 /**
  *
@@ -265,13 +228,8 @@ class cofmsg_set_async_config :
 {
 private:
 
-	union {
-		uint8_t*					ofhu_async_config;
-		struct openflow13::ofp_async_config*	ofhu13_async_config;
-	} ofhu;
+	rofl::openflow::cofasync_config			async_config;
 
-#define ofh_async_config   ofhu.ofhu_async_config
-#define ofh13_async_config ofhu.ofhu13_async_config
 
 public:
 
@@ -282,12 +240,7 @@ public:
 	cofmsg_set_async_config(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
-			uint32_t packet_in_mask0 = 0,
-			uint32_t packet_in_mask1 = 0,
-			uint32_t port_status_mask0 = 0,
-			uint32_t port_status_mask1 = 0,
-			uint32_t flow_removed_mask0 = 0,
-			uint32_t flow_removed_mask1 = 0);
+			rofl::openflow::cofasync_config const& async_config = rofl::openflow::cofasync_config());
 
 
 	/**
@@ -317,19 +270,7 @@ public:
 	 */
 	cofmsg_set_async_config(cmemory *memarea);
 
-
-	/** reset packet content
-	 *
-	 */
-	virtual void
-	reset();
-
-
-	/**
-	 *
-	 */
-	virtual uint8_t*
-	resize(size_t len);
+public:
 
 
 	/** returns length of packet in packed state
@@ -361,52 +302,26 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	rofl::openflow::cofasync_config&
+	set_async_config() { return async_config; };
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_packet_in_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_packet_in_mask(unsigned int index, uint32_t mask);
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_port_status_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_port_status_mask(unsigned int index, uint32_t mask);
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_flow_removed_mask(unsigned int index) const;
-
-	/**
-	 *
-	 */
-	void
-	set_flow_removed_mask(unsigned int index, uint32_t mask);
+	rofl::openflow::cofasync_config const&
+	get_async_config() const { return async_config; };
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_set_async_config const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
-		os << indent(2) << "<cofmsg_get_async_config_reply >" << std::endl;
-		os << indent(4) << "<packet-in-mask:0x" << std::hex << msg.get_packet_in_mask(0) << std::dec << " >" << std::endl;
-		os << indent(4) << "<port-status-mask:0x" << std::hex << msg.get_port_status_mask(0) << std::dec << " >" << std::endl;
-		os << indent(4) << "<flow-removed-mask:0x" << std::hex << msg.get_flow_removed_mask(0) << std::dec << " >" << std::endl;
+		os << indent(2) << "<cofmsg_set_async_config >" << std::endl;
+		rofl::indent i(4);
+		os << msg.async_config;
 		return os;
 	};
 };

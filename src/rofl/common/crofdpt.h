@@ -24,6 +24,8 @@
 #include "rofl/common/openflow/cofgroupmod.h"
 #include "rofl/common/crofchan.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 
 namespace rofl
@@ -614,8 +616,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
-			uint32_t role,
-			uint64_t generation_id) = 0;
+			rofl::openflow::cofrole const& role) = 0;
 
 	/**
 	 * @brief 	Sends a FLOW-MOD.message to a data path element.
@@ -695,21 +696,10 @@ public:
 	/**
 	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
 	 *
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
 	 */
 	virtual uint32_t
 	send_set_async_config_message(
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1) = 0;
+		rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**
 	 * @brief	Sends an ERROR.message to a data path element.

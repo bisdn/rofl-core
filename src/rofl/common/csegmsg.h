@@ -36,9 +36,12 @@ class eSegmentedMessageNotFound		: public eSegmentedMessageBase {};
 
 class csegmsg {
 
-	cclock				expires;	// time this cmultipart message will expire
+	cclock				expires_at;	// time this cmultipart message will expire
 	uint32_t 			xid;		// transaction id used by this multipart message
 	cofmsg_stats*		msg;		// stitched multipart message, allocated on heap
+
+	static time_t const DEFAULT_EXPIRATION_DELTA_SEC 	= 8;
+	static time_t const DEFAULT_EXPIRATION_DELTA_NSEC 	= 0;
 
 public:
 
@@ -70,6 +73,19 @@ public:
 	operator= (csegmsg const& segmsg);
 
 public:
+
+	/**
+	 *
+	 */
+	bool
+	has_expired() const;
+
+	/**
+	 *
+	 */
+	void
+	set_expiration_in(
+			time_t delta_sec = 0, time_t delta_nsec = 0);
 
 	/**
 	 *
@@ -116,7 +132,7 @@ public:
 	operator<< (std::ostream& os, csegmsg const& msg) {
 		os << rofl::indent(0) << "<csegmsg" << " >" << std::endl;
 		os << rofl::indent(2) << "<expires: >" << std::endl;
-		{ rofl::indent i(4); os << msg.expires; }
+		{ rofl::indent i(4); os << msg.expires_at; }
 		os << rofl::indent(2) << "<xid: 0x" << std::hex << (int)msg.xid << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		switch (msg.msg->get_version()) {

@@ -1204,8 +1204,7 @@ crofdpt_impl::send_barrier_request()
 
 uint32_t
 crofdpt_impl::send_role_request(
-	uint32_t role,
-	uint64_t generation_id)
+	rofl::openflow::cofrole const& role)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][dpt] not connected, dropping Role-Request message" << std::endl;
@@ -1218,8 +1217,7 @@ crofdpt_impl::send_role_request(
 			new cofmsg_role_request(
 					rofchan.get_version(),
 					xid,
-					role,
-					generation_id);
+					role);
 
 	rofchan.send_message(msg, 0);
 
@@ -1410,12 +1408,7 @@ crofdpt_impl::send_get_async_config_request()
 
 uint32_t
 crofdpt_impl::send_set_async_config_message(
-	uint32_t packet_in_mask0,
-	uint32_t packet_in_mask1,
-	uint32_t port_status_mask0,
-	uint32_t port_status_mask1,
-	uint32_t flow_removed_mask0,
-	uint32_t flow_removed_mask1)
+		rofl::openflow::cofasync_config const& async_config)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][dpt] not connected, dropping Set-Async-Config message" << std::endl;
@@ -1428,12 +1421,7 @@ crofdpt_impl::send_set_async_config_message(
 			new cofmsg_set_async_config(
 					rofchan.get_version(),
 					xid,
-					packet_in_mask0,
-					packet_in_mask1,
-					port_status_mask0,
-					port_status_mask1,
-					flow_removed_mask0,
-					flow_removed_mask1);
+					async_config);
 
 	rofchan.send_message(msg, 0);
 

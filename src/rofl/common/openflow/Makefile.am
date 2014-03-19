@@ -102,7 +102,11 @@ libopenflow_la_SOURCES= \
 	coftablefeatures.h \
 	coftablefeatures.cc \
 	coftables.h \
-	coftables.cc
+	coftables.cc \
+	cofasyncconfig.h \
+	cofasyncconfig.cc \
+	cofrole.h \
+	cofrole.cc
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -159,7 +163,9 @@ library_include_HEADERS = \
 	coftablefeatureprop.h \
 	coftablefeatureprops.h \
 	coftablefeatures.h \
-	coftables.h
+	coftables.h \
+	cofasyncconfig.h \
+	cofrole.h
 
 
 
