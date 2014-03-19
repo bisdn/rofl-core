@@ -19,25 +19,25 @@ crofbase::crofbase(
 				async_config_role_default_template(rofl::openflow13::OFP_VERSION)
 {
 	async_config_role_default_template.set_packet_in_mask_master() =
-			(1 << rofl::openflow13::OFPR_NO_MATCH) ||
+			(1 << rofl::openflow13::OFPR_NO_MATCH) |
 			(1 << rofl::openflow13::OFPR_ACTION);
 
 	async_config_role_default_template.set_packet_in_mask_slave(0);
 
 	async_config_role_default_template.set_port_status_mask_master() =
-			(1 << rofl::openflow13::OFPPR_ADD) ||
-			(1 << rofl::openflow13::OFPPR_DELETE) ||
+			(1 << rofl::openflow13::OFPPR_ADD) |
+			(1 << rofl::openflow13::OFPPR_DELETE) |
 			(1 << rofl::openflow13::OFPPR_MODIFY);
 
 	async_config_role_default_template.set_port_status_mask_slave() =
-			(1 << rofl::openflow13::OFPPR_ADD) ||
-			(1 << rofl::openflow13::OFPPR_DELETE) ||
+			(1 << rofl::openflow13::OFPPR_ADD) |
+			(1 << rofl::openflow13::OFPPR_DELETE) |
 			(1 << rofl::openflow13::OFPPR_MODIFY);
 
 	async_config_role_default_template.set_flow_removed_mask_master() =
-			(1 << rofl::openflow13::OFPRR_IDLE_TIMEOUT) ||
-			(1 << rofl::openflow13::OFPRR_HARD_TIMEOUT) ||
-			(1 << rofl::openflow13::OFPRR_DELETE) ||
+			(1 << rofl::openflow13::OFPRR_IDLE_TIMEOUT) |
+			(1 << rofl::openflow13::OFPRR_HARD_TIMEOUT) |
+			(1 << rofl::openflow13::OFPRR_DELETE) |
 			(1 << rofl::openflow13::OFPRR_GROUP_DELETE);
 
 	async_config_role_default_template.set_flow_removed_mask_slave(0);
