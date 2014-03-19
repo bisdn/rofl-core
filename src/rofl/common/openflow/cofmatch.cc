@@ -281,7 +281,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_IN_PORT;
 	}
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// dl_src
 	try {
 		memcpy(m->dl_src, oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr().somem(), OFP_ETH_ALEN);
@@ -289,7 +288,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_DL_SRC;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// dl_dst
 	try {
 		memcpy(m->dl_dst, oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr().somem(), OFP_ETH_ALEN);
@@ -297,7 +295,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_DL_DST;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// dl_vlan
 	try {
 		m->dl_vlan = htobe16(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
@@ -305,7 +302,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_DL_VLAN;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// dl_vlan_pcp
 	try {
 		if(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value() != OFP10_VLAN_NONE)
@@ -314,7 +310,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_DL_VLAN_PCP;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// dl_type
 	try {
 		m->dl_type = htobe16(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
@@ -322,7 +317,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_DL_TYPE;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// nw_tos
 	try {
 		m->nw_tos = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
@@ -330,7 +324,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_NW_TOS;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// nw_proto
 	try {
 		m->nw_proto = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
@@ -338,7 +331,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_NW_PROTO;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// nw_src
 	try {
 		coxmatch& oxm = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_SRC);
@@ -351,8 +343,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_NW_SRC_ALL;
 	}
 
-
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// nw_dst
 	try {
 		coxmatch& oxm = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_DST);
@@ -365,7 +355,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_NW_DST_ALL;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// tp_src
 	try {
 		m->tp_src = htobe16(oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_TP_SRC).u16value());
@@ -373,7 +362,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_TP_SRC;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	// tp_dst
 	try {
 		m->tp_dst = htobe16(oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_TP_DST).u16value());
@@ -381,7 +369,6 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		wildcards |= OFP10FW_TP_DST;
 	}
 
-// std::cout << "TP" << __LINE__ << " wildcards = " << std::hex << wildcards << std::endl << std::dec;
 	m->wildcards = htobe32(wildcards);
 
 	return m;

@@ -13,16 +13,11 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 	cofmsg_stats(of_version, xid, OFPST_AGGREGATE, flags),
 	aggr_stats(aggr_stats)
 {
-std::cout << "TP" << __LINE__ << std::endl;
 	switch (of_version) {
 	case OFP10_VERSION: {
-std::cout << "TP" << __LINE__ << std::endl;
 		set_type(OFPT10_STATS_REQUEST);
-std::cout << "TP" << __LINE__ << std::endl;
 		resize(sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_aggregate_stats_request));
-std::cout << "TP" << __LINE__ << std::endl;
 		this->aggr_stats.pack(soframe() + sizeof(struct ofp10_stats_request), sizeof(struct ofp10_aggregate_stats_request));
-std::cout << "TP" << __LINE__ << std::endl;
 	} break;
 	case OFP12_VERSION: {
 		set_type(OFPT12_STATS_REQUEST);
