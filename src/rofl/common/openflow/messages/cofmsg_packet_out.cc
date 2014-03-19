@@ -61,7 +61,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
 	actions(get_version()),
-	packet(rofl::openflow::OFP_VERSION_UNKNOWN, (size_t)0)
+	packet(get_version(), (size_t)0)
 {
 	ofh_packet_out = soframe();
 }
