@@ -423,7 +423,7 @@ void test_flow_modify(){
 	group1 = of1x_init_action_group(NULL);
 	CU_ASSERT(group1 != NULL);
 	field.u16 = 1;
-	of1x_push_packet_action_to_group(group1,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_push_packet_action_to_group(group1,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
 	
 	of1x_add_instruction_to_group(&entry1->inst_grp, OF1X_IT_APPLY_ACTIONS, group1, NULL, NULL, 0);
 	
@@ -441,7 +441,7 @@ void test_flow_modify(){
 	//Add a different action
 	group2 = of1x_init_action_group(NULL);
 	CU_ASSERT(group2 != NULL);
-	of1x_push_packet_action_to_group(group2, of1x_init_packet_action(OF1X_AT_SET_FIELD_IP_DSCP, field, NULL,NULL));
+	of1x_push_packet_action_to_group(group2, of1x_init_packet_action(OF1X_AT_SET_FIELD_IP_DSCP, field, 0x0, NULL,NULL));
 	
 	of1x_add_instruction_to_group(&entry2->inst_grp, OF1X_IT_APPLY_ACTIONS, group2, NULL, NULL, 0);
 

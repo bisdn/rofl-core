@@ -246,6 +246,9 @@ typedef struct of1x_packet_action{
 	//Field (set field)
 	wrap_uint_t field;
 
+	//miss-send-len for OUTPUT actions only
+	uint16_t send_len;
+
 	//group
 	struct of1x_group* group;
 	
@@ -321,9 +324,10 @@ ROFL_BEGIN_DECLS
 * @ingroup core_of1x 
 * Initializes a packet action (OF action)
 *
-* Each field set consitutes an action per-se. 
+* @param field union containing 8, 16, 32, 64 and 128 bit action field (e.g. port_num in output actions, header value in set field actions). Put if not used in this action type.
+* @param output_send_len Optional send to controller send len; leave to 0x0 if not used.
 */
-of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw,*/of1x_packet_action_type_t type, wrap_uint_t field, of1x_packet_action_t* prev, of1x_packet_action_t* next);
+of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len,  of1x_packet_action_t* prev, of1x_packet_action_t* next);
 
 /**
 * @ingroup core_of1x 

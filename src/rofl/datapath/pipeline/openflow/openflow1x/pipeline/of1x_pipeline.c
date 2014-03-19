@@ -264,7 +264,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
 
-				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, OF1X_PKT_IN_NO_MATCH);
+				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	
