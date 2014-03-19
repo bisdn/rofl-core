@@ -21,8 +21,8 @@ cofrole::distance(int64_t rcvd_gen_id, int64_t cached_gen_id)
 cofrole::cofrole(
 		uint8_t ofp_version) :
 				ofp_version(ofp_version),
-				role(0),
-				generation_id(0)
+				role(rofl::openflow13::OFPCR_ROLE_EQUAL),
+				generation_id((int64_t)-1)
 {}
 
 
