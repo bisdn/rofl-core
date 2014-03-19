@@ -168,7 +168,7 @@ void ctranslator::handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_c
 	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
 	uint32_t orig_xid = map_it->second;
 	send_get_config_reply(m_master, orig_xid, msg->get_flags(), msg->get_miss_send_len() );
-	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
+	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);
 	m_mxid_sxid.erase(orig_xid);
 	delete(msg);
@@ -228,6 +228,20 @@ void ctranslator::handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_tab
 	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
 	delete(msg);
 }
+void ctranslator::handle_table_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_table_stats_reply *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	send_table_stats_reply(m_master, orig_xid, msg->get_table_stats(), false ); // TODO how to deal with "more" flag (last arg)
+	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+
 void ctranslator::handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
@@ -243,7 +257,13 @@ void ctranslator::handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg
 	uint32_t masterxid = pack->get_xid();
 	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming handle_aggregate_stats_request already exists in m_mxid_sxid" << std::endl;
 	if(m_slave) {
-		uint32_t myxid = send_aggr_stats_request(m_slave, pack->get_stats_flags(), pack->get_aggr_stats());
+std::cout << "TP" << __LINE__ << std::endl;
+		uint16_t stats_flags = pack->get_stats_flags();
+std::cout << "TP" << __LINE__ << std::endl;
+		rofl::cofaggr_stats_request aggr_req( pack->get_aggr_stats() );
+std::cout << "TP" << __LINE__ << std::endl;
+		uint32_t myxid = send_aggr_stats_request(m_slave, stats_flags, aggr_req);
+std::cout << "TP" << __LINE__ << std::endl;
 		std::cout << func << " called send_aggr_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
 		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from handle_aggregate_stats_request already exists in m_sxid_mxid" << std::endl;
 		m_mxid_sxid[masterxid]=myxid;
@@ -258,8 +278,8 @@ void ctranslator::handle_aggregate_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_a
 	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
 	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
 	uint32_t orig_xid = map_it->second;
-	send_aggr_stats_reply(m_master, orig_xid, msg->get_flags(), ??? );
-	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
+	send_aggr_stats_reply(m_master, orig_xid, msg->get_aggr_stats(), false );	// TODO how to deal with "more" flag (last arg)
+	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);
 	m_mxid_sxid.erase(orig_xid);
 	delete(msg);
@@ -307,6 +327,7 @@ dumpBytes(std::cout,msg->get_packet().frame()->soframe(), msg->get_packet().fram
 std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
+std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
 // *** JSP Continue working from here - The data returned by msg->get_packet() is missing the first four bytes, and because of this the printed MAC addresses are wrong.
 // ** TODO: check who creates msg and figure out why it "starts late"
 std::cout << "TP" << __LINE__ << std::endl;
@@ -351,22 +372,27 @@ void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *
 void ctranslator::handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	delete(pack);
 }
 void ctranslator::handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	delete(pack);
 }
 void ctranslator::handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	delete(pack);
 }
 void ctranslator::handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	delete(pack);
 }
 void ctranslator::handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	delete(pack);
 }
 
 

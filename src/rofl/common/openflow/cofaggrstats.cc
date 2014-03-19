@@ -223,11 +223,20 @@ void
 cofaggr_stats_request::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+/*	case OFP10_VERSION: {
 		if (buflen < (sizeof(struct ofp10_flow_stats_request) - 4 + match.length()))
 			throw eInval();
 
 		struct ofp10_flow_stats_request *req = (struct ofp10_flow_stats_request*)buf;
+		req->table_id 	= table_id;
+		req->out_port 	= htobe16((uint16_t)(out_port & 0x0000ffff));
+		match.pack(&(req->match), sizeof(struct ofp10_match));
+	} break; */
+	case OFP10_VERSION: {	// JSP
+		if (buflen < sizeof(struct ofp10_aggregate_stats_request) )	// in OF10 match is fixed length and included in ofp10_aggregate_stats_request
+			throw eInval();
+
+		struct ofp10_aggregate_stats_request *req = (struct ofp10_aggregate_stats_request*)buf;
 		req->table_id 	= table_id;
 		req->out_port 	= htobe16((uint16_t)(out_port & 0x0000ffff));
 		match.pack(&(req->match), sizeof(struct ofp10_match));

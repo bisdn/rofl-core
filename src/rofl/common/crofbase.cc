@@ -1045,18 +1045,18 @@ crofbase::send_aggr_stats_request(
 	default:
 		throw eBadVersion();
 	}
-
+std::cout << "TP" << __LINE__ << std::endl;
 	cofmsg_aggr_stats_request *msg =
 			new cofmsg_aggr_stats_request(
 					dpt->get_version(),
 					ta_add_request(msg_type),
 					flags,
 					aggr_stats_request);
-
+std::cout << "TP" << __LINE__ << std::endl;
 	msg->pack();
-
+std::cout << "TP" << __LINE__ << std::endl;
 	uint32_t xid = msg->get_xid();
-
+std::cout << "TP" << __LINE__ << std::endl;
 	dpt_find(dpt)->send_message(msg);
 
 	return xid;

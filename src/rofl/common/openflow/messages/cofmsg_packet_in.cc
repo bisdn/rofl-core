@@ -221,7 +221,7 @@ cofmsg_packet_in::validate()
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
-// JSP +2 isn't magic - it causes the drop of the first four bytes of data - dest addr.
+// JSP +2 isn't magic - it causes the drop of the first four bytes of data - dest addr. It should be -2.
 	} break;
 	case OFP12_VERSION: {
 		/*
