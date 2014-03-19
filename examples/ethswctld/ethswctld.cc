@@ -15,7 +15,7 @@ main(int argc, char** argv)
 	rofl::cunixenv env_parser(argc, argv);
 
 	/* update defaults */
-	env_parser.update_default_option("logfile", ETHSWCTLD_LOG_FILE);
+	env_parser.add_option(coption(true,REQUIRED_ARGUMENT,'l',"logfile","Log file used when daemonization", ETHSWCTLD_LOG_FILE));
 	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 'p', "pidfile", "set pid-file", std::string(ETHSWCTLD_PID_FILE)));
 #ifdef HAVE_OPENSSL
 	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
