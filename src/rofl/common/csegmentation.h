@@ -16,6 +16,7 @@
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/csegmsg.h"
+#include "rofl/common/ciosrv.h"
 
 namespace rofl {
 
@@ -23,16 +24,28 @@ class eSegmentationBase 		: public RoflException {};
 class eSegmentationInval		: public eSegmentationBase {};
 class eSegmentationNotFound		: public eSegmentationBase {};
 
-class csegmentation {
+class csegmentation :
+		public ciosrv
+{
 
 	std::map<uint32_t, csegmsg> 		segmsgs;		// all current pending transactions with fragments
+
+	enum csegmentation_timer_t {
+		TIMER_CHECK_EXPIRATION = 1,
+	};
+
+	uint32_t							check_expiration_id;	// timer-id
+	time_t								check_expiration_interval;
+
+	static time_t const DEFAULT_CHECK_EXPIRATION_INTERVAL = 8; 	// seconds
 
 public:
 
 	/**
 	 *
 	 */
-	csegmentation();
+	csegmentation(
+			time_t check_expiration_interval = DEFAULT_CHECK_EXPIRATION_INTERVAL);
 
 	/**
 	 *
@@ -83,6 +96,20 @@ public:
 	 */
 	bool
 	has_transaction(uint32_t xid);
+
+private:
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(int opaque, void *data = (void*)0);
+
+	/**
+	 *
+	 */
+	void
+	drop_expired_sessions();
 
 public:
 

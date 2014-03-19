@@ -13,7 +13,7 @@ csegmsg::csegmsg() :
 	xid(0),
 	msg(NULL)
 {
-
+	set_expiration_in(DEFAULT_EXPIRATION_DELTA_SEC, DEFAULT_EXPIRATION_DELTA_NSEC);
 }
 
 
@@ -22,7 +22,7 @@ csegmsg::csegmsg(uint32_t xid) :
 	xid(xid),
 	msg(NULL)
 {
-
+	set_expiration_in(DEFAULT_EXPIRATION_DELTA_SEC, DEFAULT_EXPIRATION_DELTA_NSEC);
 }
 
 
@@ -49,7 +49,7 @@ csegmsg::operator= (csegmsg const& segmsg)
 	if (this == &segmsg)
 		return *this;
 
-	expires		= segmsg.expires;
+	expires_at	= segmsg.expires_at;
 	xid			= segmsg.xid;
 
 	if (NULL != segmsg.msg) {
@@ -59,6 +59,22 @@ csegmsg::operator= (csegmsg const& segmsg)
 	}
 
 	return *this;
+}
+
+
+
+bool
+csegmsg::has_expired() const
+{
+	return (cclock::now() > expires_at);
+}
+
+
+
+void
+csegmsg::set_expiration_in(time_t delta_sec, time_t delta_nsec)
+{
+	expires_at = cclock::now() + cclock(delta_sec, delta_nsec);
 }
 
 

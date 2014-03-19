@@ -10,9 +10,10 @@
 using namespace rofl;
 
 
-csegmentation::csegmentation()
+csegmentation::csegmentation(time_t check_expiration_interval) :
+		check_expiration_interval(check_expiration_interval)
 {
-
+	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, check_expiration_interval);
 }
 
 
@@ -89,6 +90,42 @@ bool
 csegmentation::has_transaction(uint32_t xid)
 {
 	return (not (segmsgs.find(xid) == segmsgs.end()));
+}
+
+
+
+void
+csegmentation::handle_timeout(int opaque, void *data)
+{
+	switch (opaque) {
+	case TIMER_CHECK_EXPIRATION: {
+		drop_expired_sessions();
+	} break;
+	default: {
+		// do nothing
+	};
+	}
+}
+
+
+
+void
+csegmentation::drop_expired_sessions()
+{
+restart:
+	for (std::map<uint32_t, csegmsg>::iterator
+			it = segmsgs.begin(); it != segmsgs.end(); ++it) {
+		csegmsg& segmsg = it->second;
+
+		if (segmsg.has_expired()) {
+			rofl::logging::debug << "[rofl][csegmentation] dropping multipart segment:" << std::endl << segmsg;
+			segmsgs.erase(it);
+			goto restart;
+		}
+	}
+
+	// re-add timer
+	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, check_expiration_interval);
 }
 
 
