@@ -258,7 +258,7 @@ cofmsg_packet_out::validate()
 		actions.unpack((uint8_t*)ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
-		if (rofl::openflow13::OFP_NO_BUFFER != get_buffer_id()) {
+		if (rofl::openflow13::OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh13_packet_out) +
 							sizeof(struct rofl::openflow13::ofp_packet_out) +

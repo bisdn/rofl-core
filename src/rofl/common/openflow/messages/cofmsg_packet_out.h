@@ -180,8 +180,10 @@ public:
 	operator<< (std::ostream& os, cofmsg_packet_out const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(0) << "<cofmsg_packet_out >" << std::endl;
-			os << indent(2) << "<buffer-id:" 	<< (int)msg.get_buffer_id() << " >" << std::endl;
-			os << indent(2) << "<in-port:" 		<< (int)msg.get_in_port() 	<< " >" << std::endl;
+		os << std::hex;
+			os << indent(2) << "<buffer-id: 0x" << (unsigned int)msg.get_buffer_id() << " >" << std::endl;
+			os << indent(2) << "<in-port: 0x" 	<< (unsigned int)msg.get_in_port() 	<< " >" << std::endl;
+		os << std::dec;
 			os << indent(2) << msg.actions;
 			os << indent(2) << msg.packet;
 		return os;
