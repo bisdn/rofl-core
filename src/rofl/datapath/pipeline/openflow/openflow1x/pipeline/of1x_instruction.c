@@ -246,10 +246,11 @@ bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_acti
 		__of1x_apply_actions_has(inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions, type, value) );
 }
 
-rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, of1x_pipeline_t* pipeline){
+rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, of1x_pipeline_t* pipeline, unsigned int table_id){
 	int i, num_of_output_actions=0;
 	of1x_group_table_t *gt = pipeline->groups;
 	of_version_t version = pipeline->sw->of_ver;
+	of1x_flow_table_t* table = &pipeline->tables[table_id];
 	
 	//if there is a group action we should check that the group exists
 	for(i=0;i<OF1X_IT_MAX;i++){
@@ -259,7 +260,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				break;
 				
 			case OF1X_IT_APPLY_ACTIONS:
-				if(__of1x_validate_action_group(inst_grp->instructions[i].apply_actions, gt) != ROFL_SUCCESS)
+				if(__of1x_validate_action_group(&table->config.apply_actions, inst_grp->instructions[i].apply_actions, gt) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
 				if( (version < inst_grp->instructions[i].apply_actions->ver_req.min_ver) ||
@@ -273,7 +274,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				if( (version < OF_VERSION_12))	
 					return ROFL_FAILURE;
 
-				if(__of1x_validate_write_actions(inst_grp->instructions[i].write_actions, gt) != ROFL_SUCCESS)
+				if(__of1x_validate_write_actions(&table->config.write_actions, inst_grp->instructions[i].write_actions, gt) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 		
 				num_of_output_actions+=inst_grp->instructions[i].write_actions->num_of_output_actions;

@@ -63,7 +63,7 @@
 
 //Fwd decl
 struct datapacket;
-
+struct of1x_flow_table;
 /**
 * @ingroup core_of1x 
 * Actions over a packet as per defined in OF10, OF12, OF13. Set operations are converted to actions
@@ -203,38 +203,6 @@ typedef enum{
 
 /**
 * @ingroup core_of1x 
-* Actions enumeration for bitmap usage, in the order defined in OF12 and OF13, plus extensions. This is ONLY
-* used in the table capabilities bitmap to prevent overflow of the bitmap 
-*/
-enum of12p_action_type {
-	OF12PAT_OUTPUT 		= 0, 	/* Output to switch port. */
-	OF12PAT_COPY_TTL_OUT 	= 11, 	/* Copy TTL "outwards" -- from next-to-outermost to outermost */
-	OF12PAT_COPY_TTL_IN 	= 12, 	/* Copy TTL "inwards" -- from outermost to next-to-outermost */
-	OF12PAT_SET_MPLS_TTL 	= 15, 	/* MPLS TTL */
-	OF12PAT_DEC_MPLS_TTL 	= 16, 	/* Decrement MPLS TTL */
-	OF12PAT_PUSH_VLAN 	= 17, 	/* Push a new VLAN tag */
-	OF12PAT_POP_VLAN 	= 18, 	/* Pop the outer VLAN tag */
-	OF12PAT_PUSH_MPLS 	= 19, 	/* Push a new MPLS tag */
-	OF12PAT_POP_MPLS 	= 20, 	/* Pop the outer MPLS tag */
-	OF12PAT_SET_QUEUE 	= 21, 	/* Set queue id when outputting to a port */
-	OF12PAT_GROUP 		= 22, 	/* Apply group. */
-	OF12PAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
-	OF12PAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
-	OF12PAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	OF12PAT_PUSH_PBB 	= 26, 	/* Push PBB service tag (I-TAG) */
-	OF12PAT_POP_PBB 	= 27, 	/* Pop PBB service tag (I-TAG) */
-
-	/* Extensions */
-	OF12PAT_PUSH_PPPOE,		/* Push a new PPPoE tag */
-	OF12PAT_POP_PPPOE,		/* Pop the PPPoE tag */
-	OF12PAT_PUSH_PPP,		/* Push a new PPP tag */
-	OF12PAT_POP_PPP,		/* Pop the PPP tag */
-	OF12PAT_EXPERIMENTER	= 0xFFFF
-};
-
-
-/**
-* @ingroup core_of1x 
 * Special port numbers, according to OF1X (of1xp_port_no )
 */
 enum of1x_port_numbers {
@@ -295,6 +263,9 @@ typedef struct of1x_packet_action{
 * Action group (apply-actions) structure
 */
 typedef struct{
+
+	//bitmap of actions
+	bitmap128_t bitmap;
 
 	//Number of actions in the list
 	unsigned int num_of_actions;	
@@ -453,8 +424,8 @@ void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group);
 void __of1x_dump_action_group(of1x_action_group_t* action_group);
 
 //validate actions
-rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, struct of1x_group_table *gt);
-rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, struct of1x_group_table *gt);
+rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, struct of1x_group_table *gt);
+rofl_result_t __of1x_validate_write_actions(bitmap128_t* supported, of1x_write_actions_t *wa, struct of1x_group_table *gt);
 
 
 //C++ extern C

@@ -118,8 +118,6 @@ typedef struct of1x_match{
 	/* Fast validation flags */
 	//Bitmap of required OF versions
 	of1x_ver_req_t ver_req; 
-	
-	//OF1.0 only
 	bool has_wildcard;
 }of1x_match_t;
 
@@ -136,9 +134,10 @@ typedef struct of1x_match_group{
 	/* Fast validation flags */
 	//Required OF versions
 	of1x_ver_req_t ver_req;
- 
-	//OF1.0 only
 	bool has_wildcard;
+	//bitmaps of matches and wilcards
+	bitmap128_t match_bm;
+	bitmap128_t wildcard_bm;
 }of1x_match_group_t;
 
 
@@ -466,14 +465,7 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 rofl_result_t __of1x_add_match(of1x_match_t* root_match, of1x_match_t* add_match);
 
 /* 
-* Single Match copy
-* TODO: deprecate this in favour of match_group
-*/
-of1x_match_t* __of1x_copy_match(of1x_match_t* match);
-
-/* 
 * Whole (linked list) Match copy
-* TODO: deprecate this in favour of match_group
 */
 of1x_match_t* __of1x_copy_matches(of1x_match_t* matches);
 
