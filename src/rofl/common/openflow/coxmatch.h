@@ -276,6 +276,7 @@ public: // methods
 	 */
 	uint8_t  u8value() const;
 	uint16_t u16value() const;
+	uint32_t u24value() const;
 	uint32_t u32value() const;
 	uint64_t u64value() const;
 	caddress u32addr() const;

@@ -482,6 +482,14 @@ coxmatch::u16value() const
 
 
 uint32_t
+coxmatch::u24value() const
+{
+	return (uint24_value() & (get_oxm_hasmask() ? uint24_mask() : 0x00ffffff));
+}
+
+
+
+uint32_t
 coxmatch::u32value() const
 {
 	return (uint32_value() & (get_oxm_hasmask() ? uint32_mask() : 0xffffffff));

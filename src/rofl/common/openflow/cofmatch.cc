@@ -1371,6 +1371,7 @@ cofmatch::get_mpls_tc() const
 #endif
 }
 
+
 //////// OF1.0 only
 
 uint8_t
@@ -1531,6 +1532,8 @@ cofmatch::set_mpls_tc(
 	oxmlist[OFPXMT_OFB_MPLS_TC] = coxmatch_ofb_mpls_tc(tc);
 #endif
 }
+
+
 
 
 
@@ -2959,40 +2962,267 @@ cofmatch::set_sctp_dst(
 }
 
 
-#ifndef NDEBUG
-void
-cofmatch::test()
+
+
+
+bool
+cofmatch::get_mpls_bos() const
 {
-	cofmatch m(openflow12::OFP_VERSION);
+	switch (of_version) {
+	case openflow13::OFP_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
-	m.set_eth_src(cmacaddr("11:11:11:11:11:11"), cmacaddr("33:33:33:33:33:33"));
-	m.set_vlan_vid(1000);
-	m.set_ip_dscp(6);
-
-	cmemory mem(m.length());
-
-	m.pack(mem.somem(), mem.memlen());
-	//fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
-
-	cofmatch tm(m);
-
-	//fprintf(stderr, "tm: %s\n\n", tm.c_str());
-
-	cofmatch cm;
-
-	cm.unpack(mem.somem(), mem.memlen());
-	//fprintf(stderr, "unpack: %s\n\n", cm.c_str());
-
-	{
-		cofmatch m;
-
-		m.set_in_port(47);
-		m.set_in_phy_port(47);
-		m.set_eth_dst(cmacaddr("11:11:11:11:11:11"));
-		m.set_eth_src(cmacaddr("22:22:22:22:22:22"));
-
-		//fprintf(stderr, "cofmatch: %s\n\n", m.c_str());
+	try {
+		return (bool)oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_BOS).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
 	}
 }
-#endif
+
+void
+cofmatch::set_mpls_bos(
+		bool bos)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+	oxmlist.insert(coxmatch_ofb_mpls_bos((uint8_t)bos));
+}
+
+
+
+
+
+
+uint64_t
+cofmatch::get_tunnel_id() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TUNNEL_ID).u64value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint64_t
+cofmatch::get_tunnel_id_value() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TUNNEL_ID).uint64_value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint64_t
+cofmatch::get_tunnel_id_mask() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TUNNEL_ID).uint64_mask();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_tunnel_id(uint64_t tunnel_id)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_tunnel_id(tunnel_id)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+void
+cofmatch::set_tunnel_id(uint64_t tunnel_id, uint64_t mask)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_tunnel_id(tunnel_id, mask)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+
+
+
+
+uint32_t
+cofmatch::get_pbb_isid() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_PBB_ISID).u24value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint32_t
+cofmatch::get_pbb_isid_value() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_PBB_ISID).uint24_value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint32_t
+cofmatch::get_pbb_isid_mask() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_PBB_ISID).uint24_mask();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_pbb_isid(uint32_t pbb_isid)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_pbb_isid(pbb_isid)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+void
+cofmatch::set_pbb_isid(uint32_t pbb_isid, uint32_t mask)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_pbb_isid(pbb_isid, mask)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+
+uint16_t
+cofmatch::get_ipv6_exthdr() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_EXTHDR).u16value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_ipv6_exthdr_value() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_EXTHDR).uint16_value();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_ipv6_exthdr_mask() const
+{
+	try {
+		switch (of_version) {
+		case openflow13::OFP_VERSION:
+			return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_EXTHDR).uint16_mask();
+		default:
+			throw eBadVersion();
+		}
+
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ipv6_exthdr(uint16_t ipv6_exthdr)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_ipv6_exthdr(ipv6_exthdr)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+void
+cofmatch::set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask)
+{
+	switch (of_version) {
+	case openflow13::OFP_VERSION:
+		oxmlist.insert(coxmatch_ofb_ipv6_exthdr(ipv6_exthdr, mask)); break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
 

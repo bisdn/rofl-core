@@ -335,926 +335,171 @@ public:
 
 public:
 
-
 	/**
 	 *
+	 * @param type	type of struct ofp_match
 	 */
 	void
-	set_type(uint16_t type);
+	set_type(
+			uint16_t type);
+
+
+public:
+
+	/*
+	 * old API
+	 */
+
+
+	// OF10
+	caddress get_nw_src() const;
+	caddress get_nw_src_value() const;
+	caddress get_nw_src_mask() const;
+	uint8_t  get_nw_proto() const;
+	caddress get_nw_dst() const;
+	caddress get_nw_dst_value() const;
+	caddress get_nw_dst_mask() const;
+	uint16_t get_tp_src() const;
+	uint16_t get_tp_dst() const;
+
+	// OF12
+	uint32_t get_in_port() const;
+	uint32_t get_in_phy_port() const;
+	uint64_t get_metadata() const;
+	cmacaddr get_eth_dst() const;
+	cmacaddr get_eth_dst_addr() const;
+	cmacaddr get_eth_dst_mask() const;
+	cmacaddr get_eth_src() const;
+	cmacaddr get_eth_src_addr() const;
+	cmacaddr get_eth_src_mask() const;
+	uint16_t get_eth_type() const;
+	uint16_t get_vlan_vid() const;
+	uint16_t get_vlan_vid_value() const;
+	uint16_t get_vlan_vid_mask() const;
+	uint8_t  get_vlan_pcp() const;
+	uint32_t get_mpls_label() const;
+	uint8_t  get_mpls_tc() const;
+	caddress get_ipv4_src() const;
+	caddress get_ipv4_src_value() const;
+	caddress get_ipv4_src_mask() const;
+	caddress get_ipv4_dst() const;
+	caddress get_ipv4_dst_value() const;
+	caddress get_ipv4_dst_mask() const;
+	uint16_t get_arp_opcode() const;
+	cmacaddr get_arp_sha() const;
+	cmacaddr get_arp_sha_addr() const;
+	cmacaddr get_arp_sha_mask() const;
+	cmacaddr get_arp_tha() const;
+	cmacaddr get_arp_tha_addr() const;
+	cmacaddr get_arp_tha_mask() const;
+	caddress get_arp_spa() const;
+	caddress get_arp_spa_value() const;
+	caddress get_arp_spa_mask() const;
+	caddress get_arp_tpa() const;
+	caddress get_arp_tpa_value() const;
+	caddress get_arp_tpa_mask() const;
+	caddress get_ipv6_src() const;
+	caddress get_ipv6_src_value() const;
+	caddress get_ipv6_src_mask() const;
+	caddress get_ipv6_dst() const;
+	caddress get_ipv6_dst_value() const;
+	caddress get_ipv6_dst_mask() const;
+	caddress get_ipv6_nd_target() const;
+	uint8_t  get_ip_proto() const;
+	uint8_t  get_ip_dscp() const;
+	uint8_t  get_ip_ecn() const;
+	uint8_t  get_icmpv4_type() const;
+	uint8_t  get_icmpv4_code() const;
+	uint8_t  get_icmpv6_type() const;
+	uint8_t  get_icmpv6_code() const;
+	uint32_t get_ipv6_flabel() const;
+	cmacaddr get_icmpv6_neighbor_source_lladdr() const;
+	cmacaddr get_icmpv6_neighbor_target_lladdr() const;
+	caddress get_icmpv6_neighbor_taddr() const;
+	uint16_t get_udp_src() const;
+	uint16_t get_udp_dst() const;
+	uint16_t get_tcp_src() const;
+	uint16_t get_tcp_dst() const;
+	uint16_t get_sctp_src() const;
+	uint16_t get_sctp_dst() const;
+
+	// OF13
+	bool     get_mpls_bos() const;
+	uint64_t get_tunnel_id() const;
+	uint64_t get_tunnel_id_value() const;
+	uint64_t get_tunnel_id_mask() const;
+	uint32_t get_pbb_isid() const;
+	uint32_t get_pbb_isid_value() const;
+	uint32_t get_pbb_isid_mask() const;
+	uint16_t get_ipv6_exthdr() const;
+	uint16_t get_ipv6_exthdr_value() const;
+	uint16_t get_ipv6_exthdr_mask() const;
+
+
+	// OF10
+	void set_nw_src(caddress const& src);
+	void set_nw_src(caddress const& src, caddress const& mask);
+	void set_nw_proto(uint8_t proto);
+	void set_nw_dst(caddress const& dst);
+	void set_nw_dst(caddress const& dst, caddress const& mask);
+	void set_tp_src(uint16_t src_port);
+	void set_tp_dst(uint16_t dst_port);
+
+	// OF12
+	void set_in_port(uint32_t in_port);
+	void set_in_phy_port(uint32_t in_phy_port);
+	void set_metadata(uint64_t metadata);
+	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_eth_type( uint16_t dl_type);
+	void set_vlan_vid(uint16_t vid);
+	void set_vlan_present();
+	void set_vlan_untagged();
+	void set_vlan_pcp(uint8_t pcp);
+	void set_mpls_label(uint32_t label);
+	void set_mpls_tc(uint8_t tc);
+	void set_ipv4_src(caddress const& src);
+	void set_ipv4_src(caddress const& src, caddress const& mask);
+	void set_ipv4_dst(caddress const& dst);
+	void set_ipv4_dst(caddress const& dst, caddress const& mask);
+	void set_arp_opcode(uint16_t opcode);
+	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_arp_spa(caddress const& spa);
+	void set_arp_tpa(caddress const& tpa);
+	void set_ipv6_src(caddress const& addr);
+	void set_ipv6_src(caddress const& addr, caddress const& mask);
+	void set_ipv6_dst(caddress const& addr);
+	void set_ipv6_dst(caddress const& addr, caddress const& mask);
+	void set_ipv6_nd_target(caddress const& addr);
+	void set_ip_proto(uint8_t proto);
+	void set_ip_dscp(uint8_t dscp);
+	void set_ip_ecn(uint8_t ecn);
+	void set_icmpv4_type(uint8_t type);
+	void set_icmpv4_code(uint8_t code);
+	void set_icmpv6_type(uint8_t type);
+	void set_icmpv6_code(uint8_t code);
+	void set_ipv6_flabel(uint32_t flabel);
+	void set_ipv6_flabel(uint32_t flabel, uint32_t mask);
+	void set_icmpv6_neighbor_source_lladdr(cmacaddr const& maddr);
+	void set_icmpv6_neighbor_target_lladdr(cmacaddr const& maddr);
+	void set_icmpv6_neighbor_taddr(caddress const& addr);
+	void set_udp_src(uint16_t src_port);
+	void set_udp_dst(uint16_t dst_port);
+	void set_tcp_src(uint16_t src_port);
+	void set_tcp_dst(uint16_t dst_port);
+	void set_sctp_src(uint16_t src_port);
+	void set_sctp_dst(uint16_t dst_port);
+
+	// OF13
+	void set_mpls_bos(bool bos);
+	void set_tunnel_id(uint64_t tunnel_id);
+	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask);
+	void set_pbb_isid(uint32_t pbb_isid);
+	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask);
+	void set_ipv6_exthdr(uint16_t ipv6_exthdr);
+	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask);
 
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_in_port() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_in_port(
-			uint32_t in_port);
-
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_in_phy_port() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_in_phy_port(
-			uint32_t in_phy_port);
-
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_metadata() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_metadata(uint64_t metadata);
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_dst() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_dst_addr() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_dst_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_eth_dst(
-			cmacaddr const& maddr,
-			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_src() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_src_addr() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_eth_src_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_eth_src(
-			cmacaddr const& maddr,
-			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_eth_type() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_eth_type(
-			uint16_t dl_type);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_vlan_vid() const;
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_vlan_vid_value() const;
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_vlan_vid_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_vlan_vid(
-			uint16_t vid);
-
-	/**
-	 *
-	 */
-	void
-	set_vlan_present();
-
-
-	/**
-	 *
-	 */
-	void
-	set_vlan_untagged();
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_vlan_pcp() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_vlan_pcp(
-			uint8_t pcp);
-
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_mpls_label() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_mpls_label(
-			uint32_t label);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_mpls_tc() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_mpls_tc(
-			uint8_t tc);
-
-	/**
-	 *
-	 */
-	caddress
-	get_nw_src() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_nw_src_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_nw_src_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_nw_src(
-			caddress const& src);
-
-
-	/**
-	 *
-	 */
-	void
-	set_nw_src(
-			caddress const& src,
-			caddress const& mask);
-
-
-	//OF1.0 only
-	/**
-	 *
-	 */
-	/**
-	 *
-	 */
-	uint8_t
-	get_nw_proto() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_nw_proto(
-			uint8_t proto);
-
-
-	caddress
-	get_nw_dst() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_nw_dst_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_nw_dst_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_nw_dst(
-			caddress const& dst);
-
-
-	/**
-	 *
-	 */
-	void
-	set_nw_dst(
-			caddress const& dst,
-			caddress const& mask);
-	
-
-	//End of OF1.0 only
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_src() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_src_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_src_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv4_src(
-			caddress const& src);
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv4_src(
-			caddress const& src,
-			caddress const& mask);
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_dst() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_dst_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv4_dst_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv4_dst(
-			caddress const& dst);
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv4_dst(
-			caddress const& dst,
-			caddress const& mask);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_arp_opcode() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_arp_opcode(
-			uint16_t opcode);
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_sha() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_sha_addr() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_sha_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_arp_sha(
-			cmacaddr const& sha,
-			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_tha() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_tha_addr() const;
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_arp_tha_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_arp_tha(
-			cmacaddr const& tha,
-			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_spa() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_spa_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_spa_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_arp_spa(
-			caddress const& spa);
-
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_tpa() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_tpa_value() const;
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_arp_tpa_mask() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_arp_tpa(
-			caddress const& tpa);
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv6_src() const;
-
-	/**
-	 * 
-	 */
-	caddress
-	get_ipv6_src_value() const;
-	
-	/**
-	 * 
-	 */
-	caddress
-	get_ipv6_src_mask() const;
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_src(
-			caddress const& addr);
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_src(
-			caddress const& addr,
-			caddress const& mask);
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv6_dst() const;
-
-	/**
-	 * 
-	 */
-	caddress
-	get_ipv6_dst_value() const;
-	
-	/**
-	 * 
-	 */
-	caddress
-	get_ipv6_dst_mask() const;
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_dst(
-			caddress const& addr);
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_dst(
-			caddress const& addr,
-			caddress const& mask);
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_ipv6_nd_target() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_nd_target(
-			caddress const& addr);
-
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_ip_proto() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ip_proto(
-			uint8_t proto);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_ip_dscp() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ip_dscp(
-			uint8_t dscp);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_ip_ecn() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ip_ecn(
-			uint8_t ecn);
-
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_icmpv4_type() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv4_type(
-			uint8_t type);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_icmpv4_code() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv4_code(
-			uint8_t code);
-
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_icmpv6_type() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv6_type(
-			uint8_t type);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_icmpv6_code() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv6_code(
-			uint8_t code);
-
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_ipv6_flabel() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_flabel(
-			uint32_t flabel);
-
-
-	/**
-	 *
-	 */
-	void
-	set_ipv6_flabel(
-			uint32_t flabel,
-			uint32_t mask);
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_icmpv6_neighbor_source_lladdr() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv6_neighbor_source_lladdr(
-			cmacaddr const& maddr);
-
-
-	/**
-	 *
-	 */
-	cmacaddr
-	get_icmpv6_neighbor_target_lladdr() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv6_neighbor_target_lladdr(
-			cmacaddr const& maddr);
-
-
-	/**
-	 *
-	 */
-	caddress
-	get_icmpv6_neighbor_taddr() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_icmpv6_neighbor_taddr(
-			caddress const& addr);
-
-
-	//OF1.0 only
-	/**
-	 *
-	 */
-	uint16_t
-	get_tp_src() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_tp_src(
-			uint16_t src_port);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_tp_dst() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_tp_dst(
-			uint16_t dst_port);
-
-	//End of OF1.0 only
-
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_udp_src() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_udp_src(
-			uint16_t src_port);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_udp_dst() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_udp_dst(
-			uint16_t dst_port);
-
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_tcp_src() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_tcp_src(
-			uint16_t src_port);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_tcp_dst() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_tcp_dst(
-			uint16_t dst_port);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_sctp_src() const;
-
-
-
-	/**
-	 *
-	 */
-	void
-	set_sctp_src(
-			uint16_t src_port);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_sctp_dst() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_sctp_dst(
-			uint16_t dst_port);
-
-
-
-#ifndef NDEBUG
-	/**
-	 *
-	 */
-	static void
-	test();
-#endif
 
 public:
 
