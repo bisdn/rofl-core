@@ -281,6 +281,14 @@ namespace openflow {
 	};
 
 
+	// OXM_OF_PBB_ISID
+	struct ofp_oxm_ofb_uint24_t {
+		struct ofp_oxm_hdr hdr;		/* oxm header */
+		uint8_t word[3];			/* network byte order */
+		uint8_t mask[3];			/* only valid, when oxm_hasmask=1 */
+	};
+
+
 	// OXM_OF_IN_PORT
 	// OXM_OF_IN_PHY_PORT
 	// OXM_OF_IPV4_SRC (mask)
