@@ -585,8 +585,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//For 1.0 we must first push it if we don't have. wtf...
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
-				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_push_vlan(pkt, OF1X_ETH_TYPE_8021Q);
 				platform_packet_set_vlan_pcp(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
@@ -603,8 +602,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//For 1.0 we must first push it if we don't have. wtf...
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
-				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_push_vlan(pkt, OF1X_ETH_TYPE_8021Q);
 				platform_packet_set_vlan_vid(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
