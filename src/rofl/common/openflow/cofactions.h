@@ -71,6 +71,13 @@ public:
 			cofactions const& aclist);
 
 
+	/**
+	 */
+	bool
+	operator== (
+			cofactions const& aclist);
+
+
 	/** destructor
 	 */
 	virtual
@@ -254,7 +261,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofactions const& actions) {
 		os << indent(0) << "<cofactions ofp-version:" << (int)actions.ofp_version <<
-				" #size:" << (int)actions.size() << " >" << std::endl;
+				" #actions:" << (int)actions.size() << " >" << std::endl;
 		indent i(2);
 		for (std::list<cofaction*>::const_iterator
 				it = actions.begin(); it != actions.end(); ++it) {

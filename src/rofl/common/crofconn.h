@@ -23,9 +23,9 @@ extern "C" {
 #include "rofl/common/openflow/cofhelloelems.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
+#include "rofl/common/csegmentation.h"
 
 namespace rofl {
-namespace openflow {
 
 class eRofConnBase 					: public RoflException {};
 class eRofConnXidSpaceExhausted		: public eRofConnBase {};
@@ -59,6 +59,11 @@ class crofconn :
 	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
 	std::map<int, uint32_t>			timer_ids;				// timer-ids obtained from ciosrv
+	csegmentation					sar;					// segmentation and reassembly for multipart messages
+	size_t							fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
+
+	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
+	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,
@@ -347,6 +352,76 @@ private:
 	features_reply_rcvd(
 			cofmsg *msg);
 
+	/**
+	 *
+	 */
+	void
+	fragment_and_send_message(
+			cofmsg *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_table_features_stats_request(
+			cofmsg_table_features_stats_request *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_flow_stats_reply(
+			cofmsg_flow_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_table_stats_reply(
+			cofmsg_table_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_port_stats_reply(
+			cofmsg_port_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_queue_stats_reply(
+			cofmsg_queue_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_group_stats_reply(
+			cofmsg_group_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_group_desc_stats_reply(
+			cofmsg_group_desc_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_table_features_stats_reply(
+			cofmsg_table_features_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	void
+	fragment_port_desc_stats_reply(
+			cofmsg_port_desc_stats_reply *msg);
+
 public:
 
 	friend std::ostream&
@@ -375,7 +450,6 @@ public:
 	};
 };
 
-}; /* namespace openflow */
 }; /* namespace rofl */
 
 #endif /* CROFCHAN_H_ */

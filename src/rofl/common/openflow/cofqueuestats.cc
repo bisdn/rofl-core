@@ -5,7 +5,7 @@
 #endif
 
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 
@@ -227,6 +227,22 @@ cofqueue_stats_reply::operator= (
 	duration_nsec	= stats_reply.duration_nsec;
 
 	return *this;
+}
+
+
+
+bool
+cofqueue_stats_reply::operator== (
+		cofqueue_stats_reply const& stats)
+{
+	return ((of_version 	== stats.of_version) &&
+			(port_no 		== stats.port_no) &&
+			(queue_id 		== stats.queue_id) &&
+			(tx_bytes 		== stats.tx_bytes) &&
+			(tx_packets 	== stats.tx_packets) &&
+			(tx_errors 		== stats.tx_errors) &&
+			(duration_sec 	== stats.duration_sec) &&
+			(duration_nsec 	== stats.duration_nsec));
 }
 
 

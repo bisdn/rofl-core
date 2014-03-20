@@ -4,7 +4,7 @@
 
 #include "cofbucket.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofbucket::cofbucket(
 		uint8_t ofp_version,
@@ -63,6 +63,21 @@ cofbucket::operator= (const cofbucket& b)
 
 	return *this;
 };
+
+
+bool
+cofbucket::operator== (
+		const cofbucket& b)
+{
+	return ((ofp_version 	== b.ofp_version) &&
+			(actions 		== b.actions) &&
+			(packet_count 	== b.packet_count) &&
+			(byte_count 	== b.byte_count) &&
+			(weight 		== b.weight) &&
+			(watch_group 	== b.watch_group) &&
+			(watch_port 	== b.watch_port));
+}
+
 
 
 

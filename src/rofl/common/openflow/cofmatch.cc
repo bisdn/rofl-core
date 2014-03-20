@@ -68,6 +68,18 @@ cofmatch::operator= (const cofmatch& m)
 }
 
 
+
+bool
+cofmatch::operator== (const cofmatch& m)
+{
+	return (
+		(of_version == m.of_version) &&
+		(memarea 	== m.memarea) &&
+		(oxmlist 	== m.oxmlist));
+}
+
+
+
 #if 0
 bool
 cofmatch::operator< (

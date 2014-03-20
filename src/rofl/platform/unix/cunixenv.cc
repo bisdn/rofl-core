@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cunixenv.h"
+#include <sstream> 
+#include "../../common/logging.h"
 
 using namespace rofl;
 
@@ -52,39 +54,50 @@ std::string coption::parse_argument(char* optarg){
 /* Constructor */ 
 cunixenv::cunixenv(int argc, char** argv)
 {
+	std::stringstream ss("");
+
 	for (int i = 0; i < argc; i++) {
 		cargs.push_back(std::string(argv[i]));
 	}
 
-	/*Push default arguments */
-	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",std::string(""+(int)csyslog::EMERGENCY)));
-	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'l',"logfile","log file",std::string(LOGFILE_DEFAULT)));
-	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
-	arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
-	arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
+	/*
+	* Default arguments are debug and help ONLY
+	*/
+	
+	//Prepare debug debug level
+	ss << logging::EMERG; 
+	coption debug = coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",ss.str());
+	arguments.push_back(debug);
+	
+	coption help = coption(true,NO_ARGUMENT,'h',"help","Help message","");
+	arguments.push_back(help);
+	
 	parsed = false;
 }
 
-void
-cunixenv::usage(
-		char *argv0)
+std::string 
+cunixenv::get_usage(char *argv0)
 {
-
-	using namespace std;
-	cerr << "usage: " << std::string(argv0)<<" {parameters}"<<endl; 
+	std::stringstream ss;
+	ss << "usage: " << std::string(argv0)<<" {parameters}"<<std::endl; 
 	
-	string mandatory = "";
-	string optional = "";
+	std::string mandatory = "";
+	std::string optional = "";
 
 	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
-		string tmp(""); 
+		std::string tmp(""); 
 		if(it->optional)
 			tmp+="[";
 		tmp+="--"+it->full_name+"|-"+it->shortcut;
 		
 		if(it->optional)
 			tmp+="]";
-	
+
+		//Tabulate
+		for(int i= 30 - tmp.length();i>0;i--){
+			tmp +=" ";
+		}
+
 		tmp +=" <"+it->description;
 		if(it->default_value != "")
 			tmp+=". default("+it->default_value+")";
@@ -97,11 +110,11 @@ cunixenv::usage(
 			
 	}
 	if(mandatory!= "")
-		cerr<<"Mandatory parameters:"<<endl<<mandatory;	
+		ss<<"\nMandatory parameters:"<<std::endl<<mandatory;	
 	if(optional!= "")
-		cerr<<"Optional parameters:"<<endl<<optional;	
+		ss<<"\nOptional parameters:"<<std::endl<<optional;	
 	
-	exit(0);
+	return ss.str();
 }
 
 void
@@ -146,11 +159,9 @@ cunixenv::parse_args()
 		argv[i] = (char*)cargs[i].c_str();
 	}
 
-	bool do_detach = false;
 	opterr = 0; //Disable message "invalid option"
 	optind = 1;
 
-	//fprintf(stderr,"Using the following format-> %s \n",format.c_str());	
 	while(true){
 			
 		c = getopt_long(argc, argv, format.c_str(), long_options, &option_index);
@@ -160,11 +171,6 @@ cunixenv::parse_args()
 		for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
 			if(it->shortcut == c){
 				it->parse_argument(optarg);
-				if(c == 'h')
-					usage(argv[0]);
-				else if(c == 'D')	
-					do_detach = true;
-				continue;
 			}
 		}
 	}
@@ -174,14 +180,28 @@ cunixenv::parse_args()
 	free(long_options);	
 	parsed = true;
 
-	// call detach when all args parsed
-	do_detach = false;
-	if (do_detach) {
-		detach();
-	}
 }
 
 void cunixenv::add_option(const coption &arg){
+
+	std::stringstream error_str;
+	error_str << "Duplicated command line argument: ";
+
+	//Check if it exists
+	std::vector<coption>::iterator it;
+	for(it = this->arguments.begin(); it != this->arguments.end(); ++it){
+		
+		if( (*it).full_name == arg.full_name ){
+			error_str << arg.full_name;
+			throw std::runtime_error(error_str.str());
+		}
+			
+		if( (*it).shortcut == arg.shortcut ){
+			error_str << arg.shortcut;
+			throw std::runtime_error(error_str.str());
+		}
+	}
+
 	arguments.push_back(arg);	
 }
 
@@ -222,74 +242,6 @@ cunixenv::is_arg_set(const std::string &name)
 	}
 
 	return false;
-}
-
-void
-cunixenv::update_paths()
-{
-	char *ptr = getcwd(NULL, 0);
-	std::string wd(ptr);
-	free(ptr);
-	wd.append("/");
-
-	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it) {
-		switch ((*it).shortcut) {
-		case 'c':
-			// check if its already an absolute path
-			if ((*it).current_value.length() && '/' != (*it).current_value[0]) {
-				(*it).current_value.insert(0, wd);
-			}
-			break;
-		case 'l':
-			if ( 0 == (*it).current_value.compare((*it).default_value) ) {
-				// still the default dir
-				std::string tmp(daemon_dir);
-				tmp.append("/");
-				(*it).current_value.insert(0, tmp);
-			} else if ((*it).current_value.length() && '/' != (*it).current_value[0]) {
-				// not an absolute path
-				(*it).current_value.insert(0, wd);
-			} else {
-				exit(-1);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-// todo this belongs rather to ciosrv than here. though needs refactoring
-void
-cunixenv::detach(
-		std::string const& pidfile)
-{
-	throw eNotImplemented();
-#if 0
-	update_paths();
-
-	// set file mask
-	umask(027);
-
-	// redirect stdout, stderr
-	csyslog::initlog(csyslog::LOGTYPE_FILE,
-			static_cast<csyslog::DebugLevel>(atoi(get_arg("debug").c_str())),
-			get_arg("logfile")
-			); 	// reinitialize logging to logtype file
-
-	fflush(stdout);
-	dup2(csyslog::getfd(), STDOUT_FILENO); // redirect stdout
-
-	fflush(stderr);
-	dup2(csyslog::getfd(), STDERR_FILENO); // redirect stderr
-
-	// change working directory
-	if (chdir(daemon_dir.c_str()) < 0)
-	{
-		fprintf(stderr, "chdir() sys-call failed: %d (%s)\n", errno, strerror(errno));
-		exit(-1);
-	}
-#endif
 }
 
 cunixenv::~cunixenv() {

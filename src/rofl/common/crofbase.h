@@ -82,6 +82,8 @@
 #include "rofl/common/openflow/messages/cofmsg_experimenter.h"
 #include "rofl/common/openflow/messages/cofmsg_async_config.h"
 #include "rofl/common/ctransactions.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 namespace rofl
 {
@@ -140,6 +142,11 @@ protected:
 	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
 	ctransactions				transactions;
+	bool						generation_is_defined;		// generation_id used for roles initially defined?
+	uint64_t					cached_generation_id;
+
+	rofl::openflow::cofasync_config		async_config_role_default_template;
+
 
 public:
 
@@ -657,7 +664,7 @@ protected:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(crofctl *ctl, uint32_t role);
+	role_request_rcvd(crofctl *ctl, uint32_t role, uint64_t rcvd_generation_id);
 
 
 protected:
@@ -912,7 +919,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_features_request message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_request(crofctl& ctl, cofmsg_table_features_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_table_features_stats_request(crofctl& ctl, cofmsg_table_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -1097,7 +1104,7 @@ protected:
 	 * @param msg pointer to cofmsg_table_features_reply message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_reply(crofdpt& dpt, cofmsg_table_features_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_features_stats_reply(crofdpt& dpt, cofmsg_table_features_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 

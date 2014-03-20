@@ -149,6 +149,11 @@ public: // methods
 	cofaction&
 	operator= (const cofaction& ac);
 
+	/** assignment operator
+	 */
+	bool
+	operator== (const cofaction& ac);
+
 	/** destructor
 	 */
 	virtual ~cofaction();
@@ -361,8 +366,9 @@ public:
 	operator<< (std::ostream& os, cofaction_output const& action) {
 		os << dynamic_cast<cofaction const&>( action );
 		os << indent(2) << "<cofaction_output ";
-		os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
-		os << "max-len:" << (int)action.get_max_len() << " >" << std::endl;
+		os << "port: 0x" << std::hex << (int)action.get_port() << std::dec << " ";
+		os << "max-len: 0x" << std::hex << (int)action.get_max_len() << std::dec << " ";
+		os << ">" << std::endl;
 		return os;
 	};
 };

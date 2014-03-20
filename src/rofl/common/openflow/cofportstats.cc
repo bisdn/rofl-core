@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofportstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofport_stats_request::cofport_stats_request(
 		uint8_t of_version,
@@ -274,6 +274,30 @@ cofport_stats_reply::operator= (
 
 
 
+bool
+cofport_stats_reply::operator== (
+		cofport_stats_reply const& ps)
+{
+	return ((of_version		== ps.of_version) &&
+			(port_no		== ps.port_no) &&
+			(rx_packets 	== ps.rx_packets) &&
+			(tx_packets 	== ps.tx_packets) &&
+			(rx_bytes 		== ps.rx_bytes) &&
+			(tx_bytes 		== ps.tx_bytes) &&
+			(rx_dropped 	== ps.rx_dropped) &&
+			(tx_dropped 	== ps.tx_dropped) &&
+			(rx_errors 		== ps.rx_errors) &&
+			(tx_errors 		== ps.tx_errors) &&
+			(rx_frame_err 	== ps.rx_frame_err) &&
+			(rx_over_err 	== ps.rx_over_err) &&
+			(rx_crc_err 	== ps.rx_crc_err) &&
+			(collisions 	== ps.collisions) &&
+			(duration_sec 	== ps.duration_sec) &&
+			(duration_nsec 	== ps.duration_nsec));
+}
+
+
+
 void
 cofport_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
@@ -482,7 +506,7 @@ cofport_stats_reply::get_version() const
 
 
 uint32_t
-cofport_stats_reply::get_portno() const
+cofport_stats_reply::get_port_no() const
 {
 	return port_no;
 }
@@ -614,7 +638,7 @@ cofport_stats_reply::get_duration_nsec() const
 
 
 void
-cofport_stats_reply::set_portno(uint32_t port_no)
+cofport_stats_reply::set_port_no(uint32_t port_no)
 {
 	this->port_no = port_no;
 }

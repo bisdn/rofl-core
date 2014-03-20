@@ -73,6 +73,15 @@ cofinst::operator= (const cofinst& inst)
 }
 
 
+
+bool
+cofinst::operator== (const cofinst& inst)
+{
+	return ((ofp_version == inst.ofp_version) && (actions == inst.actions) && (instruction == inst.instruction));
+}
+
+
+
 void
 cofinst::reset()
 {

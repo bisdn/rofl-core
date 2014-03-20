@@ -23,7 +23,7 @@ class cofmsg_group_mod :
 {
 private:
 
-	cofbuckets			buckets;
+	rofl::openflow::cofbuckets			buckets;
 
 	union {
 		uint8_t*					ofhu_group_mod;
@@ -44,7 +44,7 @@ public:
 	cofmsg_group_mod(
 			uint8_t of_version,
 			uint32_t xid,
-			cofgroupmod const& ge);
+			rofl::openflow::cofgroupmod const& ge);
 
 
 	/** constructor
@@ -56,7 +56,7 @@ public:
 			uint16_t command = 0,
 			uint8_t  group_type = 0,
 			uint32_t group_id = 0,
-			cofbuckets const& buckets = cofbuckets());
+			rofl::openflow::cofbuckets const& buckets = rofl::openflow::cofbuckets());
 
 
 	/**
@@ -177,8 +177,8 @@ public:
 	/**
 	 *
 	 */
-	cofbuckets&
-	get_buckets();
+	rofl::openflow::cofbuckets&
+	get_buckets() { return buckets; };
 
 public:
 

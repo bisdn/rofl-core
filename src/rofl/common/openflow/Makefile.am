@@ -23,6 +23,10 @@ libopenflow_la_SOURCES= \
 	cofbucket.cc \
 	cofbuckets.h \
 	cofbuckets.cc \
+	cofbucketcounter.h \
+	cofbucketcounter.cc \
+	cofbucketcounters.h \
+	cofbucketcounters.cc \
 	cofinstruction.h \
 	cofinstruction.cc \
 	cofinstructions.h \
@@ -41,20 +45,32 @@ libopenflow_la_SOURCES= \
 	cofstats.cc \
 	cofdescstats.h \
 	cofdescstats.cc \
+	cofflowstatsarray.h \
+	cofflowstatsarray.cc \
 	cofflowstats.h \
 	cofflowstats.cc \
 	cofaggrstats.h \
 	cofaggrstats.cc \
 	coftablestats.h \
 	coftablestats.cc \
+	coftablestatsarray.h \
+	coftablestatsarray.cc \
 	cofportstats.h \
 	cofportstats.cc \
+	cofportstatsarray.h \
+	cofportstatsarray.cc \
 	cofqueuestats.h \
 	cofqueuestats.cc \
+	cofqueuestatsarray.h \
+	cofqueuestatsarray.cc \
 	cofgroupstats.h \
 	cofgroupstats.cc \
+	cofgroupstatsarray.h \
+	cofgroupstatsarray.cc \
 	cofgroupdescstats.h \
 	cofgroupdescstats.cc \
+	cofgroupdescstatsarray.h \
+	cofgroupdescstatsarray.cc \
 	cofgroupfeaturesstats.h \
 	cofgroupfeaturesstats.cc \
 	cofqueueprop.h \
@@ -86,7 +102,11 @@ libopenflow_la_SOURCES= \
 	coftablefeatures.h \
 	coftablefeatures.cc \
 	coftables.h \
-	coftables.cc
+	coftables.cc \
+	cofasyncconfig.h \
+	cofasyncconfig.cc \
+	cofrole.h \
+	cofrole.cc
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -104,6 +124,8 @@ library_include_HEADERS = \
 	cofactionset.h \
 	cofbucket.h \
 	cofbuckets.h \
+	cofbucketcounter.h \
+	cofbucketcounters.h \
 	cofinstruction.h \
 	cofinstructions.h \
 	cofmatch.h \
@@ -113,13 +135,19 @@ library_include_HEADERS = \
 	cofports.h \
 	cofstats.h \
 	cofdescstats.h \
+	cofflowstatsarray.h \
 	cofflowstats.h \
 	cofaggrstats.h \
 	coftablestats.h \
+	coftablestatsarray.h \
 	cofportstats.h \
+	cofportstatsarray.h \
 	cofqueuestats.h \
+	cofqueuestatsarray.h \
 	cofgroupstats.h \
+	cofgroupstatsarray.h \
 	cofgroupdescstats.h \
+	cofgroupdescstatsarray.h \
 	cofgroupfeaturesstats.h \
 	cofqueueprop.h \
 	cofqueueproplist.h \
@@ -135,7 +163,9 @@ library_include_HEADERS = \
 	coftablefeatureprop.h \
 	coftablefeatureprops.h \
 	coftablefeatures.h \
-	coftables.h
+	coftables.h \
+	cofasyncconfig.h \
+	cofrole.h
 
 
 

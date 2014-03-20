@@ -55,6 +55,13 @@ cofaction::operator= (const cofaction& ac)
 }
 
 
+bool
+cofaction::operator== (const cofaction& ac)
+{
+	return ((ofp_version == ac.ofp_version) && (action == ac.action));
+}
+
+
 uint8_t*
 cofaction::pack(
 		uint8_t* achdr,

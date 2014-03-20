@@ -15,6 +15,13 @@ cofports::cofports(
 
 
 
+cofports::~cofports()
+{
+	clear();
+}
+
+
+
 cofports::cofports(
 		uint8_t ofp_version, uint8_t *buf, size_t buflen) :
 				ofp_version(ofp_version)
@@ -53,11 +60,23 @@ cofports::operator= (
 
 
 
-cofports::~cofports()
+cofports&
+cofports::operator+= (
+		cofports const& ports)
 {
-	clear();
-}
+	/*
+	 * this may replace existing ports in this cofports instance
+	 */
+	for (cofports::const_iterator
+			it = ports.begin(); it != ports.end(); ++it) {
+		if ((*this).find(it->first) != (*this).end()) {
+			delete (*this)[it->first];
+		}
+		(*this)[it->first] = new cofport(*it->second);
+	}
 
+	return *this;
+}
 
 
 

@@ -68,6 +68,26 @@ cofinstructions::operator= (
 
 
 
+bool
+cofinstructions::operator== (
+		cofinstructions const& inlist)
+{
+	if (instmap.size() != inlist.instmap.size()) {
+		return false;
+	}
+
+	for (std::map<uint16_t, cofinst*>::const_iterator
+			it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
+		if (not (*(instmap[it->first]) == *(it->second))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+
+
 cofinst&
 cofinstructions::operator[] (unsigned int index)
 {

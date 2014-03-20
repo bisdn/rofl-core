@@ -17,7 +17,6 @@
 #include <stdio.h>
 
 static void __of1x_destroy_group(of1x_group_table_t *gt, of1x_group_t *ge);
-static rofl_of1x_gm_result_t __of1x_validate_group(of1x_action_group_t* actions);
 bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl);
 
 of1x_group_table_t* of1x_init_group_table(){
@@ -33,7 +32,78 @@ of1x_group_table_t* of1x_init_group_table(){
 	gt->tail = NULL;
 	
 	gt->rwlock = platform_rwlock_init(NULL);
+	bitmap128_clean(&gt->config.supported_actions);
+
+	//We initialize with the support of all possible actions. This can be customized via the init hook
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_IN
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_VLAN);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_MPLS);		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_GTP);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PPPOE);		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PBB);		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PBB);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PPPOE);		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_MPLS);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_VLAN);		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_OUT);			
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_DEC_NW_TTL);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_DEC_MPLS_TTL);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_MPLS_TTL);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_NW_TTL);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_QUEUE);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ETH_DST);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ETH_SRC);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ETH_TYPE); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_LABEL);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_TC);  	   	
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_BOS);  	   	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_VLAN_VID); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_VLAN_PCP); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_OPCODE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_SHA);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_SPA);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_THA);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_TPA);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_NW_PROTO);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_NW_SRC);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_NW_DST);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IP_DSCP);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IP_ECN);   		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IP_PROTO); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV4_SRC); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV4_DST); 		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_SRC);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_DST);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_FLABEL);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_TARGET);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_SLL);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_TLL);	
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TCP_SRC);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TCP_DST);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_UDP_SRC);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_UDP_DST);  		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_SRC);  		
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_DST);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TP_SRC);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TP_DST);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV4_CODE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV6_TYPE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV6_CODE);	
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PBB_ISID);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
+	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_GROUP); //WE DON'T SUPPORT INDIRECT GROUP reference	
 	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_OUTPUT);
+
 	return gt;
 }
 
@@ -66,6 +136,28 @@ rofl_result_t of1x_fetch_group_table(of1x_pipeline_t *pipeline, of1x_group_table
 	return ROFL_SUCCESS;
 }
 
+static
+rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_group_t* actions){
+
+	//we dont allow OF1X_AT_GROUP
+	//and neither OF1X_AT_OUTPUT in the case of OF1X_PORT_TABLE
+	of1x_packet_action_t *it;
+	
+	for(it=actions->head; it; it=it->next){
+		if(it->type == OF1X_AT_GROUP)
+			return ROFL_OF1X_GM_CHAIN;
+		if(it->type == OF1X_AT_OUTPUT && it->field.u64 == OF1X_PORT_TABLE)
+			return ROFL_OF1X_GM_INVAL;
+	}
+		
+	//verify apply actions
+	if(__of1x_validate_action_group(&gt->config.supported_actions, actions, gt) != ROFL_SUCCESS)
+		return ROFL_OF1X_GM_INVAL;
+	
+	return ROFL_OF1X_GM_OK;
+}
+
+
 /**
  * Searches in the table for an entry with a specific id
  * returns pointer if found or NULL if not
@@ -91,7 +183,7 @@ rofl_of1x_gm_result_t __of1x_check_group_parameters(of1x_group_table_t *gt, of1x
     
 	//Validate action set
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
-		if((ret_val=__of1x_validate_group(bu_it->actions))!=ROFL_OF1X_GM_OK)
+		if((ret_val=__of1x_validate_group(gt, bu_it->actions))!=ROFL_OF1X_GM_OK)
 			return ret_val;
 	}
 	
@@ -234,7 +326,7 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	of1x_flow_entry_t* entry;
 	of1x_group_t *ge, *next;
 	
-	//TODO if the group value is OFP12_GROUP_ALL, delete all groups 
+	//TODO if the group value is OFP1X_GROUP_ALL, delete all groups 
 	if(id == OF1X_GROUP_ALL){
 		for(ge = gt->head; ge; ge=next){
 			next = ge->next;
@@ -360,27 +452,6 @@ void of1x_destroy_bucket_list(of1x_bucket_list_t *bc_list){
 		platform_free_shared(bk_it);
 	}
 	platform_free_shared(bc_list);
-}
-
-static
-rofl_of1x_gm_result_t __of1x_validate_group(of1x_action_group_t* actions){
-
-	//we dont allow OF1X_AT_GROUP
-	//and neither OF1X_AT_OUTPUT in the case of OF1X_PORT_TABLE
-	of1x_packet_action_t *it;
-	
-	for(it=actions->head; it; it=it->next){
-		if(it->type == OF1X_AT_GROUP)
-			return ROFL_OF1X_GM_CHAIN;
-		if(it->type == OF1X_AT_OUTPUT && it->field.u64 == OF1X_PORT_TABLE)
-			return ROFL_OF1X_GM_INVAL;
-	}
-		
-	//verify apply actions
-	if(__of1x_validate_action_group(actions, NULL) != ROFL_SUCCESS)
-		return ROFL_OF1X_GM_INVAL;
-	
-	return ROFL_OF1X_GM_OK;
 }
 
 bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){

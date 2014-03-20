@@ -8,14 +8,12 @@
 #ifndef COFMSG_GROUP_STATS_H_
 #define COFMSG_GROUP_STATS_H_ 1
 
-#include <vector>
-
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
+#include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupstats.h"
 
 namespace rofl
 {
-
 
 /**
  *
@@ -25,7 +23,7 @@ class cofmsg_group_stats_request :
 {
 private:
 
-	cofgroup_stats_request 	group_stats;
+	rofl::openflow::cofgroup_stats_request 	group_stats;
 
 	union {
 		uint8_t*											ofhu_group_stats;
@@ -47,7 +45,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofgroup_stats_request const& group_stats = cofgroup_stats_request());
+			rofl::openflow::cofgroup_stats_request const& group_stats = rofl::openflow::cofgroup_stats_request());
 
 
 	/**
@@ -124,13 +122,13 @@ public:
 	/**
 	 *
 	 */
-	cofgroup_stats_request&
+	rofl::openflow::cofgroup_stats_request&
 	set_group_stats();
 
 	/**
 	 *
 	 */
-	cofgroup_stats_request const&
+	rofl::openflow::cofgroup_stats_request const&
 	get_group_stats() const;
 
 public:
@@ -156,7 +154,7 @@ class cofmsg_group_stats_reply :
 {
 private:
 
-	std::vector<cofgroup_stats_reply> 	group_stats;
+	rofl::openflow::cofgroupstatsarray					groupstatsarray;
 
 	union {
 		uint8_t*										ofhu_group_stats;
@@ -178,7 +176,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofgroup_stats_reply> const& group_stats = std::vector<cofgroup_stats_reply>(0));
+			rofl::openflow::cofgroupstatsarray const& groups = rofl::openflow::cofgroupstatsarray());
 
 
 	/**
@@ -255,14 +253,14 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofgroup_stats_reply>&
-	set_group_stats();
+	rofl::openflow::cofgroupstatsarray&
+	set_group_stats_array() { return groupstatsarray; };
 
 	/**
 	 *
 	 */
-	std::vector<cofgroup_stats_reply> const&
-	get_group_stats() const;
+	rofl::openflow::cofgroupstatsarray const&
+	get_group_stats_array() const { return groupstatsarray; };
 
 public:
 
@@ -271,10 +269,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_group_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofgroup_stats_reply>::const_iterator
-				it = msg.group_stats.begin(); it != msg.group_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.groupstatsarray;
 		return os;
 	};
 };

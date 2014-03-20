@@ -1,4 +1,4 @@
-#include "rofl/common/openflow/messages/cofmsg_table_features.h"
+#include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
 #include <cppunit/TestFixture.h>

@@ -8,7 +8,8 @@
 #ifndef COFMSG_ROLE_H
 #define COFMSG_ROLE_H 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofrole.h"
 
 namespace rofl
 {
@@ -19,18 +20,7 @@ namespace rofl
 class cofmsg_role_request :
 	public cofmsg
 {
-private:
-
-	union {
-		uint8_t*						ofhu_role_request;
-		struct openflow12::ofp_role_request*		ofhu12_role_request;
-		struct openflow13::ofp_role_request*		ofhu13_role_request;
-	} ofhu;
-
-#define ofh_role_request	ofhu.ofhu_role_request
-#define ofh12_role_request 	ofhu.ofhu12_role_request
-#define ofh13_role_request 	ofhu.ofhu13_role_request
-
+	rofl::openflow::cofrole				role;
 
 public:
 
@@ -41,8 +31,7 @@ public:
 	cofmsg_role_request(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
-			uint32_t role = 0,
-			uint64_t generation_id = 0);
+			rofl::openflow::cofrole const& role = rofl::openflow::cofrole());
 
 
 	/**
@@ -79,13 +68,7 @@ public:
 	virtual void
 	reset();
 
-
-	/**
-	 *
-	 */
-	virtual uint8_t*
-	resize(size_t len);
-
+public:
 
 	/** returns length of packet in packed state
 	 *
@@ -116,30 +99,17 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	rofl::openflow::cofrole&
+	set_role() { return role; };
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_role() const;
-
-	/**
-	 *
-	 */
-	void
-	set_role(uint32_t port_no);
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_generation_id() const;
-
-	/**
-	 *
-	 */
-	void
-	set_generation_id(uint64_t generation_id);
+	rofl::openflow::cofrole const&
+	get_role() const { return role; };
 
 public:
 
@@ -147,8 +117,8 @@ public:
 	operator<< (std::ostream& os, cofmsg_role_request const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(0) << "<cofmsg_role_request >" << std::endl;
-			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
-			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << msg.role;
 		return os;
 	};
 };
@@ -161,18 +131,7 @@ public:
 class cofmsg_role_reply :
 	public cofmsg
 {
-private:
-
-	union {
-		uint8_t*						ofhu_role_reply;
-		struct openflow12::ofp_role_request*		ofhu12_role_reply;
-		struct openflow13::ofp_role_request*		ofhu13_role_reply;
-	} ofhu;
-
-#define ofh_role_reply		ofhu.ofhu_role_reply
-#define ofh12_role_reply 	ofhu.ofhu12_role_reply
-#define ofh13_role_reply 	ofhu.ofhu13_role_reply
-
+	rofl::openflow::cofrole				role;
 
 public:
 
@@ -183,8 +142,7 @@ public:
 	cofmsg_role_reply(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
-			uint32_t role = 0,
-			uint64_t generation_id = 0);
+			rofl::openflow::cofrole const& role = rofl::openflow::cofrole());
 
 
 	/**
@@ -221,13 +179,7 @@ public:
 	virtual void
 	reset();
 
-
-	/**
-	 *
-	 */
-	virtual uint8_t*
-	resize(size_t len);
-
+public:
 
 	/** returns length of packet in packed state
 	 *
@@ -258,30 +210,17 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	rofl::openflow::cofrole&
+	set_role() { return role; };
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_role() const;
-
-	/**
-	 *
-	 */
-	void
-	set_role(uint32_t port_no);
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_generation_id() const;
-
-	/**
-	 *
-	 */
-	void
-	set_generation_id(uint64_t generation_id);
+	rofl::openflow::cofrole const&
+	get_role() const { return role; };
 
 public:
 
@@ -289,8 +228,8 @@ public:
 	operator<< (std::ostream& os, cofmsg_role_reply const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(0) << "<cofmsg_role_reply >" << std::endl;
-			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
-			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << msg.role;
 		return os;
 	};
 };

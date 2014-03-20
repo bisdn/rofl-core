@@ -836,12 +836,14 @@ coftable_feature_prop_oxm::unpack(
 	}
 
 
-	size_t remaining = total_length - sizeof(struct openflow13::ofp_table_feature_prop_oxm);
+	size_t remaining = get_length() - sizeof(struct openflow13::ofp_table_feature_prop_oxm);
 	while (remaining >= sizeof(uint32_t)) {
 		struct openflow::ofp_oxm_hdr *oxm = (struct openflow::ofp_oxm_hdr*)
 				(((struct openflow13::ofp_table_feature_prop_oxm*)buf)->oxm_ids);
 
 		switch (be16toh(oxm->oxm_class)) {
+		case 0: return;
+
 		case rofl::openflow::OFPXMC_EXPERIMENTER: {
 			if (remaining < sizeof(uint64_t)) {
 				return;
@@ -850,14 +852,16 @@ coftable_feature_prop_oxm::unpack(
 			buf += sizeof(uint64_t);
 			remaining -= sizeof(uint64_t);
 		} break;
-		case rofl::openflow::OFPXMC_OPENFLOW_BASIC:
-		default: {
+		case rofl::openflow::OFPXMC_OPENFLOW_BASIC: {
 			if (remaining < sizeof(uint32_t)) {
 				return;
 			}
 			oxm_ids.    push_back(be32toh(*(uint32_t*)(oxm)));
 			buf += sizeof(uint32_t);
 			remaining -= sizeof(uint32_t);
+		} break;
+		default: {
+			// do nothing ?
 		};
 		}
 	}

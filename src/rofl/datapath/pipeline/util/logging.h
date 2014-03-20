@@ -20,34 +20,34 @@
 
 //Define debug levels
 enum rofl_pipeline_debug_levels {
-	UNDEF_DEBUG_LEVEL = -1,		/* Undefined debug level */
-	//EMERGENCY,			/* system is unusable */
-	//ALERT,			/* action must be taken immediately */
-	//CRITICAL,			/* critical conditions */
-	ERROR,				/* error conditions */
-	WARN,				/* warning conditions */
-	//NOTICE,			/* normal but significant condition */
-	INFO,				/* informational */
-	DBG,				/* debug-level messages */
-	MAX_DEBUG_LEVEL			/* DO NOT USE */
+	PIPELINE_UNDEF_DEBUG_LEVEL = -1,	/* Undefined debug level */
+	//PIPELINE_EMERGENCY,			/* system is unusable */
+	//PIPELINE_ALERT,			/* action must be taken immediately */
+	//PIPELINE_CRITICAL,			/* critical conditions */
+	PIPELINE_ERROR,				/* error conditions */
+	PIPELINE_WARN,				/* warning conditions */
+	//PIPELINE_NOTICE,			/* normal but significant condition */
+	PIPELINE_INFO,				/* informational */
+	PIPELINE_DBG,				/* debug-level messages */
+	PIPELINE_MAX_DEBUG_LEVEL		/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_LEVEL! */
 };
 
 //Debug classes (not used currently)
 enum rofl_pipeline_debug_class {
-	UNDEF_DEBUG_CLASS = -1,		/* Undefined debug level */
-	DEFAULT = 0,			/* todo name it correct */
-	MAX_DEBUG_CLASS			/* DO NOT USE */
+	PIPELINE_UNDEF_DEBUG_CLASS = -1,	/* Undefined debug level */
+	PIPELINE_DEFAULT = 0,			/* todo name it correct */
+	PIPELINE_MAX_DEBUG_CLASS		/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
 };
 
 //Default value DBG
-#define ROFL_PIPELINE_DBG_DEFAULT { DBG } /* default for each class */
+#define ROFL_PIPELINE_DBG_DEFAULT { PIPELINE_DBG } /* default for each class */
 
 //Fwd declarations
-extern enum rofl_pipeline_debug_levels rofl_pipeline_debug_level[MAX_DEBUG_CLASS];
+extern enum rofl_pipeline_debug_levels rofl_pipeline_debug_level[PIPELINE_MAX_DEBUG_CLASS];
 extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 
 //Define macros
@@ -70,22 +70,22 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 
 
 	#define ROFL_PIPELINE_WARN(stuff,...) \
-		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, WARN, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, PIPELINE_DEFAULT, PIPELINE_WARN, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_ERR(stuff, ...)          \
-		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, ERROR, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, PIPELINE_DEFAULT, PIPELINE_ERROR, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_INFO(stuff,...) \
-		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, PIPELINE_DEFAULT, PIPELINE_INFO, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_INFO_NO_PREFIX(stuff,...) \
-		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, PIPELINE_DEFAULT, PIPELINE_INFO, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_DEBUG(stuff, ...)        \
-		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, PIPELINE_DEFAULT, PIPELINE_DBG, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_DEBUG_NO_PREFIX(stuff, ...)        \
-		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, PIPELINE_DEFAULT, PIPELINE_DBG, stuff, ##__VA_ARGS__)
 #else
 	//No logging
 	#define ROFL_PIPELINE_DEBUG_CHECK(stuff, ...) do{}while(0)
@@ -103,6 +103,9 @@ ROFL_BEGIN_DECLS
 
 //API to capture logging events in the pipeline 
 void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
+
+//API to set level 
+void rofl_pipeline_set_logging_level(/*cn,*/ enum rofl_pipeline_debug_levels level);
 
 //C++ extern C
 ROFL_END_DECLS

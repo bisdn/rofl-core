@@ -9,11 +9,14 @@ cofmsg_group_stats_request::cofmsg_group_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofgroup_stats_request const& group_stats) :
+		rofl::openflow::cofgroup_stats_request const& group_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	group_stats(group_stats)
 {
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_STATS_REQUEST);
 		set_stats_type(rofl::openflow12::OFPST_GROUP);
@@ -194,7 +197,7 @@ cofmsg_group_stats_request::validate()
 
 
 
-cofgroup_stats_request&
+rofl::openflow::cofgroup_stats_request&
 cofmsg_group_stats_request::set_group_stats()
 {
 	return group_stats;
@@ -202,7 +205,7 @@ cofmsg_group_stats_request::set_group_stats()
 
 
 
-cofgroup_stats_request const&
+rofl::openflow::cofgroup_stats_request const&
 cofmsg_group_stats_request::get_group_stats() const
 {
 	return group_stats;
@@ -216,11 +219,16 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		std::vector<cofgroup_stats_reply> const& group_stats) :
+		rofl::openflow::cofgroupstatsarray const& groupstatsarray) :
 	cofmsg_stats_reply(of_version, xid, 0, flags),
-	group_stats(group_stats)
+	groupstatsarray(groupstatsarray)
 {
+	this->groupstatsarray.set_version(of_version);
+
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_STATS_REPLY);
 		set_stats_type(rofl::openflow12::OFPST_GROUP);
@@ -275,6 +283,8 @@ cofmsg_group_stats_reply::operator= (
 
 	ofh_group_stats = soframe();
 
+	groupstatsarray = stats.groupstatsarray;
+
 	return *this;
 }
 
@@ -319,20 +329,10 @@ cofmsg_group_stats_reply::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
-		size_t len = sizeof(struct rofl::openflow12::ofp_stats_reply);
-		for (std::vector<cofgroup_stats_reply>::const_iterator
-				it = group_stats.begin(); it != group_stats.end(); ++it) {
-			len += (*it).length();
-		}
-		return len;
+		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + groupstatsarray.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		size_t len = sizeof(struct rofl::openflow13::ofp_multipart_reply);
-		for (std::vector<cofgroup_stats_reply>::const_iterator
-				it = group_stats.begin(); it != group_stats.end(); ++it) {
-			len += (*it).length();
-		}
-		return len;
+		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + groupstatsarray.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -355,22 +355,14 @@ cofmsg_group_stats_reply::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		size_t offset = 0;
-		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply) + offset, group_stats[i].length());
-			offset += group_stats[i].length();
-		}
+
+		groupstatsarray.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), buflen - sizeof(struct rofl::openflow12::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		size_t offset = 0;
-		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply) + offset, group_stats[i].length());
-			offset += group_stats[i].length();
-		}
+
+		groupstatsarray.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), buflen - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -394,60 +386,27 @@ cofmsg_group_stats_reply::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
-	group_stats.clear();
+	groupstatsarray.clear();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
-		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_reply) + sizeof(struct rofl::openflow12::ofp_group_stats)))
+		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_reply)))
 			throw eBadSyntaxTooShort();
 
-		size_t residual = get_length() - sizeof(struct rofl::openflow12::ofp_stats_reply);
+		groupstatsarray.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply), framelen() - sizeof(struct rofl::openflow12::ofp_stats_reply));
 
-		while (residual >= sizeof(struct rofl::openflow12::ofp_group_stats)) {
-
-			uint8_t* p_group_stats_reply = soframe() + get_length() - residual;
-			size_t length = be16toh(((struct rofl::openflow12::ofp_group_stats*)p_group_stats_reply)->length);
-
-			cofgroup_stats_reply group_stats_reply(rofl::openflow12::OFP_VERSION);
-			group_stats_reply.unpack(p_group_stats_reply, length);
-			group_stats.push_back(group_stats_reply);
-		}
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_reply) + sizeof(struct rofl::openflow13::ofp_group_stats)))
 			throw eBadSyntaxTooShort();
 
-		size_t residual = get_length() - sizeof(struct rofl::openflow13::ofp_multipart_reply);
+		groupstatsarray.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply), framelen() - sizeof(struct rofl::openflow13::ofp_multipart_reply));
 
-		while (residual >= sizeof(struct rofl::openflow13::ofp_group_stats)) {
-
-			uint8_t* p_group_stats_reply = soframe() + get_length() - residual;
-			size_t length = be16toh(((struct rofl::openflow13::ofp_group_stats*)p_group_stats_reply)->length);
-
-			cofgroup_stats_reply group_stats_reply(rofl::openflow13::OFP_VERSION);
-			group_stats_reply.unpack(p_group_stats_reply, length);
-			group_stats.push_back(group_stats_reply);
-		}
 	} break;
 	default:
 		throw eBadRequestBadVersion();
 	}
 }
 
-
-
-std::vector<cofgroup_stats_reply>&
-cofmsg_group_stats_reply::set_group_stats()
-{
-	return group_stats;
-}
-
-
-
-std::vector<cofgroup_stats_reply> const&
-cofmsg_group_stats_reply::get_group_stats() const
-{
-	return group_stats;
-}
 
 

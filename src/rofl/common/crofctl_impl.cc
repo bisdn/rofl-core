@@ -14,13 +14,11 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
-
+	async_config = rofbase->async_config_role_default_template;
 }
 
 
@@ -33,12 +31,11 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
+	async_config = rofbase->async_config_role_default_template;
 	rofchan.add_conn(/*aux-id=*/0, newsd);
 }
 
@@ -57,12 +54,11 @@ crofctl_impl::crofctl_impl(
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				role_initialized(false),
-				role(openflow12::OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
+	async_config = rofbase->async_config_role_default_template;
 	rofchan.add_conn(/*aux-id=*/0, domain, type, protocol, ra, ssl_ctx);
 }
 
@@ -122,11 +118,14 @@ crofctl_impl::ta_expired(
 bool
 crofctl_impl::is_slave() const
 {
+#if 0
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: return (openflow12::OFPCR_ROLE_SLAVE == role);
 	case openflow13::OFP_VERSION: return (openflow13::OFPCR_ROLE_SLAVE == role);
 	default: return false;
 	}
+#endif
+	return false;
 }
 
 
@@ -806,7 +805,7 @@ crofctl_impl::send_desc_stats_reply(
 void
 crofctl_impl::send_flow_stats_reply(
 	uint32_t xid,
-	std::vector<cofflow_stats_reply> const& flow_stats,
+	cofflowstatsarray const& flowstatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -819,7 +818,7 @@ crofctl_impl::send_flow_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					flow_stats);
+					flowstatsarray);
 
 	rofchan.send_message(msg, 0);
 }
@@ -852,7 +851,7 @@ crofctl_impl::send_aggr_stats_reply(
 void
 crofctl_impl::send_table_stats_reply(
 	uint32_t xid,
-	std::vector<coftable_stats_reply> const& table_stats,
+	coftablestatsarray const& tablestatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -865,7 +864,7 @@ crofctl_impl::send_table_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					table_stats);
+					tablestatsarray);
 
 	rofchan.send_message(msg, 0);
 }
@@ -875,7 +874,7 @@ crofctl_impl::send_table_stats_reply(
 void
 crofctl_impl::send_port_stats_reply(
 	uint32_t xid,
-	std::vector<cofport_stats_reply> const& port_stats,
+	cofportstatsarray const& portstatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -888,7 +887,7 @@ crofctl_impl::send_port_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					port_stats);
+					portstatsarray);
 
 	rofchan.send_message(msg, 0);
 }
@@ -898,7 +897,7 @@ crofctl_impl::send_port_stats_reply(
 void
 crofctl_impl::send_queue_stats_reply(
 		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
+		cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -911,7 +910,7 @@ crofctl_impl::send_queue_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					queue_stats);
+					queuestatsarray);
 
 	rofchan.send_message(msg, 0);
 }
@@ -921,7 +920,7 @@ crofctl_impl::send_queue_stats_reply(
 void
 crofctl_impl::send_group_stats_reply(
 	uint32_t xid,
-	std::vector<cofgroup_stats_reply> const& group_stats,
+	cofgroupstatsarray const& groupstatsarray,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -934,7 +933,7 @@ crofctl_impl::send_group_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					group_stats);
+					groupstatsarray);
 
 	rofchan.send_message(msg, 0);
 }
@@ -944,7 +943,7 @@ crofctl_impl::send_group_stats_reply(
 void
 crofctl_impl::send_group_desc_stats_reply(
 	uint32_t xid,
-	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+	cofgroupdescstatsarray const& groupdescs,
 	uint16_t stats_flags)
 {
 	if (not is_established()) {
@@ -957,7 +956,7 @@ crofctl_impl::send_group_desc_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
-					group_desc_stats);
+					groupdescs);
 
 	rofchan.send_message(msg, 0);
 }
@@ -998,8 +997,8 @@ crofctl_impl::send_table_features_stats_reply(
 		return;
 	}
 
-	cofmsg_table_features_reply *msg =
-			new cofmsg_table_features_reply(
+	cofmsg_table_features_stats_reply *msg =
+			new cofmsg_table_features_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
@@ -1118,8 +1117,7 @@ crofctl_impl::send_barrier_reply(
 void
 crofctl_impl::send_role_reply(
 		uint32_t xid,
-		uint32_t role,
-		uint64_t generation_id)
+		rofl::openflow::cofrole const& role)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][ctl] not connected, dropping Role-Reply message" << std::endl;
@@ -1130,8 +1128,7 @@ crofctl_impl::send_role_reply(
 			new cofmsg_role_reply(
 					rofchan.get_version(),
 					xid,
-					role,
-					generation_id);
+					role);
 
 	rofchan.send_message(msg, 0);
 }
@@ -1280,12 +1277,7 @@ crofctl_impl::send_queue_get_config_reply(
 void
 crofctl_impl::send_get_async_config_reply(
 		uint32_t xid,
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1)
+		rofl::openflow::cofasync_config const& async_config)
 {
 	if (not is_established()) {
 		logging::warn << "[rofl][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
@@ -1296,12 +1288,7 @@ crofctl_impl::send_get_async_config_reply(
 			new cofmsg_get_async_config_reply(
 					rofchan.get_version(),
 					xid,
-					packet_in_mask0,
-					packet_in_mask1,
-					port_status_mask0,
-					port_status_mask1,
-					flow_removed_mask0,
-					flow_removed_mask1);
+					async_config);
 
 	rofchan.send_message(msg, 0);
 }
@@ -1315,12 +1302,9 @@ void
 crofctl_impl::check_role()
 {
 	switch (rofchan.get_version()) {
-	case openflow12::OFP_VERSION: {
-		if (openflow12::OFPCR_ROLE_SLAVE == role)
-			throw eBadRequestIsSlave();
-	} break;
-	case openflow13::OFP_VERSION: {
-		if (openflow12::OFPCR_ROLE_SLAVE == role)
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		if (rofl::openflow13::OFPCR_ROLE_SLAVE == role.get_role())
 			throw eBadRequestIsSlave();
 	} break;
 	}
@@ -1882,7 +1866,7 @@ crofctl_impl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 		// TODO
 	} break;
 	case openflow13::OFPMP_TABLE_FEATURES: {
-		table_features_stats_request_rcvd(dynamic_cast<cofmsg_table_features_request*>( msg ), aux_id);
+		table_features_stats_request_rcvd(dynamic_cast<cofmsg_table_features_stats_request*>( msg ), aux_id);
 	} break;
 	case openflow13::OFPMP_PORT_DESC: {
 		port_desc_stats_request_rcvd(dynamic_cast<cofmsg_port_desc_stats_request*>( msg ), aux_id);
@@ -2033,9 +2017,9 @@ crofctl_impl::group_features_stats_request_rcvd(cofmsg_group_features_stats_requ
 
 
 void
-crofctl_impl::table_features_stats_request_rcvd(cofmsg_table_features_request* msg, uint8_t aux_id)
+crofctl_impl::table_features_stats_request_rcvd(cofmsg_table_features_stats_request* msg, uint8_t aux_id)
 {
-	cofmsg_table_features_request& request = dynamic_cast<cofmsg_table_features_request&>( *msg );
+	cofmsg_table_features_stats_request& request = dynamic_cast<cofmsg_table_features_stats_request&>( *msg );
 
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Features-Stats-Request message received" << std::endl << request;
@@ -2080,61 +2064,30 @@ crofctl_impl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request*
 void
 crofctl_impl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 {
-	cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
-
-	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Role-Request message received" << std::endl << request;
-
 	try {
-		switch (msg->get_role()) {
-		case openflow12::OFPCR_ROLE_MASTER:
-		case openflow12::OFPCR_ROLE_SLAVE:
-			if (role_initialized)
-			{
-				uint64_t gen_id = msg->get_generation_id();
-				uint64_t dist = (gen_id > cached_generation_id) ?
-						(gen_id - cached_generation_id) % std::numeric_limits<uint64_t>::max() :
-						(gen_id + std::numeric_limits<uint64_t>::max() + cached_generation_id) % std::numeric_limits<uint64_t>::max();
+		cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
 
-				if (dist >= (std::numeric_limits<uint64_t>::max() / 2)) {
-					throw eRoleRequestStale();
-				}
-			}
-			else
-			{
-				role_initialized = true;
-			}
-			cached_generation_id = msg->get_generation_id();
-			break;
+		logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+				<< " Role-Request message received" << std::endl << request;
+
+		switch (msg->get_role().get_role()) {
+		// same for OF12 and OF13
+		case rofl::openflow13::OFPCR_ROLE_EQUAL:
+		case rofl::openflow13::OFPCR_ROLE_MASTER:
+		case rofl::openflow13::OFPCR_ROLE_SLAVE:
+		case rofl::openflow13::OFPCR_ROLE_NOCHANGE: {
+			// continue with further checks
+		} break;
 		default:
-			break;
+			throw eRoleRequestBadRole();
 		}
 
-		role = msg->get_role();
+		rofbase->role_request_rcvd(this, msg->get_role().get_role(), msg->get_role().get_generation_id());
 
-#if 0
-		for (std::map<cofbase*, crofctl*>::iterator
-				it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
-		{
-			crofctl* ofctrl = it->second;
-
-			if (ofctrl == this)
-			{
-				continue;
-			}
-
-			if (openflow12::OFPCR_ROLE_MASTER == ofctrl->role)
-			{
-				ofctrl->role = openflow12::OFPCR_ROLE_SLAVE;
-			}
-		}
-#endif
-
-		//pack->ofh_role_request->generation_id;
-
-		rofbase->role_request_rcvd(this, role);
-
+		// necessary for proxy implementations
 		rofbase->handle_role_request(*this, request, aux_id);
+
+		send_role_reply(msg->get_xid(), role);
 
 		delete msg;
 
@@ -2286,7 +2239,7 @@ crofctl_impl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Async-Config-Request message received" << std::endl << request;
 
-	// TODO: handle request
+	send_get_async_config_reply(msg->get_xid(), async_config);
 
 	delete msg;
 }
@@ -2301,7 +2254,8 @@ crofctl_impl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Async-Config message received" << std::endl << message;
 
-	// TODO: handle request here in this cofctl instance
+	async_config = msg->get_async_config();
+
 	rofbase->handle_set_async_config(*this, message, aux_id);
 
 	delete msg;

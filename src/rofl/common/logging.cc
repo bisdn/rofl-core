@@ -55,67 +55,66 @@ logging::set_debug_level(
 	logging::init();
 
 	// EMERG
-	if (debug_level >= 0) {
+	if (debug_level >= EMERG) {
 		logging::emerg .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::emerg .rdbuf(&logging::devnull);
 	}
 
 	// ALERT
-	if (debug_level >= 1) {
+	if (debug_level >= ALERT) {
 		logging::alert .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::alert .rdbuf(&logging::devnull);
 	}
 
 	// CRIT
-	if (debug_level >= 2) {
+	if (debug_level >= CRIT) {
 		logging::crit  .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::crit  .rdbuf(&logging::devnull);
 	}
 
 	// ERROR
-	if (debug_level >= 3) {
+	if (debug_level >= ERROR) {
 		logging::error .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::error .rdbuf(&logging::devnull);
 	}
 
 	// WARN
-	if (debug_level >= 4) {
+	if (debug_level >= WARN) {
 		logging::warn  .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::warn  .rdbuf(&logging::devnull);
 	}
 
 	// NOTICE
-	if (debug_level >= 5) {
+	if (debug_level >= NOTICE) {
 		logging::notice.rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::notice.rdbuf(&logging::devnull);
 	}
 
 	// INFO
-	if (debug_level >= 6) {
+	if (debug_level >= INFO) {
 		logging::info  .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::info  .rdbuf(&logging::devnull);
 	}
 
 	// DEBUG
-	if (debug_level >= 7) {
+	if (debug_level >= DBG) {
 		logging::debug .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::debug .rdbuf(&logging::devnull);
 	}
 
-	// DEBUG
-	if (debug_level >= 8) {
+	// TRACE 
+	if (debug_level >= TRACE) {
 		logging::trace .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::trace .rdbuf(&logging::devnull);
 	}
 }
-
 

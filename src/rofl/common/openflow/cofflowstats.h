@@ -14,9 +14,14 @@
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/croflexception.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
+class eFlowStatsBase		: public RoflException {};
+class eFlowStatsInval		: public eFlowStatsBase {};
+class eFlowStatsNotFound	: public eFlowStatsBase {};
 
 class cofflow_stats_request
 {
@@ -204,7 +209,8 @@ public:
 			os << flow_stats_request.match;
 
 		} break;
-		case openflow12::OFP_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofflow_stats_request >" << std::endl;
 			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
 			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
@@ -215,9 +221,6 @@ public:
 			os << flow_stats_request.match;
 
 		} break;
-		case openflow13::OFP_VERSION: {
-			throw eNotImplemented();
-		}
 		default: {
 			os << "<cofflow_stats_request unknown OFP version >" << std::endl;
 		};
@@ -318,6 +321,14 @@ public:
 	operator= (
 			cofflow_stats_reply const& flowstats);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cofflow_stats_reply const& flowstats);
+
+public:
 
 	/**
 	 *
@@ -408,23 +419,108 @@ public:
 	uint64_t
 	get_byte_count() const;
 
+
+
+
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_table_id(uint8_t table_id);
+
+	/**
+	 *
+	 */
+	void
+	set_duration_sec(uint32_t duration_sec);
+
+	/**
+	 *
+	 */
+	void
+	set_duration_nsec(uint32_t duration_nsec);
+
+	/**
+	 *
+	 */
+	void
+	set_priority(uint16_t priority);
+
+	/**
+	 *
+	 */
+	void
+	set_idle_timeout(uint16_t idle_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_hard_timeout(uint16_t hard_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_cookie(uint64_t cookie);
+
+	/**
+	 *
+	 */
+	void
+	set_packet_count(uint64_t packet_count);
+
+	/**
+	 *
+	 */
+	void
+	set_byte_count(uint64_t byte_count);
+
+
+
+
+
+
 	/**
 	 *
 	 */
 	cofmatch&
-	get_match();
+	set_match() { return match; };
 
 	/**
 	 *
 	 */
 	cofactions&
-	get_actions();
+	set_actions() { return actions; };
 
 	/**
 	 *
 	 */
 	cofinstructions&
-	get_instructions();
+	set_instructions() { return instructions; };
+
+
+	/**
+	 *
+	 */
+	cofmatch const&
+	get_match() const { return match; };
+
+	/**
+	 *
+	 */
+	cofactions const&
+	get_actions() const { return actions; };
+
+	/**
+	 *
+	 */
+	cofinstructions const&
+	get_instructions() const { return instructions; };
+
 
 public:
 
@@ -437,15 +533,15 @@ public:
 		case rofl::openflow12::OFP_VERSION:
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofflow_stats_reply >" << std::endl;
-			os << indent(2) << "<table-id:" << (int)flow_stats_reply.get_table_id() << " >" << std::endl;
-			os << indent(2) << "<duration-sec:" << (int)flow_stats_reply.get_duration_sec() << " >" << std::endl;
-			os << indent(2) << "<duration-nsec:" << (int)flow_stats_reply.get_duration_nsec() << " >" << std::endl;
-			os << indent(2) << "<priority:" << (int)flow_stats_reply.get_priority() << " >" << std::endl;
-			os << indent(2) << "<idle-timeout:" << (int)flow_stats_reply.get_idle_timeout() << " >" << std::endl;
-			os << indent(2) << "<hard-timeout:" << (int)flow_stats_reply.get_hard_timeout() << " >" << std::endl;
-			os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
-			os << indent(2) << "<packet-count:" << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
-			os << indent(2) << "<byte-count:" << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
+			os << indent(2) << "<table-id: " << (int)flow_stats_reply.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<duration-sec: " << (int)flow_stats_reply.get_duration_sec() << " >" << std::endl;
+			os << indent(2) << "<duration-nsec: " << (int)flow_stats_reply.get_duration_nsec() << " >" << std::endl;
+			os << indent(2) << "<priority: 0x" << std::hex << (int)flow_stats_reply.get_priority() << std::dec << " >" << std::endl;
+			os << indent(2) << "<idle-timeout: " << (int)flow_stats_reply.get_idle_timeout() << " >" << std::endl;
+			os << indent(2) << "<hard-timeout: " << (int)flow_stats_reply.get_hard_timeout() << " >" << std::endl;
+			os << indent(2) << "<cookie: 0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(2) << "<packet-count: " << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
+			os << indent(2) << "<byte-count: " << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
 			indent i(2);
 			os << flow_stats_reply.match;
 		} break;
@@ -453,17 +549,18 @@ public:
 
 		};
 		}
+		indent i(2);
 		switch (flow_stats_reply.of_version) {
 		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
 		case openflow12::OFP_VERSION: os << flow_stats_reply.instructions; break;
-		case openflow13::OFP_VERSION: throw eNotImplemented();
+		case openflow13::OFP_VERSION: os << flow_stats_reply.instructions; break;
 		default: os << "<unknown OFP version >" << std::endl;
 		}
 		return os;
 	};
 };
 
-
+} /* end of namespace */
 } /* end of namespace */
 
 #endif /* COFFLOWSTATS_H_ */

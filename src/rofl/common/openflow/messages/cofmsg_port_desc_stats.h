@@ -224,7 +224,13 @@ public:
 	 *
 	 */
 	cofports&
-	get_ports() { return ports; };
+	set_ports() { return ports; };
+
+	/**
+	 *
+	 */
+	cofports const&
+	get_ports() const { return ports; };
 
 
 public:

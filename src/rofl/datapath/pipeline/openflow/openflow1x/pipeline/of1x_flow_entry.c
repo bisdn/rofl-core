@@ -316,18 +316,31 @@ void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool nbo){
 /**
  * Check if the entry(matches, actions and instructions is valid for insertion) 
  */
-rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipeline_t* pipeline){
+rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipeline_t* pipeline, unsigned int table_id){
 
 	of_version_t version = pipeline->sw->of_ver;
+	of1x_flow_table_t* table = &pipeline->tables[table_id];
 
-	//Validate matches
+	/*
+	* Validate matches
+	*/
 	if( entry->matches.head)
 		if( (version < entry->matches.ver_req.min_ver) ||
 		(version > entry->matches.ver_req.max_ver) )
 			return ROFL_FAILURE;
+
+	//Validate matches	
+	if( !bitmap128_check_mask(&entry->matches.match_bm, &table->config.match))
+		return ROFL_FAILURE;
+	
+	//Validate wildcards
+	if( !bitmap128_check_mask(&entry->matches.wildcard_bm, &table->config.wildcards))
+		return ROFL_FAILURE;
 		
-	//Validate instructions (and actions)
-	if(__of1x_validate_instructions(&entry->inst_grp, pipeline)!=ROFL_SUCCESS)
+	/*
+	* Validate instructions (and actions)
+	*/
+	if(__of1x_validate_instructions(&entry->inst_grp, pipeline, table_id)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	if(version == OF_VERSION_10 && entry->matches.head && !entry->matches.has_wildcard)

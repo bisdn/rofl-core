@@ -329,7 +329,7 @@ void bufs_single_output_action_group_apply(void){
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets);
+	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
 
 	CU_ASSERT(entry != NULL);	
@@ -454,7 +454,7 @@ void bufs_apply_and_group_output_actions(void){
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets);
+	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_EXISTS);
 	
 
 	CU_ASSERT(entry != NULL);	
@@ -589,7 +589,7 @@ void bufs_multiple_output_actions_group(void){
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
+	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
 
 	CU_ASSERT(entry != NULL);	
@@ -928,7 +928,7 @@ void bufs_output_first_table_output_on_group_second_table(void){
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets);
+	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
 
 	CU_ASSERT(entry != NULL);	
@@ -1014,7 +1014,7 @@ void bufs_output_all(void){
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
+	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
 	//
 	//entry 1

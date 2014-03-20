@@ -53,6 +53,23 @@ coftables::operator= (
 
 
 
+coftables&
+coftables::operator+= (
+		coftables const& tables)
+{
+	/*
+	 * this operation may replace tables, if they use the same table-id
+	 */
+	for (std::map<uint8_t, coftable_features>::const_iterator
+			it = tables.tables.begin(); it != tables.tables.end(); ++it) {
+		this->tables[it->first] = it->second;
+	}
+
+	return *this;
+}
+
+
+
 void
 coftables::clear()
 {

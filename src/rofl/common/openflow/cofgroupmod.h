@@ -15,8 +15,8 @@
 #include "rofl/common/openflow/cofbuckets.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eGroupEntryBase 		: public RoflException {};
 class eGroupEntryOutOfMem 	: public eGroupEntryBase {};
@@ -41,9 +41,6 @@ private: // data structures
 
 	cmemory group_mod_area;				// group mod memory area
 
-public: // static methods
-
-	static void test();
 
 public: // data structures
 
@@ -187,6 +184,7 @@ public:
 	};
 };
 
+}; // end of namespace
 }; // end of namespace
 
 #endif

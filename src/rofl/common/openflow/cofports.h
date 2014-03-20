@@ -45,6 +45,12 @@ public: // methods
 	/**
 	 *
 	 */
+	virtual
+	~cofports();
+
+	/**
+	 *
+	 */
 	cofports(
 			uint8_t ofp_version, uint8_t *buf, size_t buflen);
 
@@ -64,8 +70,9 @@ public: // methods
 	/**
 	 *
 	 */
-	virtual
-	~cofports();
+	cofports&
+	operator+= (
+			cofports const& ports);
 
 public:
 

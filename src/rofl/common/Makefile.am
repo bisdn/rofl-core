@@ -66,7 +66,11 @@ librofl_common_la_SOURCES = \
 		crofshim.h \
 		crofshim.cc \
 		logging.h \
-		logging.cc
+		logging.cc \
+		csegmentation.h \
+		csegmentation.cc \
+		csegmsg.h \
+		csegmsg.cc
 		
 if HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -113,7 +117,9 @@ library_include_HEADERS= \
 		thread_helper.h \
 		ctransaction.h \
 		ctransactions.h \
-		logging.h
+		logging.h \
+		csegmentation.h \
+		csegmsg.h
 
 if HAVE_OPENSSL
 library_include_HEADERS += \

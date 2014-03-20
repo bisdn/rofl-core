@@ -11,11 +11,14 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/cofbucketcounters.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
-
+class eGroupStatsBase 			: public RoflException {};
+class eGroupStatsInval			: public eGroupStatsBase {};
+class eGroupStatsNotFound		: public eGroupStatsBase {};
 
 class cofgroup_stats_request
 {
@@ -128,14 +131,15 @@ class cofgroup_stats_reply
 {
 private: // data structures
 
-	uint8_t 		of_version;
-	uint32_t		group_id;
-	uint32_t		ref_count;
-	uint64_t 		packet_count;
-	uint64_t		byte_count;
-	uint32_t		duration_sec;
-	uint32_t		duration_nsec;
-	cmemory			bucket_stats;
+	uint8_t 				of_version;
+	uint32_t				group_id;
+	uint32_t				ref_count;
+	uint64_t 				packet_count;
+	uint64_t				byte_count;
+	uint32_t				duration_sec;
+	uint32_t				duration_nsec;
+	cofbucket_counters		bucket_counters;
+
 
 public: // data structures
 
@@ -157,8 +161,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			uint32_t duration_sec,
-			uint32_t duration_nsec,
-			unsigned int num_of_bucket_stats = 0);
+			uint32_t duration_nsec);
 
 	/**
 	 *
@@ -180,12 +183,18 @@ public:
 	operator= (
 			cofgroup_stats_reply const& stats);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cofgroup_stats_reply const& stats);
 
 	/**
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen) const;
+	pack(uint8_t *buf, size_t buflen);
 
 	/**
 	 *
@@ -246,15 +255,16 @@ public:
 	get_duration_nsec() const { return duration_nsec; };
 
 	/**
-	 * FIXME: version dependency
+	 *
 	 */
-	struct rofl::openflow12::ofp_bucket_counter&
-	get_bucket_counter(size_t i) {
-		if (i > (bucket_stats.memlen() / sizeof(struct rofl::openflow12::ofp_bucket_counter))) {
-			throw eInval();
-		}
-		return ((struct rofl::openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
-	};
+	cofbucket_counters&
+	set_bucket_counters() { return bucket_counters; };
+
+	/**
+	 *
+	 */
+	cofbucket_counters const&
+	get_bucket_counters() const { return bucket_counters; };
 
 	/**
 	 *
@@ -303,24 +313,29 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofgroup_stats_reply const& r) {
 		os << indent(0) << "<cofgroup_stats_reply >" << std::endl;
-		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
-		os << indent(2) << "<ref-count: " << (int)r.get_ref_count() << " >" << std::endl;
-		os << indent(2) << "<packet-count: " << (int)r.get_packet_count() << " >" << std::endl;
-		os << indent(2) << "<byte-count: " << (int)r.get_byte_count() << " >" << std::endl;
+		os << std::hex;
+		os << indent(2) << "<group-id: 0x" << (int)r.get_group_id() << " >" << std::endl;
+		os << indent(2) << "<ref-count: 0x" << (int)r.get_ref_count() << " >" << std::endl;
+		os << indent(2) << "<packet-count: 0x" << (int)r.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count: 0x" << (int)r.get_byte_count() << " >" << std::endl;
+		os << std::dec;
 		switch (r.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-			os << indent(2) << "<duration-sec: " << (int)r.get_duration_sec() << " >" << std::endl;
-			os << indent(2) << "<duration-nsec: " << (int)r.get_duration_nsec() << " >" << std::endl;
+			os << std::hex;
+			os << indent(2) << "<duration-sec: 0x" << (int)r.get_duration_sec() << " >" << std::endl;
+			os << indent(2) << "<duration-nsec: 0x" << (int)r.get_duration_nsec() << " >" << std::endl;
+			os << std::dec;
 		} break;
 		default: {
 		};
 		}
 		indent i(2);
-		os << r.bucket_stats;
+		os << r.bucket_counters;
 		return os;
 	};
 };
 
+}
 }
 
 #endif /* COFGROUPSTATS_H_ */

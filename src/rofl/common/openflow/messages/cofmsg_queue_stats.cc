@@ -9,11 +9,14 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofqueue_stats_request const& queue_stats) :
+		rofl::openflow::cofqueue_stats_request const& queue_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow10::OFP_VERSION: {
 		set_stats_type(rofl::openflow10::OFPST_QUEUE);
 		set_type(rofl::openflow10::OFPT_STATS_REQUEST);
@@ -187,7 +190,7 @@ cofmsg_queue_stats_request::validate()
 
 
 
-cofqueue_stats_request&
+rofl::openflow::cofqueue_stats_request&
 cofmsg_queue_stats_request::set_queue_stats()
 {
 	return queue_stats;
@@ -195,7 +198,7 @@ cofmsg_queue_stats_request::set_queue_stats()
 
 
 
-cofqueue_stats_request const&
+rofl::openflow::cofqueue_stats_request const&
 cofmsg_queue_stats_request::get_queue_stats() const
 {
 	return queue_stats;
@@ -209,11 +212,16 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		std::vector<cofqueue_stats_reply> const& queue_stats) :
+		rofl::openflow::cofqueuestatsarray const& queuestatsarray) :
 	cofmsg_stats_reply(of_version, xid, 0, flags),
-	queue_stats(queue_stats)
+	queuestatsarray(queuestatsarray)
 {
+	this->queuestatsarray.set_version(of_version);
+
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow10::OFP_VERSION: {
 		set_stats_type(rofl::openflow10::OFPST_QUEUE);
 		set_type(rofl::openflow10::OFPT_STATS_REPLY);
@@ -276,6 +284,8 @@ cofmsg_queue_stats_reply::operator= (
 
 	ofh_queue_stats = soframe();
 
+	queuestatsarray = stats.queuestatsarray;
+
 	return *this;
 }
 
@@ -323,13 +333,13 @@ cofmsg_queue_stats_reply::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow10::ofp_stats_reply) + queue_stats.size() * sizeof(struct rofl::openflow10::ofp_queue_stats));
+		return (sizeof(struct rofl::openflow10::ofp_stats_reply) + queuestatsarray.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + queue_stats.size() * sizeof(struct rofl::openflow12::ofp_queue_stats));
+		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + queuestatsarray.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + queue_stats.size() * sizeof(struct rofl::openflow13::ofp_queue_stats));
+		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + queuestatsarray.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -352,31 +362,19 @@ cofmsg_queue_stats_reply::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		size_t offset = 0;
-		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(buf + sizeof(struct rofl::openflow10::ofp_stats_reply) + offset, queue_stats[i].length());
-			offset += queue_stats[i].length();
-		}
+
+		queuestatsarray.pack(buf + sizeof(struct rofl::openflow10::ofp_stats_reply), buflen - sizeof(struct rofl::openflow10::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		size_t offset = 0;
-		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply) + offset, queue_stats[i].length());
-			offset += queue_stats[i].length();
-		}
+
+		queuestatsarray.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), buflen - sizeof(struct rofl::openflow12::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		size_t offset = 0;
-		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply) + offset, queue_stats[i].length());
-			offset += queue_stats[i].length();
-		}
+
+		queuestatsarray.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), buflen - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -400,55 +398,34 @@ cofmsg_queue_stats_reply::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
-	queue_stats.clear();
+	queuestatsarray.clear();
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
 		if (get_length() < sizeof(struct rofl::openflow10::ofp_stats_reply))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow10::ofp_stats_reply)) / sizeof(struct rofl::openflow10::ofp_queue_stats)); i++) {
-			cofqueue_stats_reply queue_stats_reply(rofl::openflow10::OFP_VERSION);
-			queue_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_reply) + i * sizeof(struct rofl::openflow10::ofp_queue_stats), sizeof(struct rofl::openflow10::ofp_queue_stats));
-			queue_stats.push_back(queue_stats_reply);
-		}
+
+		queuestatsarray.unpack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_reply), framelen() - sizeof(struct rofl::openflow10::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_reply) + sizeof(struct rofl::openflow12::ofp_queue_stats)))
+		if (get_length() < sizeof(struct rofl::openflow12::ofp_stats_reply))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow12::ofp_stats_reply)) / sizeof(struct rofl::openflow12::ofp_queue_stats)); i++) {
-			cofqueue_stats_reply queue_stats_reply(rofl::openflow12::OFP_VERSION);
-			queue_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply) + i * sizeof(struct rofl::openflow12::ofp_queue_stats), sizeof(struct rofl::openflow12::ofp_queue_stats));
-			queue_stats.push_back(queue_stats_reply);
-		}
+
+		queuestatsarray.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply), framelen() - sizeof(struct rofl::openflow12::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_reply) + sizeof(struct rofl::openflow13::ofp_queue_stats)))
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_multipart_reply))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow13::ofp_multipart_reply)) / sizeof(struct rofl::openflow13::ofp_queue_stats)); i++) {
-			cofqueue_stats_reply queue_stats_reply(rofl::openflow13::OFP_VERSION);
-			queue_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply) + i * sizeof(struct rofl::openflow12::ofp_queue_stats), sizeof(struct rofl::openflow13::ofp_queue_stats));
-			queue_stats.push_back(queue_stats_reply);
-		}
+
+		queuestatsarray.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply), framelen() - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+
 	} break;
 	default:
 		throw eBadRequestBadVersion();
 	}
 }
 
-
-
-std::vector<cofqueue_stats_reply>&
-cofmsg_queue_stats_reply::set_queue_stats()
-{
-	return queue_stats;
-}
-
-
-
-std::vector<cofqueue_stats_reply> const&
-cofmsg_queue_stats_reply::get_queue_stats() const
-{
-	return queue_stats;
-}
 
 

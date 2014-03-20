@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
+#include "rofl/common/openflow/cofportstatsarray.h"
 #include "rofl/common/openflow/cofportstats.h"
 
 namespace rofl
@@ -27,10 +28,10 @@ class cofmsg_port_stats_request :
 {
 private:
 
-	cofport_stats_request	 	port_stats;
+	rofl::openflow::cofport_stats_request				port_stats;
 
 	union {
-		uint8_t*						ofhu_port_stats;
+		uint8_t*										ofhu_port_stats;
 		struct rofl::openflow10::ofp_port_stats*		ofhu10_port_stats;
 		struct rofl::openflow12::ofp_port_stats*		ofhu12_port_stats;
 		struct rofl::openflow13::ofp_port_stats*		ofhu13_port_stats;
@@ -51,7 +52,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofport_stats_request const& port_stats = cofport_stats_request());
+			rofl::openflow::cofport_stats_request const& port_stats = rofl::openflow::cofport_stats_request());
 
 
 	/**
@@ -129,13 +130,13 @@ public:
 	/**
 	 *
 	 */
-	cofport_stats_request&
+	rofl::openflow::cofport_stats_request&
 	set_port_stats();
 
 	/**
 	 *
 	 */
-	cofport_stats_request const&
+	rofl::openflow::cofport_stats_request const&
 	get_port_stats() const;
 
 public:
@@ -160,10 +161,10 @@ class cofmsg_port_stats_reply :
 {
 private:
 
-	std::vector<cofport_stats_reply> 	port_stats;
+	rofl::openflow::cofportstatsarray					portstatsarray;
 
 	union {
-		uint8_t*						ofhu_port_stats;
+		uint8_t*										ofhu_port_stats;
 		struct rofl::openflow10::ofp_port_stats*		ofhu10_port_stats;
 		struct rofl::openflow12::ofp_port_stats*		ofhu12_port_stats;
 		struct rofl::openflow13::ofp_port_stats*		ofhu13_port_stats;
@@ -184,7 +185,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofport_stats_reply> const& port_stats = std::vector<cofport_stats_reply>(0));
+			rofl::openflow::cofportstatsarray const& portstatsarray = rofl::openflow::cofportstatsarray());
 
 
 	/**
@@ -261,14 +262,14 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofport_stats_reply>&
-	set_port_stats();
+	rofl::openflow::cofportstatsarray&
+	set_port_stats_array() { return portstatsarray; };
 
 	/**
 	 *
 	 */
-	std::vector<cofport_stats_reply> const&
-	get_port_stats() const;
+	rofl::openflow::cofportstatsarray const&
+	get_port_stats_array() const { return portstatsarray; };
 
 public:
 
@@ -277,10 +278,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_port_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofport_stats_reply>::const_iterator
-				it = msg.port_stats.begin(); it != msg.port_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.portstatsarray;
 		return os;
 	};
 };

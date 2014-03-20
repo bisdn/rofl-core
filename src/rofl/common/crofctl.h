@@ -15,6 +15,14 @@
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
 #include "rofl/common/openflow/coftables.h"
+#include "rofl/common/openflow/cofflowstatsarray.h"
+#include "rofl/common/openflow/coftablestatsarray.h"
+#include "rofl/common/openflow/cofportstatsarray.h"
+#include "rofl/common/openflow/cofqueuestatsarray.h"
+#include "rofl/common/openflow/cofgroupstatsarray.h"
+#include "rofl/common/openflow/cofgroupdescstatsarray.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
 
 
 
@@ -110,6 +118,38 @@ public: // methods
 		crofctl::rofctls.erase(ctlid);
 	};
 
+public:
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config&
+	set_async_config() = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config const&
+	get_async_config() const = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole&
+	set_role() = 0;
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole const&
+	get_role() const = 0;
+
 
 
 	/**
@@ -155,18 +195,6 @@ public: // methods
 	get_peer_addr() = 0;
 
 
-	/**
-	 *
-	 */
-	virtual uint32_t
-	get_role() const = 0;
-
-
-	/**
-	 *
-	 */
-	virtual void
-	set_role(uint32_t role) = 0;
 
 public:
 
@@ -255,7 +283,7 @@ public:
 	virtual void
 	send_flow_stats_reply(
 		uint32_t xid,
-		std::vector<cofflow_stats_reply> const& flow_stats,
+		rofl::openflow::cofflowstatsarray const& flow_stats,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -281,7 +309,7 @@ public:
 	virtual void
 	send_table_stats_reply(
 		uint32_t xid,
-		std::vector<coftable_stats_reply> const& table_stats,
+		rofl::openflow::coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -294,7 +322,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		std::vector<cofport_stats_reply> const& port_stats,
+		rofl::openflow::cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -307,7 +335,7 @@ public:
 	virtual void
 	send_queue_stats_reply(
 		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
+		rofl::openflow::cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -320,7 +348,7 @@ public:
 	virtual void
 	send_group_stats_reply(
 		uint32_t xid,
-		std::vector<cofgroup_stats_reply> const& group_stats,
+		rofl::openflow::cofgroupstatsarray const& groupstatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -333,7 +361,7 @@ public:
 	virtual void
 	send_group_desc_stats_reply(
 		uint32_t xid,
-		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+		rofl::openflow::cofgroupdescstatsarray const& groupdescstatsarray,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -524,29 +552,17 @@ public:
 	virtual void
 	send_role_reply(
 			uint32_t xid,
-			uint32_t role,
-			uint64_t generation_id) = 0;
+			rofl::openflow::cofrole const& role) = 0;
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
 	 *
 	 * @param xid transaction ID from GET-CONFIG.request
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
 	 */
 	virtual void
 	send_get_async_config_reply(
 			uint32_t xid,
-			uint32_t packet_in_mask0,
-			uint32_t packet_in_mask1,
-			uint32_t port_status_mask0,
-			uint32_t port_status_mask1,
-			uint32_t flow_removed_mask0,
-			uint32_t flow_removed_mask1) = 0;
+			rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**@}*/
 };

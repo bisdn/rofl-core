@@ -7,7 +7,7 @@
 
 #include "crofconn.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 crofconn::crofconn(
 		crofconn_env *env,
@@ -18,6 +18,7 @@ crofconn::crofconn(
 				rofsock(this),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
+				fragmentation_threshold(DEFAULT_FRAGMENTATION_THRESHOLD),
 				state(STATE_DISCONNECTED),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
@@ -488,11 +489,69 @@ crofconn::recv_message(
 	case OFPT_FEATURES_REPLY: {
 		features_reply_rcvd(msg);
 	} break;
+	case OFPT_MULTIPART_REQUEST:
+	case OFPT_MULTIPART_REPLY: {
+		if (state != STATE_ESTABLISHED) {
+			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
+			delete msg; return;
+		}
+		/*
+		 * add multipart support here for receiving messages
+		 */
+		cofmsg_stats *stats = dynamic_cast<cofmsg_stats*>( msg );
+
+		if (NULL == stats) {
+			logging::warn << "[rofl][conn] dropping multipart message, invalid message type." << std::endl << *this;
+			delete msg; return;
+		}
+
+		switch (msg->get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+
+			// start new or continue pending transaction
+			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
+
+				sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<cofmsg_stats const&>(*msg));
+				delete msg; // delete msg here, we store a copy in the transaction
+
+			// end pending transaction or multipart message with single message only
+			} else {
+
+				if (sar.has_transaction(msg->get_xid())) {
+
+					sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<cofmsg_stats const&>(*msg));
+
+					cofmsg* reassembled_msg = sar.set_transaction(msg->get_xid()).retrieve_and_detach_msg();
+
+					sar.drop_transaction(msg->get_xid());
+
+					delete msg; // delete msg here, we may get an exception from the next line
+
+					env->recv_message(this, reassembled_msg);
+
+				} else {
+					// do not delete msg here, will be done by higher layers
+					env->recv_message(this, msg);
+
+				}
+
+			}
+
+		} break;
+		default: {
+			// no segmentation and reassembly below OF13, so send message directly to rofchan
+			env->recv_message(this, msg);
+		};
+		}
+
+
+	} break;
 	default: {
 		if (state != STATE_ESTABLISHED) {
 			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
 			delete msg; return;
 		}
+
 		env->recv_message(this, msg);
 	} break;
 	}
@@ -748,8 +807,474 @@ void
 crofconn::send_message(
 		cofmsg *msg)
 {
-	rofsock.send_message(msg);
+	/*
+	 * multipart support for sending overlong messages
+	 */
+	switch (msg->get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+
+		switch (msg->get_type()) {
+		case rofl::openflow13::OFPT_MULTIPART_REQUEST:
+		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
+
+			fragment_and_send_message(msg);
+
+		} break;
+		default:
+			// no segmentation and reassembly for messages other than multipart request/reply
+			rofsock.send_message(msg);
+		}
+
+	} break;
+	default: {
+		// no segmentation and reassembly below OF13, so send message directly to rofsock
+		rofsock.send_message(msg);
+	};
+	}
 }
 
+
+
+void
+crofconn::fragment_and_send_message(
+		cofmsg *msg)
+{
+	if (msg->length() <= fragmentation_threshold) {
+		rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+		return;
+	}
+
+	// fragment the packet
+	switch (msg->get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+
+		switch (msg->get_type()) {
+		case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
+
+			switch (dynamic_cast<cofmsg_stats_request*>( msg )->get_stats_type()) {
+			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
+				fragment_table_features_stats_request(dynamic_cast<cofmsg_table_features_stats_request*>(msg));
+			} break;
+			default: {
+				rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+			};
+			}
+
+		} break;
+		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
+
+			switch (dynamic_cast<cofmsg_stats_reply*>( msg )->get_stats_type()) {
+			case rofl::openflow13::OFPMP_FLOW: {
+				fragment_flow_stats_reply(dynamic_cast<cofmsg_flow_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_TABLE: {
+				fragment_table_stats_reply(dynamic_cast<cofmsg_table_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_PORT_STATS: {
+				fragment_port_stats_reply(dynamic_cast<cofmsg_port_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_QUEUE: {
+				fragment_queue_stats_reply(dynamic_cast<cofmsg_queue_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_GROUP: {
+				fragment_group_stats_reply(dynamic_cast<cofmsg_group_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_GROUP_DESC: {
+				fragment_group_desc_stats_reply(dynamic_cast<cofmsg_group_desc_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
+				fragment_table_features_stats_reply(dynamic_cast<cofmsg_table_features_stats_reply*>(msg));
+			} break;
+			case rofl::openflow13::OFPMP_PORT_DESC: {
+				fragment_port_desc_stats_reply(dynamic_cast<cofmsg_port_desc_stats_reply*>(msg));
+			} break;
+			default: {
+				rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+			};
+			}
+
+		} break;
+		default: {
+			rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+		};
+		}
+	} break;
+	default: {
+		rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+	};
+	}
+}
+
+
+
+void
+crofconn::fragment_table_features_stats_request(
+		cofmsg_table_features_stats_request *msg)
+{
+	rofl::openflow::coftables tables;
+	std::vector<cofmsg_table_features_stats_request*> fragments;
+
+	for (std::map<uint8_t, coftable_features>::const_iterator
+			it = msg->get_tables().get_tables().begin(); it != msg->get_tables().get_tables().end(); ++it) {
+
+		tables.set_table(it->first) = it->second;
+
+		/*
+		 * TODO: put more coftable_features elements in tables per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_table_features_stats_request(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REQ_MORE,
+						tables));
+
+		tables.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
+	}
+
+	for (std::vector<cofmsg_table_features_stats_request*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_flow_stats_reply(
+		cofmsg_flow_stats_reply *msg)
+{
+	rofl::openflow::cofflowstatsarray flowstats;
+	std::vector<cofmsg_flow_stats_reply*> fragments;
+
+	for (std::map<uint32_t, cofflow_stats_reply>::const_iterator
+			it = msg->get_flow_stats_array().get_flow_stats().begin(); it != msg->get_flow_stats_array().get_flow_stats().end(); ++it) {
+
+		flowstats.set_flow_stats(it->first) = it->second;
+
+		/*
+		 * TODO: put more cofflow_stats_reply elements in flowstats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_flow_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						flowstats));
+
+		flowstats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_flow_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_table_stats_reply(
+		cofmsg_table_stats_reply *msg)
+{
+	rofl::openflow::coftablestatsarray tablestats;
+	std::vector<cofmsg_table_stats_reply*> fragments;
+
+	for (std::map<uint8_t, coftable_stats_reply>::const_iterator
+			it = msg->get_table_stats_array().get_table_stats().begin(); it != msg->get_table_stats_array().get_table_stats().end(); ++it) {
+
+		tablestats.set_table_stats(it->first) = it->second;
+
+		/*
+		 * TODO: put more coftable_stats_reply elements in tablestats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_table_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						tablestats));
+
+		tablestats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_table_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_port_stats_reply(
+		cofmsg_port_stats_reply *msg)
+{
+	rofl::openflow::cofportstatsarray portstats;
+	std::vector<cofmsg_port_stats_reply*> fragments;
+
+	for (std::map<uint32_t, cofport_stats_reply>::const_iterator
+			it = msg->get_port_stats_array().get_port_stats().begin(); it != msg->get_port_stats_array().get_port_stats().end(); ++it) {
+
+		portstats.set_port_stats(it->first) = it->second;
+
+		/*
+		 * TODO: put more cofport_stats_reply elements in portstats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_port_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						portstats));
+
+		portstats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_port_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_queue_stats_reply(
+		cofmsg_queue_stats_reply *msg)
+{
+	rofl::openflow::cofqueuestatsarray queuestats;
+	std::vector<cofmsg_queue_stats_reply*> fragments;
+
+	for (std::map<uint32_t, std::map<uint32_t, cofqueue_stats_reply> >::const_iterator
+			it = msg->get_queue_stats_array().get_queue_stats().begin(); it != msg->get_queue_stats_array().get_queue_stats().end(); ++it) {
+
+		for (std::map<uint32_t, cofqueue_stats_reply>::const_iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+			queuestats.set_queue_stats(it->first, jt->first) = jt->second;
+		}
+
+		/*
+		 * TODO: put more cofqueue_stats_reply elements in queuestats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_queue_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						queuestats));
+
+		queuestats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_queue_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_group_stats_reply(
+		cofmsg_group_stats_reply *msg)
+{
+	rofl::openflow::cofgroupstatsarray groupstats;
+	std::vector<cofmsg_group_stats_reply*> fragments;
+
+	for (std::map<uint32_t, cofgroup_stats_reply>::const_iterator
+			it = msg->get_group_stats_array().get_group_stats().begin(); it != msg->get_group_stats_array().get_group_stats().end(); ++it) {
+
+		groupstats.set_group_stats(it->first) = it->second;
+
+		/*
+		 * TODO: put more cofgroup_stats_reply elements in groupstats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_group_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						groupstats));
+
+		groupstats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_group_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_group_desc_stats_reply(
+		cofmsg_group_desc_stats_reply *msg)
+{
+	rofl::openflow::cofgroupdescstatsarray groupdescstats;
+	std::vector<cofmsg_group_desc_stats_reply*> fragments;
+
+	for (std::map<uint32_t, cofgroup_desc_stats_reply>::const_iterator
+			it = msg->get_group_desc_stats_array().get_group_desc_stats().begin(); it != msg->get_group_desc_stats_array().get_group_desc_stats().end(); ++it) {
+
+		groupdescstats.set_group_desc_stats(it->first) = it->second;
+
+		/*
+		 * TODO: put more cofgroup_desc_stats_reply elements in group_descstats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_group_desc_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						groupdescstats));
+
+		groupdescstats.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_group_desc_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_table_features_stats_reply(
+		cofmsg_table_features_stats_reply *msg)
+{
+	rofl::openflow::coftables tables;
+	std::vector<cofmsg_table_features_stats_reply*> fragments;
+
+	for (std::map<uint8_t, coftable_features>::const_iterator
+			it = msg->get_tables().get_tables().begin(); it != msg->get_tables().get_tables().end(); ++it) {
+
+		tables.set_table(it->first) = it->second;
+
+		/*
+		 * TODO: put more coftable_features elements in tables per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_table_features_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						tables));
+
+		tables.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_table_features_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
+
+
+
+void
+crofconn::fragment_port_desc_stats_reply(
+		cofmsg_port_desc_stats_reply *msg)
+{
+	cofports ports;
+	std::vector<cofmsg_port_desc_stats_reply*> fragments;
+
+	for (std::map<uint32_t, cofport*>::const_iterator
+			it = msg->get_ports().begin(); it != msg->get_ports().end(); ++it) {
+
+		ports.add_port(it->first) = *(it->second);
+
+		/*
+		 * TODO: put more cofport_desc_stats_reply elements in port_descstats per round
+		 */
+
+		fragments.push_back(
+				new cofmsg_port_desc_stats_reply(
+						msg->get_version(),
+						msg->get_xid(),
+						msg->get_stats_flags() | rofl::openflow13::OFPMPF_REPLY_MORE,
+						ports));
+
+		ports.clear();
+	}
+
+	// clear MORE flag on last fragment
+	if (not fragments.empty()) {
+		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
+	}
+
+	for (std::vector<cofmsg_port_desc_stats_reply*>::iterator
+			it = fragments.begin(); it != fragments.end(); ++it) {
+		rofsock.send_message(*it);
+	}
+
+	delete msg;
+}
 
 

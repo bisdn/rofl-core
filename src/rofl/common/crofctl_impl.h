@@ -50,12 +50,11 @@ private: // data structures
 	crofbase 						*rofbase;				// parent crofbase instance
 	uint16_t 						miss_send_len;			// config: miss_send_len
 	std::set<cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
-	bool 							role_initialized;		// true, when role values have been initialized properly
-	uint16_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
 	rofl::openflow::crofchan		rofchan;				// OFP control channel
 	rofl::openflow::ctransactions	transactions;
-
+	rofl::openflow::cofasync_config	async_config;
+	rofl::openflow::cofrole			role;
 
 public: // methods
 
@@ -147,18 +146,6 @@ public:
 	is_slave() const;
 
 	/**
-	 * @brief	Returns the current role of attached control entity.
-	 */
-	virtual uint32_t
-	get_role() const { return role; };
-
-	/**
-	 * @brief	Sets the new role of attached control of attached control entity.
-	 */
-	virtual void
-	set_role(uint32_t role) { this->role = role; };
-
-	/**
 	 *
 	 */
 	virtual caddress
@@ -191,6 +178,37 @@ public:
 	release_sync_xid(
 			rofl::openflow::crofchan *chan,
 			uint32_t xid);
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config&
+	set_async_config() { return async_config; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofasync_config const&
+	get_async_config() const { return async_config; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole&
+	set_role() { return role; };
+
+
+
+	/**
+	 *
+	 */
+	virtual rofl::openflow::cofrole const&
+	get_role() const { return role; };
 
 private:
 
@@ -325,7 +343,7 @@ private:
 
 	void
 	table_features_stats_request_rcvd(
-			cofmsg_table_features_request* msg,
+			cofmsg_table_features_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
@@ -484,7 +502,7 @@ public:
 	virtual void
 	send_flow_stats_reply(
 		uint32_t xid,
-		std::vector<cofflow_stats_reply> const& flow_stats,
+		cofflowstatsarray const& flow_stats,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -510,7 +528,7 @@ public:
 	virtual void
 	send_table_stats_reply(
 		uint32_t xid,
-		std::vector<coftable_stats_reply> const& table_stats,
+		coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -523,7 +541,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		std::vector<cofport_stats_reply> const& port_stats,
+		cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -536,7 +554,7 @@ public:
 	virtual void
 	send_queue_stats_reply(
 		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
+		cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags);
 
 	/**
@@ -549,7 +567,7 @@ public:
 	virtual void
 	send_group_stats_reply(
 		uint32_t xid,
-		std::vector<cofgroup_stats_reply> const& group_stats,
+		cofgroupstatsarray const& groupstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -562,7 +580,7 @@ public:
 	virtual void
 	send_group_desc_stats_reply(
 		uint32_t xid,
-		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+		cofgroupdescstatsarray const& groupdescs,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -753,29 +771,17 @@ public:
 	virtual void
 	send_role_reply(
 			uint32_t xid,
-			uint32_t role,
-			uint64_t generation_id);
+			rofl::openflow::cofrole const& role);
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
 	 *
 	 * @param xid transaction ID from GET-CONFIG.request
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
 	 */
 	virtual void
 	send_get_async_config_reply(
 			uint32_t xid,
-			uint32_t packet_in_mask0,
-			uint32_t packet_in_mask1,
-			uint32_t port_status_mask0,
-			uint32_t port_status_mask1,
-			uint32_t flow_removed_mask0,
-			uint32_t flow_removed_mask1);
+			rofl::openflow::cofasync_config const& async_config);
 
 	/**@}*/
 

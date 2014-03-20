@@ -15,7 +15,27 @@ unittest_SOURCES= \
 	cofhelloelemstest.cc \
 	cofhelloelemstest.h \
 	cofhelloelemversionbitmaptest.cc \
-	cofhelloelemversionbitmaptest.h 
+	cofhelloelemversionbitmaptest.h \
+	cofflowstatsarray_test.cc \
+	cofflowstatsarray_test.h \
+	cofgroupdescstatsarray_test.cc \
+	cofgroupdescstatsarray_test.h \
+	cofgroupstatsarray_test.cc \
+	cofgroupstatsarray_test.h \
+	cofbucketcounter_test.cc \
+	cofbucketcounter_test.h \
+	cofbucketcounters_test.cc \
+	cofbucketcounters_test.h \
+	cofportstatsarray_test.cc \
+	cofportstatsarray_test.h \
+	cofqueuestatsarray_test.cc \
+	cofqueuestatsarray_test.h \
+	coftablestatsarray_test.cc \
+	coftablestatsarray_test.h \
+	cofasyncconfig_test.cc \
+	cofasyncconfig_test.h \
+	cofrole_test.cc \
+	cofrole_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

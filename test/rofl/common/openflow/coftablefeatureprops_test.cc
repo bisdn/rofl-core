@@ -8,7 +8,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( coftablefeaturepropsTest );
 
 #ifdef DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void

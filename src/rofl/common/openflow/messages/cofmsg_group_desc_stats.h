@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
-#include "rofl/common/openflow/cofgroupdescstats.h"
+#include "rofl/common/openflow/cofgroupdescstatsarray.h"
 
 namespace rofl
 {
@@ -126,7 +126,7 @@ class cofmsg_group_desc_stats_reply :
 {
 private:
 
-	std::vector<cofgroup_desc_stats_reply> 	group_desc_stats;
+	rofl::openflow::cofgroupdescstatsarray 				groupdescstatsarray;
 
 	union {
 		uint8_t*										ofhu_group_desc_stats;
@@ -136,7 +136,7 @@ private:
 
 #define ofh_group_desc_stats   			ofhu.ofhu_group_desc_stats
 #define ofh12_group_desc_stats 			ofhu.ofhu12_group_desc_stats
-#define ofh12_group_desc	 			ofhu.ofhu13_group_desc
+#define ofh13_group_desc	 			ofhu.ofhu13_group_desc
 
 public:
 
@@ -148,7 +148,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofgroup_desc_stats_reply> const& group_desc_stats = std::vector<cofgroup_desc_stats_reply>(0));
+			rofl::openflow::cofgroupdescstatsarray const& groupdescs = rofl::openflow::cofgroupdescstatsarray());
 
 
 	/**
@@ -226,14 +226,14 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofgroup_desc_stats_reply>&
-	set_group_desc_stats();
+	rofl::openflow::cofgroupdescstatsarray&
+	set_group_desc_stats_array() { return groupdescstatsarray; };
 
 	/**
 	 *
 	 */
-	std::vector<cofgroup_desc_stats_reply> const&
-	get_group_desc_stats() const;
+	rofl::openflow::cofgroupdescstatsarray const&
+	get_group_desc_stats_array() const { return groupdescstatsarray; };
 
 
 public:
@@ -243,10 +243,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_group_desc_stats_reply >" << std::endl;
 		indent i(4);
-		for (std::vector<cofgroup_desc_stats_reply>::const_iterator
-				it = msg.group_desc_stats.begin(); it != msg.group_desc_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.groupdescstatsarray;
 		return os;
 	};
 };

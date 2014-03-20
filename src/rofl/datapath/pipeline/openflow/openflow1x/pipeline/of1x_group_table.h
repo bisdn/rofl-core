@@ -31,9 +31,7 @@ typedef struct of1x_bucket{
 	uint32_t group;
 	of1x_action_group_t *actions;
 	of1x_stats_bucket_counter_t stats;
-	
 	struct of1x_bucket *next;
-	
 }of1x_bucket_t;
 
 /**
@@ -79,7 +77,16 @@ typedef struct of1x_group{
 	unsigned int num_of_output_actions;
 }of1x_group_t;
 
+//Group table configuration
+typedef struct{
+	bitmap128_t supported_actions;	/* Bitmap of (1 << OF1X_AT_* that are supported by the group table. */
+}of1x_group_table_config_t;
+
 typedef struct of1x_group_table{
+
+	//Configuration
+	of1x_group_table_config_t config;
+	
 	uint32_t num_of_entries;
 	
 	platform_rwlock_t *rwlock;

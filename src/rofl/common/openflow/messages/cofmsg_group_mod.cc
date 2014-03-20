@@ -5,7 +5,7 @@ using namespace rofl;
 cofmsg_group_mod::cofmsg_group_mod(
 		uint8_t of_version,
 		uint32_t xid,
-		cofgroupmod const& ge) :
+		rofl::openflow::cofgroupmod const& ge) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	buckets(ge.buckets)
 {
@@ -43,7 +43,7 @@ cofmsg_group_mod::cofmsg_group_mod(
 		uint16_t command,
 		uint8_t  group_type,
 		uint32_t group_id,
-		cofbuckets const& buckets) :
+		rofl::openflow::cofbuckets const& buckets) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	buckets(buckets)
 {
@@ -340,12 +340,6 @@ cofmsg_group_mod::set_group_id(uint32_t group_id)
 }
 
 
-
-cofbuckets&
-cofmsg_group_mod::get_buckets()
-{
-	return buckets;
-}
 
 
 

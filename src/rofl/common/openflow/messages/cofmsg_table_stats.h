@@ -12,6 +12,7 @@
 
 #include "cofmsg_stats.h"
 #include "rofl/common/openflow/coftablestats.h"
+#include "rofl/common/openflow/coftablestatsarray.h"
 
 namespace rofl
 {
@@ -127,7 +128,7 @@ class cofmsg_table_stats_reply :
 {
 private:
 
-	std::vector<coftable_stats_reply> 	table_stats;
+	rofl::openflow::coftablestatsarray		tablestatsarray;
 
 	union {
 		uint8_t*							ofhu_table_stats;
@@ -151,7 +152,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<coftable_stats_reply> const& table_stats = std::vector<coftable_stats_reply>(0));
+			rofl::openflow::coftablestatsarray const& table_stats = rofl::openflow::coftablestatsarray());
 
 
 	/**
@@ -225,12 +226,17 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	rofl::openflow::coftablestatsarray&
+	set_table_stats_array() { return tablestatsarray; };
 
 	/**
 	 *
 	 */
-	std::vector<coftable_stats_reply>&
-	get_table_stats();
+	rofl::openflow::coftablestatsarray const&
+	get_table_stats_array() const { return tablestatsarray; };
 
 public:
 
@@ -239,10 +245,7 @@ public:
 		os << indent(0) << dynamic_cast<cofmsg_stats const&>( msg );
 		os << indent(4) << "<cofmsg_table_stats_reply >" << std::endl;
 		indent i(6);
-		for (std::vector<coftable_stats_reply>::const_iterator
-				it = msg.table_stats.begin(); it != msg.table_stats.end(); ++it) {
-			os << (*it);
-		}
+		os << msg.tablestatsarray;
 		return os;
 	};
 };

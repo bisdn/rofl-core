@@ -10,11 +10,14 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofport_stats_request const& port_stats) :
+		rofl::openflow::cofport_stats_request const& port_stats) :
 	cofmsg_stats_request(of_version, xid, 0, flags),
 	port_stats(port_stats)
 {
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow10::OFP_VERSION: {
 		set_type(rofl::openflow10::OFPT_STATS_REQUEST);
 		set_stats_type(rofl::openflow10::OFPST_PORT);
@@ -218,7 +221,7 @@ cofmsg_port_stats_request::validate()
 
 
 
-cofport_stats_request&
+rofl::openflow::cofport_stats_request&
 cofmsg_port_stats_request::set_port_stats()
 {
 	return port_stats;
@@ -226,7 +229,7 @@ cofmsg_port_stats_request::set_port_stats()
 
 
 
-cofport_stats_request const&
+rofl::openflow::cofport_stats_request const&
 cofmsg_port_stats_request::get_port_stats() const
 {
 	return port_stats;
@@ -240,34 +243,30 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		std::vector<cofport_stats_reply> const& port_stats) :
+		rofl::openflow::cofportstatsarray const& portstatsarray) :
 	cofmsg_stats_reply(of_version, xid, 0, flags),
-	port_stats(port_stats)
+	portstatsarray(portstatsarray)
 {
+	this->portstatsarray.set_version(of_version);
+
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow10::OFP_VERSION: {
 		set_type(rofl::openflow10::OFPT_STATS_REPLY);
 		set_stats_type(rofl::openflow10::OFPST_PORT);
-		resize(sizeof(struct rofl::openflow10::ofp_stats_reply) + port_stats.size() * sizeof(struct rofl::openflow10::ofp_port_stats));
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_reply) + i * sizeof(struct rofl::openflow10::ofp_port_stats), sizeof(struct rofl::openflow10::ofp_port_stats));
-		}
+
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_STATS_REPLY);
 		set_stats_type(rofl::openflow12::OFPST_PORT);
-		resize(sizeof(struct rofl::openflow12::ofp_stats_reply) + port_stats.size() * sizeof(struct rofl::openflow12::ofp_port_stats));
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply) + i * sizeof(struct rofl::openflow12::ofp_port_stats), sizeof(struct rofl::openflow12::ofp_port_stats));
-		}
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		set_type(rofl::openflow13::OFPT_MULTIPART_REPLY);
 		set_stats_type(rofl::openflow13::OFPMP_PORT_STATS);
-		resize(sizeof(struct rofl::openflow13::ofp_multipart_reply) + port_stats.size() * sizeof(struct rofl::openflow13::ofp_port_stats));
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply) + i * sizeof(struct rofl::openflow13::ofp_port_stats), sizeof(struct rofl::openflow13::ofp_port_stats));
-		}
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -316,6 +315,8 @@ cofmsg_port_stats_reply::operator= (
 
 	ofh_port_stats = soframe();
 
+	portstatsarray = stats.portstatsarray;
+
 	return *this;
 }
 
@@ -363,13 +364,13 @@ cofmsg_port_stats_reply::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow10::ofp_stats_reply) + port_stats.size() * sizeof(struct rofl::openflow10::ofp_port_stats));
+		return (sizeof(struct rofl::openflow10::ofp_stats_reply) + portstatsarray.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + port_stats.size() * sizeof(struct rofl::openflow12::ofp_port_stats));
+		return (sizeof(struct rofl::openflow12::ofp_stats_reply) + portstatsarray.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + port_stats.size() * sizeof(struct rofl::openflow13::ofp_port_stats));
+		return (sizeof(struct rofl::openflow13::ofp_multipart_reply) + portstatsarray.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -392,25 +393,19 @@ cofmsg_port_stats_reply::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(buf + sizeof(struct rofl::openflow10::ofp_stats_reply) + i * sizeof(struct rofl::openflow10::ofp_port_stats), sizeof(struct rofl::openflow10::ofp_port_stats));
-		}
+
+		portstatsarray.pack(buf + sizeof(struct rofl::openflow10::ofp_stats_reply), buflen - sizeof(struct rofl::openflow10::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply) + i * sizeof(struct rofl::openflow12::ofp_port_stats), sizeof(struct rofl::openflow12::ofp_port_stats));
-		}
+
+		portstatsarray.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), buflen - sizeof(struct rofl::openflow12::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply) + i * sizeof(struct rofl::openflow13::ofp_port_stats), sizeof(struct rofl::openflow13::ofp_port_stats));
-		}
+
+		portstatsarray.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), buflen - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -434,35 +429,29 @@ cofmsg_port_stats_reply::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
-	port_stats.clear();
+	portstatsarray.clear();
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
 		if (get_length() < sizeof(struct rofl::openflow10::ofp_stats_reply))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow10::ofp_stats_reply)) / sizeof(struct rofl::openflow10::ofp_port_stats)); i++) {
-			cofport_stats_reply port_stats_reply(rofl::openflow10::OFP_VERSION);
-			port_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_reply) + i * sizeof(struct rofl::openflow10::ofp_port_stats), sizeof(struct rofl::openflow10::ofp_port_stats));
-			port_stats.push_back(port_stats_reply);
-		}
+
+		portstatsarray.unpack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_reply), framelen() - sizeof(struct rofl::openflow10::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		if (get_length() < (sizeof(struct rofl::openflow12::ofp_stats_reply) + sizeof(struct rofl::openflow12::ofp_port_stats)))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow12::ofp_stats_reply)) / sizeof(struct rofl::openflow12::ofp_port_stats)); i++) {
-			cofport_stats_reply port_stats_reply(rofl::openflow12::OFP_VERSION);
-			port_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply) + i * sizeof(struct rofl::openflow12::ofp_port_stats), sizeof(struct rofl::openflow12::ofp_port_stats));
-			port_stats.push_back(port_stats_reply);
-		}
+
+		portstatsarray.unpack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_reply), framelen() - sizeof(struct rofl::openflow12::ofp_stats_reply));
+
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		if (get_length() < (sizeof(struct rofl::openflow13::ofp_multipart_reply) + sizeof(struct rofl::openflow13::ofp_port_stats)))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct rofl::openflow13::ofp_multipart_reply)) / sizeof(struct rofl::openflow13::ofp_port_stats)); i++) {
-			cofport_stats_reply port_stats_reply(rofl::openflow13::OFP_VERSION);
-			port_stats_reply.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply) + i * sizeof(struct rofl::openflow13::ofp_port_stats), sizeof(struct rofl::openflow13::ofp_port_stats));
-			port_stats.push_back(port_stats_reply);
-		}
+
+		portstatsarray.unpack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_reply), framelen() - sizeof(struct rofl::openflow13::ofp_multipart_reply));
+
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -471,19 +460,7 @@ cofmsg_port_stats_reply::validate()
 
 
 
-std::vector<cofport_stats_reply>&
-cofmsg_port_stats_reply::set_port_stats()
-{
-	return port_stats;
-}
 
-
-
-std::vector<cofport_stats_reply> const&
-cofmsg_port_stats_reply::get_port_stats() const
-{
-	return port_stats;
-}
 
 
 

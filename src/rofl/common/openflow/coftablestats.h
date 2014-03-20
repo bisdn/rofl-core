@@ -13,8 +13,12 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
+class eTableStatsBase			: public RoflException {};
+class eTableStatsInval			: public eTableStatsBase {};
+class eTableStatsNotFound		: public eTableStatsBase {};
 
 class coftable_stats_reply
 {
@@ -112,8 +116,12 @@ public:
 	operator= (
 			coftable_stats_reply const& table_stats);
 
-
-
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			coftable_stats_reply const& table_stats) const;
 
 	/**
 	 *
@@ -151,8 +159,14 @@ public:
 	/**
 	 *
 	 */
-	std::string&
-	set_name();
+	std::string const&
+	get_name() const;
+
+	/**
+	 *
+	 */
+	void
+	set_name(std::string const& name);
 
 	/**
 	 *
@@ -265,8 +279,20 @@ public:
 	/**
 	 *
 	 */
-	uint32_t&
-	get_config();
+	void
+	set_config(uint32_t config);
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_config() const;
+
+	/**
+	 *
+	 */
+	void
+	set_max_entries(uint32_t max_entries);
 
 	/**
 	 *
@@ -277,20 +303,38 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_active_count(uint32_t active_count);
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_active_count() const;
 
 	/**
 	 *
 	 */
-	uint64_t&
-	get_lookup_count();
+	void
+	set_lookup_count(uint64_t lookup_count);
 
 	/**
 	 *
 	 */
-	uint64_t&
-	get_matched_count();
+	uint64_t
+	get_lookup_count() const;
+
+	/**
+	 *
+	 */
+	void
+	set_matched_count(uint64_t matched_count);
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_matched_count() const;
 
 	/**
 	 *
@@ -346,10 +390,12 @@ public:
 		} break;
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<coftable_stats_reply ofp-version:" << (int)tsr.of_version << " >" << std::endl;
-			os << indent(2) << "<table-id:" << (int)(tsr.table_id) << " >" << std::endl;
-			os << indent(2) << "<active-count:" << (unsigned int)tsr.active_count << " >" << std::endl;
-			os << indent(2) << "<lookup-count:" << (unsigned long long)tsr.lookup_count << " >" << std::endl;
-			os << indent(2) << "<matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+			os << std::hex;
+			os << indent(2) << "<table-id: 0x" << (int)(tsr.table_id) << " >" << std::endl;
+			os << indent(2) << "<active-count: 0x" << (unsigned int)tsr.active_count << " >" << std::endl;
+			os << indent(2) << "<lookup-count: 0x" << (unsigned long long)tsr.lookup_count << " >" << std::endl;
+			os << indent(2) << "<matched-count: 0x" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+			os << std::dec;
 		} break;
 		default: {
 			os << indent(0) << "<coftable_stats_reply >";
@@ -359,6 +405,7 @@ public:
 	};
 };
 
+}
 }
 
 #endif /* COFTABLESTATS_H_ */
