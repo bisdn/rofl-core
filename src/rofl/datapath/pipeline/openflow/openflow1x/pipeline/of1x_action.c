@@ -1029,12 +1029,8 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					platform_packet_output(pkt_to_send, flood_meta_port);
 				}else if(port_id == OF1X_PORT_CONTROLLER ||
 					port_id == OF1X_PORT_NORMAL){
-					uint16_t send_len = action->send_len;
-
-					if(send_len == 0x0) send_len = sw->pipeline.miss_send_len;
-
 					//Controller
-					platform_of1x_packet_in(sw, table_id, pkt_to_send, send_len, OF1X_PKT_IN_ACTION);
+					platform_of1x_packet_in(sw, table_id, pkt_to_send, action->send_len, OF1X_PKT_IN_ACTION);
 				}else if(port_id == OF1X_PORT_ALL){
 					//Flood
 					platform_packet_output(pkt_to_send, all_meta_port);
