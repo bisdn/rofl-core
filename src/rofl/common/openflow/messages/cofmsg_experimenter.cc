@@ -1,4 +1,4 @@
-#include "cofmsg_experimenter.h"
+#include "rofl/common/openflow/messages/cofmsg_experimenter.h"
 
 using namespace rofl;
 
@@ -11,7 +11,7 @@ cofmsg_experimenter::cofmsg_experimenter(
 		uint32_t experimenter_type,
 		uint8_t *data,
 		size_t datalen) :
-	cofmsg(sizeof(struct openflow::ofp_header) + datalen),
+	cofmsg(sizeof(struct rofl::openflow::ofp_header) + datalen),
 	body(0)
 {
 	body.assign(data, datalen);
@@ -22,20 +22,22 @@ cofmsg_experimenter::cofmsg_experimenter(
 	set_xid(xid);
 
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_VENDOR);
-		resize(sizeof(struct openflow10::ofp_vendor_header) + body.memlen());
+	case rofl::openflow10::OFP_VERSION: {
+		set_type(rofl::openflow10::OFPT_VENDOR);
+		resize(sizeof(struct rofl::openflow10::ofp_vendor_header) + body.memlen());
 		ofh10_vendor->vendor				= htobe32(experimenter_id);
 	} break;
-	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_EXPERIMENTER);
-		resize(sizeof(struct openflow12::ofp_experimenter_header) + body.memlen());
+	case rofl::openflow12::OFP_VERSION: {
+		set_type(rofl::openflow12::OFPT_EXPERIMENTER);
+		resize(sizeof(struct rofl::openflow12::ofp_experimenter_header) + body.memlen());
 		ofh12_experimenter->experimenter	= htobe32(experimenter_id);
 		ofh12_experimenter->exp_type		= htobe32(experimenter_type);
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		set_type(rofl::openflow13::OFPT_EXPERIMENTER);
+		resize(sizeof(struct rofl::openflow13::ofp_experimenter_header) + body.memlen());
+		ofh13_experimenter->experimenter	= htobe32(experimenter_id);
+		ofh13_experimenter->exp_type		= htobe32(experimenter_type);
 	} break;
 	default:
 		throw eBadVersion();
@@ -106,15 +108,14 @@ size_t
 cofmsg_experimenter::length() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		return sizeof(struct openflow10::ofp_vendor_header) + body.memlen();
+	case rofl::openflow10::OFP_VERSION: {
+		return sizeof(struct rofl::openflow10::ofp_vendor_header) + body.memlen();
 	} break;
-	case openflow12::OFP_VERSION: {
-		return sizeof(struct openflow12::ofp_experimenter_header) + body.memlen();
+	case rofl::openflow12::OFP_VERSION: {
+		return sizeof(struct rofl::openflow12::ofp_experimenter_header) + body.memlen();
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		return sizeof(struct rofl::openflow13::ofp_experimenter_header) + body.memlen();
 	} break;
 	default:
 		throw eBadVersion();
@@ -136,21 +137,23 @@ cofmsg_experimenter::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		if (buflen < (sizeof(struct openflow10::ofp_vendor_header) + body.memlen()))
+	case rofl::openflow10::OFP_VERSION: {
+		if (buflen < (sizeof(struct rofl::openflow10::ofp_vendor_header) + body.memlen()))
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_vendor_header));
-		memcpy(buf + sizeof(struct openflow10::ofp_vendor_header), body.somem(), body.memlen());
+		memcpy(buf, soframe(), sizeof(struct rofl::openflow10::ofp_vendor_header));
+		memcpy(buf + sizeof(struct rofl::openflow10::ofp_vendor_header), body.somem(), body.memlen());
 	} break;
-	case openflow12::OFP_VERSION: {
-		if (buflen < (sizeof(struct openflow12::ofp_experimenter_header) + body.memlen()))
+	case rofl::openflow12::OFP_VERSION: {
+		if (buflen < (sizeof(struct rofl::openflow12::ofp_experimenter_header) + body.memlen()))
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_experimenter_header));
-		memcpy(buf + sizeof(struct openflow12::ofp_experimenter_header), body.somem(), body.memlen());
+		memcpy(buf, soframe(), sizeof(struct rofl::openflow12::ofp_experimenter_header));
+		memcpy(buf + sizeof(struct rofl::openflow12::ofp_experimenter_header), body.somem(), body.memlen());
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		if (buflen < (sizeof(struct rofl::openflow13::ofp_experimenter_header) + body.memlen()))
+			throw eInval();
+		memcpy(buf, soframe(), sizeof(struct rofl::openflow13::ofp_experimenter_header));
+		memcpy(buf + sizeof(struct rofl::openflow13::ofp_experimenter_header), body.somem(), body.memlen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -177,19 +180,20 @@ cofmsg_experimenter::validate()
 	ofh_experimenter = soframe();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow10::ofp_vendor_header))
+	case rofl::openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow10::ofp_vendor_header))
 			throw eBadSyntaxTooShort();
-		body.assign(ofh10_vendor->body, get_length() - sizeof(struct openflow10::ofp_vendor_header));
+		body.assign(ofh10_vendor->body, get_length() - sizeof(struct rofl::openflow10::ofp_vendor_header));
 	} break;
-	case openflow12::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow12::ofp_experimenter_header))
+	case rofl::openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow12::ofp_experimenter_header))
 			throw eBadSyntaxTooShort();
-		body.assign(ofh12_experimenter->body, get_length() - sizeof(struct openflow12::ofp_experimenter_header));
+		body.assign(ofh12_experimenter->body, get_length() - sizeof(struct rofl::openflow12::ofp_experimenter_header));
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_experimenter_header))
+			throw eBadSyntaxTooShort();
+		body.assign(ofh13_experimenter->body, get_length() - sizeof(struct rofl::openflow13::ofp_experimenter_header));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -202,15 +206,14 @@ uint32_t
 cofmsg_experimenter::get_experimenter_id() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return be32toh(ofh10_vendor->vendor);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be32toh(ofh12_experimenter->experimenter);
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		return be32toh(ofh13_experimenter->experimenter);
 	} break;
 	default:
 		throw eBadVersion();
@@ -224,15 +227,14 @@ void
 cofmsg_experimenter::set_experimenter_id(uint32_t exp_id)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_vendor->vendor = htobe32(exp_id);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_experimenter->experimenter = htobe32(exp_id);
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		ofh13_experimenter->experimenter = htobe32(exp_id);
 	} break;
 	default:
 		throw eBadVersion();
@@ -245,12 +247,11 @@ uint32_t
 cofmsg_experimenter::get_experimenter_type() const
 {
 	switch (get_version()) {
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be32toh(ofh12_experimenter->exp_type);
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		return be32toh(ofh13_experimenter->exp_type);
 	} break;
 	default:
 		throw eBadVersion();
@@ -264,12 +265,11 @@ void
 cofmsg_experimenter::set_experimenter_type(uint32_t exp_type)
 {
 	switch (get_version()) {
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_experimenter->exp_type = htobe32(exp_type);
 	} break;
-	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+	case rofl::openflow13::OFP_VERSION: {
+		ofh13_experimenter->exp_type = htobe32(exp_type);
 	} break;
 	default:
 		throw eBadVersion();
