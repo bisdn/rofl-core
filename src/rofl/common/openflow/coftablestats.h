@@ -358,14 +358,15 @@ public:
 					os << "table-id:" << (int)(tsr.table_id) << " ";
 					os << "name:" << tsr.name << " ";
 					os << std::hex;
-					os << "match:" << (unsigned long long)tsr.match << " ";
-					os << "wildcards:" << (unsigned long long)tsr.wildcards << " >" << std::endl;
+					os << "match: 0x" << (unsigned long long)tsr.match << " ";
+					os << "wildcards: 0x" << (unsigned long long)tsr.wildcards << " >" << std::endl;
+
+					os << indent(2) << "<max_entries: 0x" << (unsigned int)tsr.max_entries << " ";
+					os << "active-count: 0x" << (unsigned int)tsr.active_count << " ";
+					os << "lookup-count: 0x" << (unsigned long long)tsr.lookup_count << " ";
+					os << "matched-count: 0x" << (unsigned long long)tsr.matched_count << " ";
 					os << std::dec;
-					os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
-					os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
-					os << "active-count:" << (unsigned int)tsr.active_count << " ";
-					os << "lookup-count:" << (unsigned long long)tsr.lookup_count << " ";
-					os << "matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+					os << ">" << std::endl;
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
 			os << indent(0) << "<coftable_stats_reply ";
