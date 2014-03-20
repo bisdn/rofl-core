@@ -293,6 +293,7 @@ cofmsg_port_desc_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	ports.clear();
+	ports.set_version(get_version());
 
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {

@@ -430,6 +430,7 @@ cofmsg_port_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	portstatsarray.clear();
+	portstatsarray.set_version(get_version());
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
