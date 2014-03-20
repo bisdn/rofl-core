@@ -411,8 +411,8 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	}
 
 
-	//Perform insertion
-	result = of1x_matching_algorithms[table->matching_algorithm].add_flow_entry_hook(table, *entry, check_overlap, reset_counts);
+	//Perform insertion (node that in 1.0 operation ADD must always reset counters on overlap)
+	result = of1x_matching_algorithms[table->matching_algorithm].add_flow_entry_hook(table, *entry, check_overlap, reset_counts || ( pipeline->sw->of_ver == OF_VERSION_10 ));
 
 	if(result != ROFL_OF1X_FM_SUCCESS){
 		//Release rdlock
