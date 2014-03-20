@@ -1980,8 +1980,7 @@ cpacket::parse_ipv4(
 		match.set_nw_proto(ip->get_ipv4_proto());
 		match.set_nw_dst(ip->get_ipv4_dst());
 		match.set_nw_src(ip->get_ipv4_src());
-		match.set_ip_dscp(ip->get_ipv4_dscp());
-		match.set_ip_ecn(ip->get_ipv4_ecn());
+		match.set_nw_tos(ip->get_ipv4_dscp());
 
 	} break;
 	case rofl::openflow12::OFP_VERSION: {

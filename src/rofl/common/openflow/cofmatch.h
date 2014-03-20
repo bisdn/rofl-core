@@ -361,6 +361,7 @@ public:
 	caddress get_nw_src_value() const;
 	caddress get_nw_src_mask() const;
 	uint8_t  get_nw_proto() const;
+	uint8_t  get_nw_tos() const;
 	caddress get_nw_dst() const;
 	caddress get_nw_dst_value() const;
 	caddress get_nw_dst_mask() const;
@@ -445,6 +446,7 @@ public:
 	// OF10
 	void set_nw_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_nw_proto(uint8_t proto);
+	void set_nw_tos(uint8_t tos);
 	void set_nw_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_tp_src(uint16_t src_port);
 	void set_tp_dst(uint16_t dst_port);

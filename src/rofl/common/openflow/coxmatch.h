@@ -1142,6 +1142,43 @@ public:
 	};
 };
 
+/** OXM_OF_NW_TOS (OF1.0 backwards compatibility)
+ *
+ */
+class coxmatch_ofx_nw_tos :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_nw_tos(
+			uint8_t tos) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint8_t))
+	{
+		set_oxm_class(openflow::OFPXMC_EXPERIMENTER);
+		set_oxm_field(openflow::experimental::OFPXMT_OFX_NW_TOS);
+		set_oxm_length(sizeof(uint8_t));
+		oxm_uint8t->byte = tos;
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_tos(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_nw_tos() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_nw_tos const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<nw-tos: " << (int)oxm.u8value() << " >" << std::endl;
+		return os;
+	};
+};
+
 /** OXM_OF_NW_SRC (OF1.0 backwards compatibility)
  *
  */

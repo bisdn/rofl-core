@@ -1420,12 +1420,30 @@ cofmatch::get_nw_proto() const
 }
 
 
+uint8_t
+cofmatch::get_nw_tos() const
+{
+	try {
+		return oxmlist.get_const_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_TOS).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+
 
 void
 cofmatch::set_nw_proto(
 		uint8_t proto)
 {
 	oxmlist.insert(coxmatch_ofx_nw_proto(proto));
+}
+
+void
+cofmatch::set_nw_tos(
+		uint8_t tos)
+{
+	oxmlist.insert(coxmatch_ofx_nw_tos(tos));
 }
 
 caddress
