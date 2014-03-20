@@ -161,7 +161,7 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 	of1x_match_t* it_orig, *it_entry;
 	
 	//Check cookie first
-	if(check_cookie && entry->cookie_mask){
+	if(check_cookie && entry->cookie != OF1X_DO_NOT_CHECK_COOKIE && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) != (original->cookie&entry->cookie_mask) )
 			return false;
 	}
@@ -213,7 +213,7 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 	of1x_match_t* it_orig, *it_subentry;
 	
 	//Check cookie first
-	if(check_cookie && subentry->cookie_mask){
+	if(check_cookie && subentry->cookie != OF1X_DO_NOT_CHECK_COOKIE && subentry->cookie_mask){
 		if( (subentry->cookie&subentry->cookie_mask) != (original->cookie&subentry->cookie_mask) )
 			return false;
 	}
@@ -263,7 +263,7 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 	of1x_match_t* it_original, *it_entry;
 	
 	//Check cookie first
-	if(check_cookie && entry->cookie_mask){
+	if(check_cookie && entry->cookie != OF1X_DO_NOT_CHECK_COOKIE && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) != (original->cookie&entry->cookie_mask) )
 			return false;
 	}

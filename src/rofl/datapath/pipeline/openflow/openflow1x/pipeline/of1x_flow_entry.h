@@ -62,6 +62,9 @@ typedef void of1x_flow_entry_platform_state_t;
 //Used to pre-append priority, to emulate OF1.0 behaviour ONLY
 #define OF10_NON_WILDCARDED_PRIORITY_FLAG 0x10000
 
+//Do not check cookie value
+#define OF1X_DO_NOT_CHECK_COOKIE 0xffffffffffffffffULL
+
 /**
 * OpenFlow v1.0, 1.2 and 1.3.2 flow entry structure
 * @ingroup core_of1x 
