@@ -351,7 +351,7 @@ cofmatch::pack_of10(uint8_t* match, size_t matchlen)
 
 	// nw_tos
 	try {
-		m->nw_tos = oxmlist.get_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_DSCP).u8value();
+		m->nw_tos = oxmlist.get_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_TOS).u8value();
 	} catch (eOxmListNotFound& e) {
 		wildcards |= openflow10::OFPFW_NW_TOS;
 	}
@@ -457,7 +457,7 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 
 	// nw_tos
 	if (!(wildcards & openflow10::OFPFW_NW_TOS)) {
-		set_ip_dscp(m->nw_tos);
+		set_nw_tos(m->nw_tos);
 	}
 
 	// nw_proto
@@ -643,269 +643,279 @@ cofmatch::unpack_of13(uint8_t* match, size_t matchlen)
 void
 cofmatch::check_prerequisites() const
 {
-	/*
-	 * these are generic prerequisites as defined in OF 1.3, section 7.2.3.6, page 53 ff.
-	 */
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IN_PHY_PORT)) {
-		if (not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IN_PORT)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IN-PHY-PORT defined while no IN-PORT is present" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
-		}
-	}
+	switch (of_version) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_PCP)) {
-		if (openflow::OFPVID_NONE == get_vlan_vid()) {
-			logging::warn << "[rofl][match] rejecting ofp_match: VLAN-PCP defined while VID is set to OFPVID-NONE" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		/*
+		 * these are generic prerequisites as defined in OF 1.3, section 7.2.3.6, page 53 ff.
+		 */
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IN_PHY_PORT)) {
+			if (not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IN_PORT)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IN-PHY-PORT defined while no IN-PORT is present" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_DSCP)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IP-DSCP defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_PCP)) {
+			if (openflow::OFPVID_NONE == get_vlan_vid()) {
+				logging::warn << "[rofl][match] rejecting ofp_match: VLAN-PCP defined while VID is set to OFPVID-NONE" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_ECN)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IP-ECN defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_DSCP)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IP-DSCP defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IP-PROTO defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_ECN)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IP-ECN defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0800)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV4-SRC defined while ETH-TYPE is not IPv4" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x0800) && (get_eth_type() != 0x86dd))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IP-PROTO defined while ETH-TYPE is not IPv4/IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0800)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV4-DST defined while ETH-TYPE is not IPv4" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0800)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV4-SRC defined while ETH-TYPE is not IPv4" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TCP_SRC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 6)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: TCP-SRC defined while IP-PROTO is not TCP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0800)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV4-DST defined while ETH-TYPE is not IPv4" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TCP_DST)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 6)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: TCP-DST defined while IP-PROTO is not TCP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TCP_SRC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 6)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: TCP-SRC defined while IP-PROTO is not TCP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_UDP_SRC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 17)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: UDP-SRC defined while IP-PROTO is not UDP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_TCP_DST)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 6)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: TCP-DST defined while IP-PROTO is not TCP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_UDP_DST)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 17)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: UDP-DST defined while IP-PROTO is not UDP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_UDP_SRC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 17)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: UDP-SRC defined while IP-PROTO is not UDP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_SCTP_SRC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 132)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: SCTP-SRC defined while IP-PROTO is not SCTP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_UDP_DST)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 17)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: UDP-DST defined while IP-PROTO is not UDP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_SCTP_DST)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 132)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: SCTP-DST defined while IP-PROTO is not SCTP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_SCTP_SRC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 132)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: SCTP-SRC defined while IP-PROTO is not SCTP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV4_TYPE)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 1)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ICMPV4-TYPE defined while IP-PROTO is not ICMPV4" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_SCTP_DST)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 132)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: SCTP-DST defined while IP-PROTO is not SCTP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV4_CODE)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 1)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ICMPV4-CODE defined while IP-PROTO is not ICMPV4" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV4_TYPE)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 1)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ICMPV4-TYPE defined while IP-PROTO is not ICMPV4" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_OP)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0806)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ARP-OPCODE defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV4_CODE)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 1)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ICMPV4-CODE defined while IP-PROTO is not ICMPV4" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SPA)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0806)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ARP-SPA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_OP)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0806)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ARP-OPCODE defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_TPA)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0806)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ARP-TPA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SPA)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0806)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ARP-SPA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0806)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ARP-SHA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_TPA)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0806)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ARP-TPA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x0806)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ARP-THA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0806)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ARP-SHA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x86dd)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV6-SRC defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x0806)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ARP-THA defined while ETH-TYPE is not ARP" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x86dd)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV6-DST defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x86dd)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV6-SRC defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_FLABEL)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x86dd)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV6-FLABEL defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x86dd)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV6-DST defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 58)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ICMPV6-TYPE defined while IP-PROTO is not ICMPV6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_FLABEL)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x86dd)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV6-FLABEL defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_CODE)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
-				(get_ip_proto() != 58)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: ICMPV6-CODE defined while IP-PROTO is not ICMPV6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 58)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ICMPV6-TYPE defined while IP-PROTO is not ICMPV6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_TARGET)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
-				((get_icmpv6_type() != 135) && (get_icmpv6_type() != 136))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-TARGET defined while ICMPV6-TYPE is not ND-SOLICITATION or ND-ADVERTISEMENT" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_CODE)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IP_PROTO)) ||
+					(get_ip_proto() != 58)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: ICMPV6-CODE defined while IP-PROTO is not ICMPV6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_SLL)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
-				(get_icmpv6_type() != 135)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-SLL defined while ICMPV6-TYPE is not ND-SOLICITATION" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_TARGET)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
+					((get_icmpv6_type() != 135) && (get_icmpv6_type() != 136))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-TARGET defined while ICMPV6-TYPE is not ND-SOLICITATION or ND-ADVERTISEMENT" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_TLL)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
-				(get_icmpv6_type() != 136)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-TLL defined while ICMPV6-TYPE is not ND-ADVERTISEMENT" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_SLL)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
+					(get_icmpv6_type() != 135)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-SLL defined while ICMPV6-TYPE is not ND-SOLICITATION" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_LABEL)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: MPLS-LABEL defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_ND_TLL)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ICMPV6_TYPE)) ||
+					(get_icmpv6_type() != 136)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPv6-ND-TLL defined while ICMPV6-TYPE is not ND-ADVERTISEMENT" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_TC)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: MPLS-TC defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_LABEL)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: MPLS-LABEL defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_BOS)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
-			logging::warn << "[rofl][match] rejecting ofp_match: MPLS-BOS defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_TC)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: MPLS-TC defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_PBB_ISID)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x88e7)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: PBB-ISID defined while ETH-TYPE is not PBB" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_MPLS_BOS)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					((get_eth_type() != 0x8847) && (get_eth_type() != 0x8848))) {
+				logging::warn << "[rofl][match] rejecting ofp_match: MPLS-BOS defined while ETH-TYPE is not MPLS/MPLS-UPSTREAM" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
-	}
 
-	if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_EXTHDR)) {
-		if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
-				(get_eth_type() != 0x86dd)) {
-			logging::warn << "[rofl][match] rejecting ofp_match: IPV6-EXTHDR defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
-			throw eBadMatchBadPrereq();
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_PBB_ISID)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x88e7)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: PBB-ISID defined while ETH-TYPE is not PBB" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
 		}
+
+		if (oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_EXTHDR)) {
+			if ((not oxmlist.has_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_TYPE)) ||
+					(get_eth_type() != 0x86dd)) {
+				logging::warn << "[rofl][match] rejecting ofp_match: IPV6-EXTHDR defined while ETH-TYPE is not IPv6" << std::endl << oxmlist;
+				throw eBadMatchBadPrereq();
+			}
+		}
+
+	} break;
+	default: {
+		// do nothing
+	};
 	}
 }
 
