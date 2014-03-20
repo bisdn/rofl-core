@@ -843,6 +843,18 @@ public:
 	};
 	/** constructor
 	 */
+	coxmatch_ofb_vlan_vid(uint16_t vid, uint16_t mask) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2*sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2*sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(vid | openflow::OFPVID_PRESENT);
+		oxm_uint16t->mask = htobe16(mask);
+	};
+	/** constructor
+	 */
 	coxmatch_ofb_vlan_vid(
 			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor

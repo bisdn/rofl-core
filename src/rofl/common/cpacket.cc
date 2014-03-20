@@ -1433,17 +1433,17 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 	case openflow::OFPXMT_OFB_IPV6_ND_TARGET: {
 		caddress addr(oxm.u128addr());
 		icmpv6()->set_icmpv6_neighbor_taddr(addr);
-		match.set_icmpv6_neighbor_taddr(addr);
+		match.set_ipv6_nd_target(addr);
 	} break;
 	case openflow::OFPXMT_OFB_IPV6_ND_SLL: {
 		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_SOURCE).set_ll_saddr(maddr);
-		match.set_icmpv6_neighbor_source_lladdr(maddr);
+		match.set_ipv6_nd_sll(maddr);
 	} break;
 	case openflow::OFPXMT_OFB_IPV6_ND_TLL: {
 		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_TARGET).set_ll_taddr(maddr);
-		match.set_icmpv6_neighbor_target_lladdr(maddr);
+		match.set_ipv6_nd_tll(maddr);
 	} break;
 	case openflow::OFPXMT_OFB_MPLS_LABEL: {
 		uint32_t label = oxm.u32value();

@@ -350,6 +350,11 @@ public:
 	 * old API
 	 */
 
+	/*
+	 * PLEASE NOTE: IPV6-FLOWLABEL uses a mask in OF12, and none in OF13
+	 * we follow the OF13 convention and do not use a masked flow-label for IPv6
+	 */
+
 
 	// OF10
 	caddress get_nw_src() const;
@@ -366,6 +371,8 @@ public:
 	uint32_t get_in_port() const;
 	uint32_t get_in_phy_port() const;
 	uint64_t get_metadata() const;
+	uint64_t get_metadata_value() const;
+	uint64_t get_metadata_mask() const;
 	cmacaddr get_eth_dst() const;
 	cmacaddr get_eth_dst_addr() const;
 	cmacaddr get_eth_dst_mask() const;
@@ -404,7 +411,6 @@ public:
 	caddress get_ipv6_dst() const;
 	caddress get_ipv6_dst_value() const;
 	caddress get_ipv6_dst_mask() const;
-	caddress get_ipv6_nd_target() const;
 	uint8_t  get_ip_proto() const;
 	uint8_t  get_ip_dscp() const;
 	uint8_t  get_ip_ecn() const;
@@ -413,9 +419,9 @@ public:
 	uint8_t  get_icmpv6_type() const;
 	uint8_t  get_icmpv6_code() const;
 	uint32_t get_ipv6_flabel() const;
-	cmacaddr get_icmpv6_neighbor_source_lladdr() const;
-	cmacaddr get_icmpv6_neighbor_target_lladdr() const;
-	caddress get_icmpv6_neighbor_taddr() const;
+	cmacaddr get_ipv6_nd_sll() const;
+	cmacaddr get_ipv6_nd_tll() const;
+	caddress get_ipv6_nd_target() const;
 	uint16_t get_udp_src() const;
 	uint16_t get_udp_dst() const;
 	uint16_t get_tcp_src() const;
@@ -437,68 +443,57 @@ public:
 
 
 	// OF10
-	void set_nw_src(caddress const& src);
-	void set_nw_src(caddress const& src, caddress const& mask);
+	void set_nw_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_nw_proto(uint8_t proto);
-	void set_nw_dst(caddress const& dst);
-	void set_nw_dst(caddress const& dst, caddress const& mask);
+	void set_nw_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_tp_src(uint16_t src_port);
 	void set_tp_dst(uint16_t dst_port);
 
 	// OF12
 	void set_in_port(uint32_t in_port);
 	void set_in_phy_port(uint32_t in_phy_port);
-	void set_metadata(uint64_t metadata);
+	void set_metadata(uint64_t metadata, uint64_t mask = 0xffffffffffffffff);
 	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 	void set_eth_type( uint16_t dl_type);
-	void set_vlan_vid(uint16_t vid);
+	void set_vlan_vid(uint16_t vid, uint16_t mask = 0xffff);
 	void set_vlan_present();
 	void set_vlan_untagged();
 	void set_vlan_pcp(uint8_t pcp);
-	void set_mpls_label(uint32_t label);
-	void set_mpls_tc(uint8_t tc);
-	void set_ipv4_src(caddress const& src);
-	void set_ipv4_src(caddress const& src, caddress const& mask);
-	void set_ipv4_dst(caddress const& dst);
-	void set_ipv4_dst(caddress const& dst, caddress const& mask);
-	void set_arp_opcode(uint16_t opcode);
-	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_arp_spa(caddress const& spa);
-	void set_arp_tpa(caddress const& tpa);
-	void set_ipv6_src(caddress const& addr);
-	void set_ipv6_src(caddress const& addr, caddress const& mask);
-	void set_ipv6_dst(caddress const& addr);
-	void set_ipv6_dst(caddress const& addr, caddress const& mask);
-	void set_ipv6_nd_target(caddress const& addr);
-	void set_ip_proto(uint8_t proto);
 	void set_ip_dscp(uint8_t dscp);
 	void set_ip_ecn(uint8_t ecn);
-	void set_icmpv4_type(uint8_t type);
-	void set_icmpv4_code(uint8_t code);
-	void set_icmpv6_type(uint8_t type);
-	void set_icmpv6_code(uint8_t code);
-	void set_ipv6_flabel(uint32_t flabel);
-	void set_ipv6_flabel(uint32_t flabel, uint32_t mask);
-	void set_icmpv6_neighbor_source_lladdr(cmacaddr const& maddr);
-	void set_icmpv6_neighbor_target_lladdr(cmacaddr const& maddr);
-	void set_icmpv6_neighbor_taddr(caddress const& addr);
-	void set_udp_src(uint16_t src_port);
-	void set_udp_dst(uint16_t dst_port);
+	void set_ip_proto(uint8_t proto);
+	void set_ipv4_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_ipv4_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_tcp_src(uint16_t src_port);
 	void set_tcp_dst(uint16_t dst_port);
+	void set_udp_src(uint16_t src_port);
+	void set_udp_dst(uint16_t dst_port);
 	void set_sctp_src(uint16_t src_port);
 	void set_sctp_dst(uint16_t dst_port);
+	void set_icmpv4_type(uint8_t type);
+	void set_icmpv4_code(uint8_t code);
+	void set_arp_opcode(uint16_t opcode);
+	void set_arp_spa(caddress const& spa, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_arp_tpa(caddress const& tpa, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+	void set_ipv6_src(caddress const& addr, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_ipv6_dst(caddress const& addr, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_ipv6_flabel(uint32_t flabel);
+	void set_icmpv6_type(uint8_t type);
+	void set_icmpv6_code(uint8_t code);
+	void set_ipv6_nd_target(caddress const& addr);
+	void set_ipv6_nd_sll(cmacaddr const& maddr);
+	void set_ipv6_nd_tll(cmacaddr const& maddr);
+	void set_mpls_label(uint32_t label);
+	void set_mpls_tc(uint8_t tc);
 
 	// OF13
 	void set_mpls_bos(bool bos);
-	void set_tunnel_id(uint64_t tunnel_id);
-	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask);
-	void set_pbb_isid(uint32_t pbb_isid);
-	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask);
-	void set_ipv6_exthdr(uint16_t ipv6_exthdr);
-	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask);
+	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask = 0xffffffffffffffff);
+	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask = 0xffffffff);
+	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask = 0xffff);
 
 
 public:
