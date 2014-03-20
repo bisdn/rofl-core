@@ -44,7 +44,7 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.match, OF1X_MATCH_VLAN_VID);
 	bitmap128_set(&table->config.match, OF1X_MATCH_VLAN_PCP);
 	bitmap128_set(&table->config.match, OF1X_MATCH_IP_DSCP);
-	bitmap128_set(&table->config.match, OF1X_MATCH_IP_PROTO);
+	bitmap128_set(&table->config.match, OF1X_MATCH_NW_PROTO);
 	bitmap128_set(&table->config.match, OF1X_MATCH_NW_SRC);
 	bitmap128_set(&table->config.match, OF1X_MATCH_NW_DST);
 	bitmap128_set(&table->config.match, OF1X_MATCH_TP_SRC); //Only for OF10
