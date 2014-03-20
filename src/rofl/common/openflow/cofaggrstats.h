@@ -212,7 +212,6 @@ public:
 			os << indent(0) << "<cofaggr_stats_request >" << std::endl;
 			os << indent(2) << "<table-id:" << (int)aggr_stats_request.get_table_id() << " >" << std::endl;
 			os << indent(2) << "<out-port:0x" << std::hex << (int)aggr_stats_request.get_out_port() << std::dec << " >" << std::endl;
-			os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)aggr_stats_request.get_cookie() << std::dec << " >" << std::endl;
 			indent i(2);
 			os << aggr_stats_request.match;
 
