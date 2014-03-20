@@ -131,8 +131,13 @@ public: // setter methods for ofp_group_mod structure
 	 *
 	 */
 	cofbuckets&
-	get_buckets() { return buckets; };
+	set_buckets() { return buckets; };
 
+	/**
+	 *
+	 */
+	cofbuckets const&
+	get_buckets() const { return buckets; };
 
 public:
 
