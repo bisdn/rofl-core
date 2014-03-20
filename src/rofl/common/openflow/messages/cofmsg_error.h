@@ -925,8 +925,6 @@ public:
 				uint8_t* data = 0,
 				size_t datalen = 0) :
 					cofmsg_error(ofp_version, xid, OFPET_HELLO_FAILED, OFPHFC_INCOMPATIBLE, data, datalen) {
-		if (ofp_version < rofl::openflow12::OFP_VERSION)
-			throw eBadVersion();
 	};
 	virtual ~cofmsg_error_hello_failed_incompatible() {};
 };
