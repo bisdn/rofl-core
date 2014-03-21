@@ -28,6 +28,9 @@ of1x_match_t* of1x_init_port_in_match(uint32_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -44,6 +47,9 @@ of1x_match_t* of1x_init_port_in_phy_match(uint32_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -65,6 +71,9 @@ of1x_match_t* of1x_init_metadata_match(uint64_t value, uint64_t mask){
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -88,6 +97,9 @@ of1x_match_t* of1x_init_eth_dst_match(uint64_t value, uint64_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_eth_src_match(uint64_t value, uint64_t mask){
@@ -107,6 +119,9 @@ of1x_match_t* of1x_init_eth_src_match(uint64_t value, uint64_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_eth_type_match(uint16_t value){
@@ -123,6 +138,9 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -146,6 +164,9 @@ of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value){
@@ -162,6 +183,9 @@ of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -180,6 +204,9 @@ of1x_match_t* of1x_init_mpls_label_match(uint32_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_mpls_tc_match(uint8_t value){
@@ -196,6 +223,9 @@ of1x_match_t* of1x_init_mpls_tc_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_mpls_bos_match(uint8_t value){
@@ -212,6 +242,9 @@ of1x_match_t* of1x_init_mpls_bos_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -229,6 +262,9 @@ of1x_match_t* of1x_init_arp_opcode_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (1.0: lower 8bits of opcode)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -250,6 +286,9 @@ of1x_match_t* of1x_init_arp_tha_match(uint64_t value, uint64_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_arp_sha_match(uint64_t value, uint64_t mask){
@@ -268,6 +307,9 @@ of1x_match_t* of1x_init_arp_sha_match(uint64_t value, uint64_t mask){
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -288,6 +330,9 @@ of1x_match_t* of1x_init_arp_tpa_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask){
@@ -307,6 +352,9 @@ of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -324,6 +372,9 @@ of1x_match_t* of1x_init_nw_proto_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF_VERSION_10; //Last supported in OF1.0
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -344,6 +395,9 @@ of1x_match_t* of1x_init_nw_src_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask){
@@ -362,6 +416,9 @@ of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask){
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -384,6 +441,9 @@ of1x_match_t* of1x_init_ip4_src_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask){
@@ -403,6 +463,9 @@ of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip_proto_match(uint8_t value){
@@ -418,6 +481,9 @@ of1x_match_t* of1x_init_ip_proto_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -435,6 +501,9 @@ of1x_match_t* of1x_init_ip_dscp_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -451,6 +520,9 @@ of1x_match_t* of1x_init_ip_ecn_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -474,6 +546,9 @@ of1x_match_t* of1x_init_ip6_src_match(uint128__t value, uint128__t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
@@ -494,6 +569,9 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip6_flabel_match(uint64_t value){
@@ -509,6 +587,9 @@ of1x_match_t* of1x_init_ip6_flabel_match(uint64_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -528,6 +609,9 @@ of1x_match_t* of1x_init_ip6_nd_target_match(uint128__t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip6_nd_sll_match(uint64_t value){
@@ -544,6 +628,9 @@ of1x_match_t* of1x_init_ip6_nd_sll_match(uint64_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_ip6_nd_tll_match(uint64_t value){
@@ -559,6 +646,9 @@ of1x_match_t* of1x_init_ip6_nd_tll_match(uint64_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -579,6 +669,9 @@ of1x_match_t* of1x_init_ip6_exthdr_match(uint16_t value, uint16_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -597,6 +690,9 @@ of1x_match_t* of1x_init_icmpv6_type_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_icmpv6_code_match(uint8_t value){
@@ -612,6 +708,9 @@ of1x_match_t* of1x_init_icmpv6_code_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -632,6 +731,9 @@ of1x_match_t* of1x_init_tcp_src_match(uint16_t value){
 	match->has_wildcard = false;		//Not accepting wildcards
 
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_tcp_dst_match(uint16_t value){
@@ -647,6 +749,9 @@ of1x_match_t* of1x_init_tcp_dst_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -665,6 +770,9 @@ of1x_match_t* of1x_init_udp_src_match(uint16_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_udp_dst_match(uint16_t value){
@@ -680,6 +788,9 @@ of1x_match_t* of1x_init_udp_dst_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -700,6 +811,9 @@ of1x_match_t* of1x_init_sctp_src_match(uint16_t value){
 	match->has_wildcard = false;		//Not accepting wildcards
 
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_sctp_dst_match(uint16_t value){
@@ -715,6 +829,9 @@ of1x_match_t* of1x_init_sctp_dst_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -734,6 +851,9 @@ of1x_match_t* of1x_init_tp_src_match(uint16_t value){
 	match->ver_req.max_ver = OF_VERSION_10;	//Last supported in OF1.0
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_tp_dst_match(uint16_t value){
@@ -749,6 +869,9 @@ of1x_match_t* of1x_init_tp_dst_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF_VERSION_10;	//Last supported in OF1.0
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -767,6 +890,9 @@ of1x_match_t* of1x_init_icmpv4_type_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_icmpv4_code_match(uint8_t value){
@@ -782,6 +908,9 @@ of1x_match_t* of1x_init_icmpv4_code_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -804,6 +933,9 @@ of1x_match_t* of1x_init_pbb_isid_match(uint32_t value, uint32_t mask){
 	else
 		match->has_wildcard = false;
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 
@@ -824,6 +956,9 @@ of1x_match_t* of1x_init_tunnel_id_match(uint64_t value, uint64_t mask){
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -847,6 +982,9 @@ of1x_match_t* of1x_init_pppoe_code_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_pppoe_type_match(uint8_t value){
@@ -863,6 +1001,9 @@ of1x_match_t* of1x_init_pppoe_type_match(uint8_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 of1x_match_t* of1x_init_pppoe_session_match(uint16_t value){
@@ -878,6 +1019,9 @@ of1x_match_t* of1x_init_pppoe_session_match(uint16_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting w
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 //PPP
@@ -895,6 +1039,9 @@ of1x_match_t* of1x_init_ppp_prot_match(uint16_t value){
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
 	return match;
 }
 //GTP
@@ -911,6 +1058,9 @@ of1x_match_t* of1x_init_gtp_msg_type_match(uint8_t value){
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
@@ -930,6 +1080,9 @@ of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask){
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
 
 	return match;
 }
