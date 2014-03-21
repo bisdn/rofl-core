@@ -62,6 +62,9 @@ typedef void of1x_flow_entry_platform_state_t;
 //Used to pre-append priority, to emulate OF1.0 behaviour ONLY
 #define OF10_NON_WILDCARDED_PRIORITY_FLAG 0x10000
 
+//Do not check cookie value
+#define OF1X_DO_NOT_CHECK_COOKIE 0xffffffffffffffffULL
+
 /**
 * OpenFlow v1.0, 1.2 and 1.3.2 flow entry structure
 * @ingroup core_of1x 
@@ -114,7 +117,7 @@ ROFL_BEGIN_DECLS
 * @brief Create an empty flow entry 
 * @ingroup core_of1x 
 */
-of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry_t* next, bool notify_removal);
+of1x_flow_entry_t* of1x_init_flow_entry(bool notify_removal);
 
 //This should never be used from outside the library
 rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of1x_flow_remove_reason_t reason); 

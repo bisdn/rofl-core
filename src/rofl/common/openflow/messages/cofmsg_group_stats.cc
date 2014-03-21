@@ -248,7 +248,8 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 
 cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats_reply(memarea)
+	cofmsg_stats_reply(memarea),
+	groupstatsarray(get_version())
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
@@ -387,6 +388,7 @@ cofmsg_group_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	groupstatsarray.clear();
+	groupstatsarray.set_version(get_version());
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {

@@ -6,7 +6,7 @@ cofmsg_port_status::cofmsg_port_status(
 		uint8_t of_version,
 		uint32_t xid,
 		uint8_t reason,
-		cofport const& port) :
+		rofl::openflow::cofport const& port) :
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	port(port)
 {
@@ -241,19 +241,6 @@ cofmsg_port_status::set_reason(uint8_t reason)
 }
 
 
-
-cofport&
-cofmsg_port_status::get_port()
-{
-	return port;
-}
-
-
-cofport const&
-cofmsg_port_status::get_port_const() const
-{
-	return port;
-}
 
 
 

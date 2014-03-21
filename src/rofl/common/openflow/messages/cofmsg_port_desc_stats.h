@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofports.h"
 
 namespace rofl
@@ -125,7 +125,7 @@ class cofmsg_port_desc_stats_reply :
 {
 private:
 
-	cofports		ports;
+	rofl::openflow::cofports		ports;
 
 	union {
 		uint8_t									*ofhu_pds_reply;
@@ -145,7 +145,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofports const& ports = cofports());
+			rofl::openflow::cofports const& ports = rofl::openflow::cofports());
 
 
 	/**
@@ -223,13 +223,13 @@ public:
 	/**
 	 *
 	 */
-	cofports&
+	rofl::openflow::cofports&
 	set_ports() { return ports; };
 
 	/**
 	 *
 	 */
-	cofports const&
+	rofl::openflow::cofports const&
 	get_ports() const { return ports; };
 
 

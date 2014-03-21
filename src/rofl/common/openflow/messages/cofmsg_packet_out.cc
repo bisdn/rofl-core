@@ -61,7 +61,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
 	actions(get_version()),
-	packet(rofl::openflow::OFP_VERSION_UNKNOWN, (size_t)0)
+	packet(get_version(), (size_t)0)
 {
 	ofh_packet_out = soframe();
 }
@@ -258,7 +258,7 @@ cofmsg_packet_out::validate()
 		actions.unpack((uint8_t*)ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
-		if (rofl::openflow13::OFP_NO_BUFFER != get_buffer_id()) {
+		if (rofl::openflow13::OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh13_packet_out) +
 							sizeof(struct rofl::openflow13::ofp_packet_out) +

@@ -335,6 +335,7 @@ cofmsg_group_desc_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	groupdescstatsarray.clear();
+	groupdescstatsarray.set_version(get_version());
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION: {

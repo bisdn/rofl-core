@@ -76,6 +76,7 @@ public: // data structures
 		struct openflow::ofp_oxm_hdr			*oxmu_header;
 		struct openflow::ofp_oxm_ofb_uint8_t	*oxmu_uint8t;
 		struct openflow::ofp_oxm_ofb_uint16_t	*oxmu_uint16t;
+		struct openflow::ofp_oxm_ofb_uint24_t	*oxmu_uint24t;
 		struct openflow::ofp_oxm_ofb_uint32_t	*oxmu_uint32t;
 		struct openflow::ofp_oxm_ofb_uint48_t	*oxmu_uint48t;
 		struct openflow::ofp_oxm_ofb_uint64_t 	*oxmu_uint64t;
@@ -87,6 +88,7 @@ public: // data structures
 #define oxm_header 		oxm_oxmu.oxmu_header	// oxm: plain header
 #define oxm_uint8t		oxm_oxmu.oxmu_uint8t	// oxm: uint8_t field
 #define oxm_uint16t	 	oxm_oxmu.oxmu_uint16t	// oxm: uint16_t field
+#define oxm_uint24t	 	oxm_oxmu.oxmu_uint24t	// oxm: uint24_t field
 #define oxm_uint32t	 	oxm_oxmu.oxmu_uint32t	// oxm: uint32_t field
 #define oxm_uint48t	 	oxm_oxmu.oxmu_uint48t	// oxm: uint48_t field
 #define oxm_uint64t	 	oxm_oxmu.oxmu_uint64t	// oxm: uint64_t field
@@ -274,6 +276,7 @@ public: // methods
 	 */
 	uint8_t  u8value() const;
 	uint16_t u16value() const;
+	uint32_t u24value() const;
 	uint32_t u32value() const;
 	uint64_t u64value() const;
 	caddress u32addr() const;
@@ -310,6 +313,20 @@ public: // methods
 	 */
 	uint16_t
 	uint16_mask() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	uint24_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	uint24_mask() const throw (eOxmInval);
 
 
 	/**
@@ -826,6 +843,18 @@ public:
 	};
 	/** constructor
 	 */
+	coxmatch_ofb_vlan_vid(uint16_t vid, uint16_t mask) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2*sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2*sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(vid | openflow::OFPVID_PRESENT);
+		oxm_uint16t->mask = htobe16(mask);
+	};
+	/** constructor
+	 */
 	coxmatch_ofb_vlan_vid(
 			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
@@ -1109,6 +1138,43 @@ public:
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<nw-proto: " << (int)oxm.u8value() << " >" << std::endl;
+		return os;
+	};
+};
+
+/** OXM_OF_NW_TOS (OF1.0 backwards compatibility)
+ *
+ */
+class coxmatch_ofx_nw_tos :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_nw_tos(
+			uint8_t tos) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint8_t))
+	{
+		set_oxm_class(openflow::OFPXMC_EXPERIMENTER);
+		set_oxm_field(openflow::experimental::OFPXMT_OFX_NW_TOS);
+		set_oxm_length(sizeof(uint8_t));
+		oxm_uint8t->byte = tos;
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_tos(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_nw_tos() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_nw_tos const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<nw-tos: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
 };
@@ -2749,8 +2815,231 @@ public:
 		os << indent(2) << "<mpls-tc: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
-		return os;	};
+		return os;
+	};
 };
+
+
+/** OXM_OF_MPLS_BOS
+ *
+ */
+class coxmatch_ofb_mpls_bos :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_mpls_bos(
+			uint8_t mpls_bos) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint8_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_MPLS_BOS);
+		set_oxm_length(sizeof(uint8_t));
+		oxm_uint8t->byte = mpls_bos;
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_mpls_bos(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_mpls_bos() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_mpls_bos const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<mpls-bos: "
+						<< (int)oxm.u8value()
+						<< " >" << std::endl;
+		return os;
+	};
+};
+
+
+
+/** OXM_OF_TUNNEL_ID
+ *
+ */
+class coxmatch_ofb_tunnel_id :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_tunnel_id(
+			uint64_t tunnel_id) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint64_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_TUNNEL_ID);
+		set_oxm_length(sizeof(uint64_t));
+		memcpy(oxm_uint64t->word, (uint8_t*)&tunnel_id, sizeof(tunnel_id));
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_tunnel_id(
+			uint64_t tunnel_id,
+			uint64_t tunnel_id_mask) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint64_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_TUNNEL_ID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint64_t));
+		memcpy(oxm_uint64t->word, (uint8_t*)&tunnel_id, sizeof(tunnel_id));
+		memcpy(oxm_uint64t->mask, (uint8_t*)&tunnel_id_mask, sizeof(tunnel_id_mask));
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_tunnel_id(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_tunnel_id() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_tunnel_id const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<tunnel_id: "
+						<< std::hex
+						<< (unsigned long long)oxm.uint64_value() << "/" << (unsigned long long)oxm.uint64_mask()
+						<< std::dec
+						<< " >" << std::endl;
+		return os;
+	};
+};
+
+
+
+
+/** OXM_OF_PBB_ISID
+ *
+ */
+class coxmatch_ofb_pbb_isid :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_pbb_isid(
+			uint32_t pbb_isid) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 3*sizeof(uint8_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_PBB_ISID);
+		set_oxm_length(3*sizeof(uint8_t));
+		oxm_uint24t->word[0] = (uint8_t)((pbb_isid & 0x00ff0000) >> 16);
+		oxm_uint24t->word[1] = (uint8_t)((pbb_isid & 0x0000ff00) >>  8);
+		oxm_uint24t->word[2] = (uint8_t)((pbb_isid & 0x000000ff) >>  0);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_pbb_isid(
+			uint64_t pbb_isid,
+			uint64_t pbb_isid_mask) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * 3 * sizeof(uint8_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_PBB_ISID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * 3 * sizeof(uint8_t));
+		oxm_uint24t->word[0] = (uint8_t)((pbb_isid & 0x00ff0000) >> 16);
+		oxm_uint24t->word[1] = (uint8_t)((pbb_isid & 0x0000ff00) >>  8);
+		oxm_uint24t->word[2] = (uint8_t)((pbb_isid & 0x000000ff) >>  0);
+		oxm_uint24t->mask[0] = (uint8_t)((pbb_isid_mask & 0x00ff0000) >> 16);
+		oxm_uint24t->mask[1] = (uint8_t)((pbb_isid_mask & 0x0000ff00) >>  8);
+		oxm_uint24t->mask[2] = (uint8_t)((pbb_isid_mask & 0x000000ff) >>  0);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_pbb_isid(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_pbb_isid() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_pbb_isid const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<pbb_isid: "
+						<< std::hex
+						<< (unsigned int)oxm.uint24_value() << "/" << (unsigned int)oxm.uint24_mask()
+						<< std::dec
+						<< " >" << std::endl;
+		return os;
+	};
+};
+
+
+/** OXM_OF_IPV6_EXTHDR
+ *
+ */
+class coxmatch_ofb_ipv6_exthdr :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_exthdr(
+			uint16_t ipv6_exthdr) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_IPV6_EXTHDR);
+		set_oxm_length(sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(ipv6_exthdr);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_exthdr(
+			uint16_t ipv6_exthdr,
+			uint16_t ipv6_exthdr_mask) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_IPV6_EXTHDR);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(ipv6_exthdr);
+		oxm_uint16t->mask = htobe16(ipv6_exthdr_mask);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_exthdr(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_ipv6_exthdr() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_ipv6_exthdr const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<ipv6-exthdr: "
+						<< (int)oxm.u16value()
+						<< " >" << std::endl;
+		return os;
+	};
+};
+
+
+
+
+
+
+
 
 #if 0
 #include "experimental/matches/pppoe_matches.h"
@@ -2840,6 +3129,14 @@ public:
 				os << coxmatch_ofb_mpls_label(oxm); return os;
 			case openflow::OFPXMT_OFB_MPLS_TC:
 				os << coxmatch_ofb_mpls_tc(oxm); return os;
+			case openflow::OFPXMT_OFB_MPLS_BOS:
+				os << coxmatch_ofb_mpls_bos(oxm); return os;
+			case openflow::OFPXMT_OFB_TUNNEL_ID:
+				os << coxmatch_ofb_tunnel_id(oxm); return os;
+			case openflow::OFPXMT_OFB_PBB_ISID:
+				os << coxmatch_ofb_pbb_isid(oxm); return os;
+			case openflow::OFPXMT_OFB_IPV6_EXTHDR:
+				os << coxmatch_ofb_ipv6_exthdr(oxm); return os;
 			default:
 				os << oxm; return os;
 			}

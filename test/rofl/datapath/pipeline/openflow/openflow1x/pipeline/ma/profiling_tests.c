@@ -43,9 +43,9 @@ void profile_basic_match(){
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
 
 	//Set PORT_IN_MATCH 
-	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry = of1x_init_flow_entry(false); 
 	CU_ASSERT(entry != NULL);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,port_in)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(port_in)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 
 	//PKT

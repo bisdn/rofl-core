@@ -352,6 +352,22 @@ public:
 								if (dynamic_cast<coxmatch_ofb_mpls_tc*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofb_mpls_tc*>(jt->second);
 								break;
+							case openflow::OFPXMT_OFB_MPLS_BOS:
+								if (dynamic_cast<coxmatch_ofb_mpls_bos*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofb_mpls_bos*>(jt->second);
+								break;
+							case openflow::OFPXMT_OFB_TUNNEL_ID:
+								if (dynamic_cast<coxmatch_ofb_tunnel_id*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofb_tunnel_id*>(jt->second);
+								break;
+							case openflow::OFPXMT_OFB_PBB_ISID:
+								if (dynamic_cast<coxmatch_ofb_pbb_isid*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofb_pbb_isid*>(jt->second);
+								break;
+							case openflow::OFPXMT_OFB_IPV6_EXTHDR:
+								if (dynamic_cast<coxmatch_ofb_ipv6_exthdr*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofb_ipv6_exthdr*>(jt->second);
+								break;
 							default:
 								os << *(jt->second);
 								break;

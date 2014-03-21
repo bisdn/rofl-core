@@ -31,8 +31,9 @@
 
 
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
+
 class ePortBase 			: public RoflException {};
 class ePortInval	 		: public ePortBase {};
 class ePortNotFound 		: public ePortBase {};
@@ -533,6 +534,7 @@ public:
 	uint32_t port_no;
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

@@ -399,6 +399,7 @@ cofmsg_queue_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	queuestatsarray.clear();
+	queuestatsarray.set_version(get_version());
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {

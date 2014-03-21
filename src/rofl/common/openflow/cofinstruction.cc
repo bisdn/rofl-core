@@ -143,6 +143,12 @@ cofinst::pack_of12(uint8_t* buf, size_t buflen)
 		}
 		memcpy(inhdr, oin_header, sizeof(struct openflow12::ofp_instruction_goto_table));
 	} break;
+	case openflow13::OFPIT_METER: {
+		if (buflen < sizeof(struct openflow13::ofp_instruction_meter)) {
+			throw eInstructionInval();
+		}
+		memcpy(inhdr, oin_header, sizeof(struct openflow13::ofp_instruction_meter));
+	} break;
 	case openflow12::OFPIT_EXPERIMENTER:
 		// do nothing for now
 		logging::warn << "[rofl][instruction] unsupported experimental instruction type: " << (int)inhdr->type << std::endl;

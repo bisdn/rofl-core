@@ -1341,6 +1341,9 @@ crofsock::log_of13_message(
 		case openflow13::OFPMP_TABLE: {
 			logging::debug << dynamic_cast<cofmsg_table_stats_request const&>( msg );
 		} break;
+		case openflow13::OFPMP_PORT_STATS: {
+			logging::debug << dynamic_cast<cofmsg_port_stats_request const&>( msg );
+		} break;
 		case openflow13::OFPMP_QUEUE: {
 			logging::debug << dynamic_cast<cofmsg_queue_stats_request const&>( msg );
 		} break;
@@ -1389,6 +1392,9 @@ crofsock::log_of13_message(
 		} break;
 		case openflow13::OFPMP_TABLE: {
 			logging::debug << dynamic_cast<cofmsg_table_stats_reply const&>( msg );
+		} break;
+		case openflow13::OFPMP_PORT_STATS: {
+			logging::debug << dynamic_cast<cofmsg_port_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_QUEUE: {
 			logging::debug << dynamic_cast<cofmsg_queue_stats_reply const&>( msg );

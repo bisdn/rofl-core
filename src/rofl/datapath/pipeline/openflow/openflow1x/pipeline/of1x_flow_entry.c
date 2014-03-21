@@ -18,7 +18,7 @@
 * Intializer and destructor
 */
 
-of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry_t* next, bool notify_removal){
+of1x_flow_entry_t* of1x_init_flow_entry(bool notify_removal){
 
 	of1x_flow_entry_t* entry = (of1x_flow_entry_t*)platform_malloc_shared(sizeof(of1x_flow_entry_t));
 	
@@ -34,10 +34,6 @@ of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry
 		return NULL; 
 	}
 	
-	//Init linked list
-	entry->prev = prev;
-	entry->next = next;
-
 	//Init matches
 	__of1x_init_match_group(&entry->matches);
 	
@@ -161,7 +157,7 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 	of1x_match_t* it_orig, *it_entry;
 	
 	//Check cookie first
-	if(check_cookie && entry->cookie_mask){
+	if(check_cookie && entry->cookie != OF1X_DO_NOT_CHECK_COOKIE && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) != (original->cookie&entry->cookie_mask) )
 			return false;
 	}
@@ -213,7 +209,7 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 	of1x_match_t* it_orig, *it_subentry;
 	
 	//Check cookie first
-	if(check_cookie && subentry->cookie_mask){
+	if(check_cookie && subentry->cookie != OF1X_DO_NOT_CHECK_COOKIE && subentry->cookie_mask){
 		if( (subentry->cookie&subentry->cookie_mask) != (original->cookie&subentry->cookie_mask) )
 			return false;
 	}
@@ -263,7 +259,7 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 	of1x_match_t* it_original, *it_entry;
 	
 	//Check cookie first
-	if(check_cookie && entry->cookie_mask){
+	if(check_cookie && entry->cookie != OF1X_DO_NOT_CHECK_COOKIE && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) != (original->cookie&entry->cookie_mask) )
 			return false;
 	}

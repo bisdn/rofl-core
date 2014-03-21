@@ -498,15 +498,14 @@ crofconn::recv_message(
 		/*
 		 * add multipart support here for receiving messages
 		 */
-		cofmsg_stats *stats = dynamic_cast<cofmsg_stats*>( msg );
-
-		if (NULL == stats) {
-			logging::warn << "[rofl][conn] dropping multipart message, invalid message type." << std::endl << *this;
-			delete msg; return;
-		}
-
 		switch (msg->get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
+			cofmsg_stats *stats = dynamic_cast<cofmsg_stats*>( msg );
+
+			if (NULL == stats) {
+				logging::warn << "[rofl][conn] dropping multipart message, invalid message type." << std::endl << *this;
+				delete msg; return;
+			}
 
 			// start new or continue pending transaction
 			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
@@ -1246,7 +1245,7 @@ crofconn::fragment_port_desc_stats_reply(
 	std::vector<cofmsg_port_desc_stats_reply*> fragments;
 
 	for (std::map<uint32_t, cofport*>::const_iterator
-			it = msg->get_ports().begin(); it != msg->get_ports().end(); ++it) {
+			it = msg->get_ports().get_ports().begin(); it != msg->get_ports().get_ports().end(); ++it) {
 
 		ports.add_port(it->first) = *(it->second);
 

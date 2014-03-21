@@ -144,7 +144,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		uint32_t capabilities,
 		uint32_t of10_actions_bitmap,
 		uint8_t  of13_auxiliary_id,
-		cofports const& ports) :
+		rofl::openflow::cofports const& ports) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	ports(ports)
 {
@@ -327,7 +327,7 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct rofl::openflow10::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct rofl::openflow10::ofp_switch_features)) {
-			ports = cofports(rofl::openflow10::OFP_VERSION);
+			ports = rofl::openflow::cofports(rofl::openflow10::OFP_VERSION);
 			ports.unpack((uint8_t*)(ofh10_switch_features->ports), get_length() - sizeof(struct openflow10::ofp_switch_features));
 		}
 	} break;
@@ -335,7 +335,7 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct rofl::openflow12::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct rofl::openflow12::ofp_switch_features)) {
-			ports = cofports(rofl::openflow12::OFP_VERSION);
+			ports = rofl::openflow::cofports(rofl::openflow12::OFP_VERSION);
 			ports.unpack((uint8_t*)(ofh12_switch_features->ports), get_length() - sizeof(struct openflow12::ofp_switch_features));
 		}
 	} break;
@@ -567,7 +567,7 @@ cofmsg_features_reply::set_actions_bitmap(uint32_t actions_bitmap)
 
 
 
-cofports&
+rofl::openflow::cofports&
 cofmsg_features_reply::set_ports()
 {
 	switch (get_version()) {
@@ -581,7 +581,7 @@ cofmsg_features_reply::set_ports()
 
 
 
-cofports const&
+rofl::openflow::cofports const&
 cofmsg_features_reply::get_ports() const
 {
 	switch (get_version()) {

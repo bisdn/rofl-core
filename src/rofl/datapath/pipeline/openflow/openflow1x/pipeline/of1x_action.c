@@ -22,7 +22,7 @@ extern switch_port_t* flood_meta_port;
 static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t* group, bool replicate_pkts);
 
 /* Actions init and destroyed */
-of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */of1x_packet_action_type_t type, wrap_uint_t field, of1x_packet_action_t* prev, of1x_packet_action_t* next){
+of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len){
 
 	of1x_packet_action_t* action;
 
@@ -108,7 +108,8 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_OUTPUT:
-			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
+			action->send_len = output_send_len;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
@@ -301,10 +302,6 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 	}
 	
-	//Set list pointers
-	action->next = next;
-	action->prev = prev;
-	
 	return action;
 }
 
@@ -442,6 +439,7 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 
 	//Update field
 	write_actions->actions[action->type].field = action->field;
+	write_actions->actions[action->type].send_len = action->send_len;
 
 	if( !bitmap128_is_bit_set(&write_actions->bitmap, action->type) ){
 		write_actions->num_of_actions++;
@@ -584,8 +582,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//For 1.0 we must first push it if we don't have. wtf...
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
-				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, ETH_TYPE_8021Q);
+				platform_packet_push_vlan(pkt, OF1X_ETH_TYPE_8021Q);
 				platform_packet_set_vlan_pcp(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
@@ -602,8 +599,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//For 1.0 we must first push it if we don't have. wtf...
 			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
 				//Push VLAN
-				platform_packet_push_vlan(pkt, action->field.u16);
-				platform_packet_set_eth_type(pkt, ETH_TYPE_8021Q);
+				platform_packet_push_vlan(pkt, OF1X_ETH_TYPE_8021Q);
 				platform_packet_set_vlan_vid(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
@@ -1031,7 +1027,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				}else if(port_id == OF1X_PORT_CONTROLLER ||
 					port_id == OF1X_PORT_NORMAL){
 					//Controller
-					platform_of1x_packet_in(sw, table_id, pkt_to_send, OF1X_PKT_IN_ACTION);
+					platform_of1x_packet_in(sw, table_id, pkt_to_send, action->send_len, OF1X_PKT_IN_ACTION);
 				}else if(port_id == OF1X_PORT_ALL){
 					//Flood
 					platform_packet_output(pkt_to_send, all_meta_port);

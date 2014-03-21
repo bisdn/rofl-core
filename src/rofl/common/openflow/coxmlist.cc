@@ -427,6 +427,14 @@ coxmlist::map_and_insert(coxmatch const& oxm)
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_mpls_label(oxm); break;
 		case openflow::OFPXMT_OFB_MPLS_TC:
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_mpls_tc(oxm); break;
+		case openflow::OFPXMT_OFB_MPLS_BOS:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_mpls_bos(oxm); break;
+		case openflow::OFPXMT_OFB_TUNNEL_ID:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_tunnel_id(oxm); break;
+		case openflow::OFPXMT_OFB_PBB_ISID:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_pbb_isid(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_EXTHDR:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_exthdr(oxm); break;
 		default:
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
 		}

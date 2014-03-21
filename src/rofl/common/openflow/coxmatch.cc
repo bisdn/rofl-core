@@ -482,6 +482,14 @@ coxmatch::u16value() const
 
 
 uint32_t
+coxmatch::u24value() const
+{
+	return (uint24_value() & (get_oxm_hasmask() ? uint24_mask() : 0x00ffffff));
+}
+
+
+
+uint32_t
 coxmatch::u32value() const
 {
 	return (uint32_value() & (get_oxm_hasmask() ? uint32_mask() : 0xffffffff));
@@ -757,6 +765,7 @@ coxmatch::uint8_value() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_ICMPV4_TYPE:
 		case openflow::OFPXMT_OFB_ICMPV4_CODE:
 		case openflow::OFPXMT_OFB_MPLS_TC:
+		case openflow::OFPXMT_OFB_MPLS_BOS:
 			return oxm_uint8t->byte;
 
 		default:
@@ -796,7 +805,6 @@ coxmatch::uint8_mask() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_ICMPV6_CODE:
 		case openflow::OFPXMT_OFB_ICMPV4_TYPE:
 		case openflow::OFPXMT_OFB_ICMPV4_CODE:
-		case openflow::OFPXMT_OFB_MPLS_TC:
 			return oxm_uint8t->mask;
 
 		default:
@@ -831,6 +839,7 @@ coxmatch::uint16_value() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_SCTP_SRC:
 		case openflow::OFPXMT_OFB_SCTP_DST:
 		case openflow::OFPXMT_OFB_ARP_OP:
+		case openflow::OFPXMT_OFB_IPV6_EXTHDR:
 		case openflow::experimental::OFPXMT_OFX_PPPOE_SID:
 		case openflow::experimental::OFPXMT_OFX_PPP_PROT:
 			return be16toh(oxm_uint16t->word);
@@ -872,6 +881,7 @@ coxmatch::uint16_mask() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_SCTP_SRC:
 		case openflow::OFPXMT_OFB_SCTP_DST:
 		case openflow::OFPXMT_OFB_ARP_OP:
+		case openflow::OFPXMT_OFB_IPV6_EXTHDR:
 			return be16toh(oxm_uint16t->mask);
 
 		default:
@@ -882,6 +892,76 @@ coxmatch::uint16_mask() const throw (eOxmInval)
 		switch (get_oxm_field()) {
 		default:
 			return be16toh(oxm_uint16t->mask);
+		}
+	} break;
+	default:
+		break;
+	}
+	throw eOxmInval();
+}
+
+
+uint32_t
+coxmatch::uint24_value() const throw (eOxmInval)
+{
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_PBB_ISID:
+			return (uint32_t)
+					(oxm_uint24t->word[0] << 16 |
+					 oxm_uint24t->word[1] <<  8 |
+					 oxm_uint24t->word[2] <<  0);
+
+		default:
+			break;
+		}
+	}
+	break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		switch (get_oxm_field()) {
+		default:
+			return (uint32_t)
+					(oxm_uint24t->word[0] << 16 |
+					 oxm_uint24t->word[1] <<  8 |
+					 oxm_uint24t->word[2] <<  0);
+		}
+	} break;
+	default:
+		break;
+	}
+	throw eOxmInval();
+}
+
+
+uint32_t
+coxmatch::uint24_mask() const throw (eOxmInval)
+{
+	if (not get_oxm_hasmask())
+	{
+		return 0xffffffff;
+	}
+
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_PBB_ISID:
+			return (uint32_t)
+					(oxm_uint24t->mask[0] << 16 |
+					 oxm_uint24t->mask[1] <<  8 |
+					 oxm_uint24t->mask[2] <<  0);
+
+		default:
+			break;
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		switch (get_oxm_field()) {
+		default:
+			return (uint32_t)
+					(oxm_uint24t->mask[0] << 16 |
+					 oxm_uint24t->mask[1] <<  8 |
+					 oxm_uint24t->mask[2] <<  0);
 		}
 	} break;
 	default:
@@ -972,6 +1052,7 @@ coxmatch::uint64_value() const throw (eOxmInval)
 	case openflow::OFPXMC_OPENFLOW_BASIC: {
 		switch (get_oxm_field()) {
 		case openflow::OFPXMT_OFB_METADATA:
+		case openflow::OFPXMT_OFB_TUNNEL_ID:
 			memcpy(&value, oxm_uint64t->word, sizeof(uint64_t));
 			return be64toh(value);
 
@@ -1007,6 +1088,7 @@ coxmatch::uint64_mask() const throw (eOxmInval)
 	case openflow::OFPXMC_OPENFLOW_BASIC: {
 		switch (get_oxm_field()) {
 		case openflow::OFPXMT_OFB_METADATA:
+		case openflow::OFPXMT_OFB_TUNNEL_ID:
 			memcpy(&mask, oxm_uint64t->mask, sizeof(uint64_t));
 			return be64toh(mask);
 
@@ -1122,7 +1204,7 @@ coxmatch::oxm_typedesc_t oxm_basic_typedesc[] = {
 	{ openflow::OFPXMT_OFB_VLAN_VID, 		"VLAN_VID" },
 	{ openflow::OFPXMT_OFB_VLAN_PCP, 		"VLAN_PCP" },
 	{ openflow::OFPXMT_OFB_IP_DSCP, 		"IP_DSCP" },
-	{ openflow::OFPXMT_OFB_IP_ECN, 		"IP_ECN" },
+	{ openflow::OFPXMT_OFB_IP_ECN, 			"IP_ECN" },
 	{ openflow::OFPXMT_OFB_IP_PROTO, 		"IP_PROTO" },
 	{ openflow::OFPXMT_OFB_IPV4_SRC, 		"IPV4_SRC" },
 	{ openflow::OFPXMT_OFB_IPV4_DST, 		"IPV4_DST" },
@@ -1134,7 +1216,7 @@ coxmatch::oxm_typedesc_t oxm_basic_typedesc[] = {
 	{ openflow::OFPXMT_OFB_SCTP_DST, 		"SCTP_DST" },
 	{ openflow::OFPXMT_OFB_ICMPV4_TYPE, 	"ICMPV4_TYPE" },
 	{ openflow::OFPXMT_OFB_ICMPV4_CODE, 	"ICMPV4_CODE" },
-	{ openflow::OFPXMT_OFB_ARP_OP, 		"ARP_OP" },
+	{ openflow::OFPXMT_OFB_ARP_OP, 			"ARP_OP" },
 	{ openflow::OFPXMT_OFB_ARP_SPA, 		"ARP_SPA" },
 	{ openflow::OFPXMT_OFB_ARP_TPA, 		"ARP_TPA" },
 	{ openflow::OFPXMT_OFB_ARP_SHA, 		"ARP_SHA" },
@@ -1144,11 +1226,15 @@ coxmatch::oxm_typedesc_t oxm_basic_typedesc[] = {
 	{ openflow::OFPXMT_OFB_IPV6_FLABEL, 	"IPV6_FLABEL" },
 	{ openflow::OFPXMT_OFB_ICMPV6_TYPE, 	"ICMPV6_TYPE" },
 	{ openflow::OFPXMT_OFB_ICMPV6_CODE, 	"ICMPV6_CODE" },
-	{ openflow::OFPXMT_OFB_IPV6_ND_TARGET,"IPV6_ND_TARGET" },
+	{ openflow::OFPXMT_OFB_IPV6_ND_TARGET,	"IPV6_ND_TARGET" },
 	{ openflow::OFPXMT_OFB_IPV6_ND_SLL, 	"IPV6_ND_SLL" },
 	{ openflow::OFPXMT_OFB_IPV6_ND_TLL, 	"IPV6_ND_TLL" },
-	{ openflow::OFPXMT_OFB_MPLS_LABEL, 	"MPLS_LABEL" },
+	{ openflow::OFPXMT_OFB_MPLS_LABEL, 		"MPLS_LABEL" },
 	{ openflow::OFPXMT_OFB_MPLS_TC, 		"MPLS_TC" },
+	{ openflow::OFPXMT_OFB_MPLS_BOS, 		"MPLS_BOS" },
+	{ openflow::OFPXMT_OFB_TUNNEL_ID, 		"TUNNEL_ID" },
+	{ openflow::OFPXMT_OFB_PBB_ISID, 		"PBB_ISID" },
+	{ openflow::OFPXMT_OFB_IPV6_EXTHDR, 	"IPV6_EXTHDR" },
 };
 
 

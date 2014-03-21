@@ -113,7 +113,7 @@ rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
 	of1x_group_table_t* group_entry;
 
 	//Create empty entries
-	flow_entry = of1x_init_flow_entry(NULL,NULL,false);
+	flow_entry = of1x_init_flow_entry(false);
 	group_entry = of1x_init_group_table(); 
 	
 	if( unlikely(flow_entry==NULL) )
@@ -264,7 +264,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
 
-				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, OF1X_PKT_IN_NO_MATCH);
+				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	

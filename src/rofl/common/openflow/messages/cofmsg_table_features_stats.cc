@@ -313,6 +313,9 @@ cofmsg_table_features_stats_reply::unpack(uint8_t *buf, size_t buflen)
 void
 cofmsg_table_features_stats_reply::validate()
 {
+	tables.clear();
+	tables.set_version(get_version());
+
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
 		if (cofmsg::get_length() < sizeof(struct rofl::openflow13::ofp_multipart_reply)) {

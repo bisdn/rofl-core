@@ -258,7 +258,8 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 
 cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats_reply(memarea)
+	cofmsg_stats_reply(memarea),
+	flowstatsarray(get_version())
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -411,6 +412,7 @@ cofmsg_flow_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	flowstatsarray.clear();
+	flowstatsarray.set_version(get_version());
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {

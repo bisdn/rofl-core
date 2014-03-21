@@ -62,18 +62,15 @@ class crofbase;
  */
 class crofdpt
 {
-	static uint64_t next_dptid;
+public:
 
 	static std::map<uint64_t, crofdpt*> rofdpts;
-
-	uint64_t   dptid;
-
-public: // methods
 
 
 	static crofdpt&
 	get_dpt(uint64_t dptid);
 
+public:
 
 
 	/**
@@ -82,10 +79,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofdpt(
-			crofbase *rofbase = (crofbase*)0) :
-			dptid(++crofdpt::next_dptid) {
-		crofdpt::rofdpts[dptid] = this;
-	};
+			crofbase *rofbase = (crofbase*)0) {};
 
 
 
@@ -106,10 +100,7 @@ public: // methods
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) :
-				dptid(++crofdpt::next_dptid) {
-			crofdpt::rofdpts[dptid] = this;
-		};
+			int protocol) {};
 
 
 
@@ -130,10 +121,7 @@ public: // methods
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) :
-				dptid(++crofdpt::next_dptid) {
-			crofdpt::rofdpts[dptid] = this;
-		};
+			int protocol) {};
 
 
 
@@ -144,9 +132,7 @@ public: // methods
 	 * exposed by the data path element.
 	 */
 	virtual
-	~crofdpt() {
-		crofdpt::rofdpts.erase(dptid);
-	};
+	~crofdpt() {};
 
 
 

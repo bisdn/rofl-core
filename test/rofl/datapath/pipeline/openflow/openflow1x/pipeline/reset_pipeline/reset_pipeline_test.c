@@ -45,8 +45,8 @@ void test_purge(){
 
 	//Install a flow in each table
 	for(i=0;i<4;i++){
-		entry = of1x_init_flow_entry(NULL, NULL, false); 
-		CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+		entry = of1x_init_flow_entry(false); 
+		CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(1)) == ROFL_SUCCESS);
 	
 		CU_ASSERT(entry != NULL);
 		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, i, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);

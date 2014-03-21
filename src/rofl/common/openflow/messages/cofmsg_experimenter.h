@@ -24,16 +24,17 @@ private:
 	cmemory				body;	// for experimental statistics messages
 
 	union {
-		uint8_t*							ofhu_experimenter;
+		uint8_t*										ofhu_experimenter;
 		struct openflow10::ofp_vendor_header*			ofhu10_vendor;
-		struct openflow12::ofp_experimenter_header*	ofhu12_experimenter;
-		// TODO: OF1.3
+		struct openflow12::ofp_experimenter_header*		ofhu12_experimenter;
+		struct openflow13::ofp_experimenter_header*		ofhu13_experimenter;
 	} ofhu;
 
 #define ofh_experimenter   		ofhu.ofhu_experimenter
 #define ofh10_vendor			ofhu.ofhu10_vendor
 #define ofh12_experimenter 		ofhu.ofhu12_experimenter
-// TODO: OF1.3
+#define ofh13_experimenter 		ofhu.ofhu13_experimenter
+
 
 public:
 
@@ -159,7 +160,15 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_experimenter >" << std::endl;
 		os << indent(4) << "<exp-id:" << (int)msg.get_experimenter_id() << " >" << std::endl;
-		os << indent(4) << "<exp-type:" << (int)msg.get_experimenter_type() << " >" << std::endl;
+		switch (msg.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(4) << "<exp-type:" << (int)msg.get_experimenter_type() << " >" << std::endl;
+		} break;
+		default: {
+			// do nothing
+		};
+		}
 		indent i(4);
 		os << msg.body;
 		return os;

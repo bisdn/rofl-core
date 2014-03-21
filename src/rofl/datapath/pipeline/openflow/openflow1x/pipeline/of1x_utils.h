@@ -73,6 +73,8 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_VLAN_PRESENT_MASK 0x0008
 	#define OF1X_VLAN_ID_MASK 0xFFF0
 	
+	#define OF1X_ETH_TYPE_8021Q 0x0081
+	
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	/*
 	* Useful masks
@@ -99,6 +101,8 @@ typedef struct of1x_ver_req_t{
 	
 	#define OF1X_VLAN_PRESENT_MASK 0x0010
 	#define OF1X_VLAN_ID_MASK 0xFF0F
+	
+	#define OF1X_ETH_TYPE_8021Q 0x8100
 	
 #else
 	#error Unknwon endianness

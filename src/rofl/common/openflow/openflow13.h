@@ -2061,6 +2061,7 @@ namespace openflow13 {
 									 * - MSB != 0: defined by ONF. */
 		uint32_t exp_type;			/* Experimenter defined. */
 		/* Experimenter-defined arbitrary additional data. */
+		uint8_t body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 16);
 

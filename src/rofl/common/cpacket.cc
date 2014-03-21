@@ -1433,17 +1433,17 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 	case openflow::OFPXMT_OFB_IPV6_ND_TARGET: {
 		caddress addr(oxm.u128addr());
 		icmpv6()->set_icmpv6_neighbor_taddr(addr);
-		match.set_icmpv6_neighbor_taddr(addr);
+		match.set_ipv6_nd_target(addr);
 	} break;
 	case openflow::OFPXMT_OFB_IPV6_ND_SLL: {
 		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_SOURCE).set_ll_saddr(maddr);
-		match.set_icmpv6_neighbor_source_lladdr(maddr);
+		match.set_ipv6_nd_sll(maddr);
 	} break;
 	case openflow::OFPXMT_OFB_IPV6_ND_TLL: {
 		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_TARGET).set_ll_taddr(maddr);
-		match.set_icmpv6_neighbor_target_lladdr(maddr);
+		match.set_ipv6_nd_tll(maddr);
 	} break;
 	case openflow::OFPXMT_OFB_MPLS_LABEL: {
 		uint32_t label = oxm.u32value();
@@ -1980,8 +1980,7 @@ cpacket::parse_ipv4(
 		match.set_nw_proto(ip->get_ipv4_proto());
 		match.set_nw_dst(ip->get_ipv4_dst());
 		match.set_nw_src(ip->get_ipv4_src());
-		match.set_ip_dscp(ip->get_ipv4_dscp());
-		match.set_ip_ecn(ip->get_ipv4_ecn());
+		match.set_nw_tos(ip->get_ipv4_dscp());
 
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
