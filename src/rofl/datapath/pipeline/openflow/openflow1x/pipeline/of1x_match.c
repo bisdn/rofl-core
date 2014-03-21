@@ -14,7 +14,7 @@
 #define OF1X_MAX_VERSION OF_VERSION_13
 
 //Phy
-inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
+of1x_match_t* of1x_init_port_in_match(uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -22,8 +22,6 @@ inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_IN_PORT; 
 	match->value = __init_utern32(value,OF1X_4_BYTE_MASK); //No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -33,7 +31,7 @@ inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* n
 	return match;
 }
 
-inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
+of1x_match_t* of1x_init_port_in_phy_match(uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -41,8 +39,6 @@ inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_
 
 	match->type = OF1X_MATCH_IN_PHY_PORT; 
 	match->value = __init_utern32(value,OF1X_4_BYTE_MASK); //No wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -53,7 +49,7 @@ inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_
 }
 
 //METADATA
-inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_metadata_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -61,8 +57,6 @@ inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_METADATA; 
 	match->value = __init_utern64(value, mask);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -76,7 +70,7 @@ inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //ETHERNET
-inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_eth_dst_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -85,8 +79,6 @@ inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* n
 	match->type = OF1X_MATCH_ETH_DST; 
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -98,7 +90,7 @@ inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_eth_src_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -106,8 +98,6 @@ inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_ETH_SRC; 
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
-	match->prev = prev;
-	match->next = next;
 	
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -119,7 +109,7 @@ inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_eth_type_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -127,8 +117,6 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_ETH_TYPE; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard 
-	match->prev = prev;
-	match->next = next;
 	
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -139,7 +127,7 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //8021.q
-inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -149,8 +137,6 @@ inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* 
 	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
 	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
 	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_VLAN_ID_MASK);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -162,7 +148,7 @@ inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* 
 
 	return match;
 }
-inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -170,8 +156,6 @@ inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_VLAN_PCP; 
 	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //Ensure only 3 bit value, no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -182,7 +166,7 @@ inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //MPLS
-inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
+of1x_match_t* of1x_init_mpls_label_match(uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -190,8 +174,6 @@ inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_MPLS_LABEL; 
 	match->value = __init_utern32(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); //no wildcard?? wtf! 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -200,7 +182,7 @@ inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t
 	
 	return match;
 }
-inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_mpls_tc_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -208,8 +190,6 @@ inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_MPLS_TC; 
 	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //Ensure only 3 bit value, no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -218,7 +198,7 @@ inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* n
 	
 	return match;
 }
-inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_mpls_bos_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -226,8 +206,6 @@ inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_MPLS_BOS; 
 	match->value = __init_utern8(value&OF1X_1_BIT_MASK,OF1X_1_BIT_MASK); //Ensure only 1 bit value, no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
@@ -238,7 +216,7 @@ inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //ARP
-inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_arp_opcode_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -246,8 +224,6 @@ inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_ARP_OP;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (1.0: lower 8bits of opcode)
@@ -256,7 +232,7 @@ inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_arp_tha_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -265,8 +241,6 @@ inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* n
 	match->type = OF1X_MATCH_ARP_THA;
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -278,7 +252,7 @@ inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_arp_sha_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -286,8 +260,6 @@ inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_ARP_SHA;
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -299,7 +271,7 @@ inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_arp_tpa_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -307,8 +279,6 @@ inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_ARP_TPA;
 	match->value = __init_utern32(value,mask);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -320,7 +290,7 @@ inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -328,8 +298,6 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_ARP_SPA;
 	match->value = __init_utern32(value,mask);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -343,7 +311,7 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 }
 
 //NW
-inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_nw_proto_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -351,8 +319,6 @@ inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_NW_PROTO; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -361,7 +327,7 @@ inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* 
 
 	return match;
 }
-inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_nw_src_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -369,8 +335,6 @@ inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* ne
 
 	match->type = OF1X_MATCH_NW_SRC;
 	match->value = __init_utern32(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -382,7 +346,7 @@ inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* ne
 
 	return match;
 }
-inline of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -390,8 +354,6 @@ inline of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* ne
 
 	match->type = OF1X_MATCH_NW_DST;
 	match->value = __init_utern32(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -405,7 +367,7 @@ inline of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* ne
 }
 
 //IPv4
-inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_ip4_src_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -413,8 +375,6 @@ inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_IPV4_SRC;
 	match->value = __init_utern32(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -426,7 +386,7 @@ inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -434,8 +394,6 @@ inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_IPV4_DST;
 	match->value = __init_utern32(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -447,7 +405,7 @@ inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_ip_proto_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -455,8 +413,6 @@ inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_IP_PROTO; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -465,7 +421,7 @@ inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* 
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_ip_dscp_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -473,8 +429,6 @@ inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_IP_DSCP; 
 	match->value = __init_utern8(value&OF1X_6_BITS_MASK,OF1X_6_BITS_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (ToS)
@@ -484,7 +438,7 @@ inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* n
 	return match;
 }
 
-inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_ip_ecn_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -492,8 +446,6 @@ inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* ne
 
 	match->type = OF1X_MATCH_IP_ECN; 
 	match->value = __init_utern8(value&OF1X_2_BITS_MASK,OF1X_2_BITS_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -504,7 +456,7 @@ inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* ne
 }
 
 //IPv6
-inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value, uint128__t mask){
+of1x_match_t* of1x_init_ip6_src_match(uint128__t value, uint128__t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -513,8 +465,6 @@ inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* n
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_SRC;
 	match->value = __init_utern128(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -526,7 +476,7 @@ inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value, uint128__t mask){
+of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -535,8 +485,6 @@ inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* n
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_DST;
 	match->value = __init_utern128(value,mask); 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -548,7 +496,7 @@ inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
+of1x_match_t* of1x_init_ip6_flabel_match(uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -556,8 +504,6 @@ inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_IPV6_FLABEL;
 	match->value = __init_utern64(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); // ensure 20 bits. No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -566,7 +512,7 @@ inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value){
+of1x_match_t* of1x_init_ip6_nd_target_match(uint128__t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -576,8 +522,6 @@ inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_matc
 	
 	match->type = OF1X_MATCH_IPV6_ND_TARGET;
 	match->value = __init_utern128(value,mask); //No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -586,7 +530,7 @@ inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_matc
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
+of1x_match_t* of1x_init_ip6_nd_sll_match(uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -594,8 +538,6 @@ inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_IPV6_ND_SLL;
 	match->value = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -604,7 +546,7 @@ inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
+of1x_match_t* of1x_init_ip6_nd_tll_match(uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -612,8 +554,6 @@ inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_IPV6_ND_TLL;
 	match->value = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -622,7 +562,7 @@ inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
+of1x_match_t* of1x_init_ip6_exthdr_match(uint16_t value, uint16_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -630,8 +570,6 @@ inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_IPV6_EXTHDR;
 	match->value = __init_utern16(value&OF1X_9_BITS_MASK, mask & OF1X_9_BITS_MASK );  //ensure 9 bits, with Wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.2
@@ -645,7 +583,7 @@ inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t
 }
 
 //ICMPV6
-inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_icmpv6_type_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -653,8 +591,6 @@ inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_
 
 	match->type = OF1X_MATCH_ICMPV6_TYPE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -663,7 +599,7 @@ inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_
 
 	return match;
 }
-inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_icmpv6_code_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -671,8 +607,6 @@ inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_
 
 	match->type = OF1X_MATCH_ICMPV6_CODE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -683,7 +617,7 @@ inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_
 }
 
 //TCP
-inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_tcp_src_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -691,8 +625,6 @@ inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_TCP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -702,7 +634,7 @@ inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_tcp_dst_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -710,8 +642,6 @@ inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_TCP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -721,7 +651,7 @@ inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* n
 	return match;
 }
 //UDP
-inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_udp_src_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -729,8 +659,6 @@ inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_UDP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -739,7 +667,7 @@ inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	return match;
 }
-inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_udp_dst_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -747,8 +675,6 @@ inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	match->type = OF1X_MATCH_UDP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -759,7 +685,7 @@ inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* n
 }
 
 //SCTP
-inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_sctp_src_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -767,8 +693,6 @@ inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_SCTP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -778,7 +702,7 @@ inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* 
 
 	return match;
 }
-inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_sctp_dst_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -786,8 +710,6 @@ inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_SCTP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -798,7 +720,7 @@ inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //TP
-inline of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_tp_src_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -806,8 +728,6 @@ inline of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* ne
 
 	match->type = OF1X_MATCH_TP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -816,7 +736,7 @@ inline of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* ne
 
 	return match;
 }
-inline of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_tp_dst_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -824,8 +744,6 @@ inline of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* ne
 
 	match->type = OF1X_MATCH_TP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
@@ -835,7 +753,7 @@ inline of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* ne
 	return match;
 }
 //ICMPv4
-inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_icmpv4_type_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -843,8 +761,6 @@ inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_
 
 	match->type = OF1X_MATCH_ICMPV4_TYPE; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -853,7 +769,7 @@ inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_
 
 	return match;
 }
-inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_icmpv4_code_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -861,8 +777,6 @@ inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_
 
 	match->type = OF1X_MATCH_ICMPV4_CODE; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -873,7 +787,7 @@ inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_
 }
 
 //PBB
-inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_pbb_isid_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -881,8 +795,6 @@ inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_PBB_ISID;
 	match->value = __init_utern32(value&OF1X_3_BYTE_MASK, mask&OF1X_3_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
@@ -896,7 +808,7 @@ inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* 
 }
 
 //Tunnel Id
-inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+of1x_match_t* of1x_init_tunnel_id_match(uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -904,8 +816,6 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 
 	match->type = OF1X_MATCH_TUNNEL_ID; 
 	match->value = __init_utern64(value, mask); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
@@ -923,7 +833,7 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 /* Extensions */
 
 //PPPoE
-inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_pppoe_code_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -931,8 +841,6 @@ inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_PPPOE_CODE; 
 	match->value = __init_utern8(value&OF1X_1_BYTE_MASK,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -941,7 +849,7 @@ inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_pppoe_type_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -949,8 +857,6 @@ inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t
 
 	match->type = OF1X_MATCH_PPPOE_TYPE; 
 	match->value = __init_utern8(value&OF1X_4_BITS_MASK,OF1X_4_BITS_MASK); //Ensure only 4 bit value, no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -959,7 +865,7 @@ inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t
 
 	return match;
 }
-inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_pppoe_session_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -967,8 +873,6 @@ inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_matc
 
 	match->type = OF1X_MATCH_PPPOE_SID; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -977,7 +881,7 @@ inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_matc
 	return match;
 }
 //PPP
-inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+of1x_match_t* of1x_init_ppp_prot_match(uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -985,8 +889,6 @@ inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_PPP_PROT; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -996,7 +898,7 @@ inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* 
 	return match;
 }
 //GTP
-inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+of1x_match_t* of1x_init_gtp_msg_type_match(uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -1004,8 +906,6 @@ inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match
 
 	match->type = OF1X_MATCH_GTP_MSG_TYPE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -1014,7 +914,7 @@ inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match
 
 	return match;
 }
-inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
+of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	
 	if(unlikely(match == NULL))
@@ -1022,8 +922,6 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 
 	match->type = OF1X_MATCH_GTP_TEID;
 	match->value = __init_utern32(value, mask);
-	match->prev = prev;
-	match->next = next;
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
@@ -1114,83 +1012,83 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 /*
 * Copy match to heap. Leaves next and prev pointers to NULL
 */
-inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
+of1x_match_t* __of1x_copy_match(of1x_match_t* match){
 	switch(match->type){
 
-		case OF1X_MATCH_IN_PORT: return of1x_init_port_in_match(NULL, NULL, match->value->value.u32);
-		case OF1X_MATCH_IN_PHY_PORT: return of1x_init_port_in_phy_match(NULL, NULL, match->value->value.u32);
+		case OF1X_MATCH_IN_PORT: return of1x_init_port_in_match(match->value->value.u32);
+		case OF1X_MATCH_IN_PHY_PORT: return of1x_init_port_in_phy_match(match->value->value.u32);
 
-	  	case OF1X_MATCH_METADATA: return of1x_init_metadata_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);	
+	  	case OF1X_MATCH_METADATA: return of1x_init_metadata_match(match->value->value.u64,match->value->mask.u64);	
    
-		case OF1X_MATCH_ETH_DST:  return of1x_init_eth_dst_match(NULL,NULL,match->value->value.u64,match->value->mask.u64); 
-   		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
-   		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(NULL,NULL,match->value->value.u16);
+		case OF1X_MATCH_ETH_DST:  return of1x_init_eth_dst_match(match->value->value.u64,match->value->mask.u64); 
+   		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(match->value->value.u64,match->value->mask.u64);
+   		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(match->value->value.u16);
 
-   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(NULL,NULL,match->value->value.u16,match->value->mask.u16); 
-   		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(NULL,NULL,match->value->value.u8); 
+   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(match->value->value.u16,match->value->mask.u16); 
+   		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(match->value->value.u8); 
 
-   		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(NULL,NULL,match->value->value.u32); 
-   		case OF1X_MATCH_MPLS_TC: return of1x_init_mpls_tc_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_MPLS_BOS: return of1x_init_mpls_bos_match(NULL,NULL,match->value->value.u8); 
+   		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(match->value->value.u32); 
+   		case OF1X_MATCH_MPLS_TC: return of1x_init_mpls_tc_match(match->value->value.u8); 
+   		case OF1X_MATCH_MPLS_BOS: return of1x_init_mpls_bos_match(match->value->value.u8); 
 
-   		case OF1X_MATCH_ARP_OP: return of1x_init_arp_opcode_match(NULL,NULL,match->value->value.u16);
-   		case OF1X_MATCH_ARP_SHA: return of1x_init_arp_sha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
-   		case OF1X_MATCH_ARP_SPA: return of1x_init_arp_spa_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
-   		case OF1X_MATCH_ARP_THA: return of1x_init_arp_tha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
-   		case OF1X_MATCH_ARP_TPA: return of1x_init_arp_tpa_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
+   		case OF1X_MATCH_ARP_OP: return of1x_init_arp_opcode_match(match->value->value.u16);
+   		case OF1X_MATCH_ARP_SHA: return of1x_init_arp_sha_match(match->value->value.u64,match->value->mask.u64);
+   		case OF1X_MATCH_ARP_SPA: return of1x_init_arp_spa_match(match->value->value.u32,match->value->mask.u32);
+   		case OF1X_MATCH_ARP_THA: return of1x_init_arp_tha_match(match->value->value.u64,match->value->mask.u64);
+   		case OF1X_MATCH_ARP_TPA: return of1x_init_arp_tpa_match(match->value->value.u32,match->value->mask.u32);
 
-		case OF1X_MATCH_NW_PROTO: return of1x_init_nw_proto_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_NW_SRC: return of1x_init_nw_src_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
-   		case OF1X_MATCH_NW_DST: return of1x_init_nw_dst_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
+		case OF1X_MATCH_NW_PROTO: return of1x_init_nw_proto_match(match->value->value.u8); 
+   		case OF1X_MATCH_NW_SRC: return of1x_init_nw_src_match(match->value->value.u32,match->value->mask.u32); 
+   		case OF1X_MATCH_NW_DST: return of1x_init_nw_dst_match(match->value->value.u32,match->value->mask.u32); 
 
-		case OF1X_MATCH_IP_PROTO: return of1x_init_ip_proto_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_IP_ECN: return of1x_init_ip_ecn_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_IP_DSCP: return of1x_init_ip_dscp_match(NULL,NULL,match->value->value.u8);
+		case OF1X_MATCH_IP_PROTO: return of1x_init_ip_proto_match(match->value->value.u8); 
+   		case OF1X_MATCH_IP_ECN: return of1x_init_ip_ecn_match(match->value->value.u8); 
+   		case OF1X_MATCH_IP_DSCP: return of1x_init_ip_dscp_match(match->value->value.u8);
 
-   		case OF1X_MATCH_IPV4_SRC: return of1x_init_ip4_src_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
-   		case OF1X_MATCH_IPV4_DST: return of1x_init_ip4_dst_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
+   		case OF1X_MATCH_IPV4_SRC: return of1x_init_ip4_src_match(match->value->value.u32,match->value->mask.u32); 
+   		case OF1X_MATCH_IPV4_DST: return of1x_init_ip4_dst_match(match->value->value.u32,match->value->mask.u32); 
 
-   		case OF1X_MATCH_TCP_SRC: return of1x_init_tcp_src_match(NULL,NULL,match->value->value.u16); 
-   		case OF1X_MATCH_TCP_DST: return of1x_init_tcp_dst_match(NULL,NULL,match->value->value.u16); 
+   		case OF1X_MATCH_TCP_SRC: return of1x_init_tcp_src_match(match->value->value.u16); 
+   		case OF1X_MATCH_TCP_DST: return of1x_init_tcp_dst_match(match->value->value.u16); 
 
-   		case OF1X_MATCH_UDP_SRC: return of1x_init_udp_src_match(NULL,NULL,match->value->value.u16); 
-   		case OF1X_MATCH_UDP_DST: return of1x_init_udp_dst_match(NULL,NULL,match->value->value.u16); 
+   		case OF1X_MATCH_UDP_SRC: return of1x_init_udp_src_match(match->value->value.u16); 
+   		case OF1X_MATCH_UDP_DST: return of1x_init_udp_dst_match(match->value->value.u16); 
 
-   		case OF1X_MATCH_SCTP_SRC: return of1x_init_sctp_src_match(NULL,NULL,match->value->value.u16); 
-   		case OF1X_MATCH_SCTP_DST: return of1x_init_sctp_dst_match(NULL,NULL,match->value->value.u16); 
+   		case OF1X_MATCH_SCTP_SRC: return of1x_init_sctp_src_match(match->value->value.u16); 
+   		case OF1X_MATCH_SCTP_DST: return of1x_init_sctp_dst_match(match->value->value.u16); 
 
-		case OF1X_MATCH_TP_SRC: return of1x_init_tp_src_match(NULL,NULL,match->value->value.u16); 
-   		case OF1X_MATCH_TP_DST: return of1x_init_tp_dst_match(NULL,NULL,match->value->value.u16); 
+		case OF1X_MATCH_TP_SRC: return of1x_init_tp_src_match(match->value->value.u16); 
+   		case OF1X_MATCH_TP_DST: return of1x_init_tp_dst_match(match->value->value.u16); 
 
 
-		case OF1X_MATCH_ICMPV4_TYPE: return of1x_init_icmpv4_type_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_ICMPV4_CODE: return of1x_init_icmpv4_code_match(NULL,NULL,match->value->value.u8); 
+		case OF1X_MATCH_ICMPV4_TYPE: return of1x_init_icmpv4_type_match(match->value->value.u8); 
+   		case OF1X_MATCH_ICMPV4_CODE: return of1x_init_icmpv4_code_match(match->value->value.u8); 
   		
-		case OF1X_MATCH_IPV6_SRC: return of1x_init_ip6_src_match(NULL,NULL,match->value->value.u128, match->value->mask.u128);
-		case OF1X_MATCH_IPV6_DST: return of1x_init_ip6_dst_match(NULL,NULL,match->value->value.u128, match->value->mask.u128);
-		case OF1X_MATCH_IPV6_FLABEL: return of1x_init_ip6_flabel_match(NULL,NULL,match->value->value.u64);
-		case OF1X_MATCH_IPV6_ND_TARGET: return of1x_init_ip6_nd_target_match(NULL,NULL,match->value->value.u128);
-		case OF1X_MATCH_IPV6_ND_SLL: return of1x_init_ip6_nd_sll_match(NULL,NULL,match->value->value.u64);
-		case OF1X_MATCH_IPV6_ND_TLL: return of1x_init_ip6_nd_tll_match(NULL,NULL,match->value->value.u64);
-		case OF1X_MATCH_IPV6_EXTHDR: return of1x_init_ip6_exthdr_match(NULL,NULL,match->value->value.u64, match->value->mask.u64);
+		case OF1X_MATCH_IPV6_SRC: return of1x_init_ip6_src_match(match->value->value.u128, match->value->mask.u128);
+		case OF1X_MATCH_IPV6_DST: return of1x_init_ip6_dst_match(match->value->value.u128, match->value->mask.u128);
+		case OF1X_MATCH_IPV6_FLABEL: return of1x_init_ip6_flabel_match(match->value->value.u64);
+		case OF1X_MATCH_IPV6_ND_TARGET: return of1x_init_ip6_nd_target_match(match->value->value.u128);
+		case OF1X_MATCH_IPV6_ND_SLL: return of1x_init_ip6_nd_sll_match(match->value->value.u64);
+		case OF1X_MATCH_IPV6_ND_TLL: return of1x_init_ip6_nd_tll_match(match->value->value.u64);
+		case OF1X_MATCH_IPV6_EXTHDR: return of1x_init_ip6_exthdr_match(match->value->value.u64, match->value->mask.u64);
 		
-		case OF1X_MATCH_ICMPV6_TYPE: return of1x_init_icmpv6_type_match(NULL,NULL,match->value->value.u64);
-		case OF1X_MATCH_ICMPV6_CODE: return of1x_init_icmpv6_code_match(NULL,NULL,match->value->value.u64);
+		case OF1X_MATCH_ICMPV6_TYPE: return of1x_init_icmpv6_type_match(match->value->value.u64);
+		case OF1X_MATCH_ICMPV6_CODE: return of1x_init_icmpv6_code_match(match->value->value.u64);
 		
 		/* PPP/PPPoE related extensions */
-   		case OF1X_MATCH_PPPOE_CODE: return of1x_init_pppoe_code_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_PPPOE_TYPE: return of1x_init_pppoe_type_match(NULL,NULL,match->value->value.u8); 
-   		case OF1X_MATCH_PPPOE_SID: return of1x_init_pppoe_session_match(NULL,NULL,match->value->value.u16); 
-   		case OF1X_MATCH_PPP_PROT: return of1x_init_ppp_prot_match(NULL,NULL,match->value->value.u16); 
+   		case OF1X_MATCH_PPPOE_CODE: return of1x_init_pppoe_code_match(match->value->value.u8); 
+   		case OF1X_MATCH_PPPOE_TYPE: return of1x_init_pppoe_type_match(match->value->value.u8); 
+   		case OF1X_MATCH_PPPOE_SID: return of1x_init_pppoe_session_match(match->value->value.u16); 
+   		case OF1X_MATCH_PPP_PROT: return of1x_init_ppp_prot_match(match->value->value.u16); 
 
 		//PBB   		
-		case OF1X_MATCH_PBB_ISID: return of1x_init_pbb_isid_match(NULL,NULL,match->value->value.u32, match->value->mask.u32); 
+		case OF1X_MATCH_PBB_ISID: return of1x_init_pbb_isid_match(match->value->value.u32, match->value->mask.u32); 
 		//Tunnel ID
-		case OF1X_MATCH_TUNNEL_ID: return of1x_init_tunnel_id_match(NULL,NULL,match->value->value.u64, match->value->mask.u64); 
+		case OF1X_MATCH_TUNNEL_ID: return of1x_init_tunnel_id_match(match->value->value.u64, match->value->mask.u64); 
 
    		/* GTP related extensions */
-   		case OF1X_MATCH_GTP_MSG_TYPE: return of1x_init_gtp_msg_type_match(NULL,NULL,match->value->value.u8);
-   		case OF1X_MATCH_GTP_TEID: return of1x_init_gtp_teid_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
+   		case OF1X_MATCH_GTP_MSG_TYPE: return of1x_init_gtp_msg_type_match(match->value->value.u8);
+   		case OF1X_MATCH_GTP_TEID: return of1x_init_gtp_teid_match(match->value->value.u32,match->value->mask.u32);
    		
 		case OF1X_MATCH_MAX:
 				break;
@@ -1243,7 +1141,7 @@ of1x_match_t* __of1x_copy_matches(of1x_match_t* matches){
 /*
 * Try to find the largest common value among match1 and match2, being ALWAYS match2 with a more strict mask 
 */
-inline of1x_match_t* __of1x_get_alike_match(of1x_match_t* match1, of1x_match_t* match2){
+of1x_match_t* __of1x_get_alike_match(of1x_match_t* match1, of1x_match_t* match2){
 	utern_t* common_tern = NULL;	
 
 	if( match1->type != match2->type )
@@ -1276,7 +1174,7 @@ void of1x_destroy_match(of1x_match_t* match){
 */
 
 //Compare matches
-inline bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2){
+bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2){
 
 	if( match1->type != match2->type )
 		return false; 
@@ -1285,7 +1183,7 @@ inline bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2){
 }
 
 //Finds out if sub_match is a submatch of match
-inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
+bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 
 	if( match->type != sub_match->type )
 		return false; 
@@ -1297,7 +1195,7 @@ inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 * CHECK fields against packet
 *
 */
-inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
+bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 
 	if( unlikely(it==NULL ) )
 		return false;

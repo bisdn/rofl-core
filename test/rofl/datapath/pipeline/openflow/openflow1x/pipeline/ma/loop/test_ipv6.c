@@ -164,12 +164,12 @@ void ipv6_install_flow_mod(void){
 	uint128__t mask;  UINT128__T_HI(value) = 0xffffffffffffffff; UINT128__T_LO(value) = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	CU_ASSERT(entry != NULL);	
 	entry->cookie_mask = 0x1;
 	
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(NULL,NULL,value,mask)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value,mask)) == ROFL_SUCCESS);
 	
 	//Install
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
@@ -179,10 +179,10 @@ void ipv6_install_flow_mod(void){
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//New entry	
-	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry = of1x_init_flow_entry(false); 
 	entry->cookie_mask = 0x1;
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(NULL,NULL,value,mask)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value,mask)) == ROFL_SUCCESS);
 	
 	//Uninstall (specific)	
 	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
@@ -200,20 +200,20 @@ void ipv6_install_flow_mod_complete(void){
 	uint64_t value64 = 0xffffffffffff1234, mask64 = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	CU_ASSERT(entry != NULL);	
 	
 	entry->cookie_mask = 0x1;
 	
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(NULL,NULL,value128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_exthdr_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value128,mask128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(value128,mask128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(value128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_exthdr_match(value64,mask64)) == ROFL_SUCCESS);
 	
 	//Install
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
@@ -223,16 +223,16 @@ void ipv6_install_flow_mod_complete(void){
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//New entry	
-	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry = of1x_init_flow_entry(false); 
 	entry->cookie_mask = 0x1;
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(NULL,NULL,value128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_exthdr_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value128,mask128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(value128,mask128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(value128)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_exthdr_match(value64,mask64)) == ROFL_SUCCESS);
 	
 
 	//Uninstall (specific)	
@@ -249,15 +249,15 @@ void icmpv6_install_flow_mod_complete(void){
 	uint64_t value64 = 0xffffffffffff1234;
 	
 	//Create a simple flow_mod
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	CU_ASSERT(entry != NULL);	
 	
 	entry->cookie_mask = 0x1;
 	
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_type_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_code_match(NULL,NULL,value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_type_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_code_match(value64)) == ROFL_SUCCESS);
 	
 	//Install
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
@@ -267,11 +267,11 @@ void icmpv6_install_flow_mod_complete(void){
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//New entry	
-	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry = of1x_init_flow_entry(false); 
 	
 	//add IPv6 match
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_type_match(NULL,NULL,value64)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_code_match(NULL,NULL,value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_type_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_code_match(value64)) == ROFL_SUCCESS);
 	
 
 	//Uninstall (specific)	

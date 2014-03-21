@@ -21,7 +21,7 @@ extern switch_port_t* flood_meta_port;
 static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t* group, bool replicate_pkts);
 
 /* Actions init and destroyed */
-of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len,  of1x_packet_action_t* prev, of1x_packet_action_t* next){
+of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len){
 
 	of1x_packet_action_t* action;
 
@@ -300,10 +300,6 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->field.u64 = 0x0;
 			break;
 	}
-	
-	//Set list pointers
-	action->next = next;
-	action->prev = prev;
 	
 	return action;
 }

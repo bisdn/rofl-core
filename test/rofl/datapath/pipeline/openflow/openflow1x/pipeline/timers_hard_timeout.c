@@ -52,7 +52,7 @@ void test_insert_and_expiration_static(of1x_pipeline_t * pipeline, uint32_t hard
 	of1x_flow_table_t* table = pipeline->tables;
 	struct timeval now;
 	time_forward(0,0,&now);
-	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
+	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(false);
 	CU_ASSERT(single_entry!=NULL);
 	__of1x_fill_new_timer_entry_info(single_entry,hard_timeout,0);
 	CU_ASSERT(single_entry->timer_info.hard_timeout==hard_timeout);
@@ -93,9 +93,9 @@ void test_insert_and_extract_static(of1x_pipeline_t * pipeline, uint32_t hard_ti
 	{
 		
 		of1x_flow_entry_t* tmp;
-		entry_list[i] = of1x_init_flow_entry(NULL,NULL,false);
+		entry_list[i] = of1x_init_flow_entry(false);
 		__of1x_fill_new_timer_entry_info(entry_list[i],hard_timeout,0); 	//WARNING supposition: the entry is filled up alone
-		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
+		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(i));
 		
 		//Cheat pipeline
 		tmp = entry_list[i];
@@ -162,7 +162,7 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 {
 	of1x_flow_table_t * table = pipeline->tables;
 	of1x_flow_entry_t *tmp;
-	of1x_flow_entry_t *entry=of1x_init_flow_entry(NULL,NULL,false); //NOTE entry is initiated but not inserted in the table. Therefore we must extract it.??
+	of1x_flow_entry_t *entry=of1x_init_flow_entry(false); //NOTE entry is initiated but not inserted in the table. Therefore we must extract it.??
 	struct timeval now;
 	//WARNING not working for slots different than seconds (1000 ms)
 	int slot, i;
@@ -224,7 +224,7 @@ void test_insert_both_expires_one_check_the_other_static(of1x_pipeline_t * pipel
 	int slot, i;
 	
 	of1x_flow_entry_t *tmp;
-	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
+	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(false);
 	__of1x_fill_new_timer_entry_info(single_entry,hto,ito);
 	
 	//Cheat pipeline
@@ -276,9 +276,9 @@ void test_insert_and_extract_dynamic(of1x_pipeline_t * pipeline, uint32_t hard_t
 	for(i=0; i< num_of_entries; i++)
 	{
 		//WARNING supposition: the entry is filled up alone
-		entry_list[i] = of1x_init_flow_entry(NULL,NULL,false);
+		entry_list[i] = of1x_init_flow_entry(false);
 		of1x_fill_new_timer_entry_info(entry_list[i],hard_timeout,0);
-		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
+		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(i));
 		of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false);
 		//CU_ASSERT(of1x_add_timer(table, entry_list[i]));
 		
@@ -341,7 +341,7 @@ void test_simple_idle_dynamic(of1x_pipeline_t * pipeline, uint32_t ito)
 	of1x_flow_table_t * table = pipeline->tables;
 	struct timeval now;
 	
-	of1x_flow_entry_t *entry=of1x_init_flow_entry(NULL,NULL,false);
+	of1x_flow_entry_t *entry=of1x_init_flow_entry(false);
 	of1x_fill_new_timer_entry_info(entry,0,ito);
 	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry, false, false)==ROFL_OF1X_FM_SUCCESS);
 	
@@ -378,7 +378,7 @@ void test_insert_both_expires_one_check_the_other_dynamic(of1x_pipeline_t * pipe
 	struct timeval now;
 	of1x_time_forward(0,0,&now);
 	
-	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
+	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(false);
 	of1x_fill_new_timer_entry_info(single_entry,hto,ito);
 	of1x_add_flow_entry_table(pipeline,0, single_entry, false, false);
 	
@@ -417,10 +417,10 @@ void test_incremental_insert_and_expiration_dynamic(of1x_pipeline_t * pipeline)
 	for(i=0; i<OF1X_TIMERS_TEST_MAX_TIMER_ENTRIES; i++)
 	{
 		uint32_t timeout = i+1;
-		entry_list[i] = of1x_init_flow_entry(NULL,NULL,false);
+		entry_list[i] = of1x_init_flow_entry(false);
 		CU_ASSERT(entry_list[i]!=NULL);
 		of1x_fill_new_timer_entry_info(entry_list[i],timeout,0);
-		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
+		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(i));
 		CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false)==ROFL_OF1X_FM_SUCCESS);
 		
 		//if(i==0)

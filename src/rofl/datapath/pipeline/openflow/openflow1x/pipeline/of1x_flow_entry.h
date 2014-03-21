@@ -117,7 +117,7 @@ ROFL_BEGIN_DECLS
 * @brief Create an empty flow entry 
 * @ingroup core_of1x 
 */
-of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry_t* next, bool notify_removal);
+of1x_flow_entry_t* of1x_init_flow_entry(bool notify_removal);
 
 //This should never be used from outside the library
 rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of1x_flow_remove_reason_t reason); 

@@ -327,7 +327,7 @@ ROFL_BEGIN_DECLS
 * @param field union containing 8, 16, 32, 64 and 128 bit action field (e.g. port_num in output actions, header value in set field actions). Put if not used in this action type.
 * @param output_send_len Optional send to controller send len; leave to 0x0 if not used.
 */
-of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len,  of1x_packet_action_t* prev, of1x_packet_action_t* next);
+of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len);
 
 /**
 * @ingroup core_of1x 

@@ -54,7 +54,7 @@ void bufs_no_output_action(void){
 	
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	CU_ASSERT(entry != NULL);	
 
@@ -94,9 +94,9 @@ void bufs_apply_output_action(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(apply_actions != NULL);	
@@ -147,9 +147,9 @@ void bufs_write_output_action(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	of1x_write_actions_t *write_actions = of1x_init_write_actions();
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(write_actions != NULL);	
@@ -199,16 +199,16 @@ void bufs_multiple_apply_output_actions(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(apply_actions != NULL);	
 	CU_ASSERT(action != NULL);	
 	of1x_push_packet_action_to_group(apply_actions, action);
 
-	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	CU_ASSERT(action != NULL);	
 	of1x_push_packet_action_to_group(apply_actions, action);
 	
@@ -255,9 +255,9 @@ void bufs_multiple_apply_write_output_actions(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	of1x_write_actions_t *write_actions = of1x_init_write_actions();
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(write_actions != NULL);	
@@ -273,7 +273,7 @@ void bufs_multiple_apply_write_output_actions(void){
 				/*go_to_table*/0);
 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
-	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(apply_actions != NULL);	
 	CU_ASSERT(action != NULL);	
@@ -323,11 +323,11 @@ void bufs_single_output_action_group_apply(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT, field, 0x0, NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT, field, 0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
@@ -337,7 +337,7 @@ void bufs_single_output_action_group_apply(void){
 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	CU_ASSERT(apply_actions != NULL);	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP, field_grp, 0x0, NULL, NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP, field_grp, 0x0));
 	
 	of1x_add_instruction_to_group(
 			&(entry->inst_grp),
@@ -383,11 +383,11 @@ void bufs_single_output_action_group_write(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT, field, 0x0, NULL, NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT, field, 0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_EXISTS); 
 	
@@ -396,7 +396,7 @@ void bufs_single_output_action_group_write(void){
 	CU_ASSERT(buckets != NULL);	
 
 	of1x_write_actions_t *write_actions = of1x_init_write_actions();
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_GROUP,field_grp, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_GROUP,field_grp, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(write_actions != NULL);	
@@ -448,11 +448,11 @@ void bufs_apply_and_group_output_actions(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field, 0x0, NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field, 0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_EXISTS);
 	
@@ -462,8 +462,8 @@ void bufs_apply_and_group_output_actions(void){
 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	CU_ASSERT(apply_actions != NULL);	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	
 	of1x_add_instruction_to_group(
 			&(entry->inst_grp),
@@ -509,11 +509,11 @@ void bufs_write_and_group_output_actions(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_EXISTS); //Group should exist
 	
@@ -522,14 +522,14 @@ void bufs_write_and_group_output_actions(void){
 	CU_ASSERT(buckets != NULL);	
 
 	of1x_write_actions_t *write_actions = of1x_init_write_actions();
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(write_actions != NULL);	
 	CU_ASSERT(action != NULL);	
 	of1x_set_packet_action_on_write_actions(write_actions, action);
 	
-	action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL);
+	action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
 	CU_ASSERT(action != NULL);	
 	of1x_set_packet_action_on_write_actions(write_actions, action);
 
@@ -582,12 +582,12 @@ void bufs_multiple_output_actions_group(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
@@ -597,7 +597,7 @@ void bufs_multiple_output_actions_group(void){
 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	CU_ASSERT(apply_actions != NULL);	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
 	
 	of1x_add_instruction_to_group(
 			&(entry->inst_grp),
@@ -645,8 +645,8 @@ void bufs_no_output_action_goto(void){
 	
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	
 	CU_ASSERT(entry != NULL);	
 
@@ -695,10 +695,10 @@ void bufs_apply_output_action_last_table_goto(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(entry2 != NULL);	
@@ -760,12 +760,12 @@ void bufs_apply_output_action_both_tables_goto(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
-	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
+	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(entry2 != NULL);	
@@ -838,12 +838,12 @@ void bufs_apply_output_action_both_tables_bis_goto(void){
 	field.u32 = 1;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
-	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
+	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	
 	CU_ASSERT(entry != NULL);	
 	CU_ASSERT(entry2 != NULL);	
@@ -851,7 +851,7 @@ void bufs_apply_output_action_both_tables_bis_goto(void){
 	CU_ASSERT(action != NULL);	
 
 	of1x_push_packet_action_to_group(apply_actions, action);
-	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 	of1x_push_packet_action_to_group(apply_actions, action);
 	of1x_push_packet_action_to_group(apply_actions2, action2);
 
@@ -919,14 +919,14 @@ void bufs_output_first_table_output_on_group_second_table(void){
 	field_grp.u32 = grp_id;
 	reset_io_state();
 	
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
-	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL);
+	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0);
 		
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
@@ -936,7 +936,7 @@ void bufs_output_first_table_output_on_group_second_table(void){
 
 	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
 	CU_ASSERT(apply_actions != NULL);	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
 	
 	of1x_add_instruction_to_group(
 			&(entry->inst_grp),
@@ -1011,8 +1011,8 @@ void bufs_output_all(void){
 	//Group	
 	of1x_action_group_t* ag=of1x_init_action_group(NULL);
 	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	CU_ASSERT(of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets) == ROFL_OF1X_GM_OK);
 	
@@ -1021,10 +1021,10 @@ void bufs_output_all(void){
 	//
 	
 	//Apply
-	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	of1x_action_group_t* apply_actions = of1x_init_action_group(NULL);
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_add_instruction_to_group(
 			&(entry->inst_grp),
 			OF1X_IT_APPLY_ACTIONS,
@@ -1035,8 +1035,8 @@ void bufs_output_all(void){
 
 	//Write
 	of1x_write_actions_t *write_actions = of1x_init_write_actions();
-	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_add_instruction_to_group(
 				&(entry->inst_grp),
 				OF1X_IT_WRITE_ACTIONS,
@@ -1057,10 +1057,10 @@ void bufs_output_all(void){
 	//
 	//entry 2
 	//
-	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(false); 
 	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
-	of1x_push_packet_action_to_group(apply_actions2, of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0, NULL, NULL));
-	of1x_push_packet_action_to_group(apply_actions2,of1x_init_packet_action(OF1X_AT_GROUP, field_grp, 0x0, NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions2, of1x_init_packet_action( OF1X_AT_OUTPUT, field, 0x0));
+	of1x_push_packet_action_to_group(apply_actions2,of1x_init_packet_action(OF1X_AT_GROUP, field_grp, 0x0));
 
 	
 

@@ -113,7 +113,7 @@ rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
 	of1x_group_table_t* group_entry;
 
 	//Create empty entries
-	flow_entry = of1x_init_flow_entry(NULL,NULL,false);
+	flow_entry = of1x_init_flow_entry(false);
 	group_entry = of1x_init_group_table(); 
 	
 	if( unlikely(flow_entry==NULL) )

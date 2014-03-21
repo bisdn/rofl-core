@@ -18,7 +18,7 @@ int oa_set_up(void){
 	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101,1,&ma_list);
 	fprintf(stderr,"<%s:%d>sw %p\n",__func__,__LINE__,sw);
 	
-	entry = of1x_init_flow_entry(NULL,NULL,false);
+	entry = of1x_init_flow_entry(false);
 	apply_actions = of1x_init_action_group(0);
 	write_actions = of1x_init_write_actions();
 	assert (sw && entry && write_actions && apply_actions); //NOTE CU_ASSERT(sw!=0);
@@ -44,12 +44,12 @@ void oa_basic_test(void){
 	wrap_uint_t field; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
 	of1x_push_packet_action_to_group(apply_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL, 0);
 	
 	//"map_flow_entry_actions"
-	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port),NULL,NULL);
+	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port));
 	of1x_set_packet_action_on_write_actions(write_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL, 0);
 	
@@ -74,12 +74,12 @@ void oa_only_apply(void){
 	wrap_uint_t field; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
 	of1x_push_packet_action_to_group(apply_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL);
+	action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
@@ -103,12 +103,12 @@ void oa_only_write(void){
 	wrap_uint_t field; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0);
 	of1x_push_packet_action_to_group(apply_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL);
+	action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
@@ -128,12 +128,12 @@ void oa_no_output(){
 	oa_set_up();
 	wrap_uint_t field; field.u32 = be32toh(port);
 	
-	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0);
 	of1x_push_packet_action_to_group(apply_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port),NULL,NULL);
+	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port));
 	of1x_set_packet_action_on_write_actions(write_actions,action);
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
@@ -158,19 +158,19 @@ void oa_test_with_groups(void){
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_action_group_t *ag2=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag2));
 	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
@@ -190,13 +190,13 @@ void oa_two_outputs_apply(void){
 	wrap_uint_t field2; field2.u32 = be32toh(port+1);
 	//wrap_uint_t field_grp; field_grp.u16 = grp_id;
 	
-	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field2,0x0,NULL,NULL));
+	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field2,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
@@ -222,20 +222,20 @@ void oa_two_outputs_write(void){
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_action_group_t *ag2=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag2));
 	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
-	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
+	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
@@ -257,18 +257,18 @@ void oa_write_and_group(void){
 
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
-	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
+	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
@@ -290,17 +290,17 @@ void oa_apply_and_group(void){
 
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
+	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0,NULL,NULL));
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
