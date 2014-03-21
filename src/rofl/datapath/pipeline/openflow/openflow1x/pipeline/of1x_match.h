@@ -194,7 +194,7 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value);
 * @brief Create an VLAN_VID match according to 1.2 semantics (13th bit is a flag) 
 * @ingroup core_of1x 
 */
-of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask);
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, bool vlan_present);
 
 /**
 * @brief Create an VLAN_PCP match 

@@ -146,7 +146,7 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value){
 }
 
 //8021.q
-of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask){
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask,  bool vlan_present){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -157,6 +157,7 @@ of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask){
 	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
 	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_VLAN_ID_MASK);
 
+	match->vlan_present = vlan_present;
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
@@ -1178,7 +1179,7 @@ of1x_match_t* __of1x_copy_match(of1x_match_t* match){
    		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(match->value->value.u64,match->value->mask.u64);
    		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(match->value->value.u16);
 
-   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(match->value->value.u16,match->value->mask.u16); 
+   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(match->value->value.u16,match->value->mask.u16, match->vlan_present); 
    		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(match->value->value.u8); 
 
    		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(match->value->value.u32); 
