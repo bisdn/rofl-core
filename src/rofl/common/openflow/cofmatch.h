@@ -480,8 +480,8 @@ public:
 	void set_arp_tpa(caddress const& tpa, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
 	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_ipv6_src(caddress const& addr, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_ipv6_dst(caddress const& addr, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
+	void set_ipv6_src(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
+	void set_ipv6_dst(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
 	void set_ipv6_flabel(uint32_t flabel);
 	void set_icmpv6_type(uint8_t type);
 	void set_icmpv6_code(uint8_t code);
