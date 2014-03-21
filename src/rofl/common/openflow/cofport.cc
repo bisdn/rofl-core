@@ -4,7 +4,7 @@
 
 #include "cofport.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofport::cofport(
 		uint8_t ofp_version) :
@@ -188,7 +188,7 @@ cofport::set_port_no(uint32_t port_no)
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofport::get_hwaddr() const
 {
 	switch (ofp_version) {
