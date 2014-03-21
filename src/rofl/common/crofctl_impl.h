@@ -36,10 +36,10 @@ namespace rofl
 
 class crofctl_impl :
 	public crofctl,
-	public rofl::openflow::crofchan_env,
-	public rofl::openflow::ctransactions_env,
+	public rofl::crofchan_env,
+	public rofl::ctransactions_env,
 	public ciosrv,
-	public cfspentry_owner
+	public rofl::openflow::cfspentry_owner
 {
 
 private: // data structures
@@ -49,10 +49,10 @@ private: // data structures
 	uint64_t						ctid;					// controller id (TODO: unique hash value per controller connection)
 	crofbase 						*rofbase;				// parent crofbase instance
 	uint16_t 						miss_send_len;			// config: miss_send_len
-	std::set<cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
+	std::set<rofl::openflow::cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
-	rofl::openflow::crofchan		rofchan;				// OFP control channel
-	rofl::openflow::ctransactions	transactions;
+	crofchan						rofchan;				// OFP control channel
+	ctransactions					transactions;
 	rofl::openflow::cofasync_config	async_config;
 	rofl::openflow::cofrole			role;
 
@@ -130,7 +130,7 @@ public:
 	/**
 	 * @brief	Returns a reference to the associated crofchan instance
 	 */
-	rofl::openflow::crofchan&
+	rofl::crofchan&
 	get_channel() { return rofchan; };
 
 	/**
@@ -155,28 +155,28 @@ public:
 
 	virtual void
 	handle_established(
-			rofl::openflow::crofchan *chan);
+			rofl::crofchan *chan);
 
 	virtual void
 	handle_disconnected(
-			rofl::openflow::crofchan *chan);
+			rofl::crofchan *chan);
 
 	virtual void
 	recv_message(
-			rofl::openflow::crofchan *chan,
-			uint8_t aux_id, cofmsg *msg);
+			rofl::crofchan *chan,
+			uint8_t aux_id, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t
 	get_async_xid(
-			rofl::openflow::crofchan *chan);
+			rofl::crofchan *chan);
 
 	virtual uint32_t
 	get_sync_xid(
-			rofl::openflow::crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
+			rofl::crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	virtual void
 	release_sync_xid(
-			rofl::openflow::crofchan *chan,
+			rofl::crofchan *chan,
 			uint32_t xid);
 
 
@@ -216,21 +216,21 @@ private:
 	 */
 	void
 	experimenter_rcvd(
-			cofmsg_experimenter *pack,
+			rofl::openflow::cofmsg_experimenter *pack,
 			uint8_t aux_id);
 
 	/** handle incoming error message
 	 */
 	void
 	error_rcvd(
-			cofmsg_error *pack,
+			rofl::openflow::cofmsg_error *pack,
 			uint8_t aux_id);
 
 	/** handle incoming FEATURE requests
 	 */
 	void
 	features_request_rcvd(
-			cofmsg_features_request *pack,
+			rofl::openflow::cofmsg_features_request *pack,
 			uint8_t aux_id = 0);
 
 	/**
@@ -238,7 +238,7 @@ private:
 	 */
 	void
 	get_config_request_rcvd(
-			cofmsg_get_config_request *pack,
+			rofl::openflow::cofmsg_get_config_request *pack,
 			uint8_t aux_id = 0);
 
 	/**
@@ -246,93 +246,93 @@ private:
 	 */
 	void
 	set_config_rcvd(
-			cofmsg_set_config *pack,
+			rofl::openflow::cofmsg_set_config *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming PACKET-OUT messages
 	 */
 	void
 	packet_out_rcvd(
-			cofmsg_packet_out *pack,
+			rofl::openflow::cofmsg_packet_out *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming FLOW-MOD messages
 	 */
 	void
 	flow_mod_rcvd(
-			cofmsg_flow_mod *pack,
+			rofl::openflow::cofmsg_flow_mod *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming GROUP-MOD messages
 	 */
 	void
 	group_mod_rcvd(
-			cofmsg_group_mod *pack,
+			rofl::openflow::cofmsg_group_mod *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming PORT-MOD messages
 	 */
 	void
 	port_mod_rcvd(
-			cofmsg_port_mod *pack,
+			rofl::openflow::cofmsg_port_mod *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming TABLE-MOD messages
 	 */
 	void
 	table_mod_rcvd(
-			cofmsg_table_mod *pack,
+			rofl::openflow::cofmsg_table_mod *pack,
 			uint8_t aux_id = 0);
 
 	/** STATS-REQUEST received
 	 *
 	 */
 	void
-	stats_request_rcvd(cofmsg_stats *pack, uint8_t aux_id = 0);
+	stats_request_rcvd(rofl::openflow::cofmsg_stats *pack, uint8_t aux_id = 0);
 
 	void
 	desc_stats_request_rcvd(
-			cofmsg_desc_stats_request* msg,
+			rofl::openflow::cofmsg_desc_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	table_stats_request_rcvd(
-			cofmsg_table_stats_request* msg,
+			rofl::openflow::cofmsg_table_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	port_stats_request_rcvd(
-			cofmsg_port_stats_request* msg,
+			rofl::openflow::cofmsg_port_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	flow_stats_request_rcvd(
-			cofmsg_flow_stats_request* msg,
+			rofl::openflow::cofmsg_flow_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	aggregate_stats_request_rcvd(
-			cofmsg_aggr_stats_request* msg,
+			rofl::openflow::cofmsg_aggr_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	queue_stats_request_rcvd(
-			cofmsg_queue_stats_request* msg,
+			rofl::openflow::cofmsg_queue_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	group_stats_request_rcvd(
-			cofmsg_group_stats_request* msg,
+			rofl::openflow::cofmsg_group_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	group_desc_stats_request_rcvd(
-			cofmsg_group_desc_stats_request* msg,
+			rofl::openflow::cofmsg_group_desc_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	group_features_stats_request_rcvd(
-			cofmsg_group_features_stats_request* msg,
+			rofl::openflow::cofmsg_group_features_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	// TODO : METER
@@ -343,31 +343,31 @@ private:
 
 	void
 	table_features_stats_request_rcvd(
-			cofmsg_table_features_stats_request* msg,
+			rofl::openflow::cofmsg_table_features_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	port_desc_stats_request_rcvd(
-			cofmsg_port_desc_stats_request* msg,
+			rofl::openflow::cofmsg_port_desc_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void
 	experimenter_stats_request_rcvd(
-			cofmsg_experimenter_stats_request* msg,
+			rofl::openflow::cofmsg_experimenter_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
 	role_request_rcvd(
-			cofmsg_role_request *pack,
+			rofl::openflow::cofmsg_role_request *pack,
 			uint8_t aux_id = 0);
 
 	/** handle incoming BARRIER request
 	 */
 	void
 	barrier_request_rcvd(
-			cofmsg_barrier_request *pack,
+			rofl::openflow::cofmsg_barrier_request *pack,
 			uint8_t aux_id = 0);
 
 	/**
@@ -375,21 +375,21 @@ private:
 	 */
 	void
 	queue_get_config_request_rcvd(
-			cofmsg_queue_get_config_request *pack,
+			rofl::openflow::cofmsg_queue_get_config_request *pack,
 			uint8_t aux_id = 0);
 
 	/**
 	 */
 	void
 	get_async_config_request_rcvd(
-			cofmsg_get_async_config_request *pack,
+			rofl::openflow::cofmsg_get_async_config_request *pack,
 			uint8_t aux_id = 0);
 
 	/**
 	 */
 	void
 	set_async_config_rcvd(
-			cofmsg_set_async_config *pack,
+			rofl::openflow::cofmsg_set_async_config *pack,
 			uint8_t aux_id = 0);
 
 	/**
@@ -404,8 +404,8 @@ public:
 
 	virtual void
 	ta_expired(
-			rofl::openflow::ctransactions& tas,
-			rofl::openflow::ctransaction& ta);
+			rofl::ctransactions& tas,
+			rofl::ctransaction& ta);
 
 private:
 
@@ -436,7 +436,7 @@ public:
 	 * @param capabilities data path capabilities (reassembly, etc.)
 	 * @param of13_auxiliary_id auxiliary_id used in OpenFlow 1.3, ignored in other versions
 	 * @param of10_actions_bitmap bitmap of supported actions for OpenFlow 1.0, ignored in other versions
-	 * @param portlist list of cofports in this data path, ignored in OpenFlow 1.3
+	 * @param portlist list of rofl::openflow::cofports in this data path, ignored in OpenFlow 1.3
 	 */
 	virtual void
 	send_features_reply(
@@ -447,7 +447,7 @@ public:
 			uint32_t capabilities,
 			uint8_t of13_auxiliary_id = 0,
 			uint32_t of10_actions_bitmap = 0,
-			cofports const& ports = cofports());
+			rofl::openflow::cofports const& ports = rofl::openflow::cofports());
 
 	/**
 	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
@@ -489,7 +489,7 @@ public:
 	virtual void
 	send_desc_stats_reply(
 		uint32_t xid,
-		cofdesc_stats_reply const& desc_stats,
+		rofl::openflow::cofdesc_stats_reply const& desc_stats,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -502,7 +502,7 @@ public:
 	virtual void
 	send_flow_stats_reply(
 		uint32_t xid,
-		cofflowstatsarray const& flow_stats,
+		rofl::openflow::cofflowstatsarray const& flow_stats,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -515,7 +515,7 @@ public:
 	virtual void
 	send_aggr_stats_reply(
 		uint32_t xid,
-		cofaggr_stats_reply const& aggr_stats,
+		rofl::openflow::cofaggr_stats_reply const& aggr_stats,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -528,7 +528,7 @@ public:
 	virtual void
 	send_table_stats_reply(
 		uint32_t xid,
-		coftablestatsarray const& tablestatsarray,
+		rofl::openflow::coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -541,7 +541,7 @@ public:
 	virtual void
 	send_port_stats_reply(
 		uint32_t xid,
-		cofportstatsarray const& portstatsarray,
+		rofl::openflow::cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -554,7 +554,7 @@ public:
 	virtual void
 	send_queue_stats_reply(
 		uint32_t xid,
-		cofqueuestatsarray const& queuestatsarray,
+		rofl::openflow::cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags);
 
 	/**
@@ -567,7 +567,7 @@ public:
 	virtual void
 	send_group_stats_reply(
 		uint32_t xid,
-		cofgroupstatsarray const& groupstatsarray,
+		rofl::openflow::cofgroupstatsarray const& groupstatsarray,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -580,7 +580,7 @@ public:
 	virtual void
 	send_group_desc_stats_reply(
 		uint32_t xid,
-		cofgroupdescstatsarray const& groupdescs,
+		rofl::openflow::cofgroupdescstatsarray const& groupdescs,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -593,7 +593,7 @@ public:
 	virtual void
 	send_group_features_stats_reply(
 		uint32_t xid,
-		cofgroup_features_stats_reply const& group_features_stats,
+		rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -606,7 +606,7 @@ public:
 	virtual void
 	send_table_features_stats_reply(
 		uint32_t xid,
-		coftables const& tables,
+		rofl::openflow::coftables const& tables,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -619,7 +619,7 @@ public:
 	virtual void
 	send_port_desc_stats_reply(
 		uint32_t xid,
-		cofports const& ports,
+		rofl::openflow::cofports const& ports,
 		uint16_t stats_flags = 0);
 
 	/**
@@ -661,7 +661,7 @@ public:
 		uint8_t table_id,
 		uint64_t cookie,
 		uint16_t in_port, // for OF1.0
-		cofmatch &match,
+		rofl::openflow::cofmatch &match,
 		uint8_t *data,
 		size_t datalen);
 
@@ -725,7 +725,7 @@ public:
 	 */
 	virtual void
 	send_flow_removed_message(
-		cofmatch& match,
+		rofl::openflow::cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
 		uint8_t reason,
@@ -741,12 +741,12 @@ public:
 	 * @brief	Sends a PORT-STATUS.message to a controller entity.
 	 *
 	 * @param reason one of OpenFlow's OFPPR_* constants
-	 * @param port cofport instance that changed its status
+	 * @param port rofl::openflow::cofport instance that changed its status
 	 */
 	virtual void
 	send_port_status_message(
 		uint8_t reason,
-		cofport const& port);
+		rofl::openflow::cofport const& port);
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
@@ -758,7 +758,7 @@ public:
 	send_queue_get_config_reply(
 			uint32_t xid,
 			uint32_t portno,
-			cofpacket_queue_list const& pql);
+			rofl::openflow::cofpacket_queue_list const& pql);
 
 
 	/**

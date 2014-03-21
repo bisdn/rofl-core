@@ -30,8 +30,8 @@
 #include "rofl/common/fframe.h"
 #include "rofl/common/logging.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /* error classes */
 class eOxmBase 				: public RoflException {}; // error base class for class cofinstruction
@@ -3179,8 +3179,7 @@ public:
 	};
 };
 
-
-
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COXMATCH_H_ */

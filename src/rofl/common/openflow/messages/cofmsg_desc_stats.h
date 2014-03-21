@@ -8,12 +8,11 @@
 #ifndef COFMSG_DESC_STATS_H_
 #define COFMSG_DESC_STATS_H_ 1
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofdescstats.h"
 
-namespace rofl
-{
-
+namespace rofl {
+namespace openflow {
 
 
 /**
@@ -241,6 +240,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_DESC_STATS_H_ */

@@ -1,6 +1,6 @@
 #include "cofmsg_async_config.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_get_async_config_request::cofmsg_get_async_config_request(
 		uint8_t of_version,

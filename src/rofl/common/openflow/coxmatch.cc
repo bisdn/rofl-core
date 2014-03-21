@@ -9,9 +9,9 @@
  *      Author: andreas
  */
 
-#include "coxmatch.h"
+#include "rofl/common/openflow/coxmatch.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 coxmatch::coxmatch(size_t size) :
 	cmemory(size)
@@ -136,7 +136,7 @@ coxmatch::reset()
 }
 
 
-struct openflow::ofp_oxm_hdr*
+struct rofl::openflow::ofp_oxm_hdr*
 coxmatch::sooxm() const
 {
 	return oxm_header;
@@ -505,7 +505,7 @@ coxmatch::u64value() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u32addr() const
 {
 	switch (get_oxm_class()) {
@@ -541,7 +541,7 @@ coxmatch::u32addr() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u32addr_value() const
 {
 	switch (get_oxm_class()) {
@@ -573,7 +573,7 @@ coxmatch::u32addr_value() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u32addr_mask() const
 {
 	if (not get_oxm_hasmask()) {
@@ -609,7 +609,7 @@ coxmatch::u32addr_mask() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 coxmatch::u48addr() const
 {
 	switch (get_oxm_class()) {
@@ -646,7 +646,7 @@ coxmatch::u48addr() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u128addr() const
 {
 	switch (get_oxm_class()) {
@@ -684,7 +684,7 @@ coxmatch::u128addr() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u128addr_value() const
 {
 	switch (get_oxm_class()) {
@@ -715,7 +715,7 @@ coxmatch::u128addr_value() const
 
 
 
-caddress
+rofl::caddress
 coxmatch::u128addr_mask() const
 {
 	if (not get_oxm_hasmask()) {
@@ -1193,61 +1193,61 @@ coxmatch::uint128_mask() const throw (eOxmInval)
 }
 
 coxmatch::oxm_classdesc_t oxm_classdesc[] = {
-	{ openflow::OFPXMC_OPENFLOW_BASIC, 		"BASIC" },
-	{ openflow::OFPXMC_EXPERIMENTER, 			"EXPERIMENTER" }
+	{ rofl::openflow::OFPXMC_OPENFLOW_BASIC, 		"BASIC" },
+	{ rofl::openflow::OFPXMC_EXPERIMENTER, 			"EXPERIMENTER" }
 };
 
 
 coxmatch::oxm_typedesc_t oxm_basic_typedesc[] = {
-	{ openflow::OFPXMT_OFB_IN_PORT, 		"IN_PORT" },
-	{ openflow::OFPXMT_OFB_IN_PHY_PORT, 	"IN_PHY_PORT" },
-	{ openflow::OFPXMT_OFB_METADATA, 		"METADATA" },
-	{ openflow::OFPXMT_OFB_ETH_DST, 		"ETH_DST" },
-	{ openflow::OFPXMT_OFB_ETH_SRC, 		"ETH_SRC" },
-	{ openflow::OFPXMT_OFB_ETH_TYPE, 		"ETH_TYPE" },
-	{ openflow::OFPXMT_OFB_VLAN_VID, 		"VLAN_VID" },
-	{ openflow::OFPXMT_OFB_VLAN_PCP, 		"VLAN_PCP" },
-	{ openflow::OFPXMT_OFB_IP_DSCP, 		"IP_DSCP" },
-	{ openflow::OFPXMT_OFB_IP_ECN, 			"IP_ECN" },
-	{ openflow::OFPXMT_OFB_IP_PROTO, 		"IP_PROTO" },
-	{ openflow::OFPXMT_OFB_IPV4_SRC, 		"IPV4_SRC" },
-	{ openflow::OFPXMT_OFB_IPV4_DST, 		"IPV4_DST" },
-	{ openflow::OFPXMT_OFB_TCP_SRC, 		"TCP_SRC" },
-	{ openflow::OFPXMT_OFB_TCP_DST, 		"TCP_DST" },
-	{ openflow::OFPXMT_OFB_UDP_SRC, 		"UDP_SRC" },
-	{ openflow::OFPXMT_OFB_UDP_DST, 		"UDP_DST" },
-	{ openflow::OFPXMT_OFB_SCTP_SRC, 		"SCTP_SRC" },
-	{ openflow::OFPXMT_OFB_SCTP_DST, 		"SCTP_DST" },
-	{ openflow::OFPXMT_OFB_ICMPV4_TYPE, 	"ICMPV4_TYPE" },
-	{ openflow::OFPXMT_OFB_ICMPV4_CODE, 	"ICMPV4_CODE" },
-	{ openflow::OFPXMT_OFB_ARP_OP, 			"ARP_OP" },
-	{ openflow::OFPXMT_OFB_ARP_SPA, 		"ARP_SPA" },
-	{ openflow::OFPXMT_OFB_ARP_TPA, 		"ARP_TPA" },
-	{ openflow::OFPXMT_OFB_ARP_SHA, 		"ARP_SHA" },
-	{ openflow::OFPXMT_OFB_ARP_THA, 		"ARP_THA" },
-	{ openflow::OFPXMT_OFB_IPV6_SRC, 		"IPV6_SRC" },
-	{ openflow::OFPXMT_OFB_IPV6_DST, 		"IPV6_DST" },
-	{ openflow::OFPXMT_OFB_IPV6_FLABEL, 	"IPV6_FLABEL" },
-	{ openflow::OFPXMT_OFB_ICMPV6_TYPE, 	"ICMPV6_TYPE" },
-	{ openflow::OFPXMT_OFB_ICMPV6_CODE, 	"ICMPV6_CODE" },
-	{ openflow::OFPXMT_OFB_IPV6_ND_TARGET,	"IPV6_ND_TARGET" },
-	{ openflow::OFPXMT_OFB_IPV6_ND_SLL, 	"IPV6_ND_SLL" },
-	{ openflow::OFPXMT_OFB_IPV6_ND_TLL, 	"IPV6_ND_TLL" },
-	{ openflow::OFPXMT_OFB_MPLS_LABEL, 		"MPLS_LABEL" },
-	{ openflow::OFPXMT_OFB_MPLS_TC, 		"MPLS_TC" },
-	{ openflow::OFPXMT_OFB_MPLS_BOS, 		"MPLS_BOS" },
-	{ openflow::OFPXMT_OFB_TUNNEL_ID, 		"TUNNEL_ID" },
-	{ openflow::OFPXMT_OFB_PBB_ISID, 		"PBB_ISID" },
-	{ openflow::OFPXMT_OFB_IPV6_EXTHDR, 	"IPV6_EXTHDR" },
+	{ rofl::openflow::OFPXMT_OFB_IN_PORT, 		"IN_PORT" },
+	{ rofl::openflow::OFPXMT_OFB_IN_PHY_PORT, 	"IN_PHY_PORT" },
+	{ rofl::openflow::OFPXMT_OFB_METADATA, 		"METADATA" },
+	{ rofl::openflow::OFPXMT_OFB_ETH_DST, 		"ETH_DST" },
+	{ rofl::openflow::OFPXMT_OFB_ETH_SRC, 		"ETH_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_ETH_TYPE, 		"ETH_TYPE" },
+	{ rofl::openflow::OFPXMT_OFB_VLAN_VID, 		"VLAN_VID" },
+	{ rofl::openflow::OFPXMT_OFB_VLAN_PCP, 		"VLAN_PCP" },
+	{ rofl::openflow::OFPXMT_OFB_IP_DSCP, 		"IP_DSCP" },
+	{ rofl::openflow::OFPXMT_OFB_IP_ECN, 			"IP_ECN" },
+	{ rofl::openflow::OFPXMT_OFB_IP_PROTO, 		"IP_PROTO" },
+	{ rofl::openflow::OFPXMT_OFB_IPV4_SRC, 		"IPV4_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_IPV4_DST, 		"IPV4_DST" },
+	{ rofl::openflow::OFPXMT_OFB_TCP_SRC, 		"TCP_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_TCP_DST, 		"TCP_DST" },
+	{ rofl::openflow::OFPXMT_OFB_UDP_SRC, 		"UDP_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_UDP_DST, 		"UDP_DST" },
+	{ rofl::openflow::OFPXMT_OFB_SCTP_SRC, 		"SCTP_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_SCTP_DST, 		"SCTP_DST" },
+	{ rofl::openflow::OFPXMT_OFB_ICMPV4_TYPE, 	"ICMPV4_TYPE" },
+	{ rofl::openflow::OFPXMT_OFB_ICMPV4_CODE, 	"ICMPV4_CODE" },
+	{ rofl::openflow::OFPXMT_OFB_ARP_OP, 			"ARP_OP" },
+	{ rofl::openflow::OFPXMT_OFB_ARP_SPA, 		"ARP_SPA" },
+	{ rofl::openflow::OFPXMT_OFB_ARP_TPA, 		"ARP_TPA" },
+	{ rofl::openflow::OFPXMT_OFB_ARP_SHA, 		"ARP_SHA" },
+	{ rofl::openflow::OFPXMT_OFB_ARP_THA, 		"ARP_THA" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_SRC, 		"IPV6_SRC" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_DST, 		"IPV6_DST" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_FLABEL, 	"IPV6_FLABEL" },
+	{ rofl::openflow::OFPXMT_OFB_ICMPV6_TYPE, 	"ICMPV6_TYPE" },
+	{ rofl::openflow::OFPXMT_OFB_ICMPV6_CODE, 	"ICMPV6_CODE" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_ND_TARGET,	"IPV6_ND_TARGET" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_ND_SLL, 	"IPV6_ND_SLL" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_ND_TLL, 	"IPV6_ND_TLL" },
+	{ rofl::openflow::OFPXMT_OFB_MPLS_LABEL, 		"MPLS_LABEL" },
+	{ rofl::openflow::OFPXMT_OFB_MPLS_TC, 		"MPLS_TC" },
+	{ rofl::openflow::OFPXMT_OFB_MPLS_BOS, 		"MPLS_BOS" },
+	{ rofl::openflow::OFPXMT_OFB_TUNNEL_ID, 		"TUNNEL_ID" },
+	{ rofl::openflow::OFPXMT_OFB_PBB_ISID, 		"PBB_ISID" },
+	{ rofl::openflow::OFPXMT_OFB_IPV6_EXTHDR, 	"IPV6_EXTHDR" },
 };
 
 
 
 coxmatch::oxm_typedesc_t oxm_experimenter_typedesc[] = {
-	{ openflow::experimental::OFPXMT_OFX_PPPOE_CODE, 	"PPPOE_CODE" },
-	{ openflow::experimental::OFPXMT_OFX_PPPOE_TYPE, 	"PPPOE_TYPE" },
-	{ openflow::experimental::OFPXMT_OFX_PPPOE_SID, 	"PPPOE_SID" },
-	{ openflow::experimental::OFPXMT_OFX_PPP_PROT, 		"PPP_PROT" }
+	{ rofl::openflow::experimental::OFPXMT_OFX_PPPOE_CODE, 	"PPPOE_CODE" },
+	{ rofl::openflow::experimental::OFPXMT_OFX_PPPOE_TYPE, 	"PPPOE_TYPE" },
+	{ rofl::openflow::experimental::OFPXMT_OFX_PPPOE_SID, 	"PPPOE_SID" },
+	{ rofl::openflow::experimental::OFPXMT_OFX_PPP_PROT, 		"PPP_PROT" }
 };
 
 

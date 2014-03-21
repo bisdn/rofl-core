@@ -1,6 +1,6 @@
-#include "cofmsg_packet_out.h"
+#include "rofl/common/openflow/messages/cofmsg_packet_out.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_packet_out::cofmsg_packet_out(
 		uint8_t of_version,
@@ -373,7 +373,7 @@ cofmsg_packet_out::get_actions() const
 
 
 
-cpacket&
+rofl::cpacket&
 cofmsg_packet_out::set_packet()
 {
 	return packet;
@@ -381,7 +381,7 @@ cofmsg_packet_out::set_packet()
 
 
 
-cpacket const&
+rofl::cpacket const&
 cofmsg_packet_out::get_packet() const
 {
 	return packet;

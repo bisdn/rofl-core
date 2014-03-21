@@ -26,7 +26,6 @@ extern "C" {
 #include "rofl/common/crandom.h"
 
 namespace rofl {
-namespace openflow {
 
 class eRofChanBase			: public RoflException {};
 class eRofChanNotFound		: public eRofChanBase {};
@@ -40,7 +39,7 @@ public:
 	virtual ~crofchan_env() {};
 	virtual void handle_established(crofchan *chan) = 0;
 	virtual void handle_disconnected(crofchan *chan) = 0;
-	virtual void recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) = 0;
+	virtual void recv_message(crofchan *chan, uint8_t aux_id, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
@@ -52,7 +51,7 @@ class crofchan :
 {
 	crofchan_env						*env;
 	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
-	cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
+	rofl::openflow::cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
 	uint8_t								ofp_version;		// OFP version negotiated
 
 	enum crofchan_event_t {
@@ -89,7 +88,7 @@ public:
 	 */
 	crofchan(
 			crofchan_env *env,
-			cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 *
@@ -112,7 +111,7 @@ public:
 	handle_closed(crofconn *conn);
 
 	virtual void
-	recv_message(crofconn *conn, cofmsg *msg);
+	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t
 	get_async_xid(crofconn *conn);
@@ -134,7 +133,7 @@ public:
 	/**
 	 *
 	 */
-	cofhello_elem_versionbitmap&
+	rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() { return versionbitmap; };
 
 	/**
@@ -171,7 +170,7 @@ public:
 	 *
 	 */
 	void
-	send_message(cofmsg *msg, uint8_t aux_id = 0);
+	send_message(rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 private:
 
@@ -222,7 +221,6 @@ public:
 	};
 };
 
-}; /* namespace openflow */
 }; /* namespace rofl */
 
 

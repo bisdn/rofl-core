@@ -39,7 +39,7 @@ namespace rofl
  * \class	cofdptImpl
  *
  * This class stores state for an attached data path element
- * including its ports (@see cofport). It is tightly bound to
+ * including its ports (@see rofl::openflow::cofport). It is tightly bound to
  * class crofbase (@see crofbase). Created upon reception of an
  * OpenFlow HELLO message from the data path element, cofdpath
  * acquires all state by sending FEATURES-request, GET-CONFIG-request,
@@ -50,8 +50,8 @@ namespace rofl
  */
 class crofdpt_impl :
 	public crofdpt,
-	public rofl::openflow::crofchan_env,
-	public rofl::openflow::ctransactions_env,
+	public rofl::crofchan_env,
+	public rofl::ctransactions_env,
 	public ciosrv
 {
 
@@ -88,7 +88,7 @@ private: // data structures
 		};
 
 
-		rofl::openflow::crofchan				rofchan;		// OFP control channel
+		rofl::crofchan							rofchan;		// OFP control channel
 
 		std::bitset<32>     		            flags;
 
@@ -99,16 +99,16 @@ private: // data structures
 		uint8_t 								n_tables;		// number of tables
 		uint32_t 								capabilities;	// capabilities flags
 
-		coftables								tables;			// list of tables
-		cofports								ports;			// list of ports
+		rofl::openflow::coftables				tables;			// list of tables
+		rofl::openflow::cofports				ports;			// list of ports
 		std::bitset<32> 						dptflags;		// 'fragmentation' flags
 		uint16_t								config;
 		uint16_t 								miss_send_len; 	// length of bytes sent to controller
 
-		cfsptable 								fsptable;		// flowspace registration table
+		rofl::openflow::cfsptable 				fsptable;		// flowspace registration table
 
 		crofbase 								*rofbase;		// layer-(n) entity
-		rofl::openflow::ctransactions			transactions;	// pending OFP transactions
+		ctransactions							transactions;	// pending OFP transactions
 
 		unsigned int							state;
 		std::deque<enum crofdpt_impl_event_t> 	events;
@@ -182,7 +182,7 @@ public:
 	/**
 	 * @brief	Returns a reference to the associated crofchan instance
 	 */
-	virtual rofl::openflow::crofchan&
+	virtual crofchan&
 	get_channel() { return rofchan; };
 
 	/**
@@ -202,29 +202,29 @@ public:
 	/* overloaded from crofchan_env */
 
 	virtual void
-	handle_established(rofl::openflow::crofchan *chan);
+	handle_established(crofchan *chan);
 
 	virtual void
-	handle_disconnected(rofl::openflow::crofchan *chan);
+	handle_disconnected(crofchan *chan);
 
 	virtual void
-	recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg);
+	recv_message(crofchan *chan, uint8_t aux_id, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t
-	get_async_xid(rofl::openflow::crofchan *chan);
+	get_async_xid(crofchan *chan);
 
 	virtual uint32_t
-	get_sync_xid(rofl::openflow::crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
+	get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	virtual void
-	release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid);
+	release_sync_xid(crofchan *chan, uint32_t xid);
 
 public:
 
 	/* overloaded from ctransactions_env */
 
 	virtual void
-	ta_expired(rofl::openflow::ctransactions& tas, rofl::openflow::ctransaction& ta);
+	ta_expired(rofl::ctransactions& tas, rofl::ctransaction& ta);
 
 public:
 
@@ -313,43 +313,43 @@ public:
 	 *
 	 * @return fsptable
 	 */
-	virtual cfsptable&
+	virtual rofl::openflow::cfsptable&
 	get_fsptable() { return fsptable; };
 
 
 	/**
-	 * @brief	Returns reference to the data path element's cofport list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
 	 *
 	 * @return ports
 	 */
-	virtual cofports&
+	virtual rofl::openflow::cofports&
 	set_ports() { return ports; };
 
 
 	/**
-	 * @brief	Returns reference to the data path element's cofport list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
 	 *
 	 * @return ports
 	 */
-	virtual cofports const&
+	virtual rofl::openflow::cofports const&
 	get_ports() const { return ports; };
 
 
 	/**
-	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
 	 *
 	 * @return tables
 	 */
-	virtual coftables&
+	virtual rofl::openflow::coftables&
 	set_tables() { return tables; };
 
 
 	/**
-	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
 	 *
 	 * @return tables
 	 */
-	virtual coftables const&
+	virtual rofl::openflow::coftables const&
 	get_tables() const { return tables; };
 
 
@@ -384,7 +384,7 @@ public:
 	 */
 	virtual void
 	fsp_open(
-			cofmatch const& ofmatch);
+			rofl::openflow::cofmatch const& ofmatch);
 
 
 	/**
@@ -398,7 +398,7 @@ public:
 	 */
 	virtual void
 	fsp_close(
-			cofmatch const& ofmatch = cofmatch());
+			rofl::openflow::cofmatch const& ofmatch = rofl::openflow::cofmatch());
 
 	/**@}*/
 
@@ -546,7 +546,7 @@ private:
 	 */
 	void
 	experimenter_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 
 	/**
@@ -556,7 +556,7 @@ private:
 	 */
 	void
 	error_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 
 	/**
@@ -571,7 +571,7 @@ private:
 	 */
 	void
 	features_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_config_reply_rcvd
@@ -585,7 +585,7 @@ private:
 	 */
 	void
 	get_config_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	stats_reply_rcvd
@@ -599,69 +599,69 @@ private:
 	 */
 	void
 	multipart_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 
 
 	void
 	desc_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	table_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	port_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	flow_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	aggregate_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	queue_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	group_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	group_desc_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	group_features_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	meter_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	meter_config_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	meter_features_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	table_features_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	port_desc_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	void
 	experimenter_stats_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 
 	/**
@@ -675,51 +675,51 @@ private:
 	 */
 	void
 	barrier_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	port_mod_sent
 	 * @brief	Called by crofbase when a PORT-MOD-message was sent.
 	 *
-	 * Applies PortMod message to local cofport instance.
+	 * Applies PortMod message to local rofl::openflow::cofport instance.
 	 *
 	 * @param[in] pack The OpenFlow message sent.
 	 */
 	void
 	port_mod_sent(
-			cofmsg *pack);
+			rofl::openflow::cofmsg *pack);
 
 	/** handle PACKET-IN message
 	 */
 	void
 	packet_in_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle FlowRemoved message
 	 */
 	void
 	flow_removed_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle PORT-STATUS message
 	 */
 	void
 	port_status_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle ROLE-REPLY messages
 	 *
 	 */
 	void
 	role_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
 	queue_get_config_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_async_config_reply_rcvd
@@ -733,7 +733,7 @@ private:
 	 */
 	void
 	get_async_config_reply_rcvd(
-			cofmsg *msg, uint8_t aux_id = 0);
+			rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
 
 
 private:
@@ -811,7 +811,7 @@ public:
 	virtual uint32_t
 	send_flow_stats_request(
 			uint16_t stats_flags,
-			cofflow_stats_request const& flow_stats_request);
+			rofl::openflow::cofflow_stats_request const& flow_stats_request);
 
 	/**
 	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
@@ -823,7 +823,7 @@ public:
 	virtual uint32_t
 	send_aggr_stats_request(
 			uint16_t flags,
-			cofaggr_stats_request const& aggr_stats_request);
+			rofl::openflow::cofaggr_stats_request const& aggr_stats_request);
 
 
 	/**
@@ -846,7 +846,7 @@ public:
 	virtual uint32_t
 	send_port_stats_request(
 			uint16_t stats_flags,
-			cofport_stats_request const& port_stats_request);
+			rofl::openflow::cofport_stats_request const& port_stats_request);
 
 	/**
 	 * @brief	Sends a QUEUE-STATS.request to a data path element.
@@ -858,7 +858,7 @@ public:
 	virtual uint32_t
 	send_queue_stats_request(
 			uint16_t stats_flags,
-			cofqueue_stats_request const& queue_stats_request);
+			rofl::openflow::cofqueue_stats_request const& queue_stats_request);
 
 	/**
 	 * @brief	Sends a GROUP-STATS.request to a data path element.
@@ -870,7 +870,7 @@ public:
 	virtual uint32_t
 	send_group_stats_request(
 			uint16_t stats_flags,
-			cofgroup_stats_request const& group_stats_request);
+			rofl::openflow::cofgroup_stats_request const& group_stats_request);
 
 	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
@@ -942,7 +942,7 @@ public:
 	send_packet_out_message(
 			uint32_t buffer_id,
 			uint32_t in_port,
-			cofactions& aclist,
+			rofl::openflow::cofactions& aclist,
 			uint8_t *data = NULL,
 			size_t datalen = 0);
 
@@ -971,7 +971,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_mod_message(
-			cofflowmod const& flowentry);
+			rofl::openflow::cofflowmod const& flowentry);
 
 	/**
 	 * @brief 	Sends a GROUP-MOD.message to a data path element.
@@ -980,7 +980,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_mod_message(
-			cofgroupmod const& groupentry);
+			rofl::openflow::cofgroupmod const& groupentry);
 
 	/**
 	 * @brief	Sends a TABLE-MOD.message to a data path element.

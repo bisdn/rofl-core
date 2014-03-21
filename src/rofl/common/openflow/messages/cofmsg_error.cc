@@ -1,6 +1,6 @@
 #include "cofmsg_error.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_error::cofmsg_error(
 		uint8_t of_version,
@@ -326,7 +326,7 @@ cofmsg_error::set_err_code(uint16_t code)
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_error::get_body()
 {
 	return body;

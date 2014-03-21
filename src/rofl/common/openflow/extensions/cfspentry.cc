@@ -4,7 +4,7 @@
 
 #include "cfspentry.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cfspentry::cfspentry(
 		cfspentry_owner *__fspowner,

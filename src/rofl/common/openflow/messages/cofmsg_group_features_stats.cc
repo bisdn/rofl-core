@@ -1,10 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_group_features_stats.h"
 
-using namespace rofl;
-
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_group_features_stats_request::cofmsg_group_features_stats_request(
 		uint8_t of_version,

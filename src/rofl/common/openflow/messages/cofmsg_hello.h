@@ -8,10 +8,10 @@
 #ifndef COFMSG_HELLO_H_
 #define COFMSG_HELLO_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -116,6 +116,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_HELLO_H_ */

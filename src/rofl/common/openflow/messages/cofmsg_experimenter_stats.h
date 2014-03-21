@@ -8,13 +8,12 @@
 #ifndef COFMSG_EXPERIMENTER_STATS_H_
 #define COFMSG_EXPERIMENTER_STATS_H_ 1
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/cmemory.h"
 
-namespace rofl
-{
-
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -336,8 +335,7 @@ public:
 	};
 };
 
-
-
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_GROUP_FEATURES_STATS_H_ */

@@ -4,7 +4,7 @@
 
 #include "cofmatch.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmatch::cofmatch(
 		uint8_t of_version,
@@ -432,12 +432,12 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 
 	// dl_src
 	if (!(wildcards & openflow10::OFPFW_DL_SRC)) {
-		set_eth_src(cmacaddr(m->dl_src, OFP_ETH_ALEN));
+		set_eth_src(rofl::cmacaddr(m->dl_src, OFP_ETH_ALEN));
 	}
 
 	// dl_dst
 	if (!(wildcards & openflow10::OFPFW_DL_DST)) {
-		set_eth_dst(cmacaddr(m->dl_dst, OFP_ETH_ALEN));
+		set_eth_dst(rofl::cmacaddr(m->dl_dst, OFP_ETH_ALEN));
 	}
 
 	// dl_vlan
@@ -471,8 +471,8 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
-		caddress addr(AF_INET, "0.0.0.0");
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
 		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
 		if (num_of_bits < 32) {
@@ -493,8 +493,8 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
-		caddress addr(AF_INET, "0.0.0.0");
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
 		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
 		if (num_of_bits < 32) {
@@ -1086,7 +1086,7 @@ cofmatch::set_metadata(uint64_t metadata, uint64_t mask)
 }
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_dst() const
 {
 	try {
@@ -1106,7 +1106,7 @@ cofmatch::get_eth_dst() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_dst_addr() const
 {
 	try {
@@ -1114,7 +1114,7 @@ cofmatch::get_eth_dst_addr() const
 		case openflow10::OFP_VERSION:
 		case openflow12::OFP_VERSION:
 		case openflow13::OFP_VERSION:
-			return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_DST).oxm_maddr->addr, OFP_ETH_ALEN);
+			return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_DST).oxm_maddr->addr, OFP_ETH_ALEN);
 		default:
 			throw eBadVersion();
 		}
@@ -1126,7 +1126,7 @@ cofmatch::get_eth_dst_addr() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_dst_mask() const
 {
 	try {
@@ -1135,9 +1135,9 @@ cofmatch::get_eth_dst_mask() const
 		case openflow12::OFP_VERSION:
 		case openflow13::OFP_VERSION:
 			if (!oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_DST).get_oxm_hasmask()) {
-				return cmacaddr("ff:ff:ff:ff:ff:ff");
+				return rofl::cmacaddr("ff:ff:ff:ff:ff:ff");
 			}
-			return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_DST).oxm_maddr->mask, OFP_ETH_ALEN);
+			return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_DST).oxm_maddr->mask, OFP_ETH_ALEN);
 		default:
 			throw eBadVersion();
 		}
@@ -1149,7 +1149,7 @@ cofmatch::get_eth_dst_mask() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_src() const
 {
 	try {
@@ -1161,11 +1161,11 @@ cofmatch::get_eth_src() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_src_addr() const
 {
 	try {
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_SRC).oxm_maddr->addr, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_SRC).oxm_maddr->addr, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1173,14 +1173,14 @@ cofmatch::get_eth_src_addr() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_eth_src_mask() const
 {
 	try {
 		if (!oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_SRC).get_oxm_hasmask()) {
-			return cmacaddr("ff:ff:ff:ff:ff:ff");
+			return rofl::cmacaddr("ff:ff:ff:ff:ff:ff");
 		}
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_SRC).oxm_maddr->mask, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ETH_SRC).oxm_maddr->mask, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1189,9 +1189,9 @@ cofmatch::get_eth_src_mask() const
 
 
 void
-cofmatch::set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask)
+cofmatch::set_eth_dst(rofl::cmacaddr const& maddr, rofl::cmacaddr const& mmask)
 {
-	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
+	if (rofl::cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
 		oxmlist.insert(coxmatch_ofb_eth_dst(maddr));
 	} else {
 		oxmlist.insert(coxmatch_ofb_eth_dst(maddr, mmask));
@@ -1200,9 +1200,9 @@ cofmatch::set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask)
 
 
 void
-cofmatch::set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask)
+cofmatch::set_eth_src(rofl::cmacaddr const& maddr, rofl::cmacaddr const& mmask)
 {
-	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
+	if (rofl::cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
 		oxmlist.insert(coxmatch_ofb_eth_src(maddr));
 	} else {
 		oxmlist.insert(coxmatch_ofb_eth_src(maddr, mmask));
@@ -1456,7 +1456,7 @@ cofmatch::set_nw_tos(
 	oxmlist.insert(coxmatch_ofx_nw_tos(tos));
 }
 
-caddress
+rofl::caddress
 cofmatch::get_nw_src() const
 {
 	try {
@@ -1468,11 +1468,11 @@ cofmatch::get_nw_src() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_nw_src_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_SRC).uint32_value());
 		return addr;
@@ -1483,11 +1483,11 @@ cofmatch::get_nw_src_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_nw_src_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_SRC).uint32_mask());
 		return mask;
@@ -1501,15 +1501,15 @@ cofmatch::get_nw_src_mask() const
 
 void
 cofmatch::set_nw_src(
-		caddress const& src,
-		caddress const& mask)
+		rofl::caddress const& src,
+		rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofx_nw_src(src, mask));
 }
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_nw_dst() const
 {
 	try {
@@ -1521,11 +1521,11 @@ cofmatch::get_nw_dst() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_nw_dst_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_DST).uint32_value());
 		return addr;
@@ -1536,11 +1536,11 @@ cofmatch::get_nw_dst_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_nw_dst_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_EXPERIMENTER, openflow::experimental::OFPXMT_OFX_NW_DST).uint32_mask());
 		return mask;
@@ -1553,8 +1553,8 @@ cofmatch::get_nw_dst_mask() const
 
 void
 cofmatch::set_nw_dst(
-		caddress const& dst,
-		caddress const& mask)
+		rofl::caddress const& dst,
+		rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofx_nw_dst(dst, mask));
 }
@@ -1585,7 +1585,7 @@ cofmatch::set_mpls_tc(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_src() const
 {
 	try {
@@ -1604,11 +1604,11 @@ cofmatch::get_ipv4_src() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_src_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC).uint32_value());
 		return addr;
@@ -1621,7 +1621,7 @@ cofmatch::get_ipv4_src_value() const
 		throw eOFmatchNotFound();
 	}
 
-	caddress addr(AF_INET, "0.0.0.0");
+	rofl::caddress addr(AF_INET, "0.0.0.0");
 	addr.ca_s4addr->sin_addr.s_addr =
 			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC).uint32_value());
 	return addr;
@@ -1630,11 +1630,11 @@ cofmatch::get_ipv4_src_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_src_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC).uint32_mask());
 		return mask;
@@ -1647,7 +1647,7 @@ cofmatch::get_ipv4_src_mask() const
 		throw eOFmatchNotFound();
 	}
 
-	caddress mask(AF_INET, "0.0.0.0");
+	rofl::caddress mask(AF_INET, "0.0.0.0");
 	mask.ca_s4addr->sin_addr.s_addr =
 			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_SRC).uint32_mask());
 	return mask;
@@ -1658,8 +1658,8 @@ cofmatch::get_ipv4_src_mask() const
 
 void
 cofmatch::set_ipv4_src(
-		caddress const& src,
-		caddress const& mask)
+		rofl::caddress const& src,
+		rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofb_ipv4_src(src, mask));
 #if 0
@@ -1669,7 +1669,7 @@ cofmatch::set_ipv4_src(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_dst() const
 {
 	try {
@@ -1688,11 +1688,11 @@ cofmatch::get_ipv4_dst() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_dst_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST).uint32_value());
 		return addr;
@@ -1705,7 +1705,7 @@ cofmatch::get_ipv4_dst_value() const
 		throw eOFmatchNotFound();
 	}
 
-	caddress addr(AF_INET, "0.0.0.0");
+	rofl::caddress addr(AF_INET, "0.0.0.0");
 	addr.ca_s4addr->sin_addr.s_addr =
 			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST).uint32_value());
 	return addr;
@@ -1714,11 +1714,11 @@ cofmatch::get_ipv4_dst_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv4_dst_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST).uint32_mask());
 		return mask;
@@ -1731,7 +1731,7 @@ cofmatch::get_ipv4_dst_mask() const
 		throw eOFmatchNotFound();
 	}
 
-	caddress mask(AF_INET, "0.0.0.0");
+	rofl::caddress mask(AF_INET, "0.0.0.0");
 	mask.ca_s4addr->sin_addr.s_addr =
 			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV4_DST).uint32_mask());
 	return mask;
@@ -1742,8 +1742,8 @@ cofmatch::get_ipv4_dst_mask() const
 
 void
 cofmatch::set_ipv4_dst(
-		caddress const& dst,
-		caddress const& mask)
+		rofl::caddress const& dst,
+		rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofb_ipv4_dst(dst, mask));
 #if 0
@@ -1774,7 +1774,7 @@ cofmatch::set_arp_opcode(
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_sha() const
 {
 	try {
@@ -1786,11 +1786,11 @@ cofmatch::get_arp_sha() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_sha_addr() const
 {
 	try {
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA).oxm_maddr->addr, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA).oxm_maddr->addr, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1798,14 +1798,14 @@ cofmatch::get_arp_sha_addr() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_sha_mask() const
 {
 	try {
 		if (!oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA).get_oxm_hasmask()) {
-			return cmacaddr("ff:ff:ff:ff:ff:ff");
+			return rofl::cmacaddr("ff:ff:ff:ff:ff:ff");
 		}
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA).oxm_maddr->mask, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SHA).oxm_maddr->mask, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1815,10 +1815,10 @@ cofmatch::get_arp_sha_mask() const
 
 void
 cofmatch::set_arp_sha(
-		cmacaddr const& sha,
-		cmacaddr const& mask)
+		rofl::cmacaddr const& sha,
+		rofl::cmacaddr const& mask)
 {
-	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
+	if (rofl::cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
 		oxmlist.insert(coxmatch_ofb_arp_sha(sha));
 	} else {
 		oxmlist.insert(coxmatch_ofb_arp_sha(sha, mask));
@@ -1827,7 +1827,7 @@ cofmatch::set_arp_sha(
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_tha() const
 {
 	try {
@@ -1839,11 +1839,11 @@ cofmatch::get_arp_tha() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_tha_addr() const
 {
 	try {
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA).oxm_maddr->addr, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA).oxm_maddr->addr, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1851,14 +1851,14 @@ cofmatch::get_arp_tha_addr() const
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_arp_tha_mask() const
 {
 	try {
 		if (!oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA).get_oxm_hasmask()) {
-			return cmacaddr("ff:ff:ff:ff:ff:ff");
+			return rofl::cmacaddr("ff:ff:ff:ff:ff:ff");
 		}
-		return cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA).oxm_maddr->mask, OFP_ETH_ALEN);
+		return rofl::cmacaddr(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_THA).oxm_maddr->mask, OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1868,10 +1868,10 @@ cofmatch::get_arp_tha_mask() const
 
 void
 cofmatch::set_arp_tha(
-		cmacaddr const& tha,
-		cmacaddr const& mask)
+		rofl::cmacaddr const& tha,
+		rofl::cmacaddr const& mask)
 {
-	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
+	if (rofl::cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
 		oxmlist.insert(coxmatch_ofb_arp_tha(tha));
 	} else {
 		oxmlist.insert(coxmatch_ofb_arp_tha(tha, mask));
@@ -1880,7 +1880,7 @@ cofmatch::set_arp_tha(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_spa() const
 {
 	try {
@@ -1892,11 +1892,11 @@ cofmatch::get_arp_spa() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_spa_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SPA).uint32_value());
 		return addr;
@@ -1907,11 +1907,11 @@ cofmatch::get_arp_spa_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_spa_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_SPA).uint32_mask());
 		return mask;
@@ -1924,14 +1924,14 @@ cofmatch::get_arp_spa_mask() const
 
 void
 cofmatch::set_arp_spa(
-		caddress const& spa, caddress const& mask)
+		rofl::caddress const& spa, rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofb_arp_spa(spa, mask));
 }
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_tpa() const
 {
 	try {
@@ -1943,11 +1943,11 @@ cofmatch::get_arp_tpa() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_tpa_value() const
 {
 	try {
-		caddress addr(AF_INET, "0.0.0.0");
+		rofl::caddress addr(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_TPA).uint32_value());
 		return addr;
@@ -1958,11 +1958,11 @@ cofmatch::get_arp_tpa_value() const
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_arp_tpa_mask() const
 {
 	try {
-		caddress mask(AF_INET, "0.0.0.0");
+		rofl::caddress mask(AF_INET, "0.0.0.0");
 		mask.ca_s4addr->sin_addr.s_addr =
 				htobe32(oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_ARP_TPA).uint32_mask());
 		return mask;
@@ -1975,7 +1975,7 @@ cofmatch::get_arp_tpa_mask() const
 
 void
 cofmatch::set_arp_tpa(
-		caddress const& tpa, caddress const& mask)
+		rofl::caddress const& tpa, rofl::caddress const& mask)
 {
 	oxmlist.insert(coxmatch_ofb_arp_tpa(tpa, mask));
 }
@@ -1983,7 +1983,7 @@ cofmatch::set_arp_tpa(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_src() const
 {
 	switch (of_version) {
@@ -2010,12 +2010,12 @@ cofmatch::get_ipv6_src() const
 #endif
 }
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_src_value() const
 {
 	uint128__t value;
 	try {
-		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
+		rofl::caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
 		value = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC).uint128_value();
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		SWAP_U128(value);
@@ -2027,12 +2027,12 @@ cofmatch::get_ipv6_src_value() const
 	}
 }
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_src_mask() const
 {
 	uint128__t t_mask;
 	try {
-		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
+		rofl::caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
 		t_mask = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC).uint128_mask();
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		SWAP_U128(t_mask);
@@ -2049,8 +2049,8 @@ cofmatch::get_ipv6_src_mask() const
 
 void
 cofmatch::set_ipv6_src(
-		caddress const& addr,
-		caddress const& mask)
+		rofl::caddress const& addr,
+		rofl::caddress const& mask)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -2069,7 +2069,7 @@ cofmatch::set_ipv6_src(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_dst() const
 {
 	try {
@@ -2086,12 +2086,12 @@ cofmatch::get_ipv6_dst() const
 #endif
 }
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_dst_value() const
 {
 	uint128__t value;
 	try {
-		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
+		rofl::caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
 		value = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST).uint128_value();
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		SWAP_U128(value);
@@ -2103,12 +2103,12 @@ cofmatch::get_ipv6_dst_value() const
 	}
 }
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_dst_mask() const
 {
 	uint128__t t_mask;
 	try {
-		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
+		rofl::caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
 		t_mask = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST).uint128_mask();
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		SWAP_U128(t_mask);
@@ -2125,8 +2125,8 @@ cofmatch::get_ipv6_dst_mask() const
 
 void
 cofmatch::set_ipv6_dst(
-		caddress const& addr,
-		caddress const& mask)
+		rofl::caddress const& addr,
+		rofl::caddress const& mask)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -2145,7 +2145,7 @@ cofmatch::set_ipv6_dst(
 
 
 
-caddress
+rofl::caddress
 cofmatch::get_ipv6_nd_target() const
 {
 	switch (of_version) {
@@ -2175,7 +2175,7 @@ cofmatch::get_ipv6_nd_target() const
 
 void
 cofmatch::set_ipv6_nd_target(
-		caddress const& addr)
+		rofl::caddress const& addr)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -2523,7 +2523,7 @@ cofmatch::set_ipv6_flabel(
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_ipv6_nd_sll() const
 {
 	switch (of_version) {
@@ -2553,7 +2553,7 @@ cofmatch::get_ipv6_nd_sll() const
 
 void
 cofmatch::set_ipv6_nd_sll(
-		cmacaddr const& maddr)
+		rofl::cmacaddr const& maddr)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -2572,7 +2572,7 @@ cofmatch::set_ipv6_nd_sll(
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmatch::get_ipv6_nd_tll() const
 {
 	switch (of_version) {
@@ -2602,7 +2602,7 @@ cofmatch::get_ipv6_nd_tll() const
 
 void
 cofmatch::set_ipv6_nd_tll(
-		cmacaddr const& maddr)
+		rofl::cmacaddr const& maddr)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:

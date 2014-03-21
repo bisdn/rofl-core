@@ -52,9 +52,7 @@
 #include "rofl/common/protocols/fetherframe.h"
 #include "rofl/common/protocols/fgtpuframe.h"
 
-namespace rofl
-{
-
+namespace rofl {
 
 /* Forward declarations */
 class fetherframe;
@@ -168,7 +166,7 @@ private:
 		cmemory 						 mem;		// packet data + head space
 		std::pair<uint8_t*, size_t>		 data;		// the packet data: defines iov of packet data within cmemory mem
 													// we have also some additional headspace
-		cofmatch						 match;		// packet header fields stored in ofmatch
+		rofl::openflow::cofmatch		 match;		// packet header fields stored in ofmatch
 
 
 public:
@@ -303,28 +301,28 @@ public: // methods
 		indent i(2);
 		os << pack.match;
 		for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
-			if (dynamic_cast<fetherframe*>( curr ))
-				os << *dynamic_cast<fetherframe*>( curr );
-			else if (dynamic_cast<fvlanframe*>( curr ))
-				os << *dynamic_cast<fvlanframe*>( curr );
-			else if (dynamic_cast<fmplsframe*>( curr ))
-				os << *dynamic_cast<fmplsframe*>( curr );
-			else if (dynamic_cast<fipv4frame*>( curr ))
-				os << *dynamic_cast<fipv4frame*>( curr );
-			else if (dynamic_cast<fipv6frame*>( curr ))
-				os << *dynamic_cast<fipv6frame*>( curr );
-			else if (dynamic_cast<ficmpv4frame*>( curr ))
-				os << *dynamic_cast<ficmpv4frame*>( curr );
-			else if (dynamic_cast<ficmpv6frame*>( curr ))
-				os << *dynamic_cast<ficmpv6frame*>( curr );
-			else if (dynamic_cast<farpv4frame*>( curr ))
-				os << *dynamic_cast<farpv4frame*>( curr );
-			else if (dynamic_cast<fudpframe*>( curr ))
-				os << *dynamic_cast<fudpframe*>( curr );
-			else if (dynamic_cast<ftcpframe*>( curr ))
-				os << *dynamic_cast<ftcpframe*>( curr );
-			else if (dynamic_cast<fsctpframe*>( curr ))
-				os << *dynamic_cast<fsctpframe*>( curr );
+			if (dynamic_cast<rofl::fetherframe*>( curr ))
+				os << *dynamic_cast<rofl::fetherframe*>( curr );
+			else if (dynamic_cast<rofl::fvlanframe*>( curr ))
+				os << *dynamic_cast<rofl::fvlanframe*>( curr );
+			else if (dynamic_cast<rofl::fmplsframe*>( curr ))
+				os << *dynamic_cast<rofl::fmplsframe*>( curr );
+			else if (dynamic_cast<rofl::fipv4frame*>( curr ))
+				os << *dynamic_cast<rofl::fipv4frame*>( curr );
+			else if (dynamic_cast<rofl::fipv6frame*>( curr ))
+				os << *dynamic_cast<rofl::fipv6frame*>( curr );
+			else if (dynamic_cast<rofl::ficmpv4frame*>( curr ))
+				os << *dynamic_cast<rofl::ficmpv4frame*>( curr );
+			else if (dynamic_cast<rofl::ficmpv6frame*>( curr ))
+				os << *dynamic_cast<rofl::ficmpv6frame*>( curr );
+			else if (dynamic_cast<rofl::farpv4frame*>( curr ))
+				os << *dynamic_cast<rofl::farpv4frame*>( curr );
+			else if (dynamic_cast<rofl::fudpframe*>( curr ))
+				os << *dynamic_cast<rofl::fudpframe*>( curr );
+			else if (dynamic_cast<rofl::ftcpframe*>( curr ))
+				os << *dynamic_cast<rofl::ftcpframe*>( curr );
+			else if (dynamic_cast<rofl::fsctpframe*>( curr ))
+				os << *dynamic_cast<rofl::fsctpframe*>( curr );
 			else
 				os << *curr;
 		}
@@ -484,7 +482,7 @@ public:
 	 *
 	 * @return cpacket's internal cofmatch instance
 	 */
-	cofmatch&
+	rofl::openflow::cofmatch&
 	get_match() { return match; };
 
 
@@ -847,7 +845,7 @@ public: // action related methods
 	 */
 	void
 	action_set_field(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -858,7 +856,7 @@ public: // action related methods
 	 */
 	void
 	action_copy_ttl_out(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -869,7 +867,7 @@ public: // action related methods
 	 */
 	void
 	action_copy_ttl_in(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -880,7 +878,7 @@ public: // action related methods
 	 */
 	void
 	action_set_mpls_ttl(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -892,7 +890,7 @@ public: // action related methods
 	 */
 	void
 	action_dec_mpls_ttl(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -904,7 +902,7 @@ public: // action related methods
 	 */
 	void
 	action_push_vlan(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -915,7 +913,7 @@ public: // action related methods
 	 */
 	void
 	action_pop_vlan(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -927,7 +925,7 @@ public: // action related methods
 	 */
 	void
 	action_push_mpls(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -939,7 +937,7 @@ public: // action related methods
 	 */
 	void
 	action_pop_mpls(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -951,7 +949,7 @@ public: // action related methods
 	 */
 	void
 	action_set_nw_ttl(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -963,7 +961,7 @@ public: // action related methods
 	 */
 	void
 	action_dec_nw_ttl(
-		cofaction& action);
+			rofl::openflow::cofaction& action);
 
 
 
@@ -991,7 +989,7 @@ public:
 	 */
 	void
 	set_field(
-			coxmatch const& oxm);
+			rofl::openflow::coxmatch const& oxm);
 
 
 
@@ -1125,7 +1123,7 @@ private:
 	 */
 	void
 	set_field_basic_class(
-			coxmatch const& oxm);
+			rofl::openflow::coxmatch const& oxm);
 
 
 
@@ -1133,7 +1131,7 @@ private:
 	 */
 	void
 	set_field_experimenter_class(
-			coxmatch const& oxm);
+			rofl::openflow::coxmatch const& oxm);
 
 
 
@@ -1164,7 +1162,7 @@ private:
 	/** calculate hit-rate for cofmatch
 	 */
 	void calc_hits(
-			cofmatch& ofmatch,
+			rofl::openflow::cofmatch& ofmatch,
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
@@ -1362,6 +1360,6 @@ private: // methods
 
 };
 
-}; // end of namespace
+}; // end of namespace rofl
 
 #endif

@@ -8,10 +8,10 @@
 #ifndef COFMSG_STATS_H_
 #define COFMSG_STATS_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -339,11 +339,10 @@ public:
 
 };
 
-
 typedef cofmsg_stats_request 	cofmsg_multipart_request;
 typedef cofmsg_stats_reply 		cofmsg_multipart_reply;
 
-
+}; // end of namespace openflow
 }; // end of namespace rofl
 
 #endif /* COFMSG_STATS_H_ */

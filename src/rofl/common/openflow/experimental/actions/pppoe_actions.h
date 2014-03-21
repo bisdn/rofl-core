@@ -1,10 +1,10 @@
 #ifndef PPPOE_ACTIONS_H
 #define PPPOE_ACTIONS_H 1
 
-#include <rofl/common/openflow/cofaction.h>
+#include "rofl/common/openflow/cofaction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /** OFXAT_PUSH_PPPOE
  *
@@ -128,6 +128,7 @@ public:
 	get_ethertype() const;
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

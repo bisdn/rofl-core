@@ -1,7 +1,6 @@
 #include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
 
-using namespace rofl;
-
+using namespace rofl::openflow;
 
 coxmatch_ofx_pppoe_code::coxmatch_ofx_pppoe_code(
 		uint8_t code) :

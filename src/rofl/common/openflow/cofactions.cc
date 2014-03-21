@@ -5,7 +5,7 @@
 
 #include "cofactions.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofactions::cofactions(
 		uint8_t ofp_version) :

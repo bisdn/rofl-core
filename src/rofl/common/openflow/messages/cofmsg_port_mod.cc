@@ -1,8 +1,6 @@
-#include "cofmsg_port_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_port_mod.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_port_mod::cofmsg_port_mod(
 		uint8_t of_version,
@@ -246,7 +244,7 @@ cofmsg_port_mod::set_port_no(uint32_t port_no)
 
 
 
-cmacaddr
+rofl::cmacaddr
 cofmsg_port_mod::get_hwaddr() const
 {
 	switch (get_version()) {

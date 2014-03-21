@@ -1,8 +1,6 @@
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_stats::cofmsg_stats(
 		uint8_t of_version,
@@ -324,7 +322,7 @@ cofmsg_stats::set_stats_flags(uint16_t stats_flags)
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_stats::get_body()
 {
 	return body;

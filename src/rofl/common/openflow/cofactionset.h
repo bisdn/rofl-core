@@ -20,8 +20,8 @@
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cofactionset
 {
@@ -121,6 +121,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFACTIONSET_H_ */

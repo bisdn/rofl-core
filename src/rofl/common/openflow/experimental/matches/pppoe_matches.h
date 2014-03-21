@@ -3,8 +3,8 @@
 
 #include <rofl/common/openflow/coxmatch.h>
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /** OXM_OF_PPPOE_CODE
  *
@@ -149,6 +149,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

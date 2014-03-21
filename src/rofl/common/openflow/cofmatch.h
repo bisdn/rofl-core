@@ -27,9 +27,8 @@
 #include "rofl/common/openflow/experimental/matches/gtp_matches.h"
 #include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 
-namespace rofl
-{
-
+namespace rofl {
+namespace openflow {
 
 class eOFmatchBase 			: public RoflException {}; // error base class cofmatch
 class eOFmatchType 			: public eOFmatchBase {};
@@ -560,6 +559,7 @@ cofmatch::cofmatch(
 	validate();
 }
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

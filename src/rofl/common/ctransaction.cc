@@ -5,9 +5,9 @@
  *      Author: andreas
  */
 
-#include "ctransaction.h"
+#include "rofl/common/ctransaction.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 ctransaction::ctransaction() :
 				xid(0),

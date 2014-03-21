@@ -1,6 +1,6 @@
-#include "cofmsg_hello.h"
+#include "rofl/common/openflow/messages/cofmsg_hello.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_hello::cofmsg_hello(
 		uint8_t of_version,
@@ -143,7 +143,7 @@ cofmsg_hello::validate()
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_hello::get_body()
 {
 	return body;

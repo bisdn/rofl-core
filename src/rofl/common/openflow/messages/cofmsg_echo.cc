@@ -1,6 +1,6 @@
-#include "cofmsg_echo.h"
+#include "rofl/common/openflow/messages/cofmsg_echo.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_echo_request::cofmsg_echo_request(
 		uint8_t of_version,
@@ -139,7 +139,7 @@ cofmsg_echo_request::validate()
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_echo_request::get_body()
 {
 	return body;
@@ -287,7 +287,7 @@ cofmsg_echo_reply::validate()
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_echo_reply::get_body()
 {
 	return body;

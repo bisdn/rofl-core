@@ -23,8 +23,8 @@
 
 #include "rofl/common/openflow/cofaction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /* error classes */
 class eInstructionBase 				: public RoflException {}; // error base class for class cofinstruction
@@ -687,8 +687,8 @@ public:
 	};
 };
 
-}; // end of namespace
-
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif
 

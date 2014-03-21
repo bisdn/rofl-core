@@ -20,8 +20,8 @@
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/coxmatch.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eFlowEntryBase : public RoflException {}; // error base class cflowentry
 class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
@@ -277,6 +277,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

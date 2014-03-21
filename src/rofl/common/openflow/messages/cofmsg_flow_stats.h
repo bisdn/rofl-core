@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofflowstats.h"
 #include "rofl/common/openflow/cofflowstatsarray.h"
 

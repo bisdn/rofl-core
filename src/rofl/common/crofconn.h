@@ -39,7 +39,7 @@ public:
 	virtual void handle_connect_refused(crofconn *conn) = 0;
 	virtual void handle_connected(crofconn *conn, uint8_t ofp_version) = 0;
 	virtual void handle_closed(crofconn *conn) = 0;
-	virtual void recv_message(crofconn *conn, cofmsg *msg) = 0;
+	virtual void recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofconn *conn) = 0;
 	virtual uint32_t get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofconn *conn, uint32_t xid) = 0;
@@ -54,8 +54,8 @@ class crofconn :
 	uint64_t						dpid;
 	uint8_t							auxiliary_id;
 	crofsock						rofsock;
-	cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
-	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
+	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
+	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
 	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
 	std::map<int, uint32_t>			timer_ids;				// timer-ids obtained from ciosrv
@@ -70,6 +70,9 @@ class crofconn :
 		OFPT_ERROR = 1,
 		OFPT_ECHO_REQUEST = 2,
 		OFPT_ECHO_REPLY = 3,
+		OFPT_FEATURES_REPLY = 6,
+		OFPT_MULTIPART_REQUEST = 18,
+		OFPT_MULTIPART_REPLY = 19,
 	};
 
 	enum crofconn_event_t {
@@ -122,7 +125,7 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 *
@@ -170,13 +173,13 @@ public:
 	/**
 	 * @brief	Returns a reference to the versionbitmap announced by this entity
 	 */
-	cofhello_elem_versionbitmap&
+	rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() { return versionbitmap; };
 
 	/**
 	 * @brief	Returns a reference to the versionbitmap seen from the peer
 	 */
-	cofhello_elem_versionbitmap&
+	rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap_peer() { return versionbitmap_peer; };
 
 	/**
@@ -207,7 +210,7 @@ public:
 	 * @brief	Send OFP message via socket
 	 */
 	void
-	send_message(cofmsg *msg);
+	send_message(rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
@@ -227,7 +230,7 @@ private:
 	handle_closed(crofsock *rofsock);
 
 	virtual void
-	recv_message(crofsock *rofsock, cofmsg *msg);
+	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg);
 
 private:
 
@@ -322,105 +325,105 @@ private:
 	 */
 	void
 	hello_rcvd(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	echo_request_rcvd(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	echo_reply_rcvd(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	error_rcvd(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	features_reply_rcvd(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_and_send_message(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_table_features_stats_request(
-			cofmsg_table_features_stats_request *msg);
+			rofl::openflow::cofmsg_table_features_stats_request *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_flow_stats_reply(
-			cofmsg_flow_stats_reply *msg);
+			rofl::openflow::cofmsg_flow_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_table_stats_reply(
-			cofmsg_table_stats_reply *msg);
+			rofl::openflow::cofmsg_table_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_port_stats_reply(
-			cofmsg_port_stats_reply *msg);
+			rofl::openflow::cofmsg_port_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_queue_stats_reply(
-			cofmsg_queue_stats_reply *msg);
+			rofl::openflow::cofmsg_queue_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_group_stats_reply(
-			cofmsg_group_stats_reply *msg);
+			rofl::openflow::cofmsg_group_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_group_desc_stats_reply(
-			cofmsg_group_desc_stats_reply *msg);
+			rofl::openflow::cofmsg_group_desc_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_table_features_stats_reply(
-			cofmsg_table_features_stats_reply *msg);
+			rofl::openflow::cofmsg_table_features_stats_reply *msg);
 
 	/**
 	 *
 	 */
 	void
 	fragment_port_desc_stats_reply(
-			cofmsg_port_desc_stats_reply *msg);
+			rofl::openflow::cofmsg_port_desc_stats_reply *msg);
 
 public:
 

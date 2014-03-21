@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#include "cofaction.h"
+#include "rofl/common/openflow/cofaction.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofaction::cofaction(uint8_t ofp_version, size_t datalen) :
 			ofp_version(ofp_version),
@@ -285,7 +285,7 @@ cofaction::unpack_of13(uint8_t *buf, size_t buflen)
 
 
 
-struct openflow::ofp_action_header*
+struct rofl::openflow::ofp_action_header*
 cofaction::soaction() const
 {
 	return (struct openflow::ofp_action_header*)(action.somem());

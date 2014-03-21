@@ -11,8 +11,8 @@
 #include "cofmsg.h"
 #include "rofl/common/openflow/cofmatch.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -380,6 +380,8 @@ uint64_t packet_count;
 uint64_t byte_count;
 struct ofp_match match; /* Description of fields. */
 #endif
+
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_FLOW_REMOVED_H_ */

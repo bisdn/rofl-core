@@ -10,10 +10,10 @@
  */
 
 
-#include "coxmlist.h"
+#include "rofl/common/openflow/coxmlist.h"
 #include <stdexcept>
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 coxmlist::coxmlist()
 {

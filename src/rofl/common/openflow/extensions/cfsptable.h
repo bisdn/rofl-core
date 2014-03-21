@@ -16,8 +16,8 @@
 #include "../../cpacket.h"
 #include "cfspentry.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eFspTable 			: public RoflException {}; 	// base class cnstable errors
 class eFspNoMatch 			: public eFspTable {};	// no matching entry found
@@ -148,6 +148,7 @@ public:
 	bool strict;						// strict or non-strict search
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

@@ -13,8 +13,8 @@
 #include "croflexception.h"
 #include "logging.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eOFlistBase : public RoflException {}; // base error class cofinlist
 class eOFlistInval : public eOFlistBase {}; // invalid parameter
@@ -284,6 +284,7 @@ coflist<T>::empty() const
 	return elems.empty();
 }
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif //COFLIST_H

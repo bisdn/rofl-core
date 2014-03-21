@@ -1,9 +1,6 @@
-#include "cofmsg_queue_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_queue_stats.h"
 
-using namespace rofl;
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint8_t of_version,

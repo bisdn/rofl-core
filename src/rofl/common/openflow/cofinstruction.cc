@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofinstruction.h"
+#include "rofl/common/openflow/cofinstruction.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 std::set<cofinst*> cofinst::cofinst_set;
 
@@ -225,7 +225,7 @@ cofinst::unpack_of12(uint8_t* buf, size_t buflen)
 }
 
 
-struct openflow::ofp_instruction*
+struct rofl::openflow::ofp_instruction*
 cofinst::soinst()
 {
 	return ((struct openflow::ofp_instruction*)instruction.somem());

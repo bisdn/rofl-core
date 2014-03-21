@@ -27,8 +27,8 @@
 #include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 #include "rofl/common/openflow/experimental/matches/gtp_matches.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eOxmListBase 			: public RoflException {};
 class eOxmListInval 		: public eOxmListBase {}; // invalid parameter
@@ -435,6 +435,7 @@ public:
 		};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COXMLIST_H_ */

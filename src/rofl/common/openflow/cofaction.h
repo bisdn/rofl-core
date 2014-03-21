@@ -30,8 +30,8 @@
 #define ROFL_EXPERIMENTER_ID	0x555501dd
 
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /* error classes */
 class eActionBase 			: public RoflException {};
@@ -2266,9 +2266,7 @@ public:
 	};
 };
 
-
-
-
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif // COFACTION_H

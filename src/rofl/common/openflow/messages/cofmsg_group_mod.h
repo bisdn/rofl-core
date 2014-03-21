@@ -12,8 +12,8 @@
 #include "rofl/common/openflow/cofbuckets.h"
 #include "rofl/common/openflow/cofgroupmod.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -207,6 +207,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_GROUP_MOD_H_ */

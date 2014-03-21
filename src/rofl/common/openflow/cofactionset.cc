@@ -9,10 +9,10 @@
  *      Author: tobi
  */
 
-#include "cofactionset.h"
-#include "../logging.h"
+#include "rofl/common/openflow/cofactionset.h"
+#include "rofl/common/logging.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 /*static*/std::map<uint16_t, int> cofactionset::action_indices;
 

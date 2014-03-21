@@ -1,9 +1,6 @@
-#include "cofmsg_table_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
 
-using namespace rofl;
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_table_features_stats_request::cofmsg_table_features_stats_request(
 		uint8_t of_version,

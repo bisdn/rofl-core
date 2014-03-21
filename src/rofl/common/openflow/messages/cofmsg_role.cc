@@ -1,8 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_role.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_role_request::cofmsg_role_request(
 		uint8_t of_version,
