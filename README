@@ -2,12 +2,13 @@
 What it is
 ==========
 
-The Revised OpenFlow Library (ROFL) helps you adding OpenFlow support to your software to build control applications, controller frameworks and/or data path elements.
+The Revised OpenFlow Library (ROFL) helps you adding OpenFlow support to your software to build control applications, controller frameworks and/or datapath elements.
 
 Requirements
 ============
 
 - A modern GNU build-system (autoconf, automake, libtool, ...)
+- pkg-config
 - GNU/Linux and libc development headers (linux-libc-dev and libc6-dev package in Debian/Ubuntu systems)
 - [optional] if you want to run automatic tests (make check), libcunit and libcppunit are required (in libcunit1-dev and libcppunit-dev packages in Debian-like systems).
 - [optional] Doxygen to generate the documentation.
@@ -21,6 +22,7 @@ sh# ./autogen.sh
 sh# cd build
 sh# ../configure
 sh# make
+sh# make install
 
 Optionally you can 'make check' for consistency checks.
 
@@ -30,7 +32,10 @@ Optional ../configure parameters
 --enable-debug: Compile with debug symbols (-g) and debug output (warning, it may affect performance).
 --enable-verbose: Increase the level of debug (useless without --enable-debug)
 --disable-silent-rules: Enable verbose compilation mode (AM_SILENT_RULES disabled)
---with-doc: Generate documentation along with compilation (for ROFL-common, ROFL-pipeline and ROFL-afa). Configure step will fail if doxygen is not found
+
+Doxygen documentation
+================================
+Documentation can be compiled via 'make doc'. Documentation is generated in build/doc/ folder
 
 FAQ
 ===
