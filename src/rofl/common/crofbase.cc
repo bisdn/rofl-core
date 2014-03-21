@@ -1654,18 +1654,18 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
-		uint32_t inp = in_port;
+ 		uint32_t inp = in_port;
+std::cout << "JSPTP" << __LINE__ << " ctl (" << std::hex << ctl << ") in_port=" << inp << std::endl;
 		if (ctl->get_version() != OFP10_VERSION) inp = match.get_in_port();	// JSP
+std::cout << "JSPTP" << __LINE__ << std::endl;
 		cpacket n_pack(data, datalen, inp);	// JSP
+std::cout << "JSPTP" << __LINE__ << std::endl;
 //		cpacket n_pack(data, datalen, match.get_in_port());
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 		if (0 != ctl) { // cofctl instance was specified
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			if (ofctl_set.find(ctl) == ofctl_set.end()) {
 				throw eRofBaseNotConnected();
 			}
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+std::cout << "JSPTP" << __LINE__ << std::endl;
 			cofmsg_packet_in *pack =
 					new cofmsg_packet_in(
 							ctl->get_version(),
@@ -1679,15 +1679,15 @@ crofbase::send_packet_in_message(
 							match,
 							data,
 							datalen);
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+std::cout << "JSPTP" << __LINE__ << std::endl;
 			pack->pack();
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+std::cout << "JSPTP" << __LINE__ << std::endl;
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x pack: %s",
 							this, buffer_id, pack->c_str());
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+std::cout << "JSPTP" << __LINE__ << std::endl;
 			ctl_find(ctl)->send_message(pack);
- std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+std::cout << "JSPTP" << __LINE__ << std::endl;
 		} else if (fe_flags.test(NSP_ENABLED)) { //cofctl was not specified and flowspace registration is enabled
 
 			std::set<cfspentry*> nse_list;
@@ -2060,46 +2060,6 @@ crofbase::send_error_message(
 /*
  * FLOW-MOD message
  */
-/*
-void
-crofbase::send_flow_mod_message(		// JSP - OFP10_VERSION
-	cofdpt *dpt, //
-	cofmatch& ofmatch,	//
-	uint64_t cookie,	//
-	uint8_t command,	//
-	uint16_t idle_timeout,	//
-	uint16_t hard_timeout,	//
-	uint16_t priority,	//
-	uint32_t buffer_id,	//
-	uint32_t out_port,	//
-	uint16_t flags,	//
-	cofaclist const& actions)	//
-{
-
-	if(dpt->get_version() != OFP10_VERSION) throw eBadVersion();
-	cofmsg_flow_mod *pack =
-			new cofmsg_flow_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					cookie,
-					command,
-					idle_timeout,
-					hard_timeout,
-					priority,
-					buffer_id,
-					out_port,
-					flags,
-					actions,
-					ofmatch);
-
-	pack->pack();
-
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() "
-			"pack: %s", this, pack->c_str());
-
-	dpt_find(dpt)->send_message(pack);
-}
-*/
 
 void
 crofbase::send_flow_mod_message(
