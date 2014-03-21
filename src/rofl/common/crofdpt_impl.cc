@@ -78,6 +78,7 @@ crofdpt_impl::crofdpt_impl(
 
 crofdpt_impl::~crofdpt_impl()
 {
+	crofdpt::rofdpts.erase(dpid);
 	rofchan.clear();
 	transactions.clear();
 	logging::info << "[rofl][dpt] removing datapath abstraction:" << std::endl << *this;
@@ -180,6 +181,9 @@ crofdpt_impl::event_features_reply_rcvd()
 		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 				<< "Features-Reply rcvd (connected -> features-reply-rcvd)" << std::endl;
 		state = STATE_FEATURES_RCVD;
+		if (crofdpt::rofdpts.find(dpid) == crofdpt::rofdpts.end()) {
+			crofdpt::rofdpts[dpid] = this;
+		}
 		send_get_config_request();
 
 	} break;
