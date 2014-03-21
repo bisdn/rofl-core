@@ -539,7 +539,8 @@ csocket::connect(
 
 		} break;
 		default: {
-			throw eSysCall("connect");
+			logging::debug << "[rofl][csocket] Unknown error:"<< strerror(errno) <<"("<< errno <<")"<< std::endl << *this;
+			throw eSysCall("connect ");
 		};
 		}
 	} else {
