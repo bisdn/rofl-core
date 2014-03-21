@@ -28,8 +28,6 @@
 	#define ETH_TYPE_PBB			0x88E7
 
 	//Useful UDP destination port values
-	#define UDP_DST_PORT_GTPC		2123
-	#define UDP_DST_PORT_GTPU		2152
 	#define UDP_DST_PORT_GTPC		0x084B //2123
 	#define UDP_DST_PORT_GTPU		0x0868 //2152
 
