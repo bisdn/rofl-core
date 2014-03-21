@@ -129,7 +129,7 @@ cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (OFP10_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
+		return (sizeof(struct rofl::openflow10::ofp_packet_in) - 2 + packet.framelen());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.framelen());
@@ -161,18 +161,25 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	 */
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		memcpy(buf, soframe(), rofl::openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
-		memcpy(buf + rofl::openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), sizeof(struct rofl::openflow10::ofp_packet_in) - 2);
+		if (not packet.empty()) {
+			struct rofl::openflow10::ofp_packet_in *packet_in = (struct rofl::openflow10::ofp_packet_in*)buf;
+			memcpy(packet_in->data, packet.soframe(), packet.framelen());
+		}
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		if (not packet.empty()) {
+			memcpy(buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		}
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		if (not packet.empty()) {
+			memcpy(buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		}
 	} break;
 	default:
 		throw eBadVersion();
