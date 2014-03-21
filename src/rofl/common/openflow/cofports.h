@@ -14,25 +14,18 @@
 
 #include "rofl/common/openflow/cofport.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class ePortsBase 		: public RoflException {}; // base error class cofinlist
 class ePortsInval 		: public ePortsBase {}; // invalid parameter
 class ePortsNotFound 	: public ePortsBase {}; // element not found
 class ePortsOutOfRange 	: public ePortsBase {}; // out of range
 
-class cofports : public std::map<uint32_t, cofport*>
+class cofports
 {
-	uint8_t 				ofp_version;
-
-public: // iterators
-
-	typedef typename std::map<uint32_t, cofport*>::iterator iterator;
-	typedef typename std::map<uint32_t, cofport*>::const_iterator const_iterator;
-
-	typedef typename std::map<uint32_t, cofport*>::reverse_iterator reverse_iterator;
-	typedef typename std::map<uint32_t, cofport*>::const_reverse_iterator const_reverse_iterator;
+	uint8_t 						ofp_version;
+	std::map<uint32_t, cofport*>	ports;
 
 public: // methods
 
@@ -103,6 +96,8 @@ public:
 	size_t
 	length() const;
 
+public:
+
 	/**
 	 *
 	 */
@@ -114,6 +109,20 @@ public:
 	 */
 	void
 	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofport*>&
+	set_ports() { return ports; };
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, cofport*> const&
+	get_ports() const { return ports; };
+
+public:
 
 	/**
 	 *
@@ -149,22 +158,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofports const& ports) {
-		os << indent(0) << "<cofports size:" << (int)ports.size() << " >" << std::endl;;
-		indent i(2);
-		for (cofports::const_iterator
-				it = ports.begin(); it != ports.end(); ++it) {
+		os << rofl::indent(0) << "<cofports #ports:" << (int)ports.get_ports().size() << " >" << std::endl;;
+		rofl::indent i(2);
+		for (std::map<uint32_t, cofport*>::const_iterator
+				it = ports.get_ports().begin(); it != ports.get_ports().end(); ++it) {
 			os << *(it->second);
 		}
-#if 0
-		for (cofportlist::const_iterator
-				it = ofportlist.begin(); it != ofportlist.end(); ++it) {
-			os << *it;
-		}
-#endif
 		return os;
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

@@ -228,7 +228,7 @@ public:
 			uint32_t capabilities,
 			uint8_t of13_auxiliary_id = 0,
 			uint32_t of10_actions_bitmap = 0,
-			cofports const& ports = cofports()) = 0;
+			rofl::openflow::cofports const& ports = rofl::openflow::cofports()) = 0;
 
 	/**
 	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
@@ -400,7 +400,7 @@ public:
 	virtual void
 	send_port_desc_stats_reply(
 		uint32_t xid,
-		cofports const& ports,
+		rofl::openflow::cofports const& ports,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -527,7 +527,7 @@ public:
 	virtual void
 	send_port_status_message(
 		uint8_t reason,
-		cofport const& port) = 0;
+		rofl::openflow::cofport const& port) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.

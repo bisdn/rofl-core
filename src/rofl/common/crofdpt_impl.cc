@@ -1327,7 +1327,7 @@ crofdpt_impl::send_port_mod_message(
 
 	rofchan.send_message(msg, 0);
 
-	ports[port_no]->recv_port_mod(config, mask, advertise);
+	ports.set_port(port_no).recv_port_mod(config, mask, advertise);
 
 	return xid;
 }

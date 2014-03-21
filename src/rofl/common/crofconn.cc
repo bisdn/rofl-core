@@ -1245,7 +1245,7 @@ crofconn::fragment_port_desc_stats_reply(
 	std::vector<cofmsg_port_desc_stats_reply*> fragments;
 
 	for (std::map<uint32_t, cofport*>::const_iterator
-			it = msg->get_ports().begin(); it != msg->get_ports().end(); ++it) {
+			it = msg->get_ports().get_ports().begin(); it != msg->get_ports().get_ports().end(); ++it) {
 
 		ports.add_port(it->first) = *(it->second);
 

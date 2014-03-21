@@ -22,7 +22,7 @@ class cofmsg_port_status :
 {
 private:
 
-	cofport				port;
+	rofl::openflow::cofport				port;
 
 	union {
 		uint8_t*						ofhu_port_status;
@@ -46,7 +46,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint8_t reason = 0,
-			cofport const& port = cofport());
+			rofl::openflow::cofport const& port = rofl::openflow::cofport());
 
 
 	/**
@@ -136,14 +136,14 @@ public:
 	/**
 	 *
 	 */
-	cofport&
-	get_port();
+	rofl::openflow::cofport&
+	set_port() { return port; };
 
 	/**
 	 *
 	 */
-	cofport const&
-	get_port_const() const;
+	rofl::openflow::cofport const&
+	get_port() const { return port; };
 
 public:
 
