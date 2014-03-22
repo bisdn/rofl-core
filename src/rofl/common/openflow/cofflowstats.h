@@ -527,9 +527,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofflow_stats_reply const& flow_stats_reply) {
 		switch (flow_stats_reply.of_version) {
-		case rofl::openflow10::OFP_VERSION: {
-
-		} break;
+		case rofl::openflow10::OFP_VERSION:
 		case rofl::openflow12::OFP_VERSION:
 		case rofl::openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofflow_stats_reply >" << std::endl;
