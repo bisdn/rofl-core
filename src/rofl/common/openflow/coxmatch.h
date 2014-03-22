@@ -447,6 +447,7 @@ public:
 			case openflow::experimental::OFPXMT_OFX_NW_SRC:			os << "[NW-SRC]"; 		break;
 			case openflow::experimental::OFPXMT_OFX_NW_DST:			os << "[NW-DST]";		break;
 			case openflow::experimental::OFPXMT_OFX_NW_PROTO:		os << "[NW-PROTO]";		break;
+			case openflow::experimental::OFPXMT_OFX_NW_TOS:			os << "[NW-TOS]";		break;
 			case openflow::experimental::OFPXMT_OFX_TP_SRC:			os << "[TP-SRC]";		break;
 			case openflow::experimental::OFPXMT_OFX_TP_DST:			os << "[TP-DST]";		break;
 			case openflow::experimental::OFPXMT_OFX_PPPOE_CODE:		os << "[PPPOE-CODE]"; 	break;
@@ -3149,6 +3150,8 @@ public:
 				os << coxmatch_ofx_nw_dst(oxm); return os;
 			case openflow::experimental::OFPXMT_OFX_NW_PROTO:
 				os << coxmatch_ofx_nw_proto(oxm); return os;
+			case openflow::experimental::OFPXMT_OFX_NW_TOS:
+				os << coxmatch_ofx_nw_tos(oxm); return os;
 			case openflow::experimental::OFPXMT_OFX_TP_SRC:
 				os << coxmatch_ofx_tp_src(oxm); return os;
 			case openflow::experimental::OFPXMT_OFX_TP_DST:

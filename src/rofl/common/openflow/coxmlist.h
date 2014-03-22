@@ -388,6 +388,10 @@ public:
 								if (dynamic_cast<coxmatch_ofx_nw_proto*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_nw_proto*>(jt->second);
 								break;
+							case openflow::experimental::OFPXMT_OFX_NW_TOS:
+								if (dynamic_cast<coxmatch_ofx_nw_tos*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofx_nw_tos*>(jt->second);
+								break;
 							case openflow::experimental::OFPXMT_OFX_TP_SRC:
 								if (dynamic_cast<coxmatch_ofx_tp_src*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_tp_src*>(jt->second);
