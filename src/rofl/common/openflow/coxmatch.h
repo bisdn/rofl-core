@@ -59,6 +59,11 @@ public:
 	/**
 	 *
 	 */
+	coxmatch();
+
+	/**
+	 *
+	 */
 	coxmatch(
 			uint32_t oxm_id);
 
@@ -333,87 +338,7 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch const& oxm) {
-		os << indent(0) << "<coxmatch ";
-		switch (oxm.get_oxm_class()) {
-		case openflow::OFPXMC_OPENFLOW_BASIC: {
-			os << "[BASIC]";
-			switch (oxm.get_oxm_field()) {
-			case openflow::OFPXMT_OFB_IN_PORT:			os << "[IN-PORT]"; 			break;
-			case openflow::OFPXMT_OFB_IN_PHY_PORT:		os << "[IN-PHY-PORT]"; 		break;
-			case openflow::OFPXMT_OFB_METADATA:			os << "[METADATA]"; 		break;
-			case openflow::OFPXMT_OFB_ETH_DST:			os << "[ETH-DST]"; 			break;
-			case openflow::OFPXMT_OFB_ETH_SRC:			os << "[ETH-SRC]"; 			break;
-			case openflow::OFPXMT_OFB_ETH_TYPE:			os << "[ETH-TYPE]"; 		break;
-			case openflow::OFPXMT_OFB_VLAN_VID:			os << "[VLAN-VID]"; 		break;
-			case openflow::OFPXMT_OFB_VLAN_PCP:			os << "[VLAN-PCP]"; 		break;
-			case openflow::OFPXMT_OFB_IP_DSCP:			os << "[IP-DSCP]"; 			break;
-			case openflow::OFPXMT_OFB_IP_ECN:			os << "[IP-ECN]";		 	break;
-			case openflow::OFPXMT_OFB_IP_PROTO:			os << "[IP-PROTO]"; 		break;
-			case openflow::OFPXMT_OFB_IPV4_SRC:			os << "[IPV4-SRC]"; 		break;
-			case openflow::OFPXMT_OFB_IPV4_DST:			os << "[IPV4-DST]"; 		break;
-			case openflow::OFPXMT_OFB_TCP_SRC:			os << "[TCP-SRC]"; 			break;
-			case openflow::OFPXMT_OFB_TCP_DST:			os << "[TCP-DST]"; 			break;
-			case openflow::OFPXMT_OFB_UDP_SRC:			os << "[UDP-SRC]"; 			break;
-			case openflow::OFPXMT_OFB_UDP_DST:			os << "[UDP-DST]"; 			break;
-			case openflow::OFPXMT_OFB_SCTP_SRC:			os << "[SCTP-SRC]"; 		break;
-			case openflow::OFPXMT_OFB_SCTP_DST:			os << "[SCTP-DST]"; 		break;
-			case openflow::OFPXMT_OFB_ICMPV4_TYPE:		os << "[ICMPV4-TYPE]"; 		break;
-			case openflow::OFPXMT_OFB_ICMPV4_CODE:		os << "[ICMPV4-CODE]"; 		break;
-			case openflow::OFPXMT_OFB_ARP_OP:			os << "[ARP-OP]"; 			break;
-			case openflow::OFPXMT_OFB_ARP_SPA:			os << "[ARP-SPA]"; 			break;
-			case openflow::OFPXMT_OFB_ARP_TPA:			os << "[ARP-TPA]"; 			break;
-			case openflow::OFPXMT_OFB_ARP_SHA:			os << "[ARP-SHA]"; 			break;
-			case openflow::OFPXMT_OFB_ARP_THA:			os << "[ARP-THA]"; 			break;
-			case openflow::OFPXMT_OFB_IPV6_SRC:			os << "[IPV6-SRC]"; 		break;
-			case openflow::OFPXMT_OFB_IPV6_DST:			os << "[IPV6-DST]"; 		break;
-			case openflow::OFPXMT_OFB_IPV6_FLABEL:		os << "[IPV6-FLABEL]"; 		break;
-			case openflow::OFPXMT_OFB_ICMPV6_TYPE:		os << "[ICMPV6-TYPE]"; 		break;
-			case openflow::OFPXMT_OFB_ICMPV6_CODE:		os << "[ICMPV6-CODE]"; 		break;
-			case openflow::OFPXMT_OFB_IPV6_ND_TARGET:	os << "[IPV6-ND-TARGET]"; 	break;
-			case openflow::OFPXMT_OFB_IPV6_ND_SLL:		os << "[IPV6-ND-SLL]"; 		break;
-			case openflow::OFPXMT_OFB_IPV6_ND_TLL:		os << "[IPV6-ND-TLL]"; 		break;
-			case openflow::OFPXMT_OFB_MPLS_LABEL:		os << "[MPLS-LABEL]"; 		break;
-			case openflow::OFPXMT_OFB_MPLS_TC:			os << "[MPLS-TC]"; 			break;
-			default:				os << "[" << (int)oxm.get_oxm_field() << "]"; 	break;
-			}
-		} break;
-		case openflow::OFPXMC_NXM_0: {
-			os << "[NXM0]";
-			switch (oxm.get_oxm_field()) {
-			default:				os << "[" << (int)oxm.get_oxm_field() << "]"; 	break;
-			}
-		} break;
-		case openflow::OFPXMC_NXM_1: {
-			os << "[NXM1]";
-			switch (oxm.get_oxm_field()) {
-			default:				os << "[" << (int)oxm.get_oxm_field() << "]"; 	break;
-			}
-		} break;
-		case openflow::OFPXMC_EXPERIMENTER: {
-			os << "[EXPERIMENTER]";
-			switch (oxm.get_oxm_field()) {
-			case openflow::experimental::OFPXMT_OFX_NW_SRC:			os << "[NW-SRC]"; 		break;
-			case openflow::experimental::OFPXMT_OFX_NW_DST:			os << "[NW-DST]";		break;
-			case openflow::experimental::OFPXMT_OFX_NW_PROTO:		os << "[NW-PROTO]";		break;
-			case openflow::experimental::OFPXMT_OFX_NW_TOS:			os << "[NW-TOS]";		break;
-			case openflow::experimental::OFPXMT_OFX_TP_SRC:			os << "[TP-SRC]";		break;
-			case openflow::experimental::OFPXMT_OFX_TP_DST:			os << "[TP-DST]";		break;
-			case openflow::experimental::OFPXMT_OFX_PPPOE_CODE:		os << "[PPPOE-CODE]"; 	break;
-			case openflow::experimental::OFPXMT_OFX_PPPOE_TYPE:		os << "[PPPOE-TYPE]";	break;
-			case openflow::experimental::OFPXMT_OFX_PPPOE_SID:		os << "[PPPOE-SID]";	break;
-			case openflow::experimental::OFPXMT_OFX_PPP_PROT:		os << "[PPP-PROT]";		break;
-			case openflow::experimental::OFPXMT_OFX_GTP_MSG_TYPE:	os << "[GTP-MSG-TYPE]";	break;
-			case openflow::experimental::OFPXMT_OFX_GTP_TEID:		os << "[GTP-TEID]";		break;
-			default:				os << "[" << (int)oxm.get_oxm_field() << "]"; 	break;
-			}
-		} break;
-		default: {
-			os << "[" << (int)oxm.get_oxm_class() << "]";
-			os << "[" << (int)oxm.get_oxm_field() << "]";
-		} break;
-		}
-		os << " hasmask:" << (oxm.get_oxm_hasmask() == true ? "yes" : "no") << " ";
-		os << ">" << std::endl;
+		os << indent(0) << "<coxmatch oxm-id:" << oxm.get_oxm_id() << " >" << std::endl;
 		return os;
 	};
 

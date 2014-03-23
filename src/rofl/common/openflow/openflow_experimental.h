@@ -36,8 +36,6 @@
 #ifndef _OPENFLOW_EXPERIMENTAL_H
 #define _OPENFLOW_EXPERIMENTAL_H 1
 
-#include "rofl/common/openflow/openflow_common.h"
-
 namespace rofl {
 namespace openflow {
 namespace experimental {
@@ -54,16 +52,6 @@ namespace experimental {
 		OFPXMT_OFX_TP_DST	= 5,	/* transport protocol destination port */
 
 		/* Reserved (until 20) */
-
-		/* PPP/PPPoE related extensions */
-		OFPXMT_OFX_PPPOE_CODE 	= 21,	/* PPPoE code */
-		OFPXMT_OFX_PPPOE_TYPE 	= 22,	/* PPPoE type */
-		OFPXMT_OFX_PPPOE_SID 	= 23,	/* PPPoE session id */
-		OFPXMT_OFX_PPP_PROT 	= 24,	/* PPP protocol */
-
-		/* GTP related extensions */
-		OFPXMT_OFX_GTP_MSG_TYPE = 25,	/* GTP message type */
-		OFPXMT_OFX_GTP_TEID	= 26,	/* GTP tunnel endpoint identifier */
 
 		/* max value */
 		OFPXMT_OFX_MAX,

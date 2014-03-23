@@ -44,7 +44,7 @@ class cofmatch
 private: // data structures
 
 	uint8_t 		of_version;		// OpenFlow version used for this cofmatch instance
-	coxmlist 		oxmlist;		// list of all oxms
+	coxmlist 		oxmtlvs;		// list of all oxms
 	cmemory 		memarea;
 
 #define OFP10_MATCH_STATIC_LEN		(sizeof(struct openflow10::ofp_match))
@@ -274,228 +274,31 @@ public:
 	clear();
 
 
-	/**
-	 *
-	 */
-	bool
-	contains(
-			cofmatch const& ofm,
-			bool strict = false);
-
-
-
-	/**
-	 *
-	 */
-	bool
-	is_part_of(
-			cofmatch const& ofm,
-			uint16_t& exact_hits,
-			uint16_t& wildcard_hits,
-			uint16_t& missed);
-
-
-	/**
-	 *
-	 */
-	void
-	insert(
-			coxmatch const& oxm);
-
-
-
-	/**
-	 *
-	 */
-	void
-	remove(
-			uint16_t oxm_class,
-			uint8_t oxm_field);
-
-
-
-	/**
-	 *
-	 */
-	coxmatch&
-	get_match(
-			uint16_t ofm_class, uint8_t ofm_field);
-
-
-
-
-	/**
-	 *
-	 */
-	coxmatch const&
-	get_const_match(
-			uint16_t ofm_class, uint8_t ofm_field) const;
-
-
 public:
 
 	/**
 	 *
-	 * @param type	type of struct ofp_match
 	 */
 	void
-	set_type(
-			uint16_t type);
+	set_type(uint16_t type);
 
-
-public:
-
-	/*
-	 * old API
+	/**
+	 *
 	 */
+	uint16_t
+	get_type() const;
 
-	/*
-	 * PLEASE NOTE: IPV6-FLOWLABEL uses a mask in OF12, and none in OF13
-	 * we follow the OF13 convention and do not use a masked flow-label for IPv6
+	/**
+	 *
 	 */
+	coxmlist&
+	set_oxmtlvs() { return oxmtlvs; };
 
-
-	// OF10
-	caddress get_nw_src() const;
-	caddress get_nw_src_value() const;
-	caddress get_nw_src_mask() const;
-	uint8_t  get_nw_proto() const;
-	uint8_t  get_nw_tos() const;
-	caddress get_nw_dst() const;
-	caddress get_nw_dst_value() const;
-	caddress get_nw_dst_mask() const;
-	uint16_t get_tp_src() const;
-	uint16_t get_tp_dst() const;
-
-	// OF12
-	uint32_t get_in_port() const;
-	uint32_t get_in_phy_port() const;
-	uint64_t get_metadata() const;
-	uint64_t get_metadata_value() const;
-	uint64_t get_metadata_mask() const;
-	cmacaddr get_eth_dst() const;
-	cmacaddr get_eth_dst_addr() const;
-	cmacaddr get_eth_dst_mask() const;
-	cmacaddr get_eth_src() const;
-	cmacaddr get_eth_src_addr() const;
-	cmacaddr get_eth_src_mask() const;
-	uint16_t get_eth_type() const;
-	uint16_t get_vlan_vid() const;
-	uint16_t get_vlan_vid_value() const;
-	uint16_t get_vlan_vid_mask() const;
-	uint8_t  get_vlan_pcp() const;
-	uint32_t get_mpls_label() const;
-	uint8_t  get_mpls_tc() const;
-	caddress get_ipv4_src() const;
-	caddress get_ipv4_src_value() const;
-	caddress get_ipv4_src_mask() const;
-	caddress get_ipv4_dst() const;
-	caddress get_ipv4_dst_value() const;
-	caddress get_ipv4_dst_mask() const;
-	uint16_t get_arp_opcode() const;
-	cmacaddr get_arp_sha() const;
-	cmacaddr get_arp_sha_addr() const;
-	cmacaddr get_arp_sha_mask() const;
-	cmacaddr get_arp_tha() const;
-	cmacaddr get_arp_tha_addr() const;
-	cmacaddr get_arp_tha_mask() const;
-	caddress get_arp_spa() const;
-	caddress get_arp_spa_value() const;
-	caddress get_arp_spa_mask() const;
-	caddress get_arp_tpa() const;
-	caddress get_arp_tpa_value() const;
-	caddress get_arp_tpa_mask() const;
-	caddress get_ipv6_src() const;
-	caddress get_ipv6_src_value() const;
-	caddress get_ipv6_src_mask() const;
-	caddress get_ipv6_dst() const;
-	caddress get_ipv6_dst_value() const;
-	caddress get_ipv6_dst_mask() const;
-	uint8_t  get_ip_proto() const;
-	uint8_t  get_ip_dscp() const;
-	uint8_t  get_ip_ecn() const;
-	uint8_t  get_icmpv4_type() const;
-	uint8_t  get_icmpv4_code() const;
-	uint8_t  get_icmpv6_type() const;
-	uint8_t  get_icmpv6_code() const;
-	uint32_t get_ipv6_flabel() const;
-	cmacaddr get_ipv6_nd_sll() const;
-	cmacaddr get_ipv6_nd_tll() const;
-	caddress get_ipv6_nd_target() const;
-	uint16_t get_udp_src() const;
-	uint16_t get_udp_dst() const;
-	uint16_t get_tcp_src() const;
-	uint16_t get_tcp_dst() const;
-	uint16_t get_sctp_src() const;
-	uint16_t get_sctp_dst() const;
-
-	// OF13
-	bool     get_mpls_bos() const;
-	uint64_t get_tunnel_id() const;
-	uint64_t get_tunnel_id_value() const;
-	uint64_t get_tunnel_id_mask() const;
-	uint32_t get_pbb_isid() const;
-	uint32_t get_pbb_isid_value() const;
-	uint32_t get_pbb_isid_mask() const;
-	uint16_t get_ipv6_exthdr() const;
-	uint16_t get_ipv6_exthdr_value() const;
-	uint16_t get_ipv6_exthdr_mask() const;
-
-
-	// OF10
-	void set_nw_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_nw_proto(uint8_t proto);
-	void set_nw_tos(uint8_t tos);
-	void set_nw_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_tp_src(uint16_t src_port);
-	void set_tp_dst(uint16_t dst_port);
-
-	// OF12
-	void set_in_port(uint32_t in_port);
-	void set_in_phy_port(uint32_t in_phy_port);
-	void set_metadata(uint64_t metadata, uint64_t mask = 0xffffffffffffffff);
-	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_eth_type( uint16_t dl_type);
-	void set_vlan_vid(uint16_t vid, uint16_t mask = 0xffff);
-	void set_vlan_present();
-	void set_vlan_untagged();
-	void set_vlan_pcp(uint8_t pcp);
-	void set_ip_dscp(uint8_t dscp);
-	void set_ip_ecn(uint8_t ecn);
-	void set_ip_proto(uint8_t proto);
-	void set_ipv4_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_ipv4_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_tcp_src(uint16_t src_port);
-	void set_tcp_dst(uint16_t dst_port);
-	void set_udp_src(uint16_t src_port);
-	void set_udp_dst(uint16_t dst_port);
-	void set_sctp_src(uint16_t src_port);
-	void set_sctp_dst(uint16_t dst_port);
-	void set_icmpv4_type(uint8_t type);
-	void set_icmpv4_code(uint8_t code);
-	void set_arp_opcode(uint16_t opcode);
-	void set_arp_spa(caddress const& spa, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_arp_tpa(caddress const& tpa, caddress const& mask = caddress(AF_INET, "255.255.255.255"));
-	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
-	void set_ipv6_src(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
-	void set_ipv6_dst(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
-	void set_ipv6_flabel(uint32_t flabel);
-	void set_icmpv6_type(uint8_t type);
-	void set_icmpv6_code(uint8_t code);
-	void set_ipv6_nd_target(caddress const& addr);
-	void set_ipv6_nd_sll(cmacaddr const& maddr);
-	void set_ipv6_nd_tll(cmacaddr const& maddr);
-	void set_mpls_label(uint32_t label);
-	void set_mpls_tc(uint8_t tc);
-
-	// OF13
-	void set_mpls_bos(bool bos);
-	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask = 0xffffffffffffffff);
-	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask = 0xffffffff);
-	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask = 0xffff);
-
+	/**
+	 *
+	 */
+	coxmlist const&
+	get_oxmtlvs() const { return oxmtlvs; };
 
 public:
 
@@ -520,44 +323,12 @@ public:
 			}
 		os << ">" << std::endl;
 		indent i(2);
-		os << m.oxmlist;
+		os << m.oxmtlvs;
 		return os;
 	};
 };
 
 
-template<class T>
-cofmatch::cofmatch(
-		uint8_t of_version,
-		T* match,
-		size_t matchlen) :
-			of_version(of_version)
-{
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		if (OFP10_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	case openflow12::OFP_VERSION: {
-		if (OFP12_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	case openflow13::OFP_VERSION: {
-		if (OFP13_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	validate();
-}
 
 }; // end of namespace openflow
 }; // end of namespace rofl

@@ -137,7 +137,7 @@ public:
 	void
 	operator() (cfspentry *nse)
 	{
-		if (this->ofmatch.contains(nse->ofmatch, strict))
+		if (this->ofmatch.set_oxmtlvs().contains(nse->ofmatch.get_oxmtlvs(), strict))
 		{
 			fsp_list.insert(nse);
 		}

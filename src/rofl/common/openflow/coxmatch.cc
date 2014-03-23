@@ -13,6 +13,11 @@
 
 using namespace rofl::openflow;
 
+coxmatch::coxmatch() :
+		oxm_id(0)
+{}
+
+
 coxmatch::coxmatch(
 		uint32_t oxm_id) :
 				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr)),
@@ -23,7 +28,7 @@ coxmatch::coxmatch(
 coxmatch::coxmatch(
 		uint8_t* oxm_hdr, size_t oxm_len) :
 				rofl::cmemory(oxm_hdr, oxm_len),
-				oxm_id(oxm_id)
+				oxm_id(get_oxm_id())
 {}
 
 

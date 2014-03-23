@@ -875,5 +875,6 @@ namespace openflow {
 }; // end of namespace openflow
 }; // end of namespace rofl
 
+#include "rofl/common/openflow/openflow_experimental.h"
 
 #endif /* OPENFLOW_COMMON_H_ */

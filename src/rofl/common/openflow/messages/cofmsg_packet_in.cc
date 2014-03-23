@@ -16,7 +16,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	match(match),
-	packet(of_version, data, datalen, match.get_in_port(), false)
+	packet(of_version, data, datalen, match.get_oxmtlvs().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value(), false)
 {
 	ofh_packet_in = soframe();
 
@@ -253,7 +253,7 @@ cofmsg_packet_in::validate()
 		uint32_t in_port = 0;
 
 		try {
-			in_port = match.get_in_port();
+			in_port = match.get_oxmtlvs().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value();
 		} catch (eOFmatchNotFound& e) {
 			in_port = 0;
 		}
@@ -291,7 +291,7 @@ cofmsg_packet_in::validate()
 		uint32_t in_port = 0;
 
 		try {
-			in_port = match.get_in_port();
+			in_port = match.get_oxmtlvs().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value();
 		} catch (eOFmatchNotFound& e) {
 			in_port = 0;
 		}
