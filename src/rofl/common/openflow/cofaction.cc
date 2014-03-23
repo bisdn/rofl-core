@@ -540,7 +540,7 @@ cofaction::get_oxm() const
 	struct openflow::ofp_oxm_hdr* oxm_hdr = (struct openflow::ofp_oxm_hdr*)oac_12set_field->field;
 	size_t oxm_len = be16toh(oac_12set_field->len) - 2 * sizeof(uint16_t); // without action header
 
-	coxmatch oxm(oxm_hdr, oxm_len);
+	coxmatch oxm((uint8_t*)oxm_hdr, oxm_len);
 
 	return oxm;
 }

@@ -2082,7 +2082,7 @@ public:
 			oac_12set_field->type 	= htobe16(openflow12::OFPAT_SET_FIELD);
 			oac_12set_field->len 	= htobe16(total_length);
 
-			memcpy(oac_12set_field->field, (void*)oxm.sooxm(), oxm.length());
+			memcpy(oac_12set_field->field, (void*)oxm.somem(), oxm.memlen());
 		} break;
 		default:
 			logging::warn << "cofaction_set_field: constructor called for invalid OFP version" << std::endl;

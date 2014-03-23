@@ -5,38 +5,47 @@
 
 namespace rofl {
 namespace openflow {
+namespace experimental {
+namespace pppoe {
+
+static uint16_t const OFPXMC_EXPERIMENTER = 0xffff;
+
+/* OXM Flow match field types for OpenFlow Experimental */
+enum oxm_ofx_match_fields {
+	/* PPP/PPPoE related extensions */
+	OFPXMT_OFX_PPPOE_CODE 	= 21,	/* PPPoE code */
+	OFPXMT_OFX_PPPOE_TYPE 	= 22,	/* PPPoE type */
+	OFPXMT_OFX_PPPOE_SID 	= 23,	/* PPPoE session id */
+	OFPXMT_OFX_PPP_PROT 	= 24,	/* PPP protocol */
+};
+
+/* OXM Flow match field types for OpenFlow basic class. */
+enum oxm_tlv_match_fields {
+	OXM_TLV_EXPR_PPPOE_CODE	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_PPPOE_CODE << 9) | 5,
+	OXM_TLV_EXPR_PPPOE_TYPE	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_PPPOE_TYPE << 9) | 5,
+	OXM_TLV_EXPR_PPPOE_SID	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_PPPOE_SID  << 9) | 6,
+	OXM_TLV_EXPR_PPP_PROT	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_PPP_PROT   << 9) | 6,
+};
+
 
 /** OXM_OF_PPPOE_CODE
  *
  */
-class coxmatch_ofx_pppoe_code :
-	public coxmatch
-{
+class coxmatch_ofx_pppoe_code : public coxmatch {
 public:
-	/** constructor
-	 */
 	coxmatch_ofx_pppoe_code(
-			uint8_t code);
-	/**
-	 */
+			uint8_t code) :
+				coxmatch(OXM_TLV_EXPR_PPPOE_CODE, code) {};
 	coxmatch_ofx_pppoe_code(
-			coxmatch const& oxm);
-	/** destructor
-	 */
+			coxmatch const& oxm) :
+				coxmatch(oxm) {};
 	virtual
-	~coxmatch_ofx_pppoe_code();
-	/**
-	 */
-	uint8_t
-	get_pppoe_code() const;
-	/**
-	 */
+	~coxmatch_ofx_pppoe_code() {};
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch_ofx_pppoe_code const& oxm)
-	{
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_code const& oxm) {
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-CODE: " << (unsigned int)oxm.u8value() << ">";
+			os << "<PPPOE-CODE: " << (unsigned int)oxm.get_u8value() << ">";
 		return os;
 	};
 };
@@ -45,34 +54,21 @@ public:
 /** OXM_OF_PPPOE_TYPE
  *
  */
-class coxmatch_ofx_pppoe_type :
-	public coxmatch
-{
+class coxmatch_ofx_pppoe_type : public coxmatch {
 public:
-	/** constructor
-	 */
 	coxmatch_ofx_pppoe_type(
-			uint8_t type);
-	/**
-	 */
+			uint8_t type) :
+				coxmatch(OXM_TLV_EXPR_PPPOE_TYPE, type) {};
 	coxmatch_ofx_pppoe_type(
-			coxmatch const& oxm);
-	/** destructor
-	 */
+			coxmatch const& oxm) :
+				coxmatch(oxm) {};
 	virtual
-	~coxmatch_ofx_pppoe_type();
-	/**
-	 */
-	uint8_t
-	get_pppoe_type() const;
-	/**
-	 */
+	~coxmatch_ofx_pppoe_type() {};
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch_ofx_pppoe_type const& oxm)
-	{
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_type const& oxm) {
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-CODE: " << (unsigned int)oxm.u8value() << ">";
+			os << "<PPPOE-CODE: " << (unsigned int)oxm.get_u8value() << ">";
 		return os;
 	};
 };
@@ -81,34 +77,21 @@ public:
 /** OXM_OF_PPPOE_SID
  *
  */
-class coxmatch_ofx_pppoe_sid :
-	public coxmatch
-{
+class coxmatch_ofx_pppoe_sid : public coxmatch {
 public:
-	/** constructor
-	 */
 	coxmatch_ofx_pppoe_sid(
-			uint16_t sessid);
-	/**
-	 */
+			uint16_t sid) :
+				coxmatch(OXM_TLV_EXPR_PPPOE_SID, sid) {};
 	coxmatch_ofx_pppoe_sid(
-			coxmatch const& oxm);
-	/** destructor
-	 */
+			coxmatch const& oxm) :
+				coxmatch(oxm) {};
 	virtual
-	~coxmatch_ofx_pppoe_sid();
-	/**
-	 */
-	uint16_t
-	get_pppoe_sid() const;
-	/**
-	 */
+	~coxmatch_ofx_pppoe_sid() {};
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch_ofx_pppoe_sid const& oxm)
-	{
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_sid const& oxm) {
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-SID: " << (unsigned int)oxm.u16value() << ">";
+			os << "<PPPOE-SID: " << (unsigned int)oxm.get_u16value() << ">";
 		return os;
 	};
 };
@@ -117,38 +100,27 @@ public:
 /** OXM_OF_PPP_PROT
  *
  */
-class coxmatch_ofx_ppp_prot :
-	public coxmatch
-{
+class coxmatch_ofx_ppp_prot : public coxmatch {
 public:
-	/** constructor
-	 */
 	coxmatch_ofx_ppp_prot(
-			uint16_t prot);
-	/**
-	 */
+			uint16_t prot) :
+				coxmatch(OXM_TLV_EXPR_PPP_PROT, prot) {};
 	coxmatch_ofx_ppp_prot(
-			coxmatch const& oxm);
-	/** destructor
-	 */
+			coxmatch const& oxm) :
+				coxmatch(oxm) {};
 	virtual
-	~coxmatch_ofx_ppp_prot();
-	/**
-	 */
-	uint16_t
-	get_ppp_prot() const;
-	/**
-	 */
+	~coxmatch_ofx_ppp_prot() {};
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch_ofx_ppp_prot const& oxm)
-	{
+	operator<< (std::ostream& os, coxmatch_ofx_ppp_prot const& oxm) {
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPP-PROT: " << (unsigned int)oxm.u16value() << ">";
+			os << "<PPP-PROT: " << (unsigned int)oxm.get_u16value() << ">";
 		return os;
 	};
 };
 
+}; // end of namespace pppoe
+}; // end of namespace experimental
 }; // end of namespace openflow
 }; // end of namespace rofl
 

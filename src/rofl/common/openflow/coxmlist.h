@@ -400,6 +400,7 @@ public:
 								if (dynamic_cast<coxmatch_ofx_tp_dst*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_tp_dst*>(jt->second);
 								break;
+#if 0
 							case openflow::experimental::OFPXMT_OFX_PPPOE_CODE:
 								if (dynamic_cast<coxmatch_ofx_pppoe_code*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_pppoe_code*>(jt->second);
@@ -424,6 +425,7 @@ public:
 								if (dynamic_cast<coxmatch_ofx_gtp_teid*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_gtp_teid*>(jt->second);
 								break;
+#endif
 							default:
 								os << *(jt->second);
 							}

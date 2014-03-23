@@ -241,6 +241,12 @@ namespace openflow {
 
 
 
+	struct ofp_oxm_tlv_hdr {
+		uint32_t oxm_id;
+		uint8_t  data[0];
+	};
+
+
 	struct ofp_oxm_hdr {
 		uint16_t oxm_class;		/* oxm_class */
 		uint8_t  oxm_field;		/* includes has_mask bit! */
@@ -315,12 +321,8 @@ namespace openflow {
 	// OXM_OF_METADATA (mask)
 	struct ofp_oxm_ofb_uint64_t {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
-		uint8_t word[8];
-		uint8_t mask[8];
-	#if 0
-		uint64_t qword;				/* network byte order */
-		uint64_t mask;				/* only valid, when oxm_hasmask=1 */
-	#endif
+		uint64_t word;
+		uint64_t mask;
 	};
 
 
@@ -447,6 +449,7 @@ namespace openflow {
 		OXM_TLV_BASIC_IPV6_DST		= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_DST << 9)	| 20,	/* IPv6 destination address. */			// required
 		OXM_TLV_BASIC_IPV6_DST_MASK	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_DST << 9)	| 36 | HAS_MASK_FLAG,
 		OXM_TLV_BASIC_IPV6_FLABEL	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_FLABEL << 9) |  8,	/* IPv6 Flow Label */
+		OXM_TLV_BASIC_IPV6_FLABEL_MASK	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_FLABEL << 9) |  12| HAS_MASK_FLAG,	/* IPv6 Flow Label */
 		OXM_TLV_BASIC_ICMPV6_TYPE	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_ICMPV6_TYPE << 9) |  5,	/* ICMPv6 type. */
 		OXM_TLV_BASIC_ICMPV6_CODE	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_ICMPV6_CODE << 9) |  5,	/* ICMPv6 code. */
 		OXM_TLV_BASIC_IPV6_ND_TARGET= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_ND_TARGET << 9) | 20,/* Target address for ND. */
@@ -460,6 +463,7 @@ namespace openflow {
 		OXM_TLV_BASIC_TUNNEL_ID		= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_TUNNEL_ID << 9)	| 12,	/* Logical Port Metadata. */
 		OXM_TLV_BASIC_TUNNEL_ID_MASK= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_TUNNEL_ID << 9)	| 20 | HAS_MASK_FLAG,
 		OXM_TLV_BASIC_IPV6_EXTHDR	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_EXTHDR << 9)	|  6,	/* IPv6 Extension Header pseudo-field */
+		OXM_TLV_BASIC_IPV6_EXTHDR_MASK	= (OFPXMC_OPENFLOW_BASIC << 16) | (OFPXMT_OFB_IPV6_EXTHDR << 9)	|  6 | HAS_MASK_FLAG,	/* IPv6 Extension Header pseudo-field */
 	};
 
 

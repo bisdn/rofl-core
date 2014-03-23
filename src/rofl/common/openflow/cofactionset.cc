@@ -73,7 +73,7 @@ cofactionset::actionset_clear(cofinst& inst)
 		switch (be16toh(action.oac_header->type)) {
 		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
-					(struct openflow::ofp_oxm_hdr*)action.oac_12set_field->field,
+					(uint8_t*)action.oac_12set_field->field,
 					be16toh(action.oac_12set_field->len));
 			acfields[oxm.get_oxm_class()].erase(oxm.get_oxm_field());
 		} break;
@@ -109,7 +109,7 @@ cofactionset::actionset_write_actions(cofinst& inst)
 		switch (be16toh(action.oac_header->type)) {
 		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
-					(struct openflow::ofp_oxm_hdr*)action.oac_12set_field->field,
+					(uint8_t*)action.oac_12set_field->field,
 					be16toh(action.oac_12set_field->len));
 			acfields[oxm.get_oxm_class()][oxm.get_oxm_field()] = action;
 		} break;
