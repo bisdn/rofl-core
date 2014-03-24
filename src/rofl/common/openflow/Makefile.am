@@ -35,8 +35,8 @@ libopenflow_la_SOURCES= \
 	cofmatch.cc \
 	coxmatch.h \
 	coxmatch.cc \
-	coxmlist.h \
-	coxmlist.cc \
+	coxmatches.h \
+	coxmatches.cc \
 	cofport.h \
 	cofport.cc \
 	cofports.h \
@@ -130,7 +130,7 @@ library_include_HEADERS = \
 	cofinstructions.h \
 	cofmatch.h \
 	coxmatch.h \
-	coxmlist.h \
+	coxmatches.h \
 	cofport.h \
 	cofports.h \
 	cofstats.h \

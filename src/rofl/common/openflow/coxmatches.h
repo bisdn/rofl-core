@@ -41,7 +41,7 @@ class eOxmListOutOfRange 	: public eOxmListBase {}; // out of range
  * it does not contain a full struct ofp_match, see class cofmatch for this
  *
  */
-class coxmlist
+class coxmatches
 {
 	std::map<uint32_t, coxmatch>	matches;
 
@@ -50,33 +50,33 @@ public:
 	/**
 	 *
 	 */
-	coxmlist();
+	coxmatches();
 
 	/**
 	 *
 	 */
 	virtual
-	~coxmlist();
+	~coxmatches();
 
 	/**
 	 *
 	 */
-	coxmlist(
-			coxmlist const& oxmlist);
+	coxmatches(
+			coxmatches const& oxmlist);
 
 	/**
 	 *
 	 */
-	coxmlist&
+	coxmatches&
 	operator= (
-			coxmlist const& oxmlist);
+			coxmatches const& oxmlist);
 
 	/**
 	 *
 	 */
 	bool
 	operator== (
-			coxmlist const& oxmlist);
+			coxmatches const& oxmlist);
 
 
 public:
@@ -171,7 +171,7 @@ public:
 	 */
 	bool
 	contains(
-			coxmlist const& oxmlist,
+			coxmatches const& oxmlist,
 			bool strict = false);
 
 	/**
@@ -179,7 +179,7 @@ public:
 	 */
 	bool
 	is_part_of(
-			coxmlist const& oxmlist,
+			coxmatches const& oxmlist,
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
@@ -187,7 +187,7 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmlist const& oxl) {
+	operator<< (std::ostream& os, coxmatches const& oxl) {
 		os << rofl::indent(0) << "<coxmlist #matches:" << oxl.matches.size() << " >" << std::endl;
 		for (std::map<uint32_t, coxmatch>::const_iterator
 				it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
