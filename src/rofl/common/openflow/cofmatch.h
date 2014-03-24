@@ -118,7 +118,7 @@ public:
 	contains(
 			cofmatch const& match,
 			bool strict = false) {
-		return matches.contains(match.get_oxmtlvs(), strict);
+		return matches.contains(match.get_matches(), strict);
 	};
 
 	/**
@@ -130,7 +130,7 @@ public:
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed) {
-		return matches.is_part_of(match.get_oxmtlvs(), exact_hits, wildcard_hits, missed);
+		return matches.is_part_of(match.get_matches(), exact_hits, wildcard_hits, missed);
 	};
 
 public:
@@ -163,13 +163,13 @@ public:
 	 *
 	 */
 	coxmatches&
-	set_oxmtlvs() { return matches; };
+	set_matches() { return matches; };
 
 	/**
 	 *
 	 */
 	coxmatches const&
-	get_oxmtlvs() const { return matches; };
+	get_matches() const { return matches; };
 
 private:
 

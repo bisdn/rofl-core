@@ -107,7 +107,7 @@ cfsptable::find_matching_entries(
 		uint16_t __misses = 0;
 
 		//pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
-		(*it)->ofmatch.set_oxmtlvs().is_part_of(match.get_oxmtlvs(), __exact_hits, __wildcard_hits, __misses);
+		(*it)->ofmatch.set_matches().is_part_of(match.get_matches(), __exact_hits, __wildcard_hits, __misses);
 
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{

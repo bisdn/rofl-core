@@ -664,10 +664,10 @@ cofflowmod::example()
 	fe.set_idle_timeout(5);
 	fe.set_hard_timeout(0);
 
-	fe.match.set_oxmtlvs().add_match(coxmatch_ofb_in_port(1));
-	fe.match.set_oxmtlvs().add_match(coxmatch_ofb_eth_type(0x0800));
-	fe.match.set_oxmtlvs().add_match(coxmatch_ofb_eth_src(dl_src));
-	fe.match.set_oxmtlvs().add_match(coxmatch_ofb_eth_dst(dl_dst));
+	fe.match.set_matches().add_match(coxmatch_ofb_in_port(1));
+	fe.match.set_matches().add_match(coxmatch_ofb_eth_type(0x0800));
+	fe.match.set_matches().add_match(coxmatch_ofb_eth_src(dl_src));
+	fe.match.set_matches().add_match(coxmatch_ofb_eth_dst(dl_dst));
 
 	fe.instructions.add_inst_clear_actions();
 
