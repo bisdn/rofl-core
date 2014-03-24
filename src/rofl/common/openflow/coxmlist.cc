@@ -129,16 +129,18 @@ coxmlist::pack(
 coxmatch&
 coxmlist::add_match(coxmatch const& oxm)
 {
-	if (matches.find(oxm.get_oxm_id()) != matches.end()) {
-		matches.erase(oxm.get_oxm_id());
+	uint32_t oxm_id = oxm.get_oxm_id() & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oxm_id) != matches.end()) {
+		matches.erase(oxm_id);
 	}
-	return (matches[oxm.get_oxm_id()] = oxm);
+	return (matches[oxm_id] = oxm);
 }
 
 
 coxmatch&
 coxmlist::add_match(uint32_t oxm_id)
 {
+	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
 	if (matches.find(oxm_id) != matches.end()) {
 		matches.erase(oxm_id);
 	}
@@ -149,6 +151,7 @@ coxmlist::add_match(uint32_t oxm_id)
 coxmatch&
 coxmlist::set_match(uint32_t oxm_id)
 {
+	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
 	return matches[oxm_id];
 }
 
@@ -156,6 +159,7 @@ coxmlist::set_match(uint32_t oxm_id)
 coxmatch const&
 coxmlist::get_match(uint32_t oxm_id) const
 {
+	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
 	if (matches.find(oxm_id) == matches.end()) {
 		throw eOxmInval();
 	}
@@ -166,6 +170,7 @@ coxmlist::get_match(uint32_t oxm_id) const
 void
 coxmlist::drop_match(uint32_t oxm_id)
 {
+	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
 	if (matches.find(oxm_id) == matches.end()) {
 		return;
 	}
@@ -176,6 +181,7 @@ coxmlist::drop_match(uint32_t oxm_id)
 bool
 coxmlist::has_match(uint32_t oxm_id) const
 {
+	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
 	return (not (matches.find(oxm_id) == matches.end()));
 }
 
