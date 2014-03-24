@@ -30,83 +30,46 @@
 namespace rofl {
 namespace openflow {
 
-class eOFmatchBase 			: public RoflException {}; // error base class cofmatch
+class eOFmatchBase 			: public RoflException {};
 class eOFmatchType 			: public eOFmatchBase {};
 class eOFmatchInval 		: public eOFmatchBase {};
 class eOFmatchNotFound 		: public eOFmatchBase {};
 class eOFmatchInvalBadValue	: public eOFmatchInval {};
 
 
-
-
 class cofmatch
 {
-private: // data structures
+	uint8_t 				of_version;
+	coxmlist 				oxmtlvs;
+	uint16_t				type;
 
-	uint8_t 		of_version;		// OpenFlow version used for this cofmatch instance
-	coxmlist 		oxmtlvs;		// list of all oxms
-	cmemory 		memarea;
+public:
 
-#define OFP10_MATCH_STATIC_LEN		(sizeof(struct openflow10::ofp_match))
-#define OFP12_MATCH_STATIC_LEN  	(2*sizeof(uint16_t))
-#define OFP13_MATCH_STATIC_LEN  	(2*sizeof(uint16_t))
-
-public: // data structures
-
-	union {
-		uint8_t*							ofpu_match;
-		struct openflow10::ofp_match*		ofpu10_match;
-		struct openflow12::ofp_match*		ofpu12_match;
-		struct openflow13::ofp_match*		ofpu13_match;
-	} ofpu;
-
-#define ofh_match  	ofpu.ofpu_match
-#define ofh10_match ofpu.ofpu10_match
-#define ofh12_match ofpu.ofpu12_match
-#define ofh13_match ofpu.ofpu13_match
-
-
-
-public: // methods
-
-	/** constructor
+	/**
 	 *
 	 */
 	cofmatch(
-			uint8_t of_version = openflow12::OFP_VERSION,
-			uint16_t type = openflow::OFPMT_OXM);
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			uint16_t type = rofl::openflow::OFPMT_OXM);
 
-
-	/** constructor
+	/**
 	 *
 	 */
-	template<class T>
 	cofmatch(
-			uint8_t of_version,
-			T* match,
-			size_t matchlen);
+			const cofmatch &match);
 
-
-	/** copy constructor
-	 *
-	 */
-	cofmatch(const cofmatch &m) 
-	{
-		*this = m;
-	};
-
-
-	/** destructor
+	/**
 	 *
 	 */
 	virtual 
 	~cofmatch();
 
-
-	/** assignment operator
+	/**
+	 *
 	 */
 	cofmatch&
-	operator= (const cofmatch& m);
+	operator= (
+			const cofmatch& match);
 
 	/**
 	 *
@@ -115,46 +78,74 @@ public: // methods
 	operator== (const cofmatch& m);
 
 
-#if 0
-	/** less operator
+
+public:
+
+	/**
 	 *
 	 */
-	bool
-	operator< (cofmatch const& m) const;
-#endif
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
 
 	/**
 	 *
 	 */
 	void
-	set_version(uint8_t ofp_version) {
-		this->of_version = ofp_version;
+	check_prerequisites() const;
 
-		switch (of_version) {
-		case openflow::OFP_VERSION_UNKNOWN: {
-			memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
-			ofh_match = memarea.somem();
-		} break;
-		case openflow10::OFP_VERSION: {
-			memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
-			ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
-		} break;
-		case openflow12::OFP_VERSION: {
-			memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
-			ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
-			ofh12_match->type 	= htobe16(rofl::openflow::OFPMT_OXM);
-			ofh12_match->length = htobe16(length());
-		} break;
-		case openflow13::OFP_VERSION: {
-			memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
-			ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
-			ofh13_match->type 	= htobe16(rofl::openflow::OFPMT_OXM);
-			ofh13_match->length = htobe16(length());
-		} break;
-		default: {
-		};
-		}
+	/**
+	 *
+	 */
+	void
+	clear() { oxmtlvs.clear(); };
+
+	/**
+	 *
+	 */
+	bool
+	contains(
+			cofmatch const& match,
+			bool strict = false)
+	{
+		return oxmtlvs.contains(match.get_oxmtlvs(), strict);
 	};
+
+	/**
+	 *
+	 */
+	bool
+	is_part_of(
+			cofmatch const& match,
+			uint16_t& exact_hits,
+			uint16_t& wildcard_hits,
+			uint16_t& missed)
+	{
+		return oxmtlvs.is_part_of(match.get_oxmtlvs(), exact_hits, wildcard_hits, missed);
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->of_version = ofp_version; };
 
 	/**
 	 *
@@ -162,131 +153,17 @@ public: // methods
 	uint8_t
 	get_version() const { return of_version; };
 
-	/** validate match structure
-	 *
-	 */
-	void
-	validate() throw (eOFmatchInval);
-
-
-	/** return required length for packed cofmatch (includes padding to 64bit)
-	 */
-	size_t
-	length() const;
-
-
-private:
-
-
-	size_t
-	length_internal();
-
-
-public:
-
-	/*
-	 * TODO: introduce a template
-	 */
-
-	uint8_t*
-	pack(uint8_t* m, size_t mlen);
-
-	void
-	unpack(uint8_t* m, size_t mlen);
-
-	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
-	 * @return pointer 'm'
-	 *
-	 */
-	uint8_t*
-	pack_of10(
-			uint8_t* m,
-			size_t mlen);
-
-
-	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
-	 *
-	 */
-	void
-	unpack_of10(
-			uint8_t* m,
-			size_t mlen);
-
-
-	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
-	 * @return pointer 'm'
-	 *
-	 */
-	uint8_t*
-	pack_of12(
-			uint8_t* m,
-			size_t mlen);
-
-
-	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
-	 *
-	 */
-	void
-	unpack_of12(
-			uint8_t* m,
-			size_t mlen);
-
-
-	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
-	 * @return pointer 'm'
-	 *
-	 */
-	uint8_t*
-	pack_of13(
-			uint8_t* m,
-			size_t mlen);
-
-
-	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
-	 *
-	 */
-	void
-	unpack_of13(
-			uint8_t* m,
-			size_t mlen);
-
-
-
-	/**
-	 * @brief	checks prerequisites for OF1.2 and beyond OXM TLV lists
-	 */
-	void
-	check_prerequisites() const;
-
-
-	
-	/** check for an identical match between two ofp_match structures
-	 */
-	bool 
-	operator== (
-		cofmatch& m);
-
-
-	/** reset structure
-	 *
-	 */
-	void
-	clear();
-
-
-public:
-
 	/**
 	 *
 	 */
 	void
-	set_type(uint16_t type);
+	set_type(uint16_t type) { this->type = type; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_type() const;
+	get_type() const { return type; };
 
 	/**
 	 *
@@ -300,35 +177,63 @@ public:
 	coxmlist const&
 	get_oxmtlvs() const { return oxmtlvs; };
 
+private:
+
+
+	/**
+	 *
+	 */
+	size_t
+	length_with_padding();
+
+	/**
+	 *
+	 */
+	void
+	pack_of10(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	void
+	unpack_of10(
+			uint8_t* buf, size_t buflen);
+
+
+	/**
+	 *
+	 */
+	void
+	pack_of13(
+			uint8_t* buf, size_t buflen);
+
+
+	/**
+	 *
+	 */
+	void
+	unpack_of13(
+			uint8_t* m,
+			size_t mlen);
+
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmatch const& m) {
-		os << indent(0) << "<cofmatch ";
+		os << rofl::indent(0) << "<cofmatch ofp-version:" << m.get_version() << " >" << std::endl;
 			switch (m.of_version) {
-			case openflow10::OFP_VERSION: {
-				os << "OF1.0 ";
+			case rofl::openflow12::OFP_VERSION:
+			case rofl::openflow13::OFP_VERSION: {
+				os << rofl::indent(2) << "<type: " << m.type << " >" << std::endl;
 			} break;
-			case openflow12::OFP_VERSION: {
-				os << "OF1.2 type: " << be16toh(m.ofh12_match->type) << " ";
-				os << "length: " << be16toh(m.ofh12_match->length) << " ";
-			} break;
-			case openflow13::OFP_VERSION: {
-				os << "OF1.3 type: " << be16toh(m.ofh13_match->type) << " ";
-				os << "length: " << be16toh(m.ofh13_match->length) << " ";
-			} break;
-			default: {
-				os << "OF version " << m.of_version << " not supported";
 			}
-			}
-		os << ">" << std::endl;
-		indent i(2);
+		rofl::indent i(2);
 		os << m.oxmtlvs;
 		return os;
 	};
 };
-
-
 
 }; // end of namespace openflow
 }; // end of namespace rofl

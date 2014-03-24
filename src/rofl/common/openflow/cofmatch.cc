@@ -9,38 +9,11 @@ using namespace rofl::openflow;
 cofmatch::cofmatch(
 		uint8_t of_version,
 		uint16_t type) :
-				of_version(of_version)
+				of_version(of_version),
+				type(type)
 {
-	switch (of_version) {
-	case openflow::OFP_VERSION_UNKNOWN: {
-		ofh_match = 0;
-	} break;
-	case openflow10::OFP_VERSION: {
-		memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
-		ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
-	} break;
-	case openflow12::OFP_VERSION: {
-		memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
-		ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
-		ofh12_match->type 	= htobe16(type);
-		ofh12_match->length = htobe16(length());
-	} break;
-	case openflow13::OFP_VERSION: {
-		memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
-		ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
-		ofh13_match->type 	= htobe16(type);
-		ofh13_match->length = htobe16(length());
-	} break;
-	default:
-		throw eBadVersion();
-	}
 
-	clear();
-
-	validate();
 }
-
-
 
 
 cofmatch::~cofmatch()
@@ -49,82 +22,48 @@ cofmatch::~cofmatch()
 }
 
 
+cofmatch::cofmatch(
+		cofmatch const& match)
+{
+	*this = match;
+}
+
 
 cofmatch&
-cofmatch::operator= (const cofmatch& m)
+cofmatch::operator= (
+		const cofmatch& match)
 {
-	if (this == &m)
+	if (this == &match)
 		return *this;
 
-	of_version		= m.of_version;
-	memarea			= m.memarea;
-	oxmtlvs			= m.oxmtlvs;
-
-	ofh_match = memarea.somem();
-
-	validate();
+	of_version		= match.of_version;
+	oxmtlvs			= match.oxmtlvs;
+	type			= match.type;
 
 	return *this;
 }
 
 
-
 bool
-cofmatch::operator== (const cofmatch& m)
+cofmatch::operator== (
+		const cofmatch& match)
 {
 	return (
-		(of_version == m.of_version) &&
-		(memarea 	== m.memarea) &&
-		(oxmtlvs 	== m.oxmtlvs));
+		(of_version == match.of_version) &&
+		(oxmtlvs 	== match.oxmtlvs) &&
+		(type 	    == match.type));
 }
-
-
-
-void
-cofmatch::clear()
-{
-	switch (of_version) {
-	case openflow::OFP_VERSION_UNKNOWN: {
-		oxmtlvs.clear();
-		memarea.clear();
-		ofh_match = 0;
-	} break;
-	case openflow10::OFP_VERSION: {
-		oxmtlvs.clear();
-		memset(ofh10_match, 0, openflow10::OFP_MATCH_STATIC_LEN);
-	} break;
-	case openflow12::OFP_VERSION: {
-		oxmtlvs.clear();
-		ofh12_match->length = htobe16(length());
-	} break;
-	case openflow13::OFP_VERSION: {
-		oxmtlvs.clear();
-		ofh13_match->length = htobe16(length());
-	} break;
-	default:
-		throw eBadVersion();
-	}
-}
-
-
-
-void
-cofmatch::validate() throw (eOFmatchInval)
-{
-	// TODO: apply OF1.2 prerequisites here
-}
-
 
 
 size_t
-cofmatch::length_internal()
+cofmatch::length_with_padding()
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return openflow10::OFP_MATCH_STATIC_LEN;
 	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 		/*
 		 * returns length of struct ofp_match including padding
 		 */
@@ -132,8 +71,7 @@ cofmatch::length_internal()
 
 		match_len += oxmtlvs.length();
 
-		if (0 != (match_len % sizeof(uint64_t)))
-		{
+		if (0 != (match_len % sizeof(uint64_t))) {
 			match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
 		}
 		return match_len;
@@ -145,17 +83,16 @@ cofmatch::length_internal()
 }
 
 
-
 size_t
 cofmatch::length() const
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		return openflow10::OFP_MATCH_STATIC_LEN;
+	case rofl::openflow10::OFP_VERSION: {
+		return sizeof(struct rofl::openflow10::ofp_match);
 	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		size_t total_length = 2*sizeof(uint16_t) + oxmtlvs.length(); // type + length + list
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		size_t total_length = 2*sizeof(uint16_t) + oxmtlvs.length(); // type-field + length-field + OXM-TLV list
 
 		size_t pad = (0x7 & total_length);
 		/* append padding if not a multiple of 8 */
@@ -171,211 +108,203 @@ cofmatch::length() const
 }
 
 
-
-uint8_t*
-cofmatch::pack(uint8_t* m, size_t mlen)
+void
+cofmatch::pack(uint8_t* buf, size_t buflen)
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: return pack_of10(m, mlen); break;
-	case openflow12::OFP_VERSION: return pack_of12(m, mlen); break;
-	case openflow13::OFP_VERSION: return pack_of13(m, mlen); break;
+	case rofl::openflow10::OFP_VERSION: return pack_of10(buf, buflen); break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: return pack_of13(buf, buflen); break;
 	default: throw eBadVersion();
 	}
 }
-
 
 
 void
-cofmatch::unpack(uint8_t *m, size_t mlen)
+cofmatch::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: unpack_of10(m, mlen); break;
-	case openflow12::OFP_VERSION: unpack_of12(m, mlen); break;
-	case openflow13::OFP_VERSION: unpack_of13(m, mlen); break;
+	case rofl::openflow10::OFP_VERSION: unpack_of10(buf, buflen); break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: unpack_of13(buf, buflen); break;
 	default: throw eBadVersion();
 	}
 }
 
 
-
-uint8_t*
-cofmatch::pack_of10(uint8_t* match, size_t matchlen)
+void
+cofmatch::pack_of10(uint8_t* buf, size_t buflen)
 {
-	if (matchlen < length()) {
+	if (buflen < length()) {
 		throw eOFmatchInval();
 	}
 
 	uint32_t wildcards = 0;
 
-	/*
-	 * fill in real length, i.e. excluding padding
-	 */
-	memset(match, 0, matchlen);
+	memset(buf, 0, buflen);
 
-	struct openflow10::ofp_match *m = (struct openflow10::ofp_match*)match;
+	struct rofl::openflow10::ofp_match *m = (struct rofl::openflow10::ofp_match*)buf;
 
 	// in_port
-	try {
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_IN_PORT)) {
 		m->in_port = htobe16((uint16_t)(oxmtlvs.get_match(OXM_TLV_BASIC_IN_PORT).get_u32value() && 0x0000ffff));
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_IN_PORT;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_IN_PORT;
 	}
 
 	// dl_src
-	try {
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_ETH_SRC)) {
 		memcpy(m->dl_src, oxmtlvs.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48value().somem(), OFP_ETH_ALEN);
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_DL_SRC;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_DL_SRC;
 	}
 
 	// dl_dst
-	try {
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_ETH_DST)) {
 		memcpy(m->dl_dst, oxmtlvs.get_match(OXM_TLV_BASIC_ETH_DST).get_u48value().somem(), OFP_ETH_ALEN);
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_DL_DST;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_DL_DST;
 	}
 
 	// dl_vlan
-	try {
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_VLAN_VID)) {
 		m->dl_vlan = htobe16(oxmtlvs.get_match(OXM_TLV_BASIC_VLAN_VID).get_u16value());
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_DL_VLAN;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_DL_VLAN;
 	}
 
 	// dl_vlan_pcp
-	try {
-		if(oxmtlvs.get_match(OXM_TLV_BASIC_VLAN_VID).get_u16value() != openflow10::OFP_VLAN_NONE)
-			m->dl_vlan_pcp = oxmtlvs.get_match(OXM_TLV_BASIC_VLAN_PCP).get_u8value();
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_DL_VLAN_PCP;
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_VLAN_PCP)) {
+		m->dl_vlan_pcp = oxmtlvs.get_match(OXM_TLV_BASIC_VLAN_PCP).get_u8value();
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_DL_VLAN_PCP;
 	}
 
 	// dl_type
-	try {
+	if (oxmtlvs.has_match(OXM_TLV_BASIC_ETH_TYPE)) {
 		m->dl_type = htobe16(oxmtlvs.get_match(OXM_TLV_BASIC_ETH_TYPE).get_u16value());
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_DL_TYPE;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_DL_TYPE;
 	}
 
 	// nw_tos
-	try {
-		m->nw_tos = oxmtlvs.get_match(experimental::OXM_TLV_EXPR_NW_TOS).get_u8value();
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_NW_TOS;
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_TOS)) {
+		m->nw_tos = oxmtlvs.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_TOS).get_u8value();
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_NW_TOS;
 	}
 
 	// nw_proto
-	try {
-		m->nw_proto = oxmtlvs.get_match(experimental::OXM_TLV_EXPR_NW_PROTO).get_u8value();
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_NW_PROTO;
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_PROTO)) {
+		m->nw_proto = oxmtlvs.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_PROTO).get_u8value();
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_NW_PROTO;
 	}
 
 	// nw_src
-	try {
-		coxmatch const& oxm = oxmtlvs.get_match(experimental::OXM_TLV_EXPR_NW_SRC);
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC)) {
+		coxmatch const& oxm = oxmtlvs.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC);
 		m->nw_src = htobe32(oxm.get_u32value());
 		if (oxm.get_oxm_hasmask()) {
 			std::bitset<32> mask(oxm.get_u32mask());
-			wildcards |= ((32 - mask.count()) << openflow10::OFPFW_NW_SRC_SHIFT) & openflow10::OFPFW_NW_SRC_MASK;
+			wildcards |= ((32 - mask.count()) << rofl::openflow10::OFPFW_NW_SRC_SHIFT) & rofl::openflow10::OFPFW_NW_SRC_MASK;
 		}
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_NW_SRC_ALL;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_NW_SRC_ALL;
 	}
 
 
 	// nw_dst
-	try {
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST)) {
 		coxmatch const& oxm = oxmtlvs.get_match(experimental::OXM_TLV_EXPR_NW_DST);
 		m->nw_dst = htobe32(oxm.get_u32value());
 		if (oxm.get_oxm_hasmask()) {
 			std::bitset<32> mask(oxm.get_u32mask());
-			wildcards |= ((32 - mask.count()) << openflow10::OFPFW_NW_DST_SHIFT) & openflow10::OFPFW_NW_DST_MASK;
+			wildcards |= ((32 - mask.count()) << rofl::openflow10::OFPFW_NW_DST_SHIFT) & rofl::openflow10::OFPFW_NW_DST_MASK;
 		}
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_NW_DST_ALL;
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_NW_DST_ALL;
 	}
 
 	// tp_src
-	try {
-		m->tp_src = htobe16(oxmtlvs.get_match(experimental::OXM_TLV_EXPR_TP_SRC).get_u16value());
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_TP_SRC;
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_SRC)) {
+		m->tp_src = htobe16(oxmtlvs.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_SRC).get_u16value());
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_TP_SRC;
 	}
 
 	// tp_dst
-	try {
-		m->tp_dst = htobe16(oxmtlvs.get_match(experimental::OXM_TLV_EXPR_TP_DST).get_u16value());
-	} catch (eOxmListNotFound& e) {
-		wildcards |= openflow10::OFPFW_TP_DST;
+	if (oxmtlvs.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_DST)) {
+		m->tp_dst = htobe16(oxmtlvs.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_DST).get_u16value());
+	} else {
+		wildcards |= rofl::openflow10::OFPFW_TP_DST;
 	}
 
-	m->wildcards = htobe32(wildcards);
 
-	return match;
+	m->wildcards = htobe32(wildcards);
 }
 
 
-
 void
-cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
+cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 {
-	of_version = openflow10::OFP_VERSION;
 	oxmtlvs.clear();
-	memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
-	ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
 
-	if (matchlen < (unsigned int)openflow10::OFP_MATCH_STATIC_LEN) {
+	if (buflen < sizeof(struct rofl::openflow10::ofp_match)) {
 		throw eOFmatchInval();
 	}
 
-	struct openflow10::ofp_match *m = (struct openflow10::ofp_match*)match;
+	struct rofl::openflow10::ofp_match *m = (struct rofl::openflow10::ofp_match*)buf;
 
 	uint32_t wildcards = be32toh(m->wildcards);
 
 	// in_port
-	if (!(wildcards & openflow10::OFPFW_IN_PORT)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_IN_PORT)) {
 		oxmtlvs.add_match(coxmatch_ofb_in_port(be16toh(m->in_port)));
 	}
 
 	// dl_src
-	if (!(wildcards & openflow10::OFPFW_DL_SRC)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_DL_SRC)) {
 		oxmtlvs.add_match(coxmatch_ofb_eth_src(rofl::cmacaddr(m->dl_src, OFP_ETH_ALEN)));
 	}
 
 	// dl_dst
-	if (!(wildcards & openflow10::OFPFW_DL_DST)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_DL_DST)) {
 		oxmtlvs.add_match(coxmatch_ofb_eth_dst(rofl::cmacaddr(m->dl_dst, OFP_ETH_ALEN)));
 	}
 
 	// dl_vlan
-	if (!(wildcards & openflow10::OFPFW_DL_VLAN) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
-		oxmtlvs.add_match(coxmatch_ofb_vlan_vid(be16toh(m->dl_vlan)));
+	if (!(wildcards & rofl::openflow10::OFPFW_DL_VLAN)) {
+		if (m->dl_vlan != rofl::openflow10::OFPVID_NONE) {
+			oxmtlvs.add_match(coxmatch_ofb_vlan_vid(be16toh(m->dl_vlan)));
+		} else {
+			oxmtlvs.add_match(coxmatch_ofb_vlan_untagged());
+		}
 	}
 
 	// dl_vlan_pcp
-	if (!(wildcards & openflow10::OFPFW_DL_VLAN_PCP) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
+	if (!(wildcards & rofl::openflow10::OFPFW_DL_VLAN_PCP) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
 		oxmtlvs.add_match(coxmatch_ofb_vlan_pcp(m->dl_vlan_pcp));
 	}
 
 	// dl_type
-	if (!(wildcards & openflow10::OFPFW_DL_TYPE)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_DL_TYPE)) {
 		oxmtlvs.add_match(coxmatch_ofb_eth_type(be16toh(m->dl_type)));
 	}
 
 	// nw_tos
-	if (!(wildcards & openflow10::OFPFW_NW_TOS)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
 		oxmtlvs.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
 	}
 
 	// nw_proto
-	if (!(wildcards & openflow10::OFPFW_NW_PROTO)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
 		oxmtlvs.add_match(coxmatch_ofx_nw_proto(m->nw_proto));
 	}
 
 	// nw_src
 	{
-		uint64_t num_of_bits = (wildcards & openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
+		uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
@@ -397,7 +326,7 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 
 	// nw_dst
 	{
-		uint64_t num_of_bits = (wildcards & openflow10::OFPFW_NW_DST_MASK) >> openflow10::OFPFW_NW_DST_SHIFT;
+		uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_DST_MASK) >> openflow10::OFPFW_NW_DST_SHIFT;
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
@@ -418,133 +347,60 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 	}
 
 	// tp_src
-	if (!(wildcards & openflow10::OFPFW_TP_SRC)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_TP_SRC)) {
 		oxmtlvs.add_match(coxmatch_ofx_tp_src(be16toh(m->tp_src)));
 	}
 
 	// tp_dst
-	if (!(wildcards & openflow10::OFPFW_TP_DST)) {
+	if (!(wildcards & rofl::openflow10::OFPFW_TP_DST)) {
 		oxmtlvs.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
 	}
-
-	validate();
 }
 
 
-
-uint8_t*
-cofmatch::pack_of12(uint8_t* match, size_t matchlen)
+void
+cofmatch::pack_of13(uint8_t* buf, size_t buflen)
 {
-	if (matchlen < length()) {
+	if (buflen < length()) {
 		throw eOFmatchInval();
 	}
 
-	struct openflow12::ofp_match* m = (struct openflow12::ofp_match*)match;
+	struct rofl::openflow13::ofp_match* m = (struct rofl::openflow13::ofp_match*)buf;
 
-	/*
-	 * fill in real length, i.e. excluding padding
-	 */
-	ofh12_match->length = htobe16(2 * sizeof(uint16_t) + oxmtlvs.length());
-
-	m->type 	= ofh12_match->type;
-	m->length 	= ofh12_match->length;
+	m->type		= htobe16(type);
+	m->length 	= htobe16(2 * sizeof(uint16_t) + oxmtlvs.length()); // real length without padding
 
 	oxmtlvs.pack(m->oxm_fields, oxmtlvs.length());
-
-	return match;
 }
 
 
 
 void
-cofmatch::unpack_of12(uint8_t* match, size_t matchlen)
+cofmatch::unpack_of13(uint8_t* buf, size_t buflen)
 {
-	of_version = openflow12::OFP_VERSION;
 	oxmtlvs.clear();
-	memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
-	ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
-	ofh12_match->type 	= htobe16(openflow12::OFPMT_OXM);
-	ofh12_match->length = htobe16(length());
 
-	if (matchlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
+	if (buflen < length()) {
 		throw eOFmatchInval();
 	}
 
-	struct openflow12::ofp_match* m = (struct openflow12::ofp_match*)match;
+	struct rofl::openflow13::ofp_match* m = (struct rofl::openflow13::ofp_match*)buf;
 
-	ofh12_match->type	= (m->type);
-	ofh12_match->length	= (m->length);
+	type = be16toh(m->type);
 
-	if (openflow12::OFPMT_OXM != be16toh(ofh12_match->type)) {
+	if (rofl::openflow13::OFPMT_OXM != type) {
 		throw eBadMatchBadType();
 	}
 
-	matchlen -= 2 * sizeof(uint16_t);
+	buflen -= 2 * sizeof(uint16_t);
 
-	if (matchlen > 0) {
-		oxmtlvs.unpack(m->oxm_fields, matchlen);
+	if (buflen > 0) {
+		oxmtlvs.unpack(m->oxm_fields, buflen);
 	}
-
-	//check_prerequisites();
 }
 
 
 
-uint8_t*
-cofmatch::pack_of13(uint8_t* match, size_t matchlen)
-{
-	if (matchlen < length()) {
-		throw eOFmatchInval();
-	}
-
-	/*
-	 * fill in real length, i.e. excluding padding
-	 */
-	ofh13_match->length = htobe16(2 * sizeof(uint16_t) + oxmtlvs.length());
-
-	struct openflow13::ofp_match* m = (struct openflow13::ofp_match*)match;
-
-	m->type 	= ofh13_match->type;
-	m->length 	= ofh13_match->length;
-
-	oxmtlvs.pack(m->oxm_fields, oxmtlvs.length());
-
-	return match;
-}
-
-
-
-void
-cofmatch::unpack_of13(uint8_t* match, size_t matchlen)
-{
-	of_version = openflow13::OFP_VERSION;
-	oxmtlvs.clear();
-	memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
-	ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
-	ofh13_match->type 	= htobe16(openflow13::OFPMT_OXM);
-	ofh13_match->length = htobe16(length());
-
-	if (matchlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
-		throw eOFmatchInval();
-	}
-
-	struct openflow13::ofp_match* m = (struct openflow13::ofp_match*)match;
-
-	ofh13_match->type	= (m->type);
-	ofh13_match->length	= (m->length);
-
-	if (openflow13::OFPMT_OXM != be16toh(ofh13_match->type)) {
-		throw eBadMatchBadType();
-	}
-
-	matchlen -= 2 * sizeof(uint16_t);
-
-	if (matchlen > 0) {
-		oxmtlvs.unpack(m->oxm_fields, matchlen);
-	}
-
-	//check_prerequisites();
-}
 
 
 
@@ -827,43 +683,4 @@ cofmatch::check_prerequisites() const
 	}
 }
 
-	
-
-bool 
-cofmatch::operator== (
-	cofmatch& m)
-{
-	if (of_version != m.of_version) {
-		return false;
-	}
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		return (oxmtlvs == m.oxmtlvs);
-	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		if (ofh12_match->type != m.ofh12_match->type) {
-			return false;
-		}
-		return (oxmtlvs == m.oxmtlvs);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-	return false;
-}
-
-
-void
-cofmatch::set_type(uint16_t type)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		ofh12_match->type = htobe16(type);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-}
 

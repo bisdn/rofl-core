@@ -43,31 +43,26 @@ class eOxmListOutOfRange 	: public eOxmListBase {}; // out of range
  */
 class coxmlist
 {
-	std::string 					info;
 	std::map<uint32_t, coxmatch>	matches;
 
 public:
 
-
-	/** constructor
+	/**
 	 *
 	 */
 	coxmlist();
 
-
-	/** destructor
+	/**
 	 *
 	 */
 	virtual
 	~coxmlist();
-
 
 	/**
 	 *
 	 */
 	coxmlist(
 			coxmlist const& oxmlist);
-
 
 	/**
 	 *
@@ -76,20 +71,12 @@ public:
 	operator= (
 			coxmlist const& oxmlist);
 
-
 	/**
 	 *
 	 */
 	bool
 	operator== (
 			coxmlist const& oxmlist);
-
-
-	/**
-	 * @brief	Returns number of OXM TLVs stored in this coxmlist instance.
-	 */
-	unsigned int
-	get_n_matches() const;
 
 
 public:
@@ -115,6 +102,18 @@ public:
 			uint8_t* buf, size_t buflen);
 
 public:
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, coxmatch>&
+	set_matches() { return matches; }
+
+	/**
+	 *
+	 */
+	std::map<uint32_t, coxmatch> const&
+	get_matches() const { return matches; }
 
 	/**
 	 *
