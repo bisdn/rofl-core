@@ -265,6 +265,7 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 
 	int deleted=0; 
 	of1x_flow_entry_t *it, *it_next;
+	of_version_t ver = table->pipeline->sw->of_ver;
 
 	if(table->num_of_entries == 0) 
 		return ROFL_SUCCESS; //according to spec 
@@ -277,7 +278,7 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 		
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( __of1x_flow_entry_check_equal(it, entry, out_port, out_group, true) ){
+			if( __of1x_flow_entry_check_equal(it, entry, out_port, out_group, true && (ver != OF_VERSION_10)) ){
 				
 				if(of1x_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
