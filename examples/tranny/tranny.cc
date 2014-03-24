@@ -372,8 +372,31 @@ void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *
 void ctranslator::handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	uint32_t masterxid = pack->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming handle_barrier_request already exists in m_mxid_sxid" << std::endl;
+	if(m_slave) {
+		uint32_t myxid = send_barrier_request(m_slave);
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from handle_barrier_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
 	delete(pack);
 }
+
+void ctranslator::handle_barrier_reply ( rofl::cofdpt * dpt, rofl::cofmsg_barrier_reply * msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	send_barrier_reply(m_master, orig_xid );
+	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+
 void ctranslator::handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;

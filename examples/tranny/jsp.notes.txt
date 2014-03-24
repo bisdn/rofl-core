@@ -13,3 +13,6 @@ Mar 21 13:04:27 alien-vm1 kernel: [259759.294074] xdpd[15471]: segfault at 0 ip 
 00000000000eb480 T _ZNK4rofl8cofmatch18get_ipv4_src_valueEv
 
 BUG: xdpd doesn't check for valid controller connection when sending packet_in - casues gpf in crofbase::send_packet_in_message
+
+Added OF10 support to cflowentry, crofbase::send_flow_mod_message, cofaggrstats
+OF10 fixes or new support in crofbase::send_packet_in_message(..), cofmatch, cofmsg_flow_mod and cofmsg_packet_in
