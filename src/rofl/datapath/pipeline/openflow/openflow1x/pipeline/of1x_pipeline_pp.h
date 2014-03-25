@@ -6,20 +6,29 @@
 #define __OF1X_PIPELINE_PP_H__
 
 #include <rofl.h>
+#include "../of1x_switch.h"
 #include "of1x_pipeline.h"
 #include "of1x_action_pp.h"
-#include "of1x_instruction.h"
+#include "of1x_instruction_pp.h"
 #include "of1x_flow_table_pp.h"
+
+//This block is not necessary but it is useful to prevent
+//double definitions of static inline methods
+#include "of1x_action.h"
+#include "of1x_instruction.h"
+#include "of1x_flow_table.h"
 #include "of1x_group_table.h"
 #include "of1x_timers.h"
+
+//Platform stuff
 #include "../../../platform/lock.h"
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
 #include "../../../platform/atomic_operations.h"
 #include "../of1x_async_events_hooks.h"
+
 #include "matching_algorithms/matching_algorithms_available.h"
-#include "../of1x_switch.h"
 
 #include "../../../util/logging.h"
 
