@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "CUnit/Basic.h"
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 #include "test_bufs.h"
 #include "io.h"
 

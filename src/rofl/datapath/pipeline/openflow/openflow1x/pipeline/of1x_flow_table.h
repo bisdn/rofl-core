@@ -243,14 +243,6 @@ rofl_result_t of1x_remove_flow_entry_table(struct of1x_pipeline *const pipeline,
 rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired);
 
 /*
-* Entry lookup. This should never be used directly
-*/ 
-/* Main process_packet_through */
-static inline struct of1x_flow_entry* __of1x_find_best_match_table(struct of1x_flow_table *const table, struct packet_matches *const pkt){
-	return of1x_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
-}
-
-/*
 * Table dumping. Not recommended to use it directly
 *
 * @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).

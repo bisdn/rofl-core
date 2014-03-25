@@ -9,10 +9,12 @@ librofl_pipeline_openflow1x_pipeline_ladir = $(includedir)/rofl/datapath/pipelin
 librofl_pipeline_openflow1x_pipeline_la_HEADERS = of1x_action.h \
 	of1x_flow_entry.h \
 	of1x_flow_table.h \
+	of1x_flow_table_pp.h \
 	of1x_group_table.h \
 	of1x_instruction.h \
 	of1x_match.h \
 	of1x_pipeline.h \
+	of1x_pipeline_pp.h \
 	of1x_timers.h \
 	of1x_statistics.h\
 	of1x_utils.h

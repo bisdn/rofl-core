@@ -109,48 +109,6 @@ rofl_result_t of_destroy_switch(const of_switch_t* sw);
 */
 rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version);
 
-
-//Wrapping of processing
-/**
-* @brief Processes a packet through the OpenFlow pipeline.  
-* @ingroup sw_runtime 
-*
-* This call may only be used if the platform does not have a hardware
-* accelerated packet matching machinery. Packet matches of the datapacket_t MUST be initialized
-* before calling of_process_packet_pipeline()
-* 
-* @param sw The switch which has to process the packet 
-* @param pkt A struct datapacket instance. All the fields must be set to NULL
-* except maybe platform_state 
-* @warning Packet matches of the datapacket_t MUST be initialized before calling of_process_packet_pipeline() 
-*/
-
-//fwd decl
-void __of1x_process_packet_pipeline(const struct of_switch *sw, struct datapacket *const pkt);
-
-//Wrapping of processing
-static inline rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, struct datapacket *const pkt){
-	__of1x_process_packet_pipeline(sw, pkt);
-
-	/*
-	//Not necessary yet
-
-	switch(sw->of_ver){
-		case OF_VERSION_10: 
-		case OF_VERSION_12: 
-		case OF_VERSION_13: 
-			__of1x_process_packet_pipeline(sw, pkt);
-			break;
-		default: 
-			return ROFL_FAILURE;
-	}
-	*/
-
-	return ROFL_SUCCESS;
-	
-}	
-
-
 //Wrapping timers
 /**
 * @brief Processes flow entry expirations in all the pipeline tables of the switch.

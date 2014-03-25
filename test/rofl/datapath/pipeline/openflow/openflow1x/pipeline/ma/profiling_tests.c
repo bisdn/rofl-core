@@ -1,4 +1,5 @@
 #include "profiling_tests.h"
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 #include "utils.h"
 
 static of1x_switch_t* sw=NULL;
