@@ -5,7 +5,8 @@
 #ifndef __OF1X_PIPELINE_PP_H__
 #define __OF1X_PIPELINE_PP_H__
 
-#include <rofl.h>
+#include "rofl.h"
+#include "../../../util/pp_guard.h" //Never forget to include the guard
 #include "../of1x_switch.h"
 #include "of1x_pipeline.h"
 #include "of1x_flow_table_pp.h"

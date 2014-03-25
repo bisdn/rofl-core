@@ -9,7 +9,8 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include <stdint.h>
-#include <rofl.h>
+#include "rofl.h"
+#include "../../../util/pp_guard.h" //Never forget to include the guard
 #include "of1x_flow_table.h"
 
 //C++ extern C

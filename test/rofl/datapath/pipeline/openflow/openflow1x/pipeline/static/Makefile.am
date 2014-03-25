@@ -7,6 +7,7 @@ static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/ -DROFL_TEST=1
 static_unit_test_SOURCES=../unit_test.c \
 	../output_actions.c \
 	../timers_hard_timeout.c \
+	../pp_isolation.c\
 	../empty_packet.c \
 	../platform_empty_hooks_of12.cc\
 	../memory.c \

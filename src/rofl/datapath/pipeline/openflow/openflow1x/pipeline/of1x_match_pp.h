@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "rofl.h"
+#include "../../../util/pp_guard.h" //Never forget to include the guard
 #include "../../../common/packet_matches.h"
 #include "../../../common/protocol_constants.h"
 #include "../../../common/ternary_fields.h"

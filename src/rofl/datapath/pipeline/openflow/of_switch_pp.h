@@ -6,6 +6,7 @@
 #define __OF_SWITCH_PP_H__
 
 #include <inttypes.h> 
+#include "../util/pp_guard.h" //Never forget to include the guard
 #include "of_switch.h"
 #include "openflow1x/pipeline/of1x_pipeline_pp.h"
 
