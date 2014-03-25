@@ -7,6 +7,7 @@
 
 #include <rofl.h>
 #include "of1x_pipeline.h"
+#include "of1x_action_pp.h"
 #include "of1x_instruction.h"
 #include "of1x_flow_table_pp.h"
 #include "of1x_group_table.h"

@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = librofl_pipeline_openflow1x_pipeline.la
 librofl_pipeline_openflow1x_pipeline_ladir = $(includedir)/rofl/datapath/pipeline/openflow/openflow1x/pipeline
 
 librofl_pipeline_openflow1x_pipeline_la_HEADERS = of1x_action.h \
+	of1x_action_pp.h \
 	of1x_flow_entry.h \
 	of1x_flow_table.h \
 	of1x_flow_table_pp.h \

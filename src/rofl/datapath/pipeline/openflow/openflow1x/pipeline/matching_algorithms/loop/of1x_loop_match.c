@@ -11,6 +11,7 @@
 #include "../../../of1x_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
 #include "../../../../../platform/likely.h"
+#include "../../../../../platform/memory.h"
 #include "../matching_algorithms.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
