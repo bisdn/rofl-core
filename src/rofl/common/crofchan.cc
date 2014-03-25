@@ -5,18 +5,17 @@
  *      Author: andreas
  */
 
-#include "crofchan.h"
+#include "rofl/common/crofchan.h"
 
 using namespace rofl;
-using namespace rofl::openflow;
 
 
 crofchan::crofchan(
 		crofchan_env *env,
-		cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				versionbitmap(versionbitmap),
-				ofp_version(OFP_VERSION_UNKNOWN),
+				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
 				state(STATE_DISCONNECTED),
 				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
@@ -147,7 +146,7 @@ crofchan::add_conn(
 		throw eRofChanInval();
 	}
 
-	cofhello_elem_versionbitmap vbitmap;
+	rofl::openflow::cofhello_elem_versionbitmap vbitmap;
 	if (0 == aux_id) {
 		vbitmap = versionbitmap;				// main connection: propose all OFP versions defined for our side
 	} else {
@@ -299,7 +298,7 @@ crofchan::handle_closed(crofconn *conn)
 	 */
 	if (0 == conn->get_aux_id()) {
 
-		ofp_version = OFP_VERSION_UNKNOWN;
+		ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN;
 
 		/*
 		 * passive connection (=controller) => drop all connections
@@ -381,7 +380,7 @@ restart:
 
 
 void
-crofchan::recv_message(crofconn *conn, cofmsg *msg)
+crofchan::recv_message(crofconn *conn, rofl::openflow::cofmsg *msg)
 {
 	env->recv_message(this, conn->get_aux_id(), msg);
 }
@@ -390,7 +389,7 @@ crofchan::recv_message(crofconn *conn, cofmsg *msg)
 
 void
 crofchan::send_message(
-		cofmsg *msg,
+		rofl::openflow::cofmsg *msg,
 		uint8_t aux_id)
 {
 	if (conns.find(aux_id) == conns.end()) {

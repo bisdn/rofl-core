@@ -12,8 +12,8 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cofdesc_stats_reply
 {
@@ -161,6 +161,7 @@ public:
 	};
 };
 
-}
+} // end of namespace openflow
+} // end of namespace rofl
 
 #endif /* COFDESCSTATS_H_ */

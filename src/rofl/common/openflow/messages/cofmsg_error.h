@@ -8,14 +8,12 @@
 #ifndef COFMSG_ERROR_H_
 #define COFMSG_ERROR_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/openflow_common.h"
 #include "rofl/common/openflow/openflow.h"
 
-using namespace rofl::openflow;
-
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -1603,6 +1601,7 @@ public:
 	virtual ~cofmsg_error_role_request_failed_bad_role() {};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_ERROR_H_ */

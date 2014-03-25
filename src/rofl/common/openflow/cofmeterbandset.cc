@@ -5,9 +5,9 @@
  *      Author: andreas
  */
 
-#include "cofmeterbandset.h"
+#include "rofl/common/openflow/cofmeterbandset.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 cofmeter_band_set::cofmeter_band_set(

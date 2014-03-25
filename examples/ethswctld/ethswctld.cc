@@ -36,7 +36,7 @@ main(int argc, char** argv)
 		rofl::logging::notice << "[ethswctld][main] daemonizing successful" << std::endl;
 	}
 
-	cofhello_elem_versionbitmap versionbitmap;
+	rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 

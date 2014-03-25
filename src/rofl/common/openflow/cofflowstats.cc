@@ -114,7 +114,7 @@ cofflow_stats_request::set_match(cofmatch const& match)
 
 
 
-rofl::cofmatch&
+cofmatch&
 cofflow_stats_request::get_match()
 {
 	return match;

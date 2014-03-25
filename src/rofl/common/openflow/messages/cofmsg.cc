@@ -2,79 +2,79 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 
 cofmsg::typedesc_t typedesc_of10[] = {
-	{ openflow10::OFPT_HELLO, 					"HELLO" },
-	{ openflow10::OFPT_ERROR, 					"ERROR" },
-	{ openflow10::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
-	{ openflow10::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
-	{ openflow10::OFPT_VENDOR, 					"VENDOR" },
+	{ rofl::openflow10::OFPT_HELLO, 					"HELLO" },
+	{ rofl::openflow10::OFPT_ERROR, 					"ERROR" },
+	{ rofl::openflow10::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ rofl::openflow10::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ rofl::openflow10::OFPT_VENDOR, 					"VENDOR" },
 
-	{ openflow10::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
-	{ openflow10::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
-	{ openflow10::OFPT_GET_CONFIG_REQUEST,	 	"GET-CONFIG-REQUEST" },
-	{ openflow10::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
-	{ openflow10::OFPT_SET_CONFIG, 				"SET-CONFIG" },
+	{ rofl::openflow10::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ rofl::openflow10::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ rofl::openflow10::OFPT_GET_CONFIG_REQUEST,	 	"GET-CONFIG-REQUEST" },
+	{ rofl::openflow10::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ rofl::openflow10::OFPT_SET_CONFIG, 				"SET-CONFIG" },
 
-	{ openflow10::OFPT_PACKET_IN, 				"PACKET-IN" },
-	{ openflow10::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
-	{ openflow10::OFPT_PORT_STATUS, 				"PORT-STATUS" },
+	{ rofl::openflow10::OFPT_PACKET_IN, 				"PACKET-IN" },
+	{ rofl::openflow10::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ rofl::openflow10::OFPT_PORT_STATUS, 				"PORT-STATUS" },
 
-	{ openflow10::OFPT_PACKET_OUT, 				"PACKET-OUT" },
-	{ openflow10::OFPT_FLOW_MOD, 					"FLOW-MOD" },
-	{ openflow10::OFPT_PORT_MOD, 					"PORT-MOD" },
+	{ rofl::openflow10::OFPT_PACKET_OUT, 				"PACKET-OUT" },
+	{ rofl::openflow10::OFPT_FLOW_MOD, 					"FLOW-MOD" },
+	{ rofl::openflow10::OFPT_PORT_MOD, 					"PORT-MOD" },
 
-	{ openflow10::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
-	{ openflow10::OFPT_STATS_REPLY, 				"STATS-REPLY" },
+	{ rofl::openflow10::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ rofl::openflow10::OFPT_STATS_REPLY, 				"STATS-REPLY" },
 
-	{ openflow10::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
-	{ openflow10::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
+	{ rofl::openflow10::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ rofl::openflow10::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
 
-	{ openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
-	{ openflow10::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+	{ rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
 };
 
 
 
 cofmsg::typedesc_t typedesc_of12[] = {
-	{ openflow12::OFPT_HELLO, 					"HELLO" },
-	{ openflow12::OFPT_ERROR, 					"ERROR" },
-	{ openflow12::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
-	{ openflow12::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
-	{ openflow12::OFPT_EXPERIMENTER, 				"EXPERIMENTER" },
+	{ rofl::openflow12::OFPT_HELLO, 					"HELLO" },
+	{ rofl::openflow12::OFPT_ERROR, 					"ERROR" },
+	{ rofl::openflow12::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ rofl::openflow12::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ rofl::openflow12::OFPT_EXPERIMENTER, 				"EXPERIMENTER" },
 
-	{ openflow12::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
-	{ openflow12::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
-	{ openflow12::OFPT_GET_CONFIG_REQUEST, 		"GET-CONFIG-REQUEST" },
-	{ openflow12::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
-	{ openflow12::OFPT_SET_CONFIG, 				"SET-CONFIG" },
+	{ rofl::openflow12::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ rofl::openflow12::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ rofl::openflow12::OFPT_GET_CONFIG_REQUEST, 		"GET-CONFIG-REQUEST" },
+	{ rofl::openflow12::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ rofl::openflow12::OFPT_SET_CONFIG, 				"SET-CONFIG" },
 
-	{ openflow12::OFPT_PACKET_IN, 				"PACKET-IN" },
-	{ openflow12::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
-	{ openflow12::OFPT_PORT_STATUS, 				"PORT-STATUS" },
+	{ rofl::openflow12::OFPT_PACKET_IN, 				"PACKET-IN" },
+	{ rofl::openflow12::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ rofl::openflow12::OFPT_PORT_STATUS, 				"PORT-STATUS" },
 
-	{ openflow12::OFPT_PACKET_OUT, 				"PACKET-OUT" },
-	{ openflow12::OFPT_FLOW_MOD, 					"FLOW-MOD" },
-	{ openflow12::OFPT_GROUP_MOD, 				"GROUP-MOD" },
-	{ openflow12::OFPT_PORT_MOD, 					"PORT-MOD" },
-	{ openflow12::OFPT_TABLE_MOD, 				"TABLE-MOD" },
+	{ rofl::openflow12::OFPT_PACKET_OUT, 				"PACKET-OUT" },
+	{ rofl::openflow12::OFPT_FLOW_MOD, 					"FLOW-MOD" },
+	{ rofl::openflow12::OFPT_GROUP_MOD, 				"GROUP-MOD" },
+	{ rofl::openflow12::OFPT_PORT_MOD, 					"PORT-MOD" },
+	{ rofl::openflow12::OFPT_TABLE_MOD, 				"TABLE-MOD" },
 
-	{ openflow12::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
-	{ openflow12::OFPT_STATS_REPLY, 				"STATS-REPLY" },
+	{ rofl::openflow12::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ rofl::openflow12::OFPT_STATS_REPLY, 				"STATS-REPLY" },
 
-	{ openflow12::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
-	{ openflow12::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
+	{ rofl::openflow12::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ rofl::openflow12::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
 
-	{ openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
-	{ openflow12::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+	{ rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
 
-	{ openflow12::OFPT_ROLE_REQUEST, 				"ROLE-REQUEST" },
-	{ openflow12::OFPT_ROLE_REPLY, 				"ROLE-REPLY" },
+	{ rofl::openflow12::OFPT_ROLE_REQUEST, 				"ROLE-REQUEST" },
+	{ rofl::openflow12::OFPT_ROLE_REPLY, 				"ROLE-REPLY" },
 };
 
 

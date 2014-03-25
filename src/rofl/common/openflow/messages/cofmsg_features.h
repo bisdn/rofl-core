@@ -11,8 +11,8 @@
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofports.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -340,6 +340,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_FEATURES_H_ */

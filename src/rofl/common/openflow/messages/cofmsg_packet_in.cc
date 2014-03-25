@@ -1,6 +1,6 @@
-#include "cofmsg_packet_in.h"
+#include "rofl/common/openflow/messages/cofmsg_packet_in.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_packet_in::cofmsg_packet_in(
 		uint8_t of_version,
@@ -534,7 +534,7 @@ cofmsg_packet_in::get_match()
 
 
 
-cpacket&
+rofl::cpacket&
 cofmsg_packet_in::get_packet()
 {
 	return packet;

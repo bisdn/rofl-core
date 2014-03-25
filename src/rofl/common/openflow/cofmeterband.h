@@ -19,8 +19,8 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eMeterBandBase : public RoflException {};
 class eMeterBandNotFound : public eMeterBandBase {};
@@ -478,7 +478,7 @@ public:
 	get_body();
 };
 
-
+}
 }
 
 #endif /* COFMETERBAND_H_ */

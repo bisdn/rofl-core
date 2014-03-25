@@ -27,8 +27,8 @@ extern "C" {
 #include "rofl/common/croflexception.h"
 #include "rofl/common/openflow/openflow.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eQueuePropBase : public RoflException {};
 class eQueuePropNotFound : public eQueuePropBase {};
@@ -463,8 +463,7 @@ public:
 	get_body();
 };
 
-
-
-}
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFQUEUEPROP_H_ */

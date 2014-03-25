@@ -68,8 +68,6 @@ extern "C" {
 
 namespace rofl {
 
-namespace openflow {
-
 class crofsock; // forward declaration
 
 class crofsock_env {
@@ -78,7 +76,7 @@ public:
 	virtual void handle_connect_refused(crofsock *endpnt) = 0;
 	virtual void handle_connected(crofsock *endpnt) = 0;
 	virtual void handle_closed(crofsock *endpnt) = 0;
-	virtual void recv_message(crofsock *endpnt, cofmsg *msg) { delete msg; };
+	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
 
 class crofsock :
@@ -103,7 +101,7 @@ class crofsock :
 		static unsigned int const DEFAULT_OUTQUEUE_SIZE_THRESHOLD = 8;
 
 		PthreadRwLock					rwlock;
-		std::deque<cofmsg*>				queue;
+		std::deque<rofl::openflow::cofmsg*>				queue;
 		unsigned int					limit; // #msgs sent from queue before rescheduling
 	public:
 		/**
@@ -123,7 +121,7 @@ class crofsock :
 		void
 		clear() {
 			RwLock(rwlock, RwLock::RWLOCK_WRITE);
-			for (std::deque<cofmsg*>::iterator
+			for (std::deque<rofl::openflow::cofmsg*>::iterator
 					it = queue.begin(); it != queue.end(); ++it) {
 				delete (*it);
 			}
@@ -134,7 +132,7 @@ class crofsock :
 		 *
 		 */
 		void
-		store(cofmsg *msg) {
+		store(rofl::openflow::cofmsg *msg) {
 			RwLock(rwlock, RwLock::RWLOCK_WRITE);
 			queue.push_back(msg);
 		};
@@ -142,12 +140,12 @@ class crofsock :
 		/**
 		 *
 		 */
-		cofmsg*
+		rofl::openflow::cofmsg*
 		retrieve() {
 			RwLock(rwlock, RwLock::RWLOCK_WRITE);
 			if (queue.empty())
 				return NULL;
-			cofmsg *msg = queue.front();
+			rofl::openflow::cofmsg *msg = queue.front();
 			queue.pop_front();
 			return msg;
 		};
@@ -246,7 +244,7 @@ public:
 	 */
 	void
 	send_message(
-			cofmsg *msg);
+			rofl::openflow::cofmsg *msg);
 
 private:
 
@@ -335,21 +333,21 @@ private:
 	 */
 	void
 	parse_of10_message(
-			cmemory *mem, cofmsg **pmsg);
+			cmemory *mem, rofl::openflow::cofmsg **pmsg);
 
 	/**
 	 *
 	 */
 	void
 	parse_of12_message(
-			cmemory *mem, cofmsg **pmsg);
+			cmemory *mem, rofl::openflow::cofmsg **pmsg);
 
 	/**
 	 *
 	 */
 	void
 	parse_of13_message(
-			cmemory *mem, cofmsg **pmsg);
+			cmemory *mem, rofl::openflow::cofmsg **pmsg);
 
 	/**
 	 *
@@ -362,28 +360,28 @@ private:
 	 */
 	void
 	log_message(
-			std::string const& text, cofmsg const& pmsg);
+			std::string const& text, rofl::openflow::cofmsg const& pmsg);
 
 	/**
 	 *
 	 */
 	void
 	log_of10_message(
-			cofmsg const& pmsg);
+			rofl::openflow::cofmsg const& pmsg);
 
 	/**
 	 *
 	 */
 	void
 	log_of12_message(
-			cofmsg const& pmsg);
+			rofl::openflow::cofmsg const& pmsg);
 
 	/**
 	 *
 	 */
 	void
 	log_of13_message(
-			cofmsg const& pmsg);
+			rofl::openflow::cofmsg const& pmsg);
 
 
 public:
@@ -395,8 +393,6 @@ public:
 		return os;
 	};
 };
-
-} /* namespace openflow */
 
 } /* namespace rofl */
 

@@ -4,7 +4,7 @@
 
 #include "cofflowmod.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofflowmod::cofflowmod(uint8_t of_version, uint16_t __type) :
 		of_version(of_version),

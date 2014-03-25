@@ -1,9 +1,6 @@
 #include "cofmsg_group_desc_stats.h"
 
-using namespace rofl;
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		uint8_t of_version,

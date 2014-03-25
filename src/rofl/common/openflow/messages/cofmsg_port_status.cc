@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_port_status.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_port_status::cofmsg_port_status(
 		uint8_t of_version,

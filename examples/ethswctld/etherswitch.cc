@@ -4,7 +4,7 @@
 
 using namespace etherswitch;
 
-ethswitch::ethswitch(cofhello_elem_versionbitmap const& versionbitmap) :
+ethswitch::ethswitch(rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
 		crofbase(versionbitmap),
 		dpt(NULL)
 {
@@ -82,7 +82,7 @@ ethswitch::request_flow_stats()
 
 
 void
-ethswitch::handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg, uint8_t aux_id)
+ethswitch::handle_flow_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id)
 {
 #if 0
 	if (fib.find(dpt) == fib.end()) {
@@ -120,7 +120,7 @@ ethswitch::handle_dpath_open(
 {
 	dpt.flow_mod_reset();
 
-	rofl::cofflowmod fe(dpt.get_version());
+	rofl::openflow::cofflowmod fe(dpt.get_version());
 
 	cfib::get_fib(dpt.get_dpid()).clear();
 
@@ -178,7 +178,7 @@ ethswitch::handle_dpath_close(
 void
 ethswitch::handle_packet_in(
 		crofdpt& dpt,
-		cofmsg_packet_in& msg,
+		rofl::openflow::cofmsg_packet_in& msg,
 		uint8_t aux_id)
 {
 	try {
@@ -212,7 +212,7 @@ ethswitch::handle_packet_in(
 		 */
 		if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
 			msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-			cofflowmod fe(dpt.get_version());
+			rofl::openflow::cofflowmod fe(dpt.get_version());
 
 			switch (dpt.get_version()) {
 			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
@@ -252,7 +252,7 @@ ethswitch::handle_packet_in(
 		 * flood mac addresses 33:33:00:00:00:02 and ff:ff:ff:ff:ff:ff
 		 */
 		if ((msg.get_packet().ether()->get_dl_dst() == cmacaddr("33:33:00:00:00:02"))) {
-			cofflowmod fe(dpt.get_version());
+			rofl::openflow::cofflowmod fe(dpt.get_version());
 
 			switch (dpt.get_version()) {
 			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
@@ -304,7 +304,7 @@ ethswitch::handle_packet_in(
 					return;
 				}
 
-				cofflowmod fe(dpt.get_version());
+				rofl::openflow::cofflowmod fe(dpt.get_version());
 
 				fe.set_command(rofl::openflow12::OFPFC_ADD);
 				fe.set_table_id(0);
@@ -341,7 +341,7 @@ ethswitch::handle_packet_in(
 
 
 
-		cofactions actions(dpt.get_version());
+		rofl::openflow::cofactions actions(dpt.get_version());
 
 
 		switch (dpt.get_version()) {

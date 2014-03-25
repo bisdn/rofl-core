@@ -1,8 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_queue_get_config.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_queue_get_config_request::cofmsg_queue_get_config_request(
 		uint8_t of_version,
@@ -16,6 +14,9 @@ cofmsg_queue_get_config_request::cofmsg_queue_get_config_request(
 	set_xid(xid);
 
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case rofl::openflow10::OFP_VERSION: {
 		set_type(rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST);
 		resize(sizeof(struct rofl::openflow10::ofp_queue_get_config_request));

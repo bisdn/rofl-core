@@ -13,9 +13,8 @@
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
 
-namespace rofl
-{
-
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -248,6 +247,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_GROUP_DESC_STATS_H_ */

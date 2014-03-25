@@ -11,8 +11,8 @@
 #include "../cofmatch.h"
 #include "../../cvastring.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cfspentry_owner {
 public:
@@ -80,6 +80,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

@@ -16,10 +16,9 @@ extern "C" {
 }
 #endif
 
-#include "cclock.h"
+#include "rofl/common/cclock.h"
 
 namespace rofl {
-namespace openflow {
 
 class ctransaction {
 
@@ -111,7 +110,6 @@ public:
 	};
 };
 
-}; /* namespace openflow */
 }; /* namespace rofl */
 
 #endif /* CTRANSACTION_H_ */

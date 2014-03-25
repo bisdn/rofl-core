@@ -1,8 +1,6 @@
 #include "cofmsg_aggr_stats.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 
 cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(

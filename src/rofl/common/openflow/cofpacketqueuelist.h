@@ -13,8 +13,8 @@
 #include "rofl/common/coflist.h"
 #include "rofl/common/openflow/cofpacketqueue.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cofpacket_queue_list :
 		public coflist<cofpacket_queue>
@@ -112,6 +112,7 @@ public:
 	};
 };
 
-}
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFPACKETQUEUELIST_H_ */

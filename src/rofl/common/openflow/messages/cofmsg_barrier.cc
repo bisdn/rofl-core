@@ -1,6 +1,6 @@
-#include "cofmsg_barrier.h"
+#include "rofl/common/openflow/messages/cofmsg_barrier.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_barrier_request::cofmsg_barrier_request(
 		uint8_t of_version,
@@ -139,7 +139,7 @@ cofmsg_barrier_request::validate()
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_barrier_request::get_body()
 {
 	return body;
@@ -285,7 +285,7 @@ cofmsg_barrier_reply::validate()
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_barrier_reply::get_body()
 {
 	return body;

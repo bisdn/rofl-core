@@ -1200,7 +1200,7 @@ cpacket::payload() throw (ePacketNotFound)
 
 
 void
-cpacket::set_field(coxmatch const& oxm)
+cpacket::set_field(rofl::openflow::coxmatch const& oxm)
 {
 	switch (oxm.get_oxm_class()) {
 	case openflow::OFPXMC_OPENFLOW_BASIC: {
@@ -1218,7 +1218,7 @@ cpacket::set_field(coxmatch const& oxm)
 
 
 void
-cpacket::set_field_basic_class(coxmatch const& oxm)
+cpacket::set_field_basic_class(rofl::openflow::coxmatch const& oxm)
 {
 	switch (oxm.get_oxm_field()) {
 	case openflow::OFPXMT_OFB_ETH_DST: {
@@ -1465,7 +1465,7 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 
 
 void
-cpacket::set_field_experimenter_class(coxmatch const& oxm)
+cpacket::set_field_experimenter_class(rofl::openflow::coxmatch const& oxm)
 {
 	switch (oxm.get_oxm_field()) {
 	default: {
@@ -2378,7 +2378,7 @@ cpacket::calc_checksums()
 
 void
 cpacket::calc_hits(
-		cofmatch& ofmatch,
+		rofl::openflow::cofmatch& ofmatch,
 		uint16_t& exact_hits,
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
@@ -2443,7 +2443,7 @@ cpacket::cnt_mpls_tags()
 
 void
 cpacket::action_set_field(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	set_field(action.get_oxm());
 }
@@ -2451,7 +2451,7 @@ cpacket::action_set_field(
 
 void
 cpacket::action_copy_ttl_out(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	copy_ttl_out();
 }
@@ -2459,7 +2459,7 @@ cpacket::action_copy_ttl_out(
 
 void
 cpacket::action_copy_ttl_in(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	copy_ttl_in();
 }
@@ -2467,7 +2467,7 @@ cpacket::action_copy_ttl_in(
 
 void
 cpacket::action_set_mpls_ttl(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	set_mpls_ttl(action.oac_12mpls_ttl->mpls_ttl);
 }
@@ -2475,7 +2475,7 @@ cpacket::action_set_mpls_ttl(
 
 void
 cpacket::action_dec_mpls_ttl(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	dec_mpls_ttl();
 }
@@ -2483,7 +2483,7 @@ cpacket::action_dec_mpls_ttl(
 
 void
 cpacket::action_push_vlan(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	push_vlan(be16toh(action.oac_12push->ethertype));
 }
@@ -2491,7 +2491,7 @@ cpacket::action_push_vlan(
 
 void
 cpacket::action_pop_vlan(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	pop_vlan();
 }
@@ -2499,7 +2499,7 @@ cpacket::action_pop_vlan(
 
 void
 cpacket::action_push_mpls(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	push_mpls(be16toh(action.oac_12push->ethertype));
 }
@@ -2507,7 +2507,7 @@ cpacket::action_push_mpls(
 
 void
 cpacket::action_pop_mpls(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	pop_mpls(be16toh(action.oac_12pop_mpls->ethertype));
 }
@@ -2515,7 +2515,7 @@ cpacket::action_pop_mpls(
 
 void
 cpacket::action_set_nw_ttl(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	set_nw_ttl(action.oac_12nw_ttl->nw_ttl);
 }
@@ -2523,7 +2523,7 @@ cpacket::action_set_nw_ttl(
 
 void
 cpacket::action_dec_nw_ttl(
-		cofaction& action)
+		rofl::openflow::cofaction& action)
 {
 	dec_nw_ttl();
 }

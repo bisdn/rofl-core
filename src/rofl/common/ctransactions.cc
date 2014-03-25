@@ -5,9 +5,9 @@
  *      Author: andi
  */
 
-#include "ctransactions.h"
+#include "rofl/common/ctransactions.h"
 
-using namespace rofl::openflow;
+using namespace rofl;
 
 ctransactions::ctransactions(
 		ctransactions_env *env) :

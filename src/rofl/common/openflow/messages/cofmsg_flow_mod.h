@@ -14,8 +14,8 @@
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofflowmod.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -419,6 +419,7 @@ public:
 	};
 };
 
-} // end of namespace rofl
+} // end of namespace rofl openflow
+} // end of namespace rofl rofl
 
 #endif /* COFMSG_FLOW_MOD_H_ */

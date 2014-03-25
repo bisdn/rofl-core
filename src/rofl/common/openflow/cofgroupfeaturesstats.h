@@ -15,8 +15,8 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cofgroup_features_stats_reply
 {
@@ -180,7 +180,7 @@ public:
 	};
 };
 
-
+} /* end of namespace */
 } /* end of namespace */
 
 #endif /* COFGROUPFEATURESSTATS_H_ */

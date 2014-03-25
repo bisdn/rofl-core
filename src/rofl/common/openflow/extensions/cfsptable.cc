@@ -4,7 +4,7 @@
 
 #include "cfsptable.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cfsptable::cfsptable()
 { }

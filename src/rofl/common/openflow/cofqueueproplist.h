@@ -15,8 +15,8 @@
 
 #include "rofl/common/openflow/cofqueueprop.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class cofqueue_prop_list :
 	public coflist<cofqueue_prop>
@@ -114,6 +114,7 @@ public:
 	};
 };
 
-}
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFQUEUEPROPLIST_H_ */

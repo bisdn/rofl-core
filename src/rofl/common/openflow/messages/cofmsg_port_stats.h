@@ -14,11 +14,8 @@
 #include "rofl/common/openflow/cofportstatsarray.h"
 #include "rofl/common/openflow/cofportstats.h"
 
-namespace rofl
-{
-
-
-
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -283,6 +280,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_PORT_STATS_H_ */

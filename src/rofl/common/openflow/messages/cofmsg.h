@@ -21,6 +21,7 @@
 #include "rofl/common/cpacket.h"
 
 #include "rofl/common/openflow/openflow.h"
+#if 0
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofactions.h"
@@ -35,12 +36,13 @@
 #include "rofl/common/openflow/cofqueuestats.h"
 #include "rofl/common/openflow/cofgroupstats.h"
 #include "rofl/common/openflow/cofgroupdescstats.h"
+#endif
 
 // forward declarations
 class cofbase;
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eOFpacketBase 		: public RoflException {};
 class eOFpacketInval 		: public eOFpacketBase {};
@@ -277,7 +279,7 @@ public:
 	};
 };
 
-
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

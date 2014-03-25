@@ -3,8 +3,8 @@
 
 #include <rofl/common/openflow/coxmatch.h>
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /** OXM_OFX_GTP_TEID
  *
@@ -102,6 +102,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

@@ -2,10 +2,6 @@
 
 using namespace rofl::openflow;
 
-
-
-
-
 cofmsg_flow_stats_request::cofmsg_flow_stats_request(
 		uint8_t of_version,
 		uint32_t xid,

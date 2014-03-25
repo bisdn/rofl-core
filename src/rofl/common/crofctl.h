@@ -12,17 +12,21 @@
 #include "croflexception.h"
 #include "cmemory.h"
 #include "openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofport.h"
+#include "rofl/common/openflow/cofports.h"
+#include "rofl/common/openflow/coftables.h"
+#include "rofl/common/openflow/cofasyncconfig.h"
+#include "rofl/common/openflow/cofrole.h"
+#include "rofl/common/openflow/cofdescstats.h"
+#include "rofl/common/openflow/cofaggrstats.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
-#include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/cofflowstatsarray.h"
 #include "rofl/common/openflow/coftablestatsarray.h"
 #include "rofl/common/openflow/cofportstatsarray.h"
 #include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
-#include "rofl/common/openflow/cofasyncconfig.h"
-#include "rofl/common/openflow/cofrole.h"
 
 
 
@@ -270,7 +274,7 @@ public:
 	virtual void
 	send_desc_stats_reply(
 		uint32_t xid,
-		cofdesc_stats_reply const& desc_stats,
+		rofl::openflow::cofdesc_stats_reply const& desc_stats,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -296,7 +300,7 @@ public:
 	virtual void
 	send_aggr_stats_reply(
 		uint32_t xid,
-		cofaggr_stats_reply const& aggr_stats,
+		rofl::openflow::cofaggr_stats_reply const& aggr_stats,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -374,7 +378,7 @@ public:
 	virtual void
 	send_group_features_stats_reply(
 		uint32_t xid,
-		cofgroup_features_stats_reply const& group_features_stats,
+		rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
 		uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -442,7 +446,7 @@ public:
 		uint8_t table_id,
 		uint64_t cookie,
 		uint16_t in_port, // for OF1.0
-		cofmatch &match,
+		rofl::openflow::cofmatch &match,
 		uint8_t *data,
 		size_t datalen) = 0;
 
@@ -506,7 +510,7 @@ public:
 	 */
 	virtual void
 	send_flow_removed_message(
-		cofmatch& match,
+			rofl::openflow::cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
 		uint8_t reason,
@@ -539,7 +543,7 @@ public:
 	send_queue_get_config_reply(
 			uint32_t xid,
 			uint32_t portno,
-			cofpacket_queue_list const& pql) = 0;
+			rofl::openflow::cofpacket_queue_list const& pql) = 0;
 
 
 	/**

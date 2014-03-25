@@ -1,10 +1,6 @@
-#include "cofmsg_port_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_port_stats.h"
 
-using namespace rofl;
-
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_port_stats_request::cofmsg_port_stats_request(
 		uint8_t of_version,

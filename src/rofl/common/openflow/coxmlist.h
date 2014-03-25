@@ -27,8 +27,8 @@
 #include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 #include "rofl/common/openflow/experimental/matches/gtp_matches.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eOxmListBase 			: public RoflException {};
 class eOxmListInval 		: public eOxmListBase {}; // invalid parameter
@@ -388,6 +388,10 @@ public:
 								if (dynamic_cast<coxmatch_ofx_nw_proto*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_nw_proto*>(jt->second);
 								break;
+							case openflow::experimental::OFPXMT_OFX_NW_TOS:
+								if (dynamic_cast<coxmatch_ofx_nw_tos*>(jt->second))
+									os << *dynamic_cast<coxmatch_ofx_nw_tos*>(jt->second);
+								break;
 							case openflow::experimental::OFPXMT_OFX_TP_SRC:
 								if (dynamic_cast<coxmatch_ofx_tp_src*>(jt->second))
 									os << *dynamic_cast<coxmatch_ofx_tp_src*>(jt->second);
@@ -435,6 +439,7 @@ public:
 		};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COXMLIST_H_ */

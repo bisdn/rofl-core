@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofaggrstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofaggr_stats_request::cofaggr_stats_request(
 		uint8_t of_version,

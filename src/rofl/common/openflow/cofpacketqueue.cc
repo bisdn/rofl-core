@@ -5,12 +5,9 @@
  *      Author: andi
  */
 
+#include "rofl/common/openflow/cofpacketqueue.h"
 
-#include "cofpacketqueue.h"
-
-
-using namespace rofl;
-
+using namespace rofl::openflow;
 
 cofpacket_queue::cofpacket_queue(
 	uint8_t of_version) :

@@ -1,8 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_experimenter.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_experimenter::cofmsg_experimenter(
 		uint8_t of_version,
@@ -278,7 +276,7 @@ cofmsg_experimenter::set_experimenter_type(uint32_t exp_type)
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_experimenter::get_body()
 {
 	return body;

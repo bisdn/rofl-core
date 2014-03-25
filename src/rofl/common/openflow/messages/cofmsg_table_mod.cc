@@ -1,8 +1,6 @@
-#include "cofmsg_table_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_table_mod.h"
 
-using namespace rofl;
-
-
+using namespace rofl::openflow;
 
 cofmsg_table_mod::cofmsg_table_mod(
 		uint8_t of_version,

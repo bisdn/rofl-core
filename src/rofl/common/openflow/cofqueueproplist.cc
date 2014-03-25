@@ -5,11 +5,9 @@
  *      Author: andi
  */
 
-#include "cofqueueproplist.h"
+#include "rofl/common/openflow/cofqueueproplist.h"
 
-
-using namespace rofl;
-
+using namespace rofl::openflow;
 
 cofqueue_prop_list::cofqueue_prop_list(
 		uint8_t of_version) :

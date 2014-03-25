@@ -10,13 +10,12 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/coftablestats.h"
 #include "rofl/common/openflow/coftablestatsarray.h"
 
-namespace rofl
-{
-
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -250,6 +249,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_TABLE_STATS_H_ */

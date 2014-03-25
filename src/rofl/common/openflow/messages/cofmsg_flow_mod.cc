@@ -1,6 +1,6 @@
 #include "cofmsg_flow_mod.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_flow_mod::cofmsg_flow_mod(
 		uint8_t of_version,

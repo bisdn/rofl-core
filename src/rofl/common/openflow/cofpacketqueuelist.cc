@@ -6,10 +6,10 @@
  */
 
 
-#include "cofpacketqueuelist.h"
+#include "rofl/common/openflow/cofpacketqueuelist.h"
 
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 cofpacket_queue_list::cofpacket_queue_list(

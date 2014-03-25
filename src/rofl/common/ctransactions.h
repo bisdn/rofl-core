@@ -24,7 +24,6 @@ extern "C" {
 #include "rofl/common/crandom.h"
 
 namespace rofl {
-namespace openflow {
 
 class eTransactionBase		: public RoflException {};
 class eTransactionNotFound	: public eTransactionBase {};
@@ -140,7 +139,6 @@ public:
 	};
 };
 
-}; // namespace openflow
 }; // namespace rofl
 
 

@@ -1,6 +1,6 @@
-#include "cofmsg_features.h"
+#include "rofl/common/openflow/messages/cofmsg_features.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_features_request::cofmsg_features_request(
 		uint8_t of_version,

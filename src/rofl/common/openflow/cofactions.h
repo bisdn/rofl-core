@@ -23,8 +23,8 @@ extern "C" {
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofaction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eActionsBase 			: public RoflException {}; 		// base error class for cofactions
 class eActionsInval 		: public eActionsBase {}; 	// parameter is invalid
@@ -335,6 +335,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

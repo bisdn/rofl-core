@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 

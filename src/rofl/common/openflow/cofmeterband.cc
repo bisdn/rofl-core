@@ -7,7 +7,7 @@
 
 #include "cofmeterband.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmeter_band::cofmeter_band(
 		uint8_t of_version) :
@@ -705,7 +705,7 @@ cofmeter_band_expr::set_expr(uint32_t expr)
 
 
 
-cmemory&
+rofl::cmemory&
 cofmeter_band_expr::get_body()
 {
 	return body;

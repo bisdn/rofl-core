@@ -17,8 +17,8 @@
 
 #include "rofl/common/openflow/cofqueueproplist.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 
 class ePacketQueueBase 		: public RoflException {};
@@ -162,6 +162,7 @@ public:
 	};
 };
 
-}
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFPACKETQUEUE_H_ */

@@ -36,9 +36,9 @@ class eSegmentedMessageNotFound		: public eSegmentedMessageBase {};
 
 class csegmsg {
 
-	cclock				expires_at;	// time this cmultipart message will expire
-	uint32_t 			xid;		// transaction id used by this multipart message
-	cofmsg_stats*		msg;		// stitched multipart message, allocated on heap
+	cclock								expires_at;	// time this cmultipart message will expire
+	uint32_t 							xid;		// transaction id used by this multipart message
+	rofl::openflow::cofmsg_stats*		msg;		// stitched multipart message, allocated on heap
 
 	static time_t const DEFAULT_EXPIRATION_DELTA_SEC 	= 8;
 	static time_t const DEFAULT_EXPIRATION_DELTA_NSEC 	= 0;
@@ -96,7 +96,7 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_stats const&
+	rofl::openflow::cofmsg_stats const&
 	get_msg() const {
 		if (0 == msg)
 			throw eInval();
@@ -110,12 +110,12 @@ public:
 	 * @brief	Merges payload from msg within this->msg. Checks stats sub-type first.
 	 */
 	void
-	store_and_merge_msg(cofmsg_stats const& msg);
+	store_and_merge_msg(rofl::openflow::cofmsg_stats const& msg);
 
 	/**
 	 * @brief	Returns pointer to this->msg and sets this->msg to NULL. The object resides on heap and must be destroyed by the calling entity.
 	 */
-	cofmsg_stats*
+	rofl::openflow::cofmsg_stats*
 	retrieve_and_detach_msg();
 
 private:
@@ -124,7 +124,7 @@ private:
 	 *
 	 */
 	void
-	clone(cofmsg_stats const& msg);
+	clone(rofl::openflow::cofmsg_stats const& msg);
 
 public:
 
@@ -143,38 +143,38 @@ public:
 
 				switch (msg.msg->get_stats_type()) {
 				case rofl::openflow13::OFPMP_DESC: {
-					os << dynamic_cast<cofmsg_desc_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_FLOW: {
 					os << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_AGGREGATE: {
-					os << dynamic_cast<cofmsg_aggr_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_TABLE: {
-					os << dynamic_cast<cofmsg_table_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_PORT_STATS: {
-					os << dynamic_cast<cofmsg_port_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_QUEUE: {
-					os << dynamic_cast<cofmsg_queue_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP: {
-					os << dynamic_cast<cofmsg_group_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP_DESC: {
-					os << dynamic_cast<cofmsg_group_desc_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-					os << dynamic_cast<cofmsg_group_features_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( *(msg.msg) );
 				} break;
 				// TODO: meters
 				case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-					os << dynamic_cast<cofmsg_table_features_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_PORT_DESC: {
-					os << dynamic_cast<cofmsg_port_desc_stats_request const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request const&>( *(msg.msg) );
 				} break;
 				default: {
 					os << *(msg.msg);
@@ -186,38 +186,38 @@ public:
 
 				switch (msg.msg->get_stats_type()) {
 				case rofl::openflow13::OFPMP_DESC: {
-					os << dynamic_cast<cofmsg_desc_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_FLOW: {
 					os << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_AGGREGATE: {
-					os << dynamic_cast<cofmsg_aggr_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_TABLE: {
-					os << dynamic_cast<cofmsg_table_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_PORT_STATS: {
-					os << dynamic_cast<cofmsg_port_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_QUEUE: {
-					os << dynamic_cast<cofmsg_queue_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP: {
-					os << dynamic_cast<cofmsg_group_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP_DESC: {
-					os << dynamic_cast<cofmsg_group_desc_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-					os << dynamic_cast<cofmsg_group_features_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( *(msg.msg) );
 				} break;
 				// TODO: meters
 				case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-					os << dynamic_cast<cofmsg_table_features_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>( *(msg.msg) );
 				} break;
 				case rofl::openflow13::OFPMP_PORT_DESC: {
-					os << dynamic_cast<cofmsg_port_desc_stats_reply const&>( *(msg.msg) );
+					os << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply const&>( *(msg.msg) );
 				} break;
 				default: {
 					os << *(msg.msg);

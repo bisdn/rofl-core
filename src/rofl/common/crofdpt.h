@@ -48,12 +48,12 @@ class crofbase;
 
 
 /**
- * \class	cofdpt
+ * \class	rofl::openflow::cofdpt
  *
  * This class stores state for an attached data path element
- * including its ports (@see cofport). It is tightly bound to
+ * including its ports (@see rofl::openflow::cofport). It is tightly bound to
  * class crofbase (@see crofbase). Created upon reception of an
- * OpenFlow HELLO message from the data path element, cofdpath
+ * OpenFlow HELLO message from the data path element, rofl::openflow::cofdpath
  * acquires all state by sending FEATURES-request, GET-CONFIG-request,
  * and TABLE-STATS-request. It also provides a number of convenience
  * methods for controlling the datapath, e.g. clearing all flowtable
@@ -74,7 +74,7 @@ public:
 
 
 	/**
-	 * @brief 	Default constructor for generating an empty cofdpt instance
+	 * @brief 	Default constructor for generating an empty rofl::openflow::cofdpt instance
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
@@ -105,7 +105,7 @@ public:
 
 
 	/**
-	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.
+	 * @brief 	Constructor for creating a new rofl::openflow::cofdpt instance and actively connecting to a data path element.
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 * @param ofp_version OpenFlow version to use
@@ -170,7 +170,7 @@ public:
 	 *
 	 * @return
 	 */
-	virtual rofl::openflow::crofchan&
+	virtual crofchan&
 	get_channel() = 0;
 
 
@@ -263,43 +263,43 @@ public:
 	 *
 	 * @return fsptable
 	 */
-	virtual cfsptable&
+	virtual rofl::openflow::cfsptable&
 	get_fsptable() = 0;
 
 
 	/**
-	 * @brief	Returns reference to the data path element's cofport list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
 	 *
 	 * @return ports
 	 */
-	virtual cofports&
+	virtual rofl::openflow::cofports&
 	set_ports() = 0;
 
 
 	/**
-	 * @brief	Returns reference to the data path element's cofport list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
 	 *
 	 * @return ports
 	 */
-	virtual cofports const&
+	virtual rofl::openflow::cofports const&
 	get_ports() const = 0;
 
 
 	/**
-	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
 	 *
 	 * @return tables
 	 */
-	virtual coftables&
+	virtual rofl::openflow::coftables&
 	set_tables() = 0;
 
 
 	/**
-	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
 	 *
 	 * @return tables
 	 */
-	virtual coftables const&
+	virtual rofl::openflow::coftables const&
 	get_tables() const = 0;
 
 
@@ -334,7 +334,7 @@ public:
 	 */
 	virtual void
 	fsp_open(
-			cofmatch const& ofmatch) = 0;
+			rofl::openflow::cofmatch const& ofmatch) = 0;
 
 
 	/**
@@ -348,7 +348,7 @@ public:
 	 */
 	virtual void
 	fsp_close(
-			cofmatch const& ofmatch = cofmatch()) = 0;
+			rofl::openflow::cofmatch const& ofmatch = rofl::openflow::cofmatch()) = 0;
 
 	/**@}*/
 
@@ -461,7 +461,7 @@ public:
 	virtual uint32_t
 	send_flow_stats_request(
 			uint16_t stats_flags,
-			cofflow_stats_request const& flow_stats_request) = 0;
+			rofl::openflow::cofflow_stats_request const& flow_stats_request) = 0;
 
 	/**
 	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
@@ -473,7 +473,7 @@ public:
 	virtual uint32_t
 	send_aggr_stats_request(
 			uint16_t flags,
-			cofaggr_stats_request const& aggr_stats_request) = 0;
+			rofl::openflow::cofaggr_stats_request const& aggr_stats_request) = 0;
 
 
 	/**
@@ -496,7 +496,7 @@ public:
 	virtual uint32_t
 	send_port_stats_request(
 			uint16_t stats_flags,
-			cofport_stats_request const& port_stats_request) = 0;
+			rofl::openflow::cofport_stats_request const& port_stats_request) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-STATS.request to a data path element.
@@ -508,7 +508,7 @@ public:
 	virtual uint32_t
 	send_queue_stats_request(
 			uint16_t stats_flags,
-			cofqueue_stats_request const& queue_stats_request) = 0;
+			rofl::openflow::cofqueue_stats_request const& queue_stats_request) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-STATS.request to a data path element.
@@ -520,7 +520,7 @@ public:
 	virtual uint32_t
 	send_group_stats_request(
 			uint16_t stats_flags,
-			cofgroup_stats_request const& group_stats_request) = 0;
+			rofl::openflow::cofgroup_stats_request const& group_stats_request) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
@@ -582,7 +582,7 @@ public:
 	send_packet_out_message(
 			uint32_t buffer_id,
 			uint32_t in_port,
-			cofactions& aclist,
+			rofl::openflow::cofactions& aclist,
 			uint8_t *data = NULL,
 			size_t datalen = 0) = 0;
 
@@ -611,7 +611,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_mod_message(
-			cofflowmod const& flowentry) = 0;
+			rofl::openflow::cofflowmod const& flowentry) = 0;
 
 	/**
 	 * @brief 	Sends a GROUP-MOD.message to a data path element.
@@ -620,7 +620,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_mod_message(
-			cofgroupmod const& groupentry) = 0;
+			rofl::openflow::cofgroupmod const& groupentry) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-MOD.message to a data path element.

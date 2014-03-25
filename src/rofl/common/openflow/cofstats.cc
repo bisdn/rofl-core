@@ -10,9 +10,9 @@
  */
 
 
-#include <rofl/common/openflow/cofstats.h>
+#include "rofl/common/openflow/cofstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofstats::cofstats(
 		size_t bodylen) :
@@ -39,7 +39,7 @@ cofstats::length()
 
 
 
-cmemory&
+rofl::cmemory&
 cofstats::pack()
 {
 	return body;

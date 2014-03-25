@@ -80,7 +80,7 @@ csegmsg::set_expiration_in(time_t delta_sec, time_t delta_nsec)
 
 
 void
-csegmsg::clone(cofmsg_stats const& msg_stats)
+csegmsg::clone(rofl::openflow::cofmsg_stats const& msg_stats)
 {
 	if (NULL != msg) { delete msg; msg = NULL; }
 
@@ -88,41 +88,41 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 	case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
 		switch (msg_stats.get_stats_type()) {
 		case rofl::openflow13::OFPMP_DESC: {
-			msg = new cofmsg_desc_stats_request(dynamic_cast<cofmsg_desc_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_desc_stats_request(dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
 			msg = new rofl::openflow::cofmsg_flow_stats_request(dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
-			msg = new cofmsg_aggr_stats_request(dynamic_cast<cofmsg_aggr_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_aggr_stats_request(dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_TABLE: {
-			msg = new cofmsg_table_stats_request(dynamic_cast<cofmsg_table_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_table_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_PORT_STATS: {
-			msg = new cofmsg_port_stats_request(dynamic_cast<cofmsg_port_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_port_stats_request(dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_QUEUE: {
-			msg = new cofmsg_queue_stats_request(dynamic_cast<cofmsg_queue_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_queue_stats_request(dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP: {
-			msg = new cofmsg_group_stats_request(dynamic_cast<cofmsg_group_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_stats_request(dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_DESC: {
-			msg = new cofmsg_group_desc_stats_request(dynamic_cast<cofmsg_group_desc_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_desc_stats_request(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-			msg = new cofmsg_group_features_stats_request(dynamic_cast<cofmsg_group_features_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>(msg_stats));
 		} break;
 		// TODO: meters
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-			msg = new cofmsg_table_features_stats_request(dynamic_cast<cofmsg_table_features_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_PORT_DESC: {
-			msg = new cofmsg_port_desc_stats_request(dynamic_cast<cofmsg_port_desc_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_port_desc_stats_request(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request const&>(msg_stats));
 		} break;
 		default: {
-			msg = new cofmsg_stats_request(dynamic_cast<cofmsg_stats_request const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_stats_request(dynamic_cast<rofl::openflow::cofmsg_stats_request const&>(msg_stats));
 		};
 		}
 
@@ -134,41 +134,41 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 	case rofl::openflow13::OFPT_MULTIPART_REPLY: {
 		switch (msg_stats.get_stats_type()) {
 		case rofl::openflow13::OFPMP_DESC: {
-			msg = new cofmsg_desc_stats_reply(dynamic_cast<cofmsg_desc_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
 			msg = new rofl::openflow::cofmsg_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
-			msg = new cofmsg_aggr_stats_reply(dynamic_cast<cofmsg_aggr_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_aggr_stats_reply(dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_TABLE: {
-			msg = new cofmsg_table_stats_reply(dynamic_cast<cofmsg_table_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_PORT_STATS: {
-			msg = new cofmsg_port_stats_reply(dynamic_cast<cofmsg_port_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_port_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_QUEUE: {
-			msg = new cofmsg_queue_stats_reply(dynamic_cast<cofmsg_queue_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP: {
-			msg = new cofmsg_group_stats_reply(dynamic_cast<cofmsg_group_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_DESC: {
-			msg = new cofmsg_group_desc_stats_reply(dynamic_cast<cofmsg_group_desc_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-			msg = new cofmsg_group_features_stats_reply(dynamic_cast<cofmsg_group_features_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_group_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>(msg_stats));
 		} break;
 		// TODO: meters
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-			msg = new cofmsg_table_features_stats_reply(dynamic_cast<cofmsg_table_features_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>(msg_stats));
 		} break;
 		case rofl::openflow13::OFPMP_PORT_DESC: {
-			msg = new cofmsg_port_desc_stats_reply(dynamic_cast<cofmsg_port_desc_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_port_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply const&>(msg_stats));
 		} break;
 		default: {
-			msg = new cofmsg_stats_reply(dynamic_cast<cofmsg_stats_reply const&>(msg_stats));
+			msg = new rofl::openflow::cofmsg_stats_reply(dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>(msg_stats));
 		};
 		}
 
@@ -187,7 +187,7 @@ csegmsg::clone(cofmsg_stats const& msg_stats)
 
 
 void
-csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
+csegmsg::store_and_merge_msg(rofl::openflow::cofmsg_stats const& msg_stats)
 {
 	if (NULL == msg) {
 
@@ -209,11 +209,11 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 			switch (msg_stats.get_stats_type()) {
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 
-				cofmsg_table_features_stats_request* msg_table =
-						dynamic_cast<cofmsg_table_features_stats_request*>(msg);
+				rofl::openflow::cofmsg_table_features_stats_request* msg_table =
+						dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg);
 
-				cofmsg_table_features_stats_request const& msg_table_stats =
-						dynamic_cast<cofmsg_table_features_stats_request const&>(msg_stats);
+				rofl::openflow::cofmsg_table_features_stats_request const& msg_table_stats =
+						dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>(msg_stats);
 
 				msg_table->set_tables() += msg_table_stats.get_tables();
 
@@ -240,77 +240,77 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 			} break;
 			case rofl::openflow13::OFPMP_TABLE: {
 
-				cofmsg_table_stats_reply* msg_table =
-						dynamic_cast<cofmsg_table_stats_reply*>(msg);
+				rofl::openflow::cofmsg_table_stats_reply* msg_table =
+						dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg);
 
-				cofmsg_table_stats_reply const& msg_table_stats =
-						dynamic_cast<cofmsg_table_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_table_stats_reply const& msg_table_stats =
+						dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>(msg_stats);
 
 				msg_table->set_table_stats_array() += msg_table_stats.get_table_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_PORT_STATS: {
 
-				cofmsg_port_stats_reply* msg_port =
-						dynamic_cast<cofmsg_port_stats_reply*>(msg);
+				rofl::openflow::cofmsg_port_stats_reply* msg_port =
+						dynamic_cast<rofl::openflow::cofmsg_port_stats_reply*>(msg);
 
-				cofmsg_port_stats_reply const& msg_port_stats =
-						dynamic_cast<cofmsg_port_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_port_stats_reply const& msg_port_stats =
+						dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>(msg_stats);
 
 				msg_port->set_port_stats_array() += msg_port_stats.get_port_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_QUEUE: {
 
-				cofmsg_queue_stats_reply* msg_queue =
-						dynamic_cast<cofmsg_queue_stats_reply*>(msg);
+				rofl::openflow::cofmsg_queue_stats_reply* msg_queue =
+						dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg);
 
-				cofmsg_queue_stats_reply const& msg_queue_stats =
-						dynamic_cast<cofmsg_queue_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_queue_stats_reply const& msg_queue_stats =
+						dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>(msg_stats);
 
 				msg_queue->set_queue_stats_array() += msg_queue_stats.get_queue_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_GROUP: {
 
-				cofmsg_group_stats_reply* msg_group =
-						dynamic_cast<cofmsg_group_stats_reply*>(msg);
+				rofl::openflow::cofmsg_group_stats_reply* msg_group =
+						dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg);
 
-				cofmsg_group_stats_reply const& msg_group_stats =
-						dynamic_cast<cofmsg_group_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_group_stats_reply const& msg_group_stats =
+						dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>(msg_stats);
 
 				msg_group->set_group_stats_array() += msg_group_stats.get_group_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_GROUP_DESC: {
 
-				cofmsg_group_desc_stats_reply* msg_group =
-						dynamic_cast<cofmsg_group_desc_stats_reply*>(msg);
+				rofl::openflow::cofmsg_group_desc_stats_reply* msg_group =
+						dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg);
 
-				cofmsg_group_desc_stats_reply const& msg_group_stats =
-						dynamic_cast<cofmsg_group_desc_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_group_desc_stats_reply const& msg_group_stats =
+						dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>(msg_stats);
 
 				msg_group->set_group_desc_stats_array() += msg_group_stats.get_group_desc_stats_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 
-				cofmsg_table_features_stats_reply* msg_table =
-						dynamic_cast<cofmsg_table_features_stats_reply*>(msg);
+				rofl::openflow::cofmsg_table_features_stats_reply* msg_table =
+						dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply*>(msg);
 
-				cofmsg_table_features_stats_reply const& msg_table_stats =
-						dynamic_cast<cofmsg_table_features_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_table_features_stats_reply const& msg_table_stats =
+						dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>(msg_stats);
 
 				msg_table->set_tables() += msg_table_stats.get_tables();
 
 			} break;
 			case rofl::openflow13::OFPMP_PORT_DESC: {
 
-				cofmsg_port_desc_stats_reply* msg_port_desc =
-						dynamic_cast<cofmsg_port_desc_stats_reply*>(msg);
+				rofl::openflow::cofmsg_port_desc_stats_reply* msg_port_desc =
+						dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply*>(msg);
 
-				cofmsg_port_desc_stats_reply const& msg_port_desc_stats =
-						dynamic_cast<cofmsg_port_desc_stats_reply const&>(msg_stats);
+				rofl::openflow::cofmsg_port_desc_stats_reply const& msg_port_desc_stats =
+						dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply const&>(msg_stats);
 
 				msg_port_desc->set_ports() += msg_port_desc_stats.get_ports();
 
@@ -331,10 +331,10 @@ csegmsg::store_and_merge_msg(cofmsg_stats const& msg_stats)
 
 
 
-rofl::cofmsg_stats*
+rofl::openflow::cofmsg_stats*
 csegmsg::retrieve_and_detach_msg()
 {
-	cofmsg_stats *tmp = msg; msg = NULL; return tmp;
+	rofl::openflow::cofmsg_stats *tmp = msg; msg = NULL; return tmp;
 }
 
 

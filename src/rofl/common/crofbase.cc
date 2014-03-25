@@ -11,7 +11,7 @@ using namespace rofl;
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
 crofbase::crofbase(
-		cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
 				versionbitmap(versionbitmap),
 				transactions(this),
 				generation_is_defined(false),
@@ -63,7 +63,7 @@ crofbase::send_packet_in_message(
 		uint8_t table_id,
 		uint64_t cookie,
 		uint16_t in_port, // for OF1.0
-		cofmatch &match,
+		rofl::openflow::cofmatch &match,
 		uint8_t *data,
 		size_t datalen)
 {
@@ -143,7 +143,7 @@ crofbase::send_packet_in_message(
 
 void
 crofbase::send_flow_removed_message(
-	cofmatch& match,
+		rofl::openflow::cofmatch& match,
 	uint64_t cookie,
 	uint16_t priority,
 	uint8_t reason,
@@ -234,7 +234,7 @@ crofbase::send_flow_removed_message(
 void
 crofbase::send_port_status_message(
 	uint8_t reason,
-	cofport const& port)
+	rofl::openflow::cofport const& port)
 {
 	bool sent_out = false;
 
@@ -699,7 +699,7 @@ crofbase::role_request_rcvd(
 		uint64_t rcvd_generation_id)
 {
 	if (generation_is_defined &&
-			(cofrole::distance((int64_t)rcvd_generation_id, (int64_t)cached_generation_id) < 0)) {
+			(rofl::openflow::cofrole::distance((int64_t)rcvd_generation_id, (int64_t)cached_generation_id) < 0)) {
 		if ((rofl::openflow13::OFPCR_ROLE_MASTER == role) || (rofl::openflow13::OFPCR_ROLE_SLAVE == role)) {
 			throw eRoleRequestStale();
 		}

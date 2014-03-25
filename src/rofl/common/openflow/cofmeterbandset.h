@@ -13,6 +13,7 @@
 #include "rofl/common/openflow/cofmeterband.h"
 
 namespace rofl {
+namespace openflow {
 
 class eOFMeterBandSetBase : public RoflException {};
 class eOFMeterBandSetNotFound : public eOFMeterBandSetBase {};
@@ -21,7 +22,7 @@ class cofmeter_band_set {
 private:
 
 	uint8_t		of_version;
-	std::map<enum openflow13::ofp_meter_band_type, rofl::cofmeter_band*> 	mbset;
+	std::map<enum openflow13::ofp_meter_band_type, cofmeter_band*> 	mbset;
 
 public:
 
@@ -132,6 +133,7 @@ private:
 	clean_up();
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* COFMETERBANDSET_H_ */

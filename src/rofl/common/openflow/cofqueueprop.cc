@@ -5,9 +5,9 @@
  *      Author: andi
  */
 
-#include "cofqueueprop.h"
+#include "rofl/common/openflow/cofqueueprop.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofqueue_prop::cofqueue_prop(
 		uint8_t of_version) :
@@ -730,7 +730,7 @@ cofqueue_prop_expr::set_expr(uint32_t expr)
 
 
 
-cmemory&
+rofl::cmemory&
 cofqueue_prop_expr::get_body()
 {
 	return body;

@@ -11,8 +11,8 @@
 #include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofaggrstats.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -25,7 +25,7 @@ private:
 	cofaggr_stats_request 		aggr_stats;
 
 	union {
-		uint8_t											*ofhu_aggr_stats;
+		uint8_t													*ofhu_aggr_stats;
 		struct rofl::openflow10::ofp_aggregate_stats_request 	*ofhu10_aggr_stats;
 		struct rofl::openflow12::ofp_aggregate_stats_request	*ofhu12_aggr_stats;
 		struct rofl::openflow13::ofp_aggregate_stats_request	*ofhu13_aggr_stats;
@@ -271,6 +271,7 @@ public:
 	};
 };
 
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_AGGR_STATS_H_ */

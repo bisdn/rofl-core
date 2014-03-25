@@ -5,13 +5,13 @@
  *      Author: andi
  */
 
-#ifndef COFMSG_CONFIG_H_A
-#define COFMSG_CONFIG_H_A 1
+#ifndef COFMSG_CONFIG_H_
+#define COFMSG_CONFIG_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 /**
  *
@@ -452,9 +452,7 @@ public:
 	};
 };
 
-
-
-
+} // end of namespace openflow
 } // end of namespace rofl
 
 #endif /* COFMSG_CONFIG_H_ */

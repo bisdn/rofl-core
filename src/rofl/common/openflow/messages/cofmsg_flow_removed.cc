@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/messages/cofmsg_flow_removed.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 cofmsg_flow_removed::cofmsg_flow_removed(
 		uint8_t of_version,

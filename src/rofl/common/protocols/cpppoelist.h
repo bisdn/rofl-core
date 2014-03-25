@@ -25,7 +25,7 @@ class ePPPoEBadLen : public ePPPoElistBase {}; // bad length
 
 
 
-class cpppoelist : public coflist<cpppoetlv> {
+class cpppoelist : public rofl::openflow::coflist<cpppoetlv> {
 public: // static methods
 
 	static void test();

@@ -1,10 +1,6 @@
 #include "cofmsg_experimenter_stats.h"
 
-using namespace rofl;
-
-
-
-
+using namespace rofl::openflow;
 
 cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 		uint8_t of_version,
@@ -283,7 +279,7 @@ cofmsg_experimenter_stats_request::get_exp_type() const
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_experimenter_stats_request::get_body()
 {
 	return body;
@@ -572,7 +568,7 @@ cofmsg_experimenter_stats_reply::get_exp_type() const
 
 
 
-cmemory&
+rofl::cmemory&
 cofmsg_experimenter_stats_reply::get_body()
 {
 	return body;

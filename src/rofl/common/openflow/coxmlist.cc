@@ -10,10 +10,10 @@
  */
 
 
-#include "coxmlist.h"
+#include "rofl/common/openflow/coxmlist.h"
 #include <stdexcept>
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 coxmlist::coxmlist()
 {
@@ -447,6 +447,8 @@ coxmlist::map_and_insert(coxmatch const& oxm)
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_dst(oxm); break;
 		case openflow::experimental::OFPXMT_OFX_NW_PROTO:
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_proto(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_NW_TOS:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_tos(oxm); break;
 		case openflow::experimental::OFPXMT_OFX_TP_SRC:
 			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_tp_src(oxm); break;
 		case openflow::experimental::OFPXMT_OFX_TP_DST:

@@ -22,8 +22,8 @@ extern "C" {
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
-namespace rofl
-{
+namespace rofl {
+namespace openflow {
 
 class eInstructionsBase 		: public RoflException {}; // base error class cofinlist
 class eInstructionsInval 		: public eInstructionsBase {}; // invalid parameter
@@ -316,6 +316,7 @@ public:
 	};
 };
 
-}; // end of namespace
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif

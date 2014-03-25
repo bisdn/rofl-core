@@ -1,6 +1,6 @@
 #include "rofl/common/openflow/cofdescstats.h"
 
-using namespace rofl;
+using namespace rofl::openflow;
 
 
 cofdesc_stats_reply::cofdesc_stats_reply(
