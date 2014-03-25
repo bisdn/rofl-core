@@ -20,6 +20,7 @@ librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_ladir = \
 	$(library_includedir)/loop
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_la_HEADERS = \
 	loop/of1x_loop_match.h
+	loop/of1x_loop_match_pp.h
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_la_SOURCES = \
 	loop/of1x_loop_match.c \
 	loop/of1x_loop_match.h
