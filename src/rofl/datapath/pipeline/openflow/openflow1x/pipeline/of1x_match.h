@@ -10,6 +10,30 @@
 #include "../../../common/packet_matches.h"
 #include "of1x_utils.h"
 
+/**
+* @file of1x_match.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 matches
+* 
+* Note regarding endiannes:
+* Conforming the convention that the pipeline works in Network Byte Order
+* the matches need to to be initialized in NBO (Big Endian).
+* This applies to the values comming from the packet (eth_src, eth_dst, ...) 
+* and NOT to the ones that are external to it:
+*  - port_in
+*  - port_phy_in
+*  - metadata
+* 
+* There is an special alignment for non complete values as
+*  - mac addresses ( 6 bytes)
+*  - vlan vid      (12 bits )
+*  - mpls label    (20 bits )
+*  - pbb isid      ( 3 bytes)
+* More information on these alignments can be found in the
+* pipeline general documentation
+*/
+
 //Fwd declarations
 union of_packet_matches;
 
@@ -157,11 +181,13 @@ ROFL_BEGIN_DECLS
 /**
 * @brief Create an PORT_IN match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_port_in_match(uint32_t value);
 /**
 * @brief Create an PHY_PORT_IN match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_port_in_phy_match(uint32_t value);
 
@@ -170,6 +196,7 @@ of1x_match_t* of1x_init_port_in_phy_match(uint32_t value);
 /**
 * @brief Create an METADATA match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_metadata_match(uint64_t value, uint64_t mask);
 
