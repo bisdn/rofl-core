@@ -56,7 +56,7 @@
 * of1x_destroy_write_actions(group)
 * @endcode
 *
-* Note regarding endiannes:
+* Note regarding endianness:
 * Conforming the convention that the pipeline works in Network Byte Order
 * the matches need to to be initialized in NBO (Big Endian).
 * This applies to the values comming from the packet (eth_src, eth_dst, ...) 

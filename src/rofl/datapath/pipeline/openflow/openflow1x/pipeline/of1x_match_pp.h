@@ -19,6 +19,23 @@
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 matches packet processing routines
+*
+* Note regarding endianness:
+* Conforming the convention that the pipeline works in Network Byte Order
+* the matches need to to be initialized in NBO (Big Endian).
+* This applies to the values comming from the packet (eth_src, eth_dst, ...) 
+* and NOT to the ones that are external to it:
+*  - port_in
+*  - port_phy_in
+*  - metadata
+* 
+* There is an special alignment for non complete values as
+*  - mac addresses ( 6 bytes)
+*  - vlan vid      (12 bits )
+*  - mpls label    (20 bits )
+*  - pbb isid      ( 3 bytes)
+* More information on these alignments can be found in the
+* pipeline general documentation
 */
 
 //C++ extern C

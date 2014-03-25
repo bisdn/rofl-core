@@ -16,7 +16,7 @@
 *
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 matches
 * 
-* Note regarding endiannes:
+* Note regarding endianness:
 * Conforming the convention that the pipeline works in Network Byte Order
 * the matches need to to be initialized in NBO (Big Endian).
 * This applies to the values comming from the packet (eth_src, eth_dst, ...) 
