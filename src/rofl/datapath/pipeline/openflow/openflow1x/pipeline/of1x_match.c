@@ -155,13 +155,13 @@ of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask,  bool vlan
 	match->type = OF1X_MATCH_VLAN_VID; 
 	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
 	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
-	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_VLAN_ID_MASK);
+	match->value = __init_utern16(value&OF1X_VLAN_ID_MASK,mask&OF1X_VLAN_ID_MASK);
 
 	match->vlan_present = vlan_present;
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
-	if( (mask&OF1X_13_BITS_MASK) != OF1X_13_BITS_MASK)
+	if( (mask&OF1X_VLAN_ID_MASK) != OF1X_VLAN_ID_MASK)
 		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
@@ -1452,16 +1452,20 @@ bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 						return __utern_compare16(it->value, &pkt->tcp_src);
    					if((pkt->ip_proto == IP_PROTO_UDP))
 						return __utern_compare16(it->value, &pkt->udp_src);
-					if((pkt->ip_proto == IP_PROTO_ICMPV4))
-						return __utern_compare8(it->value, &pkt->icmpv4_type);
+					if((pkt->ip_proto == IP_PROTO_ICMPV4)){
+						uint8_t two_byte[2] = {0,pkt->icmpv4_type};
+						return __utern_compare16(it->value, (uint16_t*)&two_byte);
+					}
 					return false;
 
    		case OF1X_MATCH_TP_DST: if((pkt->ip_proto == IP_PROTO_TCP))
 						return __utern_compare16(it->value, &pkt->tcp_dst);
    					if((pkt->ip_proto == IP_PROTO_UDP))
 						return __utern_compare16(it->value, &pkt->udp_dst);
-					if((pkt->ip_proto == IP_PROTO_ICMPV4))
-						return __utern_compare8(it->value, &pkt->icmpv4_code);
+					if((pkt->ip_proto == IP_PROTO_ICMPV4)){
+						uint8_t two_byte[2] = {0,pkt->icmpv4_code};
+						return __utern_compare16(it->value, (uint16_t*)&two_byte);
+					}
 					return false;
 		
 		//ICMPv4
