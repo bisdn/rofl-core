@@ -15,6 +15,7 @@ librofl_pipeline_openflow1x_pipeline_la_HEADERS = of1x_action.h \
 	of1x_instruction.h \
 	of1x_instruction_pp.h \
 	of1x_match.h \
+	of1x_match_pp.h \
 	of1x_pipeline.h \
 	of1x_pipeline_pp.h \
 	of1x_timers.h \

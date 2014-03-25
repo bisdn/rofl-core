@@ -8,9 +8,8 @@
 #include <rofl.h>
 #include "../of1x_switch.h"
 #include "of1x_pipeline.h"
-#include "of1x_action_pp.h"
-#include "of1x_instruction_pp.h"
 #include "of1x_flow_table_pp.h"
+#include "of1x_instruction_pp.h"
 
 //This block is not necessary but it is useful to prevent
 //double definitions of static inline methods
