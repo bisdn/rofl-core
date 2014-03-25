@@ -23,7 +23,7 @@ ROFL_BEGIN_DECLS
 //Wrapping of processing
 /**
 * @brief Processes a packet through the OpenFlow pipeline.  
-* @ingroup sw_runtime 
+* @ingroup core_pp 
 *
 * This call may only be used if the platform does not have a hardware
 * accelerated packet matching machinery. Packet matches of the datapacket_t MUST be initialized

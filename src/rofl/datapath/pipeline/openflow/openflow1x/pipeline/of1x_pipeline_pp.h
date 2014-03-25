@@ -148,7 +148,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 /**
 * @brief Processes a packet-out through the OpenFlow pipeline.  
-* @ingroup sw_runtime
+* @ingroup core_pp 
 */
 static inline void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
 	

@@ -112,7 +112,7 @@ rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version);
 //Wrapping timers
 /**
 * @brief Processes flow entry expirations in all the pipeline tables of the switch.
-* @ingroup sw_runtime 
+* @ingroup core 
 *
 * This call may only be used if the platform does not have a hardware
 * accelerated timers machinery. 
@@ -134,7 +134,7 @@ rofl_result_t __of_detach_all_ports_from_switch(of_switch_t* sw);
 
 /**
 * @brief Retrieves the list of available matching algorithms available for OF version of_version. 
-* @ingroup sw_runtime 
+* @ingroup core 
 *
 */
 rofl_result_t of_get_switch_matching_algorithms(of_version_t of_version, const char * const** name_list, int *count);
