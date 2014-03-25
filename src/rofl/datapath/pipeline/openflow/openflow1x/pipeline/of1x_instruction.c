@@ -58,17 +58,17 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group){
 //Removal of instruction from the group.
 void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1x_instruction_type_t type){
 	
-	__of1x_destroy_instruction(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)]);
+	__of1x_destroy_instruction(&group->instructions[type]);
 	group->num_of_instructions--;
 }
 
 //Addition of instruction to group
 void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata,  unsigned int go_to_table){
 
-	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)].type != OF1X_IT_NO_INSTRUCTION)
+	if(group->instructions[type].type != OF1X_IT_NO_INSTRUCTION)
 		of1x_remove_instruction_from_the_group(group,type);
 		
-	__of1x_init_instruction(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, write_metadata, go_to_table);
+	__of1x_init_instruction(&group->instructions[type], type, apply_actions, write_actions, write_metadata, go_to_table);
 	group->num_of_instructions++;
 
 
@@ -83,26 +83,26 @@ rofl_result_t __of1x_update_instructions(of1x_instruction_group_t* group, of1x_i
 	
 
 	//Apply Actions
-	if(__of1x_update_apply_actions(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
+	if(__of1x_update_apply_actions(&group->instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, new_group->instructions[OF1X_IT_APPLY_ACTIONS].apply_actions)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure apply actions inst is marked as NULL, so that is not released
-	platform_memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)],0,sizeof(of1x_instruction_t));
+	platform_memset(&new_group->instructions[OF1X_IT_APPLY_ACTIONS],0,sizeof(of1x_instruction_t));
 
 	//Write actions	
-	if(__of1x_update_write_actions(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
+	if(__of1x_update_write_actions(&group->instructions[OF1X_IT_WRITE_ACTIONS].write_actions, new_group->instructions[OF1X_IT_WRITE_ACTIONS].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure write actions inst is marked as NULL, so that is not freed 
-	platform_memset(&new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)],0,sizeof(of1x_instruction_t));
+	platform_memset(&new_group->instructions[OF1X_IT_WRITE_ACTIONS],0,sizeof(of1x_instruction_t));
 
 
 	//Static ones
 	//TODO: METADATA && EXPERIMENTER
 	
 	//Static stuff
-	group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_CLEAR_ACTIONS)] = new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_CLEAR_ACTIONS)];	
-	group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_GOTO_TABLE)] = new_group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_GOTO_TABLE)];
+	group->instructions[OF1X_IT_CLEAR_ACTIONS] = new_group->instructions[OF1X_IT_CLEAR_ACTIONS];	
+	group->instructions[OF1X_IT_GOTO_TABLE] = new_group->instructions[OF1X_IT_GOTO_TABLE];
 			
 
 	//Static stuff
@@ -114,8 +114,8 @@ rofl_result_t __of1x_update_instructions(of1x_instruction_group_t* group, of1x_i
 /* Check whether instructions contain group */
 bool __of1x_instructions_contain_group(of1x_flow_entry_t *const entry, const unsigned int group_id){
 
-	return __of1x_write_actions_has(entry->inst_grp.instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions,OF1X_AT_GROUP,group_id)
-		|| __of1x_apply_actions_has(entry->inst_grp.instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions,OF1X_AT_GROUP,group_id);
+	return __of1x_write_actions_has(entry->inst_grp.instructions[OF1X_IT_WRITE_ACTIONS].write_actions,OF1X_AT_GROUP,group_id)
+		|| __of1x_apply_actions_has(entry->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions,OF1X_AT_GROUP,group_id);
 }
 
 /* Process instructions */
@@ -231,19 +231,19 @@ void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo){
 	}
 	if( has_apply_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tAPP.ACTIONs:");
-		__of1x_dump_action_group(group.instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions, nbo);
+		__of1x_dump_action_group(group.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, nbo);
 	}
 	if( has_write_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tWR.ACTIONs:");
-		__of1x_dump_write_actions(group.instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions, nbo);
+		__of1x_dump_write_actions(group.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, nbo);
 	}	
 }
 
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value){
 	///returns true if the action type with the specific value is in the set of instructions.
 	
-	return ( __of1x_write_actions_has(inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions, type, value) ||
-		__of1x_apply_actions_has(inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions, type, value) );
+	return ( __of1x_write_actions_has(inst_grp->instructions[OF1X_IT_WRITE_ACTIONS].write_actions, type, value) ||
+		__of1x_apply_actions_has(inst_grp->instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, type, value) );
 }
 
 rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, of1x_pipeline_t* pipeline, unsigned int table_id){

@@ -451,8 +451,8 @@ void test_flow_modify(){
 	
 	//Check actions are first entry of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
-	CU_ASSERT(sw->pipeline.tables[0].entries->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS-1].apply_actions != NULL);
-	CU_ASSERT(sw->pipeline.tables[0].entries->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS-1].apply_actions->head->type == OF1X_AT_SET_FIELD_IP_DSCP);
+	CU_ASSERT(sw->pipeline.tables[0].entries->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions != NULL);
+	CU_ASSERT(sw->pipeline.tables[0].entries->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions->head->type == OF1X_AT_SET_FIELD_IP_DSCP);
 //	CU_ASSERT(sw->pipeline.tables[0].entries.type == OF1X_IT_NO_INSTRUCTION);
 
 	/*****/
