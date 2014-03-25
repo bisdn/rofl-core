@@ -6,7 +6,6 @@
 #include "../../../platform/lock.h"
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
-#include "../../../platform/packet.h"
 #include "../../../platform/atomic_operations.h"
 #include "../of1x_async_events_hooks.h"
 #include "matching_algorithms/matching_algorithms_available.h"

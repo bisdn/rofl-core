@@ -1,5 +1,4 @@
 #include "of1x_action.h"
-#include "of1x_action_pp.h"
 #include "../../../common/datapacket.h"
 #include "../../../common/protocol_constants.h"
 
@@ -8,7 +7,6 @@
 
 #include "../../../common/packet_matches.h" //TODO: evaluate if this is the best approach to update of1x_matches after actions
 #include "../../../physical_switch.h"
-#include "../../../platform/packet.h"
 #include "../../../util/logging.h"
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
@@ -456,15 +454,6 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 		write_actions->ver_req.min_ver = action->ver_req.min_ver;
 	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
 		write_actions->ver_req.max_ver = action->ver_req.max_ver;
-}
-
-void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
-
-	of1x_packet_action_t* it;
-
-	for(it=apply_actions_group->head;it;it=it->next){
-		__of1x_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
-	}	
 }
 
 //Update apply/write

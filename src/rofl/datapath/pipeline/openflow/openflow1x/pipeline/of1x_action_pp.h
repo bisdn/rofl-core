@@ -32,62 +32,8 @@
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-//Process all actions from a group
-static inline void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
-	datapacket_t* pkt_replica;
-	of1x_bucket_t *it_bk;
-	packet_matches_t *matches = &pkt->matches;
-	
-	//process the actions in the buckets depending on the type
-	switch(group->type){
-		case OF1X_GROUP_TYPE_ALL:
-			//executes all buckets
-			platform_rwlock_rdlock(group->rwlock);
-			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
-
-				//If there are no output actions, skip bucket 
-				if(it_bk->actions->num_of_output_actions == 0)
-					continue;
-
-				//Clone the packet according to spec before applying the bucket
-				//action list
-				pkt_replica = platform_packet_replicate(pkt);
-				if(unlikely(pkt_replica == NULL)){
-					assert(0);
-					break;
-				} 
-				
-				//Process all actions in the bucket
-				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
-				__of1x_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
-				
-				if(it_bk->actions->num_of_output_actions > 1)
-					platform_packet_drop(pkt_replica);
-			}
-			platform_rwlock_rdunlock(group->rwlock);
-			break;
-		case OF1X_GROUP_TYPE_SELECT:
-			//NOT SUPPORTED	
-			assert(0);  //Should NEVER be installed
-			break;
-		case OF1X_GROUP_TYPE_INDIRECT:
-			//executes the "one bucket defined"
-			platform_rwlock_rdlock(group->rwlock);
-			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
-			__of1x_stats_bucket_update(&group->bc_list->head->stats, matches->pkt_size_bytes);
-			platform_rwlock_rdunlock(group->rwlock);
-			break;
-		case OF1X_GROUP_TYPE_FF:
-			//NOT SUPPORTED
-			assert(0);  //Should NEVER be installed
-			break;
-		default:
-			assert(0);  //Should NEVER be reached 
-			break;
-	}
-	__of1x_stats_group_update(&group->stats, matches->pkt_size_bytes);
-	
-}
+//fwd decl. TODO: break circ dependency?
+static inline void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts);
 
 /* Contains switch with all the different action functions */
 static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
@@ -675,6 +621,72 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 	}
 }
 
+//Process apply actions
+static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
+
+	of1x_packet_action_t* it;
+
+	for(it=apply_actions_group->head;it;it=it->next){
+		__of1x_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
+	}	
+}
+
+//Process all actions from a group
+static inline void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
+	datapacket_t* pkt_replica;
+	of1x_bucket_t *it_bk;
+	packet_matches_t *matches = &pkt->matches;
+	
+	//process the actions in the buckets depending on the type
+	switch(group->type){
+		case OF1X_GROUP_TYPE_ALL:
+			//executes all buckets
+			platform_rwlock_rdlock(group->rwlock);
+			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
+
+				//If there are no output actions, skip bucket 
+				if(it_bk->actions->num_of_output_actions == 0)
+					continue;
+
+				//Clone the packet according to spec before applying the bucket
+				//action list
+				pkt_replica = platform_packet_replicate(pkt);
+				if(unlikely(pkt_replica == NULL)){
+					assert(0);
+					break;
+				} 
+				
+				//Process all actions in the bucket
+				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
+				__of1x_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
+				
+				if(it_bk->actions->num_of_output_actions > 1)
+					platform_packet_drop(pkt_replica);
+			}
+			platform_rwlock_rdunlock(group->rwlock);
+			break;
+		case OF1X_GROUP_TYPE_SELECT:
+			//NOT SUPPORTED	
+			assert(0);  //Should NEVER be installed
+			break;
+		case OF1X_GROUP_TYPE_INDIRECT:
+			//executes the "one bucket defined"
+			platform_rwlock_rdlock(group->rwlock);
+			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
+			__of1x_stats_bucket_update(&group->bc_list->head->stats, matches->pkt_size_bytes);
+			platform_rwlock_rdunlock(group->rwlock);
+			break;
+		case OF1X_GROUP_TYPE_FF:
+			//NOT SUPPORTED
+			assert(0);  //Should NEVER be installed
+			break;
+		default:
+			assert(0);  //Should NEVER be reached 
+			break;
+	}
+	__of1x_stats_group_update(&group->stats, matches->pkt_size_bytes);
+	
+}
 
 //Initialize (clear) pkt write actions
 static inline void __of1x_init_packet_write_actions(of1x_write_actions_t* pkt_write_actions){
