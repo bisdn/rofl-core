@@ -376,7 +376,7 @@ void test_overlap2(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(2)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_dst_match(0x2aea33b376fa, 0xffffffffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(0x4012534e57aa, 0xffffffffffff)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(1620|OF1X_VLAN_PRESENT_MASK,0x1fff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(1620, OF1X_VLAN_ID_MASK, true)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_pcp_match(7)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 	
@@ -390,7 +390,7 @@ void test_overlap2(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_dst_match(0x2aea33b376fa, 0xffffffffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(0x4012534e57aa, 0xffffffffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_type_match(0x800)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(1620|OF1X_VLAN_PRESENT_MASK, 0x1fff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(1620, OF1X_VLAN_ID_MASK, true)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_pcp_match(7)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip_dscp_match(0xf)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_nw_src_match(0x991ff310,0xfffffffe)) == ROFL_SUCCESS);
