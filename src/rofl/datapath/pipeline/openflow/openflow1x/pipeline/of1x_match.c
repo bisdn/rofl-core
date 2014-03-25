@@ -1097,6 +1097,12 @@ void __of1x_init_match_group(of1x_match_group_t* group){
 	//Set min max 
 	group->ver_req.min_ver = OF1X_MIN_VERSION;
 	group->ver_req.max_ver = OF1X_MAX_VERSION;
+	
+	//OF1.0 full wildcard
+	bitmap128_set(&group->of10_wildcard_bm, OF1X_MATCH_ETH_DST);
+	bitmap128_set(&group->of10_wildcard_bm, OF1X_MATCH_ETH_SRC);
+	bitmap128_set(&group->of10_wildcard_bm, OF1X_MATCH_NW_SRC);
+	bitmap128_set(&group->of10_wildcard_bm, OF1X_MATCH_NW_DST);
 }
 
 void __of1x_destroy_match_group(of1x_match_group_t* group){
@@ -1144,10 +1150,10 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 		//Update matches
 		bitmap128_set(&group->match_bm, match->type);
 
-		if(match->has_wildcard){
-			group->has_wildcard = true;
+		if(!match->has_wildcard)
+			bitmap128_unset(&group->of10_wildcard_bm, match->type);
+		else	
 			bitmap128_set(&group->wildcard_bm, match->type);
-		}
 
 		group->num_elements++;
 

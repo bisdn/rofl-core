@@ -97,31 +97,6 @@ rofl_result_t of1x_add_match_to_entry(of1x_flow_entry_t* entry, of1x_match_t* ma
 	__of1x_match_group_push_back(&entry->matches, match);
 	
 	return ROFL_SUCCESS;
-#if 0
-	unsigned int new_matches;
-
-	if(!match)
-		return ROFL_FAILURE;
-
-	if(entry->matchs){
-		__of1x_add_match(entry->matchs, match);		
-	}else{
-		entry->matchs = match;
-
-		//Make sure is correctly formed
-		match->prev = NULL;
-
-		//Set the number of matches
-		entry->num_of_matches=0;
-	}
-
-	//Determine number of new matches.
-	for(new_matches=0;match;match=match->next,new_matches++);
-
-	entry->num_of_matches+=new_matches;
-
-	return ROFL_SUCCESS;
-#endif
 }
 
 rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_flow_entry_t* mod, bool reset_counts){
@@ -339,7 +314,7 @@ rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipelin
 	if(__of1x_validate_instructions(&entry->inst_grp, pipeline, table_id)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
-	if(version == OF_VERSION_10 && entry->matches.head && !entry->matches.has_wildcard)
+	if(version == OF_VERSION_10 && entry->matches.head && !__of10_is_wildcard(&entry->matches))
 		entry->priority |= OF10_NON_WILDCARDED_PRIORITY_FLAG;
 	return ROFL_SUCCESS;
 }

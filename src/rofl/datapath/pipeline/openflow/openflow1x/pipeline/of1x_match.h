@@ -134,10 +134,11 @@ typedef struct of1x_match_group{
 	/* Fast validation flags */
 	//Required OF versions
 	of1x_ver_req_t ver_req;
-	bool has_wildcard;
+	
 	//bitmaps of matches and wilcards
 	bitmap128_t match_bm;
-	bitmap128_t wildcard_bm;
+	bitmap128_t wildcard_bm; 
+	bitmap128_t of10_wildcard_bm; //OF1.0 only
 }of1x_match_group_t;
 
 
@@ -481,6 +482,14 @@ of1x_match_t* __of1x_get_alike_match(of1x_match_t* match1, of1x_match_t* match2)
 bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2);
 bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match);
 bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it);
+
+
+/*
+* OF1.0 specific behaviour for wildcard
+*/
+static inline bool __of10_is_wildcard(of1x_match_group_t* matches){
+	return !bitmap128_is_empty(&matches->of10_wildcard_bm);
+}
 
 /*
 * Dumping
