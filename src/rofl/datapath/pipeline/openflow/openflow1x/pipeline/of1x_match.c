@@ -1541,12 +1541,12 @@ void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PORT_IN:%u], ",nbo,it->value->value.u32); 
+			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PORT_IN:%u], ", it->value->value.u32); 
 				break;
-			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PHY_PORT_IN:%u], ",nbo,it->value->value.u32);
+			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PHY_PORT_IN:%u], ", it->value->value.u32);
 				break; 
 
-			case OF1X_MATCH_METADATA: ROFL_PIPELINE_INFO_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ",nbo,it->value->value.u64,nbo,it->value->mask.u64); 
+			case OF1X_MATCH_METADATA: ROFL_PIPELINE_INFO_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ", it->value->value.u64, it->value->mask.u64); 
 				break;
 
 			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_DST:0x%"PRIx64"|0x%"PRIx64"],  ",COND_NTOHB64(nbo,it->value->value.u64),COND_NTOHB64(nbo,it->value->mask.u64));
