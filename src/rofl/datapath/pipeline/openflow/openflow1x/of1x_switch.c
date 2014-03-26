@@ -30,14 +30,12 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	
 	//Mutex
 	if(NULL == (sw->mutex = platform_mutex_init(NULL))){
-		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL; 
 	}
 	
 	//Setup pipeline	
 	if(__of1x_init_pipeline(sw, num_of_tables, list) != ROFL_SUCCESS){
-		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
 	}
@@ -45,7 +43,6 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	//Allow the platform to add specific configurations to the switch
 	if(platform_post_init_of1x_switch(sw) != ROFL_SUCCESS){
 		__of1x_destroy_pipeline(&sw->pipeline);	
-		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
 	}
