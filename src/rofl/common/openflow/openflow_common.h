@@ -244,14 +244,14 @@ namespace openflow {
 	struct ofp_oxm_tlv_hdr {
 		uint32_t oxm_id;
 		uint8_t  data[0];
-	};
+	} __attribute__((packed));
 
 
 	struct ofp_oxm_hdr {
 		uint16_t oxm_class;		/* oxm_class */
 		uint8_t  oxm_field;		/* includes has_mask bit! */
 		uint8_t  oxm_length;	/* oxm_length */
-	};
+	} __attribute__((packed));
 
 
 
@@ -268,7 +268,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint8_t byte;
 		uint8_t mask;
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_ETH_TYPE
@@ -284,7 +284,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint16_t word;				/* network byte order */
 		uint16_t mask;
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_PBB_ISID
@@ -292,7 +292,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint8_t word[3];			/* network byte order */
 		uint8_t mask[3];			/* only valid, when oxm_hasmask=1 */
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_IN_PORT
@@ -307,7 +307,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint32_t dword;				/* network byte order */
 		uint32_t mask;				/* only valid, when oxm_hasmask=1 */
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_IPV6_ND_SLL
@@ -316,14 +316,14 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint8_t value[6];
 		uint8_t mask[6];			/* only valid, when oxm_hasmask=1 */
-	};
+	} __attribute__((packed));
 
 	// OXM_OF_METADATA (mask)
 	struct ofp_oxm_ofb_uint64_t {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint64_t word;
 		uint64_t mask;
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_ETH_DST (mask)
@@ -332,7 +332,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint8_t addr[OFP_ETH_ALEN];
 		uint8_t mask[OFP_ETH_ALEN]; /* only valid, when oxm_hasmask=1 */
-	};
+	} __attribute__((packed));
 
 
 	// OXM_OF_IPV6_SRC (mask)
@@ -342,7 +342,7 @@ namespace openflow {
 		struct ofp_oxm_hdr hdr;		/* oxm header */
 		uint8_t addr[16];
 		uint8_t mask[16];			/* only valid, when oxm_hasmask=1 */
-	};
+	} __attribute__((packed));
 
 
 	/* OXM Class IDs.
