@@ -32,15 +32,14 @@ int main(int, char**) {
 
 	rofl::ciosrv::init();
 
-	cportvlan_messagetranslator::port_list_t list;
-	list.push_back(cportvlan_messagetranslator::port_spec_t(0,cportvlan_messagetranslator::NO_VLAN));
-	list.push_back(cportvlan_messagetranslator::port_spec_t(1,10));
-	list.push_back(cportvlan_messagetranslator::port_spec_t(2,10));
-	list.push_back(cportvlan_messagetranslator::port_spec_t(3,11));
-	list.push_back(cportvlan_messagetranslator::port_spec_t(4,12));
+	cportvlan_messagetranslator mapper();
+	mapper.add_virtual_port(cportvlan_messagetranslator::port_spec_t( PV_PORT_T(1), PV_VLANID_T::NONE ));
+	mapper.add_virtual_port( cportvlan_messagetranslator::port_spec_t( PV_PORT_T(2), PV_VLANID_T(10) ) );
+	mapper.add_virtual_port( cportvlan_messagetranslator::port_spec_t( PV_PORT_T(2), PV_VLANID_T(11) ) );
+	mapper.add_virtual_port( cportvlan_messagetranslator::port_spec_t( PV_PORT_T(2), PV_VLANID_T(12) ) );
+	mapper.add_virtual_port( cportvlan_messagetranslator::port_spec_t( PV_PORT_T(2), PV_VLANID_T(13) ) );
 
-
-	xcpd_jsp1 xcpd1;
+	xcpd_jsp1 xcpd1 (mapper);
 
 ///	xcpd1.rpc_connect_to_ctl(rofl::caddress(AF_INET, "127.0.0.1", 6633));	// doxygen definition is invalid
 	xcpd1.rpc_listen_for_dpts(rofl::caddress(AF_INET, "0.0.0.0", 16633));

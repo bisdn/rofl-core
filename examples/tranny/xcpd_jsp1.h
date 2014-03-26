@@ -7,10 +7,11 @@
 #include <rofl/common/openflow/cofdpt.h>
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
+#include "cportvlan_messagetranslator.h"
 
 class xcpd_jsp1 : public rofl::crofbase {
 	public:
-	xcpd_jsp1();
+	xcpd_jsp1(const cportvlan_messagetranslator &);
 	virtual ~xcpd_jsp1();
 	
 	protected:
@@ -51,6 +52,8 @@ class xcpd_jsp1 : public rofl::crofbase {
 
 	rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
 	rofl::cofctl * m_master;	// the OF controller.
+
+	cportvlan_messagetranslator mapper;	// stores the virtual port definitions and does the mapping of messages
 
 	protected:
 	// TODO OF version for master and slave - can be had from m_slave->get_version() and m_master->get_version()

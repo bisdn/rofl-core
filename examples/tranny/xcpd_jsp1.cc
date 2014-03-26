@@ -35,10 +35,8 @@ std::string action_mask_to_string(const uint32_t action_types) {
 	return out;
 }
 
-xcpd_jsp1::xcpd_jsp1():rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0) {
-//xcpd_jsp1::xcpd_jsp1():rofl::crofbase ((1 << OFP10_VERSION)|(1 <<  OFP12_VERSION)),m_slave(0),m_master(0),m_of_version(OFP12_VERSION) {
-	// read config file
-	//..
+xcpd_jsp1::xcpd_jsp1(const cportvlan_messagetranslator & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),mapper(mapper_) {
+	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
 }
 
 xcpd_jsp1::~xcpd_jsp1() {
@@ -90,20 +88,22 @@ void xcpd_jsp1::handle_dpath_close (rofl::cofdpt *dpt) {
 void xcpd_jsp1::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
-	rofl::cflowentry entry(OFP10_VERSION);
-	try {
-	//BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(idle_timeout)(hard_timeout)(cookie)(priority)(buffer_id)(out_port)(flags) )
-		entry.set_command(msg->get_command());
-		entry.set_idle_timeout(msg->get_idle_timeout());
-		entry.set_hard_timeout(msg->get_hard_timeout());
-		entry.set_cookie(msg->get_cookie());
-		entry.set_priority(msg->get_priority());
-		entry.set_buffer_id(msg->get_buffer_id());
-		entry.set_out_port(msg->get_out_port());
-		entry.set_flags(msg->get_flags());
-		send_flow_mod_message( m_slave, entry );
-		} catch (rofl::cerror &e) {
-		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	const std::vector< rofl::cofmsg_flow_mod > res(mapper.translate_flow_mod( ctl, msg ));
+	for(std::vector< rofl::cofmsg_flow_mod >::const_iterator it = res.begin(); it != res.end(); ++it ) {
+		rofl::cflowentry entry(OFP10_VERSION);
+		try {
+			entry.set_command(it->get_command());
+			entry.set_idle_timeout(it->get_idle_timeout());
+			entry.set_hard_timeout(it->get_hard_timeout());
+			entry.set_cookie(it->get_cookie());
+			entry.set_priority(it->get_priority());
+			entry.set_buffer_id(it->get_buffer_id());
+			entry.set_out_port(it->get_out_port());
+			entry.set_flags(msg->get_flags());
+			send_flow_mod_message( m_slave, entry );
+			} catch (rofl::cerror &e) {
+			std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+		}
 	}
 	delete(msg);
 }
@@ -112,12 +112,14 @@ void xcpd_jsp1::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 	uint32_t masterxid = pack->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: xcpd_jsp1::handle_features_request : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
+	const std::vector< rofl::cofmsg_features_request > res(mapper.translate_features_request( ctl, pack ));
+	if(res.size()!=1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
 	// send features request
 	if(m_slave) {
 		uint32_t myxid = send_features_request(m_slave);
 		std::cout << "handle_features_request called send_features_request(" << m_slave->c_str() << ")." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: xcpd_jsp1::handle_features_request : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
 		m_mxid_sxid[masterxid]=myxid;
 		m_sxid_mxid[myxid]=masterxid;
 	} else std::cout << "handle_features_request from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
@@ -127,11 +129,14 @@ void xcpd_jsp1::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features
 void xcpd_jsp1::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_reply * msg ) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t actions = msg->get_actions_bitmap();
 	uint32_t myxid = msg->get_xid();
 	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: xcpd_jsp1::handle_features_reply : xid from reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from reply doesn't exist in m_sxid_mxid" << std::endl; return; }
 	uint32_t orig_xid = map_it->second;
+
+	const std::vector< rofl::cofmsg_features_reply > res(mapper.translate_features_reply( ctl, msg ));
+	if(res.size()!=1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
+	uint32_t actions = res.front()->get_actions_bitmap();
 	
 	// Now, remove VLAN setters and queue features from actions
 	std::cout << func << ": Features reply (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
@@ -142,7 +147,7 @@ void xcpd_jsp1::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_
 	std::cout << func << ": New features are (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
 	
 	send_features_reply(m_master, orig_xid, m_dpid, msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
-	std::cout << "handle_features_reply: sent features reply to " << m_master->c_str() << "." << std::endl;
+	std::cout << func << ": sent features reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);
 	m_mxid_sxid.erase(orig_xid);
 	delete(msg);
@@ -152,6 +157,11 @@ void xcpd_jsp1::handle_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_get_co
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
 	uint32_t masterxid = msg->get_xid();
 	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_get_config_request already exists in m_mxid_sxid" << std::endl;
+
+	const std::vector< rofl::cofmsg_get_config_request > res(mapper.translate_config_request( ctl, msg ));
+	if(res.size()!=1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
+	uint32_t actions = res.front()->get_actions_bitmap();
+	
 	if(m_slave) {
 		uint32_t myxid = send_get_config_request(m_slave);
 		std::cout << func << " called send_get_config_request(" << m_slave->c_str() << ")." << std::endl;
