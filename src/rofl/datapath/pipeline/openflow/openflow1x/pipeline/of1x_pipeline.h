@@ -84,26 +84,8 @@ rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline);
 //Purge of all entries in the pipeline (reset)	
 rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline);
 
-//Packet processing
-void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);
-
 //Set the default tables(flow and group tables) configuration according to the new version
 rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_version_t version);
-
-
-//Process the packet out
-
-//Wrapping of processing
-/**
-* @brief Processes a packet-out through the OpenFlow pipeline.  
-* @ingroup sw_runtime
-* 
-*  
-*
-* @warning Packet matches and packet timestamp MUST be properly initialized. Timstamp
-* must be the timestamp immediately before calling of1x_process_packet_out_pipeline()
-*/
-void of1x_process_packet_out_pipeline(const struct of1x_switch *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group);
 
 //
 // Snapshots

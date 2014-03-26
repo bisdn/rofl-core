@@ -11,6 +11,7 @@
  */
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
+#include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/likely.h"
 #include "../../../util/logging.h"

@@ -1,6 +1,7 @@
 #include "of1x_flow_entry.h"
 
 #include "../../../platform/likely.h"
+#include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../of1x_async_events_hooks.h"
 

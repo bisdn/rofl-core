@@ -15,11 +15,14 @@
 
 #include <rofl.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <time.h>
-#include "platform/atomic_operations.h"
 
 //fwd decl
 struct monitored_entity;
+typedef void platform_mutex_t;
+typedef void platform_rwlock_t;
+
 
 enum sensor_data_type{
 	SENSOR_DATA_T_OHTER=1,		//a measure other than those listed below
@@ -236,15 +239,6 @@ static inline monitoring_snapshot_state_t* monitoring_clone_snapshot(monitoring_
 static inline void monitoring_destroy_snapshot(monitoring_snapshot_state_t* snapshot){
 	__monitoring_destroy((monitoring_state_t*)snapshot);
 }
-
-/**
-* @brief Update(inc atomically) the rev counter
-* @ingroup  mgmt
-*/
-static inline void monitoring_state_inc_rev(monitoring_state_t* mon){
-	platform_atomic_inc64(&mon->last_rev, mon->mutex);
-}
-
 
 /**
 * @brief Creates a monitored entity object and links it to the linked-list, in the position of prev OR parent.

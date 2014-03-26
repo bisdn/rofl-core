@@ -2,7 +2,7 @@
 // Doxygen group definition
 //
 
-//Core
+//Core API
 /**
 *
 * @defgroup core Core APIs and data structures
@@ -18,7 +18,7 @@
 *
 */
 
-//Matching algorithms
+//Matching algorithms API
 /**
 * @defgroup core_ma Extensible OpenFlow software matching algorithm APIs 
 * @brief APIs to extend ROFL-pipeline with new (software/hybrid) OpenFlow table matching algorithms. 
@@ -31,11 +31,11 @@
 *
 */
 
-//Switch runtime
+//Packet processing API
 /**
 *
-* @defgroup sw_runtime Switch Runtime APIs
-* @brief APIs used by software and hybrid switches, which have to process packets and/or entry expirations. 
+* @defgroup core_pp Software Packet Processing (pp) APIs
+* @brief APIs used to process packets in software pipelines (software and hybrid software/hardware switches) 
 *
 * Only the documented structures and APIs should be used by the user library.
 */

@@ -10,7 +10,6 @@
 #include "rofl.h"
 #include "../of_switch.h"
 #include "pipeline/of1x_pipeline.h"
-#include "../../platform/lock.h"
 
 /**
 * @file of1x_switch.h

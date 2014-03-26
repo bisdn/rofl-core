@@ -28,7 +28,7 @@
 #include "../of1x_flow_entry.h"
 #include "../of1x_statistics.h"
 #include "../of1x_utils.h"
-#include "matching_algorithms_available.h"
+#include "available_ma.h"
 
 /*
  * forward declarations
@@ -166,6 +166,7 @@ typedef struct of1x_matching_algorithm_functions{
 	//Packet matching lookup
 	/**
 	* @ingroup core_ma_of1x 
+	* @ingroup core_pp
 	* @brief Finds the best match for the packet according the pkt_matches
 	* 
 	* The lookup of the best match may use the algorithm internal representation

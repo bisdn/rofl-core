@@ -12,9 +12,6 @@
 #include "rofl.h"
 #include "of1x_utils.h"
 #include "../../../common/ternary_fields.h"
-#include "../../../common/bitmap.h"
-#include "../../../platform/likely.h"
-#include "../../../platform/memory.h"
 
 /**
 * @file of1x_action.h
@@ -59,7 +56,7 @@
 * of1x_destroy_write_actions(group)
 * @endcode
 *
-* Note regarding endiannes:
+* Note regarding endianness:
 * Conforming the convention that the pipeline works in Network Byte Order
 * the matches need to to be initialized in NBO (Big Endian).
 * This applies to the values comming from the packet (eth_src, eth_dst, ...) 
@@ -374,9 +371,6 @@ void of1x_destroy_action_group(of1x_action_group_t* group);
 void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_action_t* action);
 
 
-//Apply actions
-void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
-
 /**
 * @ingroup core_of1x 
 * Create a write actions group 
@@ -396,41 +390,9 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 */
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 
-static inline void __of1x_init_packet_write_actions(of1x_write_actions_t* pkt_write_actions){
-	bitmap128_clean(&pkt_write_actions->bitmap);
-	pkt_write_actions->num_of_actions = 0;
-}
-
-static inline void __of1x_update_packet_write_actions(of1x_write_actions_t* packet_write_actions, const of1x_write_actions_t* entry_write_actions){
-	
-	unsigned int i,j;
-
-	for(i=0,j=0;i<entry_write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
-		if(!bitmap128_is_bit_set(&entry_write_actions->bitmap,j))
-			continue;
-		packet_write_actions->actions[j].field = entry_write_actions->actions[j].field;
-		packet_write_actions->actions[j].group = entry_write_actions->actions[j].group;
-		packet_write_actions->actions[j].type = entry_write_actions->actions[j].type;
-		
-		if(!bitmap128_is_bit_set(&packet_write_actions->bitmap,j)){
-			packet_write_actions->num_of_actions++;
-			bitmap128_set(&packet_write_actions->bitmap,j);
-		}
-		i++;
-	}
-}
-
-static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_actions){
-	bitmap128_clean(&pkt_write_actions->bitmap);
-	pkt_write_actions->num_of_actions = 0;
-}
-
-void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, bool replicate_pkts);
-
 //Update apply/write
 rofl_result_t __of1x_update_apply_actions(of1x_action_group_t** group, of1x_action_group_t* new_group);
 rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_write_actions_t* new_group);
-
 
 //Checking functions
 bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_action_type_t type, uint64_t value);

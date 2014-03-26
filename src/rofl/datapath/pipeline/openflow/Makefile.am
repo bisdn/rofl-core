@@ -6,7 +6,7 @@ noinst_LTLIBRARIES = librofl_pipeline_openflow.la
 
 library_includedir = $(includedir)/rofl/datapath/pipeline/openflow
 
-library_include_HEADERS = of_switch.h
+library_include_HEADERS = of_switch.h of_switch_pp.h
 
 librofl_pipeline_openflow_la_SOURCES = of_switch.h \
 	of_switch.c

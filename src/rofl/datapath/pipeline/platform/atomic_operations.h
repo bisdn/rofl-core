@@ -6,13 +6,10 @@
 #define __PLATFORM_ATOMIC_OPERATIONS_H__
 
 #include <inttypes.h>
+#include "rofl.h"
 #include "lock.h"
 
-#if defined(ATOMIC_OPS_INLINE_HDR) && !defined(ROFL_TEST)
-
-#include "atomic_ops_inline.h"
-
-#else
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_PP_PRESENT) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
 
 /**
 * @file atomic_operations.h
@@ -28,6 +25,9 @@
 * platform. 
 *
 */
+
+//C++ extern C
+ROFL_BEGIN_DECLS
 
 /**
 * @brief Performs an atomic increment to the counter (64 bit type). 
@@ -89,6 +89,8 @@ void platform_atomic_add64(uint64_t* counter, uint64_t value, platform_mutex_t* 
 */
 void platform_atomic_add32(uint32_t* counter, uint32_t value, platform_mutex_t* mutex);
 
-#endif //ATOMIC_OPS_INLINE_HDR
+//C++ extern C
+ROFL_END_DECLS
 
-#endif
+#endif //if
+#endif //__PLATFORM_ATOMIC_OPERATIONS_H__

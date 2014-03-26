@@ -8,7 +8,6 @@
 #include "CUnit/Basic.h"
 #include "lib_assert.h"
 #include "lib_random.h"
-#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.h"
 
@@ -464,7 +463,7 @@ static int setup_test(of1x_switch_t** sw)
 {
 	physical_switch_init();	
 
-	enum of1x_matching_algorithm_available ma_list= of1x_matching_algorithm_loop;
+	enum of1x_matching_algorithm_available ma_list= of1x_loop_matching_algorithm;
 	(*sw) = of1x_init_switch("Test switch",OF_VERSION_12, 0x0101,1,&ma_list);
 	CU_ASSERT(sw!=NULL);
 /*	

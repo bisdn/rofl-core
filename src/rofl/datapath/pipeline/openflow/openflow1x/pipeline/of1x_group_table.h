@@ -9,7 +9,6 @@
 #include "of1x_statistics.h"
 #include "of1x_action.h"
 #include "of1x_flow_entry.h"
-#include "../../../platform/lock.h"
 
 #define OF1X_GROUP_MAX 0xffffff00
 #define OF1X_GROUP_ALL 0xfffffffc  /* Represents all groups for group delete commands. */
@@ -20,6 +19,10 @@
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 group table subsystem 
 */
+
+//fwd decl
+typedef void platform_mutex_t;
+typedef void platform_rwlock_t;
 
 /**
 * @ingroup core_of1x 
