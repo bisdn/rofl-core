@@ -20,10 +20,7 @@ cat <<-EOF
 EOF
 
 for ALG in "$@"; do
-	file_name=$SRCDIR"/"$ALG"/of1x_"$ALG"_ma_pp.h"
-	if test -e "$file_name";then
-		echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/"$ALG"/of1x_"$ALG"_ma_pp.h>"
-	fi
+	echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/"$ALG"/of1x_"$ALG"_ma_pp.h>"
 done
 
 cat <<-EOF
