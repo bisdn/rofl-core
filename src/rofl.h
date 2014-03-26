@@ -1,18 +1,20 @@
-#ifndef __ROFL_H__
-#define __ROFL_H__
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Common ROFL header. 
- *
- * @author: andreas, msune
- *
- */
+* @file rofl.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+* @author Andreas Koepsel <andreas.koepsel (at) bisdn.de>
+*
+* @brief Main Revised OpenFlow Library set (ROFL) header  
+*/
+
+#ifndef __ROFL_H__
+#define __ROFL_H__
 
 #include <stdlib.h>
+#include "rofl_pipeline.h"
 
 /**
 * Common return codes
