@@ -44,7 +44,7 @@ ROFL_BEGIN_DECLS
 /*
 * CHECK fields against packet
 */
-bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
+static inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 
 	if( unlikely(it==NULL ) )
 		return false;
