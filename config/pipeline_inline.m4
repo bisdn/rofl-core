@@ -23,11 +23,14 @@ if test "$PIPELINE_SUPPORT" = "yes"; then
 enable_inline="no"
 
 	#Detect option
-	AC_ARG_WITH([inline-pipeline-platform-funcs], AS_HELP_STRING([--with-inline-pipeline-platform-funcs], [Inline platform functions in ROFL-pipeline packet processing API [default=no]]), with_pipeline_inline="yes", [])
+	AC_ARG_WITH([pipeline-platform-funcs-inlined], AS_HELP_STRING([--with-pipeline-platform-funcs-inlined], [Inline platform functions in ROFL-pipeline packet processing API [default=no]]), with_pipeline_inline="yes", [])
 
 	if test "$with_pipeline_inline" = "yes"; then
 		#Set to inline pipeline funcs
 		echo -e "#define ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS 1" >> $ROFL_PIPELINE_CONFIG
+		echo -e "\n\n#ifdef ROFL_PIPELINE_ABORT_IF_INLINED" >> $ROFL_PIPELINE_CONFIG
+		echo -e "    #error rofl-pipeline has been compiled with packet processing API functions inlined, but target does not support it(ROFL_PIPELINE_ABORT_IF_INLINED). Please recompile rofl-core without --with-pipeline-platform-funcs-inlined" >> $ROFL_PIPELINE_CONFIG
+		echo -e "#endif" >> $ROFL_PIPELINE_CONFIG
 		AC_MSG_RESULT(yes)
 	else
 		AC_MSG_RESULT(no)
