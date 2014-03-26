@@ -9,16 +9,21 @@ cat <<-EOF
 #ifndef MATCHING_ALGORITHMS_AVAILABLE_H_
 #define MATCHING_ALGORITHMS_AVAILABLE_H_
 
-enum of1x_matching_algorithm_available {
+enum of1x_matching_algorithm_available{
 EOF
 
 for ALG in "$@"; do
-	echo "	of1x_matching_algorithm_$ALG,"
+	last_ma="of1x_"$ALG"_matching_algorithm"
+	echo $last_ma","
 done
 
-echo "	of1x_matching_algorithm_count,"
 cat <<-EOF
 };
+
+EOF
+echo "//Define maximum out of the enum"
+echo "#define of1x_matching_algorithm_count ("$last_ma" + 1)"
+cat <<-EOF
 
 #define OF1X_MATCHING_ALGORITHM_NAMES \\
 { \\

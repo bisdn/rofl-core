@@ -12,15 +12,17 @@
 #include "../../../../../platform/lock.h"
 #include "../../../../../platform/likely.h"
 #include "../../../../../platform/memory.h"
-#
+#include "of1x_loop_ma.h"
+
 //C++ extern C
 ROFL_BEGIN_DECLS
-	
+
 /* FLOW entry lookup entry point */ 
-static inline of1x_flow_entry_t* of1x_find_best_match_loop(of1x_flow_table_t *const table, packet_matches_t *const pkt_matches){
+static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t *const table, datapacket_t *const pkt){
 	
 	of1x_match_t* it;
 	of1x_flow_entry_t *entry;
+	packet_matches_t *pkt_matches = &pkt->matches;	
 
 	//Prevent writers to change structure during matching
 	platform_rwlock_rdlock(table->rwlock);

@@ -569,9 +569,10 @@ OF1X_REGISTER_MATCHING_ALGORITHM(loop) = {
 	.modify_flow_entry_hook = of1x_modify_flow_entry_loop,
 	.remove_flow_entry_hook = of1x_remove_flow_entry_loop,
 
+#if 0
 	//Find best match
-	.find_best_match_hook = of1x_find_best_match_loop,
-
+	.find_best_match_hook = of1x_find_best_match_loop_ma,
+#endif
 	//Stats
 	.get_flow_stats_hook = of1x_get_flow_stats_loop,
 	.get_flow_aggregate_stats_hook = of1x_get_flow_aggregate_stats_loop,

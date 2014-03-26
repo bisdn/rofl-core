@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "CUnit/Basic.h"
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 
 #include "matching_test.h"
 #include "test_ipv6.h"

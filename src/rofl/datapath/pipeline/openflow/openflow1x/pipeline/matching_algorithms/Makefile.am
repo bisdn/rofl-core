@@ -13,7 +13,8 @@ noinst_LTLIBRARIES = $(MATCHING_ALGORITHM_LIBADD) librofl_pipeline_openflow1x_pi
 library_includedir = $(includedir)/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms
 
 library_include_HEADERS = matching_algorithms.h \
-	available_ma.h
+	available_ma.h\
+	available_ma_pp.h
 
 # loop matching
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_ladir = \

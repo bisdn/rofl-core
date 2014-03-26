@@ -5,7 +5,7 @@ static of1x_switch_t* sw12=NULL;
 static of1x_switch_t* sw13=NULL;
 static of1x_switch_t* sw=NULL;
 	
-static enum of1x_matching_algorithm_available ma_list[4]={of1x_matching_algorithm_loop, of1x_matching_algorithm_loop, of1x_matching_algorithm_loop, of1x_matching_algorithm_loop};
+static enum of1x_matching_algorithm_available ma_list[4]={of1x_loop_matching_algorithm, of1x_loop_matching_algorithm, of1x_loop_matching_algorithm, of1x_loop_matching_algorithm};
 
 
 int set_up(){

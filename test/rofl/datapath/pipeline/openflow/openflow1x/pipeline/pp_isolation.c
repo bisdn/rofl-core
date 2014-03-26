@@ -17,8 +17,7 @@
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_utils.h"
-#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.h"
-#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_match.h"
+#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_ma.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_action.h"
@@ -44,6 +43,9 @@
 #ifdef ROFL_PIPELINE_PP_PRESENT
 	#error Some packet processing API (_pp) header is being include in a non __pp.h file
 #endif
+
+//Include missing _pp (now and not before)
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 
 void pp_test(void)
 {	

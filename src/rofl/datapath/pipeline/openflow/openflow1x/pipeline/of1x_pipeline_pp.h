@@ -28,7 +28,7 @@
 #include "../../../platform/atomic_operations.h"
 #include "../of1x_async_events_hooks.h"
 
-#include "matching_algorithms/matching_algorithms_available_pp.h"
+#include "matching_algorithms/available_ma_pp.h"
 
 #include "../../../util/logging.h"
 
@@ -54,7 +54,6 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	unsigned int i, table_to_go, num_of_outputs;
 	of1x_flow_table_t* table;
 	of1x_flow_entry_t* match;
-	packet_matches_t* pkt_matches;
 	
 	//Initialize packet for OF1.X pipeline processing 
 	__of1x_init_packet_write_actions(&pkt->write_actions.of1x);
@@ -62,9 +61,6 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
 	
-	//Matches aux
-	pkt_matches = &pkt->matches;
-
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
@@ -76,7 +72,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
 
 		//Perform lookup	
-		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt_matches);
+		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt);
 		
 		if(likely(match != NULL)){
 			
@@ -88,7 +84,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			//Update flow statistics
 			platform_atomic_inc64(&match->stats.packet_count,match->stats.mutex);
-			platform_atomic_add64(&match->stats.byte_count, pkt_matches->pkt_size_bytes, match->stats.mutex);
+			platform_atomic_add64(&match->stats.byte_count, pkt->matches.pkt_size_bytes, match->stats.mutex);
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
