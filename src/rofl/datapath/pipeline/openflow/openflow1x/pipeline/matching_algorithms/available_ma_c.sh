@@ -16,11 +16,7 @@ EOF
 
 # write the includes
 for ALG in "$@"; do
-	if test -d $SRCDIR/$ALG; then
-		echo "#include \"${ALG}/of1x_${ALG}_ma.h\""
-	else
-		echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_ma.h>"
-	fi
+	echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_ma.h>"
 done
 
 # print extern for matching algorithms 
