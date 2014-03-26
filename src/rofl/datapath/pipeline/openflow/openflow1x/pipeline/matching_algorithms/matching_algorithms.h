@@ -28,7 +28,7 @@
 #include "../of1x_flow_entry.h"
 #include "../of1x_statistics.h"
 #include "../of1x_utils.h"
-#include "matching_algorithms_available.h"
+#include "available_ma.h"
 
 /*
  * forward declarations

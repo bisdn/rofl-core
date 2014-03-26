@@ -3,7 +3,7 @@ MAINTAINERCLEANFILES = Makefile.in
 .NOTPARALLEL:
 
 # build this before anything else
-BUILT_SOURCES = matching_algorithms_available.h matching_algorithms_available.c
+BUILT_SOURCES = available_ma.h available_ma_pp.h available_ma.c
 
 EXTRA_LTLIBRARIES = \
 	librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop.la
@@ -13,25 +13,25 @@ noinst_LTLIBRARIES = $(MATCHING_ALGORITHM_LIBADD) librofl_pipeline_openflow1x_pi
 library_includedir = $(includedir)/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms
 
 library_include_HEADERS = matching_algorithms.h \
-	matching_algorithms_available.h
+	available_ma.h
 
 # loop matching
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_ladir = \
 	$(library_includedir)/loop
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_la_HEADERS = \
-	loop/of1x_loop_match.h
-	loop/of1x_loop_match_pp.h
+	loop/of1x_loop_ma.h
+	loop/of1x_loop_ma_pp.h
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_la_SOURCES = \
-	loop/of1x_loop_match.c \
-	loop/of1x_loop_match.h
+	loop/of1x_loop_ma.c \
+	loop/of1x_loop_ma.h
 
 # combined library
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_SOURCES = \
 	matching_algorithms.h
 
 nodist_librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_SOURCES = \
-	matching_algorithms_available.c \
-	matching_algorithms_available.h
+	available_ma.c \
+	available_ma.h
 
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_LIBADD = \
 	$(MATCHING_ALGORITHM_LIBADD) \
@@ -40,11 +40,14 @@ librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_LIBADD = \
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_DEPENDENCIES = \
 	$(MATCHING_ALGORITHM_LIBADD)
 
-matching_algorithms_available.h: matching_algorithms_available.sh Makefile
-	$(SHELL) $(srcdir)/matching_algorithms_available.sh $(MATCHING_ALGORITHMS) > $(srcdir)/matching_algorithms_available.h
+available_ma_pp.h: available_ma_pp.sh Makefile
+	$(SHELL) $(srcdir)/available_ma_pp.sh $(srcdir) $(MATCHING_ALGORITHMS) > $(srcdir)/available_ma_pp.h
 
-matching_algorithms_available.c: matching_algorithms_available_c.sh Makefile matching_algorithms_available.h matching_algorithms.h
-	$(SHELL) $(srcdir)/matching_algorithms_available_c.sh $(srcdir) $(MATCHING_ALGORITHMS) > $(srcdir)/matching_algorithms_available.c
+available_ma.h: available_ma.sh Makefile
+	$(SHELL) $(srcdir)/available_ma.sh $(MATCHING_ALGORITHMS) > $(srcdir)/available_ma.h
 
-CLEANFILES = $(srcdir)/matching_algorithms_available.c \
-	$(srcdir)/matching_algorithms_available.h
+available_ma.c: available_ma_c.sh Makefile available_ma.h matching_algorithms.h
+	$(SHELL) $(srcdir)/available_ma_c.sh $(srcdir) $(MATCHING_ALGORITHMS) > $(srcdir)/available_ma.c
+
+CLEANFILES = $(srcdir)/available_ma.c \
+	$(srcdir)/available_ma.h

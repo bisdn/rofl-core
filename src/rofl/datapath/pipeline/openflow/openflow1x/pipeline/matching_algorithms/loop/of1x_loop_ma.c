@@ -1,5 +1,4 @@
-#include "of1x_loop_match.h"
-#include "of1x_loop_match_pp.h"
+#include "of1x_loop_ma.h"
 
 #include <stdlib.h>
 #include <assert.h>

@@ -28,7 +28,7 @@
 #include "../../../platform/atomic_operations.h"
 #include "../of1x_async_events_hooks.h"
 
-#include "matching_algorithms/matching_algorithms_available.h"
+#include "matching_algorithms/matching_algorithms_available_pp.h"
 
 #include "../../../util/logging.h"
 
