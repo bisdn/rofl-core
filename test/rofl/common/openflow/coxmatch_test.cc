@@ -430,42 +430,11 @@ coxmatch_test::test8BytesHasMask()
 	CPPUNIT_ASSERT(oxm.get_u64value() == 0xd1d2d3d4d5d6d7d8);
 	CPPUNIT_ASSERT(oxm.get_u64mask() == 0xe1e2e3e4e5e6e7e8);
 	CPPUNIT_ASSERT(oxm.get_u64masked_value() == (0xd1d2d3d4d5d6d7d8 & 0xe1e2e3e4e5e6e7e8));
-	exit(0);
 }
 
 
 
-void
-coxmatch_test::testCopyConstructor()
-{
-#if 0
-	rofl::openflow::coxmatch role(rofl::openflow13::OFP_VERSION);
 
-	role.set_role(0x11121314);
-	role.set_generation_id(0x2122232425262728);
-
-
-	rofl::cmemory mrole(role.length());
-	role.pack(mrole.somem(), mrole.memlen());
-
-#ifdef DEBUG
-	std::cerr << "role:" << std::endl << role;
-	std::cerr << "mac:" << std::endl << mrole;
-#endif
-
-	rofl::openflow::coxmatch clone(role);
-
-	rofl::cmemory mclone(clone.length());
-	clone.pack(mclone.somem(), mclone.memlen());
-
-#ifdef DEBUG
-	std::cerr << "clone:" << std::endl << clone;
-	std::cerr << "mclone:" << std::endl << mclone;
-#endif
-
-	CPPUNIT_ASSERT(mrole == mclone);
-#endif
-}
 
 
 

@@ -13,22 +13,19 @@
 
 using namespace rofl::openflow;
 
-coxmatch::coxmatch() :
-		oxm_id(0)
+coxmatch::coxmatch()
 {}
 
 
 coxmatch::coxmatch(
 		uint32_t oxm_id) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr))
 {}
 
 
 coxmatch::coxmatch(
 		uint8_t* oxm_hdr, size_t oxm_len) :
-				rofl::cmemory(oxm_hdr, oxm_len),
-				oxm_id(get_oxm_id())
+				rofl::cmemory(oxm_hdr, oxm_len)
 {}
 
 
@@ -113,8 +110,7 @@ coxmatch::get_oxm_id() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint8_t value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint8_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint8_t))
 {
 	set_oxm_id(oxm_id);
 	set_u8value(value);
@@ -123,8 +119,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint8_t value, uint8_t mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint8_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint8_t))
 {
 	set_oxm_id(oxm_id);
 	set_u8value(value);
@@ -188,8 +183,7 @@ coxmatch::get_u8masked_value() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint16_t value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint16_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint16_t))
 {
 	set_oxm_id(oxm_id);
 	set_u16value(value);
@@ -198,8 +192,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint16_t value, uint16_t mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint16_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint16_t))
 {
 	set_oxm_id(oxm_id);
 	set_u16value(value);
@@ -263,8 +256,7 @@ coxmatch::get_u16masked_value() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint32_t value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint32_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint32_t))
 {
 	set_oxm_id(oxm_id);
 	set_u32value(value);
@@ -273,8 +265,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint32_t value, uint32_t mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint32_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint32_t))
 {
 	set_oxm_id(oxm_id);
 	set_u32value(value);
@@ -402,8 +393,7 @@ coxmatch::get_u32masked_value_as_addr() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint64_t value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint64_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + sizeof(uint64_t))
 {
 	set_oxm_id(oxm_id);
 	set_u64value(value);
@@ -412,8 +402,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, uint64_t value, uint64_t mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint64_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint64_t))
 {
 	set_oxm_id(oxm_id);
 	set_u64value(value);
@@ -477,8 +466,7 @@ coxmatch::get_u64masked_value() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, rofl::cmacaddr const& value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + OFP_ETH_ALEN),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + OFP_ETH_ALEN)
 {
 	set_oxm_id(oxm_id);
 	set_u48value(value);
@@ -487,8 +475,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, rofl::cmacaddr const& value, rofl::cmacaddr const& mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*OFP_ETH_ALEN),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*OFP_ETH_ALEN)
 {
 	set_oxm_id(oxm_id);
 	set_u48value(value);
@@ -559,8 +546,7 @@ coxmatch::get_u48masked_value() const {
  */
 coxmatch::coxmatch(
 		uint32_t oxm_id, rofl::caddress const& value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t))
 {
 	set_oxm_id(oxm_id);
 	set_u128value(value);
@@ -569,8 +555,7 @@ coxmatch::coxmatch(
 
 coxmatch::coxmatch(
 		uint32_t oxm_id, rofl::caddress const& value, rofl::caddress const& mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t)),
-				oxm_id(oxm_id)
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t))
 {
 	set_oxm_id(oxm_id);
 	set_u128value(value);

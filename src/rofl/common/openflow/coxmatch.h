@@ -51,7 +51,6 @@ class eOxmBadExperimenter 	: public eOxmBase {}; // unknown experimenter instruc
 class coxmatch :
 	public rofl::cmemory
 {
-	uint32_t			oxm_id;		// see openflow_common.h in enum oxm_tlv_match_fields
 	PthreadRwLock		oxmlock;
 
 public:
