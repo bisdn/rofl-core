@@ -8,7 +8,6 @@
 #include <inttypes.h>
 #include <sys/time.h>
 #include "rofl.h"
-#include "../../../platform/lock.h"
 
 #define OF1X_STATS_NS_IN_A_SEC 1000000000
 
@@ -34,6 +33,8 @@ struct of1x_flow_table;
 struct of1x_match;
 struct of1x_match_group;
 struct of1x_pipeline;
+typedef void platform_mutex_t;
+typedef void platform_rwlock_t;
 
 
 //Flow entry stats (entry state)

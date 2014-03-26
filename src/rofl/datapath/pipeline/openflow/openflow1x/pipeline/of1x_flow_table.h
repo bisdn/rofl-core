@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include "rofl.h"
 #include "../../../common/bitmap.h"
-#include "../../../platform/lock.h"
 #include "of1x_flow_entry.h"
 #include "of1x_timers.h"
 #include "of1x_statistics.h"

@@ -23,6 +23,7 @@
 #include "../../../common/ternary_fields.h"
 #include "../../../common/bitmap.h"
 
+#include "../../../platform/lock.h"
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"

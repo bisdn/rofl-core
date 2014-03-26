@@ -12,7 +12,7 @@
 #include "../common/ternary_fields.h"
 #include "../switch_port.h"
 
-#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_PP_PRESENT) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
 
 /**
 * @file packet.h

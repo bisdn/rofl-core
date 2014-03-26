@@ -16,9 +16,11 @@
 #include <inttypes.h>
 
 #include "rofl.h"
-#include "platform/lock.h"
 
 #define PORT_QUEUE_MAX_LEN_NAME 32
+
+//fwd decl
+typedef void platform_mutex_t;
 
 //Opaque platform queue state (to be used, maybe, for platform hooks)
 typedef void platform_queue_state_t;

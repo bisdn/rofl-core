@@ -1,6 +1,7 @@
 #include "physical_switch.h"
 
 #include <assert.h>
+#include "platform/lock.h"
 #include "platform/memory.h"
 #include "platform/likely.h"
 #include "util/logging.h"
