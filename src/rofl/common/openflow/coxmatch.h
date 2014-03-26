@@ -338,7 +338,8 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch const& oxm) {
-		os << indent(0) << "<coxmatch oxm-id:" << oxm.get_oxm_id() << " >" << std::endl;
+		os << rofl::indent(0) << "<coxmatch oxm-id: 0x" << std::hex << oxm.get_oxm_id() << std::dec << " >" << std::endl;
+		os << rofl::indent(2) << dynamic_cast<rofl::cmemory const&>( oxm );
 		return os;
 	};
 

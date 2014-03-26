@@ -34,7 +34,7 @@ csegmsg_test::testStoreAndMerge()
 	/*
 	 * first message
 	 */
-	rofl::cofmsg_table_stats_reply msg1(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg1(rofl::openflow13::OFP_VERSION);
 	msg1.set_xid(0x11121314);
 	msg1.set_stats_flags(rofl::openflow13::OFPMPF_REPLY_MORE);
 
@@ -52,7 +52,7 @@ csegmsg_test::testStoreAndMerge()
 	/*
 	 * second message (to be appended)
 	 */
-	rofl::cofmsg_table_stats_reply msg2(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg2(rofl::openflow13::OFP_VERSION);
 	msg2.set_xid(0x11121314);
 	msg2.set_stats_flags(rofl::openflow13::OFPMPF_REPLY_MORE);
 
@@ -65,7 +65,7 @@ csegmsg_test::testStoreAndMerge()
 	/*
 	 * third message (replaces content for table-id 4 of previous message)
 	 */
-	rofl::cofmsg_table_stats_reply msg3(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg3(rofl::openflow13::OFP_VERSION);
 	msg3.set_xid(0x11121314);
 	msg3.set_stats_flags(0);
 
@@ -101,7 +101,7 @@ csegmsg_test::testStoreAndMerge()
 	std::cerr << "segmsg:" << std::endl << segmsg;
 #endif
 
-	rofl::cofmsg_table_stats_reply merged = dynamic_cast<rofl::cofmsg_table_stats_reply const&>( segmsg.get_msg() );
+	rofl::openflow::cofmsg_table_stats_reply merged = dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( segmsg.get_msg() );
 
 	CPPUNIT_ASSERT(merged.get_table_stats_array().size() == 4);
 	CPPUNIT_ASSERT(merged.set_table_stats_array().set_table_stats(0) == msg1.get_table_stats_array().get_table_stats(0));
@@ -121,7 +121,7 @@ csegmsg_test::testRetrieveAndDetach()
 	/*
 	 * first message
 	 */
-	rofl::cofmsg_table_stats_reply msg1(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg1(rofl::openflow13::OFP_VERSION);
 	msg1.set_xid(0x11121314);
 	msg1.set_stats_flags(rofl::openflow13::OFPMPF_REPLY_MORE);
 
@@ -139,7 +139,7 @@ csegmsg_test::testRetrieveAndDetach()
 	/*
 	 * second message (to be appended)
 	 */
-	rofl::cofmsg_table_stats_reply msg2(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg2(rofl::openflow13::OFP_VERSION);
 	msg2.set_xid(0x11121314);
 	msg2.set_stats_flags(rofl::openflow13::OFPMPF_REPLY_MORE);
 
@@ -152,7 +152,7 @@ csegmsg_test::testRetrieveAndDetach()
 	/*
 	 * third message (replaces content for table-id 4 of previous message)
 	 */
-	rofl::cofmsg_table_stats_reply msg3(rofl::openflow13::OFP_VERSION);
+	rofl::openflow::cofmsg_table_stats_reply msg3(rofl::openflow13::OFP_VERSION);
 	msg3.set_xid(0x11121314);
 	msg3.set_stats_flags(0);
 
@@ -186,7 +186,7 @@ csegmsg_test::testRetrieveAndDetach()
 #endif
 
 
-	rofl::cofmsg_table_stats_reply* merged = dynamic_cast<rofl::cofmsg_table_stats_reply*>( segmsg.retrieve_and_detach_msg() );
+	rofl::openflow::cofmsg_table_stats_reply* merged = dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>( segmsg.retrieve_and_detach_msg() );
 
 	try {
 		segmsg.get_msg();

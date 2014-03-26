@@ -4,6 +4,8 @@ SUBDIRS = messages
 
 unittest_SOURCES= \
 	unittest.cc \
+	coxmatch_test.cc \
+	coxmatch_test.h \
 	coftablefeatureprop_test.cc \
 	coftablefeatureprop_test.h \
 	coftablefeatureprops_test.cc \

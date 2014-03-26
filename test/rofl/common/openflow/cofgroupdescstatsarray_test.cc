@@ -54,8 +54,8 @@ cofgroupdescstatsarray_test::testCopyConstructor()
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_byte_count(0xb1b2b3b4b5b6b7b8);
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_port(0xc3c3c4c4);
 	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_group(0xd3d3d4d4);
-	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
-	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
+	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
+	array.set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
 
 	array.set_group_desc_stats(1).set_group_id(1);
 	array.set_group_desc_stats(1).set_group_type(rofl::openflow13::OFPGT_ALL);
@@ -117,8 +117,8 @@ cofgroupdescstatsarray_test::testOperatorPlus()
 	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_byte_count(0xb1b2b3b4b5b6b7b8);
 	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_port(0xc3c3c4c4);
 	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_watch_group(0xd3d3d4d4);
-	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
-	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_dst(rofl::cmacaddr("11:11:11:11:11:11")));
+	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
 
 	array[0].set_group_desc_stats(1).set_group_id(1);
 	array[0].set_group_desc_stats(1).set_group_type(rofl::openflow13::OFPGT_ALL);
@@ -130,8 +130,8 @@ cofgroupdescstatsarray_test::testOperatorPlus()
 	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_byte_count(0xb1b2b3b4b5b6b7b8);
 	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_watch_port(0x88888888);
 	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_watch_group(0xaaaaaaaa);
-	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_dst(rofl::cmacaddr("33:33:33:33:33:33")));
-	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::coxmatch_ofb_eth_src(rofl::cmacaddr("44:44:44:44:44:44")));
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_dst(rofl::cmacaddr("33:33:33:33:33:33")));
+	array[0].set_group_desc_stats(1).set_buckets().set_bucket(1).set_actions().append_action_set_field(rofl::openflow::coxmatch_ofb_eth_src(rofl::cmacaddr("44:44:44:44:44:44")));
 
 	array[1].set_group_desc_stats(2).set_group_id(2);
 	array[1].set_group_desc_stats(2).set_group_type(rofl::openflow13::OFPGT_ALL);
