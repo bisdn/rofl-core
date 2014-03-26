@@ -18,9 +18,11 @@ coxmatch::coxmatch()
 
 
 coxmatch::coxmatch(
-		uint32_t oxm_id) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr))
-{}
+		uint32_t oxm_id)
+{
+	rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + (size_t)(oxm_id & 0x000000ff));
+	set_oxm_id(oxm_id);
+}
 
 
 coxmatch::coxmatch(

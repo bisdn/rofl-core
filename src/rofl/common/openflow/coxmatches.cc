@@ -84,11 +84,10 @@ coxmatches::unpack(
 		throw eBadMatchBadLen();
 	}
 
-	// first instruction
-	struct openflow::ofp_oxm_hdr *hdr = (struct openflow::ofp_oxm_hdr*)buf;
-
 
 	while (buflen > 0) {
+		struct openflow::ofp_oxm_hdr *hdr = (struct openflow::ofp_oxm_hdr*)buf;
+
 		if ((buflen < sizeof(struct openflow::ofp_oxm_hdr)) || (0 == hdr->oxm_length)) {
 			return; // not enough bytes to parse an entire ofp_oxm_hdr, possibly padding bytes found
 		}
@@ -96,12 +95,10 @@ coxmatches::unpack(
 		if (hdr->oxm_length > (sizeof(struct openflow::ofp_oxm_hdr) + buflen))
 			throw eBadMatchBadLen();
 
-		coxmatch oxm((uint8_t*)hdr, sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
-
-		add_match(oxm);
+		add_match(coxmatch(buf, sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length));
 
 		buflen -= (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
-		hdr = (struct openflow::ofp_oxm_hdr*)(((uint8_t*)hdr) + sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
+		buf += (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
 	}
 }
 
@@ -129,60 +126,63 @@ coxmatches::pack(
 coxmatch&
 coxmatches::add_match(coxmatch const& oxm)
 {
-	uint32_t oxm_id = oxm.get_oxm_id() & 0xfffffe00; // keep class and field, hide mask and length
-	if (matches.find(oxm_id) != matches.end()) {
-		matches.erase(oxm_id);
+	uint32_t oid = oxm.get_oxm_id() & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oid) != matches.end()) {
+		matches.erase(oid);
 	}
-	return (matches[oxm_id] = oxm);
+	return (matches[oid] = oxm);
 }
 
 
 coxmatch&
 coxmatches::add_match(uint32_t oxm_id)
 {
-	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
-	if (matches.find(oxm_id) != matches.end()) {
-		matches.erase(oxm_id);
+	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oid) != matches.end()) {
+		matches.erase(oid);
 	}
-	return (matches[oxm_id]);
+	return (matches[oid] = coxmatch(oxm_id));
 }
 
 
 coxmatch&
 coxmatches::set_match(uint32_t oxm_id)
 {
-	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
-	return matches[oxm_id];
+	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oid) == matches.end()) {
+		matches[oid] = coxmatch(oxm_id);
+	}
+	return matches[oid];
 }
 
 
 coxmatch const&
 coxmatches::get_match(uint32_t oxm_id) const
 {
-	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
-	if (matches.find(oxm_id) == matches.end()) {
-		throw eOxmListNotFound();
+	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oid) == matches.end()) {
+		throw eOxmNotFound();
 	}
-	return matches.at(oxm_id);
+	return matches.at(oid);
 }
 
 
 void
 coxmatches::drop_match(uint32_t oxm_id)
 {
-	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
-	if (matches.find(oxm_id) == matches.end()) {
+	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
+	if (matches.find(oid) == matches.end()) {
 		return;
 	}
-	matches.erase(oxm_id);
+	matches.erase(oid);
 }
 
 
 bool
 coxmatches::has_match(uint32_t oxm_id) const
 {
-	oxm_id &= 0xfffffe00; // keep class and field, hide mask and length
-	return (not (matches.find(oxm_id) == matches.end()));
+	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
+	return (not (matches.find(oid) == matches.end()));
 }
 
 

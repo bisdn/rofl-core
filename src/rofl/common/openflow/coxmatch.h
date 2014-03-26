@@ -37,6 +37,7 @@ namespace openflow {
 /* error classes */
 class eOxmBase 				: public RoflException {}; // error base class for class cofinstruction
 class eOxmInval 			: public eOxmBase {}; // invalid parameter
+class eOxmNotFound 			: public eOxmBase {}; // not found
 class eOxmBadLen 			: public eOxmBase {}; // bad length
 class eOxmInvalType 		: public eOxmBase {}; // invalid OXM TLV field value
 class eOxmInvalClass 		: public eOxmBase {}; // invalid OXM TLV class value
@@ -338,7 +339,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch const& oxm) {
 		os << rofl::indent(0) << "<coxmatch oxm-id: 0x" << std::hex << oxm.get_oxm_id() << std::dec << " >" << std::endl;
-		os << rofl::indent(2) << dynamic_cast<rofl::cmemory const&>( oxm );
+		rofl::indent i(2);
+		os << dynamic_cast<rofl::cmemory const&>( oxm );
 		return os;
 	};
 
@@ -548,7 +550,7 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<coxmatch_ofb_vlan_vid >" << std::endl;
-		os << indent(4) << "<vlan-vid: " << (int)oxm.get_u16value() << "/" << oxm.get_u16mask() << " >" << std::endl;
+		os << indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/" << oxm.get_u16mask() << std::dec << " >" << std::endl;
 		return os;
 	};
 };

@@ -9,8 +9,8 @@
  *      Author: andreas
  */
 
-#ifndef COXMLIST_H_
-#define COXMLIST_H_
+#ifndef COXMATCHES_H_
+#define COXMATCHES_H_
 
 #include <ostream>
 #include <string>
@@ -188,7 +188,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatches const& oxl) {
-		os << rofl::indent(0) << "<coxmlist #matches:" << oxl.matches.size() << " >" << std::endl;
+		os << rofl::indent(0) << "<coxmatches #matches:" << oxl.matches.size() << " >" << std::endl;
+		rofl::indent i(2);
 		for (std::map<uint32_t, coxmatch>::const_iterator
 				it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
 			os << coxmatch_output(it->second);
