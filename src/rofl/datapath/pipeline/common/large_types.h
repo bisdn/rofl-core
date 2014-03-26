@@ -6,6 +6,7 @@
 #define __LARGE_TYPES_H__
 
 #include <stdint.h>
+#include "endianness.h"
 
 /*
  * This header file defines a structure for a type of 128 bits
@@ -26,9 +27,21 @@ typedef struct wrap_u128{
 #define UINT128__T_HI(x) ((w128_t*)&x)->hi
 #define UINT128__T_LO(x) ((w128_t*)&x)->lo
 
-#define SWAP_U128(x) do{ \
-	((w128_t*)&x)->hi = __bswap_64 (((w128_t*)&x)->hi); \
-	((w128_t*)&x)->lo = __bswap_64 (((w128_t*)&x)->lo); \
-}while(0)
+#if defined(LITTLE_ENDIAN_DETECTED)
+	#define HTONB128(x) do{ \
+		((w128_t*)&x)->hi = HTONB64(((w128_t*)&x)->hi); \
+		((w128_t*)&x)->lo = HTONB64(((w128_t*)&x)->lo); \
+	}while(0)
+	#define NTOHB128(x) HTONB128(x) 
+
+	//Conditional byte swap
+	#define COND_NTOHB128(cond, x) do { if(cond)NTOHB128(x); }while(0)
+#else
+	#define HTONB128(x) do{}while(0)
+	#define NTOHB128(x) do{}while(0)
+
+	//Conditional byte swap
+	#define COND_NTOHB128(cond, x) do{}while(0);
+#endif //LITTLE_ENDIAN_DETECTED
 
 #endif //__LARGE_TYPES_H__

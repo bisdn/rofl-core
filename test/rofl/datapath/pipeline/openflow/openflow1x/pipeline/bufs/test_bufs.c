@@ -73,7 +73,7 @@ void bufs_no_output_action(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -126,7 +126,7 @@ void bufs_apply_output_action(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -179,7 +179,7 @@ void bufs_write_output_action(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -235,7 +235,7 @@ void bufs_multiple_apply_output_actions(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -302,7 +302,7 @@ void bufs_multiple_apply_write_output_actions(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -362,7 +362,7 @@ void bufs_single_output_action_group_apply(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -428,7 +428,7 @@ void bufs_single_output_action_group_write(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -488,7 +488,7 @@ void bufs_apply_and_group_output_actions(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -560,7 +560,7 @@ void bufs_write_and_group_output_actions(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -607,10 +607,10 @@ void bufs_multiple_output_actions_group(void){
 			NULL,
 			/*go_to_table*/0);
 
-	of1x_dump_flow_entry(entry);
+	of1x_dump_flow_entry(entry,false);
 	
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Install
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
@@ -627,7 +627,7 @@ void bufs_multiple_output_actions_group(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -675,7 +675,7 @@ void bufs_no_output_action_goto(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -739,7 +739,7 @@ void bufs_apply_output_action_last_table_goto(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -817,7 +817,7 @@ void bufs_apply_output_action_both_tables_goto(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -897,7 +897,7 @@ void bufs_apply_output_action_both_tables_bis_goto(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -986,7 +986,7 @@ void bufs_output_first_table_output_on_group_second_table(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
@@ -1090,7 +1090,7 @@ void bufs_output_all(void){
 		return;
 
 	//Dump pipeline
-	of1x_full_dump_switch(sw);
+	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);

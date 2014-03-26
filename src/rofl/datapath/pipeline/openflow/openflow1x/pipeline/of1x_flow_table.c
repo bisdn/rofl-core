@@ -509,7 +509,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 }
 
 /* Dump methods */
-void of1x_dump_table(of1x_flow_table_t* table){
+void of1x_dump_table(of1x_flow_table_t* table, bool nbo){
 	of1x_flow_entry_t* entry;
 	int i;	
 
@@ -522,11 +522,13 @@ void of1x_dump_table(of1x_flow_table_t* table){
 	}
 	for(entry=table->entries, i=0;entry!=NULL;entry=entry->next,i++){
 		ROFL_PIPELINE_INFO("\t[%d] ",i);
-		of1x_dump_flow_entry(entry);
+		of1x_dump_flow_entry(entry, nbo);
 	}
 	
 	ROFL_PIPELINE_INFO("\t[*] No more entries...\n");
 	
-	if(of1x_matching_algorithms[table->matching_algorithm].dump_hook)
-		of1x_matching_algorithms[table->matching_algorithm].dump_hook(table);
+	if(of1x_matching_algorithms[table->matching_algorithm].dump_hook){
+		ROFL_PIPELINE_INFO("\tMatching algorithm %u specific state\n", table->matching_algorithm);
+		of1x_matching_algorithms[table->matching_algorithm].dump_hook(table, nbo);
+	}
 }

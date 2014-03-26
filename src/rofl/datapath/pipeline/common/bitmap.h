@@ -32,6 +32,14 @@ static inline void bitmap128_clean(bitmap128_t* bitmap){
 }
 
 /**
+* Set bitmap to 1
+*/
+static inline void bitmap128_set_all(bitmap128_t* bitmap){
+	bitmap->__submap[0] = 0xFFFFFFFFFFFFFFFFUL;
+	bitmap->__submap[1] = 0xFFFFFFFFFFFFFFFFUL;
+}
+
+/**
 * Check if bit is set in the 128bit bitmap
 */
 static inline bool bitmap128_is_bit_set(const bitmap128_t* bitmap, unsigned int pos){
@@ -60,6 +68,30 @@ static inline void bitmap128_unset(bitmap128_t* bitmap, unsigned int pos){
 	else
 		bitmap->__submap[0] &= ~(1UL << pos);
 }
+
+/**
+* Is bitmap empty 
+*/
+static inline bool bitmap128_is_empty(bitmap128_t* bitmap){
+	if( bitmap->__submap[0] == 0x0 && bitmap->__submap[1] == 0x0)
+		return true;
+	
+	return false;
+}
+
+
+/**
+* Make a logical and over to bitmaps 
+*/
+static inline bitmap128_t bitmap128_and(bitmap128_t* bitmap1, bitmap128_t* bitmap2){
+	bitmap128_t result;
+	
+	result.__submap[0] = bitmap1->__submap[0]&bitmap2->__submap[0];
+	result.__submap[1] = bitmap1->__submap[1]&bitmap2->__submap[1];
+	
+	return result;
+}
+
 
 /**
 * Check whether a bitmap is within a certain mask (bitmap&mask == bitmap)

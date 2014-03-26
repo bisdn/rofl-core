@@ -198,7 +198,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
-	dump_packet_matches(&pkt->matches);
+	dump_packet_matches(&pkt->matches, false);
 #endif
 	
 	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline.num_of_tables ; i++){

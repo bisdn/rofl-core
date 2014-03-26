@@ -7,9 +7,11 @@ librofl_pipeline_common_ladir = $(includedir)/rofl/datapath/pipeline/common
 librofl_pipeline_common_la_HEADERS = \
 	bitmap.h \
 	datapacket.h \
+	endianness.h \
 	ipv6_exthdr.h \
 	large_types.h \
 	packet_matches.h \
+	protocol_constants.h \
 	ternary_fields.h \
 	wrap_types.h 
 

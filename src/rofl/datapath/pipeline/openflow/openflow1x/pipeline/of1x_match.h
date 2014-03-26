@@ -10,11 +10,32 @@
 #include "../../../common/packet_matches.h"
 #include "of1x_utils.h"
 
+/**
+* @file of1x_match.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 matches
+* 
+* Note regarding endiannes:
+* Conforming the convention that the pipeline works in Network Byte Order
+* the matches need to to be initialized in NBO (Big Endian).
+* This applies to the values comming from the packet (eth_src, eth_dst, ...) 
+* and NOT to the ones that are external to it:
+*  - port_in
+*  - port_phy_in
+*  - metadata
+* 
+* There is an special alignment for non complete values as
+*  - mac addresses ( 6 bytes)
+*  - vlan vid      (12 bits )
+*  - mpls label    (20 bits )
+*  - pbb isid      ( 3 bytes)
+* More information on these alignments can be found in the
+* pipeline general documentation
+*/
+
 //Fwd declarations
 union of_packet_matches;
-
-#define OF1X_VLAN_PRESENT_MASK 0x1000
-#define OF1X_VLAN_ID_MASK 0x0FFF
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
@@ -117,7 +138,12 @@ typedef struct of1x_match{
 	
 	/* Fast validation flags */
 	//Bitmap of required OF versions
-	of1x_ver_req_t ver_req; 
+	of1x_ver_req_t ver_req;
+	
+	//VLAN only (blame OF spec)
+	bool vlan_present;
+	
+	//OF1.0 only
 	bool has_wildcard;
 }of1x_match_t;
 
@@ -134,10 +160,11 @@ typedef struct of1x_match_group{
 	/* Fast validation flags */
 	//Required OF versions
 	of1x_ver_req_t ver_req;
-	bool has_wildcard;
+	
 	//bitmaps of matches and wilcards
 	bitmap128_t match_bm;
-	bitmap128_t wildcard_bm;
+	bitmap128_t wildcard_bm; 
+	bitmap128_t of10_wildcard_bm; //OF1.0 only
 }of1x_match_group_t;
 
 
@@ -154,11 +181,13 @@ ROFL_BEGIN_DECLS
 /**
 * @brief Create an PORT_IN match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_port_in_match(uint32_t value);
 /**
 * @brief Create an PHY_PORT_IN match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_port_in_phy_match(uint32_t value);
 
@@ -167,6 +196,7 @@ of1x_match_t* of1x_init_port_in_phy_match(uint32_t value);
 /**
 * @brief Create an METADATA match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_metadata_match(uint64_t value, uint64_t mask);
 
@@ -192,7 +222,8 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value);
 * @brief Create an VLAN_VID match according to 1.2 semantics (13th bit is a flag) 
 * @ingroup core_of1x 
 */
-of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask);
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, bool vlan_present);
+
 /**
 * @brief Create an VLAN_PCP match 
 * @ingroup core_of1x 
@@ -482,10 +513,18 @@ bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2);
 bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match);
 bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it);
 
+
+/*
+* OF1.0 specific behaviour for wildcard
+*/
+static inline bool __of10_is_wildcard(of1x_match_group_t* matches){
+	return !bitmap128_is_empty(&matches->of10_wildcard_bm);
+}
+
 /*
 * Dumping
 */
-void __of1x_dump_matches(of1x_match_t* matches);
+void __of1x_dump_matches(of1x_match_t* matches, bool nbo);
 
 //C++ extern C
 ROFL_END_DECLS

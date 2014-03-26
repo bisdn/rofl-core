@@ -67,7 +67,7 @@ typedef enum {
 	OF1X_IT_GOTO_TABLE	= 7,		/* Setup the next table in the lookup pipeline: MUST BE the last one */
 }of1x_instruction_type_t;
 
-#define OF1X_IT_MAX OF1X_IT_GOTO_TABLE
+#define OF1X_IT_MAX OF1X_IT_GOTO_TABLE+1
 
 //Write metadata instruction
 typedef struct of1x_write_metadata{
@@ -115,10 +115,6 @@ struct of1x_switch;
 struct of1x_pipeline;
 struct of1x_flow_entry;
 struct of1x_group_table;
-
-//Helper macro
-#define OF1X_SAFE_IT_TYPE_INDEX(m)\
-	m-1
 
 /*
 *
@@ -169,7 +165,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, s
 
 static inline bool  __of1x_process_instructions_must_replicate(const of1x_instruction_group_t* inst_grp){
 
-	bool has_goto = inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_GOTO_TABLE)].type == OF1X_IT_GOTO_TABLE;
+	bool has_goto = inst_grp->instructions[OF1X_IT_GOTO_TABLE].type == OF1X_IT_GOTO_TABLE;
 	unsigned int n_out = inst_grp->num_of_outputs; 
 
 	return  ( (n_out == 1) && (has_goto) ) ||
@@ -177,7 +173,7 @@ static inline bool  __of1x_process_instructions_must_replicate(const of1x_instru
 }
 
 //Dump
-void __of1x_dump_instructions(of1x_instruction_group_t group);
+void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo);
 
 //C++ extern C
 ROFL_END_DECLS

@@ -59,6 +59,23 @@
 * of1x_destroy_write_actions(group)
 * @endcode
 *
+* Note regarding endiannes:
+* Conforming the convention that the pipeline works in Network Byte Order
+* the matches need to to be initialized in NBO (Big Endian).
+* This applies to the values comming from the packet (eth_src, eth_dst, ...) 
+* and NOT to the ones that are external to it:
+*  - port_in
+*  - port_phy_in
+*  - metadata
+* 
+* There is an special alignment for non complete values as
+*  - mac addresses ( 6 bytes)
+*  - vlan vid      (12 bits )
+*  - mpls label    (20 bits )
+*  - pbb isid      ( 3 bytes)
+* More information on these alignments can be found in the
+* pipeline general documentation
+*
 */
 
 //Fwd decl
@@ -424,8 +441,8 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin);
 of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin);
 
 //Dump
-void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group);
-void __of1x_dump_action_group(of1x_action_group_t* action_group);
+void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group, bool nbo);
+void __of1x_dump_action_group(of1x_action_group_t* action_group, bool nbo);
 
 //validate actions
 rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, struct of1x_group_table *gt);

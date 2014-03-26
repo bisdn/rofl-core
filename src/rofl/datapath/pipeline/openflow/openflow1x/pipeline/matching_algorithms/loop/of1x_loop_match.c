@@ -288,7 +288,7 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 				break;
 			}
 		}else{
-			if( __of1x_flow_entry_check_contained(it, entry, strict, true, out_port, out_group,false) ){
+			if( __of1x_flow_entry_check_contained(it, entry, strict, true && (ver != OF_VERSION_10), out_port, out_group,false) ){
 				
 				if(of1x_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen

@@ -131,8 +131,9 @@ void __update_packet_matches(struct datapacket *const pkt);
 /**
  * @brief Dump the values of packet (header values)  
  * @ingroup core_of1x
+ * @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
  */
-void dump_packet_matches(packet_matches_t *const pkt_matches);
+void dump_packet_matches(packet_matches_t *const pkt_matches, bool nbo);
 
 
 
