@@ -43,12 +43,11 @@ ROFL_BEGIN_DECLS
 
 /*
 * CHECK fields against packet
+*
+* @warning: it MUST BE != NULL
 */
 static inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 
-	if( unlikely(it==NULL ) )
-		return false;
-	
 	switch(it->type){
 		//Phy
 		case OF1X_MATCH_IN_PORT: return __utern_compare32(it->value, &pkt->port_in);
