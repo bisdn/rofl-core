@@ -14,6 +14,8 @@ class coxmatches_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetMatch );
 	CPPUNIT_TEST( testGetMatch );
 	CPPUNIT_TEST( testHasMatch );
+	CPPUNIT_TEST( testStrictMatching );
+	CPPUNIT_TEST( testNonStrictMatching );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -30,5 +32,7 @@ public:
 	void testSetMatch();
 	void testGetMatch();
 	void testHasMatch();
+	void testStrictMatching();
+	void testNonStrictMatching();
 };
 

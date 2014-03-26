@@ -62,21 +62,21 @@ public:
 	 *
 	 */
 	coxmatches(
-			coxmatches const& oxmlist);
+			coxmatches const& oxms);
 
 	/**
 	 *
 	 */
 	coxmatches&
 	operator= (
-			coxmatches const& oxmlist);
+			coxmatches const& oxms);
 
 	/**
 	 *
 	 */
 	bool
 	operator== (
-			coxmatches const& oxmlist);
+			coxmatches const& oxms) const;
 
 
 public:
@@ -171,7 +171,7 @@ public:
 	 */
 	bool
 	contains(
-			coxmatches const& oxmlist,
+			coxmatches const& matches,
 			bool strict = false);
 
 	/**
@@ -179,7 +179,7 @@ public:
 	 */
 	bool
 	is_part_of(
-			coxmatches const& oxmlist,
+			coxmatches const& matches,
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);

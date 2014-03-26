@@ -169,14 +169,14 @@ public:
 	 */
 	bool
 	operator== (
-			coxmatch const& oxm);
+			coxmatch const& oxm) const;
 
 	/**
 	 *
 	 */
 	bool
 	operator!= (
-			coxmatch const& oxm);
+			coxmatch const& oxm) const;
 
 	/**
 	 *
@@ -550,7 +550,7 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<coxmatch_ofb_vlan_vid >" << std::endl;
-		os << indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/" << oxm.get_u16mask() << std::dec << " >" << std::endl;
+		os << indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/0x" << oxm.get_u16mask() << std::dec << " >" << std::endl;
 		return os;
 	};
 };

@@ -53,14 +53,14 @@ coxmatch::operator= (
 
 bool
 coxmatch::operator== (
-		coxmatch const& oxm) {
+		coxmatch const& oxm) const {
 	return cmemory::operator== (oxm);
 }
 
 
 bool
 coxmatch::operator!= (
-		coxmatch const& oxm) {
+		coxmatch const& oxm) const {
 	return cmemory::operator!= (oxm);
 }
 

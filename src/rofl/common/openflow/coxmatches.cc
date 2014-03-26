@@ -36,15 +36,15 @@ coxmatches::coxmatches(
 
 coxmatches&
 coxmatches::operator= (
-		coxmatches const& oxl)
+		coxmatches const& oxms)
 {
-	if (this == &oxl)
+	if (this == &oxms)
 		return *this;
 
 	clear();
 
 	for (std::map<uint32_t, coxmatch>::const_iterator
-			jt = matches.begin(); jt != matches.end(); ++jt) {
+			jt = oxms.matches.begin(); jt != oxms.matches.end(); ++jt) {
 		add_match(jt->second);
 	}
 
@@ -63,9 +63,21 @@ coxmatches::clear()
 
 
 bool
-coxmatches::operator== (coxmatches const& oxmlist)
+coxmatches::operator== (coxmatches const& oxms) const
 {
-	return this->contains(oxmlist, true/*strict*/);
+	if (matches.size() != oxms.matches.size()) {
+		return false;
+	}
+	for (std::map<uint32_t, coxmatch>::const_iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		if (oxms.matches.find(it->first) == oxms.matches.end()) {
+			return false;
+		}
+		if (it->second != oxms.matches.at(it->first)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 
@@ -203,7 +215,7 @@ coxmatches::length() const
 
 bool
 coxmatches::contains(
-	coxmatches const& oxl,
+	coxmatches const& oxms,
 	bool strict /* = false (default) */)
 {
 	/*
@@ -214,39 +226,39 @@ coxmatches::contains(
 	 * all elements in oxl must be present in *this (value of elements), but *this may contain additional OXM TLVs
 	 */
 
-	std::map<uint32_t, coxmatch>&       lmap = matches;
-	std::map<uint32_t, coxmatch> const& rmap = oxl.matches;
-
 	if (strict) {
 		// strict: # of elems for an ofm_class must be the same in oxl for the specific ofm_class
-		if (lmap.size() != rmap.size()) {
+		if (matches.size() != oxms.matches.size()) {
 			return false;
 		}
 	} else  /* non-strict*/ {
 		// non-strict: # of elems for a class must be larger (or equal) the number of elements in oxl
-		if (lmap.size() > rmap.size()) {
+		if (matches.size() > oxms.matches.size()) {
 			return false;
 		}
 	}
 
 	// strict: check all TLVs for specific class in oxl.matches => must exist and have same value
 	for (std::map<uint32_t, coxmatch>::iterator
-			jt = lmap.begin(); jt != lmap.end(); ++jt) {
+			jt = matches.begin(); jt != matches.end(); ++jt) {
 
 		coxmatch& lmatch = (jt->second);
 
+		// keep in mind: match.get_oxm_id() & 0xfffffe00 == jt->first
+
 		// strict: all OXM TLVs must also exist in oxl
-		if (rmap.find(lmatch.get_oxm_field()) == rmap.end()) {
+		if (oxms.matches.find(lmatch.get_oxm_id() & 0xfffffe00) == oxms.matches.end()) {
 			return false;
 		}
 
-		coxmatch const& rmatch = (rmap.find(jt->first)->second);
+		coxmatch const& rmatch = (oxms.matches.find(jt->first)->second);
 
 		// strict: both OXM TLVs must have identical values
 		if (lmatch != rmatch) {
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -255,27 +267,26 @@ coxmatches::contains(
 
 bool
 coxmatches::is_part_of(
-		coxmatches const& oxl,
+		coxmatches const& oxms,
 		uint16_t& exact_hits,
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
 {
 	bool result = true;
 
-	std::map<uint32_t, coxmatch>&       lmap = matches;
-	std::map<uint32_t, coxmatch> const& rmap = oxl.matches;
-
 	for (std::map<uint32_t, coxmatch>::const_iterator
-			jt = rmap.begin(); jt != rmap.end(); ++jt) {
+			jt = oxms.matches.begin(); jt != oxms.matches.end(); ++jt) {
 
 		coxmatch const& rmatch = (jt->second);
 
-		if (lmap.find(rmatch.get_oxm_id()) == lmap.end()) {
+		// keep in mind: match.get_oxm_id() & 0xfffffe00 == jt->first
+
+		if (matches.find(rmatch.get_oxm_id() & 0xfffffe00) == matches.end()) {
 			wildcard_hits++; continue;
 		}
 
-		if (lmap[jt->first] != rmatch) {
-			missed++; result = false;
+		if (matches[jt->first] != rmatch) {
+			missed++; result = false; continue;
 		}
 
 		exact_hits++;
