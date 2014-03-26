@@ -7,11 +7,7 @@
 
 #include "rofl.h"
 
-#if defined(LOCK_INLINE_HDR) && !defined(ROFL_TEST)
-
-#include "lock_inline.h"
-
-#else
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
 
 /**
 * @file lock.h
@@ -145,6 +141,5 @@ void platform_rwlock_wrunlock(platform_rwlock_t* rwlock);
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //PLATFORM_LOCK_INLIE defined
-
+#endif //if
 #endif //PLATFORM_LOCK

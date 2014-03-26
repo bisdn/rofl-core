@@ -12,6 +12,8 @@
 #include "../common/ternary_fields.h"
 #include "../switch_port.h"
 
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
+
 /**
 * @file packet.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -776,4 +778,5 @@ void platform_packet_push_gtp(datapacket_t* pkt);
 //C++ extern C
 ROFL_END_DECLS
 
+#endif //if
 #endif //PLATFORM_PACKET_HOOKS

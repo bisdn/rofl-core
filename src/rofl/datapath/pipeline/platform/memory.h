@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include "rofl.h"
 
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
+
 /**
 * @file memory.h
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
@@ -98,4 +100,5 @@ void* platform_memmove( void* dst, const void* src, size_t length );
 //C++ extern C
 ROFL_END_DECLS
 
+#endif //if 
 #endif /* PLATFORM_MEMORY_H_ */

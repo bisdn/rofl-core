@@ -9,11 +9,7 @@
 #include "rofl.h"
 #include "lock.h"
 
-#if defined(ATOMIC_OPS_INLINE_HDR) && !defined(ROFL_TEST)
-
-#include "atomic_ops_inline.h"
-
-#else
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
 
 /**
 * @file atomic_operations.h
@@ -96,6 +92,5 @@ void platform_atomic_add32(uint32_t* counter, uint32_t value, platform_mutex_t* 
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //ATOMIC_OPS_INLINE_HDR
-
-#endif
+#endif //if
+#endif //__PLATFORM_ATOMIC_OPERATIONS_H__
