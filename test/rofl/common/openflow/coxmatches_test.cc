@@ -442,4 +442,25 @@ coxmatches_test::testNonStrictMatching()
 
 
 
+void
+coxmatches_test::testOxmVlanVidUnpack()
+{
+	rofl::openflow::coxmatches matches;
+
+	rofl::cmemory mem(6);
+	mem[0] = 0x80;
+	mem[1] = 0x00;
+	mem[2] = 0x0c;
+	mem[3] = 0x02;
+	mem[4] = 0x11;
+	mem[5] = 0x12;
+
+	matches.unpack(mem.somem(), mem.memlen());
+
+	std::cerr << "testOxmVlanVidUnpack:" << std::endl;
+	std::cerr << "mem:" << std::endl << mem;
+	std::cerr << "matches:" << std::endl << matches;
+}
+
+
 

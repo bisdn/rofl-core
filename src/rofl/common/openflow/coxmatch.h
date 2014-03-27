@@ -549,8 +549,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<coxmatch_ofb_vlan_vid >" << std::endl;
-		os << indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/0x" << oxm.get_u16mask() << std::dec << " >" << std::endl;
+		os << rofl::indent(2) << "<coxmatch_ofb_vlan_vid >" << std::endl;
+		os << rofl::indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/0x" << (int)oxm.get_u16mask() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -563,7 +563,7 @@ class coxmatch_ofb_vlan_untagged : public coxmatch {
 public:
 	coxmatch_ofb_vlan_untagged() :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_VLAN_VID,
-										(uint8_t)rofl::openflow::OFPVID_NONE) {};
+										(uint16_t)rofl::openflow::OFPVID_NONE) {};
 	coxmatch_ofb_vlan_untagged(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -572,6 +572,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_untagged const& oxm) {
 		os << dynamic_cast<coxmatch_ofb_vlan_vid const&>(oxm);
+		os << rofl::indent(2) << "<vlan-untagged >" << std::endl;
 		return os;
 	};
 };
@@ -584,8 +585,8 @@ class coxmatch_ofb_vlan_present : public coxmatch {
 public:
 	coxmatch_ofb_vlan_present() :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK,
-										(uint8_t)rofl::openflow::OFPVID_PRESENT,
-										(uint8_t)rofl::openflow::OFPVID_PRESENT) {};
+										(uint16_t)rofl::openflow::OFPVID_PRESENT,
+										(uint16_t)rofl::openflow::OFPVID_PRESENT) {};
 	coxmatch_ofb_vlan_present(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -594,6 +595,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_present const& oxm) {
 		os << dynamic_cast<coxmatch_ofb_vlan_vid const&>(oxm);
+		os << rofl::indent(2) << "<vlan-present >" << std::endl;
 		return os;
 	};
 };

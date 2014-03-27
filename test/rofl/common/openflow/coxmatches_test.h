@@ -16,6 +16,7 @@ class coxmatches_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testHasMatch );
 	CPPUNIT_TEST( testStrictMatching );
 	CPPUNIT_TEST( testNonStrictMatching );
+	CPPUNIT_TEST( testOxmVlanVidUnpack );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -34,5 +35,7 @@ public:
 	void testHasMatch();
 	void testStrictMatching();
 	void testNonStrictMatching();
+
+	void testOxmVlanVidUnpack();
 };
 

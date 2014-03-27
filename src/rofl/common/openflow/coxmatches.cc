@@ -109,8 +109,8 @@ coxmatches::unpack(
 
 		add_match(coxmatch(buf, sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length));
 
-		buflen -= (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
-		buf += (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
+		buflen -= ((sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length));
+		buf += ((sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length));
 	}
 }
 

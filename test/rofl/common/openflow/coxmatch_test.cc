@@ -434,7 +434,22 @@ coxmatch_test::test8BytesHasMask()
 
 
 
+void
+coxmatch_test::testOxmIPv4Src()
+{
+	rofl::caddress addr(AF_INET, "192.168.1.2");
+	rofl::caddress mask(AF_INET, "255.255.240.0");
+	rofl::openflow::coxmatch_ofb_ipv4_src oxm(addr, mask);
+	std::cerr << oxm;
+}
 
+
+
+void
+coxmatch_test::testOxmIPv4Dst()
+{
+
+}
 
 
 

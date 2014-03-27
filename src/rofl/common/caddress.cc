@@ -165,6 +165,71 @@ caddress::~caddress()
 }
 
 
+size_t
+caddress::length() const
+{
+	switch (ca_saddr->sa_family) {
+	case AF_INET: 	return sizeof(uint32_t);
+	case AF_INET6: 	return 16*sizeof(uint8_t);
+	case AF_UNIX:	return strlen(ca_suaddr->sun_path);
+	default: return 0;
+	}
+}
+
+
+
+void
+caddress::pack(uint8_t* buf, size_t buflen)
+{
+	if (buflen < length()) {
+		throw eInval();
+	}
+
+	switch (ca_saddr->sa_family) {
+	case AF_INET: {
+		memcpy(buf, (uint8_t*)&(ca_s4addr->sin_addr.s_addr), 4);
+	} break;
+	case AF_INET6: {
+		memcpy(buf, (uint8_t*)ca_s6addr->sin6_addr.s6_addr, 16);
+	} break;
+	case AF_UNIX: {
+		memcpy(buf, (uint8_t*)ca_suaddr->sun_path, strlen(ca_suaddr->sun_path));
+	} break;
+	default:
+		return;
+	}
+}
+
+
+
+void
+caddress::unpack(uint8_t* buf, size_t buflen)
+{
+	unsigned int sa_family = ca_saddr->sa_family;
+
+	if (buflen < length()) {
+		resize(buflen); // FIXME: sizeof(sa_family) must be added
+	}
+
+	ca_saddr->sa_family = sa_family;
+
+	switch (ca_saddr->sa_family) {
+	case AF_INET: {
+		memcpy((uint8_t*)&(ca_s4addr->sin_addr.s_addr), buf, 4);
+	} break;
+	case AF_INET6: {
+		memcpy((uint8_t*)ca_s6addr->sin6_addr.s6_addr, buf, 16);
+	} break;
+	case AF_UNIX: {
+		memcpy((uint8_t*)ca_suaddr->sun_path, buf, (buflen > 108) ? 108 : buflen);
+	} break;
+	default:
+		return;
+	}
+}
+
+
+
 uint8_t*
 caddress::resize(size_t len)
 {

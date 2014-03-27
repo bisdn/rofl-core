@@ -176,6 +176,29 @@ public:
 	~caddress();
 
 
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t* buf, size_t buflen);
+
+
+public:
+
 
 	/**
 	 * @brief	Returns a C-string with the address in ASCII representation ("AF_INET/127.0.0.1:6633").

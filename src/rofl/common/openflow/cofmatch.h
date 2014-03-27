@@ -209,7 +209,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmatch const& m) {
-		os << rofl::indent(0) << "<cofmatch ofp-version:" << m.get_version() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofmatch ofp-version:" << (int)m.get_version() << " >" << std::endl;
 			switch (m.of_version) {
 			case rofl::openflow12::OFP_VERSION:
 			case rofl::openflow13::OFP_VERSION: {

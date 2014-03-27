@@ -97,6 +97,7 @@ coxmatch::set_oxm_id(uint32_t oxm_id) {
 }
 
 
+
 uint32_t
 coxmatch::get_oxm_id() const {
 	if (memlen() < sizeof(struct ofp_oxm_tlv_hdr))
@@ -105,6 +106,52 @@ coxmatch::get_oxm_id() const {
 			(struct rofl::openflow::ofp_oxm_tlv_hdr*)somem();
 	return be32toh(oxm->oxm_id);
 }
+
+
+
+
+
+
+
+
+
+/*
+ * these are special beasts: used for 4bytes and 16bytes as well
+ */
+coxmatch::coxmatch(
+		uint32_t oxm_id, rofl::caddress const& value) :
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr))
+{
+	if (value.is_af_inet()) {
+		resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) +  4*sizeof(uint8_t));
+		set_u32value(value);
+	}
+	if (value.is_af_inet6()) {
+		resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t));
+		set_u128value(value);
+	}
+	set_oxm_id(oxm_id);
+}
+
+
+coxmatch::coxmatch(
+		uint32_t oxm_id, rofl::caddress const& value, rofl::caddress const& mask) :
+				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t))
+{
+	if (value.is_af_inet()) {
+		resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2* 4*sizeof(uint8_t));
+		set_u32value(value);
+		set_u32mask(mask);
+	}
+	if (value.is_af_inet6()) {
+		resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t));
+		set_u128value(value);
+		set_u128mask(mask);
+	}
+	set_oxm_id(oxm_id);
+}
+
+
 
 
 /*
@@ -546,24 +593,10 @@ coxmatch::get_u48masked_value() const {
 /*
  * 16 bytes
  */
-coxmatch::coxmatch(
-		uint32_t oxm_id, rofl::caddress const& value) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t))
-{
-	set_oxm_id(oxm_id);
-	set_u128value(value);
-}
 
-
-coxmatch::coxmatch(
-		uint32_t oxm_id, rofl::caddress const& value, rofl::caddress const& mask) :
-				rofl::cmemory(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t))
-{
-	set_oxm_id(oxm_id);
-	set_u128value(value);
-	set_u128mask(mask);
-}
-
+//
+// for caddress based constructors, see above
+//
 
 void
 coxmatch::set_u128value(rofl::caddress const& value) {
@@ -571,7 +604,7 @@ coxmatch::set_u128value(rofl::caddress const& value) {
 		throw eOxmInval();
 	struct rofl::openflow::ofp_oxm_ofb_ipv6_addr* oxm =
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
-	memcpy(oxm->addr, value.somem(), 16);
+	memcpy(oxm->addr, value.ca_s6addr->sin6_addr.s6_addr, 16);
 }
 
 
@@ -581,7 +614,7 @@ coxmatch::set_u128mask(rofl::caddress const& mask) {
 		throw eOxmInval();
 	struct rofl::openflow::ofp_oxm_ofb_ipv6_addr* oxm =
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
-	memcpy(oxm->mask, mask.somem(), 16);
+	memcpy(oxm->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
 }
 
 
@@ -593,7 +626,7 @@ coxmatch::get_u128value() const {
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
 	caddress addr(AF_INET6);
 	addr.ca_s6addr->sin6_family = AF_INET6;
-	memcpy(addr.somem(), oxm->addr, 16);
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm->addr, 16);
 	return addr;
 }
 
@@ -606,7 +639,7 @@ coxmatch::get_u128mask() const {
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
 	caddress mask(AF_INET6);
 	mask.ca_s6addr->sin6_family = AF_INET6;
-	memcpy(mask.somem(), oxm->mask, 16);
+	memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxm->mask, 16);
 	return mask;
 }
 
@@ -619,10 +652,10 @@ coxmatch::get_u128masked_value() const {
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
 	caddress addr(AF_INET6);
 	addr.ca_s6addr->sin6_family = AF_INET6;
-	memcpy(addr.somem(), oxm->addr, 16);
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm->addr, 16);
 	caddress mask(AF_INET6);
 	mask.ca_s6addr->sin6_family = AF_INET6;
-	memcpy(mask.somem(), oxm->mask, 16);
+	memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxm->mask, 16);
 	return (addr & mask);
 }
 
