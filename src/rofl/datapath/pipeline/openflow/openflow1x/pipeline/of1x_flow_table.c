@@ -1,6 +1,7 @@
 #include "of1x_flow_table.h"
 
 #include "../../../platform/likely.h"
+#include "../../../platform/lock.h"
 #include "../../../util/logging.h"
 
 #include "of1x_group_table.h"

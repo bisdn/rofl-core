@@ -1,6 +1,7 @@
 #include "switch_port.h"
 
 #include <string.h>
+#include "platform/lock.h"
 #include "platform/memory.h"
 #include "openflow/of_switch.h"
 

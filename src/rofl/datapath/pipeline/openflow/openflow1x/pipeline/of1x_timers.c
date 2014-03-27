@@ -4,6 +4,7 @@
 #include "of1x_flow_entry.h"
 
 #include "../../../platform/memory.h"
+#include "../../../platform/lock.h"
 #include "../../../platform/likely.h"
 #include "../../../platform/timing.h"
 #include "../../../util/logging.h"

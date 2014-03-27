@@ -1,6 +1,8 @@
 #include "monitoring.h"
 #include <assert.h>
 #include <string.h>
+#include "platform/atomic_operations.h"
+#include "platform/lock.h"
 #include "platform/memory.h"
 #include "util/logging.h"
 
@@ -375,3 +377,12 @@ monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitor
 
 	return sn;
 }
+
+/**
+* @brief Update(inc atomically) the rev counter
+* @ingroup  mgmt
+*/
+void monitoring_state_inc_rev(monitoring_state_t* mon){
+	platform_atomic_inc64(&mon->last_rev, mon->mutex);
+}
+

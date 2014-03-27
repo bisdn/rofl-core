@@ -7,6 +7,7 @@
 #include <assert.h> 
 #include "../../../util/logging.h"
 #include "../../../platform/likely.h"
+#include "../../../platform/memory.h"
 
 /* Instructions init and destroyers */ 
 static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table){
@@ -24,8 +25,6 @@ static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_t
 		inst->go_to_table = go_to_table;
 	
 }
-
-
 
 static void __of1x_destroy_instruction(of1x_instruction_t* inst){
 	//Check if empty	
@@ -118,42 +117,6 @@ bool __of1x_instructions_contain_group(of1x_flow_entry_t *const entry, const uns
 		|| __of1x_apply_actions_has(entry->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions,OF1X_AT_GROUP,group_id);
 }
 
-/* Process instructions */
-unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of1x_instruction_group_t* instructions){
-
-	unsigned int i;
-
-	for(i=0;i<OF1X_IT_MAX;i++){
-	
-		//Check all instructions in order 
-		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
-					break;
-    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(&pkt->write_actions.of1x);
-					break;
-			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(&pkt->write_actions.of1x, instructions->instructions[i].write_actions);
-					break;
-    			case OF1X_IT_WRITE_METADATA:
-				{
-					packet_matches_t* matches = &pkt->matches;
-					matches->metadata = 	(matches->metadata | ~instructions->instructions[i].write_metadata.metadata_mask) &
-								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
-				}
-					break;
-			case OF1X_IT_EXPERIMENTER: //TODO:
-					break;
-			case OF1X_IT_METER: //TODO:
-					break;
-    			case OF1X_IT_GOTO_TABLE: return instructions->instructions[i].go_to_table; 
-					break;
-				
-			default: //Empty instruction 
-				break;
-		}
-	}		
-
-	return 0; //NO go-to-table
-}
 
 //Copy (clone) instructions: TODO evaluate if is necessary to check for errors
 void __of1x_copy_instruction_group(of1x_instruction_group_t* origin, of1x_instruction_group_t* dest){

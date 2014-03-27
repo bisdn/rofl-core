@@ -10,17 +10,13 @@ cat <<EOF
  */
 
 #include "matching_algorithms.h"
-#include "matching_algorithms_available.h"
+#include "available_ma.h"
 
 EOF
 
 # write the includes
 for ALG in "$@"; do
-	if test -d $SRCDIR/$ALG; then
-		echo "#include \"${ALG}/of1x_${ALG}_match.h\""
-	else
-		echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_match.h>"
-	fi
+	echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_ma.h>"
 done
 
 # print extern for matching algorithms 

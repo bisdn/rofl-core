@@ -7,12 +7,6 @@
 
 #include "rofl.h"
 
-#if defined(LOCK_INLINE_HDR) && !defined(ROFL_TEST)
-
-#include "lock_inline.h"
-
-#else
-
 /**
 * @file lock.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -34,6 +28,8 @@
 
 typedef void platform_mutex_t;
 typedef void platform_rwlock_t;
+
+#if defined(__COMPILING_ROFL_PIPELINE__) || !defined(ROFL_PIPELINE_PP_PRESENT) || !defined(ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS)
 
 //C++ extern C
 ROFL_BEGIN_DECLS
@@ -145,6 +141,5 @@ void platform_rwlock_wrunlock(platform_rwlock_t* rwlock);
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //PLATFORM_LOCK_INLIE defined
-
+#endif //if
 #endif //PLATFORM_LOCK

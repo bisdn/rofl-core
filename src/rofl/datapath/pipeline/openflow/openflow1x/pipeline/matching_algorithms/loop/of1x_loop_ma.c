@@ -1,4 +1,4 @@
-#include "of1x_loop_match.h"
+#include "of1x_loop_ma.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -11,6 +11,7 @@
 #include "../../../of1x_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
 #include "../../../../../platform/likely.h"
+#include "../../../../../platform/memory.h"
 #include "../matching_algorithms.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
@@ -407,44 +408,6 @@ rofl_result_t of1x_remove_flow_entry_loop(of1x_flow_table_t *const table , of1x_
 	return result;
 }
 
-	
-/* FLOW entry lookup entry point */ 
-of1x_flow_entry_t* of1x_find_best_match_loop(of1x_flow_table_t *const table, packet_matches_t *const pkt_matches){
-	
-	of1x_match_t* it;
-	of1x_flow_entry_t *entry;
-
-	//Prevent writers to change structure during matching
-	platform_rwlock_rdlock(table->rwlock);
-	
-	//Table is sorted out by nº of hits and priority N. First full match => best_match 
-	for(entry = table->entries;entry!=NULL;entry = entry->next){
-		bool matched = true;
-		
-		for( it=entry->matches.head ; it ; it=it->next ){
-			if(!__of1x_check_match(pkt_matches, it)){
-				matched = false;
-				break;
-			}
-		}
-
-		if(matched){
-			//Lock writers to modify the entry while packet processing. WARNING!!!! this must be released by the pipeline, once packet is processed!
-			platform_rwlock_rdlock(entry->rwlock);
-
-			//Green light for writers
-			platform_rwlock_rdunlock(table->rwlock);
-			return entry;
-		}
-	}
-	
-	//No match
-	//Green light for writers
-	platform_rwlock_rdunlock(table->rwlock);
-	return NULL; 
-}
-
-
 /*
 *
 * Statistics
@@ -606,9 +569,10 @@ OF1X_REGISTER_MATCHING_ALGORITHM(loop) = {
 	.modify_flow_entry_hook = of1x_modify_flow_entry_loop,
 	.remove_flow_entry_hook = of1x_remove_flow_entry_loop,
 
+#if 0
 	//Find best match
-	.find_best_match_hook = of1x_find_best_match_loop,
-
+	.find_best_match_hook = of1x_find_best_match_loop_ma,
+#endif
 	//Stats
 	.get_flow_stats_hook = of1x_get_flow_stats_loop,
 	.get_flow_aggregate_stats_hook = of1x_get_flow_aggregate_stats_loop,

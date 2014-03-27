@@ -13,8 +13,7 @@
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_table.h"
-#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.h"
-#include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_match.h"
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 
 
 /* Setup/teardown */

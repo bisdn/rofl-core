@@ -10,7 +10,6 @@
 
 #include "rofl.h"
 #include "../../../common/ternary_fields.h"
-#include "../../../platform/lock.h"
 #include "of1x_match.h"
 #include "of1x_instruction.h"
 #include "of1x_timers.h"

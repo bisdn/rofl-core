@@ -122,12 +122,6 @@ typedef struct packet_matches{
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-//Init packet matches
-void __init_packet_matches(struct datapacket *const pkt);
-
-//Update packet matches after applying actions 
-void __update_packet_matches(struct datapacket *const pkt);
-
 /**
  * @brief Dump the values of packet (header values)  
  * @ingroup core_of1x

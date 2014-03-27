@@ -18,12 +18,12 @@
 
 #include "rofl.h"
 #include "port_queue.h"
-#include "platform/lock.h"
 #include "common/bitmap.h"
 
 
 //fwd decl
 struct of_switch;
+typedef void platform_mutex_t;
 
 #define SW_PORT_ETH_ALEN 6
 #define SWITCH_PORT_MAX_LEN_NAME 32

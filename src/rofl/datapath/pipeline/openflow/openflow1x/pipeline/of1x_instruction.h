@@ -157,20 +157,9 @@ bool __of1x_instructions_contain_group(struct of1x_flow_entry *const entry, cons
 //Copy (clone) instructions: TODO evaluate if is necessary to check for errors
 void __of1x_copy_instruction_group(of1x_instruction_group_t* origin, of1x_instruction_group_t* dest);
 
-unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of1x_instruction_group_t* instructions);
-
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value);
 
 rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline, unsigned int table_id);
-
-static inline bool  __of1x_process_instructions_must_replicate(const of1x_instruction_group_t* inst_grp){
-
-	bool has_goto = inst_grp->instructions[OF1X_IT_GOTO_TABLE].type == OF1X_IT_GOTO_TABLE;
-	unsigned int n_out = inst_grp->num_of_outputs; 
-
-	return  ( (n_out == 1) && (has_goto) ) ||
-		( n_out > 1); 
-}
 
 //Dump
 void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo);

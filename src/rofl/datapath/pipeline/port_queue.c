@@ -1,4 +1,5 @@
 #include "port_queue.h"
+#include "platform/lock.h"
 #include "platform/memory.h"
 
 #include <string.h>

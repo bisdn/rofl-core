@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "CUnit/Basic.h"
+#include "rofl/datapath/pipeline/openflow/of_switch_pp.h"
 #include "test_bufs.h"
 #include "io.h"
 
@@ -13,8 +14,8 @@ int bufs_set_up(void){
 	
 	physical_switch_init();
 
-	enum of1x_matching_algorithm_available ma_list[4]={of1x_matching_algorithm_loop, of1x_matching_algorithm_loop,
-	of1x_matching_algorithm_loop, of1x_matching_algorithm_loop};
+	enum of1x_matching_algorithm_available ma_list[4]={of1x_loop_matching_algorithm, of1x_loop_matching_algorithm,
+	of1x_loop_matching_algorithm, of1x_loop_matching_algorithm};
 
 	//Create instance	
 	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101, 4, ma_list);

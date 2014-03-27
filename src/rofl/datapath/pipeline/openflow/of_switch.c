@@ -6,7 +6,7 @@
 #include "openflow1x/pipeline/of1x_pipeline.h"
 //Add more here...
 
-#include "openflow1x/pipeline/matching_algorithms/matching_algorithms_available.h"
+#include "openflow1x/pipeline/matching_algorithms/matching_algorithms.h"
 
 
 //Wrapping destroy 

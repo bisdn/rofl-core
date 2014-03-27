@@ -2,6 +2,7 @@
 #include <string.h>
 #include "CUnit/Basic.h"
 
+#include "pp_isolation.h"
 #include "group_table.h"
 #include "timers_hard_timeout.h"
 #include "output_actions.h"
@@ -11,6 +12,7 @@ int main(int args, char** argv){
 	int return_code;
 	//main to call all the other tests written in the oder files in this folder
 	CU_pSuite output_suite = NULL, timers_hard_suite=NULL;
+	CU_pSuite pp_isolation = NULL; 
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry())
@@ -61,6 +63,13 @@ int main(int args, char** argv){
 		CU_cleanup_registry();
 		return CU_get_error();
 	}
+
+	pp_isolation = CU_add_suite("Packet processing API isolation", NULL, NULL);
+	if ((NULL == CU_add_test(pp_isolation, "Packet processing API isolation", pp_test)) ){
+		CU_cleanup_registry();
+		return CU_get_error();
+	}
+
 
 	/* Run all tests using the CUnit Basic interface */
 	CU_basic_set_mode(CU_BRM_VERBOSE);
