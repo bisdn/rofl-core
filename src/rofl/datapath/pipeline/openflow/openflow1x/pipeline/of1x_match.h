@@ -123,7 +123,7 @@ typedef enum{
 }of1x_match_type_t;
 
 //Specific flags for vlans
-enum vlan_present{
+enum of1x_vlan_present{
 	OF1X_MATCH_VLAN_NONE=0,
 	OF1X_MATCH_VLAN_ANY=1,
 	OF1X_MATCH_VLAN_SPECIFIC=2,
@@ -148,7 +148,7 @@ typedef struct of1x_match{
 	of1x_ver_req_t ver_req;
 	
 	//VLAN only (blame OF spec)
-	enum vlan_present vlan_present;
+	enum of1x_vlan_present vlan_present;
 	
 	//OF1.0 only
 	bool has_wildcard;
@@ -229,7 +229,7 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value);
 * @brief Create an VLAN_VID match according to 1.2 semantics (13th bit is a flag) 
 * @ingroup core_of1x 
 */
-of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum vlan_present vlan_present);
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum of1x_vlan_present vlan_present);
 
 /**
 * @brief Create an VLAN_PCP match 

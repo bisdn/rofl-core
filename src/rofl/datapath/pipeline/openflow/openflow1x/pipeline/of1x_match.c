@@ -146,7 +146,7 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value){
 }
 
 //8021.q
-of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum vlan_present vlan_present){
+of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum of1x_vlan_present vlan_present){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
