@@ -754,11 +754,11 @@ static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, co
 */
 static inline void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
 
-	int i,j;
+	unsigned int i,j;
 
 	of1x_write_actions_t* write_actions = &pkt->write_actions.of1x;	
 
-	for(i=0,j=0;i<write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
+	for(i=0,j=0;(i<write_actions->num_of_actions) && (j < OF1X_AT_NUMBER);j++){
 		if( bitmap128_is_bit_set(&write_actions->bitmap,j) ){
 			//Process action
 			__of1x_process_packet_action(sw, table_id, pkt, &write_actions->actions[j], replicate_pkts);	
