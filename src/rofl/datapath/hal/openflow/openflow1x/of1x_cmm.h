@@ -25,7 +25,7 @@
 HAL_BEGIN_DECLS
 
 /**
- * @name    cmm_process_of1x_packet_in
+ * @name    hal_cmm_process_of1x_packet_in
  * @brief   Instructs the CMM to process a PACKET_IN event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
@@ -39,7 +39,7 @@ HAL_BEGIN_DECLS
  * @param total_len total length of buffer
  * @param matches OF1.2 packet matches
  */
-hal_result_t cmm_process_of1x_packet_in(uint64_t dpid, 
+hal_result_t hal_cmm_process_of1x_packet_in(uint64_t dpid, 
 					uint8_t table_id, 
 					uint8_t reason,
 					uint32_t in_port,
@@ -50,7 +50,7 @@ hal_result_t cmm_process_of1x_packet_in(uint64_t dpid,
 					packet_matches_t* matches);
 
 /**
- * @name    cmm_process_of1x_flow_removed
+ * @name    hal_cmm_process_of1x_flow_removed
  * @brief   Instructs the CMM to process a FLOW_REMOVED event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
@@ -58,7 +58,7 @@ hal_result_t cmm_process_of1x_packet_in(uint64_t dpid,
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
  * removed (of1x_remove_flow_entry). This is done by the fwd_module itself.
  */
-hal_result_t cmm_process_of1x_flow_removed(uint64_t dpid, 	
+hal_result_t hal_cmm_process_of1x_flow_removed(uint64_t dpid, 	
 					uint8_t reason, 
 					of1x_flow_entry_t* removed_flow_entry);
 
