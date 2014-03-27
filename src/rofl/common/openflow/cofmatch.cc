@@ -56,34 +56,6 @@ cofmatch::operator== (
 
 
 size_t
-cofmatch::length_with_padding()
-{
-	switch (of_version) {
-	case rofl::openflow10::OFP_VERSION: {
-		return openflow10::OFP_MATCH_STATIC_LEN;
-	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
-		/*
-		 * returns length of struct ofp_match including padding
-		 */
-		size_t match_len = 2 * sizeof(uint16_t); // first two 16bit fields in struct ofp_match
-
-		match_len += matches.length();
-
-		if (0 != (match_len % sizeof(uint64_t))) {
-			match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
-		}
-		return match_len;
-	} break;
-	default:
-		throw eBadVersion();
-	}
-	return 0;
-}
-
-
-size_t
 cofmatch::length() const
 {
 	switch (of_version) {
