@@ -9,20 +9,20 @@
 #include <rofl/datapath/pipeline/common/packet_matches.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/of1x_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.h>
-#include "../../afa.h"
-#include "../../afa_utils.h"
+#include "../../hal.h"
+#include "../../hal_utils.h"
 
 /*
 * of1x_cmm.h
 *
-* OF1X related operations exposed by the cmm to the forwarding module 
+* OF1X related operations exposed by the cmm to the driver 
 *
 * Created on: 12.11.2012 
 * 	Author: msune
 */
 
 //C++ extern C
-AFA_BEGIN_DECLS
+HAL_BEGIN_DECLS
 
 /**
  * @name    cmm_process_of1x_packet_in
@@ -39,7 +39,7 @@ AFA_BEGIN_DECLS
  * @param total_len total length of buffer
  * @param matches OF1.2 packet matches
  */
-afa_result_t cmm_process_of1x_packet_in(uint64_t dpid, 
+hal_result_t cmm_process_of1x_packet_in(uint64_t dpid, 
 					uint8_t table_id, 
 					uint8_t reason,
 					uint32_t in_port,
@@ -58,12 +58,12 @@ afa_result_t cmm_process_of1x_packet_in(uint64_t dpid,
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
  * removed (of1x_remove_flow_entry). This is done by the fwd_module itself.
  */
-afa_result_t cmm_process_of1x_flow_removed(uint64_t dpid, 	
+hal_result_t cmm_process_of1x_flow_removed(uint64_t dpid, 	
 					uint8_t reason, 
 					of1x_flow_entry_t* removed_flow_entry);
 
 //C++ extern C
-AFA_END_DECLS
+HAL_END_DECLS
 
 #endif /* OF1X_CMM_H */
 
