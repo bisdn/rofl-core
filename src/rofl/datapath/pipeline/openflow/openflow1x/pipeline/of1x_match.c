@@ -1372,7 +1372,7 @@ void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_TYPE:0x%x], ",COND_NTOHB16(nbo,it->value->value.u16));
 				break; 
 
-			case OF1X_MATCH_VLAN_VID:  	if(!(it->value->value.u16&OF1X_VLAN_PRESENT_MASK))
+			case OF1X_MATCH_VLAN_VID:  	if(it->vlan_present == false)
 								ROFL_PIPELINE_INFO_NO_PREFIX("[NO_VLAN], ");
 							else
 								ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_ID:%u|0x%x], ",COND_NTOHB16(nbo,it->value->value.u16)&OF1X_VLAN_ID_MASK,COND_NTOHB16(nbo,it->value->mask.u16));
