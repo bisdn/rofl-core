@@ -119,7 +119,7 @@ cofmatch::pack_of10(uint8_t* buf, size_t buflen)
 
 	// in_port
 	if (matches.has_match(OXM_TLV_BASIC_IN_PORT)) {
-		m->in_port = htobe16((uint16_t)(matches.get_match(OXM_TLV_BASIC_IN_PORT).get_u32value() && 0x0000ffff));
+		m->in_port = htobe16((uint16_t)(matches.get_match(OXM_TLV_BASIC_IN_PORT).get_u32value() & 0x0000ffff));
 	} else {
 		wildcards |= rofl::openflow10::OFPFW_IN_PORT;
 	}
