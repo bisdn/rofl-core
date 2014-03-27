@@ -4,7 +4,7 @@ AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen])
 #Always distribute these files
 AC_CONFIG_FILES([doc/doxyfile-common.conf])	
 AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
-AC_CONFIG_FILES([doc/doxyfile-afa.conf])
+AC_CONFIG_FILES([doc/doxyfile-hal.conf])
 
 #Set conditional
 AM_CONDITIONAL([have_doxygen], [test -n "$DOXYGEN"])

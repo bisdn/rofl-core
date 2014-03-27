@@ -107,7 +107,7 @@ sh# sudo make install
 * @code
 --enable-debug: Compile with debug symbols (@-g@) and debug output (warning, it may affect performance).
 --disable-silent-rules: Enable verbose compilation mode (@AM_SILENT_RULES@ disabled)
---enable-doc: Generate documentation along with compilation (for @ROFL@, @ROFL-pipeline@ and @ROFL-afa@). Make sure Doxygen and other dependencies are installed.
+--enable-doc: Generate documentation along with compilation (for @ROFL@, @ROFL-pipeline@ and @ROFL-hal@). Make sure Doxygen and other dependencies are installed.
 * @endcode
 *
 * @subsection doc_xdpd Extensible Data Path Daemon
@@ -157,7 +157,7 @@ b>) in <a href="https://www.bisdn.de">BISDN</a>, like the UNIX, Network procesor
 *  
 * @subsubsection how_can How can ROFL-pipeline library be used
 *
-*  - As the <b>forwarding engine of an Openflow software switch</b>: take a look at xDP software switch that uses ROFL-pipeline for its forwarding modules. 
+*  - As the <b>forwarding engine of an Openflow software switch</b>: take a look at xDP software switch that uses ROFL-pipeline in its platform drivers. 
 *  - To <b>keep the state of the forwarding backend</b> and <b>process flow entry expirations</b> and/or <b>some packets</b> in <b>hybrid hardware/software switches</b>: typically hardware switches that do not support
 *    all of the capabilities exposed by Openflow, and some must be done in software within embedded systems. 
 *  - To <b>only keep the state of the forwarding backend (Openflow configuration)</b> of Openflow Hardware switches: generally to be used by the Openflow endpoint(s)
@@ -195,7 +195,7 @@ xDP for a complete Openflow-enabled Forwarding Backend that uses ROFL-pipeline.
 * TODO...
 * @subsection rel_proj Related projects:
 *
-*  TODO: ROFL, xDP, ROFL-AFA (Abstract Forwarding API)
+*  TODO: ROFL, xDP, ROFL-HAL (Abstract Forwarding API)
 *
 * @subsection author Authors:
 *  - Marc Sune Clos <marc.sune (at) bisdn.de>

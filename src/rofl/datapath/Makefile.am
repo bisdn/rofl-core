@@ -1,3 +1,3 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = afa pipeline
+SUBDIRS = hal pipeline

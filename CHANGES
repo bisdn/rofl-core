@@ -29,6 +29,7 @@ v0.4-devel
       be used anymore
 [+][common] Added OF13 support to various statistics classes including support for duration fields
 
+[+][hal] Renamed old Abstract Forwarding API (afa) to Hardware Abstraction Layer (hal). Renamed Forwarding module(fwd_module) to Driver (driver)
 
 [+][pipeline] Added flow_mod fast validation against flow table and group table capabilities
 [+][pipeline] Added support for send_len on OUTPUT actions to CONTROLLER meta-port 
