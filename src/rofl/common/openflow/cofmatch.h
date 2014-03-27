@@ -173,13 +173,6 @@ public:
 
 private:
 
-
-	/**
-	 *
-	 */
-	size_t
-	length_with_padding();
-
 	/**
 	 *
 	 */
