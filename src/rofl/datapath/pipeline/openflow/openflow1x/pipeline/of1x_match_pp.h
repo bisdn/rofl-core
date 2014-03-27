@@ -62,12 +62,11 @@ static inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t*
    		case OF1X_MATCH_ETH_TYPE: return __utern_compare16(it->value, &pkt->eth_type);
 		
 		//802.1q
-   		case OF1X_MATCH_VLAN_VID: 
-					if( it->vlan_present != pkt->has_vlan )
-						return false;
-					return __utern_compare16(it->value, &pkt->vlan_vid);
-   		case OF1X_MATCH_VLAN_PCP: if(!pkt->has_vlan) return false;
-					return __utern_compare8(it->value, &pkt->vlan_pcp);
+   		case OF1X_MATCH_VLAN_VID: if( it->vlan_present == OF1X_MATCH_VLAN_SPECIFIC )
+						return pkt->has_vlan && __utern_compare16(it->value, &pkt->vlan_vid);
+					  else
+						return pkt->has_vlan == it->vlan_present;
+   		case OF1X_MATCH_VLAN_PCP: return pkt->has_vlan &&  __utern_compare8(it->value, &pkt->vlan_pcp);
 
 		//MPLS
    		case OF1X_MATCH_MPLS_LABEL: if(!(pkt->eth_type == ETH_TYPE_MPLS_UNICAST || pkt->eth_type == ETH_TYPE_MPLS_MULTICAST )) return false;

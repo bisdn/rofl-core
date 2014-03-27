@@ -5,8 +5,8 @@
 #ifndef CMM__H
 #define CMM__H 
 
-#include "afa.h"
-#include "afa_utils.h"
+#include "hal.h"
+#include "hal_utils.h"
 #include <rofl/datapath/pipeline/monitoring.h>
 
 /**
@@ -15,7 +15,7 @@
 */
 
 //C++ extern C
-AFA_BEGIN_DECLS
+HAL_BEGIN_DECLS
 
 /**
 * @name    cmm_notify_port_add
@@ -23,7 +23,7 @@ AFA_BEGIN_DECLS
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
+hal_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_delete
@@ -31,7 +31,7 @@ afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
+hal_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_status_changed
@@ -39,7 +39,7 @@ afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_status_changed(switch_port_snapshot_t* port_snapshot);
+hal_result_t cmm_notify_port_status_changed(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_monitoring_state_changed
@@ -47,10 +47,10 @@ afa_result_t cmm_notify_port_status_changed(switch_port_snapshot_t* port_snapsho
 * @param monitoring_snapshot Snapshot of the current monitoring state. The snapshot MUST be deleted using monitoring_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_monitoring_state_changed(monitoring_snapshot_state_t* monitoring_snapshot);
+hal_result_t cmm_notify_monitoring_state_changed(monitoring_snapshot_state_t* monitoring_snapshot);
 
 //C++ extern C
-AFA_END_DECLS
+HAL_END_DECLS
 
 /* OpenFlow related events */
 #include "openflow/openflow1x/of1x_cmm.h"

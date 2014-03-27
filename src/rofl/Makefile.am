@@ -7,9 +7,9 @@ PIPELINE_DIRS=datapath/pipeline
 endif
 
 if ONLY_C_CODE
-SUBDIRS = datapath/afa $(PIPELINE_DIRS)
+SUBDIRS = datapath/hal $(PIPELINE_DIRS)
 else
-SUBDIRS = common datapath/afa $(PIPELINE_DIRS) platform
+SUBDIRS = common datapath/hal $(PIPELINE_DIRS) platform
 LIBS_ROFL=common/librofl_common.la platform/libplatform.la
 endif
 
