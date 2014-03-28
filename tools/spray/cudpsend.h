@@ -8,21 +8,14 @@
 #ifndef CUDPSEND_H_
 #define CUDPSEND_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <rofl.h>
 #include <pthread.h>
-#include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 #include <exception>
-
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/csocket.h>
 #include <rofl/common/thread_helper.h>
+#include <inttypes.h>
 
 #include "cudpmsg.h"
 
