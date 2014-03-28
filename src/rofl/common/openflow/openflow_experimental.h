@@ -61,14 +61,14 @@ namespace experimental {
 
 	/* OXM Flow match field types for OpenFlow basic class. */
 	enum oxm_tlv_match_fields {
-		OXM_TLV_EXPR_NW_SRC			= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_SRC << 9)	|  8,	/* IPv4 source address. */				// required
-		OXM_TLV_EXPR_NW_SRC_MASK	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_SRC << 9)	| 12 | HAS_MASK_FLAG,
-		OXM_TLV_EXPR_NW_DST			= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_DST << 9)	|  8,	/* IPv4 destination address. */			// required
-		OXM_TLV_EXPR_NW_DST_MASK	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_DST << 9)	| 12 | HAS_MASK_FLAG,
-		OXM_TLV_EXPR_NW_PROTO		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_PROTO << 9) 	|  5,
-		OXM_TLV_EXPR_NW_TOS	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_TOS << 9) 	|  5,	/* OF10 pseudo. NW-TOS */
-		OXM_TLV_EXPR_TP_SRC	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_TP_SRC << 9) 	|  6,	/* OF10 pseudo. TP-SRC */
-		OXM_TLV_EXPR_TP_DST	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_TP_DST << 9) 	|  6,	/* OF10 pseudo. TP-DST */
+		OXM_TLV_EXPR_NW_SRC			= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_SRC << 9)	|  4,	/* IPv4 source address. */				// required
+		OXM_TLV_EXPR_NW_SRC_MASK	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_SRC << 9)	|  8 | HAS_MASK_FLAG,
+		OXM_TLV_EXPR_NW_DST			= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_DST << 9)	|  4,	/* IPv4 destination address. */			// required
+		OXM_TLV_EXPR_NW_DST_MASK	= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_DST << 9)	|  8 | HAS_MASK_FLAG,
+		OXM_TLV_EXPR_NW_PROTO		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_PROTO << 9) 	|  1,
+		OXM_TLV_EXPR_NW_TOS	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_NW_TOS << 9) 	|  1,	/* OF10 pseudo. NW-TOS */
+		OXM_TLV_EXPR_TP_SRC	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_TP_SRC << 9) 	|  2,	/* OF10 pseudo. TP-SRC */
+		OXM_TLV_EXPR_TP_DST	 		= (OFPXMC_EXPERIMENTER << 16) | (OFPXMT_OFX_TP_DST << 9) 	|  2,	/* OF10 pseudo. TP-DST */
 	};
 
 }; // end of namespace experimental
