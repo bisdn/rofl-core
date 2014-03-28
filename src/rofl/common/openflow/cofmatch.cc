@@ -247,9 +247,7 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 
 	// dl_vlan
 	if (!(wildcards & rofl::openflow10::OFPFW_DL_VLAN)) {
-		if (m->dl_vlan != rofl::openflow10::OFPVID_NONE) {
-			matches.add_match(coxmatch_ofb_vlan_vid(be16toh(m->dl_vlan)));
-		}
+		matches.add_match(coxmatch_ofb_vlan_vid(be16toh(m->dl_vlan)));
 	}
 
 	// dl_vlan_pcp
