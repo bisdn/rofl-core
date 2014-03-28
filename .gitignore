@@ -34,5 +34,6 @@ test-driver
 /build/*
 
 src/rofl_pipeline.h
+src/rofl_config.h.in
 
 !.gitignore
