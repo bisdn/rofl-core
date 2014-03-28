@@ -13,6 +13,7 @@
 #ifndef __ROFL_H__
 #define __ROFL_H__
 
+#include "rofl_config.h"
 #include <stdlib.h>
 #include "rofl_pipeline.h"
 

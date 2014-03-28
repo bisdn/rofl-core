@@ -6,7 +6,7 @@ AC_ARG_ENABLE(verbose,
 
 if test "$verbose_debug" = "yes"; then
 	AC_MSG_RESULT(yes)
-	AC_DEFINE(VERBOSE_DEBUG)
+	AC_DEFINE([VERBOSE_DEBUG], [], [Description])
 else
 	AC_MSG_RESULT(no)
 fi

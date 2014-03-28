@@ -1,6 +1,8 @@
 AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl)
+AC_CONFIG_HEADERS([src/rofl_config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR([m4])
+
 AC_GNU_SOURCE
 
 AC_PROG_INSTALL
@@ -13,13 +15,14 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AUTOCONF_ENV="SHELL=/bin/sh"
 
+
 LT_INIT
 AC_ENABLE_STATIC
 
 # default flags
 CFLAGS="-Werror -Wall $CFLAGS"
 CXXFLAGS="-Werror -Wall $CXXFLAGS"
-AC_DEFINE(__STDC_FORMAT_MACROS)
+AC_DEFINE([__STDC_FORMAT_MACROS], [], [Description])
 
 # Debug
 m4_include([config/debug.m4])

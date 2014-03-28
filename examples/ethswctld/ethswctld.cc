@@ -1,3 +1,4 @@
+#include "rofl_config.h"
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
 #ifdef HAVE_OPENSSL

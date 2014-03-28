@@ -5,6 +5,7 @@
 #ifndef __ENDIANNESS_H__
 #define __ENDIANNESS_H__
 
+#include "rofl_config.h"
 #include <stdint.h>
 
 /*

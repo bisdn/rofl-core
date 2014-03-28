@@ -11,7 +11,7 @@ if test "$without_pipeline" = "yes"; then
 	PIPELINE_SUPPORT="no"
 else
 	PIPELINE_SUPPORT="yes"
-	AC_DEFINE(PIPELINE_SUPPORT)
+	AC_DEFINE([PIPELINE_SUPPORT], [], [Description])
 fi
 
 #Fancy message
@@ -90,7 +90,7 @@ fi
 
 for algorithm in $MATCHING_ALGORITHMS; do
     HAVE_MATHING_ALGORITHM=HAVE_MA_`echo $algorithm | sed 's/\(.*\)/\U\1/'`
-    AC_DEFINE_UNQUOTED($HAVE_MATHING_ALGORITHM, 1)
+    AC_DEFINE_UNQUOTED([$HAVE_MATHING_ALGORITHM], [1], [Description])
 done
 
 AC_SUBST(MATCHING_ALGORITHM_LIBADD)

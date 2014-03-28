@@ -21,7 +21,8 @@ echo "" >> $ROFL_PIPELINE_CONFIG
 #Check inline platform functions
 if test "$PIPELINE_SUPPORT" = "yes"; then
 
-	AC_DEFINE(__COMPILING_ROFL_PIPELINE__)
+	CFLAGS+=" -D__COMPILING_ROFL_PIPELINE__"
+	CXXFLAGS+=" -D__COMPILING_ROFL_PIPELINE__"
 
 	#Set presence flag
 	echo "#define ROFL_PIPELINE_PRESENT 1" >> $ROFL_PIPELINE_CONFIG
@@ -33,6 +34,7 @@ enable_inline="no"
 	AC_ARG_WITH([pipeline-platform-funcs-inlined], AS_HELP_STRING([--with-pipeline-platform-funcs-inlined], [Inline platform functions in ROFL-pipeline packet processing API [default=no]]), with_pipeline_inline="yes", [])
 
 	if test "$with_pipeline_inline" = "yes"; then
+	
 		#Set to inline pipeline funcs
 		echo "#define ROFL_PIPELINE_INLINE_PP_PLATFORM_FUNCS 1" >> $ROFL_PIPELINE_CONFIG
 		

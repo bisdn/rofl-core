@@ -7,7 +7,7 @@ AC_ARG_ENABLE(flush_always,
 
 if test "$enable_flush_always" = "yes"; then
 	AM_CONDITIONAL(FLUSH_ALWAYS, [true])
-	AC_DEFINE(FLUSH_ALWAYS)
+	AC_DEFINE([FLUSH_ALWAYS], [], [Description])
 	AC_MSG_RESULT(yes)
 else
 	AM_CONDITIONAL(FLUSH_ALWAYS, [false])
