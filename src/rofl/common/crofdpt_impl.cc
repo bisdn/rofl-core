@@ -150,9 +150,15 @@ crofdpt_impl::event_connected()
 	case STATE_INIT:
 	case STATE_DISCONNECTED: {
 		state = STATE_CONNECTED;
-		send_features_request();
-		ports.set_version(rofchan.get_version()); // TODO: check for tables as well
-		tables.set_version(rofchan.get_version()); // TODO: check for tables as well
+		//send_features_request();
+		ports.set_version(rofchan.get_version());
+		tables.set_version(rofchan.get_version());
+		/*
+		 * skip sending Features request, Get-Config request, Table-Features-Stats request
+		 * and Port-Desc-Stats request. This is up to the derived controller logic.
+		 */
+		state = STATE_ESTABLISHED;
+		rofbase->handle_dpath_open(*this);
 	} break;
 	default: {
 		logging::error << "[rofl][dpt] event -CONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -1589,8 +1595,6 @@ crofdpt_impl::multipart_reply_rcvd(
 			<< " Multipart-Reply message received" << std::endl << *msg;
 
 	transactions.drop_ta(msg->get_xid());
-
-	// TODO: defragmentation
 
 	rofl::openflow::cofmsg_multipart_reply *reply = dynamic_cast<rofl::openflow::cofmsg_multipart_reply*>( msg );
 	assert(reply != NULL);
