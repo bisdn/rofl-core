@@ -12,7 +12,7 @@ using namespace rofl;
 crofsock::crofsock(
 		crofsock_env *env) :
 				env(env),
-				socket(this),
+				socket(NULL),
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
@@ -34,9 +34,9 @@ crofsock::~crofsock()
 
 
 void
-crofsock::accept(int sd, ssl_context *ssl_ctx)
+crofsock::accept(int sd)
 {
-	socket.accept(sd, ssl_ctx);
+	socket->accept(sd);
 }
 
 

@@ -85,7 +85,7 @@ class crofsock :
 {
 
 	crofsock_env						*env;
-	csocket								socket;		// socket abstraction towards peer
+	csocket								*socket;		// socket abstraction towards peer
 	cmemory								*fragment;
 	unsigned int						msg_bytes_read;
 
@@ -211,13 +211,13 @@ public:
 	 *
 	 */
 	void
-	accept(int sd, ssl_context *ssl_ctx = NULL);
+	accept(int sd);
 
 	/**
 	 *
 	 */
 	void
-	connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx);
+	connect(int domain, int type, int protocol, rofl::caddress const& raddr);
 
 	/**
 	 *
