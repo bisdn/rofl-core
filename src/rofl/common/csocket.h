@@ -8,10 +8,6 @@
 #include <list>
 #include <bitset>
 #include <stdio.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <fcntl.h>
@@ -22,9 +18,6 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "croflexception.h"
 #include "ciosrv.h"

@@ -8,13 +8,7 @@
 #ifndef OPENFLOW_H__
 #define OPENFLOW_H__ 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/croflexception.h"
 

@@ -8,14 +8,7 @@
 #ifndef COFHELLOELEMVERSIONBITMAP_H_
 #define COFHELLOELEMVERSIONBITMAP_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <vector>
 
 #include "rofl/common/openflow/cofhelloelem.h"

@@ -11,16 +11,9 @@
 #ifndef CCLOCK_H_
 #define CCLOCK_H_ 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <errno.h>
 #include <string.h>
 #include <time.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <string>
 
 #include "rofl/common/logging.h"
