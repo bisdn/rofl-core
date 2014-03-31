@@ -43,6 +43,7 @@ librofl_common_la_SOURCES = \
 		csocket_plain.h \
 		csocket_plain.cc \
 		csocket_openssl.h \
+		csocket_openssl.cc \
 		cvastring.h \
 		fframe.h \
 		fframe.cc \
