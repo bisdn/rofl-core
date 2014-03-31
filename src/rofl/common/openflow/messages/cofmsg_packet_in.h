@@ -210,25 +210,25 @@ public:
 	 *
 	 */
 	cofmatch&
-	get_match();
+	set_match() { return match; };
 
 	/**
 	 *
 	 */
 	cofmatch const&
-	get_match_const() const { return match; };
+	get_match() const { return match; };
 
 	/**
 	 *
 	 */
 	cpacket&
-	get_packet();
+	set_packet() { return packet; };
 
 	/**
 	 *
 	 */
 	cpacket const&
-	get_packet_const() const { return packet; };
+	get_packet() const { return packet; };
 
 public:
 

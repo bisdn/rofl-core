@@ -527,18 +527,5 @@ cofmsg_packet_in::set_cookie(uint64_t cookie)
 
 
 
-cofmatch&
-cofmsg_packet_in::get_match()
-{
-	return match;
-}
-
-
-
-rofl::cpacket&
-cofmsg_packet_in::get_packet()
-{
-	return packet;
-}
 
 
