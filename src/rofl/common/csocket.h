@@ -150,6 +150,21 @@ protected:
 
 public:
 
+	enum socket_type_t {
+		CSOCKET_PLAIN 	= 0,
+		CSOCKET_OPENSSL = 1,
+	};
+
+	/**
+	 *
+	 */
+	virtual csocket*
+	csocket_factory() = 0;
+
+
+
+public:
+
 
 
 	/**

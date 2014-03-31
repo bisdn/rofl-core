@@ -30,6 +30,8 @@ crofsock::~crofsock()
 {
 	if (fragment)
 		delete fragment;
+	if (socket)
+		delete socket;
 }
 
 
@@ -42,9 +44,9 @@ crofsock::accept(int sd)
 
 
 void
-crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx)
+crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr)
 {
-	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, ssl_ctx, false);
+	socket->connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
 }
 
 
@@ -52,7 +54,7 @@ crofsock::connect(int domain, int type, int protocol, rofl::caddress const& radd
 void
 crofsock::reconnect()
 {
-	socket.reconnect();
+	socket->reconnect();
 }
 
 
@@ -60,7 +62,7 @@ crofsock::reconnect()
 void
 crofsock::close()
 {
-	socket.close();
+	socket->close();
 }
 
 
@@ -174,7 +176,7 @@ crofsock::handle_read(
 
 		// more bytes are needed, keep pointer to msg in "fragment"
 
-	} catch (eSocketReadFailed& e) {
+	} catch (eSysCall& e) {
 
 		logging::warn << "[rofl][sock] failed to read from socket: " << e << std::endl;
 
@@ -203,7 +205,7 @@ void
 crofsock::send_message(
 		rofl::openflow::cofmsg *msg)
 {
-	if (not socket.is_connected()) {
+	if (not socket->is_connected()) {
 		delete msg; return;
 	}
 
@@ -281,7 +283,7 @@ crofsock::send_from_queue()
 
 			msg->pack(mem->somem(), mem->memlen());
 			delete msg;
-			socket.send(mem);
+			socket->send(mem);
 		}
 
 		if (not outqueues[queue_id].empty()) {
