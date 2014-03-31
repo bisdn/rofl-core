@@ -127,11 +127,11 @@ crofchan::clear()
 void
 crofchan::add_conn(
 		uint8_t aux_id,
+		enum rofl::csocket::socket_type_t socket_type,
 		int domain,
 		int type,
 		int protocol,
-		caddress const& ra,
-		ssl_context *ssl_ctx)
+		caddress const& ra)
 {
 	if (conns.find(aux_id) != conns.end()) {
 		throw eRofChanExists();
@@ -153,7 +153,7 @@ crofchan::add_conn(
 		vbitmap.add_ofp_version(ofp_version);	// auxiliary connections: use OFP version negotiated for main connection
 	}
 
-	(conns[aux_id] = new crofconn(this, vbitmap))->connect(aux_id, domain, type, protocol, ra, ssl_ctx);
+	(conns[aux_id] = new crofconn(this, vbitmap))->connect(aux_id, socket_type, domain, type, protocol, ra);
 }
 
 

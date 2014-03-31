@@ -282,11 +282,11 @@ public:
 	 */
 	void
 	rpc_listen_for_dpts(
+			enum rofl::csocket::socket_type_t socket_type = rofl::csocket::SOCKET_TYPE_PLAIN,
 			caddress const& addr = caddress(AF_INET, "0.0.0.0", 6633),
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
 			int protocol = IPPROTO_TCP,
-			ssl_context *ssl_ctx = NULL,
 			int backlog = 10);
 
 
@@ -302,11 +302,11 @@ public:
 	 */
 	void
 	rpc_listen_for_ctls(
+			enum rofl::csocket::socket_type_t socket_type = rofl::csocket::SOCKET_TYPE_PLAIN,
 			caddress const& addr = caddress(AF_INET, "0.0.0.0", 6644),
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
 			int protocol = IPPROTO_TCP,
-			ssl_context *ssl_ctx = NULL,
 			int backlog = 10);
 
 
@@ -330,11 +330,11 @@ public:
 	rpc_connect_to_ctl(
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
-			int protocol = IPPROTO_TCP,
-			ssl_context *ssl_ctx = NULL);
+			int protocol = IPPROTO_TCP);
 
 
 	/**
@@ -564,11 +564,11 @@ protected:
 			crofbase* owner,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol,
-			ssl_context *ssl_ctx);
+			int protocol);
 
 
 	/**

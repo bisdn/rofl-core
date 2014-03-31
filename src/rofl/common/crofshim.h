@@ -43,13 +43,13 @@ public:
 	 *
 	 */
 	void
-	connect(rofl::caddress const& raddr, int domain, int type, int protocol, ssl_context *ssl_ctx);
+	connect(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& raddr, int domain, int type, int protocol);
 
 	/**
 	 *
 	 */
 	void
-	listen(rofl::caddress const& laddr, int domain, int type, int protocol, ssl_context *ssl_ctx, int backlog = 10);
+	listen(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& laddr, int domain, int type, int protocol, int backlog = 10);
 
 	/**
 	 *

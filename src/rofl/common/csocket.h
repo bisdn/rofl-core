@@ -135,8 +135,18 @@ public:
 class csocket :
 	public virtual ciosrv
 {
+public:
+
+	/* supported socket types */
+	enum socket_type_t {
+		SOCKET_TYPE_PLAIN 		= 0,
+		SOCKET_TYPE_OPENSSL 	= 1,
+	};
+
 protected:
 
+	enum socket_type_t			socket_type;
+	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
 	int 						sd; 				/**< the socket descriptor */
 	caddress 					laddr; 				/**< local address socket is bound to */
 	caddress 					raddr; 				/**< remote address of peer entity */
@@ -145,22 +155,15 @@ protected:
 	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
 	int 						backlog; 			/**< backlog value for listen() system call */
 
-	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
-
 
 public:
-
-	enum socket_type_t {
-		CSOCKET_PLAIN 	= 0,
-		CSOCKET_OPENSSL = 1,
-	};
 
 	/**
 	 *
 	 */
-	virtual csocket*
-	csocket_factory() = 0;
-
+	static csocket*
+	csocket_factory(
+			enum socket_type_t socket_type, csocket_owner *owner);
 
 
 public:
@@ -172,28 +175,16 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_owner
 	 */
-	csocket(csocket_owner *owner);
+	csocket(enum socket_type_t socket_type, csocket_owner *owner) :
+		socket_type(socket_type),
+		socket_owner(owner),
+		sd(-1),
+		domain(0),
+		type(0),
+		protocol(0),
+		backlog(0)
+	{};
 
-
-
-	/**
-	 * @brief	Constructor for a new socket (for listening or connecting mode).
-	 *
-	 * Use this constructor for creating a new non-connected socket. In a second
-	 * step, a subsequent call to methods caopen() or cpopen() will either actively establish a connection
-	 * or passively listening for incoming connection requests.
-	 *
-	 * @param owner socket owning entity implementing interface csocket_owner
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog listen backlog
-	 */
-	csocket(csocket_owner *owner,
-			int domain,
-			int type,
-			int protocol,
-			int backlog);
 
 
 
@@ -202,7 +193,8 @@ public:
 	 *
 	 */
 	virtual
-	~csocket();
+	~csocket()
+	{};
 
 
 
@@ -319,6 +311,74 @@ public:
 	 */
 	virtual bool
 	is_connected() const = 0;
+
+public:
+
+	/**
+	 *
+	 */
+	enum rofl::csocket::socket_type_t
+	get_socket_type() const { return socket_type; };
+
+	/**
+	 *
+	 */
+	rofl::caddress&
+	set_laddr() { return laddr; };
+
+	/**
+	 *
+	 */
+	rofl::caddress const&
+	get_laddr() const { return laddr; };
+
+	/**
+	 *
+	 */
+	rofl::caddress&
+	set_raddr() { return raddr; };
+
+	/**
+	 *
+	 */
+	rofl::caddress const&
+	get_raddr() const { return raddr; };
+
+	/**
+	 *
+	 */
+	void
+	set_domain(int domain) { this->domain = domain; };
+
+	/**
+	 *
+	 */
+	int
+	get_domain() const { return domain; };
+
+	/**
+	 *
+	 */
+	void
+	set_type(int type) { this->type = type; };
+
+	/**
+	 *
+	 */
+	int
+	get_type() const { return type; };
+
+	/**
+	 *
+	 */
+	void
+	set_protocol(int protocol) { this->protocol = protocol; };
+
+	/**
+	 *
+	 */
+	int
+	get_protocol() const { return protocol; };
 
 
 public:

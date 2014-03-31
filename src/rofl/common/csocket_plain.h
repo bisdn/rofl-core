@@ -50,7 +50,7 @@ namespace rofl {
  *
  * @see csocket_impl_owner
  */
-class csocket_impl :
+class csocket_plain :
 	public csocket
 {
 private:
@@ -126,28 +126,8 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_impl(csocket_owner *owner);
+	csocket_plain(csocket_owner *owner);
 
-
-
-	/**
-	 * @brief	Constructor for a new socket (for listening or connecting mode).
-	 *
-	 * Use this constructor for creating a new non-connected socket. In a second
-	 * step, a subsequent call to methods caopen() or cpopen() will either actively establish a connection
-	 * or passively listening for incoming connection requests.
-	 *
-	 * @param owner socket owning entity implementing interface csocket_impl_owner
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog listen backlog
-	 */
-	csocket_impl(csocket_owner *owner,
-			int domain,
-			int type,
-			int protocol,
-			int backlog);
 
 
 
@@ -156,7 +136,7 @@ public:
 	 *
 	 */
 	virtual
-	~csocket_impl();
+	~csocket_plain();
 
 
 
@@ -434,7 +414,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, csocket_impl const& sock) {
+	operator<< (std::ostream& os, csocket_plain const& sock) {
 		os << indent(0) << "<csocket_impl "
 			<< "sd:" << sock.sd << " "
 			<< "domain:" << sock.domain << " "

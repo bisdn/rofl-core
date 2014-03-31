@@ -49,13 +49,13 @@ main(int argc, char** argv)
 		assert(NULL != ssl_ctx);
 	}
 
-	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP, ssl_ctx);
+	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_OPENSSL, caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP, ssl_ctx);
 
 #else
-	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, caddress(AF_INET, "0.0.0.0", 6633));
 #endif
 
-	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
+	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::cioloop::run();
 

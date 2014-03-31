@@ -146,7 +146,7 @@ public:
 	 *
 	 */
 	void
-	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra, ssl_context *ssl_ctx);
+	add_conn(uint8_t aux_id, enum rofl::csocket::socket_type_t socket_type, int domain, int type, int protocol, caddress const& ra);
 
 	/**
 	 *

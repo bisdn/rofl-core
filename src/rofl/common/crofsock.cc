@@ -36,16 +36,27 @@ crofsock::~crofsock()
 
 
 void
-crofsock::accept(int sd)
+crofsock::accept(enum rofl::csocket::socket_type_t socket_type, int sd)
 {
+	if (socket)
+		delete socket;
+	socket = csocket::csocket_factory(socket_type, this);
 	socket->accept(sd);
 }
 
 
 
 void
-crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr)
+crofsock::connect(
+		enum rofl::csocket::socket_type_t socket_type,
+		int domain,
+		int type,
+		int protocol,
+		rofl::caddress const& raddr)
 {
+	if (socket)
+		delete socket;
+	socket = csocket::csocket_factory(socket_type, this);
 	socket->connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
 }
 
@@ -196,7 +207,7 @@ crofsock::handle_read(
 rofl::csocket&
 crofsock::get_socket()
 {
-	return socket;
+	return *socket;
 }
 
 

@@ -211,13 +211,13 @@ public:
 	 *
 	 */
 	void
-	accept(int sd);
+	accept(enum rofl::csocket::socket_type_t socket_type, int sd);
 
 	/**
 	 *
 	 */
 	void
-	connect(int domain, int type, int protocol, rofl::caddress const& raddr);
+	connect(enum rofl::csocket::socket_type_t socket_type, int domain, int type, int protocol, rofl::caddress const& raddr);
 
 	/**
 	 *
@@ -254,7 +254,7 @@ private:
 	 */
 	crofsock(crofsock const& endpnt) :
 		env(NULL),
-		socket(this),
+		socket(NULL),
 		fragment(NULL),
 		msg_bytes_read(0)
 	{ };

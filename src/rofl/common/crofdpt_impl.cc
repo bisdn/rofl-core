@@ -31,6 +31,7 @@ crofdpt_impl::crofdpt_impl(
 crofdpt_impl::crofdpt_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		enum rofl::csocket::socket_type_t socket_type,
 		int newsd) :
 				crofdpt(rofbase),
 				rofchan(this, versionbitmap),
@@ -54,6 +55,7 @@ crofdpt_impl::crofdpt_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
+		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& ra,
 		int domain,
 		int type,
@@ -71,7 +73,7 @@ crofdpt_impl::crofdpt_impl(
 				transactions(this),
 				state(STATE_INIT)
 {
-	rofchan.add_conn(0, domain, type, protocol, ra, NULL); // todo check if we need ssl_ctx here
+	rofchan.add_conn(0, socket_type, domain, type, protocol, ra); // todo check if we need ssl_ctx here
 }
 
 

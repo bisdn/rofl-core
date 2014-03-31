@@ -26,6 +26,7 @@ crofctl_impl::crofctl_impl(
 crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		rofl::csocket::socket_type_t socket_type,
 		int newsd) :
 				crofctl(rofbase),
 				ctid(0),
@@ -45,11 +46,11 @@ crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
+		rofl::csocket::socket_type_t socket_type,
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol,
-		ssl_context *ssl_ctx) :
+		int protocol) :
 				crofctl(rofbase),
 				ctid(0),
 				rofbase(rofbase),
@@ -59,7 +60,7 @@ crofctl_impl::crofctl_impl(
 				transactions(this)
 {
 	async_config = rofbase->async_config_role_default_template;
-	rofchan.add_conn(/*aux-id=*/0, domain, type, protocol, ra, ssl_ctx);
+	rofchan.add_conn(/*aux-id=*/0, socket_type, domain, type, protocol, ra);
 }
 
 

@@ -493,11 +493,7 @@ crofbase::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-#ifdef HAVE_OPENSSL
-	(new rofl::crofconn(this, versionbitmap))->accept(newsd, socket.ssl_ctx);
-#else
-	(new rofl::crofconn(this, versionbitmap))->accept(newsd, NULL);
-#endif
+	(new rofl::crofconn(this, versionbitmap))->accept(socket.get_socket_type(), newsd);
 }
 
 
@@ -551,15 +547,15 @@ crofbase::handle_closed(
 
 void
 crofbase::rpc_listen_for_dpts(
+		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& addr,
 		int domain,
 		int type,
 		int protocol,
-		ssl_context *ssl_ctx,
 		int backlog)
 {
-	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->listen(addr, domain, type, protocol, ssl_ctx, backlog);
+	csocket *socket = csocket::csocket_factory(socket_type, this);
+	socket->listen(addr, domain, type, protocol, backlog);
 	rpc[RPC_DPT].insert(socket);
 }
 
@@ -567,15 +563,15 @@ crofbase::rpc_listen_for_dpts(
 
 void
 crofbase::rpc_listen_for_ctls(
+		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& addr,
 		int domain,
 		int type,
 		int protocol,
-		ssl_context *ssl_ctx,
 		int backlog)
 {
-	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->listen(addr, domain, type, protocol, ssl_ctx, backlog);
+	csocket *socket = csocket::csocket_factory(socket_type, this);
+	socket->listen(addr, domain, type, protocol, backlog);
 	rpc[RPC_CTL].insert(socket);
 }
 
@@ -585,13 +581,13 @@ void
 crofbase::rpc_connect_to_ctl(
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
+		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol,
-		ssl_context *ssl_ctx)
+		int protocol)
 {
-	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol, ssl_ctx));
+	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, socket_type, ra, domain, type, protocol));
 }
 
 
@@ -671,13 +667,13 @@ crofbase::cofctl_factory(
 		crofbase* owner,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
+		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol,
-		ssl_context *ssl_ctx)
+		int protocol)
 {
-	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol, ssl_ctx);
+	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, socket_type, ra, domain, type, protocol);
 }
 
 

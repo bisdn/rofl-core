@@ -81,6 +81,7 @@ public: // methods
 	crofctl_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			rofl::csocket::socket_type_t socket_type,
 			int newsd);
 
 
@@ -99,11 +100,11 @@ public: // methods
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
+			rofl::csocket::socket_type_t socket_type,
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol,
-			ssl_context *ssl_ctx);
+			int protocol);
 
 
 
@@ -149,7 +150,7 @@ public:
 	 *
 	 */
 	virtual caddress
-	get_peer_addr() { return rofchan.get_conn(0).get_rofsocket().get_socket().raddr; };
+	get_peer_addr() { return rofchan.get_conn(0).get_rofsocket().get_socket().get_raddr(); };
 
 public:
 
