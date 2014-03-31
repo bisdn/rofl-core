@@ -427,7 +427,7 @@ caddress::addr_c_str()
 		break;
 	case AF_INET6:
 		inet_ntop(AF_INET6, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(vas("%s:%d", mem.somem(), be16toh(ca_s6addr->sin6_port)));
+		info.assign(vas("[%s]:%d", mem.somem(), be16toh(ca_s6addr->sin6_port)));
 		break;
 	case AF_UNIX:
 		info.assign(vas("%s", ca_suaddr->sun_path));

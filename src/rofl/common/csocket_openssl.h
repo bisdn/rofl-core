@@ -9,22 +9,9 @@
 #include <bitset>
 #include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include <netinet/in.h>
-#include <sys/un.h>
-#include <fcntl.h>
-#include <netinet/tcp.h>
-#include <sys/ioctl.h>
-#include <sys/uio.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <assert.h>
-#ifdef __cplusplus
-}
-#endif
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #include "rofl/common/csocket.h"
 
@@ -53,6 +40,14 @@ namespace rofl {
 class csocket_openssl :
 	public csocket
 {
+	static bool ssl_initialized;
+
+	/**
+	 * @brief	Initialize SSL library internals.
+	 */
+	static void
+	ssl_init();
+
 private:
 
 	struct pout_entry_t {
@@ -111,11 +106,18 @@ protected:
 	};
 
 
+
 	int							reconnect_start_timeout;
 	int 						reconnect_in_seconds; 	// reconnect in x seconds
 	int 						reconnect_counter;
 
 #define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
+
+	/*
+	 * OpenSSL related structures
+	 */
+	BIO							*bio;
+
 
 public:
 
