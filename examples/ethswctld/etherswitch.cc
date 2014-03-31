@@ -96,11 +96,11 @@ ethswitch::handle_flow_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_flow_sta
 		switch (it->get_version()) {
 		case OFP10_VERSION: {
 			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  actions: %s\n",
-					it->get_match().c_str(), it->get_actions().c_str());
+					it->set_match().c_str(), it->get_actions().c_str());
 		} break;
 		case OFP12_VERSION: {
 			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  instructions: %s\n",
-					it->get_match().c_str(), it->get_instructions().c_str());
+					it->set_match().c_str(), it->get_instructions().c_str());
 		} break;
 		default: {
 			// do nothing
@@ -182,19 +182,19 @@ ethswitch::handle_packet_in(
 		uint8_t aux_id)
 {
 	try {
-		msg.get_packet().classify(msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
+		msg.set_packet().classify(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
 
-		cmacaddr eth_src = msg.get_packet().ether()->get_dl_src();
-		cmacaddr eth_dst = msg.get_packet().ether()->get_dl_dst();
+		cmacaddr eth_src = msg.set_packet().ether()->get_dl_src();
+		cmacaddr eth_dst = msg.set_packet().ether()->get_dl_dst();
 
 
 
 		logging::info << "[ethsw][packet-in] PACKET-IN => frame seen, "
 							<< "dpid:" << std::hex << (unsigned long long)dpt.get_dpid() << std::dec << " "
 							<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
-							<< "eth-src:" << msg.get_packet().ether()->get_dl_src() << " "
-							<< "eth-dst:" << msg.get_packet().ether()->get_dl_dst() << " "
-							<< "eth-type:0x" << std::hex << msg.get_packet().ether()->get_dl_type() << std::dec << " "
+							<< "eth-src:" << msg.set_packet().ether()->get_dl_src() << " "
+							<< "eth-dst:" << msg.set_packet().ether()->get_dl_dst() << " "
+							<< "eth-type:0x" << std::hex << msg.set_packet().ether()->get_dl_type() << std::dec << " "
 							<< std::endl;
 
 		/*
@@ -210,8 +210,8 @@ ethswitch::handle_packet_in(
 		/*
 		 * block mac address 01:80:c2:00:00:00
 		 */
-		if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
-			msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+		if (msg.set_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+			msg.set_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
 			rofl::openflow::cofflowmod fe(dpt.get_version());
 
 			switch (dpt.get_version()) {
@@ -227,9 +227,9 @@ ethswitch::handle_packet_in(
 			fe.set_table_id(msg.get_table_id());
 			fe.set_flags(rofl::openflow12::OFPFF_SEND_FLOW_REM | rofl::openflow12::OFPFMFC_OVERLAP);
 
-			fe.match.set_matches().add_match(msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT));
-			fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
-			fe.match.set_eth_type(msg.get_match().get_eth_type());
+			fe.match.set_matches().add_match(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT));
+			fe.match.set_eth_dst(msg.set_packet().ether()->get_dl_dst());
+			fe.match.set_eth_type(msg.set_match().get_eth_type());
 			fe.instructions.add_inst_apply_actions();
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
@@ -244,14 +244,14 @@ ethswitch::handle_packet_in(
 		cfib::get_fib(dpt.get_dpid()).fib_update(
 								this,
 								dpt,
-								msg.get_packet().ether()->get_dl_src(),
-								msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
+								msg.set_packet().ether()->get_dl_src(),
+								msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
 
 
 		/*
 		 * flood mac addresses 33:33:00:00:00:02 and ff:ff:ff:ff:ff:ff
 		 */
-		if ((msg.get_packet().ether()->get_dl_dst() == cmacaddr("33:33:00:00:00:02"))) {
+		if ((msg.set_packet().ether()->get_dl_dst() == cmacaddr("33:33:00:00:00:02"))) {
 			rofl::openflow::cofflowmod fe(dpt.get_version());
 
 			switch (dpt.get_version()) {
@@ -267,9 +267,9 @@ ethswitch::handle_packet_in(
 			fe.set_table_id(msg.get_table_id());
 			fe.set_flags(rofl::openflow12::OFPFMFC_OVERLAP);
 
-			fe.match.set_in_port(msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
-			fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
-			fe.match.set_eth_type(msg.get_match().get_eth_type());
+			fe.match.set_in_port(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
+			fe.match.set_eth_dst(msg.set_packet().ether()->get_dl_dst());
+			fe.match.set_eth_type(msg.set_match().get_eth_type());
 			fe.instructions.add_inst_apply_actions();
 			fe.instructions.set_inst_apply_actions().get_actions().append_action_output(crofbase::get_ofp_flood_port(dpt.get_version()));
 
@@ -291,12 +291,12 @@ ethswitch::handle_packet_in(
 				cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
 							this,
 							dpt,
-							msg.get_packet().ether()->get_dl_dst(),
-							msg.get_packet().ether()->get_dl_src(),
-							msg.get_match().get_in_port());
+							msg.set_packet().ether()->get_dl_dst(),
+							msg.set_packet().ether()->get_dl_src(),
+							msg.set_match().get_in_port());
 
 
-				if (msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value() == entry.get_out_port_no()) {
+				if (msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value() == entry.get_out_port_no()) {
 					indent i(2);
 					rofl::logging::debug << "[ethsw][packet-in] found entry for eth-dst:" << eth_dst
 							<< ", but in-port == out-port, ignoring" << std::endl << entry;
@@ -316,7 +316,7 @@ ethswitch::handle_packet_in(
 
 				fe.match.set_eth_dst(eth_dst);
 				fe.match.set_eth_src(eth_src);
-				fe.match.set_eth_type(msg.get_match().get_eth_type());
+				fe.match.set_eth_type(msg.set_match().get_eth_type());
 
 				fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
 
@@ -365,10 +365,10 @@ ethswitch::handle_packet_in(
 		}
 
 		if (ofp_no_buffer != msg.get_buffer_id()) {
-			dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions);
+			dpt.send_packet_out_message(msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions);
 		} else {
-			dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions,
-					msg.get_packet().soframe(), msg.get_packet().framelen());
+			dpt.send_packet_out_message(msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions,
+					msg.set_packet().soframe(), msg.set_packet().framelen());
 		}
 
 	} catch (...) {

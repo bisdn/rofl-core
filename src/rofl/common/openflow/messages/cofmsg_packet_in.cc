@@ -65,6 +65,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 cofmsg_packet_in::cofmsg_packet_in(
 		cmemory *memarea) :
 	cofmsg(memarea),
+	match(get_version()),
 	packet(get_version())
 {
 	ofh_packet_in = soframe();
@@ -526,18 +527,5 @@ cofmsg_packet_in::set_cookie(uint64_t cookie)
 
 
 
-cofmatch&
-cofmsg_packet_in::get_match()
-{
-	return match;
-}
-
-
-
-rofl::cpacket&
-cofmsg_packet_in::get_packet()
-{
-	return packet;
-}
 
 
