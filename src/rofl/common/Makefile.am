@@ -42,8 +42,6 @@ librofl_common_la_SOURCES = \
 		csocket.cc \
 		csocket_plain.h \
 		csocket_plain.cc \
-		csocket_openssl.h \
-		csocket_openssl.cc \
 		cvastring.h \
 		fframe.h \
 		fframe.cc \
@@ -78,6 +76,8 @@ librofl_common_la_SOURCES = \
 		
 if HAVE_OPENSSL
 librofl_common_la_SOURCES += \
+		csocket_openssl.h \
+		csocket_openssl.cc \
 		ssl_lib.cc \
 		ssl_lib.h \
 		ssl_connection.cc \
@@ -117,7 +117,6 @@ library_include_HEADERS= \
 		coflist.h \
 		csocket.h \
 		csocket_plain.h \
-		csocket_openssl.h \
 		cvastring.h \
 		fframe.h \
 		thread_helper.h \
@@ -129,6 +128,7 @@ library_include_HEADERS= \
 
 if HAVE_OPENSSL
 library_include_HEADERS += \
+		csocket_openssl.h \
 		ssl_lib.h \
 		ssl_connection.h
 endif

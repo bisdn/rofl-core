@@ -1,6 +1,8 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_plain.h"
+#ifdef HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
+#endif
 
 using namespace rofl;
 
@@ -13,12 +15,13 @@ csocket::csocket_factory(
 	case SOCKET_TYPE_PLAIN: {
 		return new csocket_plain(owner);
 	} break;
+#ifdef HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
-//		return new csocket_openssl(owner);
-		return NULL;
+		return new csocket_openssl(owner);
 	} break;
+#endif
 	default:
-		throw eInval();
+		throw eSocketTypeNotFound();
 	}
 }
 

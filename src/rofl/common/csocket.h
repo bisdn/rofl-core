@@ -36,6 +36,7 @@ namespace rofl {
 class eSocketBase			: public RoflException {};
 class eSocketAgain			: public eSocketBase {};
 class eSocketNotConnected	: public eSocketBase {};
+class eSocketTypeNotFound	: public eSocketBase {};
 
 class csocket; // forward declaration for csocket_owner, see below
 
