@@ -8,14 +8,7 @@
 #ifndef CROFCONN_H_
 #define CROFCONN_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <bitset>
 
 #include "rofl/common/ciosrv.h"

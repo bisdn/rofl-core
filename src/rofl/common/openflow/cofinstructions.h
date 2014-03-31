@@ -5,14 +5,7 @@
 #ifndef COFINSTRUCTIONLIST_H
 #define COFINSTRUCTIONLIST_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <assert.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 #include <algorithm>
 #include "rofl/common/croflexception.h"

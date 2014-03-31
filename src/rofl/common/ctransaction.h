@@ -8,13 +8,7 @@
 #ifndef CTRANSACTION_H_
 #define CTRANSACTION_H_ 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cclock.h"
 

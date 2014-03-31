@@ -8,14 +8,7 @@
 #ifndef CUDPMSG_H_
 #define CUDPMSG_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <rofl/common/cmemory.h>
 
 namespace spray

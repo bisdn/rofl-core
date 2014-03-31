@@ -9,14 +9,7 @@
 #define CFIBENTRY_H_ 1
 
 #include <ostream>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/cmacaddr.h>

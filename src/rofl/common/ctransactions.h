@@ -8,14 +8,7 @@
 #ifndef CTRANSACTIONS_H_
 #define CTRANSACTIONS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 
 #include "rofl/common/thread_helper.h"

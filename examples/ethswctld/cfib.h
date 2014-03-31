@@ -11,14 +11,7 @@
 #include <map>
 #include <ostream>
 #include <exception>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include <rofl/common/crofbase.h>
 #include <rofl/common/crofdpt.h>
