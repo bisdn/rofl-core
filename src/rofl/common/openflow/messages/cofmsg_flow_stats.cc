@@ -205,7 +205,15 @@ cofmsg_flow_stats_request::validate()
 
 
 cofflow_stats_request&
-cofmsg_flow_stats_request::get_flow_stats()
+cofmsg_flow_stats_request::set_flow_stats()
+{
+	return flow_stats;
+}
+
+
+
+cofflow_stats_request const&
+cofmsg_flow_stats_request::get_flow_stats() const
 {
 	return flow_stats;
 }

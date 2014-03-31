@@ -134,7 +134,14 @@ public:
 	 *
 	 */
 	cofflow_stats_request&
-	get_flow_stats();
+	set_flow_stats();
+
+
+	/**
+	 *
+	 */
+	cofflow_stats_request const&
+	get_flow_stats() const;
 
 
 public:
