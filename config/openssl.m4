@@ -8,7 +8,7 @@ AC_MSG_RESULT($ssl_default)
 if test "$enable_ssl" = "yes"; then
 	AC_CHECK_LIB(ssl, SSL_library_init,,AC_MSG_ERROR([OpenSSL ssl library not found])) 
 	AC_CHECK_LIB(crypto, ERR_get_error,,AC_MSG_ERROR([OpenSSL crypto library not found]))
-	AC_DEFINE([HAVE_OPENSSL], [1], [Description])
+	AC_SUBST([HAVE_OPENSSL], ["#define HAVE_OPENSSL 1"])
 fi
 AM_CONDITIONAL([HAVE_OPENSSL],  [test "$enable_ssl" = yes])
 

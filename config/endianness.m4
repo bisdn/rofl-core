@@ -2,15 +2,15 @@
 
 #Check endianness
 AC_C_BIGENDIAN(
-	AC_DEFINE([BIG_ENDIAN_DETECTED], [], [Description]), 
-	AC_DEFINE([LITTLE_ENDIAN_DETECTED], [], [Description]), 
-	AC_ERROR([Unkown endianness]), 
-	AC_ERROR([Unkown endianness])
+	AC_SUBST([BIG_ENDIAN_DETECTED], ["#define BIG_ENDIAN_DETECTED 1"]), 
+	AC_SUBST([LITTLE_ENDIAN_DETECTED], ["#define LITTLE_ENDIAN_DETECTED 1"]), 
+	AC_MSG_ERROR([Unkown endianness]), 
+	AC_MSG_ERROR([Unkown endianness])
 )
 
 
 AC_CHECK_HEADER(byteswap.h,
-    [AC_DEFINE([BYTESWAP_HEADER_DETECTED], [], [Description])],
-    [AC_ERROR([Could not find or include byteswap.h])]
+    [AC_SUBST([BYTESWAP_HEADER_DETECTED], ["#define BYTESWAP_HEADER_DETECTED 1"])],
+    [AC_MSG_ERROR([Could not find or include byteswap.h])]
     )
 

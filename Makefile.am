@@ -11,7 +11,7 @@ MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
 	$(top_srcdir)/compile \
 	$(top_srcdir)/test-driver
 
-export INCLUDES += -I$(abs_srcdir)/src/
+export INCLUDES += -I$(abs_srcdir)/src/ -I$(abs_builddir)/src/
 SUBDIRS = src test examples tools doc 
 export LIBROFL=$(PWD)/src/rofl/librofl.la
 

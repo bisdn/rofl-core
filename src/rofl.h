@@ -15,7 +15,6 @@
 
 #include "rofl_config.h"
 #include <stdlib.h>
-#include "rofl_pipeline.h"
 
 /**
 * Common return codes

@@ -1,0 +1,51 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+#ifndef __ROFL_CONFIG_H__
+#define __ROFL_CONFIG_H__
+
+/* Name of package */
+#define ROFL_PACKAGE "@PACKAGE@"
+
+/* Define to the address where bug reports for this package should be sent. */
+#define ROFL_PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
+
+/* Define to the full name of this package. */
+#define ROFL_PACKAGE_NAME "@PACKAGE_NAME@"
+
+/* Define to the full name and version of this package. */
+#define ROFL_PACKAGE_STRING "@PACKAGE_STRING@"
+
+/* Define to the one symbol short name of this package. */
+#define ROFL_PACKAGE_TARNAME "@PACKAGE_TARNAME@"
+
+/* Define to the home page for this package. */
+#define ROFL_PACKAGE_URL "@PACKAGE_URL@"
+
+/* Define to the version of this package. */
+#define ROFL_PACKAGE_VERSION "@PACKAGE_VERSION@"
+
+/* Description */
+#define ROFL_BRANCH "@ROFL_BRANCH@"
+
+/* Description */
+#define ROFL_BUILD "@ROFL_BUILD@"
+
+/* Description */
+#define ROFL_DESCRIBE "@ROFL_DESCRIBE@"
+
+/* Description */
+#define ROFL_VERSION_ "@ROFL_VERSION_@"
+
+@HAVE_OPENSSL@
+
+@ROFL_PIPELINE_PRESENT@
+
+@BYTESWAP_HEADER_DETECTED@
+
+@BIG_ENDIAN_DETECTED@
+
+@LITTLE_ENDIAN_DETECTED@
+
+#endif //__ROFL_CONFIG_H__
