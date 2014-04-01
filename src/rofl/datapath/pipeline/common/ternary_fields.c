@@ -85,18 +85,18 @@ inline bool __utern_is_contained(const utern_t* extensive_tern, const utern_t* t
 	switch(extensive_tern->type){
 		
 		case UTERN8_T:
-			if(((extensive_tern->mask.u8 ^ tern->mask.u8) & extensive_tern->mask.u8) > 0)
-				return false;
+			//if(((extensive_tern->mask.u8 ^ tern->mask.u8) & extensive_tern->mask.u8) > 0)
+			//	return false;
 			return (extensive_tern->value.u8 & extensive_tern->mask.u8) == (tern->value.u8 & extensive_tern->mask.u8);
 			break;
 		case UTERN16_T:
-			if(((extensive_tern->mask.u16 ^ tern->mask.u16) & extensive_tern->mask.u16) > 0)
-				return false;
+			//if(((extensive_tern->mask.u16 ^ tern->mask.u16) & extensive_tern->mask.u16) > 0)
+			//	return false;
 			return (extensive_tern->value.u16 & extensive_tern->mask.u16) == (tern->value.u16 & extensive_tern->mask.u16);
 			break;
 		case UTERN32_T:
-			if(((extensive_tern->mask.u32 ^ tern->mask.u32) & extensive_tern->mask.u32) > 0)
-				return false;
+			//if(((extensive_tern->mask.u32 ^ tern->mask.u32) & extensive_tern->mask.u32) > 0)
+			//	return false;
 			return (extensive_tern->value.u32 & extensive_tern->mask.u32) == (tern->value.u32 & extensive_tern->mask.u32);
 			break;
 		case UTERN64_T:
@@ -113,9 +113,9 @@ inline bool __utern_is_contained(const utern_t* extensive_tern, const utern_t* t
 				(extensive_tern->value.high & extensive_tern->mask.high) == (tern->value.high & extensive_tern->mask.high)	);
 #endif
 			
-			if( (( (UINT128__T_LO(extensive_tern->mask.u128) ^ UINT128__T_LO(tern->mask.u128)) & UINT128__T_LO(extensive_tern->mask.u128) ) > 0 ) || 
-				(( (UINT128__T_HI(extensive_tern->mask.u128) ^ UINT128__T_HI(tern->mask.u128)) & UINT128__T_HI(extensive_tern->mask.u128) ) > 0 ) )
-				return false;
+			//if( (( (UINT128__T_LO(extensive_tern->mask.u128) ^ UINT128__T_LO(tern->mask.u128)) & UINT128__T_LO(extensive_tern->mask.u128) ) > 0 ) || 
+			//	(( (UINT128__T_HI(extensive_tern->mask.u128) ^ UINT128__T_HI(tern->mask.u128)) & UINT128__T_HI(extensive_tern->mask.u128) ) > 0 ) )
+			//	return false;
 			return ( (UINT128__T_LO(extensive_tern->value.u128) & UINT128__T_LO(extensive_tern->mask.u128)) == (UINT128__T_LO(tern->value.u128) & UINT128__T_LO(extensive_tern->mask.u128)) ) &&
 				((UINT128__T_HI(extensive_tern->value.u128) & UINT128__T_HI(extensive_tern->mask.u128)) == (UINT128__T_HI(tern->value.u128) & UINT128__T_HI(extensive_tern->mask.u128))	);
 			
