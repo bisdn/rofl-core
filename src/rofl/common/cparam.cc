@@ -46,3 +46,9 @@ cparam::operator= (cparam const& p)
 
 
 
+bool
+cparam::operator== (
+		cparam const& p) const
+{
+	return (param == p.param);
+}

@@ -37,13 +37,15 @@ public:
 	/**
 	 *
 	 */
-	cparams(cparams const& params);
+	cparams(
+			cparams const& params);
 
 	/**
 	 *
 	 */
 	cparams&
-	operator= (cparams const& params);
+	operator= (
+			cparams const& params);
 
 public:
 
@@ -103,7 +105,9 @@ public:
 		rofl::indent i(2);
 		for (std::map<std::string, cparam>::const_iterator
 				it = p.params.begin(); it != p.params.end(); ++it) {
-			os << "<key: " << it->first << " param: " << it->second << " >" << std::endl;
+			os << rofl::indent(0) << "<key: " << it->first << " >" << std::endl;
+			rofl::indent j(2);
+			os << it->second;
 		}
 		return os;
 	};

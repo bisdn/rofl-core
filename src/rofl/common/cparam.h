@@ -56,6 +56,12 @@ public:
 	operator= (
 			cparam const& param);
 
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cparam const& param) const;
 
 public:
 

@@ -95,4 +95,13 @@ cparams::has_param(std::string const& key) const
 }
 
 
-
+#if 0
+void
+test()
+{
+	cparams p;
+	p.add_param("remote-addr") = cparam("127.0.0.1");
+	p.add_param("capath") = cparam("/home/andreas/---");
+	p.get_param("port").toInteger();
+}
+#endif
