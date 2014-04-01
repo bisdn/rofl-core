@@ -7,6 +7,7 @@
 using namespace rofl;
 
 
+std::string const 	csocket_openssl::SOCKET_PARAM_DO_RECONNECT("do-reconnect");
 std::string const 	csocket_openssl::SOCKET_PARAM_REMOTE_ADDR("remote-address");
 std::string const 	csocket_openssl::SOCKET_PARAM_LOCAL_ADDR("local-address");
 std::string const	csocket_openssl::SOCKET_PARAM_DOMAIN("domain");
@@ -20,6 +21,7 @@ std::string const	csocket_openssl::SOCKET_PARAM_KEY("key");
 csocket_openssl::get_params()
 {
 	cparams p;
+	p.add_param(csocket_openssl::SOCKET_PARAM_DO_RECONNECT);
 	p.add_param(csocket_openssl::SOCKET_PARAM_REMOTE_ADDR);
 	p.add_param(csocket_openssl::SOCKET_PARAM_LOCAL_ADDR);
 	p.add_param(csocket_openssl::SOCKET_PARAM_DOMAIN);
@@ -269,6 +271,15 @@ csocket_openssl::handle_xevent(int fd)
 
 void
 csocket_openssl::listen(
+		cparams const& params)
+{
+	// TODO
+}
+
+
+
+void
+csocket_openssl::listen(
 	caddress la,
 	int domain, 
 	int type, 
@@ -429,6 +440,17 @@ csocket_openssl::accept(int sd)
 	handle_connected();
 }
 
+
+
+void
+csocket_openssl::connect(
+		cparams const& params)
+{
+	// TODO
+}
+
+
+
 void
 csocket_openssl::connect(
 	caddress ra,
@@ -503,6 +525,7 @@ csocket_openssl::connect(
 
 	handle_connected();
 }
+
 
 
 

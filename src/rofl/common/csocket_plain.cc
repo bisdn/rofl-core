@@ -7,6 +7,8 @@
 
 using namespace rofl;
 
+std::string const 	csocket_plain::SOCKET_PARAM_DO_RECONNECT("do-reconnect");
+std::string const 	csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY("address-family");
 std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_ADDR("remote-address");
 std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_ADDR("local-address");
 std::string const	csocket_plain::SOCKET_PARAM_DOMAIN("domain");
@@ -16,7 +18,13 @@ std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL("protocol");
 /*static*/cparams
 csocket_plain::get_params()
 {
+	/*
+	 * fill in cparams structure and fill in default values
+	 */
+
 	cparams p;
+	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT);
+	p.add_param(csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY);
 	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_ADDR);
 	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_ADDR);
 	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN);
@@ -243,6 +251,15 @@ csocket_plain::handle_xevent(int fd)
 
 void
 csocket_plain::listen(
+		cparams const& params)
+{
+	// TODO
+}
+
+
+
+void
+csocket_plain::listen(
 	caddress la,
 	int domain, 
 	int type, 
@@ -402,6 +419,42 @@ csocket_plain::accept(int sd)
 	register_filedesc_r(sd);
 	handle_connected();
 }
+
+
+
+void
+csocket_plain::connect(
+		cparams const& params)
+{
+	if (not params.has_param(csocket_plain::SOCKET_PARAM_REMOTE_ADDR)) {
+		rofl::logging::error << "[rofl][csocket-plain] parameter \"remote-address\" not found" << std::endl;
+		throw eSocketParamNotFound();
+	}
+
+	if (not params.has_param(csocket_plain::SOCKET_PARAM_LOCAL_ADDR)) {
+		rofl::logging::error << "[rofl][csocket-plain] parameter \"local-address\" not found, using default" << std::endl;
+		// TODO
+	}
+
+	if (not params.has_param(csocket_plain::SOCKET_PARAM_DOMAIN)) {
+		rofl::logging::error << "[rofl][csocket-plain] parameter \"domain\" not found, using default" << std::endl;
+		// TODO
+	}
+
+	if (not params.has_param(csocket_plain::SOCKET_PARAM_TYPE)) {
+		rofl::logging::error << "[rofl][csocket-plain] parameter \"type\" not found, using default" << std::endl;
+		// TODO
+	}
+
+	if (not params.has_param(csocket_plain::SOCKET_PARAM_PROTOCOL)) {
+		rofl::logging::error << "[rofl][csocket-plain] parameter \"protocol\" not found, using default" << std::endl;
+		// TODO
+	}
+
+
+}
+
+
 
 void
 csocket_plain::connect(

@@ -83,6 +83,7 @@ private:
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
 
+	static std::string const 	SOCKET_PARAM_DO_RECONNECT;
 	static std::string const 	SOCKET_PARAM_REMOTE_ADDR;
 	static std::string const 	SOCKET_PARAM_LOCAL_ADDR;
 	static std::string const	SOCKET_PARAM_DOMAIN;
@@ -180,6 +181,19 @@ public:
 
 
 	/**
+	 * @brief	Open socket in listening mode (server side).
+	 *
+	 * This opens a socket in listening mode bound to address 'la'
+	 * with the specified socket parameters.
+	 *
+	 * @param params parameters for this socket
+	 */
+	virtual void
+	listen(
+		cparams const& params);
+
+
+	/**
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
@@ -208,6 +222,18 @@ public:
 		int type = SOCK_STREAM,
 		int protocol = 0,
 		bool do_reconnect = false);
+
+
+	/**
+	 * @brief	Open socket and connect to peer entity (client side).
+	 *
+	 * This opens a socket and connects to a peer entity.
+	 *
+	 * @param params parameters for this socket
+	 */
+	virtual void
+	connect(
+		cparams const& params);
 
 
 	/**

@@ -31,6 +31,7 @@ class eSocketBase			: public RoflException {};
 class eSocketAgain			: public eSocketBase {};
 class eSocketNotConnected	: public eSocketBase {};
 class eSocketTypeNotFound	: public eSocketBase {};
+class eSocketParamNotFound	: public eSocketBase {};
 
 class csocket; // forward declaration for csocket_owner, see below
 
@@ -227,6 +228,19 @@ public:
 
 
 	/**
+	 * @brief	Open socket in listening mode (server side).
+	 *
+	 * This opens a socket in listening mode bound to address 'la'
+	 * with the specified socket parameters.
+	 *
+	 * @param params parameters for this socket
+	 */
+	virtual void
+	listen(
+		cparams const& params) = 0;
+
+
+	/**
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
@@ -255,6 +269,18 @@ public:
 		int type = SOCK_STREAM, 
 		int protocol = 0,
 		bool do_reconnect = false) = 0;
+
+
+	/**
+	 * @brief	Open socket and connect to peer entity (client side).
+	 *
+	 * This opens a socket and connects to a peer entity.
+	 *
+	 * @param params parameters for this socket
+	 */
+	virtual void
+	connect(
+		cparams const& params) = 0;
 
 
 	/**
