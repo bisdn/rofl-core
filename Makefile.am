@@ -17,5 +17,3 @@ uninstall-hook:
 
 maintainer-clean-local:
 	rm -rf $(top_srcdir)/m4
-
-ACLOCAL_AMFLAGS = -I m4
