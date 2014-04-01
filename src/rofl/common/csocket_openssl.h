@@ -82,6 +82,17 @@ private:
 	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
+
+	static std::string const 	SOCKET_PARAM_REMOTE_ADDR;
+	static std::string const 	SOCKET_PARAM_LOCAL_ADDR;
+	static std::string const	SOCKET_PARAM_DOMAIN;
+	static std::string const	SOCKET_PARAM_TYPE;
+	static std::string const	SOCKET_PARAM_PROTOCOL;
+	static std::string const	SOCKET_PARAM_CAPATH;
+	static std::string const	SOCKET_PARAM_CAFILE;
+	static std::string const	SOCKET_PARAM_CERT;
+	static std::string const	SOCKET_PARAM_KEY;
+
 protected:
 
 	enum socket_flag_t {
@@ -255,6 +266,13 @@ public:
 	 */
 	virtual bool
 	is_connected() const { return sockflags.test(CONNECTED); };
+
+
+	/**
+	 *
+	 */
+	static cparams
+	get_params();
 
 
 private:

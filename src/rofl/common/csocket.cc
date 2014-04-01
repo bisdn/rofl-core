@@ -26,3 +26,24 @@ csocket::csocket_factory(
 }
 
 
+
+cparams
+csocket::get_params(
+		enum socket_type_t socket_type)
+{
+	switch (socket_type) {
+	case SOCKET_TYPE_PLAIN: {
+		return csocket_plain::get_params();
+	} break;
+#ifdef HAVE_OPENSSL
+	case SOCKET_TYPE_OPENSSL: {
+		return csocket_openssl::get_params();
+	} break;
+#endif
+	default:
+		throw eSocketTypeNotFound();
+	}
+
+}
+
+

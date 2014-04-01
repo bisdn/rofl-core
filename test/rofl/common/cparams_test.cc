@@ -60,11 +60,9 @@ cparams_test::testAll()
 		// correct, key1 was removed before
 	}
 
-	try {
-		p.set_param("key2");
-	} catch (rofl::eParamNotFound& e) {
-		CPPUNIT_ASSERT(false);
-	}
+	rofl::cparam* p1 = &(p.add_param("key2"));
+	rofl::cparam* p2 = &(p.set_param("key2"));
+	CPPUNIT_ASSERT(p1 == p2);
 
 	if (p.has_param("key1")) {
 		CPPUNIT_ASSERT(false);

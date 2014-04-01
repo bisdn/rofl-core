@@ -7,6 +7,25 @@
 
 using namespace rofl;
 
+std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_ADDR("remote-address");
+std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_ADDR("local-address");
+std::string const	csocket_plain::SOCKET_PARAM_DOMAIN("domain");
+std::string const	csocket_plain::SOCKET_PARAM_TYPE("type");
+std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL("protocol");
+
+/*static*/cparams
+csocket_plain::get_params()
+{
+	cparams p;
+	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_ADDR);
+	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_ADDR);
+	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN);
+	p.add_param(csocket_plain::SOCKET_PARAM_TYPE);
+	p.add_param(csocket_plain::SOCKET_PARAM_PROTOCOL);
+	return p;
+}
+
+
 
 csocket_plain::csocket_plain(
 		csocket_owner *owner) :

@@ -87,6 +87,14 @@ private:
 	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
+
+	static std::string const 	SOCKET_PARAM_REMOTE_ADDR;
+	static std::string const 	SOCKET_PARAM_LOCAL_ADDR;
+	static std::string const	SOCKET_PARAM_DOMAIN;
+	static std::string const	SOCKET_PARAM_TYPE;
+	static std::string const	SOCKET_PARAM_PROTOCOL;
+
+
 protected:
 
 	enum socket_flag_t {
@@ -116,6 +124,7 @@ protected:
 	int 						reconnect_counter;
 
 #define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
+
 
 public:
 
@@ -253,6 +262,13 @@ public:
 	 */
 	virtual bool
 	is_connected() const { return sockflags.test(CONNECTED); };
+
+
+	/**
+	 *
+	 */
+	static cparams
+	get_params();
 
 
 private:

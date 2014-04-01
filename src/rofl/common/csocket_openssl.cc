@@ -6,6 +6,32 @@
 
 using namespace rofl;
 
+
+std::string const 	csocket_openssl::SOCKET_PARAM_REMOTE_ADDR("remote-address");
+std::string const 	csocket_openssl::SOCKET_PARAM_LOCAL_ADDR("local-address");
+std::string const	csocket_openssl::SOCKET_PARAM_DOMAIN("domain");
+std::string const	csocket_openssl::SOCKET_PARAM_TYPE("type");
+std::string const	csocket_openssl::SOCKET_PARAM_CAPATH("capath");
+std::string const	csocket_openssl::SOCKET_PARAM_CAFILE("cafile");
+std::string const	csocket_openssl::SOCKET_PARAM_CERT("cert");
+std::string const	csocket_openssl::SOCKET_PARAM_KEY("key");
+
+/*static*/cparams
+csocket_openssl::get_params()
+{
+	cparams p;
+	p.add_param(csocket_openssl::SOCKET_PARAM_REMOTE_ADDR);
+	p.add_param(csocket_openssl::SOCKET_PARAM_LOCAL_ADDR);
+	p.add_param(csocket_openssl::SOCKET_PARAM_DOMAIN);
+	p.add_param(csocket_openssl::SOCKET_PARAM_TYPE);
+	p.add_param(csocket_openssl::SOCKET_PARAM_PROTOCOL);
+	p.add_param(csocket_openssl::SOCKET_PARAM_CAPATH);
+	p.add_param(csocket_openssl::SOCKET_PARAM_CAFILE);
+	p.add_param(csocket_openssl::SOCKET_PARAM_CERT);
+	p.add_param(csocket_openssl::SOCKET_PARAM_KEY);
+	return p;
+}
+
 bool csocket_openssl::ssl_initialized = false;
 
 void

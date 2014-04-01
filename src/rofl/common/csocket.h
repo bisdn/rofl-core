@@ -19,10 +19,11 @@
 #include <sys/socket.h>
 #include <assert.h>
 
-#include "croflexception.h"
-#include "ciosrv.h"
-#include "caddress.h"
-#include "logging.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/cparams.h"
 
 namespace rofl {
 
@@ -148,7 +149,7 @@ protected:
 	int 						type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
 	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
 	int 						backlog; 			/**< backlog value for listen() system call */
-
+	cparams						params;				/**< parameters for a specific socket instance */
 
 public:
 
@@ -158,6 +159,13 @@ public:
 	static csocket*
 	csocket_factory(
 			enum socket_type_t socket_type, csocket_owner *owner);
+
+	/**
+	 *
+	 */
+	static cparams
+	get_params(
+			enum socket_type_t socket_type);
 
 
 public:
