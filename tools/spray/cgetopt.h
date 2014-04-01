@@ -8,16 +8,10 @@
 #ifndef CGETOPT_H_
 #define CGETOPT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include <map>
 #include <string>

@@ -7,7 +7,11 @@ export INCLUDES += -I$(abs_srcdir)/../src/
 unittest_SOURCES= \
         unittest.cc \
         csegmsg_test.cc \
-        csegmsg_test.h 
+        csegmsg_test.h \
+	cparam_test.cc \
+	cparam_test.h \
+	cparams_test.cc \
+	cparams_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

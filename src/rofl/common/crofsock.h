@@ -8,16 +8,9 @@
 #ifndef CROFENDPNT_H_
 #define CROFENDPNT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
 #include <stdio.h>
 #include <strings.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 #include <set>
 #include <deque>

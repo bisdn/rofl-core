@@ -8,16 +8,10 @@
 #ifndef CTIMEVAL_H_
 #define CTIMEVAL_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
-#ifdef __cplusplus
-}
-#endif
 
 namespace spray
 {

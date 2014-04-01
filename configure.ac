@@ -1,5 +1,5 @@
-AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl)
-AC_CONFIG_HEADERS([src/rofl_config.h])
+AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl, https://www.codebasin.net/redmine/projects/rofl-core)
+#AC_CONFIG_HEADERS([src/rofl_config.h:src/rofl_config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -15,7 +15,6 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AUTOCONF_ENV="SHELL=/bin/sh"
 
-
 LT_INIT
 AC_ENABLE_STATIC
 
@@ -23,6 +22,7 @@ AC_ENABLE_STATIC
 CFLAGS="-Werror -Wall $CFLAGS"
 CXXFLAGS="-Werror -Wall $CXXFLAGS"
 AC_DEFINE([__STDC_FORMAT_MACROS], [], [Description])
+	
 
 # Debug
 m4_include([config/debug.m4])
@@ -89,7 +89,6 @@ AC_CONFIG_FILES([
 	tools/Makefile
 	tools/spray/Makefile
 
-
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile
@@ -102,7 +101,8 @@ AC_CONFIG_FILES([
 	test/rofl/common/openflow/Makefile
 	test/rofl/common/openflow/messages/Makefile
 	test/rofl/common/protocols/Makefile
-	])
+	
+	src/rofl_config.h])
 
 # Doxygen (here to be the last Makefile) 
 m4_include([config/doxygen.m4])

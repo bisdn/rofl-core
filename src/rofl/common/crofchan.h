@@ -9,14 +9,7 @@
 #define CROFCHAN_H_
 
 #include <map>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/ciosrv.h"

@@ -30,10 +30,9 @@ m4
 ar-lib
 test-driver
 
+src/rofl_pipeline.h
+
 /build-*
 /build/*
-
-src/rofl_pipeline.h
-src/rofl_config.h.in
 
 !.gitignore

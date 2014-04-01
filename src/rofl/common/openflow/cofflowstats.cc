@@ -115,7 +115,15 @@ cofflow_stats_request::set_match(cofmatch const& match)
 
 
 cofmatch&
-cofflow_stats_request::get_match()
+cofflow_stats_request::set_match()
+{
+	return match;
+}
+
+
+
+cofmatch const&
+cofflow_stats_request::get_match() const
 {
 	return match;
 }

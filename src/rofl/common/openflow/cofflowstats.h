@@ -194,7 +194,13 @@ public:
 	 *
 	 */
 	cofmatch&
-	get_match();
+	set_match();
+
+	/**
+	 *
+	 */
+	cofmatch const&
+	get_match() const;
 
 public:
 

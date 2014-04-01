@@ -8,14 +8,7 @@
 #ifndef COFHELLOELEMS_H_
 #define COFHELLOELEMS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 
 #include "rofl/common/openflow/cofhelloelem.h"

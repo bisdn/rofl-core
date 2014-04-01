@@ -5,15 +5,7 @@
 #ifndef CROFCTLIMPL_H
 #define CROFCTLIMPL_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
-
 #include <map>
 #include <string>
 

@@ -72,7 +72,11 @@ librofl_common_la_SOURCES = \
 		csegmentation.h \
 		csegmentation.cc \
 		csegmsg.h \
-		csegmsg.cc
+		csegmsg.cc \
+		cparam.h \
+		cparam.cc \
+		cparams.h \
+		cparams.cc
 		
 if HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -124,7 +128,9 @@ library_include_HEADERS= \
 		ctransactions.h \
 		logging.h \
 		csegmentation.h \
-		csegmsg.h
+		csegmsg.h \
+		cparam.h \
+		cparams.h
 
 if HAVE_OPENSSL
 library_include_HEADERS += \

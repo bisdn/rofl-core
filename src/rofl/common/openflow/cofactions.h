@@ -5,14 +5,7 @@
 #ifndef COFACLIST_H
 #define COFACLIST_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <vector>
 #include <algorithm>
 

@@ -11,22 +11,23 @@ if test "$without_pipeline" = "yes"; then
 	PIPELINE_SUPPORT="no"
 else
 	PIPELINE_SUPPORT="yes"
-	AC_DEFINE([PIPELINE_SUPPORT], [], [Description])
 fi
 
 #Fancy message
 AC_MSG_RESULT($PIPELINE_SUPPORT)
 
 AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
-AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
-        src/rofl/datapath/pipeline/Makefile
-        src/rofl/datapath/pipeline/common/Makefile
-        src/rofl/datapath/pipeline/platform/Makefile
-        src/rofl/datapath/pipeline/openflow/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow1x/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/Makefile
-        src/rofl/datapath/pipeline/util/Makefile
+AM_COND_IF([PIPELINE_SUPPORT],[
+	AC_SUBST([ROFL_PIPELINE_PRESENT], ["#define ROFL_PIPELINE_PRESENT 1"])
+	AC_CONFIG_FILES([
+	src/rofl/datapath/pipeline/Makefile
+	src/rofl/datapath/pipeline/common/Makefile
+	src/rofl/datapath/pipeline/platform/Makefile
+	src/rofl/datapath/pipeline/openflow/Makefile
+	src/rofl/datapath/pipeline/openflow/openflow1x/Makefile
+	src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
+	src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/Makefile
+	src/rofl/datapath/pipeline/util/Makefile
 
 	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
 	test/rofl/datapath/pipeline/monitoring/Makefile
