@@ -30,6 +30,8 @@ m4
 ar-lib
 test-driver
 
+src/rofl_pipeline.h
+
 /build-*
 /build/*
 
