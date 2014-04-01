@@ -8,6 +8,9 @@ class cparam_test : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( cparam_test );
 	CPPUNIT_TEST( testAll );
+	CPPUNIT_TEST( testInt );
+	CPPUNIT_TEST( testUnsignedInt );
+	CPPUNIT_TEST( testBool );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -18,5 +21,8 @@ public:
 	void tearDown();
 
 	void testAll();
+	void testInt();
+	void testUnsignedInt();
+	void testBool();
 };
 

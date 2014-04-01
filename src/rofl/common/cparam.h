@@ -10,6 +10,8 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <cstdlib>
 
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
@@ -77,11 +79,47 @@ public:
 	std::string const&
 	get_string() const { return param; };
 
+	/**
+	 *
+	 */
+	void
+	set_int(int value);
+
+	/**
+	 *
+	 */
+	int
+	get_int() const;
+
+	/**
+	 *
+	 */
+	void
+	set_uint(unsigned int value);
+
+	/**
+	 *
+	 */
+	unsigned int
+	get_uint() const;
+
+	/**
+	 *
+	 */
+	void
+	set_bool(bool value);
+
+	/**
+	 *
+	 */
+	bool
+	get_bool() const;
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cparam const& param) {
-		os << rofl::indent(0) << "<cparam param: " << param.param << " >" << std::endl;
+		os << rofl::indent(0) << "<cparam param: \"" << param.param << "\" >" << std::endl;
 		return os;
 	};
 };
