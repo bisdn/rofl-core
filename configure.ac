@@ -1,5 +1,5 @@
 AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl, https://www.codebasin.net/redmine/projects/rofl-core)
-#AC_CONFIG_HEADERS([src/rofl_config.h:src/rofl_config.h])
+
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR([m4])
 
