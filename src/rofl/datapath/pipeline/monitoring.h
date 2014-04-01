@@ -17,12 +17,10 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include <time.h>
+#include "platform/lock.h"
 
 //fwd decl
 struct monitored_entity;
-typedef void platform_mutex_t;
-typedef void platform_rwlock_t;
-
 
 enum sensor_data_type{
 	SENSOR_DATA_T_OHTER=1,		//a measure other than those listed below

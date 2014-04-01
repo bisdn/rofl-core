@@ -11,6 +11,7 @@
 #include "openflow/of_switch.h"
 #include "switch_port.h"
 #include "monitoring.h"
+#include "platform/lock.h"
 
 /**
 * @file physical_switch.h
@@ -124,9 +125,6 @@
 #endif
     
 #define PHYSICAL_SWITCH_MAX_NUM_META_PORTS 8
-
-//fwd decl
-typedef void platform_mutex_t;
 
 //Opaque platform state (to be used, maybe, for platform hooks).
 //Currently unused
