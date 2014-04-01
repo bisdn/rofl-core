@@ -81,7 +81,8 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 
 cofmsg_flow_removed::cofmsg_flow_removed(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	match(get_version())
 {
 	ofh_flow_removed = soframe();
 }
