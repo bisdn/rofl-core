@@ -16,6 +16,16 @@ std::string const	csocket_plain::SOCKET_PARAM_DOMAIN("domain"); 					// "inet", 
 std::string const	csocket_plain::SOCKET_PARAM_TYPE("type");						// "stream", "dgram"
 std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL("protocol");				// "tcp", "udp"
 
+bool const 			csocket_plain::SOCKET_PARAM_DO_RECONNECT_DEFAULT	= false;
+std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME_DEFAULT = std::string("127.0.0.1");
+std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_PORT_DEFAULT		= std::string("6653");
+std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME_DEFAULT 	= std::string("127.0.0.1");
+std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_PORT_DEFAULT		= std::string("0");
+std::string const	csocket_plain::SOCKET_PARAM_DOMAIN_DEFAULT			= std::string("inet");
+std::string const	csocket_plain::SOCKET_PARAM_TYPE_DEFAULT			= std::string("stream");
+std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL_DEFAULT		= std::string("tcp");
+
+
 /*static*/cparams
 csocket_plain::get_params()
 {
@@ -24,14 +34,14 @@ csocket_plain::get_params()
 	 */
 
 	cparams p;
-	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT).		set_bool(false);
-	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME).	set_string("127.0.0.1");
-	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_PORT).		set_string("6653");
-	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME).	set_string("127.0.0.1");
-	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_PORT).		set_string("0");
-	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN).			set_string("inet");
-	p.add_param(csocket_plain::SOCKET_PARAM_TYPE).				set_string("stream");
-	p.add_param(csocket_plain::SOCKET_PARAM_PROTOCOL).			set_string("tcp");
+	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT).		set_bool(SOCKET_PARAM_DO_RECONNECT_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME).	set_string(SOCKET_PARAM_REMOTE_HOSTNAME_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_PORT).		set_string(SOCKET_PARAM_REMOTE_PORT_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME).	set_string(SOCKET_PARAM_LOCAL_HOSTNAME_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_PORT).		set_string(SOCKET_PARAM_LOCAL_PORT_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN).			set_string(SOCKET_PARAM_DOMAIN_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_TYPE).				set_string(SOCKET_PARAM_TYPE_DEFAULT);
+	p.add_param(csocket_plain::SOCKET_PARAM_PROTOCOL).			set_string(SOCKET_PARAM_PROTOCOL_DEFAULT);
 	return p;
 }
 
@@ -260,10 +270,10 @@ csocket_plain::listen(
 	 */
 	int domain = 0, sa_family = 0;
 
-	if (params.get_param("domain").get_string() == std::string("inet")) {
+	if (params.get_param(SOCKET_PARAM_DOMAIN).get_string() == std::string("inet")) {
 		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param("domain").get_string() == std::string("inet6")) {
+	if (params.get_param(SOCKET_PARAM_DOMAIN).get_string() == std::string("inet6")) {
 		domain = sa_family = PF_INET6;
 	}
 
@@ -276,10 +286,10 @@ csocket_plain::listen(
 	 */
 	int type = 0;
 
-	if (params.get_param("type").get_string() == std::string("stream")) {
+	if (params.get_param(SOCKET_PARAM_TYPE).get_string() == std::string("stream")) {
 		type = SOCK_STREAM;
 	} else
-	if (params.get_param("type").get_string() == std::string("dgram")) {
+	if (params.get_param(SOCKET_PARAM_TYPE).get_string() == std::string("dgram")) {
 		type = SOCK_DGRAM;
 	}
 
@@ -288,10 +298,10 @@ csocket_plain::listen(
 	 */
 	int protocol = 0;
 
-	if (params.get_param("protocol").get_string() == std::string("tcp")) {
+	if (params.get_param(SOCKET_PARAM_PROTOCOL).get_string() == std::string("tcp")) {
 		protocol = IPPROTO_TCP;
 	} else
-	if (params.get_param("protocol").get_string() == std::string("udp")) {
+	if (params.get_param(SOCKET_PARAM_PROTOCOL).get_string() == std::string("udp")) {
 		protocol = IPPROTO_UDP;
 	}
 
@@ -478,10 +488,10 @@ csocket_plain::connect(
 	 */
 	int domain = 0, sa_family = 0;
 
-	if (params.get_param("domain").get_string() == std::string("inet")) {
+	if (params.get_param(SOCKET_PARAM_DOMAIN).get_string() == std::string("inet")) {
 		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param("domain").get_string() == std::string("inet6")) {
+	if (params.get_param(SOCKET_PARAM_DOMAIN).get_string() == std::string("inet6")) {
 		domain = sa_family = PF_INET6;
 	}
 
@@ -498,10 +508,10 @@ csocket_plain::connect(
 	 */
 	int type = 0;
 
-	if (params.get_param("type").get_string() == std::string("stream")) {
+	if (params.get_param(SOCKET_PARAM_TYPE).get_string() == std::string("stream")) {
 		type = SOCK_STREAM;
 	} else
-	if (params.get_param("type").get_string() == std::string("dgram")) {
+	if (params.get_param(SOCKET_PARAM_TYPE).get_string() == std::string("dgram")) {
 		type = SOCK_DGRAM;
 	}
 
@@ -510,15 +520,16 @@ csocket_plain::connect(
 	 */
 	int protocol = 0;
 
-	if (params.get_param("protocol").get_string() == std::string("tcp")) {
+	if (params.get_param(SOCKET_PARAM_PROTOCOL).get_string() == std::string("tcp")) {
 		protocol = IPPROTO_TCP;
 	} else
-	if (params.get_param("protocol").get_string() == std::string("udp")) {
+	if (params.get_param(SOCKET_PARAM_PROTOCOL).get_string() == std::string("udp")) {
 		protocol = IPPROTO_UDP;
 	}
 
+	bool do_reconnect = params.get_param(SOCKET_PARAM_DO_RECONNECT).get_bool();
 
-	connect(raddr, laddr, domain, type, protocol);
+	connect(raddr, laddr, domain, type, protocol, do_reconnect);
 }
 
 

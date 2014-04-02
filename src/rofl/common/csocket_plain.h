@@ -97,6 +97,14 @@ private:
 	static std::string const	SOCKET_PARAM_TYPE;
 	static std::string const	SOCKET_PARAM_PROTOCOL;
 
+	static bool const			SOCKET_PARAM_DO_RECONNECT_DEFAULT;
+	static std::string const 	SOCKET_PARAM_REMOTE_HOSTNAME_DEFAULT;
+	static std::string const 	SOCKET_PARAM_REMOTE_PORT_DEFAULT;
+	static std::string const 	SOCKET_PARAM_LOCAL_HOSTNAME_DEFAULT;
+	static std::string const 	SOCKET_PARAM_LOCAL_PORT_DEFAULT;
+	static std::string const	SOCKET_PARAM_DOMAIN_DEFAULT;
+	static std::string const	SOCKET_PARAM_TYPE_DEFAULT;
+	static std::string const	SOCKET_PARAM_PROTOCOL_DEFAULT;
 
 protected:
 
