@@ -127,12 +127,15 @@ crofchan::clear()
 void
 crofchan::add_conn(
 		uint8_t aux_id,
+		int reconnect_start_timeout,
 		enum rofl::csocket::socket_type_t socket_type,
 		int domain,
 		int type,
 		int protocol,
 		caddress const& ra)
 {
+	this->reconnect_start_timeout = reconnect_start_timeout;
+
 	if (conns.find(aux_id) != conns.end()) {
 		throw eRofChanExists();
 	}
@@ -161,9 +164,12 @@ crofchan::add_conn(
 void
 crofchan::add_conn(
 		uint8_t aux_id,
+		int reconnect_start_timeout,
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
+	this->reconnect_start_timeout = reconnect_start_timeout;
+
 	if (conns.find(aux_id) != conns.end()) {
 		throw eRofChanExists();
 	}

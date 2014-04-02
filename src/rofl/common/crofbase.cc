@@ -615,6 +615,19 @@ crofbase::rpc_connect_to_ctl(
 }
 
 
+
+void
+crofbase::rpc_connect_to_ctl(
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int reconnect_start_timeout,
+		enum rofl::csocket::socket_type_t socket_type,
+		cparams const& socket_params)
+{
+	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, socket_type, socket_params));
+}
+
+
+
 void
 crofbase::rpc_disconnect_from_ctl(
 		crofctl *ctl)

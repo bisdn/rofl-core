@@ -139,13 +139,22 @@ public:
 	 *
 	 */
 	void
-	add_conn(uint8_t aux_id, enum rofl::csocket::socket_type_t socket_type, int domain, int type, int protocol, caddress const& ra);
+	add_conn(uint8_t aux_id,
+			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
+			int domain,
+			int type,
+			int protocol,
+			caddress const& ra);
 
 	/**
 	 *
 	 */
 	void
-	add_conn(uint8_t aux_id, enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+	add_conn(uint8_t aux_id,
+			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& socket_params);
 
 	/**
 	 *

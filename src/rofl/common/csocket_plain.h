@@ -89,7 +89,6 @@ private:
 
 
 	static std::string const 	SOCKET_PARAM_DO_RECONNECT;
-	static std::string const	SOCKET_PARAM_ADDRESS_FAMILY;
 	static std::string const 	SOCKET_PARAM_REMOTE_HOSTNAME;
 	static std::string const 	SOCKET_PARAM_REMOTE_PORT;
 	static std::string const 	SOCKET_PARAM_LOCAL_HOSTNAME;

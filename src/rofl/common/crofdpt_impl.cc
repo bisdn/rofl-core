@@ -73,7 +73,7 @@ crofdpt_impl::crofdpt_impl(
 				transactions(this),
 				state(STATE_INIT)
 {
-	rofchan.add_conn(0, socket_type, domain, type, protocol, ra); // todo check if we need ssl_ctx here
+	rofchan.add_conn(0, /*reconnect-start-timeout*/2, socket_type, domain, type, protocol, ra); // todo check if we need ssl_ctx here
 }
 
 

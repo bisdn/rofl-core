@@ -362,6 +362,28 @@ public:
 
 
 	/**
+	 * @fn	 	rpc_connect_to_ctl
+	 * @brief	Connects to a remote controller in data path role.
+	 *
+	 * Establishes a socket connection to a remote controller entity.
+	 * When the connection is successfully established, crofbase calls
+	 * method crofbase::handle_ctrl_open().
+	 *
+	 * \see{ handle_ctrl_open() }
+	 *
+	 * @param ofp_version OpenFlow version to use for connecting to controller
+	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param socket_params set of parameters for creating connecting socket
+	 */
+	void
+	rpc_connect_to_ctl(
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& socket_params);
+
+
+	/**
 	 * @fn		rpc_disconnect_from_ctl
 	 * @brief 	Closes a connection to a controller entity with a proper shutdown.
 	 *

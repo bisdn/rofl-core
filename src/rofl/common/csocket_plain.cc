@@ -8,7 +8,6 @@
 using namespace rofl;
 
 std::string const 	csocket_plain::SOCKET_PARAM_DO_RECONNECT("do-reconnect");
-std::string const 	csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY("address-family"); 	// "inet", "inet6"
 std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME("remote-hostname");
 std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_PORT("remote-port");			// "6653"
 std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME("local-hostname");
@@ -26,7 +25,6 @@ csocket_plain::get_params()
 
 	cparams p;
 	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT).		set_bool(false);
-	p.add_param(csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY).	set_string("inet");
 	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME).	set_string("127.0.0.1");
 	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_PORT).		set_string("6653");
 	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME).	set_string("127.0.0.1");
@@ -472,15 +470,19 @@ csocket_plain::connect(
 		cparams const& params)
 {
 	/*
-	 * local address
+	 * local, remote address and domain
 	 */
-	unsigned int sa_family = 0;
 
-	if (params.get_param(SOCKET_PARAM_ADDRESS_FAMILY) == std::string("inet")) {
-		sa_family = AF_INET;
+	/*
+	 * domain
+	 */
+	int domain = 0, sa_family = 0;
+
+	if (params.get_param("domain").get_string() == std::string("inet")) {
+		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param(SOCKET_PARAM_ADDRESS_FAMILY) == std::string("inet6")) {
-		sa_family = AF_INET6;
+	if (params.get_param("domain").get_string() == std::string("inet6")) {
+		domain = sa_family = PF_INET6;
 	}
 
 	rofl::caddress laddr(sa_family,
@@ -490,18 +492,6 @@ csocket_plain::connect(
 	rofl::caddress raddr(sa_family,
 			params.get_param(SOCKET_PARAM_REMOTE_HOSTNAME).get_string().c_str(),
 			params.get_param(SOCKET_PARAM_REMOTE_PORT).get_uint());
-
-	/*
-	 * domain
-	 */
-	int domain = 0;
-
-	if (params.get_param("domain").get_string() == std::string("inet")) {
-		domain = PF_INET;
-	} else
-	if (params.get_param("domain").get_string() == std::string("inet6")) {
-		domain = PF_INET6;
-	}
 
 	/*
 	 * type
