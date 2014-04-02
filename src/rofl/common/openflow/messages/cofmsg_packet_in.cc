@@ -133,7 +133,8 @@ cofmsg_packet_in::length() const
 		return (sizeof(struct rofl::openflow10::ofp_packet_in) - 2 + packet.framelen());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.framelen());
+		//return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.framelen());
+		return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());

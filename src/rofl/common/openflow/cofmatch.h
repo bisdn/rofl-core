@@ -481,10 +481,16 @@ public:
 	void set_nw_tos(uint8_t tos) {
 		matches.add_match(coxmatch_ofx_nw_tos(tos));
 	};
-	void set_nw_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_nw_src(caddress const& src) {
+		matches.add_match(coxmatch_ofx_nw_src(src));
+	};
+	void set_nw_src(caddress const& src, caddress const& mask) {
 		matches.add_match(coxmatch_ofx_nw_src(src, mask));
 	};
-	void set_nw_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_nw_dst(caddress const& dst) {
+		matches.add_match(coxmatch_ofx_nw_dst(dst));
+	};
+	void set_nw_dst(caddress const& dst, caddress const& mask) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst, mask));
 	};
 	void set_tp_src(uint16_t src_port) {
@@ -501,19 +507,31 @@ public:
 	void set_in_phy_port(uint32_t in_phy_port) {
 		matches.add_match(coxmatch_ofb_in_phy_port(in_phy_port));
 	};
-	void set_metadata(uint64_t metadata, uint64_t mask = 0xffffffffffffffff) {
+	void set_metadata(uint64_t metadata) {
+		matches.add_match(coxmatch_ofb_metadata(metadata));
+	};
+	void set_metadata(uint64_t metadata, uint64_t mask) {
 		matches.add_match(coxmatch_ofb_metadata(metadata, mask));
 	};
-	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff")) {
+	void set_eth_dst(cmacaddr const& maddr) {
+		matches.add_match(coxmatch_ofb_eth_dst(maddr));
+	};
+	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_eth_dst(maddr, mmask));
 	};
-	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff")) {
+	void set_eth_src(cmacaddr const& maddr) {
+		matches.add_match(coxmatch_ofb_eth_src(maddr));
+	};
+	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_eth_src(maddr, mmask));
 	};
 	void set_eth_type( uint16_t dl_type) {
 		matches.add_match(coxmatch_ofb_eth_type(dl_type));
 	};
-	void set_vlan_vid(uint16_t vid, uint16_t mask = 0xffff) {
+	void set_vlan_vid(uint16_t vid) {
+		matches.add_match(coxmatch_ofb_vlan_vid(vid));
+	};
+	void set_vlan_vid(uint16_t vid, uint16_t mask) {
 		matches.add_match(coxmatch_ofb_vlan_vid(vid, mask));
 	};
 	void set_vlan_present() {
@@ -534,10 +552,16 @@ public:
 	void set_ip_proto(uint8_t proto) {
 		matches.add_match(coxmatch_ofb_ip_proto(proto));
 	};
-	void set_ipv4_src(caddress const& src, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_ipv4_src(caddress const& src) {
+		matches.add_match(coxmatch_ofb_ipv4_src(src));
+	};
+	void set_ipv4_src(caddress const& src, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src, mask));
 	};
-	void set_ipv4_dst(caddress const& dst, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_ipv4_dst(caddress const& dst) {
+		matches.add_match(coxmatch_ofb_ipv4_dst(dst));
+	};
+	void set_ipv4_dst(caddress const& dst, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst, mask));
 	};
 	void set_tcp_src(uint16_t src_port) {
@@ -567,22 +591,40 @@ public:
 	void set_arp_opcode(uint16_t opcode) {
 		matches.add_match(coxmatch_ofb_arp_opcode(opcode));
 	};
-	void set_arp_spa(caddress const& spa, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_arp_spa(caddress const& spa) {
+		matches.add_match(coxmatch_ofb_arp_spa(spa));
+	};
+	void set_arp_spa(caddress const& spa, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa, mask));
 	};
-	void set_arp_tpa(caddress const& tpa, caddress const& mask = caddress(AF_INET, "255.255.255.255")) {
+	void set_arp_tpa(caddress const& tpa) {
+		matches.add_match(coxmatch_ofb_arp_tpa(tpa));
+	};
+	void set_arp_tpa(caddress const& tpa, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa, mask));
 	};
-	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff")) {
+	void set_arp_sha(cmacaddr const& sha) {
+		matches.add_match(coxmatch_ofb_arp_sha(sha));
+	};
+	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_arp_sha(sha, mmask));
 	};
-	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff")) {
+	void set_arp_tha(cmacaddr const& tha) {
+		matches.add_match(coxmatch_ofb_arp_tha(tha));
+	};
+	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_arp_tha(tha, mmask));
 	};
-	void set_ipv6_src(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")) {
+	void set_ipv6_src(caddress const& addr) {
+		matches.add_match(coxmatch_ofb_ipv6_src(addr));
+	};
+	void set_ipv6_src(caddress const& addr, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr, mask));
 	};
-	void set_ipv6_dst(caddress const& addr, caddress const& mask = caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")) {
+	void set_ipv6_dst(caddress const& addr) {
+		matches.add_match(coxmatch_ofb_ipv6_dst(addr));
+	};
+	void set_ipv6_dst(caddress const& addr, caddress const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr, mask));
 	};
 	void set_ipv6_flabel(uint32_t flabel) {
@@ -614,13 +656,22 @@ public:
 	void set_mpls_bos(bool bos) {
 		matches.add_match(coxmatch_ofb_mpls_bos(bos));
 	};
-	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask = 0xffffffffffffffff) {
+	void set_tunnel_id(uint64_t tunnel_id) {
+		matches.add_match(coxmatch_ofb_tunnel_id(tunnel_id));
+	};
+	void set_tunnel_id(uint64_t tunnel_id, uint64_t mask) {
 		matches.add_match(coxmatch_ofb_tunnel_id(tunnel_id, mask));
 	};
-	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask = 0xffffffff) {
+	void set_pbb_isid(uint32_t pbb_isid) {
+		matches.add_match(coxmatch_ofb_pbb_isid(pbb_isid));
+	};
+	void set_pbb_isid(uint32_t pbb_isid, uint32_t mask) {
 		matches.add_match(coxmatch_ofb_pbb_isid(pbb_isid, mask));
 	};
-	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask = 0xffff) {
+	void set_ipv6_exthdr(uint16_t ipv6_exthdr) {
+		matches.add_match(coxmatch_ofb_ipv6_exthdr(ipv6_exthdr));
+	};
+	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask) {
 		matches.add_match(coxmatch_ofb_ipv6_exthdr(ipv6_exthdr, mask));
 	};
 };
