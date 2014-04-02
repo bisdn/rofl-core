@@ -216,6 +216,12 @@ public:
 	 *
 	 */
 	void
+	connect(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+
+	/**
+	 *
+	 */
+	void
 	reconnect();
 
 	/**

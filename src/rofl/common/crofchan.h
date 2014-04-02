@@ -145,6 +145,12 @@ public:
 	 *
 	 */
 	void
+	add_conn(uint8_t aux_id, enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+
+	/**
+	 *
+	 */
+	void
 	add_conn(crofconn* conn, uint8_t aux_id);
 
 	/**

@@ -291,6 +291,18 @@ public:
 
 
 	/**
+	 * @fn		rpc_listen_for_dpts
+	 * @brief	Opens a listening socket for accepting connection requests from data path elements
+	 *
+	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param params set of parameters used for creating a listening socket
+	 */
+	void
+	rpc_listen_for_dpts(
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& params);
+
+	/**
 	 * @fn		rpc_listen_for_ctls
 	 * @brief	Opens a listening socket for accepting connection requests from controllers
 	 *
@@ -308,6 +320,18 @@ public:
 			int type = SOCK_STREAM,
 			int protocol = IPPROTO_TCP,
 			int backlog = 10);
+
+	/**
+	 * @fn		rpc_listen_for_ctls
+	 * @brief	Opens a listening socket for accepting connection requests from controllers
+	 *
+	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param params set of parameters used for creating a listening socket
+	 */
+	void
+	rpc_listen_for_ctls(
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& params);
 
 
 	/**
@@ -569,6 +593,30 @@ protected:
 			int domain,
 			int type,
 			int protocol);
+
+
+	/**
+	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
+	 *
+	 * This method constructs a new instance of class cofctl for actively establishing a single connection
+	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofctl and add additional functionality. cofctl will indefinitely attempt
+	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_ctl().
+	 * When connection setup and the initial HELLO message exchange in OpenFlow succeeds, method
+	 * crofbase::handle_ctrl_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
+	 * @param ofp_version OpenFlow version to use for connecting to controller
+	 * @param ra Remote address to connect to
+	 * @param params set of parameters used for socket creation
+	 */
+	virtual crofctl*
+	cofctl_factory(
+			crofbase* owner,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			int reconnect_start_timeout,
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& params);
 
 
 	/**

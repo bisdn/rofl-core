@@ -63,6 +63,18 @@ crofsock::connect(
 
 
 void
+crofsock::connect(
+		enum rofl::csocket::socket_type_t socket_type,
+		cparams const& socket_params)
+{
+	if (socket)
+		delete socket;
+	(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
+}
+
+
+
+void
 crofsock::reconnect()
 {
 	socket->reconnect();

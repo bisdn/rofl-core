@@ -65,6 +65,26 @@ crofctl_impl::crofctl_impl(
 
 
 
+crofctl_impl::crofctl_impl(
+		crofbase *rofbase,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int reconnect_start_timeout,
+		rofl::csocket::socket_type_t socket_type,
+		cparams const& socket_params) :
+				crofctl(rofbase),
+				ctid(0),
+				rofbase(rofbase),
+				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
+				cached_generation_id(0),
+				rofchan(this, versionbitmap),
+				transactions(this)
+{
+	async_config = rofbase->async_config_role_default_template;
+	rofchan.add_conn(/*aux-id=*/0, socket_type, socket_params);
+}
+
+
+
 crofctl_impl::~crofctl_impl()
 {
 	rofbase->fsptable.delete_fsp_entries(this);

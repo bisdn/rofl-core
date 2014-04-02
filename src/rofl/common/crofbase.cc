@@ -562,6 +562,18 @@ crofbase::rpc_listen_for_dpts(
 
 
 void
+crofbase::rpc_listen_for_dpts(
+		enum rofl::csocket::socket_type_t socket_type,
+		cparams const& params)
+{
+	csocket *socket = csocket::csocket_factory(socket_type, this);
+	socket->listen(params);
+	rpc[RPC_DPT].insert(socket);
+}
+
+
+
+void
 crofbase::rpc_listen_for_ctls(
 		enum rofl::csocket::socket_type_t socket_type,
 		caddress const& addr,
@@ -572,6 +584,18 @@ crofbase::rpc_listen_for_ctls(
 {
 	csocket *socket = csocket::csocket_factory(socket_type, this);
 	socket->listen(addr, domain, type, protocol, backlog);
+	rpc[RPC_CTL].insert(socket);
+}
+
+
+
+void
+crofbase::rpc_listen_for_ctls(
+		enum rofl::csocket::socket_type_t socket_type,
+		cparams const& params)
+{
+	csocket *socket = csocket::csocket_factory(socket_type, this);
+	socket->listen(params);
 	rpc[RPC_CTL].insert(socket);
 }
 
@@ -674,6 +698,19 @@ crofbase::cofctl_factory(
 		int protocol)
 {
 	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, socket_type, ra, domain, type, protocol);
+}
+
+
+
+crofctl*
+crofbase::cofctl_factory(
+		crofbase* owner,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int reconnect_start_timeout,
+		enum rofl::csocket::socket_type_t socket_type,
+		cparams const& params)
+{
+	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, socket_type, params);
 }
 
 
