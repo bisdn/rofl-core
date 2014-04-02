@@ -9,9 +9,6 @@
 #include <bitset>
 #include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <fcntl.h>
@@ -22,9 +19,6 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/csocket.h"
 
@@ -83,28 +77,37 @@ private:
 		};
 	};
 
-	bool 						had_short_write;
-	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
+	bool 				had_short_write;
+	pthread_rwlock_t		pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
+	//Keys
+	static std::string const 	PARAM_KEY_DO_RECONNECT;
+	static std::string const 	PARAM_KEY_REMOTE_HOSTNAME;
+	static std::string const 	PARAM_KEY_REMOTE_PORT;
+	static std::string const 	PARAM_KEY_LOCAL_HOSTNAME;
+	static std::string const 	PARAM_KEY_LOCAL_PORT;
+	static std::string const	PARAM_KEY_DOMAIN;
+	static std::string const	PARAM_KEY_TYPE;
+	static std::string const	PARAM_KEY_PROTOCOL;
 
-	static std::string const 	SOCKET_PARAM_DO_RECONNECT;
-	static std::string const 	SOCKET_PARAM_REMOTE_HOSTNAME;
-	static std::string const 	SOCKET_PARAM_REMOTE_PORT;
-	static std::string const 	SOCKET_PARAM_LOCAL_HOSTNAME;
-	static std::string const 	SOCKET_PARAM_LOCAL_PORT;
-	static std::string const	SOCKET_PARAM_DOMAIN;
-	static std::string const	SOCKET_PARAM_TYPE;
-	static std::string const	SOCKET_PARAM_PROTOCOL;
+	//Values (non-numeric)
+	static std::string const	PARAM_DOMAIN_VALUE_INET;
+	static std::string const	PARAM_DOMAIN_VALUE_INET6;
+	static std::string const	PARAM_TYPE_VALUE_STREAM;
+	static std::string const	PARAM_TYPE_VALUE_DGRAM;
+	static std::string const	PARAM_PROTOCOL_VALUE_TCP;
+	static std::string const	PARAM_PROTOCOL_VALUE_UDP;
 
-	static bool const			SOCKET_PARAM_DO_RECONNECT_DEFAULT;
-	static std::string const 	SOCKET_PARAM_REMOTE_HOSTNAME_DEFAULT;
-	static std::string const 	SOCKET_PARAM_REMOTE_PORT_DEFAULT;
-	static std::string const 	SOCKET_PARAM_LOCAL_HOSTNAME_DEFAULT;
-	static std::string const 	SOCKET_PARAM_LOCAL_PORT_DEFAULT;
-	static std::string const	SOCKET_PARAM_DOMAIN_DEFAULT;
-	static std::string const	SOCKET_PARAM_TYPE_DEFAULT;
-	static std::string const	SOCKET_PARAM_PROTOCOL_DEFAULT;
+	//Defaults
+	static bool const		PARAM_DEFAULT_VALUE_DO_RECONNECT;
+	static std::string const 	PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME;
+	static std::string const 	PARAM_DEFAULT_VALUE_REMOTE_PORT;
+	static std::string const 	PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
+	static std::string const 	PARAM_DEFAULT_VALUE_LOCAL_PORT;
+	static std::string const	PARAM_DEFAULT_VALUE_DOMAIN;
+	static std::string const	PARAM_DEFAULT_VALUE_TYPE;
+	static std::string const	PARAM_DEFAULT_VALUE_PROTOCOL;
 
 protected:
 
