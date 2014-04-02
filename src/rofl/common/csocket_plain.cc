@@ -8,12 +8,14 @@
 using namespace rofl;
 
 std::string const 	csocket_plain::SOCKET_PARAM_DO_RECONNECT("do-reconnect");
-std::string const 	csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY("address-family");
-std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_ADDR("remote-address");
-std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_ADDR("local-address");
-std::string const	csocket_plain::SOCKET_PARAM_DOMAIN("domain");
-std::string const	csocket_plain::SOCKET_PARAM_TYPE("type");
-std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL("protocol");
+std::string const 	csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY("address-family"); 	// "inet", "inet6"
+std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME("remote-hostname");
+std::string const 	csocket_plain::SOCKET_PARAM_REMOTE_PORT("remote-port");			// "6653"
+std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME("local-hostname");
+std::string const 	csocket_plain::SOCKET_PARAM_LOCAL_PORT("local-port");			// "0"
+std::string const	csocket_plain::SOCKET_PARAM_DOMAIN("domain"); 					// "inet", "inet6"
+std::string const	csocket_plain::SOCKET_PARAM_TYPE("type");						// "stream", "dgram"
+std::string const	csocket_plain::SOCKET_PARAM_PROTOCOL("protocol");				// "tcp", "udp"
 
 /*static*/cparams
 csocket_plain::get_params()
@@ -23,13 +25,15 @@ csocket_plain::get_params()
 	 */
 
 	cparams p;
-	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT);
-	p.add_param(csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY);
-	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_ADDR);
-	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_ADDR);
-	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN);
-	p.add_param(csocket_plain::SOCKET_PARAM_TYPE);
-	p.add_param(csocket_plain::SOCKET_PARAM_PROTOCOL);
+	p.add_param(csocket_plain::SOCKET_PARAM_DO_RECONNECT).		set_bool(false);
+	p.add_param(csocket_plain::SOCKET_PARAM_ADDRESS_FAMILY).	set_string("inet");
+	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_HOSTNAME).	set_string("127.0.0.1");
+	p.add_param(csocket_plain::SOCKET_PARAM_REMOTE_PORT).		set_string("6653");
+	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_HOSTNAME).	set_string("127.0.0.1");
+	p.add_param(csocket_plain::SOCKET_PARAM_LOCAL_PORT).		set_string("0");
+	p.add_param(csocket_plain::SOCKET_PARAM_DOMAIN).			set_string("inet");
+	p.add_param(csocket_plain::SOCKET_PARAM_TYPE).				set_string("stream");
+	p.add_param(csocket_plain::SOCKET_PARAM_PROTOCOL).			set_string("tcp");
 	return p;
 }
 
@@ -253,7 +257,48 @@ void
 csocket_plain::listen(
 		cparams const& params)
 {
-	// TODO
+	/*
+	 * local address and domain
+	 */
+	int domain = 0, sa_family = 0;
+
+	if (params.get_param("domain").get_string() == std::string("inet")) {
+		domain = sa_family = PF_INET;
+	} else
+	if (params.get_param("domain").get_string() == std::string("inet6")) {
+		domain = sa_family = PF_INET6;
+	}
+
+	rofl::caddress laddr(sa_family,
+			params.get_param(SOCKET_PARAM_LOCAL_HOSTNAME).get_string().c_str(),
+			params.get_param(SOCKET_PARAM_LOCAL_PORT).get_uint());
+
+	/*
+	 * type
+	 */
+	int type = 0;
+
+	if (params.get_param("type").get_string() == std::string("stream")) {
+		type = SOCK_STREAM;
+	} else
+	if (params.get_param("type").get_string() == std::string("dgram")) {
+		type = SOCK_DGRAM;
+	}
+
+	/*
+	 * protocol
+	 */
+	int protocol = 0;
+
+	if (params.get_param("protocol").get_string() == std::string("tcp")) {
+		protocol = IPPROTO_TCP;
+	} else
+	if (params.get_param("protocol").get_string() == std::string("udp")) {
+		protocol = IPPROTO_UDP;
+	}
+
+
+	listen(laddr, domain, type, protocol);
 }
 
 
@@ -426,32 +471,64 @@ void
 csocket_plain::connect(
 		cparams const& params)
 {
-	if (not params.has_param(csocket_plain::SOCKET_PARAM_REMOTE_ADDR)) {
-		rofl::logging::error << "[rofl][csocket-plain] parameter \"remote-address\" not found" << std::endl;
-		throw eSocketParamNotFound();
+	/*
+	 * local address
+	 */
+	unsigned int sa_family = 0;
+
+	if (params.get_param(SOCKET_PARAM_ADDRESS_FAMILY) == std::string("inet")) {
+		sa_family = AF_INET;
+	} else
+	if (params.get_param(SOCKET_PARAM_ADDRESS_FAMILY) == std::string("inet6")) {
+		sa_family = AF_INET6;
 	}
 
-	if (not params.has_param(csocket_plain::SOCKET_PARAM_LOCAL_ADDR)) {
-		rofl::logging::error << "[rofl][csocket-plain] parameter \"local-address\" not found, using default" << std::endl;
-		// TODO
+	rofl::caddress laddr(sa_family,
+			params.get_param(SOCKET_PARAM_LOCAL_HOSTNAME).get_string().c_str(),
+			params.get_param(SOCKET_PARAM_LOCAL_PORT).get_uint());
+
+	rofl::caddress raddr(sa_family,
+			params.get_param(SOCKET_PARAM_REMOTE_HOSTNAME).get_string().c_str(),
+			params.get_param(SOCKET_PARAM_REMOTE_PORT).get_uint());
+
+	/*
+	 * domain
+	 */
+	int domain = 0;
+
+	if (params.get_param("domain").get_string() == std::string("inet")) {
+		domain = PF_INET;
+	} else
+	if (params.get_param("domain").get_string() == std::string("inet6")) {
+		domain = PF_INET6;
 	}
 
-	if (not params.has_param(csocket_plain::SOCKET_PARAM_DOMAIN)) {
-		rofl::logging::error << "[rofl][csocket-plain] parameter \"domain\" not found, using default" << std::endl;
-		// TODO
+	/*
+	 * type
+	 */
+	int type = 0;
+
+	if (params.get_param("type").get_string() == std::string("stream")) {
+		type = SOCK_STREAM;
+	} else
+	if (params.get_param("type").get_string() == std::string("dgram")) {
+		type = SOCK_DGRAM;
 	}
 
-	if (not params.has_param(csocket_plain::SOCKET_PARAM_TYPE)) {
-		rofl::logging::error << "[rofl][csocket-plain] parameter \"type\" not found, using default" << std::endl;
-		// TODO
+	/*
+	 * protocol
+	 */
+	int protocol = 0;
+
+	if (params.get_param("protocol").get_string() == std::string("tcp")) {
+		protocol = IPPROTO_TCP;
+	} else
+	if (params.get_param("protocol").get_string() == std::string("udp")) {
+		protocol = IPPROTO_UDP;
 	}
 
-	if (not params.has_param(csocket_plain::SOCKET_PARAM_PROTOCOL)) {
-		rofl::logging::error << "[rofl][csocket-plain] parameter \"protocol\" not found, using default" << std::endl;
-		// TODO
-	}
 
-
+	connect(raddr, laddr, domain, type, protocol);
 }
 
 

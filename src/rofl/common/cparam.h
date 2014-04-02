@@ -70,6 +70,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_string(std::string const& param) { this->param = param; };
+
+	/**
+	 *
+	 */
 	std::string&
 	set_string() { return param; };
 
