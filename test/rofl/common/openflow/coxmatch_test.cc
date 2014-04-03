@@ -440,7 +440,7 @@ coxmatch_test::testOxmIPv4Src()
 	rofl::caddress addr(AF_INET, "192.168.1.2");
 	rofl::caddress mask(AF_INET, "255.255.240.0");
 	rofl::openflow::coxmatch_ofb_ipv4_src oxm(addr, mask);
-	std::cerr << oxm;
+	//std::cerr << oxm;
 }
 
 
@@ -448,7 +448,39 @@ coxmatch_test::testOxmIPv4Src()
 void
 coxmatch_test::testOxmIPv4Dst()
 {
+	// TODO
+}
 
+
+
+void
+coxmatch_test::testOxmIPv6Src()
+{
+	rofl::caddress addr(AF_INET6, "fe80:a1a2:a3a4:a5a6:a7a8:a9aa:abac:adae");
+	rofl::caddress mask(AF_INET6, "e0e1:e2e3:e4e5:e6e7:e8e9:eaeb:eced:eeef");
+	/*
+	 * check value/mask
+	 */
+	{
+		rofl::openflow::coxmatch_ofb_ipv6_src oxm(addr, mask);
+		std::cerr << std::endl << oxm;
+	}
+	/*
+	 * check value only
+	 */
+	{
+		rofl::openflow::coxmatch_ofb_ipv6_src oxm(addr);
+		std::cerr << std::endl << oxm;
+	}
+}
+
+
+
+void
+coxmatch_test::testOxmIPv6Dst()
+{
+	// TODO
+	exit(0);
 }
 
 
