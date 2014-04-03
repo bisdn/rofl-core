@@ -1,7 +1,7 @@
 #include "rofl_config.h"
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 #include <rofl/common/ssl_lib.h>
 #endif
 
@@ -18,7 +18,7 @@ main(int argc, char** argv)
 	/* update defaults */
 	env_parser.add_option(coption(true,REQUIRED_ARGUMENT,'l',"logfile","Log file used when daemonization", ETHSWCTLD_LOG_FILE));
 	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 'p', "pidfile", "set pid-file", std::string(ETHSWCTLD_PID_FILE)));
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
 #endif
 	//Parse
@@ -41,7 +41,7 @@ main(int argc, char** argv)
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 	ssl_context *ssl_ctx = NULL;
 
 	if (env_parser.is_arg_set("cert-and-key-file")) {

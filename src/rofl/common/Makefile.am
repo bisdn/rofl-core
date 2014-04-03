@@ -78,7 +78,7 @@ librofl_common_la_SOURCES = \
 		cparams.h \
 		cparams.cc
 		
-if HAVE_OPENSSL
+if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
 		csocket_openssl.h \
 		csocket_openssl.cc \
@@ -132,7 +132,7 @@ library_include_HEADERS= \
 		cparam.h \
 		cparams.h
 
-if HAVE_OPENSSL
+if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \
 		csocket_openssl.h \
 		ssl_lib.h \

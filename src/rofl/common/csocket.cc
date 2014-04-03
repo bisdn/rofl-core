@@ -1,6 +1,6 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_plain.h"
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
 #endif
 
@@ -38,7 +38,7 @@ csocket::csocket_factory(
 	case SOCKET_TYPE_PLAIN: {
 		return new csocket_plain(owner);
 	} break;
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
 		return new csocket_openssl(owner);
 	} break;
@@ -58,7 +58,7 @@ csocket::get_params(
 	case SOCKET_TYPE_PLAIN: {
 		return csocket_plain::get_params();
 	} break;
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
 		return csocket_openssl::get_params();
 	} break;
@@ -78,7 +78,7 @@ csocket::supports_socket_type(enum socket_type_t socket_type) const
 			return true;
 		} break;
 
-#ifdef HAVE_OPENSSL
+#ifdef ROFL_HAVE_OPENSSL
 		case SOCKET_TYPE_OPENSSL: {
 			return true; 
 		} break;
