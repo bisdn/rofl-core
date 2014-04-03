@@ -125,7 +125,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cparam const& param) {
-		os << rofl::indent(0) << "<cparam param: \"" << param.param << "\" >" << std::endl;
+		os << rofl::indent(0) << "<cparam value: \"" << param.param << "\" >" << std::endl;
 		return os;
 	};
 };
