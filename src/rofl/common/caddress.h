@@ -21,6 +21,8 @@
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <endian.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #ifndef htobe16
 	#include "endian_conversion.h"
 #endif
@@ -80,9 +82,35 @@ public:
 
 private:
 
+		/*
+		 * this needs a refactoring in the next round: use struct addrinfo for storing all parameters
+		 */
+		int 				domain;
+		int					sock_type;
+		int					protocol;
+		std::string 		node;		// for getaddrinfo
+		std::string			service;	// for getaddrinfo
+
 	std::string info;	// info string
 
 public:
+
+
+	/**
+	 *
+	 * @param node
+	 * @param service
+	 * @param preferred_family
+	 * @param preferred_socktype
+	 * @param preferred_protocol
+	 */
+	caddress(
+			std::string const& node,
+			std::string const& service,
+			int ai_flags = 0,
+			int preferred_family = 0,
+			int preferred_socktype = 0,
+			int preferred_protocol = 0);
 
 
 	/**
