@@ -9,6 +9,61 @@ using namespace rofl;
 
 
 
+caddress::caddress(
+		std::string const& node,
+		std::string const& service,
+		int ai_flags,
+		int preferred_family,
+		int preferred_socktype,
+		int preferred_protocol) :
+				salen(0),
+				node(node),
+				service(service)
+{
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(struct addrinfo));
+
+	hints.ai_flags		= ai_flags;
+	hints.ai_family 	= preferred_family;
+	hints.ai_socktype 	= preferred_socktype;
+	hints.ai_protocol	= preferred_protocol;
+
+	struct addrinfo *res = (struct addrinfo*)0;
+
+	int rc = getaddrinfo((node.empty()) ? NULL : node.c_str(), (service.empty()) ? NULL : service.c_str(), &hints, &res);
+	if (rc != 0) {
+		switch (rc) {
+		case EAI_ADDRFAMILY:
+		case EAI_AGAIN:
+		case EAI_BADFLAGS:
+		case EAI_FAIL:
+		case EAI_FAMILY:
+		case EAI_MEMORY:
+		case EAI_NODATA:
+		case EAI_NONAME:
+		case EAI_SERVICE:
+		case EAI_SOCKTYPE: {
+			rofl::logging::error << "[rofl][caddress] name resolution failed: " << std::string(gai_strerror(rc)) << std::endl;
+		} break;
+		case EAI_SYSTEM:
+		default: {
+			rofl::logging::error << "[rofl][caddress] name resolution failed: unknown error occured " << std::endl;
+		};
+		}
+		throw eSysCall("getaddrinfo() "+std::string(gai_strerror(rc)));
+	}
+
+	// for now: we take the first entry returned from getaddrinfo
+
+	domain 		= res->ai_family;
+	protocol 	= res->ai_protocol;
+	sock_type 	= res->ai_socktype;
+	ca_saddr 	= (struct sockaddr*)rofl::cmemory::resize(res->ai_addrlen);
+	memcpy((uint8_t*)ca_saddr, (uint8_t*)(res->ai_addr), res->ai_addrlen);
+	salen		= res->ai_addrlen;
+}
+
+
 
 caddress::caddress(int af)
 {
