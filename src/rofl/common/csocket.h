@@ -435,12 +435,10 @@ public:
 	static std::string const	PARAM_PROTOCOL_VALUE_UDP;
 
 	//Socket type specific keys
-	//TODO
-	static std::string const	PARAM_SSL_CA_PATH;
-	static std::string const	PARAM_SSL_CA_FILE;
-	static std::string const	PARAM_SSL_CERT;
-	static std::string const	PARAM_SSL_KEY;
-
+	static std::string const	PARAM_SSL_KEY_CA_PATH;
+	static std::string const	PARAM_SSL_KEY_CA_FILE;
+	static std::string const	PARAM_SSL_KEY_CERT;
+	static std::string const	PARAM_SSL_KEY_PRIVATE_KEY;
 
 
 public:

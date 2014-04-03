@@ -15,10 +15,12 @@ std::string const 	csocket::PARAM_KEY_LOCAL_PORT("local-port");			// "0"
 std::string const	csocket::PARAM_KEY_DOMAIN("domain"); 					// "inet", "inet6"
 std::string const	csocket::PARAM_KEY_TYPE("type");						// "stream", "dgram"
 std::string const	csocket::PARAM_KEY_PROTOCOL("protocol");				// "tcp", "udp"
-std::string const	csocket::PARAM_SSL_CA_PATH("capath");
-std::string const	csocket::PARAM_SSL_CA_FILE("cafile");
-std::string const	csocket::PARAM_SSL_CERT("cert");
-std::string const	csocket::PARAM_SSL_KEY("key");
+
+//Socket type specific keys
+std::string const	csocket::PARAM_SSL_KEY_CA_PATH("ca-path");
+std::string const	csocket::PARAM_SSL_KEY_CA_FILE("ca-file");
+std::string const	csocket::PARAM_SSL_KEY_CERT("cert");
+std::string const	csocket::PARAM_SSL_KEY_PRIVATE_KEY("key");
 
 //Values (non-numeric)
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET_ANY("inet-any");
