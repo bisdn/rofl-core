@@ -350,8 +350,18 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack ofp_match structure
 		 */
-		match.unpack((uint8_t*)&(ofh12_flow_mod->match), be16toh(ofh12_flow_mod->match.length));
+		size_t match_len = be16toh(ofh12_flow_mod->match.length);
+		size_t pad = (0x7 & match_len);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			match_len += 8 - pad;
+		}
 
+		// match.length() returns length of struct openflow12::ofp_match including padding
+		if (get_length() < (openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN + match_len))
+			throw eBadSyntaxTooShort();
+
+		match.unpack((uint8_t*)&(ofh12_flow_mod->match), match_len);
 
 		// match.length() returns length of struct openflow12::ofp_match including padding
 		if (get_length() < (openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()))
@@ -375,7 +385,7 @@ cofmsg_flow_mod::validate()
 		 */
 
 		// openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN does NOT include static part of struct openflow13::ofp_match !!
-		if ((be16toh(ofh12_flow_mod->match.length)) > (get_length() - openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN))
+		if ((be16toh(ofh13_flow_mod->match.length)) > (get_length() - openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
 		// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
@@ -383,8 +393,18 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack ofp_match structure
 		 */
-		match.unpack((uint8_t*)&(ofh13_flow_mod->match), be16toh(ofh13_flow_mod->match.length));
+		size_t match_len = be16toh(ofh12_flow_mod->match.length);
+		size_t pad = (0x7 & match_len);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			match_len += 8 - pad;
+		}
 
+		// match.length() returns length of struct openflow12::ofp_match including padding
+		if (get_length() < (openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN + match_len))
+			throw eBadSyntaxTooShort();
+
+		match.unpack((uint8_t*)&(ofh13_flow_mod->match), be16toh(ofh13_flow_mod->match.length));
 
 		// match.length() returns length of struct openflow13::ofp_match including padding
 		if (get_length() < (openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()))
