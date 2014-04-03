@@ -8,33 +8,15 @@
 using namespace rofl;
 
 
-//Keys
-std::string const 	csocket_plain::PARAM_KEY_DO_RECONNECT("do-reconnect");
-std::string const 	csocket_plain::PARAM_KEY_REMOTE_HOSTNAME("remote-hostname");
-std::string const 	csocket_plain::PARAM_KEY_REMOTE_PORT("remote-port");			// "6653"
-std::string const 	csocket_plain::PARAM_KEY_LOCAL_HOSTNAME("local-hostname");
-std::string const 	csocket_plain::PARAM_KEY_LOCAL_PORT("local-port");			// "0"
-std::string const	csocket_plain::PARAM_KEY_DOMAIN("domain"); 					// "inet", "inet6"
-std::string const	csocket_plain::PARAM_KEY_TYPE("type");						// "stream", "dgram"
-std::string const	csocket_plain::PARAM_KEY_PROTOCOL("protocol");				// "tcp", "udp"
-
-//Values (non-numeric)
-std::string const 	csocket_plain::PARAM_DOMAIN_VALUE_INET("inet");
-std::string const 	csocket_plain::PARAM_DOMAIN_VALUE_INET6("inet6");
-std::string const 	csocket_plain::PARAM_TYPE_VALUE_STREAM("stream");
-std::string const 	csocket_plain::PARAM_TYPE_VALUE_DGRAM("dgram");
-std::string const 	csocket_plain::PARAM_PROTOCOL_VALUE_TCP("tcp");
-std::string const 	csocket_plain::PARAM_PROTOCOL_VALUE_UDP("udp");
-
 //Defaults
 bool const 		csocket_plain::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME	= std::string("127.0.0.1");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_PORT		= std::string("6653");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME	= std::string("127.0.0.1");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT		= std::string("0");
-std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket_plain::PARAM_DOMAIN_VALUE_INET; 
-std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE			= csocket_plain::PARAM_TYPE_VALUE_STREAM; 
-std::string const	csocket_plain::PARAM_DEFAULT_VALUE_PROTOCOL		= csocket_plain::PARAM_PROTOCOL_VALUE_TCP; 
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket::PARAM_DOMAIN_VALUE_INET; 
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE			= csocket::PARAM_TYPE_VALUE_STREAM; 
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_PROTOCOL		= csocket::PARAM_PROTOCOL_VALUE_TCP; 
 
 
 /*static*/cparams
@@ -45,14 +27,14 @@ csocket_plain::get_params()
 	 */
 
 	cparams p;
-	p.add_param(PARAM_KEY_DO_RECONNECT).	set_bool(PARAM_DEFAULT_VALUE_DO_RECONNECT);
-	p.add_param(PARAM_KEY_REMOTE_HOSTNAME).	set_string(PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME);
-	p.add_param(PARAM_KEY_REMOTE_PORT).	set_string(PARAM_DEFAULT_VALUE_REMOTE_PORT);
-	p.add_param(PARAM_KEY_LOCAL_HOSTNAME).	set_string(PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME);
-	p.add_param(PARAM_KEY_LOCAL_PORT).	set_string(PARAM_DEFAULT_VALUE_LOCAL_PORT);
-	p.add_param(PARAM_KEY_DOMAIN).		set_string(PARAM_DEFAULT_VALUE_DOMAIN);
-	p.add_param(PARAM_KEY_TYPE).		set_string(PARAM_DEFAULT_VALUE_TYPE);
-	p.add_param(PARAM_KEY_PROTOCOL).	set_string(PARAM_DEFAULT_VALUE_PROTOCOL);
+	p.add_param(csocket::PARAM_KEY_DO_RECONNECT).set_bool(PARAM_DEFAULT_VALUE_DO_RECONNECT);
+	p.add_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).set_string(PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME);
+	p.add_param(csocket::PARAM_KEY_REMOTE_PORT).set_string(PARAM_DEFAULT_VALUE_REMOTE_PORT);
+	p.add_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string(PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME);
+	p.add_param(csocket::PARAM_KEY_LOCAL_PORT).set_string(PARAM_DEFAULT_VALUE_LOCAL_PORT);
+	p.add_param(csocket::PARAM_KEY_DOMAIN).set_string(PARAM_DEFAULT_VALUE_DOMAIN);
+	p.add_param(csocket::PARAM_KEY_TYPE).set_string(PARAM_DEFAULT_VALUE_TYPE);
+	p.add_param(csocket::PARAM_KEY_PROTOCOL).set_string(PARAM_DEFAULT_VALUE_PROTOCOL);
 	return p;
 }
 
@@ -281,26 +263,26 @@ csocket_plain::listen(
 	 */
 	int domain = 0, sa_family = 0;
 
-	if (params.get_param(PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET) {
 		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param(PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET6) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET6) {
 		domain = sa_family = PF_INET6;
 	}
 
 	rofl::caddress laddr(sa_family,
-			params.get_param(PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
-			params.get_param(PARAM_KEY_LOCAL_PORT).get_uint());
+			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
+			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_uint());
 
 	/*
 	 * type
 	 */
 	int type = 0;
 
-	if (params.get_param(PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_STREAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == csocket::PARAM_TYPE_VALUE_STREAM) {
 		type = SOCK_STREAM;
 	} else
-	if (params.get_param(PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_DGRAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == csocket::PARAM_TYPE_VALUE_DGRAM) {
 		type = SOCK_DGRAM;
 	}
 
@@ -309,10 +291,10 @@ csocket_plain::listen(
 	 */
 	int protocol = 0;
 
-	if (params.get_param(PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_TCP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == csocket::PARAM_PROTOCOL_VALUE_TCP) {
 		protocol = IPPROTO_TCP;
 	} else
-	if (params.get_param(PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_UDP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == csocket::PARAM_PROTOCOL_VALUE_UDP) {
 		protocol = IPPROTO_UDP;
 	}
 
@@ -499,30 +481,30 @@ csocket_plain::connect(
 	 */
 	int domain = 0, sa_family = 0;
 
-	if (params.get_param(PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET) {
 		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param(PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET6) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET6) {
 		domain = sa_family = PF_INET6;
 	}
 
 	rofl::caddress laddr(sa_family,
-			params.get_param(PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
-			params.get_param(PARAM_KEY_LOCAL_PORT).get_uint());
+			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
+			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_uint());
 
 	rofl::caddress raddr(sa_family,
-			params.get_param(PARAM_KEY_REMOTE_HOSTNAME).get_string().c_str(),
-			params.get_param(PARAM_KEY_REMOTE_PORT).get_uint());
+			params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string().c_str(),
+			params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_uint());
 
 	/*
 	 * type
 	 */
 	int type = 0;
 
-	if (params.get_param(PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_STREAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_STREAM) {
 		type = SOCK_STREAM;
 	} else
-	if (params.get_param(PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_DGRAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_DGRAM) {
 		type = SOCK_DGRAM;
 	}
 
@@ -531,14 +513,14 @@ csocket_plain::connect(
 	 */
 	int protocol = 0;
 
-	if (params.get_param(PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_TCP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_TCP) {
 		protocol = IPPROTO_TCP;
 	} else
-	if (params.get_param(PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_UDP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_UDP) {
 		protocol = IPPROTO_UDP;
 	}
 
-	bool do_reconnect = params.get_param(PARAM_KEY_DO_RECONNECT).get_bool();
+	bool do_reconnect = params.get_param(csocket::PARAM_KEY_DO_RECONNECT).get_bool();
 
 	connect(raddr, laddr, domain, type, protocol, do_reconnect);
 }

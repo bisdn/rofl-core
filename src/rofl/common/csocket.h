@@ -27,8 +27,8 @@
 
 namespace rofl {
 
-class eSocketBase			: public RoflException {};
-class eSocketAgain			: public eSocketBase {};
+class eSocketBase		: public RoflException {};
+class eSocketAgain		: public eSocketBase {};
 class eSocketNotConnected	: public eSocketBase {};
 class eSocketTypeNotFound	: public eSocketBase {};
 class eSocketParamNotFound	: public eSocketBase {};
@@ -407,6 +407,39 @@ public:
 	 */
 	int
 	get_protocol() const { return protocol; };
+
+
+	/**
+	 *
+	 */
+	bool 
+	supports_socket_type(enum socket_type_t socket_type) const;
+
+	//Common Keys
+	static std::string const 	PARAM_KEY_DO_RECONNECT;
+	static std::string const 	PARAM_KEY_REMOTE_HOSTNAME;
+	static std::string const 	PARAM_KEY_REMOTE_PORT;
+	static std::string const 	PARAM_KEY_LOCAL_HOSTNAME;
+	static std::string const 	PARAM_KEY_LOCAL_PORT;
+	static std::string const	PARAM_KEY_DOMAIN;
+	static std::string const	PARAM_KEY_TYPE;
+	static std::string const	PARAM_KEY_PROTOCOL;
+
+	//Common values (non-numeric)
+	static std::string const	PARAM_DOMAIN_VALUE_INET;
+	static std::string const	PARAM_DOMAIN_VALUE_INET6;
+	static std::string const	PARAM_TYPE_VALUE_STREAM;
+	static std::string const	PARAM_TYPE_VALUE_DGRAM;
+	static std::string const	PARAM_PROTOCOL_VALUE_TCP;
+	static std::string const	PARAM_PROTOCOL_VALUE_UDP;
+
+	//Socket type specific keys
+	//TODO
+	static std::string const	PARAM_SSL_CA_PATH;
+	static std::string const	PARAM_SSL_CA_FILE;
+	static std::string const	PARAM_SSL_CERT;
+	static std::string const	PARAM_SSL_KEY;
+
 
 
 public:

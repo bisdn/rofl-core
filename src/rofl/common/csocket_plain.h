@@ -81,24 +81,6 @@ private:
 	pthread_rwlock_t		pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
-	//Keys
-	static std::string const 	PARAM_KEY_DO_RECONNECT;
-	static std::string const 	PARAM_KEY_REMOTE_HOSTNAME;
-	static std::string const 	PARAM_KEY_REMOTE_PORT;
-	static std::string const 	PARAM_KEY_LOCAL_HOSTNAME;
-	static std::string const 	PARAM_KEY_LOCAL_PORT;
-	static std::string const	PARAM_KEY_DOMAIN;
-	static std::string const	PARAM_KEY_TYPE;
-	static std::string const	PARAM_KEY_PROTOCOL;
-
-	//Values (non-numeric)
-	static std::string const	PARAM_DOMAIN_VALUE_INET;
-	static std::string const	PARAM_DOMAIN_VALUE_INET6;
-	static std::string const	PARAM_TYPE_VALUE_STREAM;
-	static std::string const	PARAM_TYPE_VALUE_DGRAM;
-	static std::string const	PARAM_PROTOCOL_VALUE_TCP;
-	static std::string const	PARAM_PROTOCOL_VALUE_UDP;
-
 	//Defaults
 	static bool const		PARAM_DEFAULT_VALUE_DO_RECONNECT;
 	static std::string const 	PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME;
