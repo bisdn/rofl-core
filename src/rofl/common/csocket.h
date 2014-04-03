@@ -412,8 +412,8 @@ public:
 	/**
 	 *
 	 */
-	bool 
-	supports_socket_type(enum socket_type_t socket_type) const;
+	static bool 
+	supports_socket_type(enum socket_type_t socket_type);
 
 	//Common Keys
 	static std::string const 	PARAM_KEY_DO_RECONNECT;

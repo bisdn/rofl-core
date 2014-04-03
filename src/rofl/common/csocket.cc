@@ -73,7 +73,7 @@ csocket::get_params(
 }
 
 bool
-csocket::supports_socket_type(enum socket_type_t socket_type) const
+csocket::supports_socket_type(enum socket_type_t socket_type)
 {
 	switch (socket_type) {
 
