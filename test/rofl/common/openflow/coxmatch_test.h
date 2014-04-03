@@ -19,6 +19,8 @@ class coxmatch_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST( test8BytesHasMask );
 	CPPUNIT_TEST( testOxmIPv4Src );
 	CPPUNIT_TEST( testOxmIPv4Dst );
+	CPPUNIT_TEST( testOxmIPv6Src );
+	CPPUNIT_TEST( testOxmIPv6Dst );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -41,5 +43,7 @@ public:
 
 	void testOxmIPv4Src();
 	void testOxmIPv4Dst();
+	void testOxmIPv6Src();
+	void testOxmIPv6Dst();
 };
 

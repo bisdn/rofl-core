@@ -633,7 +633,7 @@ coxmatch::get_u128value() const {
 
 rofl::caddress
 coxmatch::get_u128mask() const {
-	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t))
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*16*sizeof(uint8_t))
 		return rofl::caddress(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
 	struct rofl::openflow::ofp_oxm_ofb_ipv6_addr* oxm =
 			(struct rofl::openflow::ofp_oxm_ofb_ipv6_addr*)somem();
