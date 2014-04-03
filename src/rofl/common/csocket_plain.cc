@@ -12,7 +12,7 @@ using namespace rofl;
 bool const 		csocket_plain::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME	= std::string("127.0.0.1");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_PORT		= std::string("6653");
-std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME	= std::string("127.0.0.1");
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME	= std::string("0.0.0.0");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT		= std::string("0");
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket::PARAM_DOMAIN_VALUE_INET; 
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE			= csocket::PARAM_TYPE_VALUE_STREAM; 
