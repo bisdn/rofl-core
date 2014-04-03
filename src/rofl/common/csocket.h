@@ -426,6 +426,7 @@ public:
 	static std::string const	PARAM_KEY_PROTOCOL;
 
 	//Common values (non-numeric)
+	static std::string const	PARAM_DOMAIN_VALUE_INET_ANY;
 	static std::string const	PARAM_DOMAIN_VALUE_INET;
 	static std::string const	PARAM_DOMAIN_VALUE_INET6;
 	static std::string const	PARAM_TYPE_VALUE_STREAM;

@@ -21,6 +21,7 @@ std::string const	csocket::PARAM_SSL_CERT("cert");
 std::string const	csocket::PARAM_SSL_KEY("key");
 
 //Values (non-numeric)
+std::string const 	csocket::PARAM_DOMAIN_VALUE_INET_ANY("inet-any");
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET("inet");
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET6("inet6");
 std::string const 	csocket::PARAM_TYPE_VALUE_STREAM("stream");
