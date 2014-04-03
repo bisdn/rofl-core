@@ -102,7 +102,7 @@ void xcpd_jsp1::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
 			entry.set_flags(msg->get_flags());
 			send_flow_mod_message( m_slave, entry );
 			} catch (rofl::cerror &e) {
-			std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+			std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << " when generating and sending cflowentry" << std::endl;
 		}
 	}
 	delete(msg);
@@ -112,17 +112,20 @@ void xcpd_jsp1::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 	uint32_t masterxid = pack->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
+	xid_map_t::const_iterator it = m_mxid_sxid.find(masterxid);
+	if(it!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
 	const std::vector< rofl::cofmsg_features_request > res(mapper.translate_features_request( ctl, pack ));
-	if(res.size()!=1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
+	if(res.size()>1) std::cout << "ERROR: " << func << " : multiple translated messages not supported " << func << std::endl;
 	// send features request
-	if(m_slave) {
-		uint32_t myxid = send_features_request(m_slave);
-		std::cout << "handle_features_request called send_features_request(" << m_slave->c_str() << ")." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << "handle_features_request from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	if(res.size()) {
+		if(m_slave) {
+			uint32_t myxid = send_features_request(m_slave);
+			std::cout << func << " called send_features_request(" << m_slave->c_str() << ")." << std::endl;
+			if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
+			m_mxid_sxid[masterxid]=myxid;
+			m_sxid_mxid[myxid]=masterxid;
+		} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	}	// no packets were returned by the translator, so none will be sent
 	delete(pack);
 }
 
@@ -135,9 +138,8 @@ void xcpd_jsp1::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_
 	uint32_t orig_xid = map_it->second;
 
 	const std::vector< rofl::cofmsg_features_reply > res(mapper.translate_features_reply( ctl, msg ));
-	if(res.size()!=1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
-	uint32_t actions = res.front()->get_actions_bitmap();
-	
+	if(res.size()>1) std::cout << "ERROR: " << func << " : multiple translated messages not supported in handler which uses transaction IDs" << std::endl;
+/*	uint32_t actions = res.front()->get_actions_bitmap();
 	// Now, remove VLAN setters and queue features from actions
 	std::cout << func << ": Features reply (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
 	// make changes to actions
@@ -145,7 +147,7 @@ void xcpd_jsp1::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_
 	actions &= ~((uint32_t)(1<<OFP10AT_SET_VLAN_VID));
 	actions &= ~((uint32_t)(1<<OFP10AT_SET_VLAN_PCP));
 	std::cout << func << ": New features are (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
-	
+*/
 	send_features_reply(m_master, orig_xid, m_dpid, msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
 	std::cout << func << ": sent features reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);

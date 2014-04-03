@@ -121,13 +121,15 @@ cportvlan_messagetranslator():m_virtual_to_abstract() {}
 template <typename InputIterator> cportvlan_messagetranslator(InputIterator begin, InputIterator end):m_virtual_to_abstract(begin, end) {}
 
 port_spec_t get_actual_port(const uint16_t virtual_port) const {	// could throw rofl::ePortInval
+	if(virtual_port==0) { std::stringstream ss; ss << __FUNCTION__ << ": Port " << virtual_port << " is invalid. Ports are numbered from 1."; throw std::out_of_range( (std::string)ss.str() ); }
 	try {
-		return m_virtual_to_abstract.at(virtual_port);
+		return m_virtual_to_abstract.at(virtual_port-1);
 	} catch (std::out_of_range & e) { std::stringstream ss; ss << __FUNCTION__ << ": Port " << virtual_port << " invalid."; throw std::out_of_range( (std::string)ss.str() ); }
 }
 
 size_t get_number_virtual_ports() const { return m_virtual_to_abstract.size(); }
 
+// returns the number of the port that was just added.
 unsigned add_virtual_port(port_spec_t n) {	// throws std::invalid_argument
 	// check that there are no wildcards in the port_spec
 	if(n.port_is_wild()||n.vlanid_is_wild()) {
@@ -137,7 +139,7 @@ unsigned add_virtual_port(port_spec_t n) {	// throws std::invalid_argument
 	}
 	m_virtual_to_abstract.push_back(n);
 	// return virtual port number of the just added port.
-	return get_number_virtual_ports()-1;
+	return get_number_virtual_ports();
 }
 
 std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t a /*ctual_port*/) const {	// returns a vector with all matching virtual ports, and their specific actual ports
@@ -147,7 +149,7 @@ std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t
 		port_spec_t p = m_virtual_to_abstract[i];
 		if( (!a.port_is_wild()) && (!p.port_is_wild()) && (a.port!=p.port) ) continue;
 		if( (!a.vlanid_is_wild()) && (!p.vlanid_is_wild()) && (a.vlan!=p.vlan) ) continue;
-		out.push_back(std::make_pair<uint16_t, port_spec_t>(i, p));
+		out.push_back(std::make_pair<uint16_t, port_spec_t>(i+1, p));
 	}
 	return out;
 	}
@@ -155,7 +157,7 @@ std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t
 friend std::ostream & operator<< (std::ostream & os, const cportvlan_messagetranslator & translator) {
 	size_t N = translator.get_number_virtual_ports();
 	os << "List of " << N <<  " ports.\n";
-	for(size_t i = 0; i < N; ++i)
+	for(size_t i = 1; i <= N; ++i)
 		os << "virtual port: " << i << " actual " << translator.get_actual_port(i) << "\n";
 	return os;
 	}

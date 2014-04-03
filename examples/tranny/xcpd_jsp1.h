@@ -59,9 +59,12 @@ class xcpd_jsp1 : public rofl::crofbase {
 	// TODO OF version for master and slave - can be had from m_slave->get_version() and m_master->get_version()
 	
 	// transaction ID maps - TODO - this may not be a 1:1 mapping
-	typedef std::map< uint32_t, uint32_t > xid_map_t;
+///	typedef std::map< uint32_t, uint32_t > xid_map_t;
+	typedef std::multimap< uint32_t, uint32_t > xid_map_t;	// there could be a one to many relationship, so a single xid maps to a set of xids
+	// TODO When a single, say, stats request, is recieved from the master and this generates multiple stats requests to the slave then the state and "running tally of stats" must be stored somewhere.
 	xid_map_t m_mxid_sxid;	// maps transaction IDs coming from master to the transaction IDs of the translated messages being sent to the slave
 	xid_map_t m_sxid_mxid;	// maps transaction IDs coming in responses from slave to the transaction IDs of the original request from the master
+
 	uint64_t m_slave_dpid;
 	uint64_t m_dpid;
 //	uint64_t m_master_dpid;
