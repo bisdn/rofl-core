@@ -93,11 +93,6 @@ AC_CONFIG_FILES([
 
 	test/Makefile
 	test/unit/Makefile
-	test/unit/test1/Makefile
-	test/unit/cmemory/Makefile
-	test/unit/cpacket/Makefile
-	test/unit/croflexp/Makefile
-	test/unit/frames/Makefile
 	test/rofl/Makefile
 	test/rofl/common/Makefile
 	test/rofl/common/openflow/Makefile
@@ -105,6 +100,11 @@ AC_CONFIG_FILES([
 	test/rofl/common/protocols/Makefile
 	
 	src/rofl_config.h])
+#	test/unit/cmemory/Makefile
+#	test/unit/cpacket/Makefile
+#	test/unit/croflexp/Makefile
+#	test/unit/frames/Makefile
+#	test/unit/test1/Makefile	
 
 # Doxygen (here to be the last Makefile) 
 m4_include([config/doxygen.m4])
