@@ -129,43 +129,6 @@ crofchan::add_conn(
 		uint8_t aux_id,
 		int reconnect_start_timeout,
 		enum rofl::csocket::socket_type_t socket_type,
-		int domain,
-		int type,
-		int protocol,
-		caddress const& ra)
-{
-	this->reconnect_start_timeout = reconnect_start_timeout;
-
-	if (conns.find(aux_id) != conns.end()) {
-		throw eRofChanExists();
-	}
-	if (conns.empty() && (0 != aux_id)) {
-		logging::error << "[rofl][chan] first connection must have aux-id:0, found " << (int)aux_id << " instead." << std::endl << *this;
-		throw eRofChanInval();
-	}
-
-	if ((aux_id > 0) && (ofp_version < rofl::openflow13::OFP_VERSION)) {
-		logging::error << "[rofl][chan] no auxiliary connections allowed in OFP version: " << ofp_version << std::endl << *this;
-		throw eRofChanInval();
-	}
-
-	rofl::openflow::cofhello_elem_versionbitmap vbitmap;
-	if (0 == aux_id) {
-		vbitmap = versionbitmap;				// main connection: propose all OFP versions defined for our side
-	} else {
-		vbitmap.add_ofp_version(ofp_version);	// auxiliary connections: use OFP version negotiated for main connection
-	}
-
-	(conns[aux_id] = new crofconn(this, vbitmap))->connect(aux_id, socket_type, domain, type, protocol, ra);
-}
-
-
-
-void
-crofchan::add_conn(
-		uint8_t aux_id,
-		int reconnect_start_timeout,
-		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
 	this->reconnect_start_timeout = reconnect_start_timeout;

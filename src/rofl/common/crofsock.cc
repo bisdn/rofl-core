@@ -49,22 +49,6 @@ crofsock::accept(enum rofl::csocket::socket_type_t socket_type, int sd)
 void
 crofsock::connect(
 		enum rofl::csocket::socket_type_t socket_type,
-		int domain,
-		int type,
-		int protocol,
-		rofl::caddress const& raddr)
-{
-	if (socket)
-		delete socket;
-	socket = csocket::csocket_factory(socket_type, this);
-	socket->connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
-}
-
-
-
-void
-crofsock::connect(
-		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
 	if (socket)

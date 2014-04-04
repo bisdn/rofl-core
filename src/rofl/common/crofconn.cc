@@ -63,26 +63,6 @@ void
 crofconn::connect(
 		uint8_t aux_id,
 		enum rofl::csocket::socket_type_t socket_type,
-		int domain,
-		int type,
-		int protocol,
-		caddress const& raddr)
-{
-	if (STATE_ESTABLISHED == state) {
-		throw eRofConnBusy();
-	}
-	flags.reset(FLAGS_PASSIVE);
-	auxiliary_id = aux_id;
-	state = STATE_CONNECT_PENDING;
-	rofsock.connect(socket_type, domain, type, protocol, raddr);
-}
-
-
-
-void
-crofconn::connect(
-		uint8_t aux_id,
-		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
 	if (STATE_ESTABLISHED == state) {

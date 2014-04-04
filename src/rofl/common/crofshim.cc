@@ -63,9 +63,9 @@ crofshim::handle_accepted(csocket& socket, int newsd, caddress const& ra)
 
 
 void
-crofshim::connect(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& raddr, int domain, int type, int protocol)
+crofshim::connect(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params)
 {
-	(new crofsock(this))->connect(socket_type, domain, type, protocol, raddr);
+	(new crofsock(this))->connect(socket_type, socket_params);
 }
 
 

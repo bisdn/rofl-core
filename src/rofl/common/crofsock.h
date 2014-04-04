@@ -210,12 +210,6 @@ public:
 	 *
 	 */
 	void
-	connect(enum rofl::csocket::socket_type_t socket_type, int domain, int type, int protocol, rofl::caddress const& raddr);
-
-	/**
-	 *
-	 */
-	void
 	connect(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
 
 	/**

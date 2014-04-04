@@ -43,7 +43,7 @@ public:
 	 *
 	 */
 	void
-	connect(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& raddr, int domain, int type, int protocol);
+	connect(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
 
 	/**
 	 *
