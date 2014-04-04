@@ -14,7 +14,7 @@ std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME	= std::str
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_PORT		= std::string("6653");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME	= std::string("0.0.0.0");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT		= std::string("0");
-std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket::PARAM_DOMAIN_VALUE_INET; 
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket::PARAM_DOMAIN_VALUE_INET_ANY;
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE			= csocket::PARAM_TYPE_VALUE_STREAM; 
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_PROTOCOL		= csocket::PARAM_PROTOCOL_VALUE_TCP; 
 
@@ -268,11 +268,10 @@ csocket_plain::listen(
 	} else
 	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET6) {
 		domain = sa_family = PF_INET6;
+	} else
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET_ANY) {
+		domain = sa_family = 0;
 	}
-
-	rofl::caddress laddr(sa_family,
-			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
-			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_uint());
 
 	/*
 	 * type
@@ -299,7 +298,16 @@ csocket_plain::listen(
 	}
 
 
-	listen(laddr, domain, type, protocol);
+	caddress laddr(
+			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string(),
+			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string(),
+			/*flags=*/0,
+			/*preferred-family=*/domain,
+			/*preferred-socktype=*/type,
+			/*preferred-protocol=*/protocol);
+
+
+	listen(laddr, laddr.get_domain(), laddr.get_sock_type(), laddr.get_protocol());
 }
 
 
@@ -475,36 +483,27 @@ csocket_plain::connect(
 	/*
 	 * local, remote address and domain
 	 */
-
-	/*
-	 * domain
-	 */
 	int domain = 0, sa_family = 0;
 
-	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET) {
 		domain = sa_family = PF_INET;
 	} else
-	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == PARAM_DOMAIN_VALUE_INET6) {
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET6) {
 		domain = sa_family = PF_INET6;
+	} else
+	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET_ANY) {
+		domain = sa_family = 0;
 	}
-
-	rofl::caddress laddr(sa_family,
-			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().c_str(),
-			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_uint());
-
-	rofl::caddress raddr(sa_family,
-			params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string().c_str(),
-			params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_uint());
 
 	/*
 	 * type
 	 */
 	int type = 0;
 
-	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_STREAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == csocket::PARAM_TYPE_VALUE_STREAM) {
 		type = SOCK_STREAM;
 	} else
-	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == PARAM_TYPE_VALUE_DGRAM) {
+	if (params.get_param(csocket::PARAM_KEY_TYPE).get_string() == csocket::PARAM_TYPE_VALUE_DGRAM) {
 		type = SOCK_DGRAM;
 	}
 
@@ -513,16 +512,34 @@ csocket_plain::connect(
 	 */
 	int protocol = 0;
 
-	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_TCP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == csocket::PARAM_PROTOCOL_VALUE_TCP) {
 		protocol = IPPROTO_TCP;
 	} else
-	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == PARAM_PROTOCOL_VALUE_UDP) {
+	if (params.get_param(csocket::PARAM_KEY_PROTOCOL).get_string() == csocket::PARAM_PROTOCOL_VALUE_UDP) {
 		protocol = IPPROTO_UDP;
 	}
 
+
+	caddress laddr(
+			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string(),
+			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string(),
+			/*flags=*/0,
+			/*preferred-family=*/domain,
+			/*preferred-socktype=*/type,
+			/*preferred-protocol=*/protocol);
+
+	caddress raddr(
+			params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string(),
+			params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_string(),
+			/*flags=*/0,
+			/*preferred-family=*/domain,
+			/*preferred-socktype=*/type,
+			/*preferred-protocol=*/protocol);
+
+
 	bool do_reconnect = params.get_param(csocket::PARAM_KEY_DO_RECONNECT).get_bool();
 
-	connect(raddr, laddr, domain, type, protocol, do_reconnect);
+	connect(raddr, laddr, laddr.get_domain(), laddr.get_sock_type(), laddr.get_protocol(), do_reconnect);
 }
 
 

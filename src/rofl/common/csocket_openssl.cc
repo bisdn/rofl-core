@@ -11,16 +11,16 @@ using namespace rofl;
 csocket_openssl::get_params()
 {
 	cparams p;
-	p.add_param(csocket::PARAM__DO_RECONNECT);
-	p.add_param(csocket::PARAM__REMOTE_ADDR);
-	p.add_param(csocket::PARAM__LOCAL_ADDR);
-	p.add_param(csocket::PARAM__DOMAIN);
-	p.add_param(csocket::PARAM__TYPE);
-	p.add_param(csocket::PARAM__PROTOCOL);
-	p.add_param(csocket::PARAM__SSL_CA_PATH);
-	p.add_param(csocket::PARAM__SSL_CA_FILE);
-	p.add_param(csocket::PARAM__SSL_CERT);
-	p.add_param(csocket::PARAM__SSL_KEY);
+	p.add_param(csocket::PARAM_KEY_DO_RECONNECT);
+	p.add_param(csocket::PARAM_KEY_REMOTE_HOSTNAME);
+	p.add_param(csocket::PARAM_KEY_LOCAL_HOSTNAME);
+	p.add_param(csocket::PARAM_KEY_DOMAIN);
+	p.add_param(csocket::PARAM_KEY_TYPE);
+	p.add_param(csocket::PARAM_KEY_PROTOCOL);
+	p.add_param(csocket::PARAM_SSL_KEY_CA_PATH);
+	p.add_param(csocket::PARAM_SSL_KEY_CA_FILE);
+	p.add_param(csocket::PARAM_SSL_KEY_CERT);
+	p.add_param(csocket::PARAM_SSL_KEY_PRIVATE_KEY);
 	return p;
 }
 

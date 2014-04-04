@@ -227,6 +227,69 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	std::string&
+	set_node() { return node; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_node() const { return node; };
+
+	/**
+	 *
+	 */
+	std::string&
+	set_service() { return service; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_service() const { return service; };
+
+	/**
+	 *
+	 */
+	void
+	set_domain(int domain) { this->domain = domain; };
+
+	/**
+	 *
+	 */
+	int
+	get_domain() { return domain; };
+
+	/**
+	 *
+	 */
+	void
+	set_sock_type(int sock_type) { this->sock_type = sock_type; };
+
+	/**
+	 *
+	 */
+	int
+	get_sock_type() { return sock_type; };
+
+	/**
+	 *
+	 */
+	void
+	set_protocol(int protocol) { this->protocol = protocol; };
+
+	/**
+	 *
+	 */
+	int
+	get_protocol() { return protocol; };
+
+
+public:
+
 
 	/**
 	 * @brief	Returns a C-string with the address in ASCII representation ("AF_INET/127.0.0.1:6633").
