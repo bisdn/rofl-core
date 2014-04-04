@@ -89,6 +89,15 @@ caddress::caddress(int af)
 
 	resize(salen);
 	ca_saddr->sa_family = af;
+
+	switch (af) {
+	case AF_INET: {
+		ca_s4addr->sin_addr.s_addr = INADDR_ANY;
+	} break;
+	case AF_INET6: {
+		memset((uint8_t*)&(ca_s6addr->sin6_addr.s6_addr), 0, sizeof(struct in6_addr)); // INADDR_ANY for IPV6
+	} break;
+	}
 }
 
 
