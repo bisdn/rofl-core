@@ -40,8 +40,8 @@ librofl_common_la_SOURCES = \
 		coflist.cc \
 		csocket.h \
 		csocket.cc \
-		csocket_plain.h \
-		csocket_plain.cc \
+		csocket_impl.h \
+		csocket_impl.cc \
 		cvastring.h \
 		fframe.h \
 		fframe.cc \
@@ -120,7 +120,7 @@ library_include_HEADERS= \
 		cmemory.h \
 		coflist.h \
 		csocket.h \
-		csocket_plain.h \
+		csocket_impl.h \
 		cvastring.h \
 		fframe.h \
 		thread_helper.h \
