@@ -258,6 +258,8 @@ void
 csocket_plain::listen(
 		cparams const& params)
 {
+	rofl::logging::debug << "[rofl][csocket][plain][listen] parameter set:" << std::endl << params;
+
 	/*
 	 * local address and domain
 	 */
@@ -480,6 +482,8 @@ void
 csocket_plain::connect(
 		cparams const& params)
 {
+	rofl::logging::debug << "[rofl][csocket][plain][accept] parameter set:" << std::endl << params;
+
 	/*
 	 * local, remote address and domain
 	 */
