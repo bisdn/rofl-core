@@ -1,6 +1,7 @@
 #include "rofl_config.h"
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
+#include <rofl/common/cparams.h>
 #ifdef ROFL_HAVE_OPENSSL
 #include <rofl/common/ssl_lib.h>
 #endif
@@ -52,10 +53,10 @@ main(int argc, char** argv)
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_OPENSSL, caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 #else
-	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, caddress(AF_INET, "0.0.0.0", 6633));
+	rofl::cparams socket_params = csocket::get_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
+	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 #endif
-
-	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::cioloop::run();
 

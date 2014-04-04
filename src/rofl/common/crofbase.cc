@@ -545,21 +545,6 @@ crofbase::handle_closed(
 
 
 
-void
-crofbase::rpc_listen_for_dpts(
-		enum rofl::csocket::socket_type_t socket_type,
-		caddress const& addr,
-		int domain,
-		int type,
-		int protocol,
-		int backlog)
-{
-	csocket *socket = csocket::csocket_factory(socket_type, this);
-	socket->listen(addr, domain, type, protocol, backlog);
-	rpc[RPC_DPT].insert(socket);
-}
-
-
 
 void
 crofbase::rpc_listen_for_dpts(
@@ -573,21 +558,6 @@ crofbase::rpc_listen_for_dpts(
 
 
 
-void
-crofbase::rpc_listen_for_ctls(
-		enum rofl::csocket::socket_type_t socket_type,
-		caddress const& addr,
-		int domain,
-		int type,
-		int protocol,
-		int backlog)
-{
-	csocket *socket = csocket::csocket_factory(socket_type, this);
-	socket->listen(addr, domain, type, protocol, backlog);
-	rpc[RPC_CTL].insert(socket);
-}
-
-
 
 void
 crofbase::rpc_listen_for_ctls(
@@ -597,21 +567,6 @@ crofbase::rpc_listen_for_ctls(
 	csocket *socket = csocket::csocket_factory(socket_type, this);
 	socket->listen(params);
 	rpc[RPC_CTL].insert(socket);
-}
-
-
-
-void
-crofbase::rpc_connect_to_ctl(
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int reconnect_start_timeout,
-		enum rofl::csocket::socket_type_t socket_type,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
-{
-	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, socket_type, ra, domain, type, protocol));
 }
 
 
@@ -695,22 +650,6 @@ crofbase::rpc_disconnect_from_dpt(
 			return;
 		}
 	}
-}
-
-
-
-crofctl*
-crofbase::cofctl_factory(
-		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int reconnect_start_timeout,
-		enum rofl::csocket::socket_type_t socket_type,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
-{
-	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, socket_type, ra, domain, type, protocol);
 }
 
 

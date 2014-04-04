@@ -320,7 +320,7 @@ csocket_plain::listen(
 	std::string binding_port;
 
 	if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
-		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+		binding_port = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
 	} else {
 		binding_port = std::string("0");
 	}
@@ -577,7 +577,7 @@ csocket_plain::connect(
 	std::string binding_port;
 
 	if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
-		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+		binding_port = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
 	} else {
 		binding_port = std::string("0");
 	}
