@@ -66,54 +66,6 @@ public: // methods
 		crofctl::rofctls[ctlid] = this;
 	};
 
-
-
-	/**
-	 * @brief	Constructor for creating new cofctl instance from accepted socket.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param newsd socket descriptor
-	 * @param ra peer remote address
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 */
-	crofctl(
-			crofbase *rofbase,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol) :
-				ctlid(++crofctl::next_ctlid) {
-			crofctl::rofctls[ctlid] = this;
-		};
-
-
-
-	/**
-	 * @brief	Constructor for creating new cofctl instance for connecting socket.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param ofp_version OpenFlow version to use
-	 * @param ra peer remote address
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 *
-	 */
-	crofctl(
-			crofbase *rofbase,
-			uint8_t ofp_version,
-			int reconnect_in_seconds,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol) :
-				ctlid(++crofctl::next_ctlid) {
-			crofctl::rofctls[ctlid] = this;
-		};
-
 	/**
 	 * @brief	Destructor.
 	 */

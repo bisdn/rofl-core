@@ -82,49 +82,6 @@ public:
 			crofbase *rofbase = (crofbase*)0) {};
 
 
-
-
-	/**
-	 * @brief 	Constructor for accepted incoming connection on socket.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param newsd socket descriptor of new established control connection socket
-	 * @param ra peer address of control connection
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 */
-	crofdpt(
-			crofbase *rofbase,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol) {};
-
-
-
-	/**
-	 * @brief 	Constructor for creating a new rofl::openflow::cofdpt instance and actively connecting to a data path element.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param ofp_version OpenFlow version to use
-	 * @param ra peer address of control connection
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 */
-	crofdpt(
-			crofbase *rofbase,
-			uint8_t ofp_version,
-			int reconnect_start_timeout,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol) {};
-
-
-
 	/**
 	 * @brief	Destructor.
 	 *
@@ -135,7 +92,6 @@ public:
 	~crofdpt() {};
 
 
-
 	/**
 	 * @brief 	Returns the OpenFlow protocol version used for this control connection.
 	 *
@@ -143,10 +99,6 @@ public:
 	 */
 	virtual uint8_t
 	get_version() const = 0;
-
-
-
-
 
 
 	/**

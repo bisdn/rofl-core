@@ -82,28 +82,6 @@ public: // methods
 	 * @brief	Constructor for creating new cofctl instance for connecting socket.
 	 *
 	 * @param rofbase pointer to crofbase instance
-	 * @param ra peer remote address
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 *
-	 */
-	crofctl_impl(
-			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int reconnect_start_timeout,
-			rofl::csocket::socket_type_t socket_type,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
-
-	/**
-	 * @brief	Constructor for creating new cofctl instance for connecting socket.
-	 *
-	 * @param rofbase pointer to crofbase instance
 	 * @param socket_params set of parameters used for socket creation
 	 */
 	crofctl_impl(

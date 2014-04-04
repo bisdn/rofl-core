@@ -129,26 +129,6 @@ public:
 			enum rofl::csocket::socket_type_t socket_type,
 			int newsd);
 
-	/**
-	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param ra peer address of control connection
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 */
-	crofdpt_impl(
-			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int reconnect_start_timeout,
-			enum rofl::csocket::socket_type_t socket_type,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
 
 	/**
 	 * @brief	Destructor.

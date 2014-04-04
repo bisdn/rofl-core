@@ -51,33 +51,6 @@ crofdpt_impl::crofdpt_impl(
 
 
 
-crofdpt_impl::crofdpt_impl(
-		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int reconnect_start_timeout,
-		enum rofl::csocket::socket_type_t socket_type,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol) :
-				crofdpt(rofbase),
-				rofchan(this, versionbitmap),
-				dpid(0),
-				hwaddr(cmacaddr("00:00:00:00:00:00")),
-				n_buffers(0),
-				n_tables(0),
-				capabilities(0),
-				config(0),
-				miss_send_len(0),
-				rofbase(rofbase),
-				transactions(this),
-				state(STATE_INIT)
-{
-	rofchan.add_conn(0, /*reconnect-start-timeout*/2, socket_type, domain, type, protocol, ra); // todo check if we need ssl_ctx here
-}
-
-
-
 crofdpt_impl::~crofdpt_impl()
 {
 	crofdpt::rofdpts.erase(dpid);
