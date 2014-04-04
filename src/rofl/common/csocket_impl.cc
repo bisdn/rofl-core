@@ -634,11 +634,11 @@ csocket_impl::connect(
 	// make socket non-blockingSOCKET_IS_LISTENING
 	long flags;
 	if ((flags = fcntl(sd, F_GETFL)) < 0) {
-		throw eSysCall("fnctl(F_GETFL");
+		throw eSysCall("fnctl(F_GETFL)");
 	}
 	flags |= O_NONBLOCK;
 	if ((rc = fcntl(sd, F_SETFL, flags)) < 0) {
-		throw eSysCall("fnctl(F_SETFL");
+		throw eSysCall("fnctl(F_SETFL)");
 	}
 
 	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP)) {

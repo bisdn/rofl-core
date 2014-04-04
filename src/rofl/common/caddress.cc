@@ -61,6 +61,8 @@ caddress::caddress(
 	ca_saddr 	= (struct sockaddr*)rofl::cmemory::resize(res->ai_addrlen);
 	memcpy((uint8_t*)ca_saddr, (uint8_t*)(res->ai_addr), res->ai_addrlen);
 	salen		= res->ai_addrlen;
+
+	freeaddrinfo(res);
 }
 
 

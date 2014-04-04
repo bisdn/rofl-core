@@ -131,9 +131,8 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_impl(csocket_owner *owner);
-
-
+	csocket_impl(
+			csocket_owner *owner);
 
 
 	/**
@@ -142,33 +141,6 @@ public:
 	 */
 	virtual
 	~csocket_impl();
-
-
-
-
-	/**
-	 * @brief	Open socket in listening mode (server side).
-	 *
-	 * This opens a socket in listening mode bound to address 'la'
-	 * with the specified socket parameters.
-	 *
-	 * @param la the local address for binding this socket
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog backlog value
-	 * @throw eSocketListenFailed failure in listen() system call
-	 * @throw eSocketAddressInUse bind error while calling bind()
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	listen(
-		caddress la,
-		int domain = PF_INET, 
-		int type = SOCK_STREAM, 
-		int protocol = 0,
-		int backlog = 10,
-		std::string devname = std::string(""));
 
 
 	/**
@@ -188,31 +160,8 @@ public:
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
-	accept(int sd);
-
-
-
-	/**
-	 * @brief	Open socket and connect to peer entity (client side).
-	 *
-	 * This opens a socket and connects to a peer entity.
-	 *
-	 * @param ra remote address of peer entity to connect to
-	 * @param la address used for binding socket locally
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @throw eSocketConnectFailed thrown if the connect() operation failed finally
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	connect(
-		caddress ra,
-		caddress la = caddress(AF_INET, "0.0.0.0", 0),
-		int domain = PF_INET,
-		int type = SOCK_STREAM,
-		int protocol = 0,
-		bool do_reconnect = false);
+	accept(
+			int sd);
 
 
 	/**
@@ -255,7 +204,8 @@ public:
 	 *
 	 */
 	virtual ssize_t
-	recv(void *buf, size_t count);
+	recv(
+			void *buf, size_t count);
 
 
 	/**
@@ -275,7 +225,8 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+	send(
+			cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
 
 
 	/**
@@ -290,6 +241,59 @@ public:
 	 */
 	static cparams
 	get_params();
+
+
+private:
+
+
+
+	/**
+	 * @brief	Open socket in listening mode (server side).
+	 *
+	 * This opens a socket in listening mode bound to address 'la'
+	 * with the specified socket parameters.
+	 *
+	 * @param la the local address for binding this socket
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 * @param backlog backlog value
+	 * @throw eSocketListenFailed failure in listen() system call
+	 * @throw eSocketAddressInUse bind error while calling bind()
+	 * @throw eSocketError thrown for all other socket related errors
+	 */
+	virtual void
+	listen(
+		caddress la,
+		int domain = PF_INET,
+		int type = SOCK_STREAM,
+		int protocol = 0,
+		int backlog = 10,
+		std::string devname = std::string(""));
+
+
+
+	/**
+	 * @brief	Open socket and connect to peer entity (client side).
+	 *
+	 * This opens a socket and connects to a peer entity.
+	 *
+	 * @param ra remote address of peer entity to connect to
+	 * @param la address used for binding socket locally
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 * @throw eSocketConnectFailed thrown if the connect() operation failed finally
+	 * @throw eSocketError thrown for all other socket related errors
+	 */
+	virtual void
+	connect(
+		caddress ra,
+		caddress la = caddress(AF_INET, "0.0.0.0", 0),
+		int domain = PF_INET,
+		int type = SOCK_STREAM,
+		int protocol = 0,
+		bool do_reconnect = false);
 
 
 private:
