@@ -125,6 +125,14 @@ public: // methods
 public:
 
 	/**
+	 * @brief	Returns the controller handle id
+	 */
+	virtual uint64_t
+	get_ctlid() const { return ctlid; };
+
+public:
+
+	/**
 	 *
 	 */
 	virtual rofl::openflow::cofasync_config&

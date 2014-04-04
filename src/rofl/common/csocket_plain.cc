@@ -12,8 +12,8 @@ using namespace rofl;
 bool const 		csocket_plain::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME	= std::string("127.0.0.1");
 std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_PORT		= std::string("6653");
-std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME	= std::string("0.0.0.0");
-std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT		= std::string("0");
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT;
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN		= csocket::PARAM_DOMAIN_VALUE_INET_ANY;
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE			= csocket::PARAM_TYPE_VALUE_STREAM; 
 std::string const	csocket_plain::PARAM_DEFAULT_VALUE_PROTOCOL		= csocket::PARAM_PROTOCOL_VALUE_TCP; 
@@ -300,14 +300,38 @@ csocket_plain::listen(
 	}
 
 
-	caddress laddr(
-			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string(),
-			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string(),
-			/*flags=*/0,
-			/*preferred-family=*/domain,
-			/*preferred-socktype=*/type,
-			/*preferred-protocol=*/protocol);
 
+
+	std::string binding_addr;
+
+	if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
+		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
+	} else {
+		switch (raddr.get_domain()) {
+		case PF_INET: {
+			binding_addr = std::string("0.0.0.0");
+		} break;
+		case PF_INET6: {
+			binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+		} break;
+		}
+	}
+
+	std::string binding_port;
+
+	if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
+		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+	} else {
+		binding_port = std::string("0");
+	}
+
+	caddress laddr(
+				binding_addr,
+				binding_port,
+				/*flags=*/0,
+				/*preferred-family=*/domain,
+				/*preferred-socktype=*/type,
+				/*preferred-protocol=*/protocol);
 
 	listen(laddr, laddr.get_domain(), laddr.get_sock_type(), laddr.get_protocol());
 }
@@ -526,14 +550,6 @@ csocket_plain::connect(
 	}
 
 
-	caddress laddr(
-			params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string(),
-			params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string(),
-			/*flags=*/0,
-			/*preferred-family=*/domain,
-			/*preferred-socktype=*/type,
-			/*preferred-protocol=*/protocol);
-
 	caddress raddr(
 			params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string(),
 			params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_string(),
@@ -541,6 +557,38 @@ csocket_plain::connect(
 			/*preferred-family=*/domain,
 			/*preferred-socktype=*/type,
 			/*preferred-protocol=*/protocol);
+
+
+	std::string binding_addr;
+
+	if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
+		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
+	} else {
+		switch (raddr.get_domain()) {
+		case PF_INET: {
+			binding_addr = std::string("0.0.0.0");
+		} break;
+		case PF_INET6: {
+			binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+		} break;
+		}
+	}
+
+	std::string binding_port;
+
+	if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
+		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+	} else {
+		binding_port = std::string("0");
+	}
+
+	caddress laddr(
+				binding_addr,
+				binding_port,
+				/*flags=*/0,
+				/*preferred-family=*/domain,
+				/*preferred-socktype=*/type,
+				/*preferred-protocol=*/protocol);
 
 
 	bool do_reconnect = params.get_param(csocket::PARAM_KEY_DO_RECONNECT).get_bool();
