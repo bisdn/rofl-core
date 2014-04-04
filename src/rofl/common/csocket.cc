@@ -43,7 +43,7 @@ csocket::csocket_factory(
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return new csocket_plain(owner);
+		return new csocket_impl(owner);
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
@@ -63,7 +63,7 @@ csocket::get_params(
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return csocket_plain::get_params();
+		return csocket_impl::get_params();
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {

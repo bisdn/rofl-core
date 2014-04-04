@@ -44,7 +44,7 @@ namespace rofl {
  *
  * @see csocket_impl_owner
  */
-class csocket_plain :
+class csocket_impl :
 	public csocket
 {
 private:
@@ -131,7 +131,7 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_plain(csocket_owner *owner);
+	csocket_impl(csocket_owner *owner);
 
 
 
@@ -141,7 +141,7 @@ public:
 	 *
 	 */
 	virtual
-	~csocket_plain();
+	~csocket_impl();
 
 
 
@@ -451,7 +451,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, csocket_plain const& sock) {
+	operator<< (std::ostream& os, csocket_impl const& sock) {
 		os << indent(0) << "<csocket_impl "
 			<< "sd:" << sock.sd << " "
 			<< "domain:" << sock.domain << " "
