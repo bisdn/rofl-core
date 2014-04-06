@@ -162,7 +162,7 @@ csocket_impl::handle_revent(int fd)
 
 		logging::info << "[rofl][csocket][impl] socket accepted " << new_sd << std::endl << *this;
 
-		handle_accepted(new_sd, ra);
+		handle_accepted(new_sd);
 
 		// handle socket when in normal (=non-listening) state
 	} else {
@@ -467,8 +467,10 @@ csocket_impl::listen(
 
 
 void
-csocket_impl::accept(int sd, cparams const& socket_params)
+csocket_impl::accept(cparams const& socket_params, int sd)
 {
+	this->socket_params = socket_params;
+
 	this->sd = sd;
 
 	sockflags.reset(FLAG_ACTIVE_SOCKET);

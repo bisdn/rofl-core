@@ -143,7 +143,8 @@ public:
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
-	accept(int sd, cparams const& socket_params);
+	accept(
+		cparams const& socket_params, int sd);
 
 
 
@@ -300,8 +301,7 @@ protected:
 	 */
 	virtual void
 	handle_accepted(
-			int newsd,
-			caddress const& ra);
+			int newsd);
 
 	/**
 	 * Socket was closed.

@@ -41,7 +41,7 @@ crofsock::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& s
 	if (socket)
 		delete socket;
 	socket = csocket::csocket_factory(socket_type, this);
-	socket->accept(sd, socket_params);
+	socket->accept(socket_params, sd);
 }
 
 
@@ -77,8 +77,7 @@ crofsock::close()
 void
 crofsock::handle_accepted(
 		csocket& socket,
-		int newsd,
-		caddress const& ra)
+		int newsd)
 {
 	logging::info << "[rofl][sock] connection accepted:" << std::endl << *this;
 	// this should never happen, as passively opened sockets are handled outside of crofsock

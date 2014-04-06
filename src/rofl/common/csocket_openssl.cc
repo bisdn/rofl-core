@@ -190,42 +190,51 @@ csocket_openssl::openssl_password_callback(char *buf, int size, int rwflag, void
 
 void
 csocket_openssl::listen(
-		cparams const& params)
+		cparams const& socket_params)
 {
-	socket_params = params;
+	this->socket_params = socket_params;
 
-	capath 		= params.get_param(PARAM_SSL_KEY_CA_PATH).get_string();
-	cafile 		= params.get_param(PARAM_SSL_KEY_CA_FILE).get_string();
-	certfile	= params.get_param(PARAM_SSL_KEY_CERT).get_string();
-	keyfile		= params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
-	password	= params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
+	capath 		= socket_params.get_param(PARAM_SSL_KEY_CA_PATH).get_string();
+	cafile 		= socket_params.get_param(PARAM_SSL_KEY_CA_FILE).get_string();
+	certfile	= socket_params.get_param(PARAM_SSL_KEY_CERT).get_string();
+	keyfile		= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
+	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
 
-	csocket_impl::listen(params);
+	csocket_impl::listen(socket_params);
 }
 
 
 
 void
-csocket_openssl::accept(int sd, cparams const& socket_params)
+csocket_openssl::accept(
+		cparams const& socket_params, int sd)
 {
-	// TODO
+	this->socket_params = socket_params;
+
+	capath 		= socket_params.get_param(PARAM_SSL_KEY_CA_PATH).get_string();
+	cafile 		= socket_params.get_param(PARAM_SSL_KEY_CA_FILE).get_string();
+	certfile	= socket_params.get_param(PARAM_SSL_KEY_CERT).get_string();
+	keyfile		= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
+	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
+
+	this->sd = sd;
 }
 
 
 
 void
 csocket_openssl::connect(
-		cparams const& params)
+		cparams const& socket_params)
 {
-	socket_params = params;
+	this->socket_params = socket_params;
 
-	capath 		= params.get_param(PARAM_SSL_KEY_CA_PATH).get_string();
-	cafile 		= params.get_param(PARAM_SSL_KEY_CA_FILE).get_string();
-	certfile	= params.get_param(PARAM_SSL_KEY_CERT).get_string();
-	keyfile		= params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
-	password	= params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
+	capath 		= socket_params.get_param(PARAM_SSL_KEY_CA_PATH).get_string();
+	cafile 		= socket_params.get_param(PARAM_SSL_KEY_CA_FILE).get_string();
+	certfile	= socket_params.get_param(PARAM_SSL_KEY_CERT).get_string();
+	keyfile		= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
+	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
 
-	csocket_impl::connect(params);
+	csocket_impl::connect(socket_params);
 }
 
 
@@ -273,9 +282,9 @@ csocket_openssl::handle_conn_refused()
 
 
 void
-csocket_openssl::handle_accepted(int newsd, caddress const& ra)
+csocket_openssl::handle_accepted(int newsd)
 {
-	csocket_impl::handle_accepted(newsd, ra);
+	csocket_impl::handle_accepted(newsd);
 }
 
 

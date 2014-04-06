@@ -70,7 +70,7 @@ public:
 	 */
 	virtual void
 	handle_accepted(
-			csocket& socket, int newsd, caddress const& ra) = 0;
+			csocket& socket, int newsd) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity has succeeded.
@@ -221,14 +221,15 @@ public:
 	 */
 	virtual void
 	listen(
-		cparams const& params) = 0;
+			cparams const& params) = 0;
 
 
 	/**
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
-	accept(int sd, cparams const& socket_params) = 0;
+	accept(
+			cparams const& socket_params, int sd) = 0;
 
 
 
@@ -241,7 +242,7 @@ public:
 	 */
 	virtual void
 	connect(
-		cparams const& params) = 0;
+			cparams const& params) = 0;
 
 
 	/**

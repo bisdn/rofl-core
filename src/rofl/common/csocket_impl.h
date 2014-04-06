@@ -160,7 +160,7 @@ public:
 	 */
 	virtual void
 	accept(
-			int sd, cparams const& socket_params);
+		cparams const& socket_params, int sd);
 
 
 	/**
@@ -337,9 +337,9 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(int newsd, caddress const& ra) {
+	handle_accepted(int newsd) {
 		if (socket_owner) {
-			socket_owner->handle_accepted(*this, newsd, ra);
+			socket_owner->handle_accepted(*this, newsd);
 		}
 	};
 

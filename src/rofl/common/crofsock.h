@@ -279,8 +279,7 @@ private:
 	virtual void
 	handle_accepted(
 			csocket& socket,
-			int newsd,
-			caddress const& ra);
+			int newsd);
 
 
 	/**
