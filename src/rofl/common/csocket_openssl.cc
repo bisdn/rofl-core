@@ -218,6 +218,8 @@ csocket_openssl::accept(
 	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
 
 	this->sd = sd;
+
+	csocket_openssl::handle_accepted(sd);
 }
 
 
@@ -262,13 +264,19 @@ csocket_openssl::handle_connected()
 			openssl_destroy_ssl();
 			throw eOpenSSL("[rofl][csocket][openssl][handle-connected] SSL_connect() failed");
 		}
+	} else
+	if (rc == 0) {
+
+		openssl_destroy_ssl();
+		throw eOpenSSL("[rofl][csocket][openssl][handle-connected] SSL_connect() failed");
+
+	} else
+	if (rc == 1) {
+
+		socket_flags.reset(FLAG_SSL_CONNECTING);
+		socket_flags.set(FLAG_SSL_ESTABLISHED);
+		csocket_impl::handle_connected();
 	}
-
-	socket_flags.reset(FLAG_SSL_CONNECTING);
-
-	socket_flags.set(FLAG_SSL_ESTABLISHED);
-
-	csocket_impl::handle_connected();
 }
 
 
@@ -284,7 +292,41 @@ csocket_openssl::handle_conn_refused()
 void
 csocket_openssl::handle_accepted(int newsd)
 {
-	csocket_impl::handle_accepted(newsd);
+	int rc = 0;
+
+	this->sd = newsd;
+
+	socket_flags.reset(FLAG_SSL_ESTABLISHED);
+
+	openssl_init_ssl();
+
+	socket_flags.set(FLAG_SSL_ACCEPTING);
+
+	if ((rc = SSL_accept(ssl)) < 0) {
+		switch (SSL_get_error(ssl, rc)) {
+		case SSL_ERROR_WANT_READ: {
+			// wait for next data from peer
+		} return;
+		case SSL_ERROR_WANT_WRITE: {
+			register_filedesc_w(sd);
+		} return;
+		default:
+			openssl_destroy_ssl();
+			throw eOpenSSL("[rofl][csocket][openssl][handle-accepted] SSL_accept() failed");
+		}
+	} else
+	if (rc == 0) {
+
+		openssl_destroy_ssl();
+		throw eOpenSSL("[rofl][csocket][openssl][handle-accepted] SSL_accept() failed");
+
+	} else
+	if (rc == 1) {
+
+		socket_flags.reset(FLAG_SSL_ACCEPTING);
+		socket_flags.set(FLAG_SSL_ESTABLISHED);
+		csocket_impl::handle_accepted(newsd);
+	}
 }
 
 
@@ -319,13 +361,48 @@ csocket_openssl::handle_read()
 			default:
 				throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_connect() failed");
 			}
+		} else
+		if (rc == 0) {
+
+			openssl_destroy_ssl();
+			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_connect() failed");
+
+		} else
+		if (rc == 1) {
+
+			socket_flags.reset(FLAG_SSL_CONNECTING);
+			socket_flags.set(FLAG_SSL_ESTABLISHED);
+			csocket_impl::handle_connected();
 		}
 
-		socket_flags.reset(FLAG_SSL_CONNECTING);
+	} else
+	if (socket_flags.test(FLAG_SSL_ACCEPTING)) {
 
-		socket_flags.set(FLAG_SSL_ESTABLISHED);
+		if ((rc = SSL_accept(ssl)) < 0) {
+			switch (SSL_get_error(ssl, rc)) {
+			case SSL_ERROR_WANT_READ: {
+				// wait for next data from peer
+			} return;
+			case SSL_ERROR_WANT_WRITE: {
+				register_filedesc_w(sd);
+			} return;
+			default:
+				openssl_destroy_ssl();
+				throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_accept() failed");
+			}
+		} else
+		if (rc == 0) {
 
-		csocket_impl::handle_connected();
+			openssl_destroy_ssl();
+			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_accept() failed");
+
+		} else
+		if (rc == 1) {
+
+			socket_flags.reset(FLAG_SSL_ACCEPTING);
+			socket_flags.set(FLAG_SSL_ESTABLISHED);
+			csocket_impl::handle_accepted(sd);
+		}
 
 	} else
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {

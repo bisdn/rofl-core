@@ -98,8 +98,9 @@ class csocket_openssl :
 	enum openssl_flag_t {
 		FLAG_SSL_IDLE			= 0,
 		FLAG_SSL_CONNECTING		= 1,
-		FLAG_SSL_ESTABLISHED	= 2,
-		FLAG_SSL_CLOSING		= 3,
+		FLAG_SSL_ACCEPTING		= 2,
+		FLAG_SSL_ESTABLISHED	= 3,
+		FLAG_SSL_CLOSING		= 4,
 	};
 
 	std::bitset<64>				socket_flags;
