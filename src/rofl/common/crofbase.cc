@@ -526,6 +526,15 @@ crofbase::handle_read(
 
 
 void
+crofbase::handle_write(
+		csocket& socket)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
 crofbase::handle_closed(
 		csocket& socket)
 {

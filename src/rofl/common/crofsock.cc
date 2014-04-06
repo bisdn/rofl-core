@@ -200,6 +200,15 @@ crofsock::handle_read(
 
 
 
+void
+crofsock::handle_write(
+		csocket& socket)
+{
+
+}
+
+
+
 rofl::csocket&
 crofsock::get_socket()
 {

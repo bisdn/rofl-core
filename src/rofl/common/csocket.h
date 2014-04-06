@@ -99,6 +99,15 @@ public:
 	handle_read(csocket& socket) = 0;
 
 	/**
+	 * @brief	Called once new data is available for reading from the socket.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 * @param sd socket descriptor used by the connection
+	 */
+	virtual void
+	handle_write(csocket& socket) = 0;
+
+	/**
 	 * @brief	Called once the socket has been shutdown and closed.
 	 *
 	 * @param socket pointer to csocket instance emitting the notification
@@ -390,7 +399,7 @@ public:
 	static std::string const	PARAM_SSL_KEY_CA_FILE;
 	static std::string const	PARAM_SSL_KEY_CERT;
 	static std::string const	PARAM_SSL_KEY_PRIVATE_KEY;
-
+	static std::string const	PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD;
 
 public:
 

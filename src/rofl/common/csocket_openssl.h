@@ -5,6 +5,7 @@
 #ifndef CSOCKET_OPENSSL_H
 #define CSOCKET_OPENSSL_H
 
+#include <set>
 #include <list>
 #include <bitset>
 #include <stdio.h>
@@ -15,8 +16,20 @@
 
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_impl.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
 
 namespace rofl {
+
+class eOpenSSL 		: public	RoflException {
+	std::string error;
+public:
+	eOpenSSL(std::string const& error) : error(error) {};
+	friend std::ostream& operator<< (std::ostream& os, eOpenSSL const& e) {
+		os << "EXCEPTION: <eOpenSSL error: " << e.error << " >" << std::endl;
+		return os;
+	};
+};
 
 
 /**
@@ -41,18 +54,56 @@ namespace rofl {
 class csocket_openssl :
 	public csocket_impl
 {
+	//Defaults
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CA_FILE;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CERT;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD;
+
+
 	static bool ssl_initialized;
 
 	/**
 	 * @brief	Initialize SSL library internals.
 	 */
 	static void
-	ssl_init();
+	openssl_init();
+
+	/**
+	 * @brief	OpenSSL password callback.
+	 */
+	static int
+	openssl_password_callback(char *buf, int size, int rwflag, void *userdata);
+
+	static std::set<csocket_openssl*> openssl_sockets;
 
 	/*
 	 * OpenSSL related structures
 	 */
+	SSL_CTX						*ctx;
+	SSL_METHOD					*method;
+	SSL							*ssl;
 	BIO							*bio;
+
+	/*
+	 * socket parameters
+	 */
+	cparams						socket_params;
+	std::string					capath;
+	std::string					cafile;
+	std::string					certfile;
+	std::string 				keyfile;
+	std::string					password;
+
+	enum openssl_flag_t {
+		FLAG_SSL_IDLE			= 0,
+		FLAG_SSL_CONNECTING		= 1,
+		FLAG_SSL_ESTABLISHED	= 2,
+		FLAG_SSL_CLOSING		= 3,
+	};
+
+	std::bitset<64>				socket_flags;
 
 public:
 
@@ -141,30 +192,75 @@ public:
 
 
 	/**
-	 * @brief	Store a packet for transmission.
-	 *
-	 * This method stores the packet in the outgoing queue for transmission.
-	 * If the socket is not connected and not a raw socket, the packet
-	 * will be deleted and thus dropped.
-	 * After pushing the packet pointer onto the outgoing queue, the method registers
-	 * the socket descriptor for a write operation and returns, giving the
-	 * calling entity back control.
-	 *
-	 * csocket_impl will call mem's destructor in order to remove the packet from heap
-	 * once it has been sent out. Make sure, that mem is pointing to a heap allocated
-	 * cmemory instance!
-	 *
-	 * @param mem cmemory instance to be sent out
-	 */
-	virtual void
-	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
-
-
-	/**
 	 *
 	 */
 	static cparams
 	get_params();
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_capath(std::string const& capath) { this->capath = capath; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_capath() const { return capath; };
+
+	/**
+	 *
+	 */
+	void
+	set_cafile(std::string const& cafile) { this->cafile = cafile; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_cafile() const { return cafile; };
+
+	/**
+	 *
+	 */
+	void
+	set_certfile(std::string const& certfile) { this->certfile = certfile; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_certfile() const { return certfile; };
+
+	/**
+	 *
+	 */
+	void
+	set_keyfile(std::string const& keyfile) { this->keyfile = keyfile; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_keyfile() const { return keyfile; };
+
+	/**
+	 *
+	 */
+	void
+	set_password(std::string const& password) { this->password = password; };
+
+	/**
+	 *
+	 */
+	std::string const&
+	get_password() const { return password; };
+
+
+
 
 
 protected:
@@ -181,11 +277,7 @@ protected:
 	 * if this signal is required for further operation.
 	 */
 	virtual void
-	handle_connected() {
-		if (socket_owner) {
-			socket_owner->handle_connected(*this);
-		}
-	};
+	handle_connected();
 
 	/**
 	 * Connect on socket failed (client mode).
@@ -195,11 +287,7 @@ protected:
 	 * if the derived class wants to act upon this condition.
 	 */
 	virtual void
-	handle_conn_refused() {
-		if (socket_owner) {
-			socket_owner->handle_connect_refused(*this);
-		}
-	};
+	handle_conn_refused();
 
 	/**
 	 * A new incoming connection was accepted (listening mode).
@@ -211,11 +299,7 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(int newsd, caddress const& ra) {
-		if (socket_owner) {
-			socket_owner->handle_accepted(*this, newsd, ra);
-		}
-	};
+	handle_accepted(int newsd, caddress const& ra);
 
 	/**
 	 * Socket was closed.
@@ -224,91 +308,71 @@ protected:
 	 * @param sd the socket descriptor
 	 */
 	virtual void
-	handle_closed() {
-		if (socket_owner) {
-			socket_owner->handle_closed(*this);
-		}
-	};
+	handle_closed();
 
 	/**
 	 * Read data from socket.
 	 *
 	 * This notification method is called from within csocket_impl::handle_revent().
-	 * A derived class should read a packet from the socket. This method
+	 * A derived class should read data from the socket. This method
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
 	 */
 	virtual void
-	handle_read() {
-		if (socket_owner) {
-			socket_owner->handle_read(*this);
-		}
-	};
+	handle_read();
+
+	/**
+	 * Write data to socket.
+	 *
+	 * This notification method is called from within csocket_impl::handle_revent().
+	 * A derived class should write data to the socket. This method
+	 * must be overwritten by a derived class.
+	 * @param fd the socket descriptor
+	 */
+	virtual void
+	handle_write();
 
 
 
 private:
 
+	/**
+	 *
+	 */
+	void
+	openssl_init_ctx();
 
 	/**
 	 *
 	 */
 	void
-	backoff_reconnect(
-			bool reset_timeout = false);
-
-
-	/*
-	 * inherited from ciosrv
-	 */
-
+	openssl_destroy_ctx();
 
 	/**
 	 *
 	 */
-	virtual void
-	handle_timeout(
-			int opaque, void *data = (void*)0);
+	void
+	openssl_init_ssl();
 
 	/**
 	 *
 	 */
-	virtual void
-	handle_event(
-			cevent const& ev);
+	void
+	openssl_destroy_ssl();
+
+
+protected:
 
 
 	/**
-	 * Handle read events on socket descriptor.
+	 * Send packets in outgoing queue pout_squeue.
 	 *
-	 * Implemented by csocket_impl, it either handles accept() in listening mode
-	 * or read operations in non-listening mode. In listening mode and after
-	 * return of the accept() system call, the handle_accepted() method is called.
-	 * In non-listening mode the handle_read() method is called.
-	 * @param fd the socket descriptor
+	 * This method transmits all pending packets from the transmission
+	 * queue pout_squeue.
 	 */
 	virtual void
-	handle_revent(int fd);
+	dequeue_packet();
 
-
-	/**
-	 * Handle write events on socket descriptor.
-	 *
-	 * This method controls the connect() process in connecting state
-	 * or calls the dequeue_packet() method for transmitting any queued
-	 * packets in established state.
-	 * @param fd the socket descriptor
-	 */
-	virtual void
-	handle_wevent(int fd);
-
-
-	/**
-	 * Handle exception events on socket descriptor.
-	 * @param fd the socket descriptor
-	 */
-	virtual void
-	handle_xevent(int fd);
 
 public:
 

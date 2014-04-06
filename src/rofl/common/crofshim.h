@@ -102,6 +102,9 @@ private:
 	handle_read(csocket& socket) {};
 
 	virtual void
+	handle_write(csocket& socket) {};
+
+	virtual void
 	handle_closed(csocket& socket) {};
 };
 

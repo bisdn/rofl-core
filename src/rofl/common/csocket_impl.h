@@ -362,7 +362,7 @@ protected:
 	 * Read data from socket.
 	 *
 	 * This notification method is called from within csocket_impl::handle_revent().
-	 * A derived class should read a packet from the socket. This method
+	 * A derived class should read data from the socket. This method
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
 	 */
@@ -370,6 +370,21 @@ protected:
 	handle_read() {
 		if (socket_owner) {
 			socket_owner->handle_read(*this);
+		}
+	};
+
+	/**
+	 * Write data to socket.
+	 *
+	 * This notification method is called from within csocket_impl::handle_wevent().
+	 * A derived class should write data to the socket. This method
+	 * must be overwritten by a derived class.
+	 * @param fd the socket descriptor
+	 */
+	virtual void
+	handle_write() {
+		if (socket_owner) {
+			socket_owner->handle_write(*this);
 		}
 	};
 
@@ -439,7 +454,7 @@ private:
 	handle_xevent(int fd);
 
 
-private:
+protected:
 
 
 	/**
@@ -448,7 +463,7 @@ private:
 	 * This method transmits all pending packets from the transmission
 	 * queue pout_squeue.
 	 */
-	void
+	virtual void
 	dequeue_packet();
 
 public:
