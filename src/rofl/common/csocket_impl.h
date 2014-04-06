@@ -47,7 +47,7 @@ namespace rofl {
 class csocket_impl :
 	public csocket
 {
-private:
+protected:
 
 	struct pout_entry_t {
 		cmemory *mem;
@@ -77,12 +77,12 @@ private:
 		};
 	};
 
-	bool 				had_short_write;
-	pthread_rwlock_t		pout_squeue_lock;	/**< rwlock for access to pout_squeue */
+	bool 						had_short_write;
+	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
 	//Defaults
-	static bool const		PARAM_DEFAULT_VALUE_DO_RECONNECT;
+	static bool const			PARAM_DEFAULT_VALUE_DO_RECONNECT;
 	static std::string const 	PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME;
 	static std::string const 	PARAM_DEFAULT_VALUE_REMOTE_PORT;
 	static std::string const 	PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
@@ -121,9 +121,9 @@ protected:
 
 #define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
 
+	cparams						socket_params;
 
 public:
-
 
 
 	/**
@@ -132,7 +132,8 @@ public:
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
 	csocket_impl(
-			csocket_owner *owner);
+			csocket_owner *owner,
+			enum rofl::csocket::socket_type_t socket_type = SOCKET_TYPE_PLAIN);
 
 
 	/**
@@ -243,9 +244,7 @@ public:
 	get_params();
 
 
-private:
-
-
+protected:
 
 	/**
 	 * @brief	Open socket in listening mode (server side).
@@ -296,7 +295,7 @@ private:
 		bool do_reconnect = false);
 
 
-private:
+protected:
 
 	//
 	// socket specific methods, must be overloaded in derived class
@@ -309,7 +308,7 @@ private:
 	 * on the socket. It should be overwritten by a derived class
 	 * if this signal is required for further operation.
 	 */
-	void
+	virtual void
 	handle_connected() {
 		if (socket_owner) {
 			socket_owner->handle_connected(*this);
@@ -323,7 +322,7 @@ private:
 	 * on the socket. It should be overwritten by a derived class
 	 * if the derived class wants to act upon this condition.
 	 */
-	void
+	virtual void
 	handle_conn_refused() {
 		if (socket_owner) {
 			socket_owner->handle_connect_refused(*this);
@@ -339,7 +338,7 @@ private:
 	 * @param  newsd the new socket descriptor
 	 * @param ra reference to the peer entity's address
 	 */
-	void
+	virtual void
 	handle_accepted(int newsd, caddress const& ra) {
 		if (socket_owner) {
 			socket_owner->handle_accepted(*this, newsd, ra);
@@ -352,7 +351,7 @@ private:
 	 * This notification method is called when the socket is closed.
 	 * @param sd the socket descriptor
 	 */
-	void
+	virtual void
 	handle_closed() {
 		if (socket_owner) {
 			socket_owner->handle_closed(*this);
@@ -367,7 +366,7 @@ private:
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
 	 */
-	void
+	virtual void
 	handle_read() {
 		if (socket_owner) {
 			socket_owner->handle_read(*this);

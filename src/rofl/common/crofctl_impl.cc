@@ -10,7 +10,6 @@ using namespace rofl;
 crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
-				crofctl(rofbase),
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -28,7 +27,6 @@ crofctl_impl::crofctl_impl(
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		rofl::csocket::socket_type_t socket_type,
 		int newsd) :
-				crofctl(rofbase),
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -48,7 +46,6 @@ crofctl_impl::crofctl_impl(
 		int reconnect_start_timeout,
 		rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params) :
-				crofctl(rofbase),
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),

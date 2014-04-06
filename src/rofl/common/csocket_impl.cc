@@ -41,8 +41,9 @@ csocket_impl::get_params()
 
 
 csocket_impl::csocket_impl(
-		csocket_owner *owner) :
-				csocket(rofl::csocket::SOCKET_TYPE_PLAIN, owner),
+		csocket_owner *owner,
+		rofl::csocket::socket_type_t socket_type) :
+				csocket(owner, socket_type),
 				had_short_write(false),
 				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
@@ -258,6 +259,8 @@ void
 csocket_impl::listen(
 		cparams const& params)
 {
+	this->socket_params = params;
+
 	rofl::logging::debug << "[rofl][csocket][plain][listen] parameter set:" << std::endl << params;
 
 	/*
@@ -508,6 +511,8 @@ void
 csocket_impl::connect(
 		cparams const& params)
 {
+	this->socket_params = params;
+
 	rofl::logging::debug << "[rofl][csocket][plain][connect] parameter set:" << std::endl << params;
 
 	/*

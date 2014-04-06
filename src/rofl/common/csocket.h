@@ -141,8 +141,8 @@ public:
 
 protected:
 
-	enum socket_type_t			socket_type;
 	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
+	enum socket_type_t			socket_type;
 	int 						sd; 				/**< the socket descriptor */
 	caddress 					laddr; 				/**< local address socket is bound to */
 	caddress 					raddr; 				/**< remote address of peer entity */
@@ -178,9 +178,9 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_owner
 	 */
-	csocket(enum socket_type_t socket_type, csocket_owner *owner) :
-		socket_type(socket_type),
+	csocket(csocket_owner *owner, enum socket_type_t socket_type) :
 		socket_owner(owner),
+		socket_type(socket_type),
 		sd(-1),
 		domain(0),
 		type(0),
@@ -199,32 +199,6 @@ public:
 	~csocket()
 	{};
 
-
-
-
-	/**
-	 * @brief	Open socket in listening mode (server side).
-	 *
-	 * This opens a socket in listening mode bound to address 'la'
-	 * with the specified socket parameters.
-	 *
-	 * @param la the local address for binding this socket
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog backlog value
-	 * @throw eSocketListenFailed failure in listen() system call
-	 * @throw eSocketAddressInUse bind error while calling bind()
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	listen(
-		caddress la,
-		int domain = PF_INET, 
-		int type = SOCK_STREAM, 
-		int protocol = 0,
-		int backlog = 10,
-		std::string devname = std::string("")) = 0;
 
 
 	/**
@@ -246,29 +220,6 @@ public:
 	virtual void
 	accept(int sd) = 0;
 
-
-
-	/**
-	 * @brief	Open socket and connect to peer entity (client side).
-	 *
-	 * This opens a socket and connects to a peer entity.
-	 *
-	 * @param ra remote address of peer entity to connect to
-	 * @param la address used for binding socket locally
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @throw eSocketConnectFailed thrown if the connect() operation failed finally
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	connect(
-		caddress ra,
-		caddress la = caddress(AF_INET, "0.0.0.0", 0),
-		int domain = PF_INET, 
-		int type = SOCK_STREAM, 
-		int protocol = 0,
-		bool do_reconnect = false) = 0;
 
 
 	/**

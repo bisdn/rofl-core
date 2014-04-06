@@ -60,8 +60,7 @@ public: // methods
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofctl(
-			crofbase *rofbase = (crofbase*)0) :
+	crofctl() :
 			ctlid(++crofctl::next_ctlid) {
 		crofctl::rofctls[ctlid] = this;
 	};

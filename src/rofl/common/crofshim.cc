@@ -32,12 +32,14 @@ crofshim::~crofshim()
 
 
 void
-crofshim::listen(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& laddr, int domain, int type, int protocol, int backlog)
+crofshim::listen(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int backlog)
 {
+#if 0
 	if (sockets.find(laddr) != sockets.end()) {
 		return;
 	}
-	(sockets[laddr] = csocket::csocket_factory(socket_type, this))->listen(laddr, domain, type, protocol, backlog);
+	(sockets[laddr] = csocket::csocket_factory(socket_type, this))->listen(socket_params, backlog);
+#endif
 }
 
 

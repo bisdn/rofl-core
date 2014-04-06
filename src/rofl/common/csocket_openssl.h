@@ -14,6 +14,7 @@
 #include <openssl/err.h>
 
 #include "rofl/common/csocket.h"
+#include "rofl/common/csocket_impl.h"
 
 namespace rofl {
 
@@ -38,7 +39,7 @@ namespace rofl {
  * @see csocket_impl_owner
  */
 class csocket_openssl :
-	public csocket
+	public csocket_impl
 {
 	static bool ssl_initialized;
 
@@ -48,77 +49,10 @@ class csocket_openssl :
 	static void
 	ssl_init();
 
-private:
-
-	struct pout_entry_t {
-		cmemory *mem;
-		caddress dest;
-		size_t msg_bytes_sent;
-		pout_entry_t(cmemory *mem = 0, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) :
-			mem(mem), dest(dest), msg_bytes_sent(0) {};
-		pout_entry_t(pout_entry_t const& e) :
-			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)), msg_bytes_sent(0) {
-			*this = e;
-		};
-		struct pout_entry_t&
-		operator= (pout_entry_t const& e) {
-			if (this == &e) return *this;
-			mem = e.mem;
-			dest = e.dest;
-			msg_bytes_sent = e.msg_bytes_sent;
-			return *this;
-		};
-		friend std::ostream&
-		operator<< (std::ostream& os, struct pout_entry_t const& entry) {
-			os << indent(0) << "<struct pout_entry_t >" << std::endl;
-			os << indent(2) << "<mem:0x" << entry.mem << " >" << std::endl;
-			os << indent(2) << "<dest:" << entry.dest << " >" << std::endl;
-			os << indent(2) << "<msg_bytes_sent:" << entry.msg_bytes_sent << " >" << std::endl;
-			return os;
-		};
-	};
-
-	bool 						had_short_write;
-	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
-	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
-
-	//Keys
-protected:
-
-	enum socket_flag_t {
-		SOCKET_IS_LISTENING = 1, 	/**< socket is in listening state */
-		CONNECT_PENDING		= 2, 	/**< connect() call is pending */
-		RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
-		CONNECTED			= 4,	/**< socket is connected */
-		FLAG_ACTIVE_SOCKET	= 5,
-		FLAG_DO_RECONNECT	= 6,
-		FLAG_SEND_CLOSED_NOTIFICATION = 7,
-	};
-
-	std::bitset<16> 			sockflags; /**< socket flags (see below) */
-
-	enum csocket_impl_timer_t {
-		TIMER_RECONNECT 	= 1,
-	};
-
-	enum csocket_impl_event_t {
-		EVENT_CONN_RESET	= 1,
-		EVENT_DISCONNECTED	= 2,
-	};
-
-
-
-	int							reconnect_start_timeout;
-	int 						reconnect_in_seconds; 	// reconnect in x seconds
-	int 						reconnect_counter;
-
-#define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
-
 	/*
 	 * OpenSSL related structures
 	 */
 	BIO							*bio;
-
 
 public:
 
@@ -142,33 +76,6 @@ public:
 	~csocket_openssl();
 
 
-
-
-	/**
-	 * @brief	Open socket in listening mode (server side).
-	 *
-	 * This opens a socket in listening mode bound to address 'la'
-	 * with the specified socket parameters.
-	 *
-	 * @param la the local address for binding this socket
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog backlog value
-	 * @throw eSocketListenFailed failure in listen() system call
-	 * @throw eSocketAddressInUse bind error while calling bind()
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	listen(
-		caddress la,
-		int domain = PF_INET, 
-		int type = SOCK_STREAM, 
-		int protocol = 0,
-		int backlog = 10,
-		std::string devname = std::string(""));
-
-
 	/**
 	 * @brief	Open socket in listening mode (server side).
 	 *
@@ -188,29 +95,6 @@ public:
 	virtual void
 	accept(int sd);
 
-
-
-	/**
-	 * @brief	Open socket and connect to peer entity (client side).
-	 *
-	 * This opens a socket and connects to a peer entity.
-	 *
-	 * @param ra remote address of peer entity to connect to
-	 * @param la address used for binding socket locally
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @throw eSocketConnectFailed thrown if the connect() operation failed finally
-	 * @throw eSocketError thrown for all other socket related errors
-	 */
-	virtual void
-	connect(
-		caddress ra,
-		caddress la = caddress(AF_INET, "0.0.0.0", 0),
-		int domain = PF_INET,
-		int type = SOCK_STREAM,
-		int protocol = 0,
-		bool do_reconnect = false);
 
 
 	/**
@@ -279,18 +163,11 @@ public:
 	/**
 	 *
 	 */
-	virtual bool
-	is_connected() const { return sockflags.test(CONNECTED); };
-
-
-	/**
-	 *
-	 */
 	static cparams
 	get_params();
 
 
-private:
+protected:
 
 	//
 	// socket specific methods, must be overloaded in derived class
@@ -303,7 +180,7 @@ private:
 	 * on the socket. It should be overwritten by a derived class
 	 * if this signal is required for further operation.
 	 */
-	void
+	virtual void
 	handle_connected() {
 		if (socket_owner) {
 			socket_owner->handle_connected(*this);
@@ -317,7 +194,7 @@ private:
 	 * on the socket. It should be overwritten by a derived class
 	 * if the derived class wants to act upon this condition.
 	 */
-	void
+	virtual void
 	handle_conn_refused() {
 		if (socket_owner) {
 			socket_owner->handle_connect_refused(*this);
@@ -333,7 +210,7 @@ private:
 	 * @param  newsd the new socket descriptor
 	 * @param ra reference to the peer entity's address
 	 */
-	void
+	virtual void
 	handle_accepted(int newsd, caddress const& ra) {
 		if (socket_owner) {
 			socket_owner->handle_accepted(*this, newsd, ra);
@@ -346,7 +223,7 @@ private:
 	 * This notification method is called when the socket is closed.
 	 * @param sd the socket descriptor
 	 */
-	void
+	virtual void
 	handle_closed() {
 		if (socket_owner) {
 			socket_owner->handle_closed(*this);
@@ -361,7 +238,7 @@ private:
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
 	 */
-	void
+	virtual void
 	handle_read() {
 		if (socket_owner) {
 			socket_owner->handle_read(*this);
@@ -432,19 +309,6 @@ private:
 	 */
 	virtual void
 	handle_xevent(int fd);
-
-
-private:
-
-
-	/**
-	 * Send packets in outgoing queue pout_squeue.
-	 *
-	 * This method transmits all pending packets from the transmission
-	 * queue pout_squeue.
-	 */
-	void
-	dequeue_packet();
 
 public:
 

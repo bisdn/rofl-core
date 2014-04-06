@@ -44,11 +44,7 @@ csocket_openssl::ssl_init()
 
 csocket_openssl::csocket_openssl(
 		csocket_owner *owner) :
-				csocket(rofl::csocket::SOCKET_TYPE_OPENSSL, owner),
-				had_short_write(false),
-				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
-				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
-				reconnect_counter(0),
+				csocket_impl(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
 				bio(NULL)
 {
 	csocket_openssl::ssl_init();
@@ -62,7 +58,7 @@ csocket_openssl::csocket_openssl(
 
 csocket_openssl::~csocket_openssl()
 {
-	logging::debug << "[rofl][csocket_openssl] destructor:" << std::endl << *this;
+	logging::debug << "[rofl][csocket][openssl] destructor:" << std::endl << *this;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
@@ -79,7 +75,7 @@ csocket_openssl::handle_timeout(
 		connect(raddr, laddr, domain, type, protocol, true);
 	} break;
 	default:
-		logging::error << "[rofl][csocket_openssl] unknown timer type:" << opaque << std::endl;
+		logging::error << "[rofl][csocket][openssl] unknown timer type:" << opaque << std::endl;
 	}
 }
 
@@ -98,9 +94,9 @@ csocket_openssl::handle_event(
 			sockflags.reset(CONNECTED);
 			backoff_reconnect(true);
 		} else {
-			//logging::info << "[rofl][csocket_openssl] closed socket." << std::endl << *this;
+			//logging::info << "[rofl][csocket][openssl] closed socket." << std::endl << *this;
 			if (sockflags.test(FLAG_SEND_CLOSED_NOTIFICATION)) {
-				//logging::info << "[rofl][csocket_openssl] sending CLOSED NOTIFICATION." << std::endl;
+				//logging::info << "[rofl][csocket][openssl] sending CLOSED NOTIFICATION." << std::endl;
 				sockflags.reset(FLAG_SEND_CLOSED_NOTIFICATION);
 				events_clear();
 				handle_closed();
@@ -122,7 +118,7 @@ csocket_openssl::backoff_reconnect(bool reset_timeout)
 		return;
 	}
 
-	logging::info << "[rofl][csocket_openssl] " << " scheduled reconnect in "
+	logging::info << "[rofl][csocket][openssl] " << " scheduled reconnect in "
 			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
 
 	int max_backoff = 16 * reconnect_start_timeout;
@@ -164,7 +160,7 @@ csocket_openssl::handle_revent(int fd)
 			}
 		}
 
-		logging::info << "[rofl][csocket_openssl] socket accepted " << new_sd << std::endl << *this;
+		logging::info << "[rofl][csocket][openssl] socket accepted " << new_sd << std::endl << *this;
 
 		handle_accepted(new_sd, ra);
 
@@ -193,7 +189,7 @@ csocket_openssl::handle_wevent(int fd)
 
 		switch (optval) {
 		case /*EISCONN=*/0: {
-			logging::info << "[rofl][csocket_openssl] connection established." << std::endl << *this;
+			logging::info << "[rofl][csocket][openssl] connection established." << std::endl << *this;
 
 			sockflags[CONNECT_PENDING] = false;
 			register_filedesc_w(sd);
@@ -203,12 +199,12 @@ csocket_openssl::handle_wevent(int fd)
 			sockflags[CONNECTED] = true;
 
 			if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
-				logging::error << "[rofl][csocket_openssl] unable to read local address from socket descriptor:"
+				logging::error << "[rofl][csocket][openssl] unable to read local address from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 			}
 
 			if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
-				logging::error << "[rofl][csocket_openssl] unable to read remote address from socket descriptor:"
+				logging::error << "[rofl][csocket][openssl] unable to read remote address from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 			}
 
@@ -219,11 +215,11 @@ csocket_openssl::handle_wevent(int fd)
 			handle_connected();
 		} break;
 		case EINPROGRESS: {
-			logging::warn << "[rofl[csocket_openssl] connection establishment is pending." << std::endl << *this;
+			logging::warn << "[rofl[csocket][openssl] connection establishment is pending." << std::endl << *this;
 			// do nothing
 		} break;
 		case ECONNREFUSED: {
-			logging::warn << "[rofl][csocket_openssl] connection failed." << std::endl << *this;
+			logging::warn << "[rofl][csocket][openssl] connection failed." << std::endl << *this;
 			close();
 
 			if (sockflags.test(FLAG_DO_RECONNECT)) {
@@ -233,7 +229,7 @@ csocket_openssl::handle_wevent(int fd)
 			}
 		} break;
 		default: {
-			logging::error << "[rofl][csocket_openssl] error occured during connection establishment." << std::endl << *this;
+			logging::error << "[rofl][csocket][openssl] error occured during connection establishment." << std::endl << *this;
 			throw eSysCall(optval);
 		};
 		}
@@ -242,9 +238,9 @@ csocket_openssl::handle_wevent(int fd)
 			try {
 				dequeue_packet();
 			} catch (eSysCall& e) {
-				logging::error << "[rofl][csocket_openssl] eSysCall " << e << std::endl;
+				logging::error << "[rofl][csocket][openssl] eSysCall " << e << std::endl;
 			} catch (RoflException& e) {
-				logging::error << "[rofl][csocket_openssl] RoflException " << e << std::endl;
+				logging::error << "[rofl][csocket][openssl] RoflException " << e << std::endl;
 			}
 		}
 	}
@@ -254,7 +250,7 @@ csocket_openssl::handle_wevent(int fd)
 void
 csocket_openssl::handle_xevent(int fd)
 {
-	logging::error << "[rofl[csocket_openssl] error occured on socket descriptor" << std::endl << *this;
+	logging::error << "[rofl[csocket][openssl] error occured on socket descriptor" << std::endl << *this;
 }
 
 
@@ -398,30 +394,30 @@ csocket_openssl::accept(int sd)
 
 	socklen_t optlen = 0;
 	if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
-		logging::error << "[rofl][csocket_openssl][accept] unable to read local address from socket descriptor:"
+		logging::error << "[rofl][csocket][openssl][accept] unable to read local address from socket descriptor:"
 				<< sd << " " << eSysCall() << std::endl;
 	}
 
 	if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
-		logging::error << "[rofl][csocket_openssl][accept] unable to read remote address from socket descriptor:"
+		logging::error << "[rofl][csocket][openssl][accept] unable to read remote address from socket descriptor:"
 				<< sd << " " << eSysCall() << std::endl;
 	}
 
 	optlen = sizeof(domain);
 	if ((getsockopt(sd, SOL_SOCKET, SO_DOMAIN, &domain, &optlen)) < 0) {
-		logging::error << "[rofl][csocket_openssl][accept] unable to read domain from socket descriptor:"
+		logging::error << "[rofl][csocket][openssl][accept] unable to read domain from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 	}
 
 	optlen = sizeof(type);
 	if ((getsockopt(sd, SOL_SOCKET, SO_TYPE, &type, &optlen)) < 0) {
-		logging::error << "[rofl][csocket_openssl][accept] unable to read type from socket descriptor:"
+		logging::error << "[rofl][csocket][openssl][accept] unable to read type from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 	}
 
 	optlen = sizeof(protocol);
 	if ((getsockopt(sd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen)) < 0) {
-		logging::error << "[rofl][csocket_openssl][accept] unable to read protocol from socket descriptor:"
+		logging::error << "[rofl][csocket][openssl][accept] unable to read protocol from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 	}
 
@@ -486,11 +482,11 @@ csocket_openssl::connect(
 			sockflags.set(CONNECT_PENDING);
 			BIO_get_fd(bio, (int*)&sd);
 			register_filedesc_w(sd);
-			logging::debug << "[rofl][csocket_openssl] BIO SHOULD-RETRY" << std::endl << *this;
+			logging::debug << "[rofl][csocket][openssl] BIO SHOULD-RETRY" << std::endl << *this;
 		} else {
 			close();
 			backoff_reconnect(false);
-			logging::debug << "[rofl][csocket_openssl] BIO CONNECT-FAILED" << std::endl << *this;
+			logging::debug << "[rofl][csocket][openssl] BIO CONNECT-FAILED" << std::endl << *this;
 		}
 		return;
 	}
@@ -511,7 +507,7 @@ csocket_openssl::connect(
 		throw eSysCall("getpeername");
 	}
 
-	logging::info << "[rofl][csocket_openssl] socket connected" << std::endl << *this;
+	logging::info << "[rofl][csocket][openssl] socket connected" << std::endl << *this;
 
 	handle_connected();
 }
@@ -534,7 +530,7 @@ csocket_openssl::reconnect()
 void
 csocket_openssl::close()
 {
-	logging::info << "[rofl][csocket_openssl] close()" << std::endl;
+	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
@@ -548,7 +544,7 @@ csocket_openssl::close()
 
 	if (not sockflags.test(RAW_SOCKET) and sockflags.test(CONNECTED)) {
 		if ((rc = BIO_reset(bio)) < 0) {
-			logging::error << "[rofl][csocket_openssl] error occured during BIO_reset(): "
+			logging::error << "[rofl][csocket][openssl] error occured during BIO_reset(): "
 					<< eSysCall("BIO_reset()") << std::endl << *this;
 		}
 	}
@@ -560,7 +556,7 @@ csocket_openssl::close()
 	sockflags.reset(CONNECTED);
 	sockflags.set(FLAG_SEND_CLOSED_NOTIFICATION);
 
-	logging::info << "[rofl][csocket_openssl] cleaning-up socket." << std::endl << *this;
+	logging::info << "[rofl][csocket][openssl] cleaning-up socket." << std::endl << *this;
 
 	// purge pout_squeue
 	while (not pout_squeue.empty()) {
@@ -584,7 +580,7 @@ csocket_openssl::recv(void *buf, size_t count)
 		return rc;
 
 	} else if (rc == 0) {
-		logging::error << "[rofl][csocket_openssl] peer closed connection: "
+		logging::error << "[rofl][csocket][openssl] peer closed connection: "
 				<< eSysCall("BIO_read()") << std::endl << *this;
 		close();
 
@@ -597,7 +593,7 @@ csocket_openssl::recv(void *buf, size_t count)
 			throw eSocketAgain();
 		}
 
-		logging::error << "[rofl][csocket_openssl] error reading from socket: "
+		logging::error << "[rofl][csocket][openssl] error reading from socket: "
 				<< eSysCall("BIO_read()") << ", closing endpoint." << std::endl << *this;
 		close();
 
@@ -614,7 +610,7 @@ void
 csocket_openssl::send(cmemory* mem, caddress const& dest)
 {
 	if (not sockflags.test(CONNECTED) && not sockflags.test(RAW_SOCKET)) {
-		logging::warn << "[rofl][csocket_openssl] socket not connected, dropping packet " << *mem << std::endl;
+		logging::warn << "[rofl][csocket][openssl] socket not connected, dropping packet " << *mem << std::endl;
 		delete mem; return;
 	}
 
@@ -636,7 +632,7 @@ csocket_openssl::dequeue_packet()
 			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
 
 			if (had_short_write) {
-				logging::warn << "[rofl][csocket_openssl] resending due to short write: " << std::endl << entry;
+				logging::warn << "[rofl][csocket][openssl] resending due to short write: " << std::endl << entry;
 				had_short_write = false;
 			}
 
@@ -645,7 +641,7 @@ csocket_openssl::dequeue_packet()
 					entry.mem->memlen() - entry.msg_bytes_sent)) <= 0) {
 
 				if (not BIO_should_retry(bio)) {
-					logging::warn << "[rofl][csocket_openssl] dequeue_packet() dropping packet " << *(entry.mem) << std::endl;
+					logging::warn << "[rofl][csocket][openssl] dequeue_packet() dropping packet " << *(entry.mem) << std::endl;
 
 					//close(); // clears also pout_squeue
 					//handle_closed();
@@ -657,9 +653,9 @@ csocket_openssl::dequeue_packet()
 				if (SOCK_STREAM == type) {
 					had_short_write = true;
 					entry.msg_bytes_sent += rc;
-					logging::warn << "[rofl][csocket_openssl] short write on socket descriptor:" << sd << ", retrying..." << std::endl << entry;
+					logging::warn << "[rofl][csocket][openssl] short write on socket descriptor:" << sd << ", retrying..." << std::endl << entry;
 				} else {
-					logging::warn << "[rofl][csocket_openssl] short write on socket descriptor:" << sd << ", dropping packet." << std::endl;
+					logging::warn << "[rofl][csocket][openssl] short write on socket descriptor:" << sd << ", dropping packet." << std::endl;
 					delete entry.mem;
 					pout_squeue.pop_front();
 				}

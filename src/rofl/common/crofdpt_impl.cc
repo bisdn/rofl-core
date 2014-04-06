@@ -10,7 +10,6 @@ using namespace rofl;
 crofdpt_impl::crofdpt_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
-				crofdpt(rofbase),
 				rofchan(this, versionbitmap),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
@@ -33,7 +32,6 @@ crofdpt_impl::crofdpt_impl(
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		enum rofl::csocket::socket_type_t socket_type,
 		int newsd) :
-				crofdpt(rofbase),
 				rofchan(this, versionbitmap),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),

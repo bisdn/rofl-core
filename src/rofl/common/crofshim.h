@@ -49,7 +49,7 @@ public:
 	 *
 	 */
 	void
-	listen(enum rofl::csocket::socket_type_t socket_type, rofl::caddress const& laddr, int domain, int type, int protocol, int backlog = 10);
+	listen(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int backlog = 10);
 
 	/**
 	 *
