@@ -59,16 +59,16 @@ csocket::csocket_factory(
 
 
 cparams
-csocket::get_params(
+csocket::get_default_params(
 		enum socket_type_t socket_type)
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return csocket_impl::get_params();
+		return csocket_impl::get_default_params();
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
-		return csocket_openssl::get_params();
+		return csocket_openssl::get_default_params();
 	} break;
 #endif
 	default:

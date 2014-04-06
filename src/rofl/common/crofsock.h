@@ -204,7 +204,7 @@ public:
 	 *
 	 */
 	void
-	accept(enum rofl::csocket::socket_type_t socket_type, int sd);
+	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int sd);
 
 	/**
 	 *

@@ -16,7 +16,7 @@ std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY("key.
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD("");
 
 /*static*/cparams
-csocket_openssl::get_params()
+csocket_openssl::get_default_params()
 {
 	cparams p;
 	p.add_param(csocket::PARAM_KEY_DO_RECONNECT);
@@ -206,7 +206,7 @@ csocket_openssl::listen(
 
 
 void
-csocket_openssl::accept(int sd)
+csocket_openssl::accept(int sd, cparams const& socket_params)
 {
 	// TODO
 }
@@ -468,7 +468,7 @@ csocket_openssl::reconnect()
 		throw eInval();
 	}
 	close();
-	connect(params);
+	connect(socket_params);
 }
 
 

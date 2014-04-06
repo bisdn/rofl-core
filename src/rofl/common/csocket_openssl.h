@@ -89,7 +89,6 @@ class csocket_openssl :
 	/*
 	 * socket parameters
 	 */
-	cparams						socket_params;
 	std::string					capath;
 	std::string					cafile;
 	std::string					certfile;
@@ -144,7 +143,7 @@ public:
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
-	accept(int sd);
+	accept(int sd, cparams const& socket_params);
 
 
 
@@ -195,7 +194,8 @@ public:
 	 *
 	 */
 	static cparams
-	get_params();
+	get_default_params();
+
 
 public:
 
@@ -299,7 +299,9 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(int newsd, caddress const& ra);
+	handle_accepted(
+			int newsd,
+			caddress const& ra);
 
 	/**
 	 * Socket was closed.

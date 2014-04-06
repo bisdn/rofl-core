@@ -131,7 +131,7 @@ public:
 	 *
 	 */
 	void
-	accept(enum rofl::csocket::socket_type_t socket_type, int newsd);
+	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd);
 
 	/**
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.

@@ -39,10 +39,10 @@ crofconn::~crofconn()
 
 
 void
-crofconn::accept(enum rofl::csocket::socket_type_t socket_type, int newsd)
+crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd)
 {
 	flags.set(FLAGS_PASSIVE);
-	rofsock.accept(socket_type, newsd);
+	rofsock.accept(socket_type, socket_params, newsd);
 }
 
 

@@ -50,12 +50,12 @@ main(int argc, char** argv)
 		assert(NULL != ssl_ctx);
 	}
 
-	rofl::cparams socket_params = csocket::get_params(rofl::csocket::SOCKET_TYPE_OPENSSL);
+	rofl::cparams socket_params = csocket::get_default_params(rofl::csocket::SOCKET_TYPE_OPENSSL);
 	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_OPENSSL, socket_params);
 
 #else
-	rofl::cparams socket_params = csocket::get_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+	rofl::cparams socket_params = csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
 	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 #endif

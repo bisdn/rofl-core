@@ -493,7 +493,7 @@ crofbase::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-	(new rofl::crofconn(this, versionbitmap))->accept(socket.get_socket_type(), newsd);
+	(new rofl::crofconn(this, versionbitmap))->accept(socket.get_socket_type(), socket.get_socket_params(), newsd);
 }
 
 

@@ -20,7 +20,7 @@ std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL			= csocket::PARAM_
 
 
 /*static*/cparams
-csocket_impl::get_params()
+csocket_impl::get_default_params()
 {
 	/*
 	 * fill in cparams structure and fill in default values
@@ -467,7 +467,7 @@ csocket_impl::listen(
 
 
 void
-csocket_impl::accept(int sd)
+csocket_impl::accept(int sd, cparams const& socket_params)
 {
 	this->sd = sd;
 

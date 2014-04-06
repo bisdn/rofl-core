@@ -36,12 +36,12 @@ crofsock::~crofsock()
 
 
 void
-crofsock::accept(enum rofl::csocket::socket_type_t socket_type, int sd)
+crofsock::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int sd)
 {
 	if (socket)
 		delete socket;
 	socket = csocket::csocket_factory(socket_type, this);
-	socket->accept(sd);
+	socket->accept(sd, socket_params);
 }
 
 

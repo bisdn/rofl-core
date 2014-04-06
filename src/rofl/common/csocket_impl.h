@@ -121,8 +121,6 @@ protected:
 
 #define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
 
-	cparams						socket_params;
-
 public:
 
 
@@ -162,7 +160,7 @@ public:
 	 */
 	virtual void
 	accept(
-			int sd);
+			int sd, cparams const& socket_params);
 
 
 	/**
@@ -241,7 +239,7 @@ public:
 	 *
 	 */
 	static cparams
-	get_params();
+	get_default_params();
 
 
 protected:

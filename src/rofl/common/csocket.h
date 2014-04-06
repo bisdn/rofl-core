@@ -69,7 +69,8 @@ public:
 	 * @param ra address of peer entity
 	 */
 	virtual void
-	handle_accepted(csocket& socket, int newsd, caddress const& ra) = 0;
+	handle_accepted(
+			csocket& socket, int newsd, caddress const& ra) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity has succeeded.
@@ -159,7 +160,7 @@ protected:
 	int 						type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
 	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
 	int 						backlog; 			/**< backlog value for listen() system call */
-	cparams						params;				/**< parameters for a specific socket instance */
+	cparams						socket_params;		/**< parameters for a specific socket instance */
 
 public:
 
@@ -174,7 +175,7 @@ public:
 	 *
 	 */
 	static cparams
-	get_params(
+	get_default_params(
 			enum socket_type_t socket_type);
 
 
@@ -227,7 +228,7 @@ public:
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
-	accept(int sd) = 0;
+	accept(int sd, cparams const& socket_params) = 0;
 
 
 
@@ -307,6 +308,12 @@ public:
 	 */
 	enum rofl::csocket::socket_type_t
 	get_socket_type() const { return socket_type; };
+
+	/**
+	 *
+	 */
+	cparams const&
+	get_socket_params() const { return socket_params; };
 
 	/**
 	 *
