@@ -101,6 +101,7 @@ class csocket_openssl :
 		FLAG_SSL_ACCEPTING		= 2,
 		FLAG_SSL_ESTABLISHED	= 3,
 		FLAG_SSL_CLOSING		= 4,
+		FLAG_ACTIVE_SOCKET		= 5,
 	};
 
 	std::bitset<64>				socket_flags;
@@ -381,26 +382,23 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_openssl const& sock) {
-		os << indent(0) << "<csocket_openssl "
-			<< "sd:" << sock.sd << " "
-			<< "domain:" << sock.domain << " "
-			<< "type:" << sock.type << " "
-			<< "protocol:" << sock.protocol << " ";
-		os << ">" << std::endl;
-		os << indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
-		os << indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
+		os << dynamic_cast<csocket_impl const&>(sock);
+		os << indent(0) << "<csocket_openssl >" << std::endl;
 		os << indent(2) << "<flags: ";
-		if (sock.sockflags.test(SOCKET_IS_LISTENING)) {
-			os << "LISTENING ";
+		if (sock.socket_flags.test(FLAG_SSL_IDLE)) {
+			os << "IDLE ";
 		}
-		if (sock.sockflags.test(CONNECT_PENDING)) {
-			os << "CONNECT-PENDING ";
+		if (sock.socket_flags.test(FLAG_SSL_CONNECTING)) {
+			os << "CONNECTING ";
 		}
-		if (sock.sockflags.test(RAW_SOCKET)) {
-			os << "RAW-SOCKET ";
+		if (sock.socket_flags.test(FLAG_SSL_ACCEPTING)) {
+			os << "ACCEPTING ";
 		}
-		if (sock.sockflags.test(CONNECTED)) {
-			os << "CONNECTED ";
+		if (sock.socket_flags.test(FLAG_SSL_ESTABLISHED)) {
+			os << "ESTABLISHED ";
+		}
+		if (sock.socket_flags.test(FLAG_SSL_CLOSING)) {
+			os << "CLOSING ";
 		}
 		os << ">" << std::endl;
 		return os;

@@ -91,7 +91,7 @@ protected:
 	static std::string const	PARAM_DEFAULT_VALUE_TYPE;
 	static std::string const	PARAM_DEFAULT_VALUE_PROTOCOL;
 
-protected:
+private:
 
 	enum socket_flag_t {
 		SOCKET_IS_LISTENING = 1, 	/**< socket is in listening state */

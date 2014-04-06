@@ -236,6 +236,8 @@ csocket_openssl::connect(
 	keyfile		= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
 	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
 
+	socket_flags.set(FLAG_ACTIVE_SOCKET);
+
 	csocket_impl::connect(socket_params);
 }
 
@@ -550,7 +552,7 @@ out:
 void
 csocket_openssl::reconnect()
 {
-	if (not sockflags.test(FLAG_ACTIVE_SOCKET)) {
+	if (not socket_flags.test(FLAG_ACTIVE_SOCKET)) {
 		throw eInval();
 	}
 	close();
