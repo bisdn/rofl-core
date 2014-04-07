@@ -2,9 +2,10 @@
 #ifndef UCL_EE_MORPHEUS_H
 #define UCL_EE_MORPHEUS_H
 
-#include <boost/shared_ptr.hpp>
+// #include <boost/shared_ptr.hpp>
 #include <sstream>
 #include <string>
+#include <map>
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/openflow/cofdpt.h>
@@ -38,10 +39,16 @@ private:
 
 protected:
 
-typedef boost::shared_ptr<chandlersession_base> session_ptr_t;
-typedef std::map < uint32_t, session_ptr_t > xid_session_map_t;
-xid_session_map_t m_ctl_sessions;	// TODO make MT safe
-xid_session_map_t m_dpt_sessions;	// TODO make MT safe
+// typedef boost::shared_ptr<chandlersession_base> session_ptr_t;
+// typedef std::map < uint32_t, session_ptr_t > xid_session_map_t;
+/// typedef std::map < uint32_t, chandlersession_base * > xid_session_map_t;
+/// typedef std::map < chandlersession_base *, std::vector< std::pair< bool, uint32_t > > > xid_reverse_session_map_t;	// vector holds bool (true if ctl xid, false if dpt xid) and xid to do the reverse xid association with the session
+/// xid_session_map_t m_ctl_sessions;	// TODO make MT safe
+/// xid_session_map_t m_dpt_sessions;	// TODO make MT safe
+typedef std::map < std::pair< bool, uint32_t >, chandlersession_base * > xid_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
+// typedef std::multimap < chandlersession_base *, std::pair< bool, uint32_t >  > xid_reverse_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
+xid_session_map_t m_sessions;
+// xid_reverse_session_map_t m_reverse_sessions;
 cportvlan_mapper m_mapper;
 rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
 rofl::cofctl * m_master;	// the OF controller.
@@ -92,12 +99,12 @@ public:
 	// bool ctl_session_attach( uint32_t session_xid, uint32_t new_xid );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session
 //	bool associate_ctl_xid( const uint32_t session_xid, const uint32_t new_xid );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
 //	bool associate_dpt_xid( const uint32_t session_xid, const uint32_t new_xid );
-	bool add_ctl_session( const uint32_t session_xid, const session_ptr_t session_ptr );	// returns true if it was added successfully, false 
-	bool add_dpt_session( const uint32_t session_xid, const session_ptr_t session_ptr );
-	bool remove_dpt_association( const uint32_t xid );			// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
-	unsigned remove_dpt_session( session_ptr_t session_ptr );	// called to remove all associations to this session_base - returns the number of associations removed
-	bool remove_ctl_association( const uint32_t xid );
-	unsigned remove_ctl_session( session_ptr_t session_ptr );
+///	bool add_ctl_session( const uint32_t session_xid, const session_ptr_t session_ptr );	// returns true if it was added successfully, false 
+///	bool add_dpt_session( const uint32_t session_xid, const session_ptr_t session_ptr );
+	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
+	bool remove_xid_association( bool ctl_or_dpt_xid, const uint32_t xid );			// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
+	unsigned remove_session( chandlersession_base * p );	// called to remove all associations to this session_base - returns the number of associations removed
+//	unsigned deregister( chandlersession_base * p );
 //	bool process_impl ( const rofl::cofdpt * const src, const rofl::cofmsg * const msg);
 //	bool process_impl ( const rofl::cofctl * const src, const rofl::cofmsg * const msg);
 	rofl::cofdpt * get_dpt() const;

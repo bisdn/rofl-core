@@ -1,6 +1,9 @@
 
 #include "morpheus.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>	// for auto_ptr
+#include <cassert>
+#include <utility>
+// #include <boost/shared_ptr.hpp>
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/openflow/cofdpt.h>
@@ -19,15 +22,68 @@ std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
 
 std::string morpheus::dump_sessions() const {	// TODO
 	std::stringstream ss;
-	for(xid_session_map_t::const_iterator it = m_ctl_sessions.begin(); it != m_ctl_sessions.end(); ++it)
+/*	for(xid_session_map_t::const_iterator it = m_ctl_sessions.begin(); it != m_ctl_sessions.end(); ++it)
 		ss << "ctl xid " << it->first << ": " << it->second->asString() << "\n";
 	for(xid_session_map_t::const_iterator it = m_dpt_sessions.begin(); it != m_dpt_sessions.end(); ++it)
-		ss << "dpt xid " << it->first << ": " << it->second->asString() << "\n";
+		ss << "dpt xid " << it->first << ": " << it->second->asString() << "\n";*/
+	for(xid_session_map_t::const_iterator it = m_sessions.begin(); it != m_sessions.end(); ++it)
+		ss << ((it->first.first)?"ctl":"dpt") << " xid " << it->first.second << ": " << it->second->asString() << "\n";
 	return ss.str();
 }
 
 std::string morpheus::dump_config() const {	// TODO
 	return "";
+}
+
+// associates new_xid with the session p, taking ownership of p - returns true if associated, false if already exists.
+bool morpheus::associate_xid( const bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p ) {
+	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
+	xid_session_map_t::iterator sit(m_sessions.find(xid_));
+	if(sit!=m_sessions.end()) {
+		std::cout << "Attempt was made to associate " << ((ctl_or_dpt_xid)?"ctl":"dpt") << " xid " << new_xid << " with session base " << std::hex << p << " but xid already exists." << std::endl;
+		return false;	// new_xid was already in the database
+	}
+// 	assert();	// if it wasn't found in m_sessions then it shouldn't be in m_reverse_sessions;
+	std::cout << "Associating new " << ((ctl_or_dpt_xid)?"ctl":"dpt") << " xid " << new_xid << " with session base " << std::hex << p << std::endl;
+	m_sessions[xid_] = p;
+	return true;
+}
+
+// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
+bool morpheus::remove_xid_association( const bool ctl_or_dpt_xid, const uint32_t new_xid ) {
+	// remove the xid, and check whether the pointed to session_base is associated anywhere else, if it isn't, delete it.
+	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
+	xid_session_map_t::iterator sit(m_sessions.find(xid_));
+	if(sit==m_sessions.end()) return false;
+	chandlersession_base * p = sit->second;
+	m_sessions.erase(sit);
+	// now check if that was the last reference to p, and delete p if it was.
+	xid_session_map_t::iterator it = m_sessions.begin();
+	while(it!=m_sessions.end()) {
+		if(it->second==p) return true;
+		++it;
+	}
+	std::cout << __FUNCTION__ << " deleting session " << std::hex << p << " as we have just removed last reference." << std::endl;
+	delete(p);
+	return true;
+}
+
+// called to remove all associations to this session_base - returns the number of associations removed and deletes the p if necessary
+unsigned morpheus::remove_session( chandlersession_base * p ) {
+	unsigned tally = 0;
+	xid_session_map_t::iterator it = m_sessions.begin();
+	xid_session_map_t::iterator old_it;
+	while(it!=m_sessions.end()) {
+		if(it->second==p) {
+			old_it = it++;
+			m_sessions.erase(old_it);
+			++tally;
+			continue;
+			}
+		else ++it;
+	}
+	if(tally) delete(p);
+	return tally;
 }
 
 /*
@@ -41,6 +97,18 @@ bool morpheus::associate_ctl_xid(uint32_t session_xid, uint32_t new_xid) {
 	return true;
 }
 */
+/*
+bool morpheus::associate_dpt_xid(uint32_t session_xid, uint32_t new_xid) {
+	xid_session_map_t::iterator sit(m_dpt_sessions.find(session_xid));
+	if(sit==m_dpt_sessions.end()) return false;	// session_xid not found
+	xid_session_map_t::iterator nit(m_dpt_sessions.find(new_xid));
+	if(nit!=m_dpt_sessions.end()) return false;	// new_xid already exists in m_dpt_sessions - complain.
+	m_dpt_sessions[new_xid] = sit->second;
+	return true;
+}
+*/
+
+/*
 bool morpheus::remove_ctl_association( const uint32_t xid ) {
 	return (m_ctl_sessions.erase(xid)!=0);
 }
@@ -61,16 +129,6 @@ unsigned morpheus::remove_ctl_session( session_ptr_t session_ptr ) {
 	return tally;
 }
 
-/*
-bool morpheus::associate_dpt_xid(uint32_t session_xid, uint32_t new_xid) {
-	xid_session_map_t::iterator sit(m_dpt_sessions.find(session_xid));
-	if(sit==m_dpt_sessions.end()) return false;	// session_xid not found
-	xid_session_map_t::iterator nit(m_dpt_sessions.find(new_xid));
-	if(nit!=m_dpt_sessions.end()) return false;	// new_xid already exists in m_dpt_sessions - complain.
-	m_dpt_sessions[new_xid] = sit->second;
-	return true;
-}
-*/
 bool morpheus::remove_dpt_association( const uint32_t xid ) {
 	return (m_dpt_sessions.erase(xid)!=0);
 }
@@ -104,6 +162,14 @@ m_dpt_sessions[session_xid] = session_ptr;
 return true;
 }
 
+unsigned morpheus::deregister( session_ptr_t s) {
+	unsigned num_associations = 0;
+	num_associations += remove_ctl_session(s);
+	num_associations += remove_dpt_session(s);
+	std::cout << __FUNCTION__ << " de-registered " << num_associations << " associations." << std::endl;
+	return num_associations;
+}
+*/
 
 morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_) {
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
@@ -158,13 +224,13 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	m_slave=0;	// TODO - m_slave ownership?
 }
-
+/*
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << "." << std::endl;
 	// check if this message belongs to an existing transaction
-	xid_session_map_t::iterator sit(m_ctl_sessions.find(msg->get_xid()));
-	if(sit!=m_ctl_sessions.end()) {
+	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(true,msg->get_xid())));
+	if(sit!=m_sessions.end()) {
 		// xid already found - it's a dupe
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;
 		delete(msg);
@@ -178,7 +244,7 @@ void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	xid_session_map_t::iterator sit(m_ctl_sessions.find(msg->get_xid()));
+	xid_session_map_t::iterator sit(m_sessions.find(msg->get_xid()));
 	if(sit!=m_ctl_sessions.end()) {
 		// xid already found - it's a dupe
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new cofmsg_features_request message." << std::endl;
@@ -205,30 +271,33 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 	}
 	std::cout << ">>>>>>>\n" << *this;
 }
-
+*/
 #undef STRINGIFY
 #undef TOSTRING
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+// this is from a ctl if CTL_DPT is true, false otherwise
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) {\
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
-	xid_session_map_t::iterator sit(m_ ## CTL_DPT ## _sessions.find(msg->get_xid())); \
-	if(sit!=m_##CTL_DPT##_sessions.end()) { \
+	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
+	if(sit!=m_sessions.end()) { \
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new "<< TOSTRING(MSG_TYPE) << " message." << std::endl; \
 		delete(msg); \
 		} else { \
-		boost::shared_ptr < SESSION_TYPE > s (new SESSION_TYPE ( this, src, msg )); \
+		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+		if(!s->isCompleted()) s.release(); \
 	}\
 }
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
-	xid_session_map_t::iterator sit(m_ ## CTL_DPT ## _sessions.find(msg->get_xid())); \
-	if(sit!=m_ ## CTL_DPT ## _sessions.end()) { \
-		SESSION_TYPE * s = dynamic_cast<SESSION_TYPE *>(sit->second.get()); \
+	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
+	if(sit!=m_sessions.end()) { \
+		SESSION_TYPE * s = dynamic_cast<SESSION_TYPE *>(sit->second); \
 		if(!s) { std::cout << func << ": xid (" << msg->get_xid() << ") maps to existing session of wrong type." << std::endl; } \
 		s->REPLY_FN( src, msg ); \
+		if(s->isCompleted()) remove_session(s); \
 		} else { \
 		std::cout << func << ": Unexpected " << TOSTRING(MSG_TYPE) << " received with xid " << msg->get_xid() << ". Dropping new message." << std::endl; \
 		delete(msg); \
@@ -237,46 +306,59 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) {\
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << "." << std::endl;\
-	xid_session_map_t::iterator sit(m_ ## CTL_DPT ## _sessions.find(msg->get_xid()));\
-	if(sit!=m_ ## CTL_DPT ## _sessions.end()) {\
+	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
+	if(sit!=m_sessions.end()) {\
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;\
 		delete(msg);\
 		} else {\
-		boost::shared_ptr < SESSION_TYPE > s (new SESSION_TYPE ( this, src, msg ));\
-	}\
+		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+		if(!s->isCompleted()) s.release(); \
+	} \
 }
 
+void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
+	static const char * func = __FUNCTION__;
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cflow_mod_session)
+}
+void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
+	static const char * func = __FUNCTION__;
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::cfeatures_request_session )
+}
+void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
+	static const char * func = __FUNCTION__;
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_request, morpheus::cfeatures_request_session, process_features_reply )
+}
 
 void morpheus::handle_get_config_request(rofl::cofctl *src, rofl::cofmsg_get_config_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( ctl, cofmsg_get_config_request, morpheus::cget_config_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_get_config_request, morpheus::cget_config_session )
 }
 void morpheus::handle_get_config_reply(rofl::cofdpt * src, rofl::cofmsg_get_config_reply * msg ) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( dpt, cofmsg_get_config_reply, morpheus::cget_config_session, process_config_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_get_config_reply, morpheus::cget_config_session, process_config_reply )
 }
 
 void morpheus::handle_desc_stats_request(rofl::cofctl *src, rofl::cofmsg_desc_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( ctl, cofmsg_desc_stats_request, morpheus::cdesc_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_desc_stats_request, morpheus::cdesc_stats_session )
 }
 void morpheus::handle_desc_stats_reply(rofl::cofdpt * src, rofl::cofmsg_desc_stats_reply * msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( dpt, cofmsg_desc_stats_reply, morpheus::cdesc_stats_session, process_desc_stats_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_desc_stats_reply, morpheus::cdesc_stats_session, process_desc_stats_reply )
 }
 
 void morpheus::handle_set_config(rofl::cofctl *src, rofl::cofmsg_set_config *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(ctl, morpheus::cset_config_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cset_config_session)
 }
 
 void morpheus::handle_table_stats_request(rofl::cofctl *src, rofl::cofmsg_table_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( ctl, cofmsg_table_stats_request, morpheus::ctable_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_table_stats_request, morpheus::ctable_stats_session )
 }
 void morpheus::handle_table_stats_reply(rofl::cofdpt *src, rofl::cofmsg_table_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( dpt, cofmsg_table_stats_reply, morpheus::ctable_stats_session, process_table_stats_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_table_stats_reply, morpheus::ctable_stats_session, process_table_stats_reply )
 }
 
 /*
