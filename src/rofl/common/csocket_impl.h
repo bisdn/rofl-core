@@ -130,8 +130,7 @@ public:
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
 	csocket_impl(
-			csocket_owner *owner,
-			enum rofl::csocket::socket_type_t socket_type = SOCKET_TYPE_PLAIN);
+			csocket_owner *owner);
 
 
 	/**
@@ -300,6 +299,20 @@ protected:
 	//
 
 	/**
+	 * Accept on socket succeeded (server mode).
+	 *
+	 * This notification method is called if the connect() operation succeeds
+	 * on the socket. It should be overwritten by a derived class
+	 * if this signal is required for further operation.
+	 */
+	virtual void
+	handle_accepted() {
+		if (socket_owner) {
+			socket_owner->handle_accepted(*this);
+		}
+	};
+
+	/**
 	 * Connect on socket succeeded (client mode).
 	 *
 	 * This notification method is called if the connect() operation succeeds
@@ -337,9 +350,9 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(int newsd) {
+	handle_new_connection(int newsd) {
 		if (socket_owner) {
-			socket_owner->handle_accepted(*this, newsd);
+			socket_owner->handle_new_connection(*this, newsd);
 		}
 	};
 

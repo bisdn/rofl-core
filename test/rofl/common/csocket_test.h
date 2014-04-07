@@ -43,14 +43,14 @@ public:
 private:
 
 	enum socket_test_flag_t {
-		FLAG_CLIENT_SHUTDOWN = 1,
-		FLAG_WORKER_SHUTDOWN = 2,
+		FLAG_CLIENT_SHUTDOWN 	= 1,
+		FLAG_WORKER_SHUTDOWN 	= 2,
 	};
 
-	std::bitset<64>			test_flags;
-
-	unsigned long 			send_counter;
-	uint32_t 				send_timer_id;
+	std::bitset<64>						test_flags;
+	enum rofl::csocket::socket_type_t 	socket_type;
+	unsigned long 						send_counter;
+	uint32_t 							send_timer_id;
 
 	enum socket_test_timer_t {
 		TIMER_SEND_DATA = 1,
@@ -68,8 +68,12 @@ private:
 	rofl::cparams cparams;
 
 	virtual void
-	handle_accepted(
+	handle_new_connection(
 			rofl::csocket& socket, int newsd);
+
+	virtual void
+	handle_accepted(
+			rofl::csocket& socket);
 
 	virtual void
 	handle_connected(

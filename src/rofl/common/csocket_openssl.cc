@@ -43,6 +43,7 @@ csocket_openssl::openssl_init()
 
 	SSL_library_init();
 	SSL_load_error_strings();
+	ERR_load_ERR_strings();
 	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
 	OpenSSL_add_all_ciphers();
@@ -55,7 +56,8 @@ csocket_openssl::openssl_init()
 
 csocket_openssl::csocket_openssl(
 		csocket_owner *owner) :
-				csocket_impl(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
+				csocket(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
+				socket(this),
 				ctx(NULL),
 				method(NULL),
 				ssl(NULL),
@@ -69,9 +71,7 @@ csocket_openssl::csocket_openssl(
 
 	csocket_openssl::openssl_init();
 
-	openssl_init_ctx();
-
-	pthread_rwlock_init(&pout_squeue_lock, 0);
+	pthread_rwlock_init(&ssl_lock, 0);
 }
 
 
@@ -83,9 +83,7 @@ csocket_openssl::~csocket_openssl()
 
 	openssl_destroy_ssl();
 
-	openssl_destroy_ctx();
-
-	pthread_rwlock_destroy(&pout_squeue_lock);
+	pthread_rwlock_destroy(&ssl_lock);
 
 	openssl_sockets.erase(this);
 }
@@ -95,7 +93,7 @@ csocket_openssl::~csocket_openssl()
 void
 csocket_openssl::openssl_init_ctx()
 {
-	ctx = SSL_CTX_new(SSLv23_client_method());
+	ctx = SSL_CTX_new(SSLv23_method());
 
 	// certificate
 	if (!SSL_CTX_use_certificate_file(ctx, certfile.c_str(), SSL_FILETYPE_PEM)) {
@@ -118,7 +116,7 @@ csocket_openssl::openssl_init_ctx()
 	}
 
 
-	SSL_CTX_set_verify_depth(ctx, 1);
+	SSL_CTX_set_verify_depth(ctx, 0);
 
 	// TODO: get random numbers
 }
@@ -136,6 +134,8 @@ csocket_openssl::openssl_destroy_ctx()
 void
 csocket_openssl::openssl_init_ssl()
 {
+	openssl_init_ctx();
+
 	if ((ssl = SSL_new(ctx)) == NULL) {
 		throw eOpenSSL("[rofl][csocket][openssl][init-ssl] unable to create new SSL object");
 	}
@@ -161,6 +161,8 @@ csocket_openssl::openssl_destroy_ssl()
 	if (ssl) {
 		SSL_free(ssl); ssl = NULL;
 	}
+
+	openssl_destroy_ctx();
 }
 
 
@@ -200,7 +202,7 @@ csocket_openssl::listen(
 	keyfile		= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY).get_string();
 	password	= socket_params.get_param(PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).get_string();
 
-	csocket_impl::listen(socket_params);
+	socket.listen(socket_params);
 }
 
 
@@ -219,7 +221,21 @@ csocket_openssl::accept(
 
 	this->sd = sd;
 
-	csocket_openssl::handle_accepted(sd);
+	socket.accept(socket_params, sd);
+}
+
+
+
+void
+csocket_openssl::handle_accepted(rofl::csocket& socket)
+{
+	socket_flags.reset(FLAG_SSL_ESTABLISHED);
+
+	openssl_init_ssl();
+
+	socket_flags.set(FLAG_SSL_ACCEPTING);
+
+	openssl_accept();
 }
 
 
@@ -238,178 +254,69 @@ csocket_openssl::connect(
 
 	socket_flags.set(FLAG_ACTIVE_SOCKET);
 
-	csocket_impl::connect(socket_params);
+	socket.connect(socket_params);
 }
 
 
 
 void
-csocket_openssl::handle_connected()
+csocket_openssl::handle_connected(rofl::csocket& socket)
 {
-	int rc = 0;
-
 	socket_flags.reset(FLAG_SSL_ESTABLISHED);
 
 	openssl_init_ssl();
 
 	socket_flags.set(FLAG_SSL_CONNECTING);
 
-	if ((rc = SSL_connect(ssl)) <= 0) {
-		switch (SSL_get_error(ssl, rc)) {
-		case SSL_ERROR_WANT_READ: {
-			// wait for next data from peer
-		} return;
-		case SSL_ERROR_WANT_WRITE: {
-			register_filedesc_w(sd);
-		} return;
-		default:
-			openssl_destroy_ssl();
-			throw eOpenSSL("[rofl][csocket][openssl][handle-connected] SSL_connect() failed");
-		}
-	} else
-	if (rc == 0) {
-
-		openssl_destroy_ssl();
-		throw eOpenSSL("[rofl][csocket][openssl][handle-connected] SSL_connect() failed");
-
-	} else
-	if (rc == 1) {
-
-		socket_flags.reset(FLAG_SSL_CONNECTING);
-		socket_flags.set(FLAG_SSL_ESTABLISHED);
-		csocket_impl::handle_connected();
-	}
+	openssl_connect();
 }
 
 
 
 void
-csocket_openssl::handle_conn_refused()
+csocket_openssl::handle_connect_refused(rofl::csocket& socket)
 {
-	csocket_impl::handle_conn_refused();
+	if (socket_owner) socket_owner->handle_connect_refused(*this);
 }
 
 
 
 void
-csocket_openssl::handle_accepted(int newsd)
+csocket_openssl::handle_new_connection(rofl::csocket& socket, int newsd)
 {
-	int rc = 0;
-
-	this->sd = newsd;
-
-	socket_flags.reset(FLAG_SSL_ESTABLISHED);
-
-	openssl_init_ssl();
-
-	socket_flags.set(FLAG_SSL_ACCEPTING);
-
-	if ((rc = SSL_accept(ssl)) < 0) {
-		switch (SSL_get_error(ssl, rc)) {
-		case SSL_ERROR_WANT_READ: {
-			// wait for next data from peer
-		} return;
-		case SSL_ERROR_WANT_WRITE: {
-			register_filedesc_w(sd);
-		} return;
-		default:
-			openssl_destroy_ssl();
-			throw eOpenSSL("[rofl][csocket][openssl][handle-accepted] SSL_accept() failed");
-		}
-	} else
-	if (rc == 0) {
-
-		openssl_destroy_ssl();
-		throw eOpenSSL("[rofl][csocket][openssl][handle-accepted] SSL_accept() failed");
-
-	} else
-	if (rc == 1) {
-
-		socket_flags.reset(FLAG_SSL_ACCEPTING);
-		socket_flags.set(FLAG_SSL_ESTABLISHED);
-		csocket_impl::handle_accepted(newsd);
-	}
+	if (socket_owner) socket_owner->handle_new_connection(*this, newsd);
 }
 
 
 
 void
-csocket_openssl::handle_closed()
+csocket_openssl::handle_closed(rofl::csocket& socket)
 {
-	csocket_impl::handle_closed();
+	if (socket_owner) socket_owner->handle_closed(*this);
 }
 
 
 
 void
-csocket_openssl::handle_read()
+csocket_openssl::handle_read(rofl::csocket& socket)
 {
-	int rc = 0;
-
 	if (socket_flags.test(FLAG_SSL_IDLE)) {
 		return; // do nothing
 
 	} else
 	if (socket_flags.test(FLAG_SSL_CONNECTING)) {
 
-		if ((rc = SSL_connect(ssl)) <= 0) {
-			switch (SSL_get_error(ssl, rc)) {
-			case SSL_ERROR_WANT_READ: {
-				// wait for next data from peer
-			} return;
-			case SSL_ERROR_WANT_WRITE: {
-				register_filedesc_w(sd);
-			} return;
-			default:
-				throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_connect() failed");
-			}
-		} else
-		if (rc == 0) {
-
-			openssl_destroy_ssl();
-			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_connect() failed");
-
-		} else
-		if (rc == 1) {
-
-			socket_flags.reset(FLAG_SSL_CONNECTING);
-			socket_flags.set(FLAG_SSL_ESTABLISHED);
-			csocket_impl::handle_connected();
-		}
+		openssl_connect();
 
 	} else
 	if (socket_flags.test(FLAG_SSL_ACCEPTING)) {
 
-		if ((rc = SSL_accept(ssl)) < 0) {
-			switch (SSL_get_error(ssl, rc)) {
-			case SSL_ERROR_WANT_READ: {
-				// wait for next data from peer
-			} return;
-			case SSL_ERROR_WANT_WRITE: {
-				register_filedesc_w(sd);
-			} return;
-			default:
-				openssl_destroy_ssl();
-				throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_accept() failed");
-			}
-		} else
-		if (rc == 0) {
-
-			openssl_destroy_ssl();
-			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_accept() failed");
-
-		} else
-		if (rc == 1) {
-
-			socket_flags.reset(FLAG_SSL_ACCEPTING);
-			socket_flags.set(FLAG_SSL_ESTABLISHED);
-			csocket_impl::handle_accepted(sd);
-		}
+		openssl_accept();
 
 	} else
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {
 
-		csocket_impl::handle_read(); // call socket owner => results in a call to this->recv()
+		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
 
 	} else
 	if (socket_flags.test(FLAG_SSL_CLOSING)) {
@@ -431,7 +338,7 @@ csocket_openssl::recv(void* buf, size_t count)
 			// wait for next data from peer
 		} return rc;
 		case SSL_ERROR_WANT_WRITE: {
-			register_filedesc_w(sd);
+			// wait for socket to send next data to peer
 		} return rc;
 		default:
 			openssl_destroy_ssl();
@@ -445,35 +352,20 @@ csocket_openssl::recv(void* buf, size_t count)
 
 
 void
-csocket_openssl::handle_write()
+csocket_openssl::handle_write(rofl::csocket& socket)
 {
-	int rc = 0;
-
 	if (socket_flags.test(FLAG_SSL_IDLE)) {
 		return; // do nothing
 
 	} else
+	if (socket_flags.test(FLAG_SSL_ACCEPTING)) {
+
+		openssl_accept();
+
+	} else
 	if (socket_flags.test(FLAG_SSL_CONNECTING)) {
 
-		if ((rc = SSL_connect(ssl)) <= 0) {
-			switch (SSL_get_error(ssl, rc)) {
-			case SSL_ERROR_WANT_READ: {
-				// wait for next data from peer
-			} return;
-			case SSL_ERROR_WANT_WRITE: {
-				register_filedesc_w(sd);
-			} return;
-			default:
-				openssl_destroy_ssl();
-				throw eOpenSSL("[rofl][csocket][openssl][handle-write] SSL_connect() failed");
-			}
-		}
-
-		socket_flags.reset(FLAG_SSL_CONNECTING);
-
-		socket_flags.set(FLAG_SSL_ESTABLISHED);
-
-		csocket_impl::handle_connected();
+		openssl_connect();
 
 	} else
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {
@@ -485,66 +377,58 @@ csocket_openssl::handle_write()
 
 
 void
+csocket_openssl::send(cmemory *mem, caddress const& dest)
+{
+	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
+
+	txqueue.push_back(mem);
+
+	notify(cevent(EVENT_SEND_TXQUEUE));
+}
+
+
+
+void
+csocket_openssl::handle_event(cevent const& e)
+{
+	switch (e.get_cmd()) {
+	case EVENT_SEND_TXQUEUE: {
+		dequeue_packet();
+	} break;
+	default:
+		csocket::handle_event(e);
+	}
+}
+
+
+void
 csocket_openssl::dequeue_packet()
 {
-	{
-		RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
+	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
 
-		int rc = 0;
+	while (not txqueue.empty()) {
 
-		while (not pout_squeue.empty()) {
-			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
+		int rc = 0, err_code = 0;
 
-			if (had_short_write) {
-				rofl::logging::warn << "[rofl][csocket][openssl] resending due to short write: " << std::endl << entry;
-				had_short_write = false;
+		rofl::cmemory *mem = txqueue.front();
+
+		if ((rc = SSL_write(ssl, mem->somem(), mem->memlen())) < 0) {
+
+			switch (err_code = SSL_get_error(ssl, rc)) {
+			case SSL_ERROR_WANT_READ: {
+				// do nothing
+			} return;
+			case SSL_ERROR_WANT_WRITE: {
+				// do nothing
+			} return;
+			default: {
+
+			};
 			}
 
-			if ((rc = SSL_write(ssl,
-					entry.mem->somem() + entry.msg_bytes_sent,
-					entry.mem->memlen() - entry.msg_bytes_sent)) <= 0) {
-
-				switch (SSL_get_error(ssl, rc)) {
-				case SSL_ERROR_WANT_READ: {
-					// wait for next data from peer
-				} return;
-				case SSL_ERROR_WANT_WRITE: {
-					register_filedesc_w(sd);
-				} return;
-				default:
-					rofl::logging::error << "[rofl][csocket][openssl][handle-write] SSL_connect() failed" << std::endl;
-					goto out;
-				}
-
-			} else
-			if ((((unsigned int)(rc + entry.msg_bytes_sent)) < entry.mem->memlen())) {
-
-				if (SOCK_STREAM == type) {
-					had_short_write = true;
-					entry.msg_bytes_sent += rc;
-					rofl::logging::warn << "[rofl][csocket][openssl] short write on socket descriptor:" << sd << ", retrying..." << std::endl << entry;
-				} else {
-					rofl::logging::warn << "[rofl][csocket][openssl] short write on socket descriptor:" << sd << ", dropping packet." << std::endl;
-					delete entry.mem;
-					pout_squeue.pop_front();
-				}
-				return;
-			}
-
-			delete entry.mem;
-
-			pout_squeue.pop_front();
+			delete mem; txqueue.pop_front();
 		}
-
-		if (pout_squeue.empty()) {
-			deregister_filedesc_w(sd);
-		}
-
-		return;
-	} // unlocks pout_squeue_lock
-out:
-	close(); // clears also pout_squeue
-	handle_closed();
+	}
 }
 
 
@@ -578,11 +462,11 @@ csocket_openssl::close()
 			// wait for next data from peer
 		} return;
 		case SSL_ERROR_WANT_WRITE: {
-			register_filedesc_w(sd);
+			// wait for socket to send next data to peer
 		} return;
 		default:
 			openssl_destroy_ssl();
-			csocket_impl::close();
+			socket.close();
 			throw eOpenSSL("[rofl][csocket][openssl][close] SSL_shutdown() failed");
 		}
 
@@ -595,11 +479,11 @@ csocket_openssl::close()
 				// wait for next data from peer
 			} return;
 			case SSL_ERROR_WANT_WRITE: {
-				register_filedesc_w(sd);
+				// wait for socket to send next data to peer
 			} return;
 			default:
 				openssl_destroy_ssl();
-				csocket_impl::close();
+				socket.close();
 				throw eOpenSSL("[rofl][csocket][openssl][close] SSL_shutdown() failed");
 			}
 		}
@@ -607,7 +491,7 @@ csocket_openssl::close()
 		openssl_destroy_ssl();
 		socket_flags.reset(FLAG_SSL_CLOSING);
 		socket_flags.set(FLAG_SSL_IDLE);
-		csocket_impl::close();
+		socket.close();
 
 	} else
 	if (rc == 1) {
@@ -615,7 +499,91 @@ csocket_openssl::close()
 		openssl_destroy_ssl();
 		socket_flags.reset(FLAG_SSL_CLOSING);
 		socket_flags.set(FLAG_SSL_IDLE);
-		csocket_impl::close();
+		socket.close();
+	}
+}
+
+
+
+void
+csocket_openssl::openssl_connect()
+{
+	int rc = 0, err_code = 0;
+
+	rofl::logging::debug << "[rofl][csocket][openssl][openssl-connect] SSL connecting..." << std::endl;
+
+	if ((rc = SSL_connect(ssl)) <= 0) {
+		switch (err_code = SSL_get_error(ssl, rc)) {
+		case SSL_ERROR_WANT_READ: {
+			// wait for next data from peer
+			rofl::logging::debug << "[rofl][csocket][openssl][openssl-connect] connecting => SSL_ERROR_WANT_READ" << std::endl;
+		} return;
+		case SSL_ERROR_WANT_WRITE: {
+			rofl::logging::debug << "[rofl][csocket][openssl][openssl-connect] connecting => SSL_ERROR_WANT_WRITE" << std::endl;
+		} return;
+		default:
+			ERR_print_errors_fp(stderr);
+			//openssl_destroy_ssl();
+			throw eOpenSSL("[rofl][csocket][openssl][openssl-connect] SSL_connect() failed: "+std::string(ERR_error_string(err_code, NULL)));
+		}
+	} else
+	if (rc == 0) {
+
+		ERR_print_errors_fp(stderr);
+		openssl_destroy_ssl();
+		throw eOpenSSL("[rofl][csocket][openssl][openssl-connect] SSL_connect() failed: "+std::string(ERR_error_string(err_code, NULL)));
+
+	} else
+	if (rc == 1) {
+
+		rofl::logging::debug << "[rofl][csocket][openssl][openssl-connect] SSL_connect() succeeded " << std::endl;
+
+		socket_flags.reset(FLAG_SSL_CONNECTING);
+		socket_flags.set(FLAG_SSL_ESTABLISHED);
+
+		if (socket_owner) socket_owner->handle_connected(*this);
+	}
+}
+
+
+
+void
+csocket_openssl::openssl_accept()
+{
+	int rc = 0, err_code = 0;
+
+	rofl::logging::debug << "[rofl][csocket][openssl][openssl-accept] SSL accepting..." << std::endl;
+
+	if ((rc = SSL_accept(ssl)) < 0) {
+		switch (err_code = SSL_get_error(ssl, rc)) {
+		case SSL_ERROR_WANT_READ: {
+			// wait for next data from peer
+			rofl::logging::debug << "[rofl][csocket][openssl][openssl-accept] accepting => SSL_ERROR_WANT_READ" << std::endl;
+		} return;
+		case SSL_ERROR_WANT_WRITE: {
+			rofl::logging::debug << "[rofl][csocket][openssl][openssl-accept] accepting => SSL_ERROR_WANT_WRITE" << std::endl;
+		} return;
+		default:
+			ERR_print_errors_fp(stderr);
+			//openssl_destroy_ssl();
+			throw eOpenSSL("[rofl][csocket][openssl][openssl-accept] SSL_accept() failed: "+std::string(ERR_error_string(err_code, NULL)));
+		}
+	} else
+	if (rc == 0) {
+
+		ERR_print_errors_fp(stderr);
+		openssl_destroy_ssl();
+		throw eOpenSSL("[rofl][csocket][openssl][openssl-accept] SSL_accept() failed: "+std::string(ERR_error_string(err_code, NULL)));
+
+	} else
+	if (rc == 1) {
+
+		rofl::logging::debug << "[rofl][csocket][openssl][openssl-accept] SSL_accept() succeeded " << std::endl;
+
+		socket_flags.reset(FLAG_SSL_ACCEPTING);
+		socket_flags.set(FLAG_SSL_ESTABLISHED);
+
+		if (socket_owner) socket_owner->handle_accepted(*this);
 	}
 }
 

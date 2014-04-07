@@ -75,12 +75,22 @@ crofsock::close()
 
 
 void
-crofsock::handle_accepted(
+crofsock::handle_new_connection(
 		csocket& socket,
 		int newsd)
 {
-	logging::info << "[rofl][sock] connection accepted:" << std::endl << *this;
+	logging::info << "[rofl][sock] new connection request received:" << std::endl << *this;
 	// this should never happen, as passively opened sockets are handled outside of crofsock
+}
+
+
+
+void
+crofsock::handle_accepted(
+		csocket& socket)
+{
+	logging::info << "[rofl][sock] connection established (via accept):" << std::endl << *this;
+	env->handle_connected(this);
 }
 
 
@@ -89,7 +99,7 @@ void
 crofsock::handle_connected(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection established:" << std::endl << *this;
+	logging::info << "[rofl][sock] connection established (via connect):" << std::endl << *this;
 	env->handle_connected(this);
 }
 

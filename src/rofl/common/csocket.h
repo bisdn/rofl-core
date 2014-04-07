@@ -69,11 +69,22 @@ public:
 	 * @param ra address of peer entity
 	 */
 	virtual void
-	handle_accepted(
+	handle_new_connection(
 			csocket& socket, int newsd) = 0;
 
 	/**
-	 * @brief	Called once a connection request to a remote entity has succeeded.
+	 * @brief	Called once this csocket entity has succeeded its accept() method.
+	 *
+	 * @param socket pointer to csocket instance emitting the motification
+	 * @param newsd socket descriptor of new created Unix socket
+	 * @param ra address of peer entity
+	 */
+	virtual void
+	handle_accepted(
+			csocket& socket) = 0;
+
+	/**
+	 * @brief	Called once a connection request has succeeded its connect() method.
 	 *
 	 * @param socket pointer to csocket instance emitting the motification
 	 * @param sd socket descriptor used for new connection
@@ -422,7 +433,7 @@ public:
 		os << rofl::indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
 		os << rofl::indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
 		rofl::indent i(2);
-		os << sock.socket_params;
+		//os << sock.socket_params;
 		return os;
 	};
 

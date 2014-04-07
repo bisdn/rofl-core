@@ -14,6 +14,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#include "rofl/common/ciosrv.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_impl.h"
 #include "rofl/common/logging.h"
@@ -52,7 +53,8 @@ public:
  * @see csocket_impl_owner
  */
 class csocket_openssl :
-	public csocket_impl
+	public csocket,
+	public csocket_owner
 {
 	//Defaults
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH;
@@ -77,6 +79,14 @@ class csocket_openssl :
 	openssl_password_callback(char *buf, int size, int rwflag, void *userdata);
 
 	static std::set<csocket_openssl*> openssl_sockets;
+
+	csocket_impl				socket;
+	pthread_rwlock_t			ssl_lock;	/**< rwlock for access to pout_squeue */
+	std::list<rofl::cmemory*>	txqueue;
+
+	enum openssl_event_t {
+		EVENT_SEND_TXQUEUE		= 0,
+	};
 
 	/*
 	 * OpenSSL related structures
@@ -194,6 +204,33 @@ public:
 
 
 	/**
+	 * @brief	Store a packet for transmission.
+	 *
+	 * This method stores the packet in the outgoing queue for transmission.
+	 * If the socket is not connected and not a raw socket, the packet
+	 * will be deleted and thus dropped.
+	 * After pushing the packet pointer onto the outgoing queue, the method registers
+	 * the socket descriptor for a write operation and returns, giving the
+	 * calling entity back control.
+	 *
+	 * csocket will call mem's destructor in order to remove the packet from heap
+	 * once it has been sent out. Make sure, that mem is pointing to a heap allocated
+	 * cmemory instance!
+	 *
+	 * @param mem cmemory instance to be sent out
+	 */
+	virtual void
+	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+
+
+	/**
+	 *
+	 */
+	virtual bool
+	is_connected() const { return socket_flags.test(FLAG_SSL_ESTABLISHED); };
+
+
+	/**
 	 *
 	 */
 	static cparams
@@ -280,7 +317,17 @@ protected:
 	 * if this signal is required for further operation.
 	 */
 	virtual void
-	handle_connected();
+	handle_accepted(rofl::csocket& socket);
+
+	/**
+	 * Connect on socket succeeded (client mode).
+	 *
+	 * This notification method is called if the connect() operation succeeds
+	 * on the socket. It should be overwritten by a derived class
+	 * if this signal is required for further operation.
+	 */
+	virtual void
+	handle_connected(rofl::csocket& socket);
 
 	/**
 	 * Connect on socket failed (client mode).
@@ -290,7 +337,7 @@ protected:
 	 * if the derived class wants to act upon this condition.
 	 */
 	virtual void
-	handle_conn_refused();
+	handle_connect_refused(rofl::csocket& socket);
 
 	/**
 	 * A new incoming connection was accepted (listening mode).
@@ -302,7 +349,8 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(
+	handle_new_connection(
+			rofl::csocket& socket,
 			int newsd);
 
 	/**
@@ -312,7 +360,7 @@ protected:
 	 * @param sd the socket descriptor
 	 */
 	virtual void
-	handle_closed();
+	handle_closed(rofl::csocket& socket);
 
 	/**
 	 * Read data from socket.
@@ -323,7 +371,7 @@ protected:
 	 * @param fd the socket descriptor
 	 */
 	virtual void
-	handle_read();
+	handle_read(rofl::csocket& socket);
 
 	/**
 	 * Write data to socket.
@@ -334,11 +382,14 @@ protected:
 	 * @param fd the socket descriptor
 	 */
 	virtual void
-	handle_write();
+	handle_write(rofl::csocket& socket);
 
 
 
 private:
+
+	virtual void
+	handle_event(cevent const& ev);
 
 	/**
 	 *
@@ -364,6 +415,18 @@ private:
 	void
 	openssl_destroy_ssl();
 
+	/**
+	 *
+	 */
+	void
+	openssl_connect();
+
+	/**
+	 *
+	 */
+	void
+	openssl_accept();
+
 
 protected:
 
@@ -382,9 +445,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_openssl const& sock) {
-		os << dynamic_cast<csocket_impl const&>(sock);
-		os << rofl::indent(2) << "<csocket_openssl >" << std::endl;
-		os << rofl::indent(4) << "<flags: ";
+		os << rofl::indent(0) << "<csocket_openssl >" << std::endl;
+		os << rofl::indent(2) << "<flags: ";
 		if (sock.socket_flags.test(FLAG_SSL_IDLE)) {
 			os << "IDLE ";
 		}
@@ -401,6 +463,8 @@ public:
 			os << "CLOSING ";
 		}
 		os << ">" << std::endl;
+		rofl::indent i(2);
+		os << sock.socket;
 		return os;
 	};
 

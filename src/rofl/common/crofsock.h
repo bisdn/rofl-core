@@ -277,9 +277,17 @@ private:
 	 *
 	 */
 	virtual void
-	handle_accepted(
+	handle_new_connection(
 			csocket& socket,
 			int newsd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_accepted(
+			csocket& socket);
 
 
 	/**

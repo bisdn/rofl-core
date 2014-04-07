@@ -41,9 +41,8 @@ csocket_impl::get_default_params()
 
 
 csocket_impl::csocket_impl(
-		csocket_owner *owner,
-		rofl::csocket::socket_type_t socket_type) :
-				csocket(owner, socket_type),
+		csocket_owner *owner) :
+				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN),
 				had_short_write(false),
 				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
@@ -162,7 +161,7 @@ csocket_impl::handle_revent(int fd)
 
 		logging::info << "[rofl][csocket][impl] socket accepted " << new_sd << std::endl << *this;
 
-		handle_accepted(new_sd);
+		handle_new_connection(new_sd);
 
 		// handle socket when in normal (=non-listening) state
 	} else {
@@ -189,7 +188,6 @@ csocket_impl::handle_wevent(int fd)
 
 		switch (optval) {
 		case /*EISCONN=*/0: {
-			logging::info << "[rofl][csocket][impl] connection established." << std::endl << *this;
 
 			sockflags[CONNECT_PENDING] = false;
 			register_filedesc_w(sd);
@@ -211,6 +209,8 @@ csocket_impl::handle_wevent(int fd)
 			if (sockflags.test(FLAG_DO_RECONNECT)) {
 				cancel_timer(TIMER_RECONNECT);
 			}
+
+			logging::info << "[rofl][csocket][impl] connection established." << std::endl << *this;
 
 			handle_connected();
 		} break;
@@ -506,7 +506,7 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 
 	sockflags.set(CONNECTED);
 	register_filedesc_r(sd);
-	handle_connected();
+	handle_accepted();
 }
 
 
