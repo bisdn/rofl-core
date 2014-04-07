@@ -383,8 +383,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_openssl const& sock) {
 		os << dynamic_cast<csocket_impl const&>(sock);
-		os << indent(0) << "<csocket_openssl >" << std::endl;
-		os << indent(2) << "<flags: ";
+		os << rofl::indent(2) << "<csocket_openssl >" << std::endl;
+		os << rofl::indent(4) << "<flags: ";
 		if (sock.socket_flags.test(FLAG_SSL_IDLE)) {
 			os << "IDLE ";
 		}

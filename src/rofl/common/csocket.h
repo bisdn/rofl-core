@@ -421,6 +421,8 @@ public:
 		os << ">" << std::endl;
 		os << rofl::indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
 		os << rofl::indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
+		rofl::indent i(2);
+		os << sock.socket_params;
 		return os;
 	};
 

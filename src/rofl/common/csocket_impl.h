@@ -468,15 +468,9 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_impl const& sock) {
-		os << indent(0) << "<csocket_impl "
-			<< "sd:" << sock.sd << " "
-			<< "domain:" << sock.domain << " "
-			<< "type:" << sock.type << " "
-			<< "protocol:" << sock.protocol << " ";
-		os << ">" << std::endl;
-		os << indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
-		os << indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
-		os << indent(2) << "<flags: ";
+		os << dynamic_cast<csocket const&>( sock );
+		os << rofl::indent(2) << "<csocket_impl >" << std::endl;
+		os << rofl::indent(4) << "<flags: ";
 		if (sock.sockflags.test(SOCKET_IS_LISTENING)) {
 			os << "LISTENING ";
 		}
