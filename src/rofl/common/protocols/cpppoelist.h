@@ -73,10 +73,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cpppoelist const& pppoelist) {
-		os << "<cpppoelist ";
+		/*os << "<cpppoelist ";
 			os << "TLVs: " << std::endl << dynamic_cast<coflist const&>( pppoelist );
 			os << std::endl;
-		os << ">";
+		os << ">";*/
 		return os;
 	};
 

@@ -118,11 +118,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coflist<T> const& oflist) {
 		os << indent(0) << "<coflist size:" << (int)oflist.size() << " >" << std::endl;
-		indent i(2);
+		/*indent i(2);
 		for (coflist<T>::const_iterator
 				it = oflist.begin(); it != oflist.end(); ++it) {
 			os << (*it); //os << std::endl;
-		}
+		}*/
 		return os;
 	};
 };

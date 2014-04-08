@@ -27,11 +27,11 @@ class cofhelloelems :
 {
 public: // iterators
 
-	typedef typename std::map<uint8_t, cofhello_elem*>::iterator iterator;
-	typedef typename std::map<uint8_t, cofhello_elem*>::const_iterator const_iterator;
+	typedef std::map<uint8_t, cofhello_elem*>::iterator iterator;
+	typedef std::map<uint8_t, cofhello_elem*>::const_iterator const_iterator;
 
-	typedef typename std::map<uint8_t, cofhello_elem*>::reverse_iterator reverse_iterator;
-	typedef typename std::map<uint8_t, cofhello_elem*>::const_reverse_iterator const_reverse_iterator;
+	typedef std::map<uint8_t, cofhello_elem*>::reverse_iterator reverse_iterator;
+	typedef std::map<uint8_t, cofhello_elem*>::const_reverse_iterator const_reverse_iterator;
 
 public:
 

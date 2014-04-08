@@ -497,11 +497,14 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 				<< sd << " " << eSysCall() << std::endl;
 	}
 
+//Some kernels do not define this option
+#ifdef SO_PROTOCOL
 	optlen = sizeof(domain);
 	if ((getsockopt(sd, SOL_SOCKET, SO_DOMAIN, &domain, &optlen)) < 0) {
 		logging::error << "[rofl][csocket][impl][accept] unable to read domain from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 	}
+#endif
 
 	optlen = sizeof(type);
 	if ((getsockopt(sd, SOL_SOCKET, SO_TYPE, &type, &optlen)) < 0) {
@@ -509,11 +512,14 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 						<< sd << " " << eSysCall() << std::endl;
 	}
 
+//Some kernels do not define this option
+#ifdef SO_PROTOCOL
 	optlen = sizeof(protocol);
 	if ((getsockopt(sd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen)) < 0) {
 		logging::error << "[rofl][csocket][impl][accept] unable to read protocol from socket descriptor:"
 						<< sd << " " << eSysCall() << std::endl;
 	}
+#endif
 
 	sockflags.set(CONNECTED);
 	register_filedesc_r(sd);
