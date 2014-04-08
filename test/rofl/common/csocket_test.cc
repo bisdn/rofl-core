@@ -16,13 +16,15 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( csocket_test );
 
 #if defined DEBUG
-#undef DEBUG
+//#undef DEBUG
 #endif
 
 void
 csocket_test::setUp()
 {
+#ifdef DEBUG
 	rofl::logging::set_debug_level(7);
+#endif
 }
 
 
@@ -39,7 +41,6 @@ csocket_test::tearDown()
 void
 csocket_test::testSocketImpl()
 {
-	//return;
 	try {
 		cmem.resize(64);
 		wmem.resize(64);
@@ -72,13 +73,13 @@ csocket_test::testSocketImpl()
 
 		send_counter = 0;
 
-
+#ifdef DEBUG
 		std::cerr << "testSocketImpl: init" << std::endl;
-
+#endif
 		rofl::cioloop::run();
-
+#ifdef DEBUG
 		std::cerr << "testSocketImpl: shutdown" << std::endl;
-
+#endif
 		delete client;
 		delete server;
 		delete worker;
@@ -101,7 +102,6 @@ csocket_test::testSocketImpl()
 void
 csocket_test::testSocketOpenSSL()
 {
-	return;
 	try {
 		cmem.resize(64);
 		wmem.resize(64);
@@ -139,13 +139,13 @@ csocket_test::testSocketOpenSSL()
 		client->connect(cparams);
 
 		send_counter = 0;
-
+#ifdef DEBUG
 		std::cerr << "testSocketOpenSSL: init" << std::endl;
-
+#endif
 		rofl::cioloop::run();
-
+#ifdef DEBUG
 		std::cerr << "testSocketOpenSSL: shutdown" << std::endl;
-
+#endif
 		delete client;
 		delete server;
 		delete worker;
@@ -166,16 +166,19 @@ csocket_test::testSocketOpenSSL()
 void
 csocket_test::handle_timeout(int opaque, void* data)
 {
+#ifdef DEBUG
 	std::cerr << "handle_timeout" << std::endl;
-
+#endif
 	switch (opaque) {
 	case TIMER_SEND_DATA: {
 
-		if (send_counter >= 16) {
+		if (send_counter >= 4) {
 			client->close();
 			worker->close();
 
+#ifdef DEBUG
 			std::cerr << "handle_closed stopping main loop" << std::endl;
+#endif
 			rofl::cioloop::stop();
 
 			dump_sockets();
@@ -192,9 +195,9 @@ csocket_test::handle_timeout(int opaque, void* data)
 		}
 		rofl::cmemory *test = new rofl::cmemory(cmem);
 
-
+#ifdef DEBUG
 		std::cerr << "sending data to worker: " << test->memlen() << std::endl << *test;
-
+#endif
 		client->send(test);
 
 		;
@@ -202,9 +205,9 @@ csocket_test::handle_timeout(int opaque, void* data)
 			wmem[i] = 4 * value;
 		}
 		rofl::cmemory *test2 = new rofl::cmemory(wmem);
-
+#ifdef DEBUG
 		std::cerr << "sending data to client: " << test2->memlen() << std::endl << *test2;
-
+#endif
 		worker->send(test2);
 
 
@@ -221,10 +224,13 @@ void
 csocket_test::handle_listen(
 		rofl::csocket& socket, int newsd)
 {
+#ifdef DEBUG
 	std::cerr << "HANDLE_NEW_CONNECTION " << std::endl;
-
+#endif
 	if (server == &socket) {
+#ifdef DEBUG
 		std::cerr << "handle_accepted server start" << std::endl;
+#endif
 
 		switch (socket_type) {
 		case rofl::csocket::SOCKET_TYPE_PLAIN:
@@ -240,23 +246,25 @@ csocket_test::handle_listen(
 
 		dump_sockets();
 
-
+#ifdef DEBUG
 		std::cerr << "handle_accepted server stop" << std::endl;
-
+#endif
 		send_timer_id = register_timer(TIMER_SEND_DATA, 1);
 
 	} else
 	if (client == &socket) {
+#ifdef DEBUG
 		std::cerr << "handle_accepted client start" << std::endl;
 
 		std::cerr << "handle_accepted client stop" << std::endl;
-
+#endif
 	} else
 	if (worker == &socket) {
+#ifdef DEBUG
 		std::cerr << "handle_accepted worker start" << std::endl;
 
 		std::cerr << "handle_accepted worker stop" << std::endl;
-
+#endif
 	}
 }
 
@@ -266,6 +274,7 @@ void
 csocket_test::handle_accepted(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_accepted" << std::endl;
 
 	try {
@@ -276,7 +285,7 @@ csocket_test::handle_accepted(
 	try {
 		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
 	} catch (std::bad_cast& e) {};
-
+#endif
 }
 
 
@@ -285,7 +294,9 @@ void
 csocket_test::handle_accept_refused(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_accept_refused" << std::endl;
+#endif
 	CPPUNIT_ASSERT(false);
 }
 
@@ -295,6 +306,7 @@ void
 csocket_test::handle_connected(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_connected" << std::endl;
 
 	try {
@@ -305,6 +317,7 @@ csocket_test::handle_connected(
 	try {
 		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
 	} catch (std::bad_cast& e) {};
+#endif
 }
 
 
@@ -313,7 +326,9 @@ void
 csocket_test::handle_connect_refused(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_connect_refused" << std::endl;
+#endif
 	CPPUNIT_ASSERT(false);
 }
 
@@ -324,26 +339,30 @@ csocket_test::handle_read(
 		rofl::csocket& socket)
 {
 	if (&socket == client) {
+#ifdef DEBUG
 		std::cerr << "handle_read (client)" << std::endl;
-
+#endif
 		rofl::cmemory mem(64);
 
 		int rc = socket.recv(mem.somem(), mem.memlen());
-
+		(void)rc;
+#ifdef DEBUG
 		std::cerr << "receiving data from client socket: " << rc << std::endl << mem;
-
+#endif
 		CPPUNIT_ASSERT(mem == wmem);
 
 	} else
 	if (&socket == worker) {
+#ifdef DEBUG
 		std::cerr << "handle_read (worker)" << std::endl;
-
+#endif
 		rofl::cmemory mem(64);
 
 		int rc = socket.recv(mem.somem(), mem.memlen());
-
+		(void)rc;
+#ifdef DEBUG
 		std::cerr << "receiving data from worker socket: " << rc << std::endl << mem;
-
+#endif
 		CPPUNIT_ASSERT(mem == cmem);
 	}
 }
@@ -354,7 +373,9 @@ void
 csocket_test::handle_write(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_write" << std::endl;
+#endif
 }
 
 
@@ -363,7 +384,9 @@ void
 csocket_test::handle_closed(
 		rofl::csocket& socket)
 {
+#ifdef DEBUG
 	std::cerr << "handle_closed" << std::endl << socket;
+#endif
 }
 
 
@@ -371,6 +394,7 @@ csocket_test::handle_closed(
 void
 csocket_test::dump_sockets()
 {
+#ifdef DEBUG
 	try {
 		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*server);
 		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
@@ -383,5 +407,6 @@ csocket_test::dump_sockets()
 		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
 		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
 	} catch (std::bad_cast& e) {};
+#endif
 }
 

@@ -42,23 +42,9 @@ main(int argc, char** argv)
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 
-#ifdef ROFL_HAVE_OPENSSL
-	ssl_context *ssl_ctx = NULL;
-
-	if (env_parser.is_arg_set("cert-and-key-file")) {
-		ssl_ctx = ssl_lib::get_instance().create_ssl_context(ssl_context::SSL_server, env_parser.get_arg("cert-and-key-file"));
-		assert(NULL != ssl_ctx);
-	}
-
-	rofl::cparams socket_params = csocket::get_default_params(rofl::csocket::SOCKET_TYPE_OPENSSL);
-	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
-	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_OPENSSL, socket_params);
-
-#else
 	rofl::cparams socket_params = csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
 	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
-#endif
 
 	rofl::cioloop::run();
 
