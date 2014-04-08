@@ -475,6 +475,17 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 
 	sockflags.reset(FLAG_ACTIVE_SOCKET);
 
+
+	// make socket non-blocking, as this status is not inherited
+	long flags;
+	if ((flags = fcntl(sd, F_GETFL)) < 0) {
+		throw eSysCall("fnctl(F_GETFL)");
+	}
+	flags |= O_NONBLOCK;
+	if ((fcntl(sd, F_SETFL, flags)) < 0) {
+		throw eSysCall("fcntl(F_SETGL)");
+	}
+
 	socklen_t optlen = 0;
 	if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
 		logging::error << "[rofl][csocket][impl][accept] unable to read local address from socket descriptor:"

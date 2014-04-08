@@ -318,6 +318,12 @@ public:
 	/**
 	 *
 	 */
+	int
+	get_sd() const { return sd; };
+
+	/**
+	 *
+	 */
 	enum rofl::csocket::socket_type_t
 	get_socket_type() const { return socket_type; };
 

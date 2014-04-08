@@ -22,7 +22,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( csocket_test );
 void
 csocket_test::setUp()
 {
-	rofl::logging::set_debug_level(8);
+	rofl::logging::set_debug_level(7);
 }
 
 
