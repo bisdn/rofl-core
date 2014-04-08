@@ -15,10 +15,17 @@
 #define PROXYOFPVERSION OFP10_VERSION
 
 std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
-	os << "cport_vlan_translator configuration:\n" << morph.dump_config();
-	os << "cport_vlan_translator current sessions:" << morph.dump_sessions() << std::endl;
+	os << "morpheus configuration:\n" << morph.dump_config();
+	os << "morpheus current sessions:" << morph.dump_sessions() << std::endl;
 	return os;
 	}
+
+// print out a hexdump of bytes
+void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
+	if (0==n_bytes) return;
+	for(size_t i = 0; i < (n_bytes-1); ++i) printf("%02x ", bytes[i]);
+	printf("%02x", bytes[n_bytes-1]);
+}
 
 std::string morpheus::dump_sessions() const {	// TODO
 	std::stringstream ss;
@@ -283,11 +290,12 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
 	if(sit!=m_sessions.end()) { \
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new "<< TOSTRING(MSG_TYPE) << " message." << std::endl; \
-		delete(msg); \
 		} else { \
 		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
 		if(!s->isCompleted()) s.release(); \
 	}\
+	delete(msg); \
+	std::cout << ">>>>>>>\n" << *this; \
 }
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
@@ -300,8 +308,9 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 		if(s->isCompleted()) remove_session(s); \
 		} else { \
 		std::cout << func << ": Unexpected " << TOSTRING(MSG_TYPE) << " received with xid " << msg->get_xid() << ". Dropping new message." << std::endl; \
-		delete(msg); \
 	}\
+	delete(msg); \
+	std::cout << ">>>>>>>\n" << *this; \
 }
 
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) {\
@@ -309,11 +318,12 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
 	if(sit!=m_sessions.end()) {\
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;\
-		delete(msg);\
 		} else {\
 		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
 		if(!s->isCompleted()) s.release(); \
 	} \
+	delete(msg);\
+	std::cout << ">>>>>>>\n" << *this; \
 }
 
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
@@ -326,7 +336,7 @@ void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_
 }
 void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_request, morpheus::cfeatures_request_session, process_features_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::cfeatures_request_session, process_features_reply )
 }
 
 void morpheus::handle_get_config_request(rofl::cofctl *src, rofl::cofmsg_get_config_request *msg) {
@@ -361,225 +371,60 @@ void morpheus::handle_table_stats_reply(rofl::cofdpt *src, rofl::cofmsg_table_st
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_table_stats_reply, morpheus::ctable_stats_session, process_table_stats_reply )
 }
 
-/*
-void morpheus::handle_desc_stats_request(rofl::cofctl *src, rofl::cofmsg_desc_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( ctl, cofmsg_get_config_request, morpheus::cget_config_session )
-	
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_desc_stats_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-		uint32_t myxid = send_desc_stats_request(m_slave, msg->get_stats_flags());
-		std::cout << func << " called send_desc_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_desc_stats_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << src->c_str() << " dropped because no connection to datapath present." << std::endl;
-	delete(msg);
-}
-
-void morpheus::handle_desc_stats_reply(rofl::cofdpt * src, rofl::cofmsg_desc_stats_reply * msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	// TODO this bit below is wrong, but I cannot find a proper description of cofmsg_desc_stats_reply to get the information from it
-	rofl::cofdesc_stats_reply reply(src->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
-	send_desc_stats_reply(m_master, orig_xid, reply, false );
-	std::cout << func << " : sent desc stats reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
-}
-
-// "Called once an EXPERIMENTER.message was received from a controller entity. ".. or is it? The docs are wrong on this one.
-void morpheus::handle_set_config(rofl::cofctl *src, rofl::cofmsg_set_config *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	send_set_config_message(m_slave, msg->get_flags(), msg->get_miss_send_len());
-	std::cout << func << " : sent set_config_message to " << m_slave->c_str() << "." << std::endl;
-	delete (msg);	
-}
-
-void morpheus::handle_table_stats_request(rofl::cofctl *src, rofl::cofmsg_table_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_table_stats_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-		uint32_t myxid = send_table_stats_request(m_slave, msg->get_stats_flags());
-		std::cout << func << " called send_table_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from cofmsg_table_stats_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << src->c_str() << " dropped because no connection to datapath present." << std::endl;
-	delete(msg);
-}
-void morpheus::handle_table_stats_reply(rofl::cofdpt *src, rofl::cofmsg_table_stats_reply *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	send_table_stats_reply(m_master, orig_xid, msg->get_table_stats(), false ); // TODO how to deal with "more" flag (last arg)
-	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
-}
-
-void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-}
-void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_stats_request *msg) {
-// see ./examples/etherswitch/etherswitch.cc:95
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-}
 void morpheus::handle_aggregate_stats_request(rofl::cofctl *src, rofl::cofmsg_aggr_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming handle_aggregate_stats_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-std::cout << "TP" << __LINE__ << std::endl;
-		uint16_t stats_flags = msg->get_stats_flags();
-std::cout << "TP" << __LINE__ << std::endl;
-		rofl::cofaggr_stats_request aggr_req( msg->get_aggr_stats() );
-std::cout << "TP" << __LINE__ << std::endl;
-		uint32_t myxid = send_aggr_stats_request(m_slave, stats_flags, aggr_req);
-std::cout << "TP" << __LINE__ << std::endl;
-		std::cout << func << " called send_aggr_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from handle_aggregate_stats_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << src->c_str() << " dropped because no connection to datapath present." << std::endl;
-	delete(msg);
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_aggr_stats_request, morpheus::caggregate_stats_session )
 }
 void morpheus::handle_aggregate_stats_reply(rofl::cofdpt *src, rofl::cofmsg_aggr_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	send_aggr_stats_reply(m_master, orig_xid, msg->get_aggr_stats(), false );	// TODO how to deal with "more" flag (last arg)
-	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_aggr_stats_reply, morpheus::caggregate_stats_session, process_aggr_stats_reply )
 }
 
-
-void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-}
-void morpheus::handle_experimenter_stats_request(rofl::cofctl *src, rofl::cofmsg_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-}
-*/
+/*
 void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
 	if (0==n_bytes) return;
 	for(size_t i = 0; i < (n_bytes-1); ++i) printf("%02x ", bytes[i]);
 	printf("%02x", bytes[n_bytes-1]);
 }
-/*
+*/
 void morpheus::handle_packet_in(rofl::cofdpt *src, rofl::cofmsg_packet_in * msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << "\n" << *msg << std::endl;
-	// forward packet to master
-std::cout << "TP" << __LINE__ << std::endl;
-	rofl::cofmatch match(msg->get_match_const());
-std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
-std::cout << "TP" << __LINE__ << std::endl;
-	rofl::cpacket packet(msg->get_packet_const());
-std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
-	packet.get_match().set_in_port(msg->get_in_port());
-std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "packet bytes: ";
-dumpBytes(std::cout,msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
-std::cout << std::endl;
-std::cout << "frame bytes: ";
-dumpBytes(std::cout,msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
-std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
-std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
-std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
-// *** JSP Continue working from here - The data returned by msg->get_packet() is missing the first four bytes, and because of this the printed MAC addresses are wrong.
-// ** TODO: check who creates msg and figure out why it "starts late"
-std::cout << "TP" << __LINE__ << std::endl;
-	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
-//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
-//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.frame()->sopdu(), packet.frame()->pdulen() );	// TODO - the length fields are guesses.
-	std::cout << func << " : packet_in forwarded to " << m_master->c_str() << "." << std::endl;
-#if 0
-std::cout << "TP" << __LINE__ << std::endl;
-	std::cout << "dpt version is " << (unsigned)src->get_version() << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
-//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), msg->get_table_id(), msg->get_cookie(), msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
-		uint32_t  	buffer_id_ = msg->get_buffer_id();
-std::cout << "TP" << __LINE__ << std::endl;
-		uint16_t  	total_len_ = msg->get_total_len();
-std::cout << "TP" << __LINE__ << std::endl;
-		uint8_t  	reason_ = msg->get_reason();
-//		uint8_t  	table_id,
-std::cout << "TP" << __LINE__ << std::endl;
-//		uint64_t  	cookie_ = msg->get_cookie();
-uint64_t  	cookie_ = 0;
-std::cout << "TP" << __LINE__ << std::endl;
-		uint16_t  	in_port_ = msg->get_in_port();
-std::cout << "TP" << __LINE__ << std::endl;
-	send_packet_in_message(m_master, buffer_id_, total_len_, reason_, 0, cookie_, in_port_, match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
-std::cout << "TP" << __LINE__ << std::endl;
-#endif
-
-	delete(msg);
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(false, morpheus::cpacket_in_session)
 }
 void morpheus::handle_packet_out(rofl::cofctl *src, rofl::cofmsg_packet_out *msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	rofl::cofaclist actions(msg->get_actions());
-	std::cout << "TP" << __LINE__ << std::endl;
-	rofl::cpacket packet(msg->get_packet());
-	std::cout << "TP" << __LINE__ << std::endl;
-	send_packet_out_message(m_slave, msg->get_buffer_id(), msg->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
-	std::cout << "TP" << __LINE__ << std::endl;
-	delete(msg);
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cpacket_out_session)
 }
+
 void morpheus::handle_barrier_request(rofl::cofctl *src, rofl::cofmsg_barrier_request *msg) {
 	static const char * func = __FUNCTION__;
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_barrier_request, morpheus::cbarrier_session )
+}
+void morpheus::handle_barrier_reply ( rofl::cofdpt * src, rofl::cofmsg_barrier_reply * msg) {
+	static const char * func = __FUNCTION__;
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_barrier_reply, morpheus::cbarrier_session, process_barrier_reply )
+}
+
+void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_stats_request *msg) {
+	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming handle_barrier_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-		uint32_t myxid = send_barrier_request(m_slave);
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from handle_barrier_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << src->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(msg);
+}
+void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_stats_request *msg) {
+// see ./examples/etherswitch/etherswitch.cc:95
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 
-void morpheus::handle_barrier_reply ( rofl::cofdpt * src, rofl::cofmsg_barrier_reply * msg) {
+void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	send_barrier_reply(m_master, orig_xid );
-	std::cout << func << " : sent reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+void morpheus::handle_experimenter_stats_request(rofl::cofctl *src, rofl::cofmsg_stats_request *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 
@@ -603,7 +448,7 @@ void morpheus::handle_experimenter_message(rofl::cofctl *src, rofl::cofmsg_featu
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
-*/
+
 std::string action_mask_to_string(const uint32_t action_types) {
 	std::string out;
 	static const uint32_t vals[] = { OFP10AT_OUTPUT, OFP10AT_SET_VLAN_VID, OFP10AT_SET_VLAN_PCP, OFP10AT_STRIP_VLAN, OFP10AT_SET_DL_SRC, OFP10AT_SET_DL_DST, OFP10AT_SET_NW_SRC, OFP10AT_SET_NW_DST, OFP10AT_SET_NW_TOS, OFP10AT_SET_TP_SRC, OFP10AT_SET_TP_DST, OFP10AT_ENQUEUE };

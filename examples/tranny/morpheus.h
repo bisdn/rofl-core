@@ -76,7 +76,6 @@ uint64_t m_dpid;
 
 	virtual void handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config * msg );
 
-/*	
 	virtual void handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request * msg );
 	virtual void handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request * msg );
 	virtual void handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request * msg );
@@ -91,22 +90,14 @@ uint64_t m_dpid;
 	virtual void handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod * msg );
 	virtual void handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod * msg );
 	virtual void handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request * msg );
-	virtual void handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg ); */
+	virtual void handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg );
 	virtual void handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod * msg );
 
 public:
 // our transaction management methods - they are public because the nested classes have to call them
-	// bool ctl_session_attach( uint32_t session_xid, uint32_t new_xid );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session
-//	bool associate_ctl_xid( const uint32_t session_xid, const uint32_t new_xid );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
-//	bool associate_dpt_xid( const uint32_t session_xid, const uint32_t new_xid );
-///	bool add_ctl_session( const uint32_t session_xid, const session_ptr_t session_ptr );	// returns true if it was added successfully, false 
-///	bool add_dpt_session( const uint32_t session_xid, const session_ptr_t session_ptr );
 	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
 	bool remove_xid_association( bool ctl_or_dpt_xid, const uint32_t xid );			// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
 	unsigned remove_session( chandlersession_base * p );	// called to remove all associations to this session_base - returns the number of associations removed
-//	unsigned deregister( chandlersession_base * p );
-//	bool process_impl ( const rofl::cofdpt * const src, const rofl::cofmsg * const msg);
-//	bool process_impl ( const rofl::cofctl * const src, const rofl::cofmsg * const msg);
 	rofl::cofdpt * get_dpt() const;
 	rofl::cofctl * get_ctl() const;
 	uint64_t get_dpid() const { return m_dpid; }
