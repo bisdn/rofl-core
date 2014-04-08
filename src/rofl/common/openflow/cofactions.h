@@ -29,11 +29,11 @@ class cofactions : public std::list<cofaction*>
 {
 public: // iterators
 
-	typedef typename std::list<cofaction*>::iterator iterator;
-	typedef typename std::list<cofaction*>::const_iterator const_iterator;
+	typedef std::list<cofaction*>::iterator iterator;
+	typedef std::list<cofaction*>::const_iterator const_iterator;
 
-	typedef typename std::list<cofaction*>::reverse_iterator reverse_iterator;
-	typedef typename std::list<cofaction*>::const_reverse_iterator const_reverse_iterator;
+	typedef std::list<cofaction*>::reverse_iterator reverse_iterator;
+	typedef std::list<cofaction*>::const_reverse_iterator const_reverse_iterator;
 
 public:
 

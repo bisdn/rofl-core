@@ -31,15 +31,15 @@ class cofinstructions
 
 public: // iterators
 
-	typedef typename std::map<uint16_t, cofinst*>::iterator iterator;
-	typedef typename std::map<uint16_t, cofinst*>::const_iterator const_iterator;
+	typedef std::map<uint16_t, cofinst*>::iterator iterator;
+	typedef std::map<uint16_t, cofinst*>::const_iterator const_iterator;
 	iterator begin() { return instmap.begin(); }
 	iterator end() { return instmap.end(); }
 	const_iterator begin() const { return instmap.begin(); }
 	const_iterator end() const { return instmap.end(); }
 
-	typedef typename std::map<uint16_t, cofinst*>::reverse_iterator reverse_iterator;
-	typedef typename std::map<uint16_t, cofinst*>::const_reverse_iterator const_reverse_iterator;
+	typedef std::map<uint16_t, cofinst*>::reverse_iterator reverse_iterator;
+	typedef std::map<uint16_t, cofinst*>::const_reverse_iterator const_reverse_iterator;
 	reverse_iterator rbegin() { return instmap.rbegin(); }
 	reverse_iterator rend() { return instmap.rend(); }
 
