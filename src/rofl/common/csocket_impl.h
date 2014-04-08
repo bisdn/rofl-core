@@ -313,6 +313,20 @@ protected:
 	};
 
 	/**
+	 * Accept on socket failed (server mode).
+	 *
+	 * This notification method is called if the accept() operation fails
+	 * on the socket. It should be overwritten by a derived class
+	 * if the derived class wants to act upon this condition.
+	 */
+	virtual void
+	handle_accept_refused() {
+		if (socket_owner) {
+			socket_owner->handle_accept_refused(*this);
+		}
+	};
+
+	/**
 	 * Connect on socket succeeded (client mode).
 	 *
 	 * This notification method is called if the connect() operation succeeds
@@ -350,9 +364,9 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_new_connection(int newsd) {
+	handle_listen(int newsd) {
 		if (socket_owner) {
-			socket_owner->handle_new_connection(*this, newsd);
+			socket_owner->handle_listen(*this, newsd);
 		}
 	};
 

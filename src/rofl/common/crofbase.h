@@ -1629,7 +1629,7 @@ private:
 	 *
 	 */
 	virtual void
-	handle_new_connection(
+	handle_listen(
 			csocket& socket,
 			int newsd);
 
@@ -1639,6 +1639,15 @@ private:
 	 */
 	virtual void
 	handle_accepted(
+			csocket& socket);
+
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_accept_refused(
 			csocket& socket);
 
 

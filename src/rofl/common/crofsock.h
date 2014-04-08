@@ -263,8 +263,6 @@ private:
 
 private:
 
-
-
 	/**
 	 *
 	 */
@@ -272,15 +270,13 @@ private:
 	handle_event(
 			cevent const &ev);
 
-
 	/**
 	 *
 	 */
 	virtual void
-	handle_new_connection(
+	handle_listen(
 			csocket& socket,
 			int newsd);
-
 
 	/**
 	 *
@@ -289,6 +285,12 @@ private:
 	handle_accepted(
 			csocket& socket);
 
+	/**
+	 *
+	 */
+	virtual void
+	handle_accept_refused(
+			csocket& socket);
 
 	/**
 	 *
@@ -297,14 +299,12 @@ private:
 	handle_connected(
 			csocket& socket);
 
-
 	/**
 	 *
 	 */
 	virtual void
 	handle_connect_refused(
 			csocket& socket);
-
 
 	/**
 	 *
@@ -313,14 +313,12 @@ private:
 	handle_read(
 			csocket& socket);
 
-
 	/**
 	 *
 	 */
 	virtual void
 	handle_write(
 			csocket& socket);
-
 
 	/**
 	 *

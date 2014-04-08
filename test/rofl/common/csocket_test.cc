@@ -30,7 +30,8 @@ csocket_test::setUp()
 void
 csocket_test::tearDown()
 {
-
+	rofl::cioloop::stop();
+	rofl::cioloop::shutdown();
 }
 
 
@@ -38,44 +39,61 @@ csocket_test::tearDown()
 void
 csocket_test::testSocketImpl()
 {
-	return;
-	socket_type = rofl::csocket::SOCKET_TYPE_PLAIN;
+	//return;
+	try {
+		cmem.resize(64);
+		wmem.resize(64);
+		value = 0;
 
-	server = rofl::csocket::csocket_factory(socket_type, this);
-	client = rofl::csocket::csocket_factory(socket_type, this);
+		socket_type = rofl::csocket::SOCKET_TYPE_PLAIN;
 
-	sparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
-	sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
-	sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("3333");
-	sparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
-	sparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
-	sparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
+		server = rofl::csocket::csocket_factory(socket_type, this);
+		client = rofl::csocket::csocket_factory(socket_type, this);
 
-	server->listen(sparams);
+		sparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+		sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
+		sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("3333");
+		sparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
+		sparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
+		sparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
 
-	cparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
-	cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
-	cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("4444");
-	cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_HOSTNAME).set_string("127.0.0.1");
-	cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_PORT).set_string("3333");
-	cparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
-	cparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
-	cparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
+		server->listen(sparams);
 
-	client->connect(cparams);
+		cparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+		cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
+		cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("4444");
+		cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_HOSTNAME).set_string("127.0.0.1");
+		cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_PORT).set_string("3333");
+		cparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
+		cparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
+		cparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
 
-	send_counter = 0;
+		client->connect(cparams);
+
+		send_counter = 0;
 
 
-	std::cerr << "testSocketImpl: init" << std::endl;
+		std::cerr << "testSocketImpl: init" << std::endl;
 
-	rofl::cioloop::run();
+		rofl::cioloop::run();
 
-	std::cerr << "testSocketImpl: shutdown" << std::endl;
+		std::cerr << "testSocketImpl: shutdown" << std::endl;
 
-	delete client;
-	delete server;
-	delete worker;
+		delete client;
+		delete server;
+		delete worker;
+
+		sleep (1);
+
+	} catch (rofl::eOpenSSL& e) {
+		std::cerr << e;
+	} catch (rofl::eSocketBase& e) {
+		std::cerr << e;
+	} catch (rofl::eSysCall& e) {
+		std::cerr << e;
+	} catch (rofl::RoflException& e) {
+		std::cerr << e;
+	}
 }
 
 
@@ -83,8 +101,12 @@ csocket_test::testSocketImpl()
 void
 csocket_test::testSocketOpenSSL()
 {
-	//return;
+	return;
 	try {
+		cmem.resize(64);
+		wmem.resize(64);
+		value = 0;
+
 		socket_type = rofl::csocket::SOCKET_TYPE_OPENSSL;
 
 		server = rofl::csocket::csocket_factory(socket_type, this);
@@ -92,7 +114,7 @@ csocket_test::testSocketOpenSSL()
 
 		sparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_OPENSSL);
 		sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
-		sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("443");
+		sparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("3334");
 		sparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
 		sparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
 		sparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
@@ -104,9 +126,9 @@ csocket_test::testSocketOpenSSL()
 
 		cparams = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_OPENSSL);
 		cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("127.0.0.1");
-		cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("6666");
+		cparams.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("6667");
 		cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_HOSTNAME).set_string("127.0.0.1");
-		cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_PORT).set_string("443");
+		cparams.set_param(rofl::csocket::PARAM_KEY_REMOTE_PORT).set_string("3334");
 		cparams.set_param(rofl::csocket::PARAM_KEY_DOMAIN).set_string("inet");
 		cparams.set_param(rofl::csocket::PARAM_KEY_TYPE).set_string("stream");
 		cparams.set_param(rofl::csocket::PARAM_KEY_PROTOCOL).set_string("tcp");
@@ -126,6 +148,7 @@ csocket_test::testSocketOpenSSL()
 
 		delete client;
 		delete server;
+		delete worker;
 
 	} catch (rofl::eOpenSSL& e) {
 		std::cerr << e;
@@ -148,23 +171,45 @@ csocket_test::handle_timeout(int opaque, void* data)
 	switch (opaque) {
 	case TIMER_SEND_DATA: {
 
-		if (send_counter > 3) {
+		if (send_counter >= 16) {
 			client->close();
 			worker->close();
 
 			std::cerr << "handle_closed stopping main loop" << std::endl;
 			rofl::cioloop::stop();
 
+			dump_sockets();
+
 			return;
 		}
 
 		send_counter++;
 
-		send_timer_id = register_timer(TIMER_SEND_DATA, 0);
+		send_timer_id = register_timer(TIMER_SEND_DATA, 1);
 
-		rofl::cmemory *test = new rofl::cmemory(10);
+		for (unsigned int i = 0; i < cmem.memlen(); i++) {
+			cmem[i] = value;
+		}
+		rofl::cmemory *test = new rofl::cmemory(cmem);
+
+
+		std::cerr << "sending data to worker: " << test->memlen() << std::endl << *test;
 
 		client->send(test);
+
+		;
+		for (unsigned int i = 0; i < wmem.memlen(); i++) {
+			wmem[i] = 4 * value;
+		}
+		rofl::cmemory *test2 = new rofl::cmemory(wmem);
+
+		std::cerr << "sending data to client: " << test2->memlen() << std::endl << *test2;
+
+		worker->send(test2);
+
+
+		value++;
+
 
 	} break;
 	}
@@ -173,7 +218,7 @@ csocket_test::handle_timeout(int opaque, void* data)
 
 
 void
-csocket_test::handle_new_connection(
+csocket_test::handle_listen(
 		rofl::csocket& socket, int newsd)
 {
 	std::cerr << "HANDLE_NEW_CONNECTION " << std::endl;
@@ -187,25 +232,13 @@ csocket_test::handle_new_connection(
 			worker = rofl::csocket::csocket_factory(socket_type, this);
 		} break;
 		default: {
-			fprintf(stderr, "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU [1]\n");
 			throw rofl::eInval();
 		};
 		}
 
-		fprintf(stderr, "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU [2]\n");
 		worker->accept(server->get_socket_params(), newsd);
-		fprintf(stderr, "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU [3]\n");
 
-		try {
-			std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
-			std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
-		} catch (std::bad_cast& e) {};
-
-
-		try {
-			std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
-			std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
-		} catch (std::bad_cast& e) {};
+		dump_sockets();
 
 
 		std::cerr << "handle_accepted server stop" << std::endl;
@@ -234,6 +267,26 @@ csocket_test::handle_accepted(
 		rofl::csocket& socket)
 {
 	std::cerr << "handle_accepted" << std::endl;
+
+	try {
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
+	} catch (std::bad_cast& e) {};
+
+
+	try {
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
+	} catch (std::bad_cast& e) {};
+
+}
+
+
+
+void
+csocket_test::handle_accept_refused(
+		rofl::csocket& socket)
+{
+	std::cerr << "handle_accept_refused" << std::endl;
+	CPPUNIT_ASSERT(false);
 }
 
 
@@ -243,6 +296,15 @@ csocket_test::handle_connected(
 		rofl::csocket& socket)
 {
 	std::cerr << "handle_connected" << std::endl;
+
+	try {
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
+	} catch (std::bad_cast& e) {};
+
+
+	try {
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
+	} catch (std::bad_cast& e) {};
 }
 
 
@@ -251,7 +313,8 @@ void
 csocket_test::handle_connect_refused(
 		rofl::csocket& socket)
 {
-
+	std::cerr << "handle_connect_refused" << std::endl;
+	CPPUNIT_ASSERT(false);
 }
 
 
@@ -260,7 +323,29 @@ void
 csocket_test::handle_read(
 		rofl::csocket& socket)
 {
+	if (&socket == client) {
+		std::cerr << "handle_read (client)" << std::endl;
 
+		rofl::cmemory mem(64);
+
+		int rc = socket.recv(mem.somem(), mem.memlen());
+
+		std::cerr << "receiving data from client socket: " << rc << std::endl << mem;
+
+		CPPUNIT_ASSERT(mem == wmem);
+
+	} else
+	if (&socket == worker) {
+		std::cerr << "handle_read (worker)" << std::endl;
+
+		rofl::cmemory mem(64);
+
+		int rc = socket.recv(mem.somem(), mem.memlen());
+
+		std::cerr << "receiving data from worker socket: " << rc << std::endl << mem;
+
+		CPPUNIT_ASSERT(mem == cmem);
+	}
 }
 
 
@@ -269,7 +354,7 @@ void
 csocket_test::handle_write(
 		rofl::csocket& socket)
 {
-
+	std::cerr << "handle_write" << std::endl;
 }
 
 
@@ -278,8 +363,25 @@ void
 csocket_test::handle_closed(
 		rofl::csocket& socket)
 {
-
+	std::cerr << "handle_closed" << std::endl << socket;
 }
 
 
+
+void
+csocket_test::dump_sockets()
+{
+	try {
+		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*server);
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
+	} catch (std::bad_cast& e) {};
+
+
+	try {
+		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*server);
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
+	} catch (std::bad_cast& e) {};
+}
 

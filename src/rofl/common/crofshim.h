@@ -90,10 +90,13 @@ private:
 private:
 
 	virtual void
-	handle_new_connection(csocket& socket, int newsd);
+	handle_listen(csocket& socket, int newsd);
 
 	virtual void
 	handle_accepted(csocket& socket) {};
+
+	virtual void
+	handle_accept_refused(csocket& socket) {};
 
 	virtual void
 	handle_connected(csocket& socket) {};

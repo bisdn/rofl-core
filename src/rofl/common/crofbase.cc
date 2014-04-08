@@ -488,7 +488,7 @@ crofbase::is_ofp_version_supported(uint8_t ofp_version)
 
 
 void
-crofbase::handle_new_connection(
+crofbase::handle_listen(
 		csocket& socket, int newsd)
 {
 	(new rofl::crofconn(this, versionbitmap))->accept(socket.get_socket_type(), socket.get_socket_params(), newsd);
@@ -503,6 +503,14 @@ crofbase::handle_accepted(
 	// do nothing here
 }
 
+
+
+void
+crofbase::handle_accept_refused(
+		csocket& socket)
+{
+	// do nothing here
+}
 
 
 void

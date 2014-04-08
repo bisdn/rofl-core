@@ -59,6 +59,13 @@ private:
 	virtual void
 	handle_timeout(int opaque, void* data = NULL);
 
+	uint8_t			value;
+
+	void dump_sockets();
+
+	rofl::cmemory	cmem;	// data sent from client to worker
+	rofl::cmemory	wmem;	// data sent from worker to client
+
 private:
 
 	rofl::csocket* client;
@@ -68,11 +75,15 @@ private:
 	rofl::cparams cparams;
 
 	virtual void
-	handle_new_connection(
+	handle_listen(
 			rofl::csocket& socket, int newsd);
 
 	virtual void
 	handle_accepted(
+			rofl::csocket& socket);
+
+	virtual void
+	handle_accept_refused(
 			rofl::csocket& socket);
 
 	virtual void

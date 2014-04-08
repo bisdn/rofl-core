@@ -161,7 +161,7 @@ csocket_impl::handle_revent(int fd)
 
 		logging::info << "[rofl][csocket][impl] socket accepted " << new_sd << std::endl << *this;
 
-		handle_new_connection(new_sd);
+		handle_listen(new_sd);
 
 		// handle socket when in normal (=non-listening) state
 	} else {

@@ -57,7 +57,7 @@ crofshim::close(rofl::caddress const& laddr)
 
 
 void
-crofshim::handle_new_connection(csocket& socket, int newsd)
+crofshim::handle_listen(csocket& socket, int newsd)
 {
 	(new crofsock(this))->accept(socket.get_socket_type(), socket.get_socket_params(), newsd);
 }

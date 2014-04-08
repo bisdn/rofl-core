@@ -75,7 +75,7 @@ crofsock::close()
 
 
 void
-crofsock::handle_new_connection(
+crofsock::handle_listen(
 		csocket& socket,
 		int newsd)
 {
@@ -91,6 +91,16 @@ crofsock::handle_accepted(
 {
 	logging::info << "[rofl][sock] connection established (via accept):" << std::endl << *this;
 	env->handle_connected(this);
+}
+
+
+
+void
+crofsock::handle_accept_refused(
+		csocket& socket)
+{
+	logging::info << "[rofl][sock] accepted connection refused:" << std::endl << *this;
+	// do nothing
 }
 
 

@@ -69,7 +69,7 @@ public:
 	 * @param ra address of peer entity
 	 */
 	virtual void
-	handle_new_connection(
+	handle_listen(
 			csocket& socket, int newsd) = 0;
 
 	/**
@@ -84,10 +84,17 @@ public:
 			csocket& socket) = 0;
 
 	/**
+	 * @brief	Called once accepting a request from a remote entity failed.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 */
+	virtual void
+	handle_accept_refused(csocket& socket) = 0;
+
+	/**
 	 * @brief	Called once a connection request has succeeded its connect() method.
 	 *
-	 * @param socket pointer to csocket instance emitting the motification
-	 * @param sd socket descriptor used for new connection
+	 * @param socket pointer to csocket instance emitting the notification
 	 */
 	virtual void
 	handle_connected(csocket& socket) = 0;

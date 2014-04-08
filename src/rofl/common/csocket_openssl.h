@@ -86,6 +86,7 @@ class csocket_openssl :
 
 	enum openssl_event_t {
 		EVENT_SEND_TXQUEUE		= 0,
+		EVENT_RECV_RXQUEUE		= 1,
 	};
 
 	/*
@@ -320,6 +321,16 @@ protected:
 	handle_accepted(rofl::csocket& socket);
 
 	/**
+	 * Accept on socket failed (server mode).
+	 *
+	 * This notification method is called if the accept() operation fails
+	 * on the socket. It should be overwritten by a derived class
+	 * if the derived class wants to act upon this condition.
+	 */
+	virtual void
+	handle_accept_refused(rofl::csocket& socket);
+
+	/**
 	 * Connect on socket succeeded (client mode).
 	 *
 	 * This notification method is called if the connect() operation succeeds
@@ -349,7 +360,7 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_new_connection(
+	handle_listen(
 			rofl::csocket& socket,
 			int newsd);
 
