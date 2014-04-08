@@ -81,11 +81,7 @@ librofl_common_la_SOURCES = \
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
 		csocket_openssl.h \
-		csocket_openssl.cc \
-		ssl_lib.cc \
-		ssl_lib.h \
-		ssl_connection.cc \
-		ssl_connection.h
+		csocket_openssl.cc
 endif
 
 librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils/librofl_common_utils.la -lrt
@@ -134,9 +130,7 @@ library_include_HEADERS= \
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \
-		csocket_openssl.h \
-		ssl_lib.h \
-		ssl_connection.h
+		csocket_openssl.h
 endif
 
 
