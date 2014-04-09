@@ -85,9 +85,10 @@ csocket_test::testSocketImpl()
 		delete worker;
 
 		sleep (1);
-
+#ifdef ROFL_HAVE_OPENSSL 
 	} catch (rofl::eOpenSSL& e) {
 		std::cerr << e;
+#endif
 	} catch (rofl::eSocketBase& e) {
 		std::cerr << e;
 	} catch (rofl::eSysCall& e) {
@@ -98,6 +99,7 @@ csocket_test::testSocketImpl()
 }
 
 
+#ifdef ROFL_HAVE_OPENSSL 
 
 void
 csocket_test::testSocketOpenSSL()
@@ -160,7 +162,7 @@ csocket_test::testSocketOpenSSL()
 		std::cerr << e;
 	}
 }
-
+#endif
 
 
 void
@@ -281,10 +283,11 @@ csocket_test::handle_accepted(
 		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
 	} catch (std::bad_cast& e) {};
 
-
+#ifdef ROFL_HAVE_OPENSSL 
 	try {
 		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
 	} catch (std::bad_cast& e) {};
+#endif
 #endif
 }
 
@@ -314,9 +317,11 @@ csocket_test::handle_connected(
 	} catch (std::bad_cast& e) {};
 
 
+#ifdef ROFL_HAVE_OPENSSL 
 	try {
 		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
 	} catch (std::bad_cast& e) {};
+#endif
 #endif
 }
 
@@ -402,11 +407,13 @@ csocket_test::dump_sockets()
 	} catch (std::bad_cast& e) {};
 
 
+#ifdef ROFL_HAVE_OPENSSL 
 	try {
 		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*server);
 		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*client);
 		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_openssl&>(*worker);
 	} catch (std::bad_cast& e) {};
+#endif
 #endif
 }
 
