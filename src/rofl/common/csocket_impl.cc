@@ -7,16 +7,15 @@
 
 using namespace rofl;
 
-
 //Defaults
 bool const 			csocket_impl::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME	= std::string("127.0.0.1");
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_PORT		= std::string("6653");
+std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME(std::string("127.0.0.1"));
+std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_PORT(std::string("6653"));
 std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
 std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_PORT;
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_DOMAIN			= csocket::PARAM_DOMAIN_VALUE_INET_ANY;
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_TYPE				= csocket::PARAM_TYPE_VALUE_STREAM;
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL			= csocket::PARAM_PROTOCOL_VALUE_TCP;
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_DOMAIN(csocket::PARAM_DOMAIN_VALUE_INET_ANY);
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_TYPE(csocket::PARAM_TYPE_VALUE_STREAM);
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL(csocket::PARAM_PROTOCOL_VALUE_TCP);
 
 
 /*static*/cparams
