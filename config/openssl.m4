@@ -1,14 +1,28 @@
-# Check for debug mode - MUST BE THE FIRST CHECK
-AC_MSG_CHECKING(whether to enable openssl for tls)
-ssl_default="no"
-AC_ARG_ENABLE(ssl,
-	AS_HELP_STRING([--enable-ssl], [turn on tls via OpenSSL [default=no]])
-		, , enable_ssl=$ssl_default)
-AC_MSG_RESULT($ssl_default)
-if test "$enable_ssl" = "yes"; then
-	AC_CHECK_LIB(ssl, SSL_library_init,,AC_MSG_ERROR([OpenSSL ssl library not found])) 
-	AC_CHECK_LIB(crypto, ERR_get_error,,AC_MSG_ERROR([OpenSSL crypto library not found]))
-	AC_SUBST([ROFL_HAVE_OPENSSL], ["#define ROFL_HAVE_OPENSSL 1"])
-fi
-AM_CONDITIONAL([ROFL_HAVE_OPENSSL],  [test "$enable_ssl" = yes])
+#Detecting crypto and ssl
+ssl_detected="yes"
+ 
+AC_ARG_WITH(ssl,
+	AS_HELP_STRING([--without-ssl], [Turn off tls (openssl) even if detected [default=no]])
+		, ssl_detected="no",)
+     
+if test "$ssl_detected" = "yes"; then
+	AC_CHECK_LIB(ssl, SSL_library_init, , ssl_detected="no")
+	AC_CHECK_LIB(crypto, ERR_get_error, , ssl_detected="no")
 
+	AC_MSG_CHECKING(for availabilty of openssl and crypto libraries(SSL/TLS))
+	if test "$ssl_detected" = "yes"; then
+		AC_MSG_RESULT(found)
+		AC_SUBST([ROFL_HAVE_OPENSSL], ["#define ROFL_HAVE_OPENSSL 1"])
+	else
+		AC_MSG_RESULT(not found)
+	fi
+	AC_MSG_CHECKING(whether to compile SSL/TLS support)
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_CHECKING(whether to compile SSL/TLS support)
+	#SSL explictely disabled 
+	AC_MSG_RESULT(SSL explictely disabled!)
+fi 
+
+AM_CONDITIONAL([HAVE_OPENSSL],  [test "$ssl_detected" = yes])
+AM_CONDITIONAL([ROFL_HAVE_OPENSSL],  [test "$ssl_detected" = yes])
