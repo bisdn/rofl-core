@@ -277,7 +277,7 @@ csocket_impl::listen(
 		domain = sa_family = PF_INET6;
 	} else
 	if (params.get_param(csocket::PARAM_KEY_DOMAIN).get_string() == csocket::PARAM_DOMAIN_VALUE_INET_ANY) {
-		domain = sa_family = 0;
+		domain = sa_family = PF_INET6;
 	}
 
 	/*
@@ -312,12 +312,13 @@ csocket_impl::listen(
 	if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
 		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
 	} else {
-		switch (raddr.get_domain()) {
+		switch (domain) {
 		case PF_INET: {
 			binding_addr = std::string("0.0.0.0");
 		} break;
 		case PF_INET6: {
-			binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+			//binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+			binding_addr = std::string("::FFFF:0000:0000");
 		} break;
 		}
 	}
