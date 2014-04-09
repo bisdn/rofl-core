@@ -18,13 +18,7 @@ std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSW
 /*static*/cparams
 csocket_openssl::get_default_params()
 {
-	cparams p;
-	p.add_param(csocket::PARAM_KEY_DO_RECONNECT);
-	p.add_param(csocket::PARAM_KEY_REMOTE_HOSTNAME);
-	p.add_param(csocket::PARAM_KEY_LOCAL_HOSTNAME);
-	p.add_param(csocket::PARAM_KEY_DOMAIN);
-	p.add_param(csocket::PARAM_KEY_TYPE);
-	p.add_param(csocket::PARAM_KEY_PROTOCOL);
+	cparams p = rofl::csocket_impl::get_default_params();
 	p.add_param(csocket::PARAM_SSL_KEY_CA_PATH);
 	p.add_param(csocket::PARAM_SSL_KEY_CA_FILE);
 	p.add_param(csocket::PARAM_SSL_KEY_CERT);
