@@ -4,6 +4,7 @@
 
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_impl.h"
+#include "csocket_strings.h"
 #ifdef ROFL_HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
 #endif
@@ -28,12 +29,12 @@ std::string const	csocket::PARAM_SSL_KEY_PRIVATE_KEY("key");
 std::string const	csocket::PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD("password");
 
 //Values (non-numeric)
-std::string const 	csocket::PARAM_DOMAIN_VALUE_INET_ANY("inet-any");
+std::string const 	csocket::PARAM_DOMAIN_VALUE_INET_ANY(__PARAM_DOMAIN_VALUE_INET_ANY);
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET("inet");
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET6("inet6");
-std::string const 	csocket::PARAM_TYPE_VALUE_STREAM("stream");
+std::string const 	csocket::PARAM_TYPE_VALUE_STREAM(__PARAM_TYPE_VALUE_STREAM);
 std::string const 	csocket::PARAM_TYPE_VALUE_DGRAM("dgram");
-std::string const 	csocket::PARAM_PROTOCOL_VALUE_TCP("tcp");
+std::string const 	csocket::PARAM_PROTOCOL_VALUE_TCP(__PARAM_PROTOCOL_VALUE_TCP);
 std::string const 	csocket::PARAM_PROTOCOL_VALUE_UDP("udp");
 
 
