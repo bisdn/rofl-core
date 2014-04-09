@@ -85,9 +85,10 @@ csocket_test::testSocketImpl()
 		delete worker;
 
 		sleep (1);
-
+#ifdef ROFL_HAVE_OPENSSL
 	} catch (rofl::eOpenSSL& e) {
 		std::cerr << e;
+#endif
 	} catch (rofl::eSocketBase& e) {
 		std::cerr << e;
 	} catch (rofl::eSysCall& e) {
@@ -150,8 +151,10 @@ csocket_test::testSocketOpenSSL()
 		delete server;
 		delete worker;
 
+#ifdef ROFL_HAVE_OPENSSL
 	} catch (rofl::eOpenSSL& e) {
 		std::cerr << e;
+#endif
 	} catch (rofl::eSocketBase& e) {
 		std::cerr << e;
 	} catch (rofl::eSysCall& e) {

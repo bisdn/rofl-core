@@ -7,6 +7,9 @@
 
 using namespace rofl;
 
+extern std::string const csocket::PARAM_DOMAIN_VALUE_INET_ANY;
+extern std::string const csocket::PARAM_TYPE_VALUE_STREAM;
+extern std::string const csocket::PARAM_PROTOCOL_VALUE_TCP;
 
 //Defaults
 bool const 			csocket_impl::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
