@@ -93,91 +93,6 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 	return tally;
 }
 
-/*
-bool morpheus::associate_ctl_xid(uint32_t session_xid, uint32_t new_xid) {
-	std::cout << "Associating new ctl_xid " << new_xid << " with session_xid
-	xid_session_map_t::iterator sit(m_ctl_sessions.find(session_xid));
-	if(sit==m_ctl_sessions.end()) return false;	// session_xid not found
-	xid_session_map_t::iterator nit(m_ctl_sessions.find(new_xid));
-	if(nit!=m_ctl_sessions.end()) return false;	// new_xid already exists in m_ctl_sessions - complain.
-	m_ctl_sessions[new_xid] = sit->second;
-	return true;
-}
-*/
-/*
-bool morpheus::associate_dpt_xid(uint32_t session_xid, uint32_t new_xid) {
-	xid_session_map_t::iterator sit(m_dpt_sessions.find(session_xid));
-	if(sit==m_dpt_sessions.end()) return false;	// session_xid not found
-	xid_session_map_t::iterator nit(m_dpt_sessions.find(new_xid));
-	if(nit!=m_dpt_sessions.end()) return false;	// new_xid already exists in m_dpt_sessions - complain.
-	m_dpt_sessions[new_xid] = sit->second;
-	return true;
-}
-*/
-
-/*
-bool morpheus::remove_ctl_association( const uint32_t xid ) {
-	return (m_ctl_sessions.erase(xid)!=0);
-}
-
-unsigned morpheus::remove_ctl_session( session_ptr_t session_ptr ) {
-	unsigned tally = 0;
-	xid_session_map_t::iterator it = m_ctl_sessions.begin();
-	xid_session_map_t::iterator old_it;
-	while(it!=m_ctl_sessions.end()) {
-		if(it->second==session_ptr) {
-			old_it = it++;
-			m_ctl_sessions.erase(old_it);
-			++tally;
-			continue;
-			}
-		else ++it;
-	}
-	return tally;
-}
-
-bool morpheus::remove_dpt_association( const uint32_t xid ) {
-	return (m_dpt_sessions.erase(xid)!=0);
-}
-
-unsigned morpheus::remove_dpt_session( session_ptr_t session_ptr ) {
-	unsigned tally = 0;
-	xid_session_map_t::iterator it = m_dpt_sessions.begin();
-	xid_session_map_t::iterator old_it;
-	while(it!=m_dpt_sessions.end()) {
-		if(it->second==session_ptr) {
-			old_it = it++;
-			m_dpt_sessions.erase(old_it);
-			++tally;
-			continue;
-			}
-		else ++it;
-	}
-	return tally;
-}
-
-bool morpheus::add_ctl_session( const uint32_t session_xid, const session_ptr_t session_ptr ) {
-xid_session_map_t::iterator sit(m_ctl_sessions.find(session_xid));
-if(sit!=m_ctl_sessions.end()) return false;	// session_xid not found
-m_ctl_sessions[session_xid] = session_ptr;
-return true;	
-}
-bool morpheus::add_dpt_session( const uint32_t session_xid, const session_ptr_t session_ptr ) {
-xid_session_map_t::iterator sit(m_dpt_sessions.find(session_xid));
-if(sit!=m_dpt_sessions.end()) return false;	// session_xid not found
-m_dpt_sessions[session_xid] = session_ptr;
-return true;
-}
-
-unsigned morpheus::deregister( session_ptr_t s) {
-	unsigned num_associations = 0;
-	num_associations += remove_ctl_session(s);
-	num_associations += remove_dpt_session(s);
-	std::cout << __FUNCTION__ << " de-registered " << num_associations << " associations." << std::endl;
-	return num_associations;
-}
-*/
-
 morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_) {
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
 }
@@ -329,6 +244,7 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
 	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cflow_mod_session)
+//	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::DEBUG_cflow_mod_session)
 }
 void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
 	static const char * func = __FUNCTION__;

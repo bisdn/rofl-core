@@ -33,11 +33,11 @@ virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session
 
 class morpheus::cflow_mod_session : public morpheus::chandlersession_base {
 public:
-cflow_mod_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
+cflow_mod_session(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_mod(src, msg);
 	}
-bool process_flow_mod ( const rofl::cofctl * const src, const rofl::cofmsg_flow_mod * const msg ) {
+bool process_flow_mod ( const rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cflowentry entry(OFP10_VERSION);
 	entry.set_command(msg->get_command());
@@ -48,6 +48,11 @@ bool process_flow_mod ( const rofl::cofctl * const src, const rofl::cofmsg_flow_
 	entry.set_buffer_id(msg->get_buffer_id());
 	entry.set_out_port(msg->get_out_port());
 	entry.set_flags(msg->get_flags());
+std::cout << "TP" << __LINE__ << std::endl;
+	entry.match = msg->get_match();
+std::cout << "TP" << __LINE__ << std::endl;
+	entry.actions = msg->get_actions();
+std::cout << "TP" << __LINE__ << std::endl;
 	m_parent->send_flow_mod_message( m_parent->get_dpt(), entry );
 	m_completed = true;
 	return m_completed;
@@ -74,6 +79,7 @@ bool process_features_request ( const rofl::cofctl * const src, const rofl::cofm
 	return m_completed;
 }
 bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_features_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, m_parent->get_dpid(), msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
 	m_completed = true;
@@ -101,6 +107,7 @@ bool process_config_request ( const rofl::cofctl * const src, const rofl::cofmsg
 	return m_completed;
 }
 bool process_config_reply ( const rofl::cofdpt * const src, rofl::cofmsg_get_config_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_get_config_reply(m_parent->get_ctl(), m_request_xid, msg->get_flags(), msg->get_miss_send_len() );
 	m_completed = true;
@@ -128,6 +135,7 @@ bool process_desc_stats_request ( const rofl::cofctl * const src, const rofl::co
 	return m_completed;
 }
 bool process_desc_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_desc_stats_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofdesc_stats_reply reply(src->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
 	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );
@@ -156,6 +164,7 @@ bool process_table_stats_request ( const rofl::cofctl * const src, const rofl::c
 	return m_completed;
 }
 bool process_table_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_table_stats_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_table_stats_reply(m_parent->get_ctl(), m_request_xid, msg->get_table_stats(), false ); // TODO how to deal with "more" flag (last arg)
 	m_completed = true;
@@ -200,6 +209,7 @@ bool process_aggr_stats_request ( const rofl::cofctl * const src, rofl::cofmsg_a
 	return m_completed;
 }
 bool process_aggr_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_aggr_stats_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_aggr_stats_reply(m_parent->get_ctl(), m_request_xid, msg->get_aggr_stats(), false ); // TODO how to deal with "more" flag (last arg)
 	m_completed = true;
@@ -218,15 +228,15 @@ cpacket_in_session(morpheus * parent, const rofl::cofdpt * const src, rofl::cofm
 bool process_packet_in ( const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofctl * master = m_parent->get_ctl();
-std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cofmatch match(msg->get_match_const());
-std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+// std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
 	rofl::cpacket packet(msg->get_packet_const());
-std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 	packet.get_match().set_in_port(msg->get_in_port());
-std::cout << "TP" << __LINE__ << std::endl;
+/* std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "packet bytes: ";
 dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
 std::cout << std::endl;
@@ -236,7 +246,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
 std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
+std::cout << "TP" << __LINE__ << std::endl; */
 	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << __FUNCTION__ << " : packet_in forwarded to " << master->c_str() << "." << std::endl;
 	m_completed = true;
@@ -283,6 +293,7 @@ bool process_barrier_request ( const rofl::cofctl * const src, const rofl::cofms
 	return m_completed;
 }
 bool process_barrier_reply ( const rofl::cofdpt * const src, rofl::cofmsg_barrier_reply * const msg ) {
+	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_barrier_reply(m_parent->get_ctl(), m_request_xid );
 	m_completed = true;
