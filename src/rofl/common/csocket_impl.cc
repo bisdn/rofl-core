@@ -317,8 +317,8 @@ csocket_impl::listen(
 			binding_addr = std::string("0.0.0.0");
 		} break;
 		case PF_INET6: {
-			//binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
-			binding_addr = std::string("::FFFF:0000:0000");
+			binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+			//binding_addr = std::string("::FFFF:0000:0000");
 		} break;
 		}
 	}
