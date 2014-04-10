@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "csocket_impl.h"
+#include "csocket_strings.h"
 
 
 using namespace rofl;
@@ -13,9 +14,9 @@ std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME(std::string
 std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_PORT(std::string("6653"));
 std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
 std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_PORT;
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_DOMAIN(csocket::PARAM_DOMAIN_VALUE_INET_ANY);
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_TYPE(csocket::PARAM_TYPE_VALUE_STREAM);
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL(csocket::PARAM_PROTOCOL_VALUE_TCP);
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_DOMAIN(__PARAM_DOMAIN_VALUE_INET_ANY);
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_TYPE(__PARAM_TYPE_VALUE_STREAM);
+std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL(__PARAM_PROTOCOL_VALUE_TCP);
 
 
 /*static*/cparams
