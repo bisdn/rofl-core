@@ -159,14 +159,56 @@ public:
 	 */
 	static void
 	map_tablestatsarray_to_tables(
-			rofl::openflow::coftablestatsarray const& tablestatsarray, rofl::openflow::coftables& tables);
+			rofl::openflow::coftablestatsarray& tablestatsarray, rofl::openflow::coftables& tables);
 
 	/**
 	 *
 	 */
 	static void
 	map_tables_to_tablestatsarray(
-			rofl::openflow::coftables const& tables, rofl::openflow::coftablestatsarray& tablestatsarray);
+			rofl::openflow::coftables& tables, rofl::openflow::coftablestatsarray& tablestatsarray);
+
+	/**
+	 *
+	 */
+	static void
+	map_match_to_prop_oxm(
+			uint64_t match, rofl::openflow::coftable_feature_prop_oxm& prop_oxm);
+
+	/**
+	 *
+	 */
+	static void
+	map_prop_oxm_to_match(
+			rofl::openflow::coftable_feature_prop_oxm& prop_oxm, uint64_t& match);
+
+	/**
+	 *
+	 */
+	static void
+	map_actions_to_prop_actions(
+			uint32_t actions, rofl::openflow::coftable_feature_prop_actions& prop_actions);
+
+	/**
+	 *
+	 */
+	static void
+	map_prop_actions_to_actions(
+		rofl::openflow::coftable_feature_prop_actions& prop_actions, uint32_t& actions);
+
+	/**
+	 *
+	 */
+	static void
+	map_instructions_to_prop_instructions(
+			uint32_t instructions, rofl::openflow::coftable_feature_prop_instructions& prop_instructions);
+
+	/**
+	 *
+	 */
+	static void
+	map_prop_instructions_to_instructions(
+			rofl::openflow::coftable_feature_prop_instructions& prop_instructions, uint32_t& instructions);
 
 public:
 
