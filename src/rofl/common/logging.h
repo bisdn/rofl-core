@@ -81,6 +81,15 @@ public:
 	virtual ~indent() {
 		indent::width = (indent::width >= my_width) ? (indent::width - my_width) : 0;
 	};
+	static void inc(unsigned int width) {
+		indent::width += width;
+	};
+	static void dec(unsigned int width) {
+		indent::width = (indent::width >= width) ? (indent::width - width) : 0;
+	};
+	static void null() {
+		indent::width = 0;
+	};
 	friend std::ostream&
 	operator<< (std::ostream& os, indent const& i) {
 		if (indent::width) {

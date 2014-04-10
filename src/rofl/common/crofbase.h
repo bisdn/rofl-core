@@ -1182,9 +1182,10 @@ protected:
 	 * @param dpt pointer to cofdpt instance from which the ERROR.message was received.
 	 * @param msg pointer to rofl::openflow::cofmsg_error message containing the received message
 	 */
+#if 0
 	virtual void
 	handle_error(crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
-
+#endif
 
 
 	/**

@@ -15,6 +15,8 @@
 #include "rofl/common/openflow/coftablefeatures.h"
 #include "rofl/common/croflexception.h"
 
+#include "rofl/common/openflow/coftablestatsarray.h"
+
 namespace rofl {
 namespace openflow {
 
@@ -150,6 +152,21 @@ public:
 	bool
 	has_table(uint8_t table_id);
 
+public:
+
+	/**
+	 *
+	 */
+	static void
+	map_tablestatsarray_to_tables(
+			rofl::openflow::coftablestatsarray const& tablestatsarray, rofl::openflow::coftables& tables);
+
+	/**
+	 *
+	 */
+	static void
+	map_tables_to_tablestatsarray(
+			rofl::openflow::coftables const& tables, rofl::openflow::coftablestatsarray& tablestatsarray);
 
 public:
 
