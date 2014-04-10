@@ -223,6 +223,7 @@ rofl_result_t physical_switch_init(void);
 physical_switch_t* get_physical_switch(void);
 
 //Only used in multi-process deployments (with shared memory)
+physical_switch_t* __get_physical_switch();
 void __set_physical_switch(physical_switch_t* sw);
 
 /**
