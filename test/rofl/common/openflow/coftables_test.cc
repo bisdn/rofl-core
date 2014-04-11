@@ -186,8 +186,6 @@ coftablesTest::testAddDropSetGetHas()
 void
 coftablesTest::testMappingTableStatsArray()
 {
-	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
-
 	rofl::openflow::coftablestatsarray array(rofl::openflow12::OFP_VERSION);
 	rofl::openflow::coftables tables(rofl::openflow13::OFP_VERSION);
 
@@ -262,19 +260,19 @@ coftablesTest::testMappingTableStatsArray()
 
 	rofl::openflow::coftables::map_tablestatsarray_to_tables(array, tables);
 
+#ifdef DEBUG
 	std::cerr << tables;
-
+#endif
 	CPPUNIT_ASSERT(tables.get_tables().size() == 2);
 
 	rofl::openflow::coftablestatsarray clone(rofl::openflow12::OFP_VERSION);
 
 	rofl::openflow::coftables::map_tables_to_tablestatsarray(tables, clone);
 
-
+#ifdef DEBUG
 	std::cerr << array;
-
 	std::cerr << clone;
-
+#endif
 	CPPUNIT_ASSERT(array == clone);
 }
 
