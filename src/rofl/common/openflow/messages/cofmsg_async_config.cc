@@ -157,7 +157,8 @@ cofmsg_get_async_config_reply::cofmsg_get_async_config_reply(
 
 cofmsg_get_async_config_reply::cofmsg_get_async_config_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	async_config(get_version())
 {
 
 }
