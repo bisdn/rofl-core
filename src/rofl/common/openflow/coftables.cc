@@ -232,23 +232,23 @@ coftables::map_tablestatsarray_to_tables(
 
 		// set supported write actions
 		map_actions_to_prop_actions(table_stats.get_write_actions(), table.set_properties().set_tfp_write_actions());
-		table.set_properties().set_tfp_write_actions_miss() = table.set_properties().get_tfp_write_actions();
+		map_actions_to_prop_actions(table_stats.get_write_actions(), table.set_properties().set_tfp_write_actions_miss());
 
 		// set supported apply actions
 		map_actions_to_prop_actions(table_stats.get_apply_actions(), table.set_properties().set_tfp_apply_actions());
-		table.set_properties().set_tfp_apply_actions_miss() = table.set_properties().get_tfp_apply_actions();
+		map_actions_to_prop_actions(table_stats.get_apply_actions(), table.set_properties().set_tfp_apply_actions_miss());
 
 		// set supported write setfields
 		map_match_to_prop_oxm(table_stats.get_write_setfields(), table.set_properties().set_tfp_write_setfield());
-		table.set_properties().set_tfp_write_setfield_miss() = table.set_properties().get_tfp_write_setfield();
+		map_match_to_prop_oxm(table_stats.get_write_setfields(), table.set_properties().set_tfp_write_setfield_miss());
 
 		// set supported apply setfields
 		map_match_to_prop_oxm(table_stats.get_apply_setfields(), table.set_properties().set_tfp_apply_setfield());
-		table.set_properties().set_tfp_apply_setfield_miss() = table.set_properties().get_tfp_apply_setfield();
+		map_match_to_prop_oxm(table_stats.get_apply_setfields(), table.set_properties().set_tfp_apply_setfield_miss());
 
 		// set instructions
 		map_instructions_to_prop_instructions(table_stats.get_instructions(), table.set_properties().set_tfp_instructions());
-		table.set_properties().set_tfp_instructions_miss() = table.set_properties().get_tfp_instructions();
+		map_instructions_to_prop_instructions(table_stats.get_instructions(), table.set_properties().set_tfp_instructions_miss());
 	}
 }
 
@@ -465,7 +465,7 @@ coftables::map_prop_oxm_to_match(
 		} break;
 		case rofl::openflow::OXM_TLV_BASIC_ETH_SRC:
 		case rofl::openflow::OXM_TLV_BASIC_ETH_SRC_MASK: {
-			match |= (((uint64_t)1) << rofl::openflow12::OFPXMT_OFB_ETH_DST);
+			match |= (((uint64_t)1) << rofl::openflow12::OFPXMT_OFB_ETH_SRC);
 		} break;
 		case rofl::openflow::OXM_TLV_BASIC_ETH_TYPE: {
 			match |= (((uint64_t)1) << rofl::openflow12::OFPXMT_OFB_ETH_TYPE);

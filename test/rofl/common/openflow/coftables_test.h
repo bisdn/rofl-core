@@ -11,6 +11,7 @@ class coftablesTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testCopyConstructor );
 	CPPUNIT_TEST( testPackUnpack );
 	CPPUNIT_TEST( testAddDropSetGetHas );
+	CPPUNIT_TEST( testMappingTableStatsArray );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -24,5 +25,6 @@ public:
 	void testCopyConstructor();
 	void testPackUnpack();
 	void testAddDropSetGetHas();
+	void testMappingTableStatsArray();
 };
 

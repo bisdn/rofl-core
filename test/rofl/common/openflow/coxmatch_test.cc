@@ -480,7 +480,7 @@ void
 coxmatch_test::testOxmIPv6Dst()
 {
 	// TODO
-	exit(0);
+	//exit(0);
 }
 
 
