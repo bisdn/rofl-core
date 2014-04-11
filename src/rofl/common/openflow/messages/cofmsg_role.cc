@@ -219,7 +219,8 @@ cofmsg_role_reply::cofmsg_role_reply(
 
 cofmsg_role_reply::cofmsg_role_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	role(get_version())
 {
 
 }
