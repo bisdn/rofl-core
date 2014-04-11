@@ -3,12 +3,12 @@
 #include <memory>	// for auto_ptr
 #include <cassert>
 #include <utility>
-// #include <boost/shared_ptr.hpp>
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/openflow/cofdpt.h>
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
+#include <rofl/common/thread_helper.h>
 #include "cportvlan_mapper.h"
 // #include "morpheus_nested.h"
 
@@ -29,10 +29,9 @@ void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
 
 std::string morpheus::dump_sessions() const {	// TODO
 	std::stringstream ss;
-/*	for(xid_session_map_t::const_iterator it = m_ctl_sessions.begin(); it != m_ctl_sessions.end(); ++it)
-		ss << "ctl xid " << it->first << ": " << it->second->asString() << "\n";
-	for(xid_session_map_t::const_iterator it = m_dpt_sessions.begin(); it != m_dpt_sessions.end(); ++it)
-		ss << "dpt xid " << it->first << ": " << it->second->asString() << "\n";*/
+/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
 	for(xid_session_map_t::const_iterator it = m_sessions.begin(); it != m_sessions.end(); ++it)
 		ss << ((it->first.first)?"ctl":"dpt") << " xid " << it->first.second << ": " << it->second->asString() << "\n";
 	return ss.str();
@@ -45,6 +44,9 @@ std::string morpheus::dump_config() const {	// TODO
 // associates new_xid with the session p, taking ownership of p - returns true if associated, false if already exists.
 bool morpheus::associate_xid( const bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p ) {
 	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
+/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
 	xid_session_map_t::iterator sit(m_sessions.find(xid_));
 	if(sit!=m_sessions.end()) {
 		std::cout << "Attempt was made to associate " << ((ctl_or_dpt_xid)?"ctl":"dpt") << " xid " << new_xid << " with session base " << std::hex << p << " but xid already exists." << std::endl;
@@ -60,6 +62,9 @@ bool morpheus::associate_xid( const bool ctl_or_dpt_xid, const uint32_t new_xid,
 bool morpheus::remove_xid_association( const bool ctl_or_dpt_xid, const uint32_t new_xid ) {
 	// remove the xid, and check whether the pointed to session_base is associated anywhere else, if it isn't, delete it.
 	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
+/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
 	xid_session_map_t::iterator sit(m_sessions.find(xid_));
 	if(sit==m_sessions.end()) return false;
 	chandlersession_base * p = sit->second;
@@ -78,6 +83,9 @@ bool morpheus::remove_xid_association( const bool ctl_or_dpt_xid, const uint32_t
 // called to remove all associations to this session_base - returns the number of associations removed and deletes the p if necessary
 unsigned morpheus::remove_session( chandlersession_base * p ) {
 	unsigned tally = 0;
+/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
 	xid_session_map_t::iterator it = m_sessions.begin();
 	xid_session_map_t::iterator old_it;
 	while(it!=m_sessions.end()) {
@@ -95,11 +103,13 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 
 morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_) {
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
+	pthread_rwlock_init(&m_sessions_lock, 0);
 }
 
 morpheus::~morpheus() {
 	// rpc_close_all();
 	std::cout << std::endl << "morpheus::~morpheus() called." << std::endl;	// TODO: proper logging
+	pthread_rwlock_destroy(&m_sessions_lock);
 }
 
 rofl::cofdpt * morpheus::get_dpt() const { return m_slave; }
@@ -108,6 +118,12 @@ rofl::cofctl * morpheus::get_ctl() const { return m_master; }
 
 void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg *msg) {
 	std::cout << std::endl << "handle_error from " << src->c_str() << " : " << msg->c_str() << std::endl;
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(false,msg->get_xid())));
+	if(sit!=m_sessions.end()) {
+		sit->second->handle_error( src, msg);
+	} else std::cout << "**** received error message ( " << msg->c_str() << " ) from dpt ( " << std::hex << src << " ) for unknown xid ( " << msg->get_xid() << " ). Dropping." << std::endl;
+	delete(msg);
 }
 
 void morpheus::handle_ctrl_open (rofl::cofctl *src) {
@@ -135,7 +151,8 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633));
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
@@ -202,6 +219,7 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 // this is from a ctl if CTL_DPT is true, false otherwise
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) {\
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
 	if(sit!=m_sessions.end()) { \
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new "<< TOSTRING(MSG_TYPE) << " message." << std::endl; \
@@ -215,6 +233,7 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
 	if(sit!=m_sessions.end()) { \
 		SESSION_TYPE * s = dynamic_cast<SESSION_TYPE *>(sit->second); \
@@ -230,6 +249,7 @@ void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_r
 
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) {\
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << "." << std::endl;\
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(CTL_DPT,msg->get_xid()))); \
 	if(sit!=m_sessions.end()) {\
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;\
@@ -346,13 +366,11 @@ void morpheus::handle_experimenter_stats_request(rofl::cofctl *src, rofl::cofmsg
 
 void morpheus::handle_table_mod(rofl::cofctl *src, rofl::cofmsg_table_mod *msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	delete(msg);
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::ctable_mod_session)
 }
 void morpheus::handle_port_mod(rofl::cofctl *src, rofl::cofmsg_port_mod *msg) {
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	delete(msg);
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cport_mod_session)
 }
 void morpheus::handle_queue_get_config_request(rofl::cofctl *src, rofl::cofmsg_queue_get_config_request *msg) {
 	static const char * func = __FUNCTION__;

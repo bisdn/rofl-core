@@ -28,6 +28,7 @@ chandlersession_base( morpheus * parent ):m_parent(parent),m_completed(false) {}
 public:
 virtual std::string asString() { return "**chandlersession_base**"; }
 virtual bool isCompleted() { return m_completed; }	// returns true if the session has finished its work and shouldn't be kept alive further
+virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg) { std::cout << "** Received error message from " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
 virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session was " << (m_completed?"":"NOT ") << "completed." << std::endl; }
 };
 
@@ -39,6 +40,9 @@ cflow_mod_session(morpheus * parent, const rofl::cofctl * const src, rofl::cofms
 	}
 bool process_flow_mod ( const rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	std::cout << "Incoming msg match: " << msg->get_match().c_str() << " msg actions: " << msg->get_actions().c_str() << std::endl;
+	struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
+dumpBytes( std::cout, (uint8_t *) p, sizeof(struct ofp10_match) );
 	rofl::cflowentry entry(OFP10_VERSION);
 	entry.set_command(msg->get_command());
 	entry.set_idle_timeout(msg->get_idle_timeout());
@@ -53,6 +57,16 @@ std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
 	entry.actions = msg->get_actions();
 std::cout << "TP" << __LINE__ << std::endl;
+	std::cout << __FUNCTION__ << ": About to send flow_mod {";
+	std::cout << " command: " << (unsigned) entry.get_command();
+	std::cout << ", idle_timeout: " << (unsigned) entry.get_idle_timeout();
+	std::cout << ", hard_timeout: " <<  (unsigned) entry.get_hard_timeout();
+	std::cout << ", cookie: " << (unsigned) entry.get_cookie();
+	std::cout << ", priority: " << (unsigned) entry.get_priority();
+	std::cout << ", buffer_id: " << (unsigned) entry.get_buffer_id();
+	std::cout << ", out_port: " << (unsigned) entry.get_out_port();
+	std::cout << ", match: " << entry.match.c_str();
+	std::cout << ", actions: " << entry.actions.c_str() << " }" << std::endl;
 	m_parent->send_flow_mod_message( m_parent->get_dpt(), entry );
 	m_completed = true;
 	return m_completed;
@@ -236,7 +250,7 @@ bool process_packet_in ( const rofl::cofdpt * const src, rofl::cofmsg_packet_in 
 // std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
 // std::cout << "TP" << __LINE__ << std::endl;
 	packet.get_match().set_in_port(msg->get_in_port());
-/* std::cout << "TP" << __LINE__ << std::endl;
+ std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "packet bytes: ";
 dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
 std::cout << std::endl;
@@ -246,7 +260,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
 std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
-std::cout << "TP" << __LINE__ << std::endl; */
+std::cout << "TP" << __LINE__ << std::endl;
 	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << __FUNCTION__ << " : packet_in forwarded to " << master->c_str() << "." << std::endl;
 	m_completed = true;

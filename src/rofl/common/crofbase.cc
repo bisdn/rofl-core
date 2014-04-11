@@ -1654,10 +1654,10 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
-std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 //		cpacket n_pack(data, datalen, match.get_in_port());	// JSP
 		cpacket n_pack(data, datalen, ((ctl&&(ctl->get_version()!= OFP10_VERSION))?match.get_in_port():in_port) );	// JSP
-std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 		if (0 != ctl) { // cofctl instance was specified
 			if (ofctl_set.find(ctl) == ofctl_set.end()) {
 				throw eRofBaseNotConnected();

@@ -11,6 +11,8 @@
 #include <rofl/common/openflow/cofdpt.h>
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
+#include <pthread.h>
+#include <rofl/common/thread_helper.h>
 #include "cportvlan_mapper.h"
 
 class morpheus : public rofl::crofbase {
@@ -48,6 +50,7 @@ protected:
 typedef std::map < std::pair< bool, uint32_t >, chandlersession_base * > xid_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
 // typedef std::multimap < chandlersession_base *, std::pair< bool, uint32_t >  > xid_reverse_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
 xid_session_map_t m_sessions;
+mutable pthread_rwlock_t m_sessions_lock;	// a lock for m_sessions
 // xid_reverse_session_map_t m_reverse_sessions;
 cportvlan_mapper m_mapper;
 rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
