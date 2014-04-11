@@ -10,6 +10,7 @@ cofmsg_role_request::cofmsg_role_request(
 	role(of_version)
 {
 	this->role = role;
+	this->role.set_version(of_version);
 
 	set_version(of_version);
 	set_xid(xid);
@@ -197,6 +198,7 @@ cofmsg_role_reply::cofmsg_role_reply(
 	role(of_version)
 {
 	this->role = role;
+	this->role.set_version(of_version);
 
 	set_version(of_version);
 	set_xid(xid);
