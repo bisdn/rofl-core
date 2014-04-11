@@ -32,7 +32,8 @@ cofmsg_role_request::cofmsg_role_request(
 
 cofmsg_role_request::cofmsg_role_request(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	role(get_version())
 {
 
 }
