@@ -7,6 +7,7 @@
 #include <string>
 #include <rofl/common/openflow/openflow_rofl_exceptions.h>
 #include <rofl/common/cerror.h>
+#include <rofl/common/openflow/cofaction.h>
 
 class morpheus;
 
@@ -34,29 +35,106 @@ virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session
 
 class morpheus::cflow_mod_session : public morpheus::chandlersession_base {
 public:
-cflow_mod_session(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
+cflow_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_mod(src, msg);
 	}
-bool process_flow_mod ( const rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
+bool process_flow_mod ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	std::cout << "Incoming msg match: " << msg->get_match().c_str() << " msg actions: " << msg->get_actions().c_str() << std::endl;
 	struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
 dumpBytes( std::cout, (uint8_t *) p, sizeof(struct ofp10_match) );
 	rofl::cflowentry entry(OFP10_VERSION);
 	entry.set_command(msg->get_command());
+	if(msg->get_command() != OFPFC_ADD) {
+		std::cout << __FUNCTION__ << ": FLOW_MOD command " << (unsigned)msg->get_command() << " not supported. Dropping message." << std::endl;
+		m_completed = true;
+		return m_completed;
+	}
 	entry.set_idle_timeout(msg->get_idle_timeout());
 	entry.set_hard_timeout(msg->get_hard_timeout());
 	entry.set_cookie(msg->get_cookie());
 	entry.set_priority(msg->get_priority());
 	entry.set_buffer_id(msg->get_buffer_id());
-	entry.set_out_port(msg->get_out_port());
+	entry.set_out_port(msg->get_out_port());	// TODO this will have to be translated if the message is OFPFC_DELETE*
 	entry.set_flags(msg->get_flags());
 std::cout << "TP" << __LINE__ << std::endl;
 	entry.match = msg->get_match();
 std::cout << "TP" << __LINE__ << std::endl;
 	entry.actions = msg->get_actions();
 std::cout << "TP" << __LINE__ << std::endl;
+	rofl::cofaclist inlist = msg->get_actions();
+	rofl::cofaclist outlist;
+	bool already_set_vlan = false;
+	bool already_did_output = false;
+// now translate the action and the match
+	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
+		switch(be16toh(a->oac_header->type)) {
+			case OFP10AT_OUTPUT: {
+				uint16_t oport = be16toh(a->oac_10output->port);
+				if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
+					// invalid virtual port number
+					m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
+					m_completed = true;
+					return m_completed;
+				}
+				cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( oport );
+				if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
+					outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
+					already_set_vlan = true;
+				}
+				outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
+				already_did_output = true;
+			} break;
+			case OFP10AT_SET_VLAN_VID: {
+				// VLAN-in-VLAN is not supported - return with error.
+				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+				m_completed = true;
+				return m_completed;
+			} break;
+			case OFP10AT_SET_VLAN_PCP: {
+				// VLAN-in-VLAN is not supported - return with error.
+				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+				m_completed = true;
+				return m_completed;
+			} break;
+			case OFP10AT_STRIP_VLAN: {
+				if(already_set_vlan) {
+					// cannot strip after we've already added a set-vlan message
+					std::cout << __FUNCTION__ << ": attempt was made to strip VLAN after an OFP10AT_OUTPUT action - this would strip VLAN from virtual port translation. Replying with OFPMFC_UNSUPPORTED." << std::endl;
+					m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+				}
+			} break;
+			case OFP10AT_ENQUEUE: {
+				// Queues not support for now.
+				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+				m_completed = true;
+				return m_completed;
+			} break;
+			case OFP10AT_SET_DL_SRC:
+			case OFP10AT_SET_DL_DST:
+			case OFP10AT_SET_NW_SRC:
+			case OFP10AT_SET_NW_DST:
+			case OFP10AT_SET_NW_TOS:
+			case OFP10AT_SET_TP_SRC:
+			case OFP10AT_SET_TP_DST: {
+				// just pass the message through
+				outlist.next() = *a;
+			} break;
+			case OFP10AT_VENDOR: {
+				// We have no idea what could be in the vendor message, so we can't translate, so we kill it.
+				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+				m_completed = true;
+				return m_completed;
+			} break;
+			default:
+			std::cout << __FUNCTION__ << " unknown action type (" << (unsigned)be16toh(a->oac_header->type) << "). Sending error and dropping message." << std::endl;
+			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+			m_completed = true;
+			return m_completed;
+		}
+	}
+	entry.actions = outlist;
 	std::cout << __FUNCTION__ << ": About to send flow_mod {";
 	std::cout << " command: " << (unsigned) entry.get_command();
 	std::cout << ", idle_timeout: " << (unsigned) entry.get_idle_timeout();
@@ -317,16 +395,37 @@ bool process_barrier_reply ( const rofl::cofdpt * const src, rofl::cofmsg_barrie
 std::string asString() { std::stringstream ss; ss << "cbarrier_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
-
-/*
 class morpheus::ctable_mod_session : public morpheus::chandlersession_base {
-ctable_mod_session(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
+public:
+ctable_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent) {
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+	process_table_mod(src, msg);
+	}
+bool process_table_mod ( rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ) {
+	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	m_parent->send_table_mod_message( m_parent->get_dpt(), msg->get_table_id(), msg->get_config() );
+	m_completed = true;
+	return m_completed;
+}
+~ctable_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
 class morpheus::cport_mod_session : public morpheus::chandlersession_base {
-cport_mod_session(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
+public:
+cport_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ):chandlersession_base(parent) {
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+	process_port_mod(src, msg);
+	}
+bool process_port_mod ( rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ) {
+	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	m_parent->send_port_mod_message( m_parent->get_dpt(), msg->get_port_no(), msg->get_hwaddr(), msg->get_config(), msg->get_mask(), msg->get_advertise() );
+	m_completed = true;
+	return m_completed;
+}
+~cport_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
+/*
 class morpheus::cqueue_stats_session : public morpheus::chandlersession_base {
 // cqueue_stats_session(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
 };

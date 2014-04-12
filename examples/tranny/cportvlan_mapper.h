@@ -76,9 +76,15 @@ std::vector<port_spec_t> m_virtual_to_abstract;
 
 public:
 
-cportvlan_mapper():m_virtual_to_abstract() {}
+cportvlan_mapper() {}
 
-template <typename InputIterator> cportvlan_mapper(InputIterator begin, InputIterator end):m_virtual_to_abstract(begin, end) {}
+template <typename InputIterator> cportvlan_mapper(InputIterator begin, InputIterator end) {
+// template <typename InputIterator> cportvlan_mapper(InputIterator begin, InputIterator end):m_virtual_to_abstract(begin, end) {
+	while(begin != end) {
+		add_virtual_port(*begin);	// will check that there are no wildcards in the port_spec and copy them to m_virtual_to_abstract
+	++begin;
+	}
+}
 
 port_spec_t get_actual_port(const uint16_t virtual_port) const {	// could throw rofl::ePortInval
 	if(virtual_port==0) { std::stringstream ss; ss << __FUNCTION__ << ": Port " << virtual_port << " is invalid. Ports are numbered from 1."; throw std::out_of_range( (std::string)ss.str() ); }

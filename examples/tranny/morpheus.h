@@ -106,6 +106,7 @@ public:
 	uint64_t get_dpid() const { return m_dpid; }
 	morpheus(const cportvlan_mapper & mapper);
 	virtual ~morpheus();
+	const cportvlan_mapper & get_mapper() const { return m_mapper; }
 
 std::string dump_sessions() const;
 std::string dump_config() const;

@@ -16,7 +16,9 @@
 
 std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
 	os << "morpheus configuration:\n" << morph.dump_config();
-	os << "morpheus current sessions:" << morph.dump_sessions() << std::endl;
+	os << "morpheus current sessions:" << morph.dump_sessions();
+	os << "morpheus mappings:" << morph.m_mapper;
+	os << std::endl;
 	return os;
 	}
 

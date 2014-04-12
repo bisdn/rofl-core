@@ -26,7 +26,7 @@ int main ( int, char ** ) {
 
 // create mapper, initialised with the above listed virtual ports
 
-	cportvlan_mapper mapper(list.begin(), list.end());
+	cportvlan_mapper mapper( list.begin(), list.end() );
 
 // adding this *virtual*port* should fail.. and it does.. so it's commented out.
 //	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T::ANY ) );
