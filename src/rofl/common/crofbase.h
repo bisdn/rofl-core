@@ -573,7 +573,7 @@ protected:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpath_open(crofdpt& dpt) {};
+	handle_dpath_open(rofl::crofdpt& dpt) {};
 
 
 	/**
@@ -593,7 +593,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpath_close(crofdpt& dpt) {};
+	handle_dpath_close(rofl::crofdpt& dpt) {};
 
 
 
@@ -664,7 +664,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(crofctl& ctl, rofl::openflow::cofmsg_features_request& msg, uint8_t aux_id = 0) {};
+	handle_features_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_features_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -677,7 +677,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(crofdpt& dpt, rofl::openflow::cofmsg_features_reply& msg, uint8_t aux_id = 0) {};
+	handle_features_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_features_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -689,7 +689,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_features_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_features_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -702,7 +702,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(crofctl& ctl, rofl::openflow::cofmsg_get_config_request& msg, uint8_t aux_id = 0) {};
+	handle_get_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -715,7 +715,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(crofdpt& dpt, rofl::openflow::cofmsg_get_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_get_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_get_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -727,7 +727,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -755,7 +755,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(crofctl& ctl, rofl::openflow::cofmsg_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 	/**
@@ -768,7 +768,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_request(crofctl& ctl, rofl::openflow::cofmsg_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -782,7 +782,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
-	handle_table_stats_request(crofctl& ctl, rofl::openflow::cofmsg_table_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -796,7 +796,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_stats_request(crofctl& ctl, rofl::openflow::cofmsg_port_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -810,7 +810,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_request(crofctl& ctl, rofl::openflow::cofmsg_flow_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_flow_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_flow_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -824,7 +824,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
-	handle_aggregate_stats_request(crofctl& ctl, rofl::openflow::cofmsg_aggr_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_aggr_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -838,7 +838,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_request(crofctl& ctl, rofl::openflow::cofmsg_queue_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_queue_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -852,7 +852,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_stats_request(crofctl& ctl, rofl::openflow::cofmsg_group_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -866,7 +866,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_request(crofctl& ctl, rofl::openflow::cofmsg_group_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -880,7 +880,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_request(crofctl& ctl, rofl::openflow::cofmsg_group_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -894,7 +894,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_features_request message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_request(crofctl& ctl, rofl::openflow::cofmsg_table_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_table_features_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -908,7 +908,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_desc_stats_request(crofctl& ctl, rofl::openflow::cofmsg_port_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_port_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -922,7 +922,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(crofctl& ctl, rofl::openflow::cofmsg_experimenter_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_experimenter_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -935,7 +935,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -948,7 +948,7 @@ protected:
 	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
-	handle_multipart_reply_timeout(crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
+	handle_multipart_reply_timeout(rofl::crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
 
 
 
@@ -961,7 +961,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -974,7 +974,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_table_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_table_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -987,7 +987,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_port_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_port_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1000,7 +1000,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_flow_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1014,7 +1014,7 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_aggr_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_aggregate_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_aggr_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1027,7 +1027,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_queue_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_queue_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_queue_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1040,7 +1040,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_group_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1053,7 +1053,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_group_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1066,7 +1066,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_features_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1079,7 +1079,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_features_reply message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_table_features_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_features_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_table_features_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1092,7 +1092,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_desc_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_port_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_port_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1105,7 +1105,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_experimenter_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_experimenter_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1118,7 +1118,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(crofctl& ctl, rofl::openflow::cofmsg_packet_out& msg, uint8_t aux_id = 0) {};
+	handle_packet_out(rofl::crofctl& ctl, rofl::openflow::cofmsg_packet_out& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1131,7 +1131,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(crofdpt& dpt, rofl::openflow::cofmsg_packet_in& msg, uint8_t aux_id = 0) {};
+	handle_packet_in(rofl::crofdpt& dpt, rofl::openflow::cofmsg_packet_in& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1144,7 +1144,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(crofctl& ctl, rofl::openflow::cofmsg_barrier_request& msg, uint8_t aux_id = 0) {};
+	handle_barrier_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_barrier_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1157,7 +1157,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(crofdpt& dpt, rofl::openflow::cofmsg_barrier_reply& msg, uint8_t aux_id = 0) {};
+	handle_barrier_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_barrier_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1170,7 +1170,7 @@ protected:
 	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_barrier_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1184,7 +1184,7 @@ protected:
 	 */
 #if 0
 	virtual void
-	handle_error(crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error(rofl::crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
 #endif
 
 
@@ -1197,7 +1197,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(crofctl& ctl, rofl::openflow::cofmsg_flow_mod& msg, uint8_t aux_id = 0) {};
+	handle_flow_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_flow_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1210,7 +1210,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(crofctl& ctl, rofl::openflow::cofmsg_group_mod& msg, uint8_t aux_id = 0) {};
+	handle_group_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1223,7 +1223,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(crofctl& ctl, rofl::openflow::cofmsg_table_mod& msg, uint8_t aux_id = 0) {};
+	handle_table_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1236,7 +1236,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(crofctl& ctl, rofl::openflow::cofmsg_port_mod& msg, uint8_t aux_id = 0) {};
+	handle_port_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1249,7 +1249,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(crofdpt& dpt, rofl::openflow::cofmsg_flow_removed& msg, uint8_t aux_id = 0) {};
+	handle_flow_removed(rofl::crofdpt& dpt, rofl::openflow::cofmsg_flow_removed& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1262,7 +1262,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(crofdpt& dpt, rofl::openflow::cofmsg_port_status& msg, uint8_t aux_id = 0) {};
+	handle_port_status(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_status& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1276,7 +1276,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(crofctl& ctl, rofl::openflow::cofmsg_queue_get_config_request& msg, uint8_t aux_id = 0) {};
+	handle_queue_get_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_queue_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1289,7 +1289,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(crofdpt& dpt, rofl::openflow::cofmsg_queue_get_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_queue_get_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_queue_get_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 	/**
@@ -1300,7 +1300,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_queue_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_queue_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1313,7 +1313,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(crofctl& ctl, rofl::openflow::cofmsg_set_config& msg, uint8_t aux_id = 0) {};
+	handle_set_config(rofl::crofctl& ctl, rofl::openflow::cofmsg_set_config& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1327,7 +1327,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(crofdpt& dpt, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_message(rofl::crofdpt& dpt, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1340,7 +1340,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(crofctl& ctl, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_message(rofl::crofctl& ctl, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1354,7 +1354,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error_message(rofl::crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1367,7 +1367,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(crofctl& ctl, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error_message(rofl::crofctl& ctl, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1379,7 +1379,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_experimenter_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_experimenter_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1391,7 +1391,7 @@ protected:
 	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_get_fsp_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1404,7 +1404,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(crofctl& ctl, rofl::openflow::cofmsg_role_request& msg, uint8_t aux_id = 0) {};
+	handle_role_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_role_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1417,7 +1417,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(crofdpt& dpt, rofl::openflow::cofmsg_role_reply& msg, uint8_t aux_id = 0) {};
+	handle_role_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_role_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1430,7 +1430,7 @@ protected:
 	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
-	handle_role_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_role_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1442,7 +1442,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(crofctl& ctl, rofl::openflow::cofmsg_get_async_config_request& msg, uint8_t aux_id = 0) {};
+	handle_get_async_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_get_async_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1455,7 +1455,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(crofdpt& dpt, rofl::openflow::cofmsg_get_async_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_get_async_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_get_async_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 	/**
@@ -1466,7 +1466,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_async_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
+	handle_get_async_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1478,7 +1478,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(crofctl& ctl, rofl::openflow::cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
+	handle_set_async_config(rofl::crofctl& ctl, rofl::openflow::cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
 
 
 	/**@}*/
