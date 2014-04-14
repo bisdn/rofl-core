@@ -627,6 +627,7 @@ crofbase::rpc_disconnect_from_ctl(
 }
 
 
+
 void
 crofbase::rpc_disconnect_from_ctl(
 		caddress const& ra)
@@ -635,6 +636,22 @@ crofbase::rpc_disconnect_from_ctl(
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 		crofctl *ctl = (*it);
 		if (ctl->get_peer_addr() == ra) {
+			rpc_disconnect_from_ctl(ctl);
+			return;
+		}
+	}
+}
+
+
+
+void
+crofbase::rpc_disconnect_from_ctl(
+		uint64_t ctlid)
+{
+	for (std::set<crofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+		crofctl *ctl = (*it);
+		if (ctl->get_ctlid() == ctlid) {
 			rpc_disconnect_from_ctl(ctl);
 			return;
 		}
@@ -670,6 +687,22 @@ crofbase::rpc_disconnect_from_dpt(
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
 		crofdpt *dpt = (*it);
 		if (dpt->get_peer_addr() == ra) {
+			rpc_disconnect_from_dpt(dpt);
+			return;
+		}
+	}
+}
+
+
+
+void
+crofbase::rpc_disconnect_from_dpt(
+		uint64_t dpid)
+{
+	for (std::set<crofdpt*>::iterator
+			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
+		crofdpt *dpt = (*it);
+		if (dpt->get_dpid() == dpid) {
 			rpc_disconnect_from_dpt(dpt);
 			return;
 		}

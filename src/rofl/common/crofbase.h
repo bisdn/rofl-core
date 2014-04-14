@@ -346,6 +346,20 @@ public:
 
 
 
+	/**
+	 * @fn		rpc_disconnect_from_ctl
+	 * @brief 	Closes a connection to a controller entity with a proper shutdown.
+	 *
+	 * \see{ handle_ctrl_close() }
+	 *
+	 * @param ctl cofctl instance to be disconnected
+	 */
+	void
+	rpc_disconnect_from_ctl(
+			uint64_t ctlid);
+
+
+
 
 	/**
 	 * @fn		rpc_disconnect_from_dpt
@@ -372,6 +386,20 @@ public:
 	void
 	rpc_disconnect_from_dpt(
 			caddress const& ra);
+
+
+
+	/**
+	 * @fn		rpc_disconnect_from_dpt
+	 * @brief 	Closes a connection to a data path entity with a proper shutdown.
+	 *
+	 * \see{ handle_dpath_close() }
+	 *
+	 * @param dpt cofdpt instance to be disconnected
+	 */
+	void
+	rpc_disconnect_from_dpt(
+			uint64_t dpid);
 
 
 
