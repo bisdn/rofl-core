@@ -9,17 +9,19 @@
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
 
+/**
+ * MASTER TODO:
+ * secondary messages (either replies or those forwarded) may return errors - session handlers should have error_msg handlers, and morpheus should register a timer after a call to a session method.  If this timer expires (it's set to longer than a reply message timeout) and the session is completed then only then can it be removed.
+ * 
+ * 
+ * 
+ */
+
+
 class morpheus;
 
 void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes);
-/*
-// print out a hexdump of bytes
-void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
-	if (0==n_bytes) return;
-	for(size_t i = 0; i < (n_bytes-1); ++i) printf("%02x ", bytes[i]);
-	printf("%02x", bytes[n_bytes-1]);
-}
-*/
+
 class morpheus::chandlersession_base {
 protected:
 morpheus * m_parent;
@@ -29,8 +31,10 @@ chandlersession_base( morpheus * parent ):m_parent(parent),m_completed(false) {}
 public:
 virtual std::string asString() { return "**chandlersession_base**"; }
 virtual bool isCompleted() { return m_completed; }	// returns true if the session has finished its work and shouldn't be kept alive further
-virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg) { std::cout << "** Received error message from " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
+virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg) { std::cout << "** Received error message from dpt " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
+virtual void handle_error (rofl::cofctl *src, rofl::cofmsg *msg) { std::cout << "** Received error message from ctl " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
 virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session was " << (m_completed?"":"NOT ") << "completed." << std::endl; }
+void push_features(uint32_t new_capabilities, uint32_t new_actions) { m_parent->set_supported_features( new_capabilities, new_actions ); }
 };
 
 class morpheus::cflow_mod_session : public morpheus::chandlersession_base {
@@ -69,9 +73,16 @@ std::cout << "TP" << __LINE__ << std::endl;
 	bool already_did_output = false;
 // now translate the action and the match
 	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
+		if( ! (be16toh(a->oac_header->type) & m_parent->get_supported_actions() ) ) {
+			// the action isn't supported by the underlying switch - complain - send an error message, then write to your MP. Start a Tea Party movement. Then start an Occupy OpenFlow group. If that still doesn't help become a recluse and blame the system.
+			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+			m_completed = true;
+			return m_completed;
+		}
 		switch(be16toh(a->oac_header->type)) {
 			case OFP10AT_OUTPUT: {
 				uint16_t oport = be16toh(a->oac_10output->port);
+				// TODO must add support for ports ALL and FLOOD
 				if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
 					// invalid virtual port number
 					m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
@@ -88,12 +99,14 @@ std::cout << "TP" << __LINE__ << std::endl;
 			} break;
 			case OFP10AT_SET_VLAN_VID: {
 				// VLAN-in-VLAN is not supported - return with error.
+				assert(false);
 				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 				m_completed = true;
 				return m_completed;
 			} break;
 			case OFP10AT_SET_VLAN_PCP: {
 				// VLAN-in-VLAN is not supported - return with error.
+				assert(false);
 				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 				m_completed = true;
 				return m_completed;
@@ -106,7 +119,8 @@ std::cout << "TP" << __LINE__ << std::endl;
 				}
 			} break;
 			case OFP10AT_ENQUEUE: {
-				// Queues not support for now.
+				// Queues not supported for now.
+				assert(false);
 				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 				m_completed = true;
 				return m_completed;
@@ -123,6 +137,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 			} break;
 			case OFP10AT_VENDOR: {
 				// We have no idea what could be in the vendor message, so we can't translate, so we kill it.
+				std::cout << __FUNCTION__ << " Vendor actions are unsupported. Sending error and dropping message." << std::endl;
 				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 				m_completed = true;
 				return m_completed;
@@ -135,6 +150,38 @@ std::cout << "TP" << __LINE__ << std::endl;
 		}
 	}
 	entry.actions = outlist;
+	
+	rofl::cofmatch newmatch = msg->get_match();
+	rofl::cofmatch oldmatch = newmatch;
+
+	//check that VLANs are wildcarded (i.e. not being matched on)
+	// TODO we *could* theoretically support incoming VLAN iff they are coming in on an port-translated-only port (i.e. a virtual port that doesn't map to a port+vlan, only a phsyical port), and that VLAN si then stripped in the action.
+	if(oldmatch.get_vlan_vid_mask() != 0xffff) {
+		std::cout << __FUNCTION__ << ": received a match which didn't have VLAN wildcarded. Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
+		m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+		m_completed = true;
+		return m_completed;
+	}
+	// make sure this is a valid port
+	// TODO check whether port is ANY/ALL
+	uint32_t old_inport = oldmatch.get_in_port();
+	try {
+		cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( old_inport ); // could throw std::out_of_range
+		if(!real_port.vlanid_is_none()) {
+			// vlan is set in actual port - update the match
+			newmatch.set_vlan_vid( real_port.vlan );
+		}
+		// update port
+		newmatch.set_in_port( real_port.port );
+	} catch (std::out_of_range &) {
+		std::cout << __FUNCTION__ << ": received a match request for an unknown port (" << old_inport << "). There are " << m_parent->get_mapper().get_number_virtual_ports() << " ports.  Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
+		m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+		m_completed = true;
+		return m_completed;
+	}
+	
+	entry.match = newmatch;
+	
 	std::cout << __FUNCTION__ << ": About to send flow_mod {";
 	std::cout << " command: " << (unsigned) entry.get_command();
 	std::cout << ", idle_timeout: " << (unsigned) entry.get_idle_timeout();
@@ -152,11 +199,19 @@ std::cout << "TP" << __LINE__ << std::endl;
 ~cflow_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
+// TODO translation check
 class morpheus::cfeatures_request_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
+bool m_local_request;	// if true then this request originated from morpheus and not as the result of a translated request from a controller
 public:
-cfeatures_request_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg):chandlersession_base(parent) {
+cfeatures_request_session(morpheus * parent):chandlersession_base(parent),m_local_request(true) {
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+	uint32_t newxid = m_parent->send_features_request( m_parent->get_dpt() );
+	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+	m_completed = false;
+	}
+cfeatures_request_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg):chandlersession_base(parent),m_local_request(false) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_features_request(src, msg);
 	}
@@ -173,14 +228,37 @@ bool process_features_request ( const rofl::cofctl * const src, const rofl::cofm
 bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_features_reply * const msg ) {
 	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, m_parent->get_dpid(), msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
-	m_completed = true;
+	if(m_local_request) {
+		push_features( msg->get_capabilities(), msg->get_actions_bitmap() );
+		m_completed = true;
+	} else {
+		uint64_t dpid = m_parent->get_dpid() + 1;		// TODO get this from config file
+		uint32_t capabilities = msg->get_capabilities();
+		// first check whether we have the ones we need, then rewrite them anyway
+		std::cout << __FUNCTION__ << ": capabilities of DPE reported as:" << capabilities_to_string(capabilities) << std::endl;
+		uint32_t of10_actions_bitmap = msg->get_actions_bitmap();	// 	TODO ofp10 only
+		std::cout << __FUNCTION__ << ": supported actions of DPE reported as:" << action_mask_to_string(of10_actions_bitmap) << std::endl;
+		push_features( capabilities, of10_actions_bitmap );
+
+		capabilities = m_parent->get_supported_features();	// hard coded to return 0 - No stats, STP or the other magic.
+				
+		rofl::cofportlist realportlist = msg->get_ports();
+		// check whether all the ports we're using are actually supported by the DPE
+		
+		rofl::cofportlist virtualportlist;
+
+***		// TODO work from here - need to implement better support for config in morpheus, then just grabbed the translated and validated (based on underlying switch) config from there
+
+		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
+		m_completed = true;
+	}
 	return m_completed;
 }
 ~cfeatures_request_session() { std::cout << __FUNCTION__ << " called." << std::endl; }
 std::string asString() { std::stringstream ss; ss << "cfeatures_request_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
+// TODO translation check
 class morpheus::cget_config_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
@@ -238,6 +316,7 @@ bool process_desc_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_desc_stat
 std::string asString() { std::stringstream ss; ss << "cdesc_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
+// TODO translation check
 class morpheus::ctable_stats_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
@@ -266,6 +345,7 @@ bool process_table_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_table_st
 std::string asString() { std::stringstream ss; ss << "ctable_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
+// TODO translation check
 class morpheus::cset_config_session : public morpheus::chandlersession_base {
 public:
 cset_config_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg ):chandlersession_base(parent) {
@@ -281,6 +361,7 @@ bool process_set_config ( const rofl::cofctl * const src, const rofl::cofmsg_set
 ~cset_config_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
+// TODO translation check
 class morpheus::caggregate_stats_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
@@ -311,6 +392,7 @@ bool process_aggr_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_aggr_stat
 std::string asString() { std::stringstream ss; ss << "caggregate_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
+// TODO translation check
 class morpheus::cpacket_in_session : public morpheus::chandlersession_base {
 public:
 cpacket_in_session(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent) {
@@ -347,6 +429,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 ~cpacket_in_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
+// TODO translation check
 class morpheus::cpacket_out_session : public morpheus::chandlersession_base {
 public:
 cpacket_out_session(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ):chandlersession_base(parent) {
@@ -395,6 +478,7 @@ bool process_barrier_reply ( const rofl::cofdpt * const src, rofl::cofmsg_barrie
 std::string asString() { std::stringstream ss; ss << "cbarrier_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
+// TODO translation check
 class morpheus::ctable_mod_session : public morpheus::chandlersession_base {
 public:
 ctable_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent) {
@@ -410,6 +494,7 @@ bool process_table_mod ( rofl::cofctl * const src, rofl::cofmsg_table_mod * cons
 ~ctable_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
+// TODO translation check
 class morpheus::cport_mod_session : public morpheus::chandlersession_base {
 public:
 cport_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ):chandlersession_base(parent) {

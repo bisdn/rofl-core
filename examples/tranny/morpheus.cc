@@ -29,7 +29,7 @@ void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
 	printf("%02x", bytes[n_bytes-1]);
 }
 
-std::string morpheus::dump_sessions() const {	// TODO
+std::string morpheus::dump_sessions() const {
 	std::stringstream ss;
 /*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
 	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
@@ -102,10 +102,45 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 	if(tally) delete(p);
 	return tally;
 }
+/*
+uint32_t morpheus::set_supported_actions (uint32_t new_actions) {
+	uint32_t old_actions = m_supported_actions;
+	m_supported_actions = new_actions & m_supported_actions_mask;
+	m_supported_actions_valid = true;
+	return old_actions;
+}
+*/
+void set_supported_features (uint32_t new_capabilities, uint32_t new_actions) {
+	// TODO new_capabilities are ignored, befause, well, we don't support any of them.
+	// m_supported_features = 0;
+	m_supported_actions = new_actions & m_supported_actions_mask;
+	m_supported_actions_valid = true;
+}
 
-morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_) {
+uint32_t get_supported_actions() {
+	if(!m_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
+		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
+		std::auto_ptr < morpheus::cfeatures_request_session > s ( new morpheus::cfeatures_request_session ( this ) );
+		std::cout << __FUNCTION__ << ": sent request for features. Waiting..";
+		unsigned wait_time = 5;
+		while(wait_time && !s->isCompleted()) {
+			sleep(1);	// TODO possible error - is crofbase a single thread, or is every call to a crofbase handler a new thread?
+			std::cout << ".";
+			--wait_time;
+		}
+		std::cout << std::endl;
+		if(!s->isCompleted()) {
+			s.release();
+			throw rofl::eInval("Request features in morpheus::get_supported_actions but never got a response.");
+		}
+	}
+	return m_supported_actions;
+}
+
+morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_),m_supported_features(0),m_supported_actions_mask( (1<<OFP10AT_OUTPUT)|(1<<OFP10AT_SET_DL_SRC)|(1<<OFP10AT_SET_DL_DST)|(1<<OFP10AT_SET_NW_SRC)|(1<<OFP10AT_SET_NW_DST)|(1<<OFP10AT_SET_NW_TOS)|(1<<OFP10AT_SET_TP_SRC)|(1<<OFP10AT_SET_TP_DST) ), m_supported_actions(0), m_supported_actions_valid(false) {
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
 	pthread_rwlock_init(&m_sessions_lock, 0);
+	
 }
 
 morpheus::~morpheus() {
@@ -396,4 +431,10 @@ std::string action_mask_to_string(const uint32_t action_types) {
 	return out;
 }
 
+std::string capabilities_to_string(const uint32_t capabilities) {
+	char * capabilities_sz [] = { "OFPC_FLOW_STATS", "OFPC_TABLE_STATS", "OFPC_PORT_STATS", "OFPC_STP", "OFPC_RESERVED", "OFPC_IP_REASM", "OFPC_QUEUE_STATS", "OFPC_ARP_MATCH_IP" };
+	std::string out;
+	for(size_t index=0; capabilities!=0; ++index, capabilities >>= 1) if(capabilities & 0x00000001) out += capabilities_sz[index] + " ";
+	return out;
+}
 

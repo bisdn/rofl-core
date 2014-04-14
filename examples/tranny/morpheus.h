@@ -15,6 +15,9 @@
 #include <rofl/common/thread_helper.h>
 #include "cportvlan_mapper.h"
 
+std::string action_mask_to_string(const uint32_t action_types);
+std::string capabilities_to_string(const uint32_t capabilities);
+
 class morpheus : public rofl::crofbase {
 
 public:
@@ -57,6 +60,13 @@ rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
 rofl::cofctl * m_master;	// the OF controller.
 uint64_t m_slave_dpid;
 uint64_t m_dpid;
+const uint32_t m_supported_actions_mask;
+uint32_t m_supported_actions;
+bool m_supported_actions_valid;
+const uint32_t m_supported_features;
+
+// uint32_t set_supported_actions (uint32_t new_actions);
+// void set_supported_features (uint32_t new_capabilities, uint32_t new_actions);
 
 // crofbase overrides
 	virtual void handle_dpath_open (rofl::cofdpt *);
@@ -108,9 +118,14 @@ public:
 	virtual ~morpheus();
 	const cportvlan_mapper & get_mapper() const { return m_mapper; }
 
+uint32_t get_supported_actions();
+uint32_t get_supported_features() { return m_supported_features; }
+
+
 std::string dump_sessions() const;
 std::string dump_config() const;
 friend std::ostream & operator<< (std::ostream & os, const morpheus & morph);
+friend chandlersession_base;
 
 };
 
