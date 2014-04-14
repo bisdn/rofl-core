@@ -278,7 +278,7 @@ public:
 	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
 	 * @param params set of parameters used for creating a listening socket
 	 */
-	void
+	virtual void
 	rpc_listen_for_dpts(
 			enum rofl::csocket::socket_type_t socket_type,
 			cparams const& params);
@@ -290,7 +290,7 @@ public:
 	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
 	 * @param params set of parameters used for creating a listening socket
 	 */
-	void
+	virtual void
 	rpc_listen_for_ctls(
 			enum rofl::csocket::socket_type_t socket_type,
 			cparams const& params);
@@ -310,7 +310,7 @@ public:
 	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
 	 * @param socket_params set of parameters for creating connecting socket
 	 */
-	void
+	virtual void
 	rpc_connect_to_ctl(
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
@@ -326,7 +326,7 @@ public:
 	 *
 	 * @param ctl cofctl instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_ctl(
 			crofctl *ctl);
 
@@ -340,7 +340,7 @@ public:
 	 *
 	 * @param ctl cofctl instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_ctl(
 			caddress const& ra);
 
@@ -354,7 +354,7 @@ public:
 	 *
 	 * @param ctl cofctl instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_ctl(
 			uint64_t ctlid);
 
@@ -369,7 +369,7 @@ public:
 	 *
 	 * @param dpt cofdpt instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_dpt(
 			crofdpt *dpath);
 
@@ -383,7 +383,7 @@ public:
 	 *
 	 * @param dpt cofdpt instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_dpt(
 			caddress const& ra);
 
@@ -397,7 +397,7 @@ public:
 	 *
 	 * @param dpt cofdpt instance to be disconnected
 	 */
-	void
+	virtual void
 	rpc_disconnect_from_dpt(
 			uint64_t dpid);
 
@@ -407,7 +407,7 @@ public:
 	 * @brief	Closes all open cofctl, cofdpt and listening socket instances.
 	 *
 	 */
-	void
+	virtual void
 	rpc_close_all();
 
 
