@@ -9,6 +9,7 @@ using namespace rofl::openflow;
 cofflowmod::cofflowmod(uint8_t of_version, uint16_t __type) :
 		of_version(of_version),
 		match(of_version, __type),
+		actions(of_version),
 		instructions(of_version)
 {
 	switch (of_version) {
