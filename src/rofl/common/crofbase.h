@@ -310,12 +310,12 @@ public:
 	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
 	 * @param socket_params set of parameters for creating connecting socket
 	 */
-	virtual void
+	virtual rofl::crofctl&
 	rpc_connect_to_ctl(
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			enum rofl::csocket::socket_type_t socket_type,
-			cparams const& socket_params);
+			rofl::cparams const& socket_params);
 
 
 	/**
