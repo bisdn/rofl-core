@@ -17,7 +17,12 @@ if test "$ssl_detected" = "yes"; then
 		AC_MSG_RESULT(not found)
 	fi
 	AC_MSG_CHECKING(whether to compile SSL/TLS support)
-	AC_MSG_RESULT(yes)
+
+	if test "$ssl_detected" = "yes"; then
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+	fi
 else
 	AC_MSG_CHECKING(whether to compile SSL/TLS support)
 	#SSL explictely disabled 
