@@ -55,11 +55,11 @@ bool vlanid_is_none() const { return (vlan==NO_VLAN); }
 
 friend std::ostream & operator<< (std::ostream & os, const struct port_spec & spec) {
 	os << "port: ";
-	if(spec.port_is_wild()) os << "*"; else os << spec.port;
+	if(spec.port_is_wild()) os << "*"; else os << (unsigned) spec.port;
 	os << " vlan: ";
 	if(spec.vlanid_is_wild()) os << "*";
 	else if(spec.vlanid_is_none()) os << "NO_VLAN";
-	else os << spec.vlan;
+	else os << (unsigned) spec.vlan;
 	return os;
 	}
 };

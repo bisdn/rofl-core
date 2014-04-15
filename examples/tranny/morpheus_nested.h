@@ -6,13 +6,15 @@
 #include <sstream>
 #include <string>
 #include <rofl/common/openflow/openflow_rofl_exceptions.h>
+#include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
 
 /**
  * MASTER TODO:
  * secondary messages (either replies or those forwarded) may return errors - session handlers should have error_msg handlers, and morpheus should register a timer after a call to a session method.  If this timer expires (it's set to longer than a reply message timeout) and the session is completed then only then can it be removed.
- * 
+ * assert that DPE config supports VLAN tagging and stripping.
+ * Somewhere the number of bytes of ethernet frame to send for packet-in is set - this must be adjusted for removal of VLAN tag
  * 
  * 
  */
@@ -37,6 +39,7 @@ virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session
 void push_features(uint32_t new_capabilities, uint32_t new_actions) { m_parent->set_supported_features( new_capabilities, new_actions ); }
 };
 
+// TODO make sure that incoming VLAN is stripped
 class morpheus::cflow_mod_session : public morpheus::chandlersession_base {
 public:
 cflow_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
@@ -199,7 +202,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 ~cflow_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 };
 
-// TODO translation check
+
 class morpheus::cfeatures_request_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
@@ -247,8 +250,25 @@ bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_featu
 		
 		rofl::cofportlist virtualportlist;
 
-***		// TODO work from here - need to implement better support for config in morpheus, then just grabbed the translated and validated (based on underlying switch) config from there
-
+		// TODO this is hardcoded for testing. Need to implement better support for config in morpheus, then just grabbed the translated and validated (based on underlying switch) config from there
+		const cportvlan_mapper & mapper = m_parent->get_mapper();
+		for(unsigned portno = 1; portno <= mapper.get_number_virtual_ports(); ++portno) {
+			cportvlan_mapper::port_spec_t vport = mapper.get_actual_port(portno);
+			rofl::cofport p(OFP10_VERSION);
+			p.set_config(OFP10PC_NO_STP);
+			uint32_t feats = OFP10PF_10GB_FD | OFP10PF_FIBER;
+			p.set_peer (feats);
+			p.set_curr (feats);
+			p.set_advertised (feats);
+			p.set_supported (feats);
+			p.set_state(0);	// link is up and ignoring STP
+			p.set_port_no(portno);
+			p.set_hwaddr(rofl::cmacaddr("00:B1:6B:00:B1:E5"));
+			std::stringstream ss;
+			ss << "V_" << vport;
+			p.set_name(std::string(ss.str()));
+			virtualportlist.next() = p;
+			}
 		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
 		m_completed = true;
 	}
@@ -258,7 +278,6 @@ bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_featu
 std::string asString() { std::stringstream ss; ss << "cfeatures_request_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
-// TODO translation check
 class morpheus::cget_config_session : public morpheus::chandlersession_base {
 protected:
 uint32_t m_request_xid;
@@ -307,7 +326,7 @@ bool process_desc_stats_request ( const rofl::cofctl * const src, const rofl::co
 bool process_desc_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_desc_stats_reply * const msg ) {
 	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	rofl::cofdesc_stats_reply reply(src->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
+	rofl::cofdesc_stats_reply reply(src->get_version(),"morpheus_mfr_desc","morpheus_hw_desc","morpheus_sw_desc","morpheus_serial_num","morpheus_dp_desc");
 	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );
 	m_completed = true;
 	return m_completed;
@@ -345,7 +364,6 @@ bool process_table_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_table_st
 std::string asString() { std::stringstream ss; ss << "ctable_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
-// TODO translation check
 class morpheus::cset_config_session : public morpheus::chandlersession_base {
 public:
 cset_config_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg ):chandlersession_base(parent) {
@@ -403,25 +421,45 @@ bool process_packet_in ( const rofl::cofdpt * const src, rofl::cofmsg_packet_in 
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofctl * master = m_parent->get_ctl();
 // std::cout << "TP" << __LINE__ << std::endl;
+	std::cout << "** BEFORE:" << std::endl;
 	rofl::cofmatch match(msg->get_match_const());
-// std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
 	rofl::cpacket packet(msg->get_packet_const());
 // std::cout << "TP" << __LINE__ << std::endl;
 // std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
 // std::cout << "TP" << __LINE__ << std::endl;
-	packet.get_match().set_in_port(msg->get_in_port());
+///	packet.get_match().set_in_port(msg->get_in_port());	// JSP: this is unnecessary as packet.get_match is locally generated anyway.
  std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "packet bytes: ";
+std::cout << "original packet bytes: ";
 dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
 std::cout << std::endl;
 std::cout << "frame bytes: ";
 dumpBytes( std::cout, msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
+std::cout << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
 std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
-	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
+std::cout << "** AFTER:" << std::endl;
+/*
+uint16_t in_port = ??;
+uint16_t in_vlan = ??;
+cnt_vlan_tags()==0)
+*/
+// required changes:
+// Strip VLAN on incoming packet
+// rewrite get_in_port
+// fiddle match struct
+/*
+	if() {
+		// the incoming port is one with a VLAN tag
+		packet.pop_vlan();
+	}
+*/
+
+	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+//	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << __FUNCTION__ << " : packet_in forwarded to " << master->c_str() << "." << std::endl;
 	m_completed = true;
 	return m_completed;

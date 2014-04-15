@@ -110,14 +110,14 @@ uint32_t morpheus::set_supported_actions (uint32_t new_actions) {
 	return old_actions;
 }
 */
-void set_supported_features (uint32_t new_capabilities, uint32_t new_actions) {
+void morpheus::set_supported_features (uint32_t new_capabilities, uint32_t new_actions) {
 	// TODO new_capabilities are ignored, befause, well, we don't support any of them.
 	// m_supported_features = 0;
 	m_supported_actions = new_actions & m_supported_actions_mask;
 	m_supported_actions_valid = true;
 }
 
-uint32_t get_supported_actions() {
+uint32_t morpheus::get_supported_actions() {
 	if(!m_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
 		std::auto_ptr < morpheus::cfeatures_request_session > s ( new morpheus::cfeatures_request_session ( this ) );
@@ -131,7 +131,8 @@ uint32_t get_supported_actions() {
 		std::cout << std::endl;
 		if(!s->isCompleted()) {
 			s.release();
-			throw rofl::eInval("Request features in morpheus::get_supported_actions but never got a response.");
+//			throw rofl::eInval(std::string("Request features in morpheus::get_supported_actions but never got a response."));
+			throw rofl::eInval();
 		}
 	}
 	return m_supported_actions;
@@ -200,54 +201,7 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	m_slave=0;	// TODO - m_slave ownership?
 }
-/*
-void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << "." << std::endl;
-	// check if this message belongs to an existing transaction
-	xid_session_map_t::iterator sit(m_sessions.find(std::pair<bool, uint32_t>(true,msg->get_xid())));
-	if(sit!=m_sessions.end()) {
-		// xid already found - it's a dupe
-		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;
-		delete(msg);
-		} else {
-		// xid is a new one - create a new handler for it
-		boost::shared_ptr <cflow_mod_session> s (new morpheus::cflow_mod_session( this, src, msg ));	// will take ownership of message, start processing immediately, and register itself if necessary
-	}
-	std::cout << ">>>>>>>\n" << *this;
-}
 
-void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	xid_session_map_t::iterator sit(m_sessions.find(msg->get_xid()));
-	if(sit!=m_ctl_sessions.end()) {
-		// xid already found - it's a dupe
-		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new cofmsg_features_request message." << std::endl;
-		delete(msg);
-		} else {
-		// xid is a new one - create a new handler for it
-		boost::shared_ptr <cfeatures_request_session> s (new morpheus::cfeatures_request_session( this, src, msg ));	// will take ownership of message, start processing immediately, and register itself
-	}
-	std::cout << ">>>>>>>\n" << *this;
-}
-
-void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	xid_session_map_t::iterator sit(m_dpt_sessions.find(msg->get_xid()));
-	if(sit!=m_dpt_sessions.end()) {
-		// known xid
-		cfeatures_request_session * s = dynamic_cast<cfeatures_request_session *>(sit->second.get());
-		if(!s) { std::cout << func << ": xid (" << msg->get_xid() << ") maps to existing session of wrong type." << std::endl; }
-		s->process_features_reply(src, msg);	// will send reply and deregister
-		} else {
-		std::cout << func << ": Unexpected cofmsg_features_reply received with xid " << msg->get_xid() << ". Dropping new message." << std::endl;
-		delete(msg);
-	}
-	std::cout << ">>>>>>>\n" << *this;
-}
-*/
 #undef STRINGIFY
 #undef TOSTRING
 #define STRINGIFY(x) #x
@@ -431,8 +385,8 @@ std::string action_mask_to_string(const uint32_t action_types) {
 	return out;
 }
 
-std::string capabilities_to_string(const uint32_t capabilities) {
-	char * capabilities_sz [] = { "OFPC_FLOW_STATS", "OFPC_TABLE_STATS", "OFPC_PORT_STATS", "OFPC_STP", "OFPC_RESERVED", "OFPC_IP_REASM", "OFPC_QUEUE_STATS", "OFPC_ARP_MATCH_IP" };
+std::string capabilities_to_string(uint32_t capabilities) {
+	static const std::string capabilities_sz [] = { "OFPC_FLOW_STATS", "OFPC_TABLE_STATS", "OFPC_PORT_STATS", "OFPC_STP", "OFPC_RESERVED", "OFPC_IP_REASM", "OFPC_QUEUE_STATS", "OFPC_ARP_MATCH_IP" };
 	std::string out;
 	for(size_t index=0; capabilities!=0; ++index, capabilities >>= 1) if(capabilities & 0x00000001) out += capabilities_sz[index] + " ";
 	return out;
