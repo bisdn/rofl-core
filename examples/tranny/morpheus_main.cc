@@ -33,11 +33,11 @@ int main(int, char**) {
 	rofl::ciosrv::init();
 
 	cportvlan_mapper mapper;
-	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(2), PV_VLANID_T::NONE ));
-	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T(10) ) );
-	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T(11) ) );
-	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T(12) ) );
-	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T(13) ) );
+	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(1), PV_VLANID_T::NONE ));
+	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(2), PV_VLANID_T(10) ) );
+	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(2), PV_VLANID_T(11) ) );
+	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(2), PV_VLANID_T(12) ) );
+	mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(2), PV_VLANID_T(13) ) );
 
 	morpheus morph (mapper);
 

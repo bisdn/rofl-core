@@ -15,7 +15,8 @@
  * secondary messages (either replies or those forwarded) may return errors - session handlers should have error_msg handlers, and morpheus should register a timer after a call to a session method.  If this timer expires (it's set to longer than a reply message timeout) and the session is completed then only then can it be removed.
  * assert that DPE config supports VLAN tagging and stripping.
  * Somewhere the number of bytes of ethernet frame to send for packet-in is set - this must be adjusted for removal of VLAN tag
- * 
+ * There should be a database of match structs that were received as part of a flow mod, and their translated counter-parts so they could be quickly looked up and swapped back
+ * During a packet-in - what to do with the buffer-id? Because we've sent a packet fragment up in the message, but the switch's buffer has a different version of the packet => should be ok, as switch won't be making changes to stored packet and will forward when asked.
  * 
  */
 
@@ -410,7 +411,6 @@ bool process_aggr_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_aggr_stat
 std::string asString() { std::stringstream ss; ss << "caggregate_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
-// TODO translation check
 class morpheus::cpacket_in_session : public morpheus::chandlersession_base {
 public:
 cpacket_in_session(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent) {
@@ -431,34 +431,58 @@ std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::e
 ///	packet.get_match().set_in_port(msg->get_in_port());	// JSP: this is unnecessary as packet.get_match is locally generated anyway.
  std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "original packet bytes: ";
-dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
+// dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
+dumpBytes( std::cout, packet.soframe(), packet.framelen());
 std::cout << std::endl;
 std::cout << "frame bytes: ";
-dumpBytes( std::cout, msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
+//dumpBytes( std::cout, msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
+dumpBytes( std::cout, packet.frame()->soframe(), packet.frame()->framelen());
 std::cout << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
-std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
+std::cout << "source MAC: " << packet.ether()->get_dl_src() << std::endl;
+std::cout << "dest MAC: " << packet.ether()->get_dl_dst() << std::endl;
 std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "** AFTER:" << std::endl;
-/*
-uint16_t in_port = ??;
-uint16_t in_vlan = ??;
-cnt_vlan_tags()==0)
-*/
+
+// extract the VLAN from the incoming packet
+int32_t in_port = -1;
+int32_t in_vlan = -1;
+if(packet.cnt_vlan_tags()>0) {	// check to see if we have a vlan header
+	in_vlan = packet.vlan(0)->get_dl_vlan_id();
+	if(in_vlan == 0xffff) in_vlan = -1;	// it would be weird for this to happen - there's a vlan frame, but no tag. not sure if it's possible.
+}
+in_port = msg->get_in_port();
+
+const cportvlan_mapper & mapper = m_parent->get_mapper();
+
+cportvlan_mapper::port_spec_t inport_spec( PV_PORT_T(in_port), (in_vlan==-1)?(PV_VLANID_T::NONE):(PV_VLANID_T(in_vlan)) );
+
+std::vector<std::pair<uint16_t, cportvlan_mapper::port_spec_t> > vports = mapper.actual_to_virtual_map( inport_spec );
+
+std::cout << __FUNCTION__ << ": received incoming packet on port " << in_port << " and vlan " << in_vlan << " which turned into the spec (" << inport_spec << ") which in turn mapped to " << vports.size() << " virtual ports:";
+for(std::vector<std::pair<uint16_t, cportvlan_mapper::port_spec_t> >::const_iterator ci=vports.begin(); ci != vports.end(); ++ci) std::cout << " " << (unsigned)ci->first;
+std::cout << std::endl;
+
+if(vports.size() != 1) {	// TODO handle this better
+	std::cout << __FUNCTION__ << ": Incoming packet on port spec which doesn't match a virtual port. Dropping." << std::endl;
+	m_completed = true;
+	return m_completed;
+}
+
+std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
+
 // required changes:
 // Strip VLAN on incoming packet
 // rewrite get_in_port
 // fiddle match struct
-/*
-	if() {
-		// the incoming port is one with a VLAN tag
-		packet.pop_vlan();
-	}
-*/
 
-	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+if(in_vlan != -1) packet.pop_vlan();	// remove the first VLAN header
+
+// what to do with match??
+// ANSWER - NOTHING. It's not used in OF10..
+
+	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, vport.first, match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
 //	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << __FUNCTION__ << " : packet_in forwarded to " << master->c_str() << "." << std::endl;
 	m_completed = true;
@@ -476,11 +500,31 @@ cpacket_out_session(morpheus * parent, const rofl::cofctl * const src, rofl::cof
 	}
 bool process_packet_out ( const rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	rofl::cofaclist actions(msg->get_actions());
+	if(msg->get_buffer_id()!=-1) {
+		std::cout << __FUNCTION__ << ": buffered packets in PacketOut not supported." << std::endl;
+		assert(false);
+		m_completed = true;
+		return m_completed;
+	}
+	rofl::cofaclist actions(msg->get_actions());	// I think these actions are to be performed on either the buffered packet, or the one included in this message.
 	std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cpacket packet(msg->get_packet());
 	std::cout << "TP" << __LINE__ << std::endl;
-	m_parent->send_packet_out_message(m_parent->get_dpt(), msg->get_buffer_id(), msg->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+
+	if(packet.cnt_vlan_tags()>0) {
+		std::cout << __FUNCTION__ << ": vlan tags in PacketOut packets not supported." << std::endl;
+		assert(false);
+		m_completed = true;
+		return m_completed;
+	}
+
+	const cportvlan_mapper & mapper = m_parent->get_mapper();
+	cportvlan_mapper::port_spec_t inport_spec( mapper.get_actual_port(msg->get_in_port()) );
+	if(!inport_spec.vlanid_is_none()) {
+		packet.push_vlan(rofl::fvlanframe::VLAN_CTAG_ETHER);	// create new vlan header
+		packet.vlan()->set_dl_vlan_id(inport_spec.vlan);				// set the VLAN ID
+	}
+	m_parent->send_packet_out_message(m_parent->get_dpt(), msg->get_buffer_id(), inport_spec.port, actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
 	m_completed = true;
 	return m_completed;
 }
