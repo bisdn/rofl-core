@@ -32,6 +32,8 @@ public:
 	};
 };
 
+class eOpenSSLVerify		: public eOpenSSL {};
+
 
 /**
  * @class csocket_impl
@@ -62,6 +64,8 @@ class csocket_openssl :
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CERT;
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY;
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_MODE;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_DEPTH;
 
 
 	static bool ssl_initialized;
@@ -105,6 +109,9 @@ class csocket_openssl :
 	std::string					certfile;
 	std::string 				keyfile;
 	std::string					password;
+	std::string					verify_mode;
+	std::string					verify_depth;
+	std::string					ciphers;
 
 	enum openssl_flag_t {
 		FLAG_SSL_IDLE			= 0,
@@ -437,6 +444,12 @@ private:
 	 */
 	void
 	openssl_accept();
+
+	/**
+	 *
+	 */
+	bool
+	openssl_verify_ok();
 
 
 protected:

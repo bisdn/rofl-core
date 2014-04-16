@@ -432,6 +432,9 @@ public:
 	static std::string const	PARAM_SSL_KEY_CERT;
 	static std::string const	PARAM_SSL_KEY_PRIVATE_KEY;
 	static std::string const	PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD;
+	static std::string const	PARAM_SSL_KEY_VERIFY_MODE;
+	static std::string const	PARAM_SSL_KEY_VERIFY_DEPTH;
+	static std::string const	PARAM_SSL_KEY_CIPHERS;
 
 public:
 

@@ -27,6 +27,9 @@ std::string const	csocket::PARAM_SSL_KEY_CA_FILE("ca-file");
 std::string const	csocket::PARAM_SSL_KEY_CERT("cert");
 std::string const	csocket::PARAM_SSL_KEY_PRIVATE_KEY("key");
 std::string const	csocket::PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD("password");
+std::string const	csocket::PARAM_SSL_KEY_VERIFY_MODE("verify-mode");
+std::string const	csocket::PARAM_SSL_KEY_VERIFY_DEPTH("verify-depth");
+std::string const	csocket::PARAM_SSL_KEY_CIPHERS("ciphers");
 
 //Values (non-numeric)
 std::string const 	csocket::PARAM_DOMAIN_VALUE_INET_ANY(__PARAM_DOMAIN_VALUE_INET_ANY);
