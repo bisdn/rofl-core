@@ -218,7 +218,7 @@ of1x_match_t* of1x_init_mpls_tc_match(uint8_t value){
 		return NULL;
 
 	match->type = OF1X_MATCH_MPLS_TC; 
-	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //Ensure only 3 bit value, no wildcard 
+	match->value = __init_utern8(value&OF1X_BITS_12AND3_MASK,OF1X_BITS_12AND3_MASK); //Ensure only 3 bit value, no wildcard 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -1379,12 +1379,12 @@ void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 							else
 								ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_ID:%u|0x%x], ",COND_NTOHB16(nbo,it->value->value.u16),COND_NTOHB16(nbo,it->value->mask.u16));
 				break; 
-			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_PCP:%u], ",OF1X_PCP_VALUE(it->value->value.u8));
+			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_PCP:%u], ",OF1X_VLAN_PCP_VALUE(it->value->value.u8));
 				break; 
 
-			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_LABEL:0x%x], ",COND_NTOHB32(nbo,it->value->value.u32));
+			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_LABEL:0x%x], ",COND_NTOHB32(nbo,OF1X_MPLS_LABEL_VALUE(it->value->value.u32)));
 				break; 
-			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_TC:0x%x], ",it->value->value.u8);
+			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_TC:0x%x], ",OF1X_MPLS_TC_VALUE(it->value->value.u8));
 				break; 
 			case OF1X_MATCH_MPLS_BOS:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_BOS:0x%x], ",it->value->value.u8);
 				break;

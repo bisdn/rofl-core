@@ -254,7 +254,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			break;
 
 		case OF1X_AT_SET_FIELD_MPLS_TC:
-			action->field.u8 = field.u8&OF1X_3_BITS_MASK;
+			action->field.u8 = field.u8&OF1X_BITS_12AND3_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
@@ -637,7 +637,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 
 		case OF1X_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_VID: 0x%x",COND_NTOHB16(nbo,action->field.u16));
 			break;
-		case OF1X_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_PCP: 0x%x",OF1X_PCP_VALUE(action->field.u8));
+		case OF1X_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_PCP: 0x%x",OF1X_VLAN_PCP_VALUE(action->field.u8));
 			break;
 
 		case OF1X_AT_SET_FIELD_ARP_OPCODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_OPCODE: 0x%x",COND_NTOHB16(nbo,action->field.u16));
@@ -698,9 +698,9 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV4_CODE: 0x%x",action->field.u8);
 			break;
 
-		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_LABEL: 0x%x",COND_NTOHB32(nbo,action->field.u32));
+		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_LABEL: 0x%x", COND_NTOHB32(nbo,OF1X_MPLS_LABEL_VALUE(action->field.u32)));
 			break;
-		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TC: 0x%x",action->field.u8);
+		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TC: 0x%x",OF1X_MPLS_TC_VALUE(action->field.u8));
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_BOS:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_BOS: 0x%x",action->field.u8);
 			break;

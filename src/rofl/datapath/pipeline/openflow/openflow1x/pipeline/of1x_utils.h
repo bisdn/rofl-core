@@ -132,16 +132,15 @@ typedef struct of1x_ver_req_t{
 #define OF1X_4MSBITS_MASK 0xF0 // 1111 0000
 #define OF1X_4LSBITS_MASK 0x0F // 0000 1111
 #define OF1X_6MSBITS_MASK 0xFC // 1111 1100
-#define OF1X_2LSBITS_MASK 0x03 // 
-#define OF1X_3MSBITS_MASK 0xE0 //1110 0000
-#define OF1X_BITS_5AND6_MASK 0x30
+#define OF1X_2LSBITS_MASK 0x03 // 0000 0011
+#define OF1X_3MSBITS_MASK 0xE0 // 1110 0000
+#define OF1X_BITS_4AND5_MASK 0x30 // 0011 0000
+#define OF1X_BITS_12AND3_MASK 0x0E // 0000 1110
 
 
 //
 // Bit alignement MACROS
 //
-
-//alignemnt operations not dependant on endiannes
 #define OF1X_SHIFT_LEFT(x, y) (x<<y)
 #define OF1X_SHIFT_RIGHT(x, y) (x>>y)
 
@@ -152,11 +151,18 @@ typedef struct of1x_ver_req_t{
 		}while(0)
 //NOTE swapping will be done externally. DUMPING?
 
+
+/// ALIGNING FUNCTIONS FOR THE PROTOCOL VALUES ///
+
 //Vlan pcp is found in the 3 most significant bits: 1110 0000
 #define OF1X_VLAN_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
 #define OF1X_VLAN_PCP_ALIGN(x) OF1X_SHIFT_LEFT(x, 5)
+
 #define OF1X_MPLS_LABEL_VALUE(x) OF1X_SHIFT_RIGHT(x, 12)
 #define OF1X_MPLS_LABEL_ALIGN(x) OF1X_SHIFT_LEFT(x, 12)
+
+#define OF1X_MPLS_TC_VALUE(x) OF1X_SHIFT_RIGHT(x, 1)
+#define OF1X_MPLS_TC_ALIGN(x) OF1X_SHIFT_LEFT(x, 1)
 
 
 /*
