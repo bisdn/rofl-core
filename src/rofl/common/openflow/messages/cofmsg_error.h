@@ -159,7 +159,7 @@ public:
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_error >" << std::endl;
 
-		uint32_t error_id = ((uint32_t)msg.get_err_type() << 16) || msg.get_err_code();
+		uint32_t error_id = ((uint32_t)msg.get_err_type() << 16) | msg.get_err_code();
 		switch (error_id) {
 		case OFPETC_HELLO_FAILED_INCOMPATIBLE: {
 			os << indent(4) << "<error-id:" << (int)error_id << " HELLO-FAILED-INCOMPATIBLE >" << std::endl;
