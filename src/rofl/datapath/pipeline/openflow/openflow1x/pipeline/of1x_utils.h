@@ -108,6 +108,41 @@ typedef struct of1x_ver_req_t{
 	#error Unknwon endianness
 #endif
 
+// Masks and flags (intra byte => not dependent on endianness)
+#define OF1X_BIT0_MASK 1<<0
+#define OF1X_BIT1_MASK 1<<1
+#define OF1X_BIT2_MASK 1<<2
+#define OF1X_BIT3_MASK 1<<3
+#define OF1X_BIT4_MASK 1<<4
+#define OF1X_BIT5_MASK 1<<5
+#define OF1X_BIT6_MASK 1<<6
+#define OF1X_BIT7_MASK 1<<7
+
+#define OF1X_4MSBITS_MASK 0xF0 // 1111 0000
+#define OF1X_4LSBITS_MASK 0x0F // 0000 1111
+#define OF1X_6MSBITS_MASK 0xFC // 1111 1100
+#define OF1X_2LSBITS_MASK 0x03 // 
+#define OF1X_3MSBITS_MASK 0xE0 //1110 0000
+#define OF1X_BITS_5AND6_MASK 0x30
+
+
+//alignemnt operations not dependant on endiannes
+#define OF1X_SHIFT_LEFT(x, y) (x<<y)
+#define OF1X_SHIFT_RIGHT(x, y) (x>>y)
+
+//aligment operations dependent on endiannes
+#define OF1X_SWAP_AND_SHIFT_64(x, y) do{ \
+		x=__bswap_64(x); \
+		x>>=y; \
+		}while(0)
+//NOTE swapping will be done externally. DUMPING?
+
+//Vlan pcp is found in the 3 most significant bits: 1110 0000
+#define OF1X_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
+#define OF1X_PCP_ALIGN(x) OF1X_SHIFT_LEFT(x, 5)
+		
+
+
 /*
 * Align to 64bit
 */
