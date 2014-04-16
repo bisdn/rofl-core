@@ -9,26 +9,27 @@ using namespace rofl;
 /*static*/std::set<csocket_openssl*> csocket_openssl::openssl_sockets;
 
 //Defaults
-std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH(".");
+std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH("");
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_FILE("ca.pem");
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CERT("cert.pem");
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY("key.pem");
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD("");
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_MODE("PEER"); // NONE|PEER
 std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_DEPTH("1");
+std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CIPHERS("EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA EECDH RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS");
 
 /*static*/cparams
 csocket_openssl::get_default_params()
 {
 	cparams p = rofl::csocket_impl::get_default_params();
-	p.add_param(csocket::PARAM_SSL_KEY_CA_PATH);
-	p.add_param(csocket::PARAM_SSL_KEY_CA_FILE);
-	p.add_param(csocket::PARAM_SSL_KEY_CERT);
-	p.add_param(csocket::PARAM_SSL_KEY_PRIVATE_KEY);
-	p.add_param(csocket::PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD);
-	p.add_param(csocket::PARAM_SSL_KEY_VERIFY_MODE);
-	p.add_param(csocket::PARAM_SSL_KEY_VERIFY_DEPTH);
-	p.add_param(csocket::PARAM_SSL_KEY_CIPHERS);
+	p.add_param(csocket::PARAM_SSL_KEY_CA_PATH).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH);
+	p.add_param(csocket::PARAM_SSL_KEY_CA_FILE).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_FILE);
+	p.add_param(csocket::PARAM_SSL_KEY_CERT).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CERT);
+	p.add_param(csocket::PARAM_SSL_KEY_PRIVATE_KEY).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY);
+	p.add_param(csocket::PARAM_SSL_KEY_PRIVATE_KEY_PASSWORD).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD);
+	p.add_param(csocket::PARAM_SSL_KEY_VERIFY_MODE).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_MODE);
+	p.add_param(csocket::PARAM_SSL_KEY_VERIFY_DEPTH).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_DEPTH);
+	p.add_param(csocket::PARAM_SSL_KEY_CIPHERS).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CIPHERS);
 	return p;
 }
 
@@ -105,6 +106,11 @@ csocket_openssl::openssl_init_ctx()
 
 	if (!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM)) {
 		throw eOpenSSL("[rofl][csocket][openssl][init-ctx] unable to read keyfile:"+keyfile);
+	}
+
+	// ciphers
+	if ((not ciphers.empty()) && (0 == SSL_CTX_set_cipher_list(ctx, ciphers.c_str()))) {
+		throw eOpenSSL("[rofl][csocket][openssl][init-ctx] unable to set ciphers:"+ciphers);
 	}
 
 	// capath/cafile

@@ -66,6 +66,7 @@ class csocket_openssl :
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_PRIVATE_KEY_PASSWORD;
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_MODE;
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_VERIFY_DEPTH;
+	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CIPHERS;
 
 
 	static bool ssl_initialized;
