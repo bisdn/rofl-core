@@ -138,9 +138,10 @@ typedef struct of1x_ver_req_t{
 //NOTE swapping will be done externally. DUMPING?
 
 //Vlan pcp is found in the 3 most significant bits: 1110 0000
-#define OF1X_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
-#define OF1X_PCP_ALIGN(x) OF1X_SHIFT_LEFT(x, 5)
-		
+#define OF1X_VLAN_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
+#define OF1X_VLAN_PCP_ALIGN(x) OF1X_SHIFT_LEFT(x, 5)
+#define OF1X_MPLS_LABEL_VALUE(x) OF1X_SHIFT_RIGHT(x, 12)
+#define OF1X_MPLS_LABEL_ALIGN(x) OF1X_SHIFT_LEFT(x, 12)
 
 
 /*
