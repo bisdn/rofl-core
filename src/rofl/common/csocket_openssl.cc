@@ -373,6 +373,9 @@ csocket_openssl::recv(void* buf, size_t count)
 {
 	int rc = 0;
 
+	if (NULL == ssl)
+		throw eSysCall("SSL_read()");
+
 	if ((rc = SSL_read(ssl, buf, count)) <= 0) {
 		switch (SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
