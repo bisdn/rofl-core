@@ -26,7 +26,26 @@
 	#define ETH_TYPE_PPPOE_SESSION		0x8864
 	#define ETH_TYPE_ARP			0x0806
 	#define ETH_TYPE_PBB			0x88E7
+	
+	//VLAN values
+	#define VLAN_CTAG_ETHER 0x8100
+ 	#define VLAN_STAG_ETHER 0x88a8
+ 	#define VLAN_ITAG_ETHER 0x88e7
+	//MPLS values
 
+	//PPP values
+	#define PPP_PROT_PADDING 	0x0001 // 0x00 0x01 in network byte order
+	#define PPP_PROT_LCP 		0xc021 // 0xc0 0x21 in network byte order
+	#define PPP_PROT_PAP 		0xc023 // 0xc0 0x23 in network byte order
+	#define PPP_PROT_LQR 		0xc025 // 0xc0 0x25 in network byte order
+	#define PPP_PROT_CHAP 		0xc223 // 0xc2 0x23 in network byte order
+	#define PPP_PROT_EAP 		0xc227 // 0xc2 0x27 in network byte order
+	#define PPP_PROT_IPCP 		0x8021 // 0x80 0x21 in network byte order
+	#define PPP_PROT_IPV4 		0x0021 // 0x00 0x21 in network byte order
+	#define PPP_PROT_IPV6CP 	0x8057 // 0x80 0x57 in network byte order
+	#define PPP_PROT_IPV6 		0x0057 // 0x00 0x57 in network byte order
+	#define PPP_PROT_CCP 		0x80fd // 0x80 0xfd in network byte order
+	
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x084B //2123
 	#define UDP_DST_PORT_GTPU		0x0868 //2152
@@ -42,6 +61,25 @@
 	#define ETH_TYPE_PPPOE_SESSION		0x6488
 	#define ETH_TYPE_ARP			0x0608
 	#define ETH_TYPE_PBB			0xE788
+	
+	//VLAN values
+	#define VLAN_CTAG_ETHER 0x0081
+ 	#define VLAN_STAG_ETHER 0xa888
+ 	#define VLAN_ITAG_ETHER 0xe788
+	//MPLS values
+	
+	//PPP values
+	#define PPP_PROT_PADDING 	0x0100 // 0x00 0x01 in network byte order
+	#define PPP_PROT_LCP 		0x21c0 // 0xc0 0x21 in network byte order
+	#define PPP_PROT_PAP 		0x23c0 // 0xc0 0x23 in network byte order
+	#define PPP_PROT_LQR 		0x25c0 // 0xc0 0x25 in network byte order
+	#define PPP_PROT_CHAP 		0x23c2 // 0xc2 0x23 in network byte order
+	#define PPP_PROT_EAP 		0x27c2 // 0xc2 0x27 in network byte order
+	#define PPP_PROT_IPCP 		0x2180 // 0x80 0x21 in network byte order
+	#define PPP_PROT_IPV4 		0x2100 // 0x00 0x21 in network byte order
+	#define PPP_PROT_IPV6CP 	0x5780 // 0x80 0x57 in network byte order
+	#define PPP_PROT_IPV6 		0x5700 // 0x00 0x57 in network byte order
+	#define PPP_PROT_CCP 		0xfd80 // 0x80 0xfd in network byte order
 
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x4B08 //2123
@@ -53,6 +91,10 @@
 /*
 * Endianness agnostic (8bit or less)
 */
+// we use this value to compare (grater or smaller)
+// because of that we must do the comparison in HBO
+// and therefore we don't need to define it twice
+#define LLC_DELIMITER_HBO 0x0600
 
 //Useful IP_PROTO values
 #define IP_PROTO_TCP		6

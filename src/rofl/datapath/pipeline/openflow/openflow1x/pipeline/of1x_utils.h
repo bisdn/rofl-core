@@ -88,6 +88,10 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_VLAN_PRESENT_MASK	0x0008
 	#define OF1X_VLAN_ID_MASK	0x0FFF
 	
+	#define OF1X_8MIDDLE_BITS_MASK 0x0FF0 //ipv6 TC
+	#define OF1X_6MIDDLE_BITS_MASK 0x0FC0 //ipv6 DSCP
+	#define OF1X_20_BITS_IPV6_FLABEL_MASK 0x0FFFFF00
+	
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	/*
 	* Useful masks
@@ -115,19 +119,23 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_VLAN_PRESENT_MASK	0x0010
 	#define OF1X_VLAN_ID_MASK	0xFF0F
 	
+	#define OF1X_8MIDDLE_BITS_MASK 0xF00F
+	#define OF1X_6MIDDLE_BITS_MASK 0xC00F //ipv6 DSCP
+	#define OF1X_20_BITS_IPV6_FLABEL_MASK 0x00FFFF0F
+	
 #else
 	#error Unknwon endianness
 #endif
 
 // Masks and flags (intra byte => not dependent on endianness)
-#define OF1X_BIT0_MASK 1<<0
-#define OF1X_BIT1_MASK 1<<1
-#define OF1X_BIT2_MASK 1<<2
-#define OF1X_BIT3_MASK 1<<3
-#define OF1X_BIT4_MASK 1<<4
-#define OF1X_BIT5_MASK 1<<5
-#define OF1X_BIT6_MASK 1<<6
-#define OF1X_BIT7_MASK 1<<7
+#define OF1X_BIT0_MASK 1<<0 // 0x01 // 0000 0001
+#define OF1X_BIT1_MASK 1<<1 // 0x02 // 0000 0010
+#define OF1X_BIT2_MASK 1<<2 // 0x04 // 0000 0100
+#define OF1X_BIT3_MASK 1<<3 // 0x08 // 0000 1000
+#define OF1X_BIT4_MASK 1<<4 // 0x10 // 0001 0000
+#define OF1X_BIT5_MASK 1<<5 // 0x20 // 0010 0000
+#define OF1X_BIT6_MASK 1<<6 // 0x40 // 0100 0000
+#define OF1X_BIT7_MASK 1<<7 // 0x80 // 1000 0000
 
 #define OF1X_4MSBITS_MASK 0xF0 // 1111 0000
 #define OF1X_4LSBITS_MASK 0x0F // 0000 1111
@@ -155,14 +163,18 @@ typedef struct of1x_ver_req_t{
 /// ALIGNING FUNCTIONS FOR THE PROTOCOL VALUES ///
 
 //Vlan pcp is found in the 3 most significant bits: 1110 0000
-#define OF1X_VLAN_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
+#define OF1X_MAC_ALIGN(x) OF1X_SHIFT_LEFT(x, 16)
+#define OF1X_MAC_VALUE(x) OF1X_SHIFT_RIGHT(x, 16)
+
 #define OF1X_VLAN_PCP_ALIGN(x) OF1X_SHIFT_LEFT(x, 5)
+#define OF1X_VLAN_PCP_VALUE(x) OF1X_SHIFT_RIGHT(x, 5)
 
-#define OF1X_MPLS_LABEL_VALUE(x) OF1X_SHIFT_RIGHT(x, 12)
 #define OF1X_MPLS_LABEL_ALIGN(x) OF1X_SHIFT_LEFT(x, 12)
+#define OF1X_MPLS_LABEL_VALUE(x) OF1X_SHIFT_RIGHT(x, 12)
 
-#define OF1X_MPLS_TC_VALUE(x) OF1X_SHIFT_RIGHT(x, 1)
 #define OF1X_MPLS_TC_ALIGN(x) OF1X_SHIFT_LEFT(x, 1)
+#define OF1X_MPLS_TC_VALUE(x) OF1X_SHIFT_RIGHT(x, 1)
+
 
 
 /*
