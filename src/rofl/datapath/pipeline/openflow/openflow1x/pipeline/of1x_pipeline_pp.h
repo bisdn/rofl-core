@@ -84,7 +84,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			//Update flow statistics
 			platform_atomic_inc64(&match->stats.packet_count,match->stats.mutex);
-			platform_atomic_add64(&match->stats.byte_count, pkt->matches.pkt_size_bytes, match->stats.mutex);
+			platform_atomic_add64(&match->stats.byte_count, pkt->matches.__pkt_size_bytes, match->stats.mutex);
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);

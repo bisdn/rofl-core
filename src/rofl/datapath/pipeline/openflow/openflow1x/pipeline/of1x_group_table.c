@@ -147,7 +147,7 @@ rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_
 	for(it=actions->head; it; it=it->next){
 		if(it->type == OF1X_AT_GROUP)
 			return ROFL_OF1X_GM_CHAIN;
-		if(it->type == OF1X_AT_OUTPUT && it->field.u64 == OF1X_PORT_TABLE)
+		if(it->type == OF1X_AT_OUTPUT && it->__field.u64 == OF1X_PORT_TABLE)
 			return ROFL_OF1X_GM_INVAL;
 	}
 		

@@ -258,7 +258,7 @@ typedef struct of1x_packet_action{
 	of1x_packet_action_type_t type;
 
 	//Field (set field)
-	wrap_uint_t field;
+	wrap_uint_t __field;
 
 	//miss-send-len for OUTPUT actions only
 	uint16_t send_len;
@@ -348,6 +348,63 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 * Destroys packet action (OF action)
 */
 void of1x_destroy_packet_action(of1x_packet_action_t* action);
+
+//Getters for the values of the 
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 8 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 16 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint16_t of1x_get_packet_action_value16(const of1x_packet_action_t* action){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 32 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint32_t of1x_get_packet_action_value32(const of1x_packet_action_t* action){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 64 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint64_t of1x_get_packet_action_value64(const of1x_packet_action_t* action){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 128 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint128__t of1x_get_packet_action_value128(const of1x_packet_action_t* action){
+	uint128__t tmp; 
+	return tmp;
+}
 
 //Action group
 /**
