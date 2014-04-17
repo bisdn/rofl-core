@@ -258,7 +258,7 @@ typedef struct of1x_packet_action{
 	of1x_packet_action_type_t type;
 
 	//Field (set field)
-	wrap_uint_t field;
+	wrap_uint_t __field;
 
 	//miss-send-len for OUTPUT actions only
 	uint16_t send_len;
