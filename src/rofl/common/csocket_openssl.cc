@@ -373,8 +373,11 @@ csocket_openssl::recv(void* buf, size_t count)
 {
 	int rc = 0;
 
-	if (NULL == ssl)
+	if (NULL == ssl) {
+		notify(cevent(EVENT_CONN_RESET));
 		throw eSysCall("SSL_read()");
+	}
+
 
 	if ((rc = SSL_read(ssl, buf, count)) <= 0) {
 		switch (SSL_get_error(ssl, rc)) {
@@ -446,6 +449,9 @@ csocket_openssl::handle_event(cevent const& e)
 	} break;
 	case EVENT_RECV_RXQUEUE: {
 		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
+	} break;
+	case EVENT_CONN_RESET: {
+		if (socket_owner) socket_owner->handle_closed(*this);
 	} break;
 	default:
 		csocket::handle_event(e);

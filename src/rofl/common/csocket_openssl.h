@@ -92,6 +92,7 @@ class csocket_openssl :
 	enum openssl_event_t {
 		EVENT_SEND_TXQUEUE		= 0,
 		EVENT_RECV_RXQUEUE		= 1,
+		EVENT_CONN_RESET		= 2,
 	};
 
 	/*
