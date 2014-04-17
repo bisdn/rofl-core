@@ -120,7 +120,7 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 				
 				//Process all actions in the bucket
 				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
-				__of1x_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
+				__of1x_stats_bucket_update(&it_bk->stats, matches->__pkt_size_bytes);
 				
 				if(it_bk->actions->num_of_output_actions > 1)
 					platform_packet_drop(pkt_replica);
@@ -135,7 +135,7 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			//executes the "one bucket defined"
 			platform_rwlock_rdlock(group->rwlock);
 			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
-			__of1x_stats_bucket_update(&group->bc_list->head->stats, matches->pkt_size_bytes);
+			__of1x_stats_bucket_update(&group->bc_list->head->stats, matches->__pkt_size_bytes);
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_FF:
@@ -146,7 +146,7 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			assert(0);  //Should NEVER be reached 
 			break;
 	}
-	__of1x_stats_group_update(&group->stats, matches->pkt_size_bytes);
+	__of1x_stats_group_update(&group->stats, matches->__pkt_size_bytes);
 	
 }
 
@@ -168,29 +168,29 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_pop_vlan(pkt);
 			//Update match
-			pkt_matches->has_vlan = platform_packet_has_vlan(pkt); 
-			if(pkt_matches->has_vlan){
-				pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
-				pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+			pkt_matches->__has_vlan = platform_packet_has_vlan(pkt); 
+			if(pkt_matches->__has_vlan){
+				pkt_matches->__vlan_vid = platform_packet_get_vlan_vid(pkt);
+				pkt_matches->__vlan_pcp = platform_packet_get_vlan_pcp(pkt);
 			}else{
-				pkt_matches->vlan_vid = pkt_matches->vlan_pcp = 0x0;
+				pkt_matches->__vlan_vid = pkt_matches->__vlan_pcp = 0x0;
 			}
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_POP_MPLS: 
 			//Call platform
 			platform_packet_pop_mpls(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_POP_PPPOE: 
 			//Call platform
 			platform_packet_pop_pppoe(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 	
 		//PUSH
@@ -198,25 +198,25 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_push_pppoe(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_MPLS:
 			//Call platform
 			platform_packet_push_mpls(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_VLAN:
 			//Call platform
 			platform_packet_push_vlan(pkt, action->field.u16);
 			//Update match
-			pkt_matches->has_vlan = true;
-			pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
-			pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__has_vlan = true;
+			pkt_matches->__vlan_vid = platform_packet_get_vlan_vid(pkt);
+			pkt_matches->__vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 
 		//TTL
@@ -252,55 +252,55 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_eth_dst(pkt, action->field.u64);
 			//Update match
-			pkt_matches->eth_dst = action->field.u64; 
+			pkt_matches->__eth_dst = action->field.u64; 
 			break;
 		case OF1X_AT_SET_FIELD_ETH_SRC: 
 			//Call platform
 			platform_packet_set_eth_src(pkt, action->field.u64); 
 			//Update match
-			pkt_matches->eth_src = action->field.u64; 
+			pkt_matches->__eth_src = action->field.u64; 
 			break;
 		case OF1X_AT_SET_FIELD_ETH_TYPE: 
 			//Call platform
 			platform_packet_set_eth_type(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type = action->field.u16;
+			pkt_matches->__eth_type = action->field.u16;
 			break;
 
 		//802.1q
 		case OF1X_AT_SET_FIELD_VLAN_VID: 
 			//For 1.0 we must first push it if we don't have. wtf...
-			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
+			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->__has_vlan){
 				//Push VLAN
 				platform_packet_push_vlan(pkt, ETH_TYPE_8021Q);
 				platform_packet_set_vlan_pcp(pkt, 0x0);
 				//Update match
-				pkt_matches->has_vlan = true;
-				pkt_matches->vlan_pcp = 0; 
-				pkt_matches->eth_type= ETH_TYPE_8021Q; 
-				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+				pkt_matches->__has_vlan = true;
+				pkt_matches->__vlan_pcp = 0; 
+				pkt_matches->__eth_type= ETH_TYPE_8021Q; 
+				pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
 			platform_packet_set_vlan_vid(pkt, action->field.u16);
 			//Update match
-			pkt_matches->vlan_vid = action->field.u16;
+			pkt_matches->__vlan_vid = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_VLAN_PCP: 
 			//For 1.0 we must first push it if we don't have. wtf...
-			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
+			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->__has_vlan){
 				//Push VLAN
 				platform_packet_push_vlan(pkt, ETH_TYPE_8021Q);
 				platform_packet_set_vlan_vid(pkt, 0x0);
 				//Update match
-				pkt_matches->has_vlan = true;
-				pkt_matches->vlan_vid = 0x0; 
-				pkt_matches->eth_type= ETH_TYPE_8021Q; 
-				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+				pkt_matches->__has_vlan = true;
+				pkt_matches->__vlan_vid = 0x0; 
+				pkt_matches->__eth_type= ETH_TYPE_8021Q; 
+				pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
 			platform_packet_set_vlan_pcp(pkt, action->field.u8);
 			//Update match
-			pkt_matches->vlan_pcp = action->field.u8;
+			pkt_matches->__vlan_pcp = action->field.u8;
 			break;
 
 		//ARP
@@ -308,72 +308,72 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call plattform
 			platform_packet_set_arp_opcode(pkt, action->field.u16);
 			//Update match
-			pkt_matches->arp_opcode = action->field.u16;
+			pkt_matches->__arp_opcode = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SHA:
 			//Call platform
 			platform_packet_set_arp_sha(pkt, action->field.u64);
 			//Update match
-			pkt_matches->arp_sha = action->field.u64;
+			pkt_matches->__arp_sha = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SPA:
 			//Call platform
 			platform_packet_set_arp_spa(pkt, action->field.u32);
 			//Update match
-			pkt_matches->arp_spa = action->field.u32;
+			pkt_matches->__arp_spa = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_THA:
 			//Call platform
 			platform_packet_set_arp_tha(pkt, action->field.u64);
 			//Update match
-			pkt_matches->arp_tha = action->field.u64;
+			pkt_matches->__arp_tha = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 			//Call platform
 			platform_packet_set_arp_tpa(pkt, action->field.u32);
 			//Update match
-			pkt_matches->arp_tpa = action->field.u32;
+			pkt_matches->__arp_tpa = action->field.u32;
 			break;
 
 		//NW
 		case OF1X_AT_SET_FIELD_NW_PROTO:
-			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
+			if((pkt_matches->__eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ip_proto(pkt, action->field.u8);
 				//Update match
-				pkt_matches->ip_proto = action->field.u8;
-			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
+				pkt_matches->__ip_proto = action->field.u8;
+			}else if((pkt_matches->__eth_type == ETH_TYPE_ARP)){
 				//Call plattform
 				platform_packet_set_arp_opcode(pkt, action->field.u8);
 				//Update match
-				pkt_matches->arp_opcode = action->field.u8;
+				pkt_matches->__arp_opcode = action->field.u8;
 			}
 
 			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
-			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
+			if((pkt_matches->__eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ipv4_src(pkt, action->field.u32);
 				//Update match
-				pkt_matches->ipv4_src = action->field.u32;
-			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
+				pkt_matches->__ipv4_src = action->field.u32;
+			}else if((pkt_matches->__eth_type == ETH_TYPE_ARP)){
 				//Call platform
 				platform_packet_set_arp_spa(pkt, action->field.u32);
 				//Update match
-				pkt_matches->arp_spa = action->field.u32;
+				pkt_matches->__arp_spa = action->field.u32;
 			}
 			break;
 		case OF1X_AT_SET_FIELD_NW_DST:
-			if((pkt_matches->eth_type == ETH_TYPE_IPV4)){
+			if((pkt_matches->__eth_type == ETH_TYPE_IPV4)){
 				//Call platform
 				platform_packet_set_ipv4_dst(pkt, action->field.u32);
 				//Update match
-				pkt_matches->ipv4_dst = action->field.u32;
-			}else if((pkt_matches->eth_type == ETH_TYPE_ARP)){
+				pkt_matches->__ipv4_dst = action->field.u32;
+			}else if((pkt_matches->__eth_type == ETH_TYPE_ARP)){
 				//Call platform
 				platform_packet_set_arp_tpa(pkt, action->field.u32);
 				//Update match
-				pkt_matches->arp_tpa = action->field.u32;
+				pkt_matches->__arp_tpa = action->field.u32;
 			}
 			break;
 
@@ -382,19 +382,19 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_ip_dscp(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_dscp = action->field.u8;
+			pkt_matches->__ip_dscp = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IP_ECN:
 			//Call platform
 			platform_packet_set_ip_ecn(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_ecn = action->field.u8;
+			pkt_matches->__ip_ecn = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IP_PROTO:
 			//Call platform
 			platform_packet_set_ip_proto(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_proto = action->field.u8;
+			pkt_matches->__ip_proto = action->field.u8;
 			break;
 
 		//IPv4
@@ -402,50 +402,50 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_ipv4_src(pkt, action->field.u32);
 			//Update match
-			pkt_matches->ipv4_src = action->field.u32;
+			pkt_matches->__ipv4_src = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_IPV4_DST:
 			//Call platform
 			platform_packet_set_ipv4_dst(pkt, action->field.u32);
 			//Update match
-			pkt_matches->ipv4_dst = action->field.u32;
+			pkt_matches->__ipv4_dst = action->field.u32;
 			break;
 
 		//TP
 		case OF1X_AT_SET_FIELD_TP_SRC:  
-			if((pkt_matches->ip_proto == IP_PROTO_TCP)){
+			if((pkt_matches->__ip_proto == IP_PROTO_TCP)){
 				//Call platform
 				platform_packet_set_tcp_src(pkt, action->field.u16);
 				//Update match
-				pkt_matches->tcp_src = action->field.u16;
-			}else if((pkt_matches->ip_proto == IP_PROTO_UDP)){
+				pkt_matches->__tcp_src = action->field.u16;
+			}else if((pkt_matches->__ip_proto == IP_PROTO_UDP)){
 				//Call platform
 				platform_packet_set_udp_src(pkt, action->field.u16);
 				//Update match
-				pkt_matches->udp_src = action->field.u16;
-			}else if((pkt_matches->ip_proto == IP_PROTO_ICMPV4)){
+				pkt_matches->__udp_src = action->field.u16;
+			}else if((pkt_matches->__ip_proto == IP_PROTO_ICMPV4)){
 				//Call platform
 				platform_packet_set_icmpv4_type(pkt, action->field.u8);
 				//Update match
-				pkt_matches->icmpv4_type = action->field.u8;
+				pkt_matches->__icmpv4_type = action->field.u8;
 			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
-			if((pkt_matches->ip_proto == IP_PROTO_TCP)){
+			if((pkt_matches->__ip_proto == IP_PROTO_TCP)){
 				//Call platform
 				platform_packet_set_tcp_dst(pkt, action->field.u16);
 				//Update match
-				pkt_matches->tcp_dst = action->field.u16;
-			}else if((pkt_matches->ip_proto == IP_PROTO_UDP)){
+				pkt_matches->__tcp_dst = action->field.u16;
+			}else if((pkt_matches->__ip_proto == IP_PROTO_UDP)){
 				//Call platform
 				platform_packet_set_udp_dst(pkt, action->field.u16);
 				//Update match
-				pkt_matches->udp_dst = action->field.u16;
-			}else if((pkt_matches->ip_proto == IP_PROTO_ICMPV4)){
+				pkt_matches->__udp_dst = action->field.u16;
+			}else if((pkt_matches->__ip_proto == IP_PROTO_ICMPV4)){
 				//Call platform
 				platform_packet_set_icmpv4_code(pkt, action->field.u8);
 				//Update match
-				pkt_matches->icmpv4_code = action->field.u8;
+				pkt_matches->__icmpv4_code = action->field.u8;
 			}
 			break;
 
@@ -454,13 +454,13 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_tcp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->tcp_src = action->field.u16;
+			pkt_matches->__tcp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST:
 			//Call platform
 			platform_packet_set_tcp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->tcp_dst = action->field.u16;
+			pkt_matches->__tcp_dst = action->field.u16;
 			break;
 
 		//UDP
@@ -468,26 +468,26 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_udp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->udp_src = action->field.u16;
+			pkt_matches->__udp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_DST:
 			//Call platform
 			platform_packet_set_udp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->udp_dst = action->field.u16;
+			pkt_matches->__udp_dst = action->field.u16;
 			break;
 		//SCTP
 		case OF1X_AT_SET_FIELD_SCTP_SRC:
 			//Call platform
 			platform_packet_set_sctp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->sctp_src = action->field.u16;
+			pkt_matches->__sctp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_DST:
 			//Call platform
 			platform_packet_set_sctp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->sctp_dst = action->field.u16;
+			pkt_matches->__sctp_dst = action->field.u16;
 			break;
 
 
@@ -496,13 +496,13 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_icmpv4_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv4_type = action->field.u8;
+			pkt_matches->__icmpv4_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 			//Call platform
 			platform_packet_set_icmpv4_code(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv4_code = action->field.u8;
+			pkt_matches->__icmpv4_code = action->field.u8;
 			break;
 
 		//MPLS
@@ -510,19 +510,19 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_mpls_label(pkt, action->field.u32);
 			//Update match
-			pkt_matches->mpls_label = action->field.u32;
+			pkt_matches->__mpls_label = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_TC:
 			//Call platform
 			platform_packet_set_mpls_tc(pkt, action->field.u8);
 			//Update match
-			pkt_matches->mpls_tc = action->field.u8;
+			pkt_matches->__mpls_tc = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_BOS:
 			//Call platform
 			platform_packet_set_mpls_bos(pkt, action->field.u8);
 			//Update match
-			pkt_matches->mpls_bos = action->field.u8;
+			pkt_matches->__mpls_bos = action->field.u8;
 			break;
 
 
@@ -531,19 +531,19 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_pppoe_code(pkt, action->field.u8);
 			//Update match
-			pkt_matches->pppoe_code = action->field.u8;
+			pkt_matches->__pppoe_code = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
 			//Call platform
 			platform_packet_set_pppoe_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->pppoe_type = action->field.u8;
+			pkt_matches->__pppoe_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_SID:
 			//Call platform
 			platform_packet_set_pppoe_sid(pkt, action->field.u16);
 			//Update match
-			pkt_matches->pppoe_sid = action->field.u16;
+			pkt_matches->__pppoe_sid = action->field.u16;
 			break;
 
 		//PPP
@@ -551,7 +551,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_ppp_proto(pkt, action->field.u16);
 			//Update match
-			pkt_matches->ppp_proto = action->field.u16;
+			pkt_matches->__ppp_proto = action->field.u16;
 			break;
 			
 		//IPv6
@@ -559,82 +559,82 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_ipv6_src(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_src = action->field.u128;
+			pkt_matches->__ipv6_src = action->field.u128;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_DST:
 			//Call platform
 			platform_packet_set_ipv6_dst(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_dst = action->field.u128;
+			pkt_matches->__ipv6_dst = action->field.u128;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
 			//Call platform
 			platform_packet_set_ipv6_flabel(pkt, action->field.u32);
 			//Update match
-			pkt_matches->ipv6_flabel = action->field.u32;
+			pkt_matches->__ipv6_flabel = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
 			//Call platform
 			platform_packet_set_ipv6_nd_target(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_nd_target = action->field.u128;
+			pkt_matches->__ipv6_nd_target = action->field.u128;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
 			//Call platform
 			platform_packet_set_ipv6_nd_sll(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ipv6_nd_sll = action->field.u64;
+			pkt_matches->__ipv6_nd_sll = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
 			//Call platform
 			platform_packet_set_ipv6_nd_tll(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ipv6_nd_tll = action->field.u64;
+			pkt_matches->__ipv6_nd_tll = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
 			//Call platform
 			platform_packet_set_ipv6_exthdr(pkt, action->field.u16);
 			//Update match
-			pkt_matches->ipv6_exthdr = action->field.u16;
+			pkt_matches->__ipv6_exthdr = action->field.u16;
 			break;
 		//ICMPv6
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
 			//Call platform
 			platform_packet_set_icmpv6_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv6_type = action->field.u8;
+			pkt_matches->__icmpv6_type = action->field.u8;
 			break;
 			
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
 			//Call platform
 			platform_packet_set_icmpv6_code(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv6_code = action->field.u8;
+			pkt_matches->__icmpv6_code = action->field.u8;
 			break;
 		//GTP
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 			//Call platform
 			platform_packet_set_gtp_msg_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->gtp_msg_type = action->field.u8;
+			pkt_matches->__gtp_msg_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 			//Call platform
 			platform_packet_set_gtp_teid(pkt, action->field.u32);
 			//Update match
-			pkt_matches->gtp_teid = action->field.u32;
+			pkt_matches->__gtp_teid = action->field.u32;
 			break;
 		case OF1X_AT_POP_GTP: 
 			//Call platform
 			platform_packet_pop_gtp(pkt);
 			//Update match
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_GTP: 
 			//Call platform
 			platform_packet_push_gtp(pkt);
 			//Update match
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 
 		//PBB
@@ -642,21 +642,21 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_pbb_isid(pkt, action->field.u32);
 			//Update match
-			pkt_matches->pbb_isid = action->field.u32;
+			pkt_matches->__pbb_isid = action->field.u32;
 			break;
 		case OF1X_AT_POP_PBB: 
 			//Call platform
 			platform_packet_pop_pbb(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_PBB: 
 			//Call platform
 			platform_packet_push_pbb(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
-			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			pkt_matches->__eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->__pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 
 		//TUNNEL ID
@@ -664,7 +664,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_tunnel_id(pkt, action->field.u64);
 			//Update match
-			pkt_matches->tunnel_id = action->field.u64;
+			pkt_matches->__tunnel_id = action->field.u64;
 			break;
 
 		case OF1X_AT_GROUP:
@@ -705,7 +705,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					//Single port output
 					//According to the spec a packet cannot be sent to the incomming port
 					//unless IN_PORT meta port is used
-					if(unlikely(port_id == pkt->matches.port_in)){
+					if(unlikely(port_id == pkt->matches.__port_in)){
 						platform_packet_drop(pkt_to_send);
 					}else{
 						platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
