@@ -494,6 +494,130 @@ of1x_match_t* of1x_init_tunnel_id_match(uint64_t value, uint64_t mask);
 */
 void of1x_destroy_match(of1x_match_t* match);
 
+//
+//Getters for values 
+//
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 8 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
+static inline 
+uint8_t of1x_get_match_value8(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 16 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
+static inline 
+uint16_t of1x_get_match_value16(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 32 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
+static inline 
+uint32_t of1x_get_match_value32(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 64 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
+static inline 
+uint64_t of1x_get_match_value64(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 128 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
+static inline 
+uint128__t of1x_get_match_value128(const of1x_match_t* match){
+	uint128__t tmp; 
+	return tmp;
+}
+
+//
+//Getters for masks
+//
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match mask value for 8 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the mask in host byte order 
+*/
+static inline 
+uint8_t of1x_get_match_mask8(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match mask value for 16 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the mask in host byte order 
+*/
+static inline 
+uint16_t of1x_get_match_mask16(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match mask value for 32 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the mask in host byte order 
+*/
+static inline 
+uint32_t of1x_get_match_mask32(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match mask value for 64 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the mask in host byte order 
+*/
+static inline 
+uint64_t of1x_get_match_mask64(const of1x_match_t* match){
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the match mask value for 128 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the mask in host byte order 
+*/
+static inline 
+uint128__t of1x_get_match_mask128(const of1x_match_t* match){
+	uint128__t tmp; 
+	return tmp;
+}
+
+//
+// End of getters
+//
+
 /* match group */
 void __of1x_init_match_group(of1x_match_group_t* group);
 void __of1x_destroy_match_group(of1x_match_group_t* group);
