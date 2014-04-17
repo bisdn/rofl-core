@@ -377,10 +377,10 @@ csocket_openssl::recv(void* buf, size_t count)
 		switch (SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
 			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_READ" << std::endl;
-		} return rc;
+		} throw eSocketAgain();
 		case SSL_ERROR_WANT_WRITE: {
 			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_WRITE" << std::endl;
-		} return rc;
+		} throw eSocketAgain();
 		default:
 			openssl_destroy_ssl();
 			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_read() failed");
