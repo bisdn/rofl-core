@@ -86,6 +86,10 @@ of1x_match_t* of1x_init_eth_dst_match(uint64_t value, uint64_t mask){
 	if(unlikely(match == NULL))
 		return NULL;
 
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
+	
 	match->type = OF1X_MATCH_ETH_DST; 
 	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 
@@ -108,6 +112,10 @@ of1x_match_t* of1x_init_eth_src_match(uint64_t value, uint64_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
 
 	match->type = OF1X_MATCH_ETH_SRC; 
 	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
@@ -130,6 +138,8 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_ETH_TYPE; 
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard 
@@ -151,6 +161,10 @@ of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum of1x_
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
+	mask = HTONB16(mask);
 
 	match->type = OF1X_MATCH_VLAN_VID; 
 	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
@@ -176,6 +190,9 @@ of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = OF1X_VLAN_PCP_ALIGN(value);
 
 	match->type = OF1X_MATCH_VLAN_PCP; 
 	match->__tern = __init_utern8(value&OF1X_3MSBITS_MASK,OF1X_3MSBITS_MASK); //Ensure only 3 bit value, no wildcard 
@@ -197,6 +214,9 @@ of1x_match_t* of1x_init_mpls_label_match(uint32_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(OF1X_MPLS_LABEL_ALIGN(value));
 
 	match->type = OF1X_MATCH_MPLS_LABEL; 
 	match->__tern = __init_utern32(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); //no wildcard?? wtf! 
@@ -216,6 +236,9 @@ of1x_match_t* of1x_init_mpls_tc_match(uint8_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = OF1X_MPLS_TC_ALIGN(value);
 
 	match->type = OF1X_MATCH_MPLS_TC; 
 	match->__tern = __init_utern8(value&OF1X_BITS_12AND3_MASK,OF1X_BITS_12AND3_MASK); //Ensure only 3 bit value, no wildcard 
@@ -237,7 +260,7 @@ of1x_match_t* of1x_init_mpls_bos_match(uint8_t value){
 		return NULL;
 
 	match->type = OF1X_MATCH_MPLS_BOS; 
-	match->__tern = __init_utern8(value&OF1X_1_BIT_MASK,OF1X_1_BIT_MASK); //Ensure only 1 bit value, no wildcard 
+	match->__tern = __init_utern8(value&OF1X_BIT0_MASK,OF1X_BIT0_MASK); //Ensure only 1 bit value, no wildcard 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
@@ -256,6 +279,9 @@ of1x_match_t* of1x_init_arp_opcode_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_ARP_OP;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard
@@ -275,6 +301,10 @@ of1x_match_t* of1x_init_arp_tha_match(uint64_t value, uint64_t mask){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
 
 	match->type = OF1X_MATCH_ARP_THA;
 	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
@@ -298,6 +328,10 @@ of1x_match_t* of1x_init_arp_sha_match(uint64_t value, uint64_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
 
 	match->type = OF1X_MATCH_ARP_SHA;
 	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
@@ -320,6 +354,10 @@ of1x_match_t* of1x_init_arp_tpa_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_ARP_TPA;
 	match->__tern = __init_utern32(value,mask);
@@ -342,6 +380,10 @@ of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_ARP_SPA;
 	match->__tern = __init_utern32(value,mask);
@@ -385,6 +427,10 @@ of1x_match_t* of1x_init_nw_src_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_NW_SRC;
 	match->__tern = __init_utern32(value,mask); 
@@ -407,6 +453,10 @@ of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_NW_DST;
 	match->__tern = __init_utern32(value,mask); 
@@ -431,6 +481,10 @@ of1x_match_t* of1x_init_ip4_src_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_IPV4_SRC;
 	match->__tern = __init_utern32(value,mask); 
@@ -453,6 +507,10 @@ of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+	mask = HTONB32(mask);
 
 	match->type = OF1X_MATCH_IPV4_DST;
 	match->__tern = __init_utern32(value,mask); 
@@ -494,9 +552,12 @@ of1x_match_t* of1x_init_ip_dscp_match(uint8_t value){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = OF1X_IP_DSCP_ALIGN(value);
 
 	match->type = OF1X_MATCH_IP_DSCP; 
-	match->__tern = __init_utern8(value&OF1X_6_BITS_MASK,OF1X_6_BITS_MASK); //no wildcard 
+	match->__tern = __init_utern8(value&OF1X_6MSBITS_MASK,OF1X_6MSBITS_MASK); //no wildcard 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (ToS)
@@ -516,7 +577,7 @@ of1x_match_t* of1x_init_ip_ecn_match(uint8_t value){
 		return NULL;
 
 	match->type = OF1X_MATCH_IP_ECN; 
-	match->__tern = __init_utern8(value&OF1X_2_BITS_MASK,OF1X_2_BITS_MASK); //no wildcard 
+	match->__tern = __init_utern8(value&OF1X_2LSBITS_MASK,OF1X_2LSBITS_MASK); //no wildcard 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -535,6 +596,10 @@ of1x_match_t* of1x_init_ip6_src_match(uint128__t value, uint128__t mask){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	HTONB128(value);
+	HTONB128(mask);
 
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_SRC;
@@ -558,6 +623,10 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	HTONB128(value);
+	HTONB128(mask);
 
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_DST;
@@ -576,14 +645,17 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
 
 	return match;
 }
-of1x_match_t* of1x_init_ip6_flabel_match(uint64_t value){
+of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(OF1X_IP6_FLABEL_ALIGN(value));
 
 	match->type = OF1X_MATCH_IPV6_FLABEL;
-	match->__tern = __init_utern64(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); // ensure 20 bits. No wildcard
+	match->__tern = __init_utern32(value&OF1X_20_BITS_IPV6_FLABEL_MASK,OF1X_20_BITS_IPV6_FLABEL_MASK); // ensure 20 bits. No wildcard
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
@@ -600,6 +672,9 @@ of1x_match_t* of1x_init_ip6_nd_target_match(uint128__t value){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	HTONB128(value);
 
 	uint128__t mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	
@@ -621,6 +696,9 @@ of1x_match_t* of1x_init_ip6_nd_sll_match(uint64_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
 
 	match->type = OF1X_MATCH_IPV6_ND_SLL;
 	match->__tern = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
@@ -640,6 +718,9 @@ of1x_match_t* of1x_init_ip6_nd_tll_match(uint64_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
 
 	match->type = OF1X_MATCH_IPV6_ND_TLL;
 	match->__tern = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
@@ -659,6 +740,8 @@ of1x_match_t* of1x_init_ip6_exthdr_match(uint16_t value, uint16_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// TODO Align to pipeline convention (NBO, lower memory address) -- currently not implemented
 
 	match->type = OF1X_MATCH_IPV6_EXTHDR;
 	match->__tern = __init_utern16(value&OF1X_9_BITS_MASK, mask & OF1X_9_BITS_MASK );  //ensure 9 bits, with Wildcard
@@ -723,6 +806,9 @@ of1x_match_t* of1x_init_tcp_src_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_TCP_SRC;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -743,6 +829,9 @@ of1x_match_t* of1x_init_tcp_dst_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_TCP_DST;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -763,6 +852,9 @@ of1x_match_t* of1x_init_udp_src_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_UDP_SRC;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -782,6 +874,9 @@ of1x_match_t* of1x_init_udp_dst_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_UDP_DST;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -803,6 +898,9 @@ of1x_match_t* of1x_init_sctp_src_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_SCTP_SRC;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -823,6 +921,9 @@ of1x_match_t* of1x_init_sctp_dst_match(uint16_t value){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_SCTP_DST;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -844,6 +945,9 @@ of1x_match_t* of1x_init_tp_src_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_TP_SRC;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -863,6 +967,9 @@ of1x_match_t* of1x_init_tp_dst_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_TP_DST;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -923,6 +1030,8 @@ of1x_match_t* of1x_init_pbb_isid_match(uint32_t value, uint32_t mask){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	//TODO Align to pipeline convention (NBO, lower memory address) -- currently not implemented
 
 	match->type = OF1X_MATCH_PBB_ISID;
 	match->__tern = __init_utern32(value&OF1X_3_BYTE_MASK, mask&OF1X_3_BYTE_MASK); //no wildcard 
@@ -1013,6 +1122,9 @@ of1x_match_t* of1x_init_pppoe_session_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_PPPOE_SID; 
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -1032,6 +1144,9 @@ of1x_match_t* of1x_init_ppp_prot_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_PPP_PROT; 
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
@@ -1071,6 +1186,9 @@ of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask){
 	
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
 
 	match->type = OF1X_MATCH_GTP_TEID;
 	match->__tern = __init_utern32(value, mask);

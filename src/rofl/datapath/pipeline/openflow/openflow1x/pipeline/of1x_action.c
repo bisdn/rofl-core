@@ -260,7 +260,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//2 bit values
 		case OF1X_AT_SET_FIELD_IP_ECN:
-			action->__field.u8 = field.u8&OF1X_2_BITS_MASK;
+			action->__field.u8 = field.u8&OF1X_2LSBITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_GROUP:
@@ -271,7 +271,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//1 bit values
 		case OF1X_AT_SET_FIELD_MPLS_BOS:
-			action->__field.u8 =  field.u8&OF1X_1_BIT_MASK; //id of the group
+			action->__field.u8 =  field.u8&OF1X_BIT0_MASK; //id of the group
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
