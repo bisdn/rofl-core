@@ -135,7 +135,7 @@ typedef struct of1x_match{
 	of1x_match_type_t type;
 
 	//Ternary value
-	utern_t* value;
+	utern_t* __tern;
 	
 	//Previous entry
 	struct of1x_match* prev;
