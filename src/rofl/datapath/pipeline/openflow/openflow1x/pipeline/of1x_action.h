@@ -368,7 +368,7 @@ uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
 * @retval The value of the field in host byte order 
 */
 static inline 
-uint16_t of1x_get_packet_action_value16(const of1x_packet_action_t* action){
+uint16_t of1x_get_packet_action_field16(const of1x_packet_action_t* action){
 	return 0x0;
 }
 
@@ -379,7 +379,7 @@ uint16_t of1x_get_packet_action_value16(const of1x_packet_action_t* action){
 * @retval The value of the field in host byte order 
 */
 static inline 
-uint32_t of1x_get_packet_action_value32(const of1x_packet_action_t* action){
+uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
 	return 0x0;
 }
 
@@ -390,7 +390,7 @@ uint32_t of1x_get_packet_action_value32(const of1x_packet_action_t* action){
 * @retval The value of the field in host byte order 
 */
 static inline 
-uint64_t of1x_get_packet_action_value64(const of1x_packet_action_t* action){
+uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
 	return 0x0;
 }
 
@@ -401,7 +401,7 @@ uint64_t of1x_get_packet_action_value64(const of1x_packet_action_t* action){
 * @retval The value of the field in host byte order 
 */
 static inline 
-uint128__t of1x_get_packet_action_value128(const of1x_packet_action_t* action){
+uint128__t of1x_get_packet_action_field128(const of1x_packet_action_t* action){
 	uint128__t tmp; 
 	return tmp;
 }
