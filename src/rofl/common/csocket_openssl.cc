@@ -579,10 +579,14 @@ csocket_openssl::openssl_accept()
 
 	rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL accepting..." << std::endl;
 
-	if ((rc = SSL_accept(ssl)) < 0) {
+	if (NULL == ssl) {
+		notify(cevent(EVENT_CONN_RESET));
+		throw eSysCall("SSL_accept()");
+	}
+
+	if ((rc = SSL_accept(ssl)) <= 0) {
 		switch (err_code = SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
-			// wait for next data from peer
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_READ" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_WRITE: {
@@ -598,28 +602,20 @@ csocket_openssl::openssl_accept()
 
 		case SSL_ERROR_NONE: {
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_NONE" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_SSL: {
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SSL" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_SYSCALL: {
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SYSCALL" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_ZERO_RETURN: {
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_ZERO_RETURN" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		default: {
 			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		};
 		}
-
-	} else
-	if (rc == 0) {
 
 		rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
 
@@ -668,6 +664,11 @@ csocket_openssl::openssl_connect()
 
 	rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL connecting..." << std::endl;
 
+	if (NULL == ssl) {
+		notify(cevent(EVENT_CONN_RESET));
+		throw eSysCall("SSL_connect()");
+	}
+
 	if ((rc = SSL_connect(ssl)) <= 0) {
 		switch (err_code = SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
@@ -686,28 +687,20 @@ csocket_openssl::openssl_connect()
 
 		case SSL_ERROR_NONE: {
 			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_NONE" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_SSL: {
 			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SSL" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_SYSCALL: {
 			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SYSCALL" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		case SSL_ERROR_ZERO_RETURN: {
 			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_ZERO_RETURN" << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		} break;
 		default: {
 			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
-			ERR_print_errors_fp(stderr);
-		} return;
+		};
 		}
-
-	} else
-	if (rc == 0) {
 
 		rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
 		ERR_print_errors_fp(stderr);
