@@ -159,7 +159,7 @@ uint32_t packet_matches_get_port_in_value(packet_matches_t *const pkt_matches){
 * @ingroup core_of1x 
 */
 static inline
-uint32_t packet_matches_get_port_in_phy_value(packet_matches_t *const pkt_matches){
+uint32_t packet_matches_get_phy_port_in_value(packet_matches_t *const pkt_matches){
 	return pkt_matches->__phy_port_in;
 };
 
