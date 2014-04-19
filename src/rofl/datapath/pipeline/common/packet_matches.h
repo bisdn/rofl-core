@@ -181,7 +181,7 @@ uint64_t packet_matches_get_metadata_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint64_t packet_matches_get_eth_dst_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__eth_dst);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__eth_dst));
 };
 /**
 * @brief Get the packet match ETH_SRC value in HOST BYTE ORDER 
@@ -189,7 +189,7 @@ uint64_t packet_matches_get_eth_dst_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint64_t packet_matches_get_eth_src_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__eth_src);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__eth_src));
 };
 /**
 * @brief Get the packet match ETH_TYPE value in HOST BYTE ORDER 
@@ -224,7 +224,7 @@ uint16_t packet_matches_get_vlan_vid_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint8_t packet_matches_get_vlan_pcp_value(packet_matches_t *const pkt_matches){
-	return pkt_matches->__vlan_pcp;
+	return OF1X_VLAN_PCP_VALUE(pkt_matches->__vlan_pcp);
 };
 
 //MPLS
@@ -234,7 +234,7 @@ uint8_t packet_matches_get_vlan_pcp_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint32_t packet_matches_get_mpls_label_value(packet_matches_t *const pkt_matches){
-	return NTOHB32(pkt_matches->__mpls_label);
+	return OF1X_MPLS_LABEL_VALUE(NTOHB32(pkt_matches->__mpls_label));
 };
 /**
 * @brief Get the packet match MPLS_TC value in HOST BYTE ORDER 
@@ -242,7 +242,7 @@ uint32_t packet_matches_get_mpls_label_value(packet_matches_t *const pkt_matches
 */
 static inline
 uint8_t packet_matches_get_mpls_tc_value(packet_matches_t *const pkt_matches){
-	return pkt_matches->__mpls_tc;
+	return OF1X_MPLS_TC_VALUE(pkt_matches->__mpls_tc);
 };
 /**
 * @brief Get the packet match MPLS_BOS value in HOST BYTE ORDER 
@@ -268,7 +268,7 @@ uint16_t packet_matches_get_arp_opcode_value(packet_matches_t *const pkt_matches
 */
 static inline
 uint64_t packet_matches_get_arp_tha_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__arp_tha);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__arp_tha));
 };
 /**
 * @brief Get the packet match ARP_SHA value in HOST BYTE ORDER
@@ -276,7 +276,7 @@ uint64_t packet_matches_get_arp_tha_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint64_t packet_matches_get_arp_sha_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__arp_sha);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__arp_sha));
 };
 /**
 * @brief Get the packet match ARP_TPA value in HOST BYTE ORDER
@@ -319,7 +319,7 @@ uint8_t packet_matches_get_ip_ecn_value(packet_matches_t *const pkt_matches){
 */
 static inline
 uint8_t packet_matches_get_ip_dscp_value(packet_matches_t *const pkt_matches){
-	return pkt_matches->__ip_dscp;
+	return OF1X_IP_DSCP_VALUE(pkt_matches->__ip_dscp);
 };
 
 //IPv4
@@ -439,7 +439,7 @@ uint128__t packet_matches_get_ipv6_dst_value(packet_matches_t *const pkt_matches
  */
 static inline
 uint64_t packet_matches_get_ipv6_flabel_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__ipv6_flabel);
+	return OF1X_IP6_FLABEL_VALUE(NTOHB64(pkt_matches->__ipv6_flabel));
 };
 /**
  * @brief Get the packet match IP6_ND_TARGET value in HOST BYTE ORDER
@@ -457,7 +457,7 @@ uint128__t packet_matches_get_ipv6_nd_target_value(packet_matches_t *const pkt_m
  */
 static inline
 uint64_t packet_matches_get_ipv6_nd_sll_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__ipv6_nd_sll);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__ipv6_nd_sll));
 };
 /**
  * @brief Get the packet match IP6_ND_TLL value in HOST BYTE ORDER
@@ -465,7 +465,7 @@ uint64_t packet_matches_get_ipv6_nd_sll_value(packet_matches_t *const pkt_matche
  */
 static inline
 uint64_t packet_matches_get_ipv6_nd_tll_value(packet_matches_t *const pkt_matches){
-	return NTOHB64(pkt_matches->__ipv6_nd_tll);
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__ipv6_nd_tll));
 };
 /**
  * @brief Get the packet match IP6_EXTHDR value in HOST BYTE ORDER
@@ -473,7 +473,7 @@ uint64_t packet_matches_get_ipv6_nd_tll_value(packet_matches_t *const pkt_matche
  */
 static inline
 uint16_t packet_matches_get_ipv6_exthdr_value(packet_matches_t *const pkt_matches){
-	return NTOHB16(pkt_matches->__ipv6_exthdr);
+	return NTOHB16(pkt_matches->__ipv6_exthdr); //TODO align?
 };
 
 //ICMPv6
@@ -500,7 +500,7 @@ uint8_t packet_matches_get_icmpv6_code_value(packet_matches_t *const pkt_matches
  */
 static inline
 uint32_t packet_matches_get_pbb_isid_value(packet_matches_t *const pkt_matches){
-	return NTOHB32(pkt_matches->__pbb_isid);
+	return NTOHB32(pkt_matches->__pbb_isid); //TODO align?
 };
 
 /**

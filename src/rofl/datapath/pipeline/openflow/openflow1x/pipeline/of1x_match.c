@@ -1056,6 +1056,8 @@ of1x_match_t* of1x_init_tunnel_id_match(uint64_t value, uint64_t mask){
 
 	if(unlikely(match == NULL))
 		return NULL;
+	
+	//TODO align?
 
 	match->type = OF1X_MATCH_TUNNEL_ID; 
 	match->__tern = __init_utern64(value, mask); //no wildcard 

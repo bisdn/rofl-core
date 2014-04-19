@@ -358,6 +358,36 @@ void of1x_destroy_packet_action(of1x_packet_action_t* action);
 */
 static inline 
 uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_IP_DSCP:
+			return OF1X_IP_DSCP_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_VLAN_PCP:
+			return OF1X_VLAN_PCP_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_MPLS_TC:
+			return OF1X_MPLS_TC_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_IP_ECN:
+		case OF1X_AT_SET_FIELD_NW_PROTO:
+		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
+		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+		case OF1X_AT_SET_MPLS_TTL:
+		case OF1X_AT_SET_NW_TTL:
+		case OF1X_AT_SET_FIELD_IP_PROTO:
+		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
+		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
+		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_QUEUE:
+		case OF1X_AT_SET_FIELD_MPLS_BOS:
+			return action->__field.u8;
+			break;
+		default:
+			return 0x0;
+			break;
+	}
 	return 0x0;
 }
 
@@ -369,6 +399,34 @@ uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
 */
 static inline 
 uint16_t of1x_get_packet_action_field16(const of1x_packet_action_t* action){
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_ETH_TYPE:
+		case OF1X_AT_SET_FIELD_ARP_OPCODE:
+		case OF1X_AT_SET_FIELD_TP_SRC:
+		case OF1X_AT_SET_FIELD_TP_DST:
+		case OF1X_AT_SET_FIELD_TCP_SRC:
+		case OF1X_AT_SET_FIELD_TCP_DST:
+		case OF1X_AT_SET_FIELD_UDP_SRC:
+		case OF1X_AT_SET_FIELD_UDP_DST:
+		case OF1X_AT_SET_FIELD_SCTP_SRC:
+		case OF1X_AT_SET_FIELD_SCTP_DST:
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+		case OF1X_AT_POP_MPLS:
+		case OF1X_AT_POP_PPPOE:
+		case OF1X_AT_POP_PBB:
+		case OF1X_AT_PUSH_PPPOE:
+		case OF1X_AT_PUSH_MPLS:
+		case OF1X_AT_PUSH_VLAN:
+		case OF1X_AT_PUSH_PBB:
+		case OF1X_AT_SET_FIELD_VLAN_VID:
+			return NTOHB16(action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
+		default:
+			return 0x0;
+			break;
+	}
 	return 0x0;
 }
 
@@ -380,6 +438,28 @@ uint16_t of1x_get_packet_action_field16(const of1x_packet_action_t* action){
 */
 static inline 
 uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_MPLS_LABEL:
+			return OF1X_MPLS_LABEL_VALUE(NTOHB32(action->__field.u32));
+		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
+			return OF1X_IP6_FLABEL_VALUE(NTOHB32(action->__field.u32));
+			break;
+		case OF1X_AT_SET_FIELD_IPV4_SRC:
+		case OF1X_AT_SET_FIELD_IPV4_DST:
+		case OF1X_AT_SET_FIELD_NW_SRC:
+		case OF1X_AT_SET_FIELD_NW_DST:
+		case OF1X_AT_SET_FIELD_ARP_SPA:
+		case OF1X_AT_SET_FIELD_ARP_TPA:
+		case OF1X_AT_SET_FIELD_GTP_TEID:
+		case OF1X_AT_OUTPUT:
+		case OF1X_AT_GROUP:
+			return NTOHB32(action->__field.u32);
+			break;
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+		default:
+			return 0x0;
+			break;
+	}
 	return 0x0;
 }
 
@@ -391,6 +471,23 @@ uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
 */
 static inline 
 uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:
+			return action->__field.u64;
+			break;
+		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
+		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
+		case OF1X_AT_SET_FIELD_ETH_DST:
+		case OF1X_AT_SET_FIELD_ETH_SRC:
+		case OF1X_AT_SET_FIELD_ARP_SHA:
+		case OF1X_AT_SET_FIELD_ARP_THA:	
+			return OF1X_MAC_VALUE(NTOHB64(action->__field.u64));
+			break;
+		default:
+			return 0x0;
+			break;
+	}
 	return 0x0;
 }
 
@@ -402,7 +499,19 @@ uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
 */
 static inline 
 uint128__t of1x_get_packet_action_field128(const of1x_packet_action_t* action){
-	uint128__t tmp; 
+	uint128__t tmp;
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
+		case OF1X_AT_SET_FIELD_IPV6_SRC:
+		case OF1X_AT_SET_FIELD_IPV6_DST:
+			tmp = action->__field.u128;
+			NTOHB128(tmp);
+			return tmp;
+			break;
+		default:
+			return tmp;
+			break;
+	}
 	return tmp;
 }
 

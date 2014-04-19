@@ -622,6 +622,7 @@ uint64_t of1x_get_match_value64(const of1x_match_t* match){
 		case OF1X_MATCH_IPV6_ND_SLL:
 		case OF1X_MATCH_IPV6_ND_TLL:
 			return OF1X_MAC_VALUE(NTOHB64(match->__tern->value.u64));
+			break;
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);

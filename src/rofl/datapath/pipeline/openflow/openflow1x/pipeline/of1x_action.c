@@ -47,12 +47,12 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		//16 byte
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
-		case OF1X_AT_SET_FIELD_IPV6_DST:
+		case OF1X_AT_SET_FIELD_IPV6_DST:{
 			uint128__t tmp = field.u128;
 			HTONB128(tmp);
 			action->__field.u128 = tmp;
 			action->ver_req.min_ver = OF_VERSION_12;
-			break;
+		}break;
 
 		//8 byte
 		case OF1X_AT_SET_FIELD_TUNNEL_ID:
@@ -128,7 +128,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		//3 byte
 		case OF1X_AT_SET_FIELD_PBB_ISID:
 			//TODO Align value
-			action->__field.u64 = field.u64&OF1X_3_BYTE_MASK;
+			action->__field.u32 = field.u32&OF1X_3_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 	
