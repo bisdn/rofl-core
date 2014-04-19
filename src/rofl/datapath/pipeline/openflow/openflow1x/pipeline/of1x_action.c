@@ -48,7 +48,9 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 		case OF1X_AT_SET_FIELD_IPV6_DST:
-			action->__field.u128 = field.u128;
+			uint128__t tmp = field.u128;
+			HTONB128(tmp);
+			action->__field.u128 = tmp;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
@@ -60,24 +62,30 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//6 byte values
 		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_ETH_DST:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ETH_SRC:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SHA:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_THA:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
@@ -87,19 +95,23 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_DST:
+			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
+			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SPA:
+			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_TPA:
+			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
@@ -108,103 +120,126 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
+			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 		//3 byte
 		case OF1X_AT_SET_FIELD_PBB_ISID:
+			//TODO Align value
 			action->__field.u64 = field.u64&OF1X_3_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 	
 		//20 bit values
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
-			action->__field.u32 = field.u32&OF1X_20_BITS_MASK;
+			field.u32 = HTONB32(OF1X_IP6_FLABEL_ALIGN(field.u32));
+			action->__field.u32 = field.u32&OF1X_20_BITS_IPV6_FLABEL_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:
+			field.u32 = HTONB32(OF1X_MPLS_LABEL_ALIGN(field.u32));
 			action->__field.u32 = field.u32&OF1X_20_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 		//2 byte values
 		case OF1X_AT_SET_FIELD_ETH_TYPE:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_OPCODE:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK; // TODO: lower 8bits of opcode only?
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TP_SRC:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_SRC:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_SRC:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_DST:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_SRC:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_DST:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_SID:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_PPP_PROT:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
-		case OF1X_AT_POP_MPLS: 
+		case OF1X_AT_POP_MPLS:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		case OF1X_AT_POP_PPPOE: 
+		case OF1X_AT_POP_PPPOE:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		case OF1X_AT_POP_PBB: 
+		case OF1X_AT_POP_PBB:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
 		case OF1X_AT_PUSH_PPPOE:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		case OF1X_AT_PUSH_MPLS: 
+		case OF1X_AT_PUSH_MPLS:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		case OF1X_AT_PUSH_VLAN: 
+		case OF1X_AT_PUSH_VLAN:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		case OF1X_AT_PUSH_PBB: 
+		case OF1X_AT_PUSH_PBB:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
@@ -212,12 +247,14 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//12 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
+			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_12_BITS_MASK;
 			break;
 
 
 		//9 bit value
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
+			//TODO align to pipeline -- currently not implemented
 			action->__field.u16 = field.u16&OF1X_9_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
@@ -245,15 +282,18 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//6 bit values
 		case OF1X_AT_SET_FIELD_IP_DSCP:
-			action->__field.u8 = field.u8&OF1X_6_BITS_MASK;
+			field.u8 = OF1X_IP_DSCP_ALIGN(field.u8);
+			action->__field.u8 = field.u8&OF1X_6MSBITS_MASK;
 			break;
 
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
+			field.u8 = OF1X_VLAN_PCP_ALIGN(field.u8);
 			action->__field.u8 = field.u8&OF1X_3MSBITS_MASK;
 			break;
 
 		case OF1X_AT_SET_FIELD_MPLS_TC:
+			field.u8 = OF1X_MPLS_TC_ALIGN(field.u8);
 			action->__field.u8 = field.u8&OF1X_BITS_12AND3_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;

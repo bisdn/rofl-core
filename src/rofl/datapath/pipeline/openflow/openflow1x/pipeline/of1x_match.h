@@ -618,6 +618,10 @@ uint32_t of1x_get_match_value32(const of1x_match_t* match){
 static inline 
 uint64_t of1x_get_match_value64(const of1x_match_t* match){
 	switch(match->type){
+		case OF1X_MATCH_METADATA:
+		case OF1X_MATCH_TUNNEL_ID:
+			return match->__tern->value.u64;
+			break;
 		case OF1X_MATCH_ETH_DST:
 		case OF1X_MATCH_ETH_SRC:
 		case OF1X_MATCH_ARP_THA:
@@ -733,6 +737,9 @@ uint32_t of1x_get_match_mask32(const of1x_match_t* match){
 static inline 
 uint64_t of1x_get_match_mask64(const of1x_match_t* match){
 	switch(match->type){
+		case OF1X_MATCH_TUNNEL_ID:
+			return match->__tern->mask.u64;
+			break;
 		case OF1X_MATCH_ETH_DST:
 		case OF1X_MATCH_ETH_SRC:
 		case OF1X_MATCH_ARP_THA:
