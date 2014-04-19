@@ -44,4 +44,8 @@ typedef struct wrap_u128{
 	#define COND_NTOHB128(cond, x) do{}while(0);
 #endif //LITTLE_ENDIAN_DETECTED
 
+//Helpers
+#define UINT128__T_IS_NOT_ZERO(x) ( (UINT128__T_HI(x) != 0x0ULL) || (UINT128__T_LO(x) != 0x0ULL) )
+#define UINT128__T_IS_ZERO(x) ! UINT128__T_IS_NOT_ZERO(x) 
+
 #endif //__LARGE_TYPES_H__
