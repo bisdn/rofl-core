@@ -42,7 +42,7 @@ AM_COND_IF([PIPELINE_SUPPORT],[
 ## pipeline
 MATCHING_ALGORITHMS_DIR="src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms"
 AC_SUBST(MATCHING_ALGORITHMS_DIR)
-MATCHING_ALGORITHMS="loop"
+MATCHING_ALGORITHMS="loop l2hash"
 MATCHING_ALGORITHM_LIBS=""
 MATCHING_ALGORITHM_LIBADD=""
 
