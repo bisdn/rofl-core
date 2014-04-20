@@ -205,4 +205,16 @@ cofdesc_stats_reply::length() const
 
 
 
+void
+cofdesc_stats_reply::clear()
+{
+	mfr_desc.clear();
+	hw_desc.clear();
+	sw_desc.clear();
+	serial_num.clear();
+	dp_desc.clear();
+}
+
+
+
 

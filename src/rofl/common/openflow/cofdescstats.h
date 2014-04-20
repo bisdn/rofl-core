@@ -74,6 +74,13 @@ public:
 	 *
 	 */
 	void
+	clear();
+
+
+	/**
+	 *
+	 */
+	void
 	set_version(uint8_t of_version);
 
 
