@@ -1,5 +1,5 @@
-#ifndef __OF1X_LOOP_MATCH_PP_H__
-#define __OF1X_LOOP_MATCH_PP_H__
+#ifndef __OF1X_L2HASH_MATCH_PP_H__
+#define __OF1X_L2HASH_MATCH_PP_H__
 
 #include "rofl.h"
 #include "../../of1x_pipeline.h"
@@ -19,7 +19,7 @@ ROFL_BEGIN_DECLS
 
 /* FLOW entry lookup entry point */ 
 static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_t *const table, datapacket_t *const pkt){
-
+	
 	//TODO
 	
 	return NULL; 
@@ -28,4 +28,4 @@ static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //OF1X_LOOP_MATCH_PP
+#endif //OF1X_L2HASH_MATCH_PP
