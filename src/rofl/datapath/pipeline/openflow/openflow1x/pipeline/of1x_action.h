@@ -451,9 +451,11 @@ uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
 		case OF1X_AT_SET_FIELD_ARP_SPA:
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 		case OF1X_AT_SET_FIELD_GTP_TEID:
+			return NTOHB32(action->__field.u32);
+			break;
 		case OF1X_AT_OUTPUT:
 		case OF1X_AT_GROUP:
-			return NTOHB32(action->__field.u32);
+			return action->__field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_PBB_ISID:
 		default:
