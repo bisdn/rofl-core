@@ -207,9 +207,9 @@ of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);
 /*
 * Dump group table. Not recommended to use it directly
 *
-* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
 */
-void of1x_dump_group_table(of1x_group_table_t *gt, bool nbo);
+void of1x_dump_group_table(of1x_group_table_t *gt, bool raw_nbo);
 
 //C++ extern C
 ROFL_END_DECLS

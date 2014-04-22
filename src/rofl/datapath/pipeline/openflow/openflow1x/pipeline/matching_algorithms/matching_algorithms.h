@@ -235,10 +235,10 @@ typedef struct of1x_matching_algorithm_functions{
 	* flow table when of1x_dump_switch() is called.
 	*
 	* This is optional. 
-	* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
+	* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
 	*/
 	void
-	(*dump_hook)(struct of1x_flow_table *const table, bool nbo);
+	(*dump_hook)(struct of1x_flow_table *const table, bool raw_nbo);
 
 	
 	/**
