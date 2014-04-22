@@ -1294,94 +1294,27 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 * Copy match to heap. Leaves next and prev pointers to NULL
 */
 of1x_match_t* __of1x_copy_match(of1x_match_t* match){
-	switch(match->type){
 
-		case OF1X_MATCH_IN_PORT: return of1x_init_port_in_match(match->__tern->value.u32);
-		case OF1X_MATCH_IN_PHY_PORT: return of1x_init_port_in_phy_match(match->__tern->value.u32);
+	of1x_match_t* tmp = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
-	  	case OF1X_MATCH_METADATA: return of1x_init_metadata_match(match->__tern->value.u64,match->__tern->mask.u64);	
-   
-		case OF1X_MATCH_ETH_DST:  return of1x_init_eth_dst_match(match->__tern->value.u64,match->__tern->mask.u64); 
-   		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(match->__tern->value.u16);
+	if(!tmp)
+		return tmp;
 
-   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(match->__tern->value.u16,match->__tern->mask.u16, match->vlan_present); 
-   		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(match->__tern->value.u8); 
-
-   		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(match->__tern->value.u32); 
-   		case OF1X_MATCH_MPLS_TC: return of1x_init_mpls_tc_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_MPLS_BOS: return of1x_init_mpls_bos_match(match->__tern->value.u8); 
-
-   		case OF1X_MATCH_ARP_OP: return of1x_init_arp_opcode_match(match->__tern->value.u16);
-   		case OF1X_MATCH_ARP_SHA: return of1x_init_arp_sha_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ARP_SPA: return of1x_init_arp_spa_match(match->__tern->value.u32,match->__tern->mask.u32);
-   		case OF1X_MATCH_ARP_THA: return of1x_init_arp_tha_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ARP_TPA: return of1x_init_arp_tpa_match(match->__tern->value.u32,match->__tern->mask.u32);
-
-		case OF1X_MATCH_NW_PROTO: return of1x_init_nw_proto_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_NW_SRC: return of1x_init_nw_src_match(match->__tern->value.u32,match->__tern->mask.u32); 
-   		case OF1X_MATCH_NW_DST: return of1x_init_nw_dst_match(match->__tern->value.u32,match->__tern->mask.u32); 
-
-		case OF1X_MATCH_IP_PROTO: return of1x_init_ip_proto_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_IP_ECN: return of1x_init_ip_ecn_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_IP_DSCP: return of1x_init_ip_dscp_match(match->__tern->value.u8);
-
-   		case OF1X_MATCH_IPV4_SRC: return of1x_init_ip4_src_match(match->__tern->value.u32,match->__tern->mask.u32); 
-   		case OF1X_MATCH_IPV4_DST: return of1x_init_ip4_dst_match(match->__tern->value.u32,match->__tern->mask.u32); 
-
-   		case OF1X_MATCH_TCP_SRC: return of1x_init_tcp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_TCP_DST: return of1x_init_tcp_dst_match(match->__tern->value.u16); 
-
-   		case OF1X_MATCH_UDP_SRC: return of1x_init_udp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_UDP_DST: return of1x_init_udp_dst_match(match->__tern->value.u16); 
-
-   		case OF1X_MATCH_SCTP_SRC: return of1x_init_sctp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_SCTP_DST: return of1x_init_sctp_dst_match(match->__tern->value.u16); 
-
-		case OF1X_MATCH_TP_SRC: return of1x_init_tp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_TP_DST: return of1x_init_tp_dst_match(match->__tern->value.u16); 
-
-
-		case OF1X_MATCH_ICMPV4_TYPE: return of1x_init_icmpv4_type_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_ICMPV4_CODE: return of1x_init_icmpv4_code_match(match->__tern->value.u8); 
-  		
-		case OF1X_MATCH_IPV6_SRC: return of1x_init_ip6_src_match(match->__tern->value.u128, match->__tern->mask.u128);
-		case OF1X_MATCH_IPV6_DST: return of1x_init_ip6_dst_match(match->__tern->value.u128, match->__tern->mask.u128);
-		case OF1X_MATCH_IPV6_FLABEL: return of1x_init_ip6_flabel_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_ND_TARGET: return of1x_init_ip6_nd_target_match(match->__tern->value.u128);
-		case OF1X_MATCH_IPV6_ND_SLL: return of1x_init_ip6_nd_sll_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_ND_TLL: return of1x_init_ip6_nd_tll_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_EXTHDR: return of1x_init_ip6_exthdr_match(match->__tern->value.u64, match->__tern->mask.u64);
-		
-		case OF1X_MATCH_ICMPV6_TYPE: return of1x_init_icmpv6_type_match(match->__tern->value.u64);
-		case OF1X_MATCH_ICMPV6_CODE: return of1x_init_icmpv6_code_match(match->__tern->value.u64);
-		
-		/* PPP/PPPoE related extensions */
-   		case OF1X_MATCH_PPPOE_CODE: return of1x_init_pppoe_code_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_PPPOE_TYPE: return of1x_init_pppoe_type_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_PPPOE_SID: return of1x_init_pppoe_session_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_PPP_PROT: return of1x_init_ppp_prot_match(match->__tern->value.u16); 
-
-		//PBB   		
-		case OF1X_MATCH_PBB_ISID: return of1x_init_pbb_isid_match(match->__tern->value.u32, match->__tern->mask.u32); 
-		//Tunnel ID
-		case OF1X_MATCH_TUNNEL_ID: return of1x_init_tunnel_id_match(match->__tern->value.u64, match->__tern->mask.u64); 
-
-   		/* GTP related extensions */
-   		case OF1X_MATCH_GTP_MSG_TYPE: return of1x_init_gtp_msg_type_match(match->__tern->value.u8);
-   		case OF1X_MATCH_GTP_TEID: return of1x_init_gtp_teid_match(match->__tern->value.u32,match->__tern->mask.u32);
-   		
-		case OF1X_MATCH_MAX:
-				break;
-		
-		// Add more here ...
-		//Warning: NEVER add a default clause
+	//Copy contents
+	*tmp = *match;
 	
-	}	
+	//Initialize linked-list to null
+	tmp->prev=tmp->next=NULL;
 
-	assert(0);	
-	return NULL;
+	//Create a whatever type utern and copy from the orignal tern
+	tmp->__tern = __init_utern8(0x0, 0x0);
 
+	if(!tmp->__tern)
+		return NULL;
+
+	*tmp->__tern = *match->__tern;
+
+	return tmp;
 }
 
 /* 
