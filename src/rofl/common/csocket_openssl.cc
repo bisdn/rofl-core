@@ -510,10 +510,10 @@ csocket_openssl::close()
 {
 	int rc = 0;
 
-	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
-
-	if (socket_flags.test(FLAG_SSL_IDLE))
+	if (socket_flags.test(FLAG_SSL_IDLE) || socket_flags.test(FLAG_SSL_CLOSING))
 		return;
+
+	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
 
 	socket_flags.reset(FLAG_SSL_ESTABLISHED);
 	socket_flags.set(FLAG_SSL_CLOSING);
