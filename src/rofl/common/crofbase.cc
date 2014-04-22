@@ -304,35 +304,39 @@ crofbase::send_port_status_message(
 void
 crofbase::rpc_close_all()
 {
-	// close the listening sockets
-	for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
-			it != rpc[RPC_CTL].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_CTL].clear();
+	try {
+		// close the listening sockets
+		for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
+				it != rpc[RPC_CTL].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_CTL].clear();
 
-	for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
-			it != rpc[RPC_DPT].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_DPT].clear();
+		for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
+				it != rpc[RPC_DPT].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_DPT].clear();
 
-	// detach from higher layer entities
-	for (std::set<crofctl*>::iterator
-			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-	{
-		delete (*it);
-	}
-	ofctl_set.clear();
+		// detach from higher layer entities
+		for (std::set<crofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofctl_set.clear();
 
-	for (std::set<crofdpt*>::iterator
-			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-	{
-		delete (*it);
+		for (std::set<crofdpt*>::iterator
+				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofdpt_set.clear();
+	} catch (RoflException& e) {
+		rofl::logging::error << "[rofl][crofbase][rpc_close_all] exception:" << e << std::endl;
 	}
-	ofdpt_set.clear();
 }
 
 
