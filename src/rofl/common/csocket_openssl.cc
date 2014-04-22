@@ -470,7 +470,7 @@ csocket_openssl::dequeue_packet()
 
 		rofl::cmemory *mem = txqueue.front();
 
-		if ((rc = SSL_write(ssl, mem->somem(), mem->memlen())) < 0) {
+		if ((NULL != ssl) && (rc = SSL_write(ssl, mem->somem(), mem->memlen())) < 0) {
 
 			switch (err_code = SSL_get_error(ssl, rc)) {
 			case SSL_ERROR_WANT_READ: {
