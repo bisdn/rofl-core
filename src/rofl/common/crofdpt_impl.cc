@@ -1421,7 +1421,7 @@ crofdpt_impl::send_set_async_config_message(
 
 
 
-uint32_t
+void
 crofdpt_impl::send_error_message(
 	uint32_t xid,
 	uint16_t type,
@@ -1444,8 +1444,6 @@ crofdpt_impl::send_error_message(
 					datalen);
 
 	rofchan.send_message(msg, 0);
-
-	return xid;
 }
 
 
