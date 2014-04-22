@@ -134,9 +134,9 @@ ROFL_BEGIN_DECLS
 /**
  * @brief Dump the values of packet (header values)  
  * @ingroup core_of1x
- * @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
+ * @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
  */
-void dump_packet_matches(packet_matches_t *const pkt_matches, bool nbo);
+void dump_packet_matches(packet_matches_t *const pkt_matches, bool raw_nbo);
 
 /**
 * @brief Get the packet match PACKET_LENGTH value in HOST BYTE ORDER 

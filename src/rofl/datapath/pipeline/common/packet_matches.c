@@ -10,7 +10,7 @@
 */
 
 //Dump packet matches
-void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
+void dump_packet_matches(packet_matches_t *const pkt, bool raw_nbo){
 
 	ROFL_PIPELINE_INFO_NO_PREFIX("Packet matches [");	
 
@@ -31,27 +31,27 @@ void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
 	
 	//802	
 	if(pkt->__eth_src)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_SRC:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__eth_src));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_SRC:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__eth_src));
 	if(pkt->__eth_dst)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_DST:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__eth_dst));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_DST:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__eth_dst));
 	if(pkt->__eth_type)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_TYPE:0x%x, ", COND_NTOHB16(nbo,pkt->__eth_type));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ETH_TYPE:0x%x, ", COND_NTOHB16(raw_nbo,pkt->__eth_type));
 	//802.1q
 	if(pkt->__has_vlan)
-		ROFL_PIPELINE_INFO_NO_PREFIX("VLAN_VID:%u, ", COND_NTOHB16(nbo,pkt->__vlan_vid));
+		ROFL_PIPELINE_INFO_NO_PREFIX("VLAN_VID:%u, ", COND_NTOHB16(raw_nbo,pkt->__vlan_vid));
 	if(pkt->__has_vlan)
 		ROFL_PIPELINE_INFO_NO_PREFIX("VLAN_PCP:%u, ",pkt->__vlan_pcp);
 	//ARP
 	if(pkt->__eth_type == ETH_TYPE_ARP)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_OPCODE:0x%x, ", COND_NTOHB16(nbo,pkt->__arp_opcode));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_OPCODE:0x%x, ", COND_NTOHB16(raw_nbo,pkt->__arp_opcode));
 	if(pkt->__eth_type == ETH_TYPE_ARP)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_SHA:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__arp_sha));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_SHA:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__arp_sha));
 	if(pkt->__eth_type == ETH_TYPE_ARP)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_SPA:0x%x, ", COND_NTOHB32(nbo,pkt->__arp_spa));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_SPA:0x%x, ", COND_NTOHB32(raw_nbo,pkt->__arp_spa));
 	if(pkt->__eth_type == ETH_TYPE_ARP)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_THA:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__arp_tha));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_THA:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__arp_tha));
 	if(pkt->__eth_type == ETH_TYPE_ARP)
-		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_TPA:0x%x, ", COND_NTOHB32(nbo,pkt->__arp_tpa));
+		ROFL_PIPELINE_INFO_NO_PREFIX("ARP_TPA:0x%x, ", COND_NTOHB32(raw_nbo,pkt->__arp_tpa));
 	//IP/IPv4
 	if((pkt->__eth_type == ETH_TYPE_IPV4 || pkt->__eth_type == ETH_TYPE_IPV6) && pkt->__ip_proto)
 		ROFL_PIPELINE_INFO_NO_PREFIX("IP_PROTO:%u, ",pkt->__ip_proto);
@@ -63,25 +63,25 @@ void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
 		ROFL_PIPELINE_INFO_NO_PREFIX("IP_DSCP:0x%x, ",pkt->__ip_dscp);
 	
 	if(pkt->__ipv4_src)
-		ROFL_PIPELINE_INFO_NO_PREFIX("IPV4_SRC:0x%x, ", COND_NTOHB32(nbo,pkt->__ipv4_src));
+		ROFL_PIPELINE_INFO_NO_PREFIX("IPV4_SRC:0x%x, ", COND_NTOHB32(raw_nbo,pkt->__ipv4_src));
 	if(pkt->__ipv4_dst)
-		ROFL_PIPELINE_INFO_NO_PREFIX("IPV4_DST:0x%x, ", COND_NTOHB32(nbo,pkt->__ipv4_dst));
+		ROFL_PIPELINE_INFO_NO_PREFIX("IPV4_DST:0x%x, ", COND_NTOHB32(raw_nbo,pkt->__ipv4_dst));
 	//TCP
 	if(pkt->__tcp_src)
-		ROFL_PIPELINE_INFO_NO_PREFIX("TCP_SRC:%u, ", COND_NTOHB16(nbo,pkt->__tcp_src));
+		ROFL_PIPELINE_INFO_NO_PREFIX("TCP_SRC:%u, ", COND_NTOHB16(raw_nbo,pkt->__tcp_src));
 	if(pkt->__tcp_dst)
-		ROFL_PIPELINE_INFO_NO_PREFIX("TCP_DST:%u, ", COND_NTOHB16(nbo,pkt->__tcp_dst));
+		ROFL_PIPELINE_INFO_NO_PREFIX("TCP_DST:%u, ", COND_NTOHB16(raw_nbo,pkt->__tcp_dst));
 	//UDP
 	if(pkt->__udp_src)
-		ROFL_PIPELINE_INFO_NO_PREFIX("UDP_SRC:%u, ", COND_NTOHB16(nbo,pkt->__udp_src));
+		ROFL_PIPELINE_INFO_NO_PREFIX("UDP_SRC:%u, ", COND_NTOHB16(raw_nbo,pkt->__udp_src));
 	if(pkt->__udp_dst)
-		ROFL_PIPELINE_INFO_NO_PREFIX("UDP_DST:%u, ", COND_NTOHB16(nbo,pkt->__udp_dst));
+		ROFL_PIPELINE_INFO_NO_PREFIX("UDP_DST:%u, ", COND_NTOHB16(raw_nbo,pkt->__udp_dst));
 
 	//SCTP
 	if(pkt->__sctp_src)
-		ROFL_PIPELINE_INFO_NO_PREFIX("SCTP_SRC:%u, ", COND_NTOHB16(nbo,pkt->__sctp_src));
+		ROFL_PIPELINE_INFO_NO_PREFIX("SCTP_SRC:%u, ", COND_NTOHB16(raw_nbo,pkt->__sctp_src));
 	if(pkt->__sctp_dst)
-		ROFL_PIPELINE_INFO_NO_PREFIX("SCTP_DST:%u, ", COND_NTOHB16(nbo,pkt->__sctp_dst));
+		ROFL_PIPELINE_INFO_NO_PREFIX("SCTP_DST:%u, ", COND_NTOHB16(raw_nbo,pkt->__sctp_dst));
 
 	//ICMPV4
 	if(pkt->__ip_proto == IP_PROTO_ICMPV4)
@@ -93,13 +93,13 @@ void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
 	if( UINT128__T_LO(pkt->__ipv6_dst) || UINT128__T_HI(pkt->__ipv6_dst) )
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",UINT128__T_HI(pkt->__ipv6_dst),UINT128__T_LO(pkt->__ipv6_dst));
 	if(pkt->__eth_type == ETH_TYPE_IPV6)
-		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_FLABEL:0x%lu, ", COND_NTOHB64(nbo,pkt->__ipv6_flabel));
+		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_FLABEL:0x%lu, ", COND_NTOHB64(raw_nbo,pkt->__ipv6_flabel));
 	if(pkt->__ip_proto == IP_PROTO_ICMPV6)
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_TARGET:0x%lx:%lx, ",UINT128__T_HI(pkt->__ipv6_nd_target),UINT128__T_LO(pkt->__ipv6_nd_target));
 	if(pkt->__ip_proto == IP_PROTO_ICMPV6) //NOTE && pkt->__icmpv6_type ==?
-		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_SLL:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__ipv6_nd_sll));
+		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_SLL:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__ipv6_nd_sll));
 	if(pkt->__ip_proto == IP_PROTO_ICMPV6) //NOTE && pkt->__icmpv6_type ==?
-		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_TLL:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__ipv6_nd_tll));
+		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_TLL:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__ipv6_nd_tll));
 	/*TODO IPV6 exthdr*/
 	/*nd_target nd_sll nd_tll exthdr*/
 	
@@ -109,10 +109,10 @@ void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
 	
 	//MPLS	
    	if(pkt->__eth_type == ETH_TYPE_MPLS_UNICAST || pkt->__eth_type == ETH_TYPE_MPLS_MULTICAST )
-		ROFL_PIPELINE_INFO_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, MPLS_BOS:%u", COND_NTOHB32(nbo,pkt->__mpls_label), pkt->__mpls_tc, pkt->__mpls_bos);
+		ROFL_PIPELINE_INFO_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, MPLS_BOS:%u", COND_NTOHB32(raw_nbo,pkt->__mpls_label), pkt->__mpls_tc, pkt->__mpls_bos);
 	//PPPoE
 	if(pkt->__eth_type == ETH_TYPE_PPPOE_DISCOVERY || pkt->__eth_type == ETH_TYPE_PPPOE_SESSION ){
-		ROFL_PIPELINE_INFO_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",pkt->__pppoe_code, pkt->__pppoe_type,COND_NTOHB16(nbo, pkt->__pppoe_sid));
+		ROFL_PIPELINE_INFO_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",pkt->__pppoe_code, pkt->__pppoe_type,COND_NTOHB16(raw_nbo, pkt->__pppoe_sid));
 		//PPP
 		if(pkt->__eth_type == ETH_TYPE_PPPOE_SESSION)
 			ROFL_PIPELINE_INFO_NO_PREFIX("PPP_PROTO:0x%x, ",pkt->__ppp_proto);
@@ -121,14 +121,14 @@ void dump_packet_matches(packet_matches_t *const pkt, bool nbo){
 
 	//PBB
 	if(pkt->__pbb_isid)
-		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:%u,", COND_NTOHB32(nbo,pkt->__pbb_isid));
+		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:%u,", COND_NTOHB32(raw_nbo,pkt->__pbb_isid));
 	//Tunnel id
 	if(pkt->__tunnel_id)
-		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(nbo,pkt->__tunnel_id));
+		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,pkt->__tunnel_id));
 	
 	//GTP
 	if(pkt->__ip_proto == IP_PROTO_UDP && pkt->__udp_dst == UDP_DST_PORT_GTPU){
-		ROFL_PIPELINE_INFO_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",pkt->__gtp_msg_type,  COND_NTOHB32(nbo, pkt->__gtp_teid));
+		ROFL_PIPELINE_INFO_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",pkt->__gtp_msg_type,  COND_NTOHB32(raw_nbo, pkt->__gtp_teid));
 	}
 
 	ROFL_PIPELINE_INFO_NO_PREFIX("]\n");	
