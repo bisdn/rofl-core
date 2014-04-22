@@ -209,6 +209,10 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 	}
 	
 	//TODO: deep entry copy?
+	sn->num_of_tables = pipeline->num_of_tables;
+	sn->num_of_buffers = pipeline->num_of_buffers;
+	sn->capabilities = pipeline->capabilities;
+	sn->miss_send_len = pipeline->miss_send_len;
 
 	return ROFL_SUCCESS;
 }
