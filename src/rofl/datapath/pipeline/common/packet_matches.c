@@ -169,7 +169,7 @@ void dump_packet_matches(packet_matches_t *const pkt, bool raw_nbo){
 		uint32_t tmp_label = pkt->__mpls_label; 
 		if(!raw_nbo){
 			tmp_tc = OF1X_MPLS_TC_VALUE(tmp_tc);
-			tmp_label = NTOHB32(tmp_label);
+			tmp_label = OF1X_MPLS_LABEL_VALUE(NTOHB32(tmp_label));
 		}
 		ROFL_PIPELINE_INFO_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, MPLS_BOS:%u", tmp_label, tmp_tc, pkt->__mpls_bos);
 	}
