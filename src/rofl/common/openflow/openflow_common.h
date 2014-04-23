@@ -790,6 +790,193 @@ namespace openflow {
 	};
 
 
+	enum ofp_error_ids {
+		/* HELLO_FAILED */
+		OFPETC_HELLO_FAILED_INCOMPATIBLE 	= (OFPET_HELLO_FAILED << 16) | OFPHFC_INCOMPATIBLE, /* No compatible version. */
+		OFPETC_HELLO_FAILED_EPERM		 	= (OFPET_HELLO_FAILED << 16) | OFPHFC_EPERM, 		/* Permissions error. */
+
+
+		/* BAD_REQUEST */
+		OFPETC_BAD_REQUEST_BAD_VERSION		= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_VERSION, 	/* ofp_header.version not supported. */
+		OFPETC_BAD_REQUEST_BAD_TYPE			= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_TYPE, 		/* ofp_header.type not supported. */
+		OFPETC_BAD_REQUEST_BAD_STAT			= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_STAT,		/* ofp_stats_request.type not supported. */
+		OFPETC_BAD_REQUEST_BAD_EXPERIMENTER	= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_EXPERIMENTER, /* Experimenter id not supported
+																								 * (in ofp_experimenter_header or
+																								 * ofp_stats_request or ofp_stats_reply). */
+
+
+		OFPETC_BAD_REQUEST_BAD_EXP_TYPE		= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_EXP_TYPE,	/* Experimenter type not supported. */
+		OFPETC_BAD_REQUEST_EPERM			= (OFPET_BAD_REQUEST << 16) | OFPBRC_EPERM,			/* Permissions error. */
+		OFPETC_BAD_REQUEST_BAD_LEN			= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_LEN,		/* Wrong request length for type. */
+		OFPETC_BAD_REQUEST_BUFFER_EMPTY		= (OFPET_BAD_REQUEST << 16) | OFPBRC_BUFFER_EMPTY,	/* Specified buffer has already been used. */
+		OFPETC_BAD_REQUEST_BUFFER_UNKNOWN	= (OFPET_BAD_REQUEST << 16) | OFPBRC_BUFFER_UNKNOWN,/* Specified buffer does not exist. */
+		OFPETC_BAD_REQUEST_BAD_TABLE_ID		= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_TABLE_ID,	/* Specified table-id invalid or does not exist. */
+		OFPETC_BAD_REQUEST_IS_SLAVE			= (OFPET_BAD_REQUEST << 16) | OFPBRC_IS_SLAVE,		/* Denied because controller is slave. */
+		OFPETC_BAD_REQUEST_BAD_PORT			= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_PORT,		/* Invalid port. */
+		OFPETC_BAD_REQUEST_BAD_PACKET		= (OFPET_BAD_REQUEST << 16) | OFPBRC_BAD_PACKET,	/* Invalid packet in packet-out. */
+		OFPETC_BAD_REQUEST_MULTIPART_BUFFER_OVERFLOW = (OFPET_BAD_REQUEST << 16) | OFPBRC_MULTIPART_BUFFER_OVERFLOW,
+																					/* ofp_multipart_request
+																						* overflowed the assigned buffer. */
+
+
+		/* BAD_ACTION */
+		OFPETC_BAD_ACTION_BAD_TYPE			= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_TYPE,	/* Unknown action type. */
+		OFPETC_BAD_ACTION_BAD_LEN			= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_LEN,	/* Length problem in actions. */
+		OFPETC_BAD_ACTION_BAD_EXPERIMENTER	= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_EXPERIMENTER, 	/* Unknown experimenter id specified. */
+		OFPETC_BAD_ACTION_BAD_EXP_TYPE		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_EXP_TYPE,	/* Unknown action type for experimenter id. */
+		OFPETC_BAD_ACTION_BAD_OUT_PORT		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_OUT_PORT, 	/* Problem validating output port. */
+		OFPETC_BAD_ACTION_BAD_ARGUMENT		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_ARGUMENT,   /* Bad action argument. */
+		OFPETC_BAD_ACTION_EPERM				= (OFPET_BAD_ACTION << 16) | OFPBAC_EPERM,		/* Permissions error. */
+		OFPETC_BAD_ACTION_TOO_MANY			= (OFPET_BAD_ACTION << 16) | OFPBAC_TOO_MANY,    /* Can't handle this many actions. */
+		OFPETC_BAD_ACTION_BAD_QUEUE			= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_QUEUE,	/* Problem validating output queue. */
+		OFPETC_BAD_ACTION_BAD_OUT_GROUP		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_OUT_GROUP,	/* Invalid group id in forward action. */
+		OFPETC_BAD_ACTION_MATCH_INCONSISTENT= (OFPET_BAD_ACTION << 16) | OFPBAC_MATCH_INCONSISTENT, 	/* Action can't apply for this match. */
+		OFPETC_BAD_ACTION_UNSUPPORTED_ORDER	= (OFPET_BAD_ACTION << 16) | OFPBAC_UNSUPPORTED_ORDER,	/* Action order is unsupported for the action
+	  	  	  	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 * list in an Apply-Actions instruction */
+		OFPETC_BAD_ACTION_BAD_TAG			= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_TAG,	/* Actions uses an unsupported
+  	     	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 * tag/encap. */
+		OFPETC_BAD_ACTION_BAD_SET_TYPE		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_SET_TYPE, 	/* Unsupported type in SET_FIELD action. */
+		OFPETC_BAD_ACTION_BAD_SET_LEN		= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_SET_LEN, 	/* Length problem in SET_FIELD action. */
+		OFPETC_BAD_ACTION_BAD_SET_ARGUMENT	= (OFPET_BAD_ACTION << 16) | OFPBAC_BAD_SET_ARGUMENT, 	/* Bad argument in SET_FIELD action. */
+
+
+
+		/* BAD_INSTRUCTION */
+		OFPETC_BAD_INSTRUCTION_UNKNOWN_INST			= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_UNKNOWN_INST,    /* Unknown instruction. */
+		OFPETC_BAD_INSTRUCTION_UNSUP_INST			= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_UNSUP_INST,    /* Switch or table does not support the
+									  	  	 	 	 	 	 	 	 	 	 	 	 	 	 * instruction. */
+		OFPETC_BAD_INSTRUCTION_BAD_TABLE_ID			= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_BAD_TABLE_ID,    /* Invalid Table-ID specified. */
+		OFPETC_BAD_INSTRUCTION_UNSUP_METADATA		= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_UNSUP_METADATA,    /* Metadata value unsupported by datapath. */
+		OFPETC_BAD_INSTRUCTION_UNSUP_METADATA_MASK	= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_UNSUP_METADATA_MASK,	/* Metadata mask value unsupported by
+									  	  	 	 	 	 	 	 	 	 	 	 	 	 	 * datapath. */
+		OFPETC_BAD_INSTRUCTION_BAD_EXPERIMENTER		= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_BAD_EXPERIMENTER,    /* Specific experimenter instruction
+									  	  	 	 	 	 	 	 	 	 	 	 	 	 	 * unsupported. */
+		OFPETC_BAD_INSTRUCTION_BAD_EXP_TYPE			= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_BAD_EXP_TYPE, 	/* Unknown instruction for experimenter id. */
+		OFPETC_BAD_INSTRUCTION_BAD_LEN				= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_BAD_LEN, 	/* Length problem in instructions. */
+		OFPETC_BAD_INSTRUCTION_EPERM				= (OFPET_BAD_INSTRUCTION << 16) | OFPBIC_EPERM, 	/* Permissions error. */
+
+
+		/* BAD_MATCH */
+		OFPETC_BAD_MATCH_BAD_TYPE			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_TYPE, 	/* Unsupported match type specified by the match */
+		OFPETC_BAD_MATCH_BAD_LEN			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_LEN, 	/* Length problem in match. */
+		OFPETC_BAD_MATCH_BAD_TAG			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_TAG, 	/* Match uses an unsupported tag/encap. */
+		OFPETC_BAD_MATCH_BAD_DL_ADDR_MASK	= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_DL_ADDR_MASK, 	/* Unsupported datalink addr mask - switch
+																							 * does not support arbitrary datalink
+																							 * address mask. */
+		OFPETC_BAD_MATCH_BAD_NW_ADDR_MASK	= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_NW_ADDR_MASK, 	/* Unsupported network addr mask - switch
+																							 * does not support arbitrary network
+																							 * address mask. */
+		OFPETC_BAD_MATCH_BAD_WILDCARDS		= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_WILDCARDS, 	/* Unsupported combination of fields masked
+		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 * or omitted in the match. */
+		OFPETC_BAD_MATCH_BAD_FIELD			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_FIELD, 	/* Unsupported field type in the match. */
+		OFPETC_BAD_MATCH_BAD_VALUE			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_VALUE, 	/* Unsupported value in a match field. */
+		OFPETC_BAD_MATCH_BAD_MASK			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_MASK, 	/* Unsupported mask specified in the match,
+											 	 	 	 	 	 	 	 	 	 	 	 	 * field is not dl-address or nw-address. */
+		OFPETC_BAD_MATCH_BAD_PREREQ			= (OFPET_BAD_MATCH << 16) | OFPBMC_BAD_PREREQ, 	/* A prerequisite was not met. */
+		OFPETC_BAD_MATCH_DUP_FIELD			= (OFPET_BAD_MATCH << 16) | OFPBMC_DUP_FIELD, 	/* A field type was duplicated. */
+		OFPETC_BAD_MATCH_EPERM				= (OFPET_BAD_MATCH << 16) | OFPBMC_EPERM, 	/* Permissions error. */
+
+
+		/* FLOW_MOD_FAILED */
+		OFPETC_FLOW_MOD_UNKNOWN				= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_UNKNOWN,    /* Unspecified error. */
+		OFPETC_FLOW_MOD_TABLE_FULL			= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_TABLE_FULL,    /* Flow not added because table was full. */
+		OFPETC_FLOW_MOD_BAD_TABLE_ID		= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_BAD_TABLE_ID,    /* Table does not exist */
+		OFPETC_FLOW_MOD_OVERLAP				= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_OVERLAP,    /* Attempted to add overlapping flow with
+									   	   	 * CHECK_OVERLAP flag set. */
+		OFPETC_FLOW_MOD_EPERM				= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_EPERM,	/* Permissions error. */
+		OFPETC_FLOW_MOD_BAD_TIMEOUT			= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_BAD_TIMEOUT,    /* Flow not added because of unsupported
+									   	     * idle/hard timeout. */
+		OFPETC_FLOW_MOD_BAD_COMMAND			= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_BAD_COMMAND,	/* Unsupported or unknown command. */
+		OFPETC_FLOW_MOD_BAD_FLAGS			= (OFPET_FLOW_MOD_FAILED << 16) | OFPFMFC_BAD_FLAGS,	/* Unsupported or unknown flags. */
+
+		/* GROUP_MOD_FAILED */
+		OFPETC_GROUP_MOD_GROUP_EXISTS		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_GROUP_EXISTS,   	/* Group not added because a group ADD
+												 * attempted to replace an
+												 * already-present group. */
+		OFPETC_GROUP_MOD_INVALID_GROUP		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_INVALID_GROUP,   	/* Group not added because Group specified
+												 * is invalid. */
+		OFPETC_GROUP_MOD_WEIGHT_UNSUPPORTED	= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_WEIGHT_UNSUPPORTED,    /* Switch does not support unequal load
+												 * sharing with select groups. */
+		OFPETC_GROUP_MOD_OUT_OF_GROUPS		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_OUT_OF_GROUPS,    /* The group table is full. */
+		OFPETC_GROUP_MOD_OUT_OF_BUCKETS		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_OUT_OF_BUCKETS,    /* The maximum number of action buckets
+												 * for a group has been exceeded. */
+		OFPETC_GROUP_MOD_CHAINING_UNSUPPORTED= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_CHAINING_UNSUPPORTED,    /* Switch does not support groups that
+												 * forward to groups. */
+		OFPETC_GROUP_MOD_WATCH_UNSUPPORTED	= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_WATCH_UNSUPPORTED,    /* This group cannot watch the
+												   watch_port or watch_group specified. */
+		OFPETC_GROUP_MOD_LOOP				= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_LOOP,    /* Group entry would cause a loop. */
+		OFPETC_GROUP_MOD_UNKNOWN_GROUP		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_UNKNOWN_GROUP,    /* Group not modified because a group
+												   MODIFY attempted to modify a
+												   non-existent group. */
+		OFPETC_GROUP_MOD_CHAINED_GROUP		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_CHAINED_GROUP,	/* Group not deleted because another
+												   group is forwarding to it. */
+		OFPETC_GROUP_MOD_BAD_TYPE			= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_BAD_TYPE,	/* Unsupported or unknown group type. */
+		OFPETC_GROUP_MOD_BAD_COMMAND		= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_BAD_COMMAND,	/* Unsupported or unknown command. */
+		OFPETC_GROUP_MOD_BAD_BUCKET			= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_BAD_BUCKET,	/* Error in bucket. */
+		OFPETC_GROUP_MOD_BAD_WATCH			= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_BAD_WATCH,	/* Error in watch port/group. */
+		OFPETC_GROUP_MOD_EPERM				= (OFPET_GROUP_MOD_FAILED << 16) | OFPGMFC_EPERM,	/* Permissions error. */
+
+		/* PORT_MOD_FAILED */
+		OFPETC_PORT_MOD_BAD_PORT			= (OFPET_PORT_MOD_FAILED << 16) | OFPPMFC_BAD_PORT,	/* Specified port number does not exist. */
+		OFPETC_PORT_MOD_BAD_HW_ADDR			= (OFPET_PORT_MOD_FAILED << 16) | OFPPMFC_BAD_HW_ADDR,	/* Specified hardware address does not
+									  	  	  	 * match the port number. */
+		OFPETC_PORT_MOD_BAD_CONFIG			= (OFPET_PORT_MOD_FAILED << 16) | OFPPMFC_BAD_CONFIG,	/* Specified config is invalid. */
+		OFPETC_PORT_MOD_BAD_ADVERTISE		= (OFPET_PORT_MOD_FAILED << 16) | OFPPMFC_BAD_ADVERTISE,	/* Specified advertise is invalid. */
+		OFPETC_PORT_MOD_EPERM				= (OFPET_PORT_MOD_FAILED << 16) | OFPPMFC_EPERM,	/* Permissions error. */
+
+		/* TABLE_MOD_FAILED */
+		OFPETC_TABLE_MOD_BAD_TABLE			= (OFPET_TABLE_MOD_FAILED << 16) | OFPTMFC_BAD_TABLE,	/* Specified table does not exist. */
+		OFPETC_TABLE_MOD_BAD_CONFIG			= (OFPET_TABLE_MOD_FAILED << 16) | OFPTMFC_BAD_CONFIG,	/* Specified config is invalid. */
+		OFPETC_TABLE_MOD_EPERM				= (OFPET_TABLE_MOD_FAILED << 16) | OFPTMFC_EPERM,	/* Permissions error. */
+
+		/* QUEUE_OP_FAILED */
+		OFPETC_QUEUE_OP_BAD_PORT			= (OFPET_QUEUE_OP_FAILED << 16) | OFPQOFC_BAD_PORT,	/* Invalid port (or port does not exist). */
+		OFPETC_QUEUE_OP_BAD_QUEUE			= (OFPET_QUEUE_OP_FAILED << 16) | OFPQOFC_BAD_QUEUE,	/* Queue does not exist. */
+		OFPETC_QUEUE_OP_EPERM				= (OFPET_QUEUE_OP_FAILED << 16) | OFPQOFC_EPERM,	/* Permissions error. */
+
+		/* SWITCH_CONFIG_FAILED */
+		OFPETC_SWITCH_CONFIG_BAD_FLAGS		= (OFPET_SWITCH_CONFIG_FAILED << 16) | OFPSCFC_BAD_FLAGS,	/* Specified flags is invalid. */
+		OFPETC_SWITCH_CONFIG_BAD_LEN		= (OFPET_SWITCH_CONFIG_FAILED << 16) | OFPSCFC_BAD_LEN,	/* Specified len is invalid. */
+		OFPETC_SWITCH_CONFIG_EPERM			= (OFPET_SWITCH_CONFIG_FAILED << 16) | OFPSCFC_EPERM,	/* Permissions error. */
+
+		/* ROLE_REQUEST */
+		OFPETC_ROLE_REQUEST_STALE			= (OFPET_ROLE_REQUEST_FAILED << 16) | OFPRRFC_STALE, 	/* Stale Message: old generation_id. */
+		OFPETC_ROLE_REQUEST_UNSUP			= (OFPET_ROLE_REQUEST_FAILED << 16) | OFPRRFC_UNSUP, 	/* Controller role change unsupported. */
+		OFPETC_ROLE_REQUEST_BAD_ROLE		= (OFPET_ROLE_REQUEST_FAILED << 16) | OFPRRFC_BAD_ROLE, 	/* Invalid role. */
+
+		/* METER_MOD_FAILED */
+		OFPETC_METER_MOD_UNKNOWN			= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_UNKNOWN, 	/* Unspecified error. */
+		OFPETC_METER_MOD_METER_EXISTS		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_METER_EXISTS, 	/* Meter not added because a Meter ADD
+												 * attempted to replace an existing Meter. */
+		OFPETC_METER_MOD_INVALID_METER		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_INVALID_METER,	/* Meter not added because Meter specified
+												 * is invalid. */
+		OFPETC_METER_MOD_UNKNOWN_METER		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_UNKNOWN_METER, 	/* Meter not modified because a Meter
+												 * MODIFY attempted to modify a non-existent
+												 * Meter. */
+		OFPETC_METER_MOD_BAD_COMMAND		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_COMMAND, 	/* Unsupported or unknown command. */
+		OFPETC_METER_MOD_BAD_FLAGS			= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_FLAGS, 	/* Flag configuration unsupported. */
+		OFPETC_METER_MOD_BAD_RATE			= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_RATE, 	/* Rate unsupported. */
+		OFPETC_METER_MOD_BAD_BURST			= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_BURST, 	/* Burst size unsupported. */
+		OFPETC_METER_MOD_BAD_BAND			= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_BAND, 	/* Band unsupported. */
+		OFPETC_METER_MOD_BAD_BAND_VALUE		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_BAD_BAND_VALUE, 	/* Band value unsupported. */
+		OFPETC_METER_MOD_OUT_OF_METERS		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_OUT_OF_METERS, 	/* No more meters available. */
+		OFPETC_METER_MOD_OUT_OF_BANDS		= (OFPET_METER_MOD_FAILED << 16) | OFPMMFC_OUT_OF_BANDS, 	/* The maximum number of properties
+		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 	 * for a meter has been exceeded. */
+
+		/* TABLE_FEATURES_FAILED */
+		OFPETC_TABLE_FEATURES_BAD_TABLE		= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_BAD_TABLE,	/* Specified table does not exist. */
+		OFPETC_TABLE_FEATURES_BAD_METADATA	= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_BAD_METADATA,	/* Invalid metadata mask. */
+		OFPETC_TABLE_FEATURES_BAD_TYPE		= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_BAD_TYPE,	/* Unknown property type. */
+		OFPETC_TABLE_FEATURES_BAD_LEN		= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_BAD_LEN, 	/* Length problem in properties. */
+		OFPETC_TABLE_FEATURES_BAD_ARGUMENT	= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_BAD_ARGUMENT, 	/* Unsupported property value. */
+		OFPETC_TABLE_FEATURES_EPERM			= (OFPET_TABLE_FEATURES_FAILED << 16) | OFPTFFC_EPERM, 	/* Permissions error. */
+
+		/* EXPERIMENTER */
+		OFPETC_EXPERIMENTER					= (OFPET_EXPERIMENTER << 16), /* Experimenter error messages. */
+	};
+
+
+
 	enum ofp_multipart_types {
 		/* Description of this OpenFlow switch.
 		* The request body is empty.

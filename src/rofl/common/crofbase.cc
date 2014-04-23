@@ -304,35 +304,39 @@ crofbase::send_port_status_message(
 void
 crofbase::rpc_close_all()
 {
-	// close the listening sockets
-	for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
-			it != rpc[RPC_CTL].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_CTL].clear();
+	try {
+		// close the listening sockets
+		for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
+				it != rpc[RPC_CTL].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_CTL].clear();
 
-	for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
-			it != rpc[RPC_DPT].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_DPT].clear();
+		for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
+				it != rpc[RPC_DPT].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_DPT].clear();
 
-	// detach from higher layer entities
-	for (std::set<crofctl*>::iterator
-			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-	{
-		delete (*it);
-	}
-	ofctl_set.clear();
+		// detach from higher layer entities
+		for (std::set<crofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofctl_set.clear();
 
-	for (std::set<crofdpt*>::iterator
-			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-	{
-		delete (*it);
+		for (std::set<crofdpt*>::iterator
+				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofdpt_set.clear();
+	} catch (RoflException& e) {
+		rofl::logging::error << "[rofl][crofbase][rpc_close_all] exception:" << e << std::endl;
 	}
-	ofdpt_set.clear();
 }
 
 
@@ -595,14 +599,16 @@ crofbase::rpc_listen_for_ctls(
 
 
 
-void
+rofl::crofctl&
 crofbase::rpc_connect_to_ctl(
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
-	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, socket_type, socket_params));
+	rofl::crofctl *rofctl = cofctl_factory(this, versionbitmap, reconnect_start_timeout, socket_type, socket_params);
+	ofctl_set.insert(rofctl);
+	return *(rofctl);
 }
 
 
@@ -627,6 +633,7 @@ crofbase::rpc_disconnect_from_ctl(
 }
 
 
+
 void
 crofbase::rpc_disconnect_from_ctl(
 		caddress const& ra)
@@ -635,6 +642,22 @@ crofbase::rpc_disconnect_from_ctl(
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 		crofctl *ctl = (*it);
 		if (ctl->get_peer_addr() == ra) {
+			rpc_disconnect_from_ctl(ctl);
+			return;
+		}
+	}
+}
+
+
+
+void
+crofbase::rpc_disconnect_from_ctl(
+		uint64_t ctlid)
+{
+	for (std::set<crofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+		crofctl *ctl = (*it);
+		if (ctl->get_ctlid() == ctlid) {
 			rpc_disconnect_from_ctl(ctl);
 			return;
 		}
@@ -670,6 +693,22 @@ crofbase::rpc_disconnect_from_dpt(
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
 		crofdpt *dpt = (*it);
 		if (dpt->get_peer_addr() == ra) {
+			rpc_disconnect_from_dpt(dpt);
+			return;
+		}
+	}
+}
+
+
+
+void
+crofbase::rpc_disconnect_from_dpt(
+		uint64_t dpid)
+{
+	for (std::set<crofdpt*>::iterator
+			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
+		crofdpt *dpt = (*it);
+		if (dpt->get_dpid() == dpid) {
 			rpc_disconnect_from_dpt(dpt);
 			return;
 		}

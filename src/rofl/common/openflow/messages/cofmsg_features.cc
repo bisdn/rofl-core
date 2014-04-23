@@ -195,7 +195,8 @@ cofmsg_features_reply::cofmsg_features_reply(
 
 cofmsg_features_reply::cofmsg_features_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	ports(get_version())
 {
 	ofh_switch_features = soframe();
 }

@@ -9,6 +9,7 @@ cofmsg_role_request::cofmsg_role_request(
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	role(of_version)
 {
+	this->role = role;
 	this->role.set_version(of_version);
 
 	set_version(of_version);
@@ -32,7 +33,8 @@ cofmsg_role_request::cofmsg_role_request(
 
 cofmsg_role_request::cofmsg_role_request(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	role(get_version())
 {
 
 }
@@ -195,6 +197,7 @@ cofmsg_role_reply::cofmsg_role_reply(
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	role(of_version)
 {
+	this->role = role;
 	this->role.set_version(of_version);
 
 	set_version(of_version);
@@ -218,7 +221,8 @@ cofmsg_role_reply::cofmsg_role_reply(
 
 cofmsg_role_reply::cofmsg_role_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	role(get_version())
 {
 
 }

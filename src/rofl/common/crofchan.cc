@@ -10,6 +10,21 @@
 using namespace rofl;
 
 
+crofchan::crofchan() :
+				env(NULL),
+				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
+				state(STATE_DISCONNECTED),
+				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
+				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
+				reconnect_variance(CROFCHAN_RECONNECT_VARIANCE_IN_SECS),
+				reconnect_counter(0),
+				reconnect_timer_id(0)
+{
+
+}
+
+
+
 crofchan::crofchan(
 		crofchan_env *env,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :

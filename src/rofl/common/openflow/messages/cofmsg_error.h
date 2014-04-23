@@ -158,8 +158,352 @@ public:
 	operator<< (std::ostream& os, cofmsg_error const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_error >" << std::endl;
-		os << indent(4) << "<err-type:" << (int)msg.get_err_type() << " >" << std::endl;
-		os << indent(4) << "<err-code:" << (int)msg.get_err_code() << " >" << std::endl;
+
+		os << std::hex;
+		uint32_t error_id = ((uint32_t)msg.get_err_type() << 16) | msg.get_err_code();
+		switch (error_id) {
+		case OFPETC_HELLO_FAILED_INCOMPATIBLE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " HELLO-FAILED-INCOMPATIBLE >" << std::endl;
+		} break;
+		case OFPETC_HELLO_FAILED_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " HELLO-FAILED-EPERM >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_VERSION: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-VERSION >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_STAT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-STAT >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_EXPERIMENTER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-EXPERIMENTER >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_EXP_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-EXP-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-EPERM >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BUFFER_EMPTY: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BUFFER-EMPTY >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BUFFER_UNKNOWN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BUFFER-UNKNOWN >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_TABLE_ID: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-TABLE-ID >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_IS_SLAVE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-IS-SLAVE >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_PORT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-PORT >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_BAD_PACKET: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-BAD-PACKET >" << std::endl;
+		} break;
+		case OFPETC_BAD_REQUEST_MULTIPART_BUFFER_OVERFLOW: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-REQUEST-MULTIPART-BUFFER-OVERFLOW >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_EXPERIMENTER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-EXPERIMENTER >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_EXP_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-EXP-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_OUT_PORT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-OUT-PORT >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_ARGUMENT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-ARGUMENT >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-EPERM >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_TOO_MANY: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-TOO-MANY >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_QUEUE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-QUEUE >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_OUT_GROUP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-OUT-GROUP >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_MATCH_INCONSISTENT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-MATCH-INCONSISTENT >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_UNSUPPORTED_ORDER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-UNSUPPORTED-ORDER >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_TAG: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-TAG >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_SET_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-SET-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_SET_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-SET-LEN >" << std::endl;
+		} break;
+		case OFPETC_BAD_ACTION_BAD_SET_ARGUMENT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-ACTION-BAD-SET-ARGUMENT >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_UNKNOWN_INST: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-UNKNOWN-INST >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_UNSUP_INST: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-UNSUP-INST >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_BAD_TABLE_ID: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-BAD-TABLE-ID >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_UNSUP_METADATA: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-UNSUP-METADATA >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_UNSUP_METADATA_MASK: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-UNSUP-METADATA-MASK >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_BAD_EXPERIMENTER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-BAD-EXPERIMENTER >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_BAD_EXP_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-BAD-EXP-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_BAD_INSTRUCTION_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-INSTRUCTION-EPERM >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-TYPE >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_TAG: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-TAG >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_DL_ADDR_MASK: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-DL-ADDR-MASK >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_NW_ADDR_MASK: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-NW-ADDR-MASK >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_WILDCARDS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-WILDCARDS >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_FIELD: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-FIELD >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_VALUE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-VALUE >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_MASK: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-MASK >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_BAD_PREREQ: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-BAD-PREREQ >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_DUP_FIELD: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-DUP-FIELD >" << std::endl;
+		} break;
+		case OFPETC_BAD_MATCH_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " BAD-MATCH-EPERM >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_UNKNOWN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-UNKNOWN >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_TABLE_FULL: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-TABLE-FULL >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_BAD_TABLE_ID: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-BAD-TABLE-ID >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_OVERLAP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-OVERLAP >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-EPERM >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_BAD_TIMEOUT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-BAD-TIMEOUT >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_BAD_COMMAND: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-BAD-COMMAND >" << std::endl;
+		} break;
+		case OFPETC_FLOW_MOD_BAD_FLAGS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " FLOW-MOD-BAD-FLAGS >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_GROUP_EXISTS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-GROUP-EXISTS >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_INVALID_GROUP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-INVALID-GROUP >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_WEIGHT_UNSUPPORTED: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-WEIGHT-UNSUPPORTED >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_OUT_OF_GROUPS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-OUT-OF-GROUPS >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_OUT_OF_BUCKETS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-OUT-OF-BUCKETS >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_CHAINING_UNSUPPORTED: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-CHAINING-UNSUPPORTED >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_WATCH_UNSUPPORTED: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-WATCH-UNSUPPORTED >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_LOOP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-LOOP >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_UNKNOWN_GROUP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-UNKNOWN-GROUP >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_CHAINED_GROUP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-CHAINED-GROUP >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_BAD_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-BAD-TYPE >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_BAD_COMMAND: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-BAD-COMMAND >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_BAD_BUCKET: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-BAD-BUCKET >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_BAD_WATCH: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-BAD-WATCH >" << std::endl;
+		} break;
+		case OFPETC_GROUP_MOD_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " GROUP-MOD-EPERM >" << std::endl;
+		} break;
+		case OFPETC_PORT_MOD_BAD_PORT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " PORT-MOD-BAD-PORT >" << std::endl;
+		} break;
+		case OFPETC_PORT_MOD_BAD_HW_ADDR: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " PORT-MOD-BAD-HW-ADDR >" << std::endl;
+		} break;
+		case OFPETC_PORT_MOD_BAD_CONFIG: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " PORT-MOD-BAD-CONFIG >" << std::endl;
+		} break;
+		case OFPETC_PORT_MOD_BAD_ADVERTISE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " PORT-MOD-BAD-ADVERTISE >" << std::endl;
+		} break;
+		case OFPETC_PORT_MOD_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " PORT-MOD-EPERM >" << std::endl;
+		} break;
+		case OFPETC_TABLE_MOD_BAD_TABLE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-MOD-BAD-TABLE >" << std::endl;
+		} break;
+		case OFPETC_TABLE_MOD_BAD_CONFIG: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-MOD-BAD-CONFIG >" << std::endl;
+		} break;
+		case OFPETC_TABLE_MOD_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-MOD-EPERM >" << std::endl;
+		} break;
+		case OFPETC_QUEUE_OP_BAD_PORT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " QUEUE-OP-BAD-PORT >" << std::endl;
+		} break;
+		case OFPETC_QUEUE_OP_BAD_QUEUE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " QUEUE-OP-BAD-QUEUE >" << std::endl;
+		} break;
+		case OFPETC_QUEUE_OP_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " QUEUE-OP-EPERM >" << std::endl;
+		} break;
+		case OFPETC_SWITCH_CONFIG_BAD_FLAGS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " SWITCH-CONFIG-BAD-FLAGS >" << std::endl;
+		} break;
+		case OFPETC_SWITCH_CONFIG_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " SWITCH-CONFIG-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_SWITCH_CONFIG_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " SWITCH-CONFIG-EPERM >" << std::endl;
+		} break;
+		case OFPETC_ROLE_REQUEST_STALE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " ROLE-REQUEST-STALE >" << std::endl;
+		} break;
+		case OFPETC_ROLE_REQUEST_UNSUP: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " ROLE-REQUEST-UNSUP >" << std::endl;
+		} break;
+		case OFPETC_ROLE_REQUEST_BAD_ROLE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " ROLE-REQUEST-BAD-ROLE >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_UNKNOWN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-UNKNOWN >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_METER_EXISTS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-METER-EXISTS >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_INVALID_METER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-INVALID-METER >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_UNKNOWN_METER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-UNKNOWN-METER >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_COMMAND: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-COMMAND >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_FLAGS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-FLAGS >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_RATE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-RATE >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_BURST: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-BURST >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_BAND: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-BAND >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_BAD_BAND_VALUE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-BAD-BAND-VALUE >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_OUT_OF_METERS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-OUT-OF-METERS >" << std::endl;
+		} break;
+		case OFPETC_METER_MOD_OUT_OF_BANDS: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " METER-MOD-OUT-OF-BANDS >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_BAD_TABLE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-BAD-TABLE >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_BAD_METADATA: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-BAD-METADATA >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_BAD_TYPE: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-BAD-TYPE >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_BAD_LEN: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-BAD-LEN >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_BAD_ARGUMENT: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-BAD-ARGUMENT >" << std::endl;
+		} break;
+		case OFPETC_TABLE_FEATURES_EPERM: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " TABLE-FEATURES-EPERM >" << std::endl;
+		} break;
+		case OFPETC_EXPERIMENTER: {
+			os << indent(4) << "<error-id: 0x" << (int)error_id << " EXPERIMENTER >" << std::endl;
+		} break;
+		default: {
+			os << indent(4) << "<err-type:" << (int)msg.get_err_type() << " >" << std::endl;
+			os << indent(4) << "<err-code:" << (int)msg.get_err_code() << " >" << std::endl;
+		};
+		}
+		os << std::dec;
 		indent i(6);
 		os << msg.body;
 		return os;
