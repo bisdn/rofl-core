@@ -275,7 +275,6 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
-		case OF1X_AT_SET_QUEUE:
 			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
@@ -302,6 +301,10 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_IP_ECN:
 			action->__field.u8 = field.u8&OF1X_2LSBITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_QUEUE:
+			action->__field.u32 =  field.u32&OF1X_4_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_GROUP:
 			action->__field.u32 =  field.u32&OF1X_4_BYTE_MASK; //id of the group
@@ -628,7 +631,7 @@ of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin){
 }
 
 /* Dumping */
-static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
+static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo){
 
 	ROFL_PIPELINE_INFO_NO_PREFIX("<");
 	switch(action->type){
@@ -660,156 +663,155 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 		case OF1X_AT_DEC_MPLS_TTL:ROFL_PIPELINE_INFO_NO_PREFIX("DEC_MPLS_TTL");
 			break;
 
-		case OF1X_AT_SET_MPLS_TTL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TTL: %u",action->__field.u8);
+		case OF1X_AT_SET_MPLS_TTL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TTL: %u", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_NW_TTL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_TTL: %u",action->__field.u8);
-			break;
-
-		case OF1X_AT_SET_QUEUE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_QUEUE: %u",action->__field.u8);
+		case OF1X_AT_SET_NW_TTL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_TTL: %u", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64,COND_NTOHB64(nbo,action->__field.u64)); 
-			break;
-		case OF1X_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_SRC: 0x%"PRIx64,COND_NTOHB64(nbo,action->__field.u64));
-			break;
-		case OF1X_AT_SET_FIELD_ETH_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_TYPE: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_QUEUE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_QUEUE: %u", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_VID: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo)); 
 			break;
-		case OF1X_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_PCP: 0x%x",OF1X_VLAN_PCP_VALUE(action->__field.u8));
+		case OF1X_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_SRC: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-
-		case OF1X_AT_SET_FIELD_ARP_OPCODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_OPCODE: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
-			break;
-		case OF1X_AT_SET_FIELD_ARP_SHA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_SHA: 0x%"PRIx64,COND_NTOHB64(nbo,action->__field.u64));
-			break;
-		case OF1X_AT_SET_FIELD_ARP_SPA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_SPA: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
-			break;
-		case OF1X_AT_SET_FIELD_ARP_THA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_THA: 0x%"PRIx64,COND_NTOHB64(nbo,action->__field.u64));
-			break;
-		case OF1X_AT_SET_FIELD_ARP_TPA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_TPA: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
+		case OF1X_AT_SET_FIELD_ETH_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_TYPE: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
 
-		/* OF1.0 only */
-		case OF1X_AT_SET_FIELD_NW_PROTO: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_PROTO: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_VID: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_NW_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_SRC: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
-			break;
-		case OF1X_AT_SET_FIELD_NW_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_DST: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
-			break;
-		/* OF1.0 only */
-
-		case OF1X_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_DSCP: 0x%x",action->__field.u8);
-			break;
-		case OF1X_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_ECN: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_INFO_NO_PREFIX("SET_VLAN_PCP: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_IP_PROTO:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_PROTO: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_ARP_OPCODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_OPCODE: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-
-		case OF1X_AT_SET_FIELD_IPV4_SRC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV4_SRC: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
+		case OF1X_AT_SET_FIELD_ARP_SHA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_SHA: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV4_DST: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
+		case OF1X_AT_SET_FIELD_ARP_SPA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_SPA: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_ARP_THA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_THA: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_ARP_TPA: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ARP_TPA: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 
 		/* OF1.0 only */
-		case OF1X_AT_SET_FIELD_TP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TP_SRC: %u",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_NW_PROTO: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_PROTO: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_TP_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TP_DST: %u",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_NW_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_SRC: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_NW_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_NW_DST: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 		/* OF1.0 only */
-		case OF1X_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TCP_SRC: %u",COND_NTOHB16(nbo,action->__field.u16));
+
+		case OF1X_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_DSCP: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TCP_DST: %u",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_ECN: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_UDP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_UDP_SRC: %u",COND_NTOHB16(nbo,action->__field.u16));
-			break;
-		case OF1X_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_UDP_DST: %u",COND_NTOHB16(nbo,action->__field.u16));
-			break;
-		case OF1X_AT_SET_FIELD_SCTP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_SCTP_SRC: %u",COND_NTOHB16(nbo,action->__field.u16));
-			break;
-		case OF1X_AT_SET_FIELD_SCTP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_SCTP_DST: %u",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_IP_PROTO:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IP_PROTO: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV4_TYPE: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_IPV4_SRC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV4_SRC: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV4_CODE: 0x%x",action->__field.u8);
-			break;
-
-		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_LABEL: 0x%x", COND_NTOHB32(nbo,OF1X_MPLS_LABEL_VALUE(action->__field.u32)));
-			break;
-		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TC: 0x%x",OF1X_MPLS_TC_VALUE(action->__field.u8));
-			break;
-		case OF1X_AT_SET_FIELD_MPLS_BOS:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_BOS: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV4_DST: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_CODE: 0x%x",action->__field.u8);
+		/* OF1.0 only */
+		case OF1X_AT_SET_FIELD_TP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TP_SRC: %u", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_PPPOE_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_TYPE: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_TP_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TP_DST: %u", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_PPPOE_SID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_SID: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
+		/* OF1.0 only */
+		case OF1X_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TCP_SRC: %u", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_TCP_DST: %u", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPP_PROT: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_UDP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_UDP_SRC: %u", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_UDP_DST: %u", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_SCTP_SRC: %u", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("SET_SCTP_DST: %u", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+
+		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV4_TYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV4_CODE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+
+		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_LABEL: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_TC: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_MPLS_BOS:ROFL_PIPELINE_INFO_NO_PREFIX("SET_MPLS_BOS: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_CODE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_TYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_SID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPPOE_SID: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+
+		case OF1X_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPP_PROT: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
 			
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 			{
-				uint128__t addr = action->__field.u128;
-				COND_NTOHB128(nbo,addr);
+				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_SRC: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_DST:
 			{
-				uint128__t addr = action->__field.u128;
-				COND_NTOHB128(nbo,addr);
+				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_DST: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}
 			break;
-		case OF1X_AT_SET_FIELD_IPV6_FLABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_FLABEL: 0x%u",COND_NTOHB32(nbo,action->__field.u32));
+		case OF1X_AT_SET_FIELD_IPV6_FLABEL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_FLABEL: 0x%u", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
 			{
-				uint128__t addr = action->__field.u128;
-				COND_NTOHB128(nbo,addr);
+				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_TARGET: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}
 			break;
-		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_SLL: 0x%x",COND_NTOHB64(nbo,action->__field.u64));
+		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_SLL: 0x%x", __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_TLL: 0x%x",COND_NTOHB64(nbo,action->__field.u64));
+		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_TLL: 0x%x", __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_EXTHDR: 0x%x",COND_NTOHB16(nbo,action->__field.u16));
+		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_EXTHDR: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
 			
-		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u",action->__field.u8);
+		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_CODE: 0x%u",action->__field.u8);
+		case OF1X_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_CODE: 0x%u", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 		case OF1X_AT_POP_PBB:ROFL_PIPELINE_INFO_NO_PREFIX("POP_PBB");
 			break;
 		case OF1X_AT_PUSH_PBB:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_PBB");
 			break;
-		case OF1X_AT_SET_FIELD_PBB_ISID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PBB_ISID: 0x%u",COND_NTOHB64(nbo,action->__field.u64));
+		case OF1X_AT_SET_FIELD_PBB_ISID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PBB_ISID: 0x%u", __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_TUNNEL_ID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_TUNNEL_ID: 0x%u",COND_NTOHB64(nbo,action->__field.u64));
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_TUNNEL_ID: 0x%u", __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
 		
 
-		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GTP_MSG_TYPE: 0x%x",action->__field.u8);
+		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GTP_MSG_TYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
-		case OF1X_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GTP_TEID: 0x%x",COND_NTOHB32(nbo,action->__field.u32));
+		case OF1X_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GTP_TEID: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 		case OF1X_AT_POP_GTP:ROFL_PIPELINE_INFO_NO_PREFIX("POP_GTP");
 			break;
 		case OF1X_AT_PUSH_GTP:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_GTP");
 			break;
 
-
-		case OF1X_AT_GROUP:ROFL_PIPELINE_INFO_NO_PREFIX("GROUP:%u", action->__field.u32);
+		case OF1X_AT_GROUP:ROFL_PIPELINE_INFO_NO_PREFIX("GROUP:%u", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 
 		case OF1X_AT_EXPERIMENTER:ROFL_PIPELINE_INFO_NO_PREFIX("EXPERIMENTER");
@@ -817,7 +819,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 
 		case OF1X_AT_OUTPUT:
 				ROFL_PIPELINE_INFO_NO_PREFIX("OUTPUT port: ");
-				switch(action->__field.u32){
+				switch(__of1x_get_packet_action_field32(action, raw_nbo)){
 	
 					case OF1X_PORT_FLOOD:
 						ROFL_PIPELINE_INFO_NO_PREFIX("FLOOD");
@@ -835,7 +837,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 						ROFL_PIPELINE_INFO_NO_PREFIX("IN-PORT");
 						break;	
 					default:
-						ROFL_PIPELINE_INFO_NO_PREFIX("%u",action->__field.u32);
+						ROFL_PIPELINE_INFO_NO_PREFIX("%u", __of1x_get_packet_action_field32(action, raw_nbo));
 						break;
 				}
 			break;
@@ -844,27 +846,27 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 
 }
 
-void __of1x_dump_write_actions(of1x_write_actions_t* write_actions, bool nbo){
+void __of1x_dump_write_actions(of1x_write_actions_t* write_actions, bool raw_nbo){
 
 	int i,j;
 
 	for(i=0,j=0;i<write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
 		if( bitmap128_is_bit_set(&write_actions->bitmap, j) ){
 			//Process action
-			__of1x_dump_packet_action(&write_actions->actions[j], nbo);
+			__of1x_dump_packet_action(&write_actions->actions[j], raw_nbo);
 			i++;		
 		}
 	}
 }
 	
-void __of1x_dump_action_group(of1x_action_group_t* action_group, bool nbo){
+void __of1x_dump_action_group(of1x_action_group_t* action_group, bool raw_nbo){
 
 	of1x_packet_action_t* action;
 
 	if( unlikely(action_group==NULL) )
 		return;
 	for(action=action_group->head;action;action=action->next){
-		__of1x_dump_packet_action(action, nbo);
+		__of1x_dump_packet_action(action, raw_nbo);
 	}
 }
 

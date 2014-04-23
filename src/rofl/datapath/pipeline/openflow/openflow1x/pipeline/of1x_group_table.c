@@ -464,16 +464,16 @@ bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){
 	return false;
 }
 
-void of1x_dump_bucket(of1x_bucket_t *bc, bool nbo){
+void of1x_dump_bucket(of1x_bucket_t *bc, bool raw_nbo){
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
 	
 	//NOTE stats?
 	
-	__of1x_dump_action_group(bc->actions, nbo);
+	__of1x_dump_action_group(bc->actions, raw_nbo);
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("\n");
 }
 
-void of1x_dump_group(of1x_group_t* group, bool nbo){
+void of1x_dump_group(of1x_group_t* group, bool raw_nbo){
 	of1x_bucket_t *bc_it;
 	unsigned int i;
 	
@@ -502,12 +502,12 @@ void of1x_dump_group(of1x_group_t* group, bool nbo){
 
 	for(bc_it=group->bc_list->head, i=0; bc_it; bc_it=bc_it->next, i++){
 		ROFL_PIPELINE_DEBUG("\t\t[%u] Bucket (%p). ", i, bc_it);
-		of1x_dump_bucket(bc_it, nbo);
+		of1x_dump_bucket(bc_it, raw_nbo);
 	}
 	ROFL_PIPELINE_DEBUG("\n");
 }
 
-void of1x_dump_group_table(of1x_group_table_t *gt, bool nbo){
+void of1x_dump_group_table(of1x_group_table_t *gt, bool raw_nbo){
 	of1x_group_t* it;
 	unsigned int i;
 	
@@ -515,7 +515,7 @@ void of1x_dump_group_table(of1x_group_table_t *gt, bool nbo){
 	if (gt->num_of_entries > 0){
 		for(it=gt->head, i=0; it; it=it->next, i++){
 			ROFL_PIPELINE_DEBUG("\t[%u] Group (%p). ", i, it);
-			of1x_dump_group(it, nbo);
+			of1x_dump_group(it, raw_nbo);
 		}
 	}
 	else{

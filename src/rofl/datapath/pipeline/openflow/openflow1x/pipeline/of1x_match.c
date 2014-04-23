@@ -1294,94 +1294,27 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 * Copy match to heap. Leaves next and prev pointers to NULL
 */
 of1x_match_t* __of1x_copy_match(of1x_match_t* match){
-	switch(match->type){
 
-		case OF1X_MATCH_IN_PORT: return of1x_init_port_in_match(match->__tern->value.u32);
-		case OF1X_MATCH_IN_PHY_PORT: return of1x_init_port_in_phy_match(match->__tern->value.u32);
+	of1x_match_t* tmp = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
-	  	case OF1X_MATCH_METADATA: return of1x_init_metadata_match(match->__tern->value.u64,match->__tern->mask.u64);	
-   
-		case OF1X_MATCH_ETH_DST:  return of1x_init_eth_dst_match(match->__tern->value.u64,match->__tern->mask.u64); 
-   		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ETH_TYPE: return of1x_init_eth_type_match(match->__tern->value.u16);
+	if(!tmp)
+		return tmp;
 
-   		case OF1X_MATCH_VLAN_VID: return of1x_init_vlan_vid_match(match->__tern->value.u16,match->__tern->mask.u16, match->vlan_present); 
-   		case OF1X_MATCH_VLAN_PCP: return of1x_init_vlan_pcp_match(match->__tern->value.u8); 
-
-   		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(match->__tern->value.u32); 
-   		case OF1X_MATCH_MPLS_TC: return of1x_init_mpls_tc_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_MPLS_BOS: return of1x_init_mpls_bos_match(match->__tern->value.u8); 
-
-   		case OF1X_MATCH_ARP_OP: return of1x_init_arp_opcode_match(match->__tern->value.u16);
-   		case OF1X_MATCH_ARP_SHA: return of1x_init_arp_sha_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ARP_SPA: return of1x_init_arp_spa_match(match->__tern->value.u32,match->__tern->mask.u32);
-   		case OF1X_MATCH_ARP_THA: return of1x_init_arp_tha_match(match->__tern->value.u64,match->__tern->mask.u64);
-   		case OF1X_MATCH_ARP_TPA: return of1x_init_arp_tpa_match(match->__tern->value.u32,match->__tern->mask.u32);
-
-		case OF1X_MATCH_NW_PROTO: return of1x_init_nw_proto_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_NW_SRC: return of1x_init_nw_src_match(match->__tern->value.u32,match->__tern->mask.u32); 
-   		case OF1X_MATCH_NW_DST: return of1x_init_nw_dst_match(match->__tern->value.u32,match->__tern->mask.u32); 
-
-		case OF1X_MATCH_IP_PROTO: return of1x_init_ip_proto_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_IP_ECN: return of1x_init_ip_ecn_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_IP_DSCP: return of1x_init_ip_dscp_match(match->__tern->value.u8);
-
-   		case OF1X_MATCH_IPV4_SRC: return of1x_init_ip4_src_match(match->__tern->value.u32,match->__tern->mask.u32); 
-   		case OF1X_MATCH_IPV4_DST: return of1x_init_ip4_dst_match(match->__tern->value.u32,match->__tern->mask.u32); 
-
-   		case OF1X_MATCH_TCP_SRC: return of1x_init_tcp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_TCP_DST: return of1x_init_tcp_dst_match(match->__tern->value.u16); 
-
-   		case OF1X_MATCH_UDP_SRC: return of1x_init_udp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_UDP_DST: return of1x_init_udp_dst_match(match->__tern->value.u16); 
-
-   		case OF1X_MATCH_SCTP_SRC: return of1x_init_sctp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_SCTP_DST: return of1x_init_sctp_dst_match(match->__tern->value.u16); 
-
-		case OF1X_MATCH_TP_SRC: return of1x_init_tp_src_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_TP_DST: return of1x_init_tp_dst_match(match->__tern->value.u16); 
-
-
-		case OF1X_MATCH_ICMPV4_TYPE: return of1x_init_icmpv4_type_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_ICMPV4_CODE: return of1x_init_icmpv4_code_match(match->__tern->value.u8); 
-  		
-		case OF1X_MATCH_IPV6_SRC: return of1x_init_ip6_src_match(match->__tern->value.u128, match->__tern->mask.u128);
-		case OF1X_MATCH_IPV6_DST: return of1x_init_ip6_dst_match(match->__tern->value.u128, match->__tern->mask.u128);
-		case OF1X_MATCH_IPV6_FLABEL: return of1x_init_ip6_flabel_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_ND_TARGET: return of1x_init_ip6_nd_target_match(match->__tern->value.u128);
-		case OF1X_MATCH_IPV6_ND_SLL: return of1x_init_ip6_nd_sll_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_ND_TLL: return of1x_init_ip6_nd_tll_match(match->__tern->value.u64);
-		case OF1X_MATCH_IPV6_EXTHDR: return of1x_init_ip6_exthdr_match(match->__tern->value.u64, match->__tern->mask.u64);
-		
-		case OF1X_MATCH_ICMPV6_TYPE: return of1x_init_icmpv6_type_match(match->__tern->value.u64);
-		case OF1X_MATCH_ICMPV6_CODE: return of1x_init_icmpv6_code_match(match->__tern->value.u64);
-		
-		/* PPP/PPPoE related extensions */
-   		case OF1X_MATCH_PPPOE_CODE: return of1x_init_pppoe_code_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_PPPOE_TYPE: return of1x_init_pppoe_type_match(match->__tern->value.u8); 
-   		case OF1X_MATCH_PPPOE_SID: return of1x_init_pppoe_session_match(match->__tern->value.u16); 
-   		case OF1X_MATCH_PPP_PROT: return of1x_init_ppp_prot_match(match->__tern->value.u16); 
-
-		//PBB   		
-		case OF1X_MATCH_PBB_ISID: return of1x_init_pbb_isid_match(match->__tern->value.u32, match->__tern->mask.u32); 
-		//Tunnel ID
-		case OF1X_MATCH_TUNNEL_ID: return of1x_init_tunnel_id_match(match->__tern->value.u64, match->__tern->mask.u64); 
-
-   		/* GTP related extensions */
-   		case OF1X_MATCH_GTP_MSG_TYPE: return of1x_init_gtp_msg_type_match(match->__tern->value.u8);
-   		case OF1X_MATCH_GTP_TEID: return of1x_init_gtp_teid_match(match->__tern->value.u32,match->__tern->mask.u32);
-   		
-		case OF1X_MATCH_MAX:
-				break;
-		
-		// Add more here ...
-		//Warning: NEVER add a default clause
+	//Copy contents
+	*tmp = *match;
 	
-	}	
+	//Initialize linked-list to null
+	tmp->prev=tmp->next=NULL;
 
-	assert(0);	
-	return NULL;
+	//Create a whatever type utern and copy from the orignal tern
+	tmp->__tern = __init_utern8(0x0, 0x0);
 
+	if(!tmp->__tern)
+		return NULL;
+
+	*tmp->__tern = *match->__tern;
+
+	return tmp;
 }
 
 /* 
@@ -1473,23 +1406,23 @@ bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 }
 
 //Matches with mask (including matches that do not support)
-void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
+void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PORT_IN:%u], ", it->__tern->value.u32); 
+			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PORT_IN:%u], ", __of1x_get_match_val32(it, false, raw_nbo)); 
 				break;
-			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PHY_PORT_IN:%u], ", it->__tern->value.u32);
+			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_INFO_NO_PREFIX("[PHY_PORT_IN:%u], ", __of1x_get_match_val32(it, false, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_METADATA: ROFL_PIPELINE_INFO_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ", it->__tern->value.u64, it->__tern->mask.u64); 
+			case OF1X_MATCH_METADATA: ROFL_PIPELINE_INFO_NO_PREFIX("[METADATA:0x%"PRIx64"|0x%"PRIx64"],  ", __of1x_get_match_val64(it, false, raw_nbo), __of1x_get_match_val64(it, true, raw_nbo)); 
 				break;
 
-			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_DST:0x%"PRIx64"|0x%"PRIx64"],  ",COND_NTOHB64(nbo,it->__tern->value.u64),COND_NTOHB64(nbo,it->__tern->mask.u64));
+			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_DST:0x%"PRIx64"|0x%"PRIx64"],  ",__of1x_get_match_val64(it, false, raw_nbo),__of1x_get_match_val64(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_ETH_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_SRC:0x%"PRIx64"|0x%"PRIx64"], ",COND_NTOHB64(nbo,it->__tern->value.u64),COND_NTOHB64(nbo,it->__tern->mask.u64));
+			case OF1X_MATCH_ETH_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_SRC:0x%"PRIx64"|0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo),__of1x_get_match_val64(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_TYPE:0x%x], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ETH_TYPE:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
 
 			case OF1X_MATCH_VLAN_VID:  	if(it->vlan_present == OF1X_MATCH_VLAN_NONE)
@@ -1497,138 +1430,140 @@ void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 							else if(it->vlan_present == OF1X_MATCH_VLAN_ANY)
 								ROFL_PIPELINE_INFO_NO_PREFIX("[ANY_VLAN], ");
 							else
-								ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_ID:%u|0x%x], ",COND_NTOHB16(nbo,it->__tern->value.u16),COND_NTOHB16(nbo,it->__tern->mask.u16));
+								ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_ID:%u|0x%x], ",__of1x_get_match_val16(it, false, raw_nbo),__of1x_get_match_val16(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_PCP:%u], ",OF1X_VLAN_PCP_VALUE(it->__tern->value.u8));
+			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[VLAN_PCP:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_LABEL:0x%x], ",COND_NTOHB32(nbo,OF1X_MPLS_LABEL_VALUE(it->__tern->value.u32)));
+			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_LABEL:0x%x], ",__of1x_get_match_val32(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_TC:0x%x], ",OF1X_MPLS_TC_VALUE(it->__tern->value.u8));
+			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_TC:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_MPLS_BOS:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_BOS:0x%x], ",it->__tern->value.u8);
+			case OF1X_MATCH_MPLS_BOS:  ROFL_PIPELINE_INFO_NO_PREFIX("[MPLS_BOS:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break;
 
-			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_OPCODE:0x%x], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_OPCODE:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break;
-			case OF1X_MATCH_ARP_SHA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_SHA:0x%"PRIx64"|0x%"PRIx64"], ",COND_NTOHB64(nbo,it->__tern->value.u64),COND_NTOHB64(nbo,it->__tern->mask.u64));
+			case OF1X_MATCH_ARP_SHA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_SHA:0x%"PRIx64"|0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo),__of1x_get_match_val64(it, true, raw_nbo));
 				break;
-			case OF1X_MATCH_ARP_SPA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_ARP_SPA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break;
-			case OF1X_MATCH_ARP_THA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_THA:0x%"PRIx64"|0x%"PRIx64"], ",COND_NTOHB64(nbo,it->__tern->value.u64),COND_NTOHB64(nbo,it->__tern->mask.u64));
+			case OF1X_MATCH_ARP_THA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_THA:0x%"PRIx64"|0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo),__of1x_get_match_val64(it, true, raw_nbo));
 				break;
-			case OF1X_MATCH_ARP_TPA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_ARP_TPA: ROFL_PIPELINE_INFO_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break;
 
-			case OF1X_MATCH_NW_PROTO:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_PROTO:%u|0x%x], ",it->__tern->value.u8,it->__tern->mask.u8);
+			case OF1X_MATCH_NW_PROTO:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_PROTO:%u|0x%x], ",__of1x_get_match_val8(it, false, raw_nbo),__of1x_get_match_val8(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_NW_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_SRC:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_NW_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_SRC:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_NW_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_DST:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
-				break; 
-
-			case OF1X_MATCH_IP_ECN:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_ECN:0x%x], ",it->__tern->value.u8);
-				break; 
-			case OF1X_MATCH_IP_DSCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_DSCP:0x%x], ",it->__tern->value.u8);
-				break; 
-			case OF1X_MATCH_IP_PROTO:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_PROTO:%u|0x%x], ",it->__tern->value.u8,it->__tern->mask.u8);
+			case OF1X_MATCH_NW_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[NW_DST:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_IPV4_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_IP_ECN:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_ECN:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_IPV4_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_IP_DSCP:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_DSCP:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-
-			case OF1X_MATCH_TCP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[TCP_SRC:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
-				break; 
-			case OF1X_MATCH_TCP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[TCP_DST:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_IP_PROTO:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP_PROTO:%u|0x%x], ",__of1x_get_match_val8(it, false, raw_nbo),__of1x_get_match_val8(it, true, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_UDP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[UDP_SRC:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_IPV4_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break; 
-			case OF1X_MATCH_UDP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[UDP_DST:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_IPV4_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_SCTP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[SCTP_SRC:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_TCP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[TCP_SRC:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_SCTP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[SCTP_DST:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_TCP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[TCP_DST:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break; 
+
+			case OF1X_MATCH_UDP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[UDP_SRC:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break; 
+			case OF1X_MATCH_UDP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[UDP_DST:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break; 
+
+			case OF1X_MATCH_SCTP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[SCTP_SRC:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break; 
+			case OF1X_MATCH_SCTP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[SCTP_DST:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
 
 			//OF1.0 only
-			case OF1X_MATCH_TP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[TP_SRC:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_TP_SRC:  ROFL_PIPELINE_INFO_NO_PREFIX("[TP_SRC:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_TP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[TP_DST:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_TP_DST:  ROFL_PIPELINE_INFO_NO_PREFIX("[TP_DST:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
 
 
-			case OF1X_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV4_TYPE:%u], ",it->__tern->value.u8);
+			case OF1X_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV4_TYPE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV4_CODE:%u], ",it->__tern->value.u8);
+			case OF1X_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV4_CODE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
 			
 			//IPv6
 			case OF1X_MATCH_IPV6_SRC: 
 				{
-					uint128__t value = it->__tern->value.u128;	
-					uint128__t mask = it->__tern->mask.u128;
-					
-					//Swap if necessary
-					COND_NTOHB128(nbo, value);
-					COND_NTOHB128(nbo, mask);
-	
+					uint128__t value = __of1x_get_match_val128(it, false, raw_nbo);	
+					uint128__t mask = __of1x_get_match_val128(it, true, raw_nbo);
+					(void)value;	
+					(void)mask;	
 					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_SRC:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(value),UINT128__T_HI(mask),UINT128__T_LO(mask));
 				}
 				break;
 			case OF1X_MATCH_IPV6_DST: 
 				{
-					uint128__t value = it->__tern->value.u128;	
-					uint128__t mask = it->__tern->mask.u128;
-					
-					//Swap if necessary
-					COND_NTOHB128(nbo, value);
-					COND_NTOHB128(nbo, mask);
-	
+					uint128__t value = __of1x_get_match_val128(it, false, raw_nbo);	
+					uint128__t mask = __of1x_get_match_val128(it, true, raw_nbo);
+					(void)value;	
+					(void)mask;	
+
 					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(value),UINT128__T_HI(mask),UINT128__T_LO(mask));
 				}
 				break;
-			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",COND_NTOHB64(nbo,it->__tern->value.u64));
+			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx], ",UINT128__T_HI(it->__tern->value.u128),UINT128__T_LO(it->__tern->value.u128));
+			case OF1X_MATCH_IPV6_ND_TARGET: {
+					uint128__t value = __of1x_get_match_val128(it, false, raw_nbo);	
+					uint128__t mask = __of1x_get_match_val128(it, true, raw_nbo);
+					(void)value;	
+					(void)mask;	
+
+					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(mask));
+				}
 				break;
-			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_SLL:%lu], ",COND_NTOHB64(nbo,it->__tern->value.u64));
+			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_SLL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TLL:%lu], ",COND_NTOHB64(nbo,it->__tern->value.u64));
+			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TLL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",COND_NTOHB16(nbo,it->__tern->value.u16),COND_NTOHB16(nbo,it->__tern->mask.u16));
+			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",__of1x_get_match_val16(it, false, raw_nbo),__of1x_get_match_val16(it, true, raw_nbo));
 				break; 
 			//ICMPv6
-			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV6_TYPE:%lu], ",it->__tern->value.u8);
+			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV6_TYPE:%lu], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV6_CODE:%lu], ",it->__tern->value.u8);
+			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[ICMPV6_CODE:%lu], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
 					
 			//PBB	
-			case OF1X_MATCH_PBB_ISID: ROFL_PIPELINE_INFO_NO_PREFIX("[PBB_ISID:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_PBB_ISID: ROFL_PIPELINE_INFO_NO_PREFIX("[PBB_ISID:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break;
 			//TUNNEL ID
-			case OF1X_MATCH_TUNNEL_ID: ROFL_PIPELINE_INFO_NO_PREFIX("[TUNNEL_ID:0x%"PRIx64"|0x%"PRIx64"], ",COND_NTOHB64(nbo,it->__tern->value.u64),COND_NTOHB64(nbo,it->__tern->mask.u64));
+			case OF1X_MATCH_TUNNEL_ID: ROFL_PIPELINE_INFO_NO_PREFIX("[TUNNEL_ID:0x%"PRIx64"|0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo),__of1x_get_match_val64(it, true, raw_nbo));
 				break;
 
 			/* PPP/PPPoE related extensions */
-			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_CODE:%u], ",it->__tern->value.u8);
+			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_CODE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_TYPE:%u], ",it->__tern->value.u8);
+			case OF1X_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_TYPE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_PPPOE_SID:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_SID:%u], ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_PPPOE_SID:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPPOE_SID:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
 
-			case OF1X_MATCH_PPP_PROT:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPP_PROT:%u] ",COND_NTOHB16(nbo,it->__tern->value.u16));
+			case OF1X_MATCH_PPP_PROT:  ROFL_PIPELINE_INFO_NO_PREFIX("[PPP_PROT:%u] ",__of1x_get_match_val16(it, false, raw_nbo));
 				break; 
 
 			/* GTP related extensions */
-			case OF1X_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_MSG_TYPE:%u], ",it->__tern->value.u8);
+			case OF1X_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_MSG_TYPE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break;
-			case OF1X_MATCH_GTP_TEID:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",COND_NTOHB32(nbo,it->__tern->value.u32),COND_NTOHB32(nbo,it->__tern->mask.u32));
+			case OF1X_MATCH_GTP_TEID:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
 				break;
 
 			case OF1X_MATCH_MAX: assert(0);

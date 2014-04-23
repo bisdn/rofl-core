@@ -162,7 +162,7 @@ bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_acti
 rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline, unsigned int table_id);
 
 //Dump
-void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo);
+void __of1x_dump_instructions(of1x_instruction_group_t group, bool raw_nbo);
 
 //C++ extern C
 ROFL_END_DECLS

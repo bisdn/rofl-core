@@ -499,20 +499,25 @@ void of1x_destroy_match(of1x_match_t* match);
 //Getters for values 
 //
 
-/**
-* @ingroup core_of1x 
-* Retrieve the match value for 8 bit values (or less) in HOST BYTE ORDER
-*
-* @retval The value in host byte order 
-*/
+//8 bit
 static inline 
-uint8_t of1x_get_match_value8(const of1x_match_t* match){
+uint8_t __of1x_get_match_val8(const of1x_match_t* match, bool get_mask, bool raw_nbo){
+
+	wrap_uint_t* wrap;
 	
+	if(get_mask)
+		wrap = &match->__tern->mask; 
+	else
+		wrap = &match->__tern->value; 
+
+	if(raw_nbo)
+		return wrap->u8;
+
 	switch(match->type){
 		case OF1X_MATCH_VLAN_PCP:
-			return OF1X_VLAN_PCP_VALUE(match->__tern->value.u8);
+			return OF1X_VLAN_PCP_VALUE(wrap->u8);
 		case OF1X_MATCH_MPLS_TC:
-			return OF1X_MPLS_TC_VALUE(match->__tern->value.u8);
+			return OF1X_MPLS_TC_VALUE(wrap->u8);
 		case OF1X_MATCH_MPLS_BOS:
 		case OF1X_MATCH_NW_PROTO:
 		case OF1X_MATCH_IP_PROTO:
@@ -524,9 +529,9 @@ uint8_t of1x_get_match_value8(const of1x_match_t* match){
 		case OF1X_MATCH_PPPOE_TYPE:
 		case OF1X_MATCH_PPPOE_CODE:
 		case OF1X_MATCH_GTP_MSG_TYPE:
-			return match->__tern->value.u8;
+			return wrap->u8;
 		case OF1X_MATCH_IP_DSCP:
-			return OF1X_IP_DSCP_VALUE(match->__tern->value.u8);
+			return OF1X_IP_DSCP_VALUE(wrap->u8);
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);
@@ -537,12 +542,31 @@ uint8_t of1x_get_match_value8(const of1x_match_t* match){
 
 /**
 * @ingroup core_of1x 
-* Retrieve the match value for 16 bit values (or less) in HOST BYTE ORDER
+* Retrieve the match value for 8 bit values (or less) in HOST BYTE ORDER
 *
 * @retval The value in host byte order 
 */
 static inline 
-uint16_t of1x_get_match_value16(const of1x_match_t* match){
+uint8_t of1x_get_match_value8(const of1x_match_t* match){
+	return __of1x_get_match_val8(match, false, false);
+}
+	
+
+//16 bit
+static inline 
+uint16_t __of1x_get_match_val16(const of1x_match_t* match, bool get_mask, bool raw_nbo){
+
+	wrap_uint_t* wrap;
+	
+	if(get_mask)
+		wrap = &match->__tern->mask; 
+	else
+		wrap = &match->__tern->value; 
+
+
+	if(raw_nbo)
+		return wrap->u16;	
+
 	switch(match->type){
 		case OF1X_MATCH_ETH_TYPE:
 		case OF1X_MATCH_VLAN_VID:
@@ -557,7 +581,7 @@ uint16_t of1x_get_match_value16(const of1x_match_t* match){
 		case OF1X_MATCH_TP_DST:
 		case OF1X_MATCH_PPPOE_SID:
 		case OF1X_MATCH_PPP_PROT:
-			return NTOHB16(match->__tern->value.u16);
+			return NTOHB16(wrap->u16);
 		case OF1X_MATCH_IPV6_EXTHDR:
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
@@ -566,22 +590,38 @@ uint16_t of1x_get_match_value16(const of1x_match_t* match){
 		}
 	}
 }
-
 /**
 * @ingroup core_of1x 
-* Retrieve the match value for 32 bit values (or less) in HOST BYTE ORDER
+* Retrieve the match value for 16 bit values (or less) in HOST BYTE ORDER
 *
 * @retval The value in host byte order 
 */
 static inline 
-uint32_t of1x_get_match_value32(const of1x_match_t* match){
+uint16_t of1x_get_match_value16(const of1x_match_t* match){
+	return __of1x_get_match_val16(match, false, false);
+}
+
+//32 bit
+static inline 
+uint32_t __of1x_get_match_val32(const of1x_match_t* match, bool get_mask, bool raw_nbo){
 	
+	wrap_uint_t* wrap;
+	
+	if(get_mask)
+		wrap = &match->__tern->mask; 
+	else
+		wrap = &match->__tern->value; 
+
+
+	if(raw_nbo)
+		return wrap->u32;	
+
 	switch(match->type){
 		case OF1X_MATCH_IN_PORT:
 		case OF1X_MATCH_IN_PHY_PORT:
-			return match->__tern->value.u32;
+			return wrap->u32;
 		case OF1X_MATCH_MPLS_LABEL:
-			return OF1X_MPLS_LABEL_VALUE(NTOHB32(match->__tern->value.u32));
+			return OF1X_MPLS_LABEL_VALUE(NTOHB32(wrap->u32));
 		case OF1X_MATCH_ARP_TPA:
 		case OF1X_MATCH_ARP_SPA:
 		case OF1X_MATCH_NW_SRC:
@@ -589,9 +629,9 @@ uint32_t of1x_get_match_value32(const of1x_match_t* match){
 		case OF1X_MATCH_IPV4_SRC:
 		case OF1X_MATCH_IPV4_DST:
 		case OF1X_MATCH_GTP_TEID:
-			return NTOHB32(match->__tern->value.u32);
+			return NTOHB32(wrap->u32);
 		case OF1X_MATCH_IPV6_FLABEL:
-			return OF1X_IP6_FLABEL_VALUE(NTOHB32(match->__tern->value.u32));
+			return OF1X_IP6_FLABEL_VALUE(NTOHB32(wrap->u32));
 		case OF1X_MATCH_PBB_ISID:
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
@@ -601,7 +641,53 @@ uint32_t of1x_get_match_value32(const of1x_match_t* match){
 	}
 	
 }
+/**
+* @ingroup core_of1x 
+* Retrieve the match value for 32 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value in host byte order 
+*/
 
+static inline 
+uint32_t of1x_get_match_value32(const of1x_match_t* match){
+	return __of1x_get_match_val32(match, false, false);
+}	
+
+//64 bit
+static inline 
+uint64_t __of1x_get_match_val64(const of1x_match_t* match, bool get_mask, bool raw_nbo){
+	
+	wrap_uint_t* wrap;
+	
+	if(get_mask)
+		wrap = &match->__tern->mask; 
+	else
+		wrap = &match->__tern->value; 
+
+
+	if(raw_nbo)
+		return wrap->u64;	
+
+	switch(match->type){
+		case OF1X_MATCH_METADATA:
+		case OF1X_MATCH_TUNNEL_ID:
+			return wrap->u64;
+			break;
+		case OF1X_MATCH_ETH_DST:
+		case OF1X_MATCH_ETH_SRC:
+		case OF1X_MATCH_ARP_THA:
+		case OF1X_MATCH_ARP_SHA:
+		case OF1X_MATCH_IPV6_ND_SLL:
+		case OF1X_MATCH_IPV6_ND_TLL:
+			return OF1X_MAC_VALUE(NTOHB64(wrap->u64));
+			break;
+		default:{
+			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
+			assert(0);
+			return 0x0;
+		}
+	}
+}
 /**
 * @ingroup core_of1x 
 * Retrieve the match value for 64 bit values (or less) in HOST BYTE ORDER
@@ -610,23 +696,34 @@ uint32_t of1x_get_match_value32(const of1x_match_t* match){
 */
 static inline 
 uint64_t of1x_get_match_value64(const of1x_match_t* match){
+	return __of1x_get_match_val64(match, false, false);
+}
+
+//128 bit
+static inline 
+uint128__t __of1x_get_match_val128(const of1x_match_t* match, bool get_mask, bool raw_nbo){
+	uint128__t tmp;
+	wrap_uint_t* wrap;
+	
+	if(get_mask)
+		wrap = &match->__tern->mask; 
+	else
+		wrap = &match->__tern->value; 
+
+	if(raw_nbo)
+		return wrap->u128;
+
 	switch(match->type){
-		case OF1X_MATCH_METADATA:
-		case OF1X_MATCH_TUNNEL_ID:
-			return match->__tern->value.u64;
-			break;
-		case OF1X_MATCH_ETH_DST:
-		case OF1X_MATCH_ETH_SRC:
-		case OF1X_MATCH_ARP_THA:
-		case OF1X_MATCH_ARP_SHA:
-		case OF1X_MATCH_IPV6_ND_SLL:
-		case OF1X_MATCH_IPV6_ND_TLL:
-			return OF1X_MAC_VALUE(NTOHB64(match->__tern->value.u64));
-			break;
+		case OF1X_MATCH_IPV6_SRC:
+		case OF1X_MATCH_IPV6_DST:
+		case OF1X_MATCH_IPV6_ND_TARGET:
+			tmp = wrap->u128;
+			NTOHB128(tmp);
+			return tmp;
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);
-			return 0x0;
+			return tmp;
 		}
 	}
 }
@@ -639,20 +736,7 @@ uint64_t of1x_get_match_value64(const of1x_match_t* match){
 */
 static inline 
 uint128__t of1x_get_match_value128(const of1x_match_t* match){
-	uint128__t tmp;
-	switch(match->type){
-		case OF1X_MATCH_IPV6_SRC:
-		case OF1X_MATCH_IPV6_DST:
-		case OF1X_MATCH_IPV6_ND_TARGET:
-			tmp = match->__tern->value.u128;
-			NTOHB128(tmp);
-			return tmp;
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			assert(0);
-			return tmp;
-		}
-	}
+	return __of1x_get_match_val128(match,  false, false);
 }
 
 //
@@ -667,13 +751,7 @@ uint128__t of1x_get_match_value128(const of1x_match_t* match){
 */
 static inline 
 uint8_t of1x_get_match_mask8(const of1x_match_t* match){
-	switch(match->type){
-		
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			return 0x0;
-		}
-	}
+	return __of1x_get_match_val8(match, true, false);
 }
 
 /**
@@ -684,14 +762,7 @@ uint8_t of1x_get_match_mask8(const of1x_match_t* match){
 */
 static inline 
 uint16_t of1x_get_match_mask16(const of1x_match_t* match){
-	switch(match->type){
-		case OF1X_MATCH_IPV6_ND_TARGET:
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			return 0x0;
-			break;
-		}
-	}
+	return __of1x_get_match_val16(match, true, false);
 }
 
 /**
@@ -702,22 +773,7 @@ uint16_t of1x_get_match_mask16(const of1x_match_t* match){
 */
 static inline 
 uint32_t of1x_get_match_mask32(const of1x_match_t* match){
-	switch(match->type){
-		case OF1X_MATCH_ARP_TPA:
-		case OF1X_MATCH_ARP_SPA:
-		case OF1X_MATCH_NW_SRC:
-		case OF1X_MATCH_NW_DST:
-		case OF1X_MATCH_IPV4_SRC:
-		case OF1X_MATCH_IPV4_DST:
-			return NTOHB32(match->__tern->mask.u32);
-			break;
-		case OF1X_MATCH_PBB_ISID:
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			return 0x0;
-			break;
-		}
-	}
+	return __of1x_get_match_val32(match, true, false);
 }
 
 /**
@@ -728,22 +784,7 @@ uint32_t of1x_get_match_mask32(const of1x_match_t* match){
 */
 static inline 
 uint64_t of1x_get_match_mask64(const of1x_match_t* match){
-	switch(match->type){
-		case OF1X_MATCH_TUNNEL_ID:
-			return match->__tern->mask.u64;
-			break;
-		case OF1X_MATCH_ETH_DST:
-		case OF1X_MATCH_ETH_SRC:
-		case OF1X_MATCH_ARP_THA:
-		case OF1X_MATCH_ARP_SHA:
-			return OF1X_MAC_VALUE(NTOHB64(match->__tern->mask.u64));
-			break;
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			return 0x0;
-			break;
-		}
-	}
+	return __of1x_get_match_val64(match, true, false);
 }
 
 /**
@@ -754,20 +795,7 @@ uint64_t of1x_get_match_mask64(const of1x_match_t* match){
 */
 static inline 
 uint128__t of1x_get_match_mask128(const of1x_match_t* match){
-	uint128__t tmp;
-	switch(match->type){
-		case OF1X_MATCH_IPV6_SRC:
-		case OF1X_MATCH_IPV6_DST:
-			tmp = match->__tern->mask.u128;
-			NTOHB128(tmp);
-			return tmp;
-			break;
-		default:{
-			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
-			return tmp;
-			break;
-		}
-	}
+	return __of1x_get_match_val128(match, true, false);
 }
 
 //
@@ -810,7 +838,7 @@ static inline bool __of10_is_wildcard(of1x_match_group_t* matches){
 /*
 * Dumping
 */
-void __of1x_dump_matches(of1x_match_t* matches, bool nbo);
+void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo);
 
 //C++ extern C
 ROFL_END_DECLS
