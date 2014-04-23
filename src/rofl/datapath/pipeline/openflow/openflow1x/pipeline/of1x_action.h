@@ -380,7 +380,6 @@ uint8_t __of1x_get_packet_action_field8(const of1x_packet_action_t* action, bool
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
-		case OF1X_AT_SET_QUEUE:
 		case OF1X_AT_SET_FIELD_MPLS_BOS:
 			return action->__field.u8;
 			break;
@@ -474,6 +473,7 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 			return NTOHB32(action->__field.u32);
 			break;
+		case OF1X_AT_SET_QUEUE:
 		case OF1X_AT_OUTPUT:
 		case OF1X_AT_GROUP:
 			return action->__field.u32;
