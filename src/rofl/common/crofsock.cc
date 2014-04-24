@@ -206,6 +206,13 @@ crofsock::handle_read(
 
 		logging::warn << "[rofl][sock] failed to read from socket: " << e << std::endl;
 
+		if (fragment) {
+			delete fragment; fragment = (cmemory*)0;
+		}
+
+		// close socket, as it seems, we are out of sync
+		socket.close();
+
 	} catch (RoflException& e) {
 
 		logging::warn << "[rofl][sock] dropping invalid message: " << e << std::endl;
