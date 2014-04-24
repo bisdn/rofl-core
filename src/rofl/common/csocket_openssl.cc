@@ -333,6 +333,7 @@ csocket_openssl::handle_listen(rofl::csocket& socket, int newsd)
 void
 csocket_openssl::handle_closed(rofl::csocket& socket)
 {
+	openssl_destroy_ssl();
 	if (socket_owner) socket_owner->handle_closed(*this);
 }
 
