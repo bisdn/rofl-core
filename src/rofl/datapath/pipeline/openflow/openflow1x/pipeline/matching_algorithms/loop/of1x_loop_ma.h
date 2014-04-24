@@ -8,11 +8,18 @@
 //C++ extern C
 ROFL_BEGIN_DECLS
 
+rofl_of1x_fm_result_t __of1x_add_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts, void (*ma_hook_ptr)(of1x_flow_entry_t*));
+
 rofl_of1x_fm_result_t of1x_add_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts);
+
+rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts, void (*ma_add_hook_ptr)(of1x_flow_entry_t*), void (*ma_modify_hook_ptr)(of1x_flow_entry_t*));
 
 rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
 
+rofl_result_t __of1x_remove_flow_entry_loop(of1x_flow_table_t *const table , of1x_flow_entry_t *const entry, of1x_flow_entry_t *const specific_entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired, void (*ma_hook_ptr)(of1x_flow_entry_t*));
+
 rofl_result_t of1x_remove_flow_entry_loop(of1x_flow_table_t *const table , of1x_flow_entry_t *const entry, of1x_flow_entry_t *const specific_entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired);
+
 
 rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		uint64_t cookie,

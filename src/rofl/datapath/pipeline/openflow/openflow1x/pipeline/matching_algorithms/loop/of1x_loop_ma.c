@@ -118,7 +118,7 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 * Adds flow_entry to the main table. This function is NOT thread safe, and mutual exclusion should be 
 * acquired BEFORE this function being called, using table->mutex var. 
 */
-static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts, void (*ma_hook_ptr)(of1x_flow_entry_t*)){
+rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts, void (*ma_hook_ptr)(of1x_flow_entry_t*)){
 	of1x_flow_entry_t *it, *prev, *existing=NULL;
 	
 	if(unlikely(table->num_of_entries == OF1X_MAX_NUMBER_OF_TABLE_ENTRIES)){
@@ -359,7 +359,7 @@ rofl_of1x_fm_result_t of1x_add_flow_entry_loop(of1x_flow_table_t *const table, o
 	return __of1x_add_flow_entry_loop(table, entry, check_overlap, reset_counts, NULL);
 }
 
-rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts, void (*ma_hook_ptr)(of1x_flow_entry_t*)){
+rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts, void (*ma_add_hook_ptr)(of1x_flow_entry_t*), void (*ma_modify_hook_ptr)(of1x_flow_entry_t*)){
 
 	int moded=0; 
 	of1x_flow_entry_t *it;
@@ -373,6 +373,14 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( __of1x_flow_entry_check_equal(it, entry, OF1X_PORT_ANY, OF1X_GROUP_ANY, true) ){
+
+				//Modify hook	
+				if(ma_modify_hook_ptr)
+					(*ma_modify_hook_ptr)(entry);
+			
+				//Call platform
+				platform_of1x_modify_entry_hook(it, entry, reset_counts);
+				
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
@@ -380,6 +388,14 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 			}
 		}else{
 			if( __of1x_flow_entry_check_contained(it, entry, strict, true, OF1X_PORT_ANY, OF1X_GROUP_ANY,false) ){
+	
+				//Modify hook	
+				if(ma_modify_hook_ptr)
+					(*ma_modify_hook_ptr)(entry);
+			
+				//Call platform
+				platform_of1x_modify_entry_hook(it, entry, reset_counts);
+				
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
@@ -391,7 +407,7 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 
 	//According to spec
 	if(moded == 0){	
-		return of1x_add_flow_entry_loop(table, entry, false, reset_counts);
+		return __of1x_add_flow_entry_loop(table, entry, false, reset_counts, ma_add_hook_ptr);
 	}
 
 	//Delete the original flowmod (modify one)
@@ -401,7 +417,7 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 }
 
 rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
-	return __of1x_modify_flow_entry_loop(table, entry, strict, reset_counts, NULL);
+	return __of1x_modify_flow_entry_loop(table, entry, strict, reset_counts, NULL, NULL);
 
 }
 
