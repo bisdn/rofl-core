@@ -36,30 +36,25 @@
 * @subsection arch Architecture overview
 *
 * @code
-
-                    +           ^
-                    |           +
-           Mangement|           +Async events                              Legend:
-                 API|           +and hooks API
-                    |           +                           +-----+        +--> API exposed by
-           +--------v-----------+--------+               ++>|Alg.1|             the library
-           |                             |               +  +-----+
-           |                             |  Extensible   +                 <+++ API consumed by
-   Runtime |                             |  Matching     +  +-----+             the library
- +--------->        ROFL pipeline        ++++++++++++++++++>|Alg.2|
-     API   |          core lib           |  Algorithm    +  +-----+
-           |                             |  API          +    ...
-           |                             |               +  +-----+
-           +--------------+--------------+               ++>|Alg.N|
-                          +                                 +-----+
-                          +
-                          +
-            +-------------v-------------+
-            |       Platform APIs       |
-            +---------------------------+
-            | Locking,atomic ops,packet |
-            |        mangling...        |
-            +---------------------------+
+                                                                       Legend:
+ 
+                                                                       +--> API exposed by
+                                                                            the library
+ 
+                      +---------------------------------+              <+++ API consumed by
+                      |            Data-model           |                   the library
+   Async events       +---------------------------------+
+   and hooks API <+++++                                 |
+                      |         State management        ++++
+   Management API +--->                                 |  +   Platform APIs
+                      +---------------------------------+  ++> (locking, atomic ops, packet mangling...)
+                      |                                 |  +
+                      |        Packet processing        ++++
+                      |                                 | 
+                      | +------------------------------+|
+   Pkt processing +-----|-> Matching algorithms APIs   ||
+                      | +------------------------------+|
+                      +---------------------------------+
 * @endcode
 *
 * Exposed by the library:
