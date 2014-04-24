@@ -1,21 +1,19 @@
 /**
 * @page endianness
 * @section endianness_title Endianness clarifications 
-* @subsection endiannes_subtitle Endiannes of packet values, matches and actions:
-* The pipeline is designed to work with values in a specially aligned Network Byte Order (NBO).
+* @subsection endiannes_subtitle Endianness of packet's header values, matches and actions:
+* The rofl-pipeline library is designed to work with packet header values in a specially aligned Network Byte Order (NBO).
 * 
-* The reason for that lays in improving the performance of the packet classifier. The spirit is to minimize the operations done in the packet values.
-* For that reason all the packet values remain in NBO. The values that do not fill a standard type (u8, u16, u32 and u64) are stored in the lower part of the memory
-* and properly mask.
+* The reason for that lays in improving the performance of accessing those values in the packet headers. The spirit is to minimize the operations necessary to access those values(e.g. avoid unnecessary shifts). For this reason all the packet header values remain in NBO. The values that do not fill a standard type (u8, u16, u32 and u64) are stored in the lower part of the memory and properly masked.
 *
-* This alignment is kept internally and therefore the functions to initialize entry matches and actions need to provide normal values in Host Byte Order.
-* Nevertheless the interface of the packet values (rofl/datapath/pipeline/platform/packet.h) uses this special aligment.
+* This alignment is kept internally in the library. The functions to initialize (constructors) entry matches and actions must provide the values in Host Byte Order(HBO) always. Special getter functions return the HBO representation for convenience (e.g. @ref of1x_get_match_value16(), @ref of1x_get_match_mask8() or @ref of1x_get_packet_action_field64())
+* Nevertheless the interface for accessing the packet header values (rofl/datapath/pipeline/platform/packet.h), part of the @ref core_pp,  uses this special alignment for the performance reasons already mentioned.
 *
-* Following you may find an explanation for each of them:
+* Following you may find a detailed explanation of them:
 *
-* All the matches and actions external to the packet (port_in, port_phy_in, metadata, queue) are kept in Host Byte Order.
+* All the matches, actions and other values that do not  external to packet (port_in, port_phy_in, metadata, queue and packet length) are kept in Host Byte Order(HBO). 
 *
-* The non complete values have an special alignment explained here:
+* For the rest of the values that are extracted (get) or modified (set) on packet headers, Network Byte Order is used. The non complete values have an special alignment explained here:
 * - mac address (6 bytes):
 *		Passed as an u64 variable where the 6 lower bytes are occupied with the mac address in NBO and the upper 2 are empty. Example: \n
 *		@code mac_addr = 0x112233445566 @endcode -> in memory: @code uint_8* mac[8] = {0x11,0x22,0x33,0x44,0x55,0x66,0x00,0x00} @endcode \n
@@ -41,11 +39,11 @@
 *		@code ip_dscp = 0x3F @endcode -> in memory @code uint_8* dscp[1] = {0xFC} @endcode \n
 *		which is represented in as @code 0xFC @endcode
 * - ipv6 flow label (20 bits)
-*		Passed as an u32 variable where the flabel lays from the 4th to the 24th bits and the oder 12 are empty. Example: \n
+*		Passed as an u32 variable where the flabel lays from the 4th to the 24th bits and the other 12 are empty. Example: \n
 *		@code ipv6_flabel = 0x12345 @endcode -> in memory: @code uint_8* flabel[4] = {0x01,0x23,0x45,0x00} @endcode \n
 *		which is represented in a BE machine as @code 0x01234500 @endcode and in a LE machine as @code 0x00452301 @endcode \n
 * - pbb isid (3 bytes):
-*		Passed as an u32 variable where the isid lays in the lower 3 bytes and the upper byte is empty. Exampe: \n
+*		Passed as an u32 variable where the isid lays in the lower 3 bytes and the upper byte is empty. Example: \n
 *		@code pbb_isid = 0x123456 @endcode -> in memory:@code uint_8* isid[4] = {0x12,0x34,0x56,0x00} @endcode \n
 *		which is represented in a BE machine as @code 0x12345600 @endcode and in a LE machine as @code 0x00563412 @endcode \n
 */

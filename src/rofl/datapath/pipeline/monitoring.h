@@ -196,9 +196,7 @@ static inline void monitoring_dump_snapshot(monitoring_snapshot_state_t* snapsho
 	return monitoring_dump(snapshot);
 }
 
-/**
-* Destroys the monitoring state 
-*/
+//Destroys the monitoring state 
 void __monitoring_destroy(monitoring_state_t* monitoring);
 
 /**

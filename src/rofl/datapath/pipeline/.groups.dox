@@ -5,15 +5,13 @@
 //Core API
 /**
 *
-* @defgroup core Core APIs and data structures
-* @brief The core APIs and data structures are the ones used both internally and for data exchanging with 
-* the library user.
+* @defgroup core Data-model core APIs and data structures
+* @brief The data-model core APIs and data structures present a unified data-model of a dataplane.
 *
 * The core APIs expose the initiliazers/destructors and the data structures used by the core library and by the other APIs (exposed and consumed). Only the documented structures and APIs should be used by the user library.
 *
-* @defgroup core_of1x OpenFlow v1.x (1.0, 1.2 and 1.3.2) core APIs and data structures
-* @brief The core OpenFlow v1.x (1.0, 1.2 and 1.3.2) APIs and data structures are the ones used both internally and for data exchanging with 
-* the library user.
+* @defgroup core_of1x OpenFlow v1.x (1.0, 1.2 and 1.3.2) data-model core APIs and data structures
+* @brief OpenFlow v1.x (1.0, 1.2 and 1.3.2) data-model core APIs and data structures used both internally and for data exchanging (\ref mgmt) with the library user.
 * @ingroup core 
 *
 */
@@ -44,7 +42,7 @@
 //Mgmt
 /**
 *
-* @defgroup mgmt Managment API
+* @defgroup mgmt State managment API
 * @brief Mananagement of the system's/device state (physical switch), including logical switches and ports. 
 *
 * Exposes the api for managing so-called physical switch (the platform), including logical switches and platform ports.
@@ -67,7 +65,7 @@
 *
 * @defgroup async_events_hooks_of1x OpenFlow v1.x events and hooks APIs
 * @brief OpenFlow versions 1.0, 1.2 and 1.3.2 asynchronous events and hooks APIs
-* @ingroup async_events_hooks
+* @ingroup mgmt 
 *
 */
 
@@ -97,6 +95,7 @@
 * @defgroup platform_packet Packet Mangling API
 * @brief Packet Mangling API is in charge of packet manipulation and must be implemented by the library users
 * @ingroup platform
+* @ingroup core_pp 
 *
 * @defgroup platform_timing System Time API
 * @brief System time API is in charge of providing the pipeline with the time, used for statistics and flow expirations. Must be implemented by the library users

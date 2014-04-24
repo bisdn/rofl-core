@@ -64,9 +64,9 @@
 *
 * Exposed by the library:
 *
-*  - @ref core "Core APIs and data structures": @copybrief core
+*  - @ref core : @copybrief core
 *  - @ref mgmt : @copybrief mgmt 
-*  - @ref sw_runtime : @copybrief sw_runtime 
+*  - @ref core_pp : @copybrief core_pp 
 *
 * Consumed by the library:
 *  - @ref platform "Platform dependent APIs", which are subdivided in: 
