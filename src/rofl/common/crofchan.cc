@@ -329,6 +329,8 @@ crofchan::handle_closed(crofconn *conn)
 				conns.erase(aux_id);
 			}
 
+			run_engine(EVENT_DISCONNECTED);
+
 		/*
 		 * active connection (=datapath) => close all connections and reconnect them
 		 */
