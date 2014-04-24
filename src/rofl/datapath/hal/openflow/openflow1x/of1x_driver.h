@@ -5,15 +5,6 @@
 #ifndef OF1X_DRIVER_H
 #define OF1X_DRIVER_H
 
-/**
-* of1x_driver.h
-*
-* OF1X related operations exposed to the CMM by the driver 
-*
-* Created on: 12.11.2012 
-* 	Author: msune
-*/
-
 #include <inttypes.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/of1x_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.h>
@@ -21,13 +12,19 @@
 #include "../../hal.h"
 #include "../../hal_utils.h"
 
+/**
+* @file of1x_driver.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief HAL driver OpenFlow specific management interface
+*/
+
 //C++ extern C
 HAL_BEGIN_DECLS
 
 /**
- * @name    hal_driver_of1x_set_port_drop_received_config
  * @brief   Instructs driver to modify port config state 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 			Datapath ID of the switch 
  * @param port_num		Port number 	
@@ -36,9 +33,8 @@ HAL_BEGIN_DECLS
 hal_result_t hal_driver_of1x_set_port_drop_received_config(uint64_t dpid, unsigned int port_num, bool drop_received);
 
 /**
- * @name    hal_driver_of1x_set_port_no_flood_config
  * @brief   Instructs driver to modify port config state. When this flag is set the port will not forward flood packets
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 			Datapath ID of the switch 
  * @param port_num		Port number 	
@@ -47,9 +43,8 @@ hal_result_t hal_driver_of1x_set_port_drop_received_config(uint64_t dpid, unsign
 hal_result_t hal_driver_of1x_set_port_no_flood_config(uint64_t dpid, unsigned int port_num, bool no_flood);
 
 /**
- * @name    hal_driver_of1x_set_port_forward_config
  * @brief   Instructs driver to modify port config state 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 			Datapath ID of the switch 
  * @param port_num		Port number 	
@@ -58,9 +53,8 @@ hal_result_t hal_driver_of1x_set_port_no_flood_config(uint64_t dpid, unsigned in
 hal_result_t hal_driver_of1x_set_port_forward_config(uint64_t dpid, unsigned int port_num, bool forward);
 
 /**
- * @name    hal_driver_of1x_set_port_generate_packet_in_config
  * @brief   Instructs driver to modify port config state 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 			Datapath ID of the switch 
  * @param port_num		Port number 	
@@ -69,9 +63,8 @@ hal_result_t hal_driver_of1x_set_port_forward_config(uint64_t dpid, unsigned int
 hal_result_t hal_driver_of1x_set_port_generate_packet_in_config(uint64_t dpid, unsigned int port_num, bool generate_packet_in);
 
 /**
- * @name    hal_driver_of1x_set_port_advertise_config
  * @brief   Instructs driver to modify port advertise flags 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 			Datapath ID of the switch 
  * @param port_num		Port number 	
@@ -80,9 +73,8 @@ hal_result_t hal_driver_of1x_set_port_generate_packet_in_config(uint64_t dpid, u
 hal_result_t hal_driver_of1x_set_port_advertise_config(uint64_t dpid, unsigned int port_num, uint32_t advertise);
 
 /**
- * @name    hal_driver_of1x_set_pipeline_config
  * @brief   Instructs driver to process a PACKET_OUT event
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch 
  * @param flags		Capabilities bitmap (OF1X_CAP_FLOW_STATS, OF1X_CAP_TABLE_STATS, ...)
@@ -92,9 +84,8 @@ hal_result_t hal_driver_of1x_set_pipeline_config(uint64_t dpid, unsigned int fla
 
 
 /**
- * @name    hal_driver_of1x_set_table_config
  * @brief   Instructs driver to set table configuration(default action)
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch
  * @param table_id	Table ID or 0xFF for all 
@@ -103,9 +94,8 @@ hal_result_t hal_driver_of1x_set_pipeline_config(uint64_t dpid, unsigned int fla
 hal_result_t hal_driver_of1x_set_table_config(uint64_t dpid, unsigned int table_id, of1x_flow_table_miss_config_t config);
 
 /**
- * @name    hal_driver_of1x_process_packet_out
  * @brief   Instructs driver to process a PACKET_OUT event
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  * 
  * @param dpid 		Datapath ID of the switch to process PACKET_OUT
  * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
@@ -117,9 +107,8 @@ hal_result_t hal_driver_of1x_set_table_config(uint64_t dpid, unsigned int table_
 hal_result_t hal_driver_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_id, uint32_t in_port, of1x_action_group_t* action_group, uint8_t* buffer, uint32_t buffer_size);
 
 /**
- * @name    hal_driver_of1x_process_flow_mod_add
  * @brief   Instructs driver to process a FLOW_MOD add event
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * This method will add a flow_entry to the table of the switch referenced by the dpid. 
  * The flow entry shall already be initialized via of1x_init_flow_entry, and must already
@@ -144,9 +133,8 @@ hal_result_t hal_driver_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_i
 hal_result_t hal_driver_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t** flow_entry, uint32_t buffer_id, bool check_overlap, bool reset_counts); 
 
 /**
- * @name    hal_driver_of1x_process_flow_mod_modify
  * @brief   Instructs driver to process a FLOW_MOD modify event
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * The modify flow entry will modify any exisiting entry in the table that contains the
  * same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
@@ -165,9 +153,8 @@ hal_result_t hal_driver_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t tabl
 
 
 /**
- * @name    hal_driver_of1x_process_flow_mod_delete
  * @brief   Instructs driver to process a FLOW_MOD event
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * The remove flow entry will remove and destroy any exisiting entry in the table that contains
  * the same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
@@ -188,9 +175,8 @@ hal_result_t hal_driver_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t tabl
 hal_result_t hal_driver_of1x_process_flow_mod_delete(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t out_port, uint32_t out_group, of1x_flow_removal_strictness_t strictness); 
 
 /**
- * @name    hal_driver_of1x_get_flow_stats
  * @brief   Recovers the flow stats given a set of matches 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id to get the flows of 
@@ -206,9 +192,8 @@ hal_result_t hal_driver_of1x_process_flow_mod_delete(uint64_t dpid, uint8_t tabl
 of1x_stats_flow_msg_t* hal_driver_of1x_get_flow_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_group_t *const matches);
  
 /**
- * @name    hal_driver_of1x_get_flow_aggregate_stats
  * @brief   Recovers the aggregated flow stats given a set of matches 
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id to get the flows of 
@@ -224,60 +209,54 @@ of1x_stats_flow_msg_t* hal_driver_of1x_get_flow_stats(uint64_t dpid, uint8_t tab
 of1x_stats_flow_aggregate_msg_t* hal_driver_of1x_get_flow_aggregate_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_group_t *const matches);
 
 /**
- * @name    hal_driver_of1x_group_mod_add
  * @brief   Instructs driver to add a new GROUP
  * 
  * If (and only if) the mod operation is successful the contents of the pointer buckets are set to NULL. Any other reference to the buckets (**buckets) shall never be further used.
  *
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
  */
 rofl_of1x_gm_result_t hal_driver_of1x_group_mod_add(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
- * @name    hal_driver_of1x_group_mod_modify
  * @brief   Instructs driver to modify the GROUP with identification ID
  *
  * If (and only if) the mod operation is successful the contents of the pointer buckets are set to NULL. Any other reference to the buckets (**buckets) shall never be further used.
  *
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch to modify the GROUP
  */
 rofl_of1x_gm_result_t hal_driver_of1x_group_mod_modify(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
- * @name    hal_driver_of1x_group_mod_del
  * @brief   Instructs driver to delete the GROUP with identification ID
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid Datapath ID of the switch to delete the GROUP
  */
 rofl_of1x_gm_result_t hal_driver_of1x_group_mod_delete(uint64_t dpid, uint32_t id);
 
 /**
- * @name    hal_driver_of1x_group_search
  * @brief   Instructs driver to search the GROUP with identification ID
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch to search the GROUP
  */
 hal_result_t hal_driver_of1x_fetch_group_table(uint64_t dpid, of1x_group_table_t *group_table);
 
 /**
- * @name    hal_driver_of1x_get_group_stats
  * @brief   Instructs driver to fetch the GROUP statistics
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid Datapath ID of the switch where the GROUP is
  */
 of1x_stats_group_msg_t* hal_driver_of1x_get_group_stats(uint64_t dpid, uint32_t id);
 
 /**
- * @name    hal_driver_of1x_get_group_all_stats
  * @brief   Instructs driver to fetch the GROUP statistics from all the groups
- * @ingroup of1x_driver_async_event_processing
+ * @ingroup hal_driver_of1x
  *
  * @param dpid 		Datapath ID of the switch where the GROUPS are
  */

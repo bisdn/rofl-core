@@ -12,24 +12,21 @@
 #include "../../hal.h"
 #include "../../hal_utils.h"
 
-/*
-* of1x_cmm.h
+/**
+* @file of1x_cmm.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* OF1X related operations exposed by the cmm to the driver 
-*
-* Created on: 12.11.2012 
-* 	Author: msune
+* @brief HAL cmm (control and management module) OpenFlow specific notifications interface
 */
 
 //C++ extern C
 HAL_BEGIN_DECLS
 
 /**
- * @name    hal_cmm_process_of1x_packet_in
  * @brief   Instructs the CMM to process a PACKET_IN event comming from the DP
- * @ingroup of1x_cmm_async_event_processing
+ * @ingroup hal_cmm_of1x
  *
- * @param sw OpenFlow 1.2 switch pointer that generated the PACKET_IN
+ * @param dpid OpenFlow switch DPID
  * @param table_id ID of the table that produced PACKET_IN
  * @param reason one of the OFPR_ ... constants
  * @param in_port Incomming packet port 
@@ -37,7 +34,7 @@ HAL_BEGIN_DECLS
  * @param pkt_buffer Buffer containing the packet. Shall only be used for reading.
  * @param buf_len Buffer length (may be shorter than the packet stored in buffer)
  * @param total_len total length of buffer
- * @param matches OF1.2 packet matches
+ * @param matches Packet matches
  */
 hal_result_t hal_cmm_process_of1x_packet_in(uint64_t dpid, 
 					uint8_t table_id, 
@@ -50,9 +47,8 @@ hal_result_t hal_cmm_process_of1x_packet_in(uint64_t dpid,
 					packet_matches_t* matches);
 
 /**
- * @name    hal_cmm_process_of1x_flow_removed
  * @brief   Instructs the CMM to process a FLOW_REMOVED event comming from the DP
- * @ingroup of1x_cmm_async_event_processing
+ * @ingroup hal_cmm_of1x
  *
  * @param dpid OpenFlow switch DPID
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
