@@ -213,6 +213,9 @@ crofsock::handle_read(
 		if (fragment) {
 			delete fragment; fragment = (cmemory*)0;
 		}
+
+		// close socket, as it seems, we are out of sync
+		socket.close();
 	}
 
 }
