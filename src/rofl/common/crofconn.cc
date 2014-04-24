@@ -180,6 +180,31 @@ crofconn::event_disconnected()
 		}
 	} break;
 	case STATE_WAIT_FOR_HELLO:
+	case STATE_ESTABLISHED:
+	default: {
+		state = STATE_DISCONNECTED;
+		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
+		}
+		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+		}
+		rofsock.close();
+		env->handle_closed(this);
+	};
+	}
+
+#if 0
+	switch (state) {
+	case STATE_DISCONNECTED: {
+
+	} break;
+	case STATE_CONNECT_PENDING: {
+		if (not flags.test(FLAGS_PASSIVE)) {
+			env->handle_connect_refused(this);
+		}
+	} break;
+	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		state = STATE_DISCONNECTED;
 		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
@@ -196,6 +221,7 @@ crofconn::event_disconnected()
 		logging::error << "[rofl][conn] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
 	};
 	}
+#endif
 }
 
 
