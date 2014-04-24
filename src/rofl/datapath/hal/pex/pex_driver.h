@@ -39,11 +39,14 @@ pex_name_list_t* hal_driver_get_all_pex_names();
  * @name    hal_result_t hal_driver_pex_create_pex
  * @brief   Instructs driver to create a new PEX 
  *
- * @param pex_name		Name of the PEX to be created
+ * @param pex_name				Name of the PEX to be created
+ * @param path					Path of the script to be used to run the PEX
  * @param core_mask				Core to which the PEX must be bound
  * @param num_memory_channels	Number of memory channels used by the PEX
+ * @param lcore_id				Identifier needed to support multiple PEX on the same core
+
  */
-hal_result_t hal_driver_pex_create_pex(const char *pex_name, uint32_t core_mask, uint32_t num_memory_channels);
+hal_result_t hal_driver_pex_create_pex(const char *pex_name, const char *path, uint32_t core_mask, uint32_t num_memory_channels, uint32_t lcore_id);
 
 /**
  * @name    hal_result_t hal_driver_pex_destroy_pex
@@ -52,6 +55,23 @@ hal_result_t hal_driver_pex_create_pex(const char *pex_name, uint32_t core_mask,
  * @param pex_name		Name of the PEX to be destroyed
  */
 hal_result_t hal_driver_pex_destroy_pex(const char *pex_name);
+
+/**
+ * @name    hal_result_t hal_driver_pex_start_pex
+ * @brief   Instructs driver to start a PEX (associated with an existing PEX port)
+ *
+ * @param pex_id				Identifier of the PEX to be created
+ */
+hal_result_t hal_driver_pex_start_pex(uint32_t pex_id);
+
+/**
+ * @name    hal_result_t hal_driver_pex_stop_pex
+ * @brief   Instructs driver to stop a PEX 
+ *
+ * @param pex_id		Identifier of the PEX to be stopped
+ */
+hal_result_t hal_driver_pex_stop_pex(uint32_t pex_id);
+
 
 // [+] Add more here..
 
