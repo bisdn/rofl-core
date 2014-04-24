@@ -212,16 +212,19 @@ of1x_match_t* of1x_init_metadata_match(uint64_t value, uint64_t mask);
 /**
 * @brief Create an ETH_DST match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_eth_dst_match(uint64_t value, uint64_t mask);
 /**
 * @brief Create an ETH_SRC match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_eth_src_match(uint64_t value, uint64_t mask);
 /**
 * @brief Create an ETH_TYPE match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_eth_type_match(uint16_t value);
 
@@ -229,12 +232,14 @@ of1x_match_t* of1x_init_eth_type_match(uint16_t value);
 /**
 * @brief Create an VLAN_VID match according to 1.2 semantics (13th bit is a flag) 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_vlan_vid_match(uint16_t value, uint16_t mask, enum of1x_vlan_present vlan_present);
 
 /**
 * @brief Create an VLAN_PCP match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value);
 
@@ -242,16 +247,19 @@ of1x_match_t* of1x_init_vlan_pcp_match(uint8_t value);
 /**
 * @brief Create an MPLS_LABEL match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_mpls_label_match(uint32_t value);
 /**
 * @brief Create an MPLS_TC match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_mpls_tc_match(uint8_t value);
 /**
 * @brief Create an MPLS_BOS match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_mpls_bos_match(uint8_t value);
 
@@ -259,26 +267,31 @@ of1x_match_t* of1x_init_mpls_bos_match(uint8_t value);
 /**
 * @brief Create an ARP_OPCODE match
 * @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_arp_opcode_match(uint16_t value);
 /**
 * @brief Create an ARP_THA match
 * @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_arp_tha_match(uint64_t value, uint64_t mask);
 /**
 * @brief Create an ARP_SHA match
 * @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_arp_sha_match(uint64_t value, uint64_t mask);
 /**
 * @brief Create an ARP_TPA match
 * @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_arp_tpa_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an ARP_SPA match
 * @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask);
 
@@ -286,16 +299,19 @@ of1x_match_t* of1x_init_arp_spa_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an PPPOE_CODE match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_pppoe_code_match(uint8_t value);
 /**
 * @brief Create an PPPOE_TYPE match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_pppoe_type_match(uint8_t value);
 /**
 * @brief Create an PPPOE_SESSION match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_pppoe_session_match(uint16_t value);
 
@@ -303,6 +319,7 @@ of1x_match_t* of1x_init_pppoe_session_match(uint16_t value);
 /**
 * @brief Create an PPP_PROTO match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ppp_prot_match(uint16_t value);
 
@@ -310,11 +327,13 @@ of1x_match_t* of1x_init_ppp_prot_match(uint16_t value);
 /**
 * @brief Create an PPP_PROTO match
 * @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_gtp_msg_type_match(uint8_t value);
 /**
 * @brief Create an PPP_PROTO match
 * @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
 */
 of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask);
 
@@ -322,16 +341,19 @@ of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an NW_PROTO match, OF1.0 ONLY!  
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_nw_proto_match(uint8_t value);
 /**
 * @brief Create an NW_SRC match (IP/ARP), OF1.0 ONLY! 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_nw_src_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an NW_DST match (IP/ARP), OF1.0 ONLY! 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask);
 
@@ -339,16 +361,19 @@ of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an IP_PROTO match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ip_proto_match(uint8_t value);
 /**
 * @brief Create an IPC_ECN match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ip_ecn_match(uint8_t value);
 /**
 * @brief Create an IP_DSCP match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ip_dscp_match(uint8_t value);
 
@@ -356,11 +381,13 @@ of1x_match_t* of1x_init_ip_dscp_match(uint8_t value);
 /**
 * @brief Create an IP4_SRC match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ip4_src_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an IP4_DST match 
 * @ingroup core_of1x 
+* @warning parameters value and mask must be in Host Byte Order
 */
 of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask);
 
@@ -368,11 +395,13 @@ of1x_match_t* of1x_init_ip4_dst_match(uint32_t value, uint32_t mask);
 /**
 * @brief Create an TCP_SRC match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_tcp_src_match(uint16_t value);
 /**
 * @brief Create an TCP_DST match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_tcp_dst_match(uint16_t value);
 
@@ -380,11 +409,13 @@ of1x_match_t* of1x_init_tcp_dst_match(uint16_t value);
 /**
 * @brief Create an UDP_SRC match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_udp_src_match(uint16_t value);
 /**
 * @brief Create an UDP_DST match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_udp_dst_match(uint16_t value);
 
@@ -392,11 +423,13 @@ of1x_match_t* of1x_init_udp_dst_match(uint16_t value);
 /**
 * @brief Create an SCTP_SRC match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_sctp_src_match(uint16_t value);
 /**
 * @brief Create an SCTP_DST match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_sctp_dst_match(uint16_t value);
 
@@ -404,11 +437,13 @@ of1x_match_t* of1x_init_sctp_dst_match(uint16_t value);
 /**
 * @brief Create an TP_SRC match (TCP/UDP), OF1.0 ONLY! 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_tp_src_match(uint16_t value);
 /**
 * @brief Create an TP_DST match (TCP/UDP), OF1.0 ONLY! 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_tp_dst_match(uint16_t value);
 
@@ -417,11 +452,13 @@ of1x_match_t* of1x_init_tp_dst_match(uint16_t value);
 /**
 * @brief Create an ICMPv4_TYPE match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_icmpv4_type_match(uint8_t value);
 /**
 * @brief Create an ICMPv4_CODE match 
 * @ingroup core_of1x 
+* @warning parameter value must be in Host Byte Order
 */
 of1x_match_t* of1x_init_icmpv4_code_match(uint8_t value);
 
@@ -429,36 +466,43 @@ of1x_match_t* of1x_init_icmpv4_code_match(uint8_t value);
 /**
  * @brief Create an IP6_SRC match
  * @ingroup core_of1x
+ * @warning parameters value and mask be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_src_match(uint128__t value, uint128__t mask);
 /**
  * @brief Create an IP6_DST match
  * @ingroup core_of1x
+ * @warning parameters value and mask must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask);
 /**
  * @brief Create an IP6_FLABEL match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value);
 /**
  * @brief Create an IP6_ND_TARGET match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_nd_target_match(uint128__t value);
 /**
  * @brief Create an IP6_ND_SLL match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_nd_sll_match(uint64_t value);
 /**
  * @brief Create an IP6_ND_TLL match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_nd_tll_match(uint64_t value);
 /**
  * @brief Create an IP6_EXTHDR match
  * @ingroup core_of1x
+ * @warning parameters value and mask must be in Host Byte Order
  */
 of1x_match_t* of1x_init_ip6_exthdr_match(uint16_t value, uint16_t mask);
 
@@ -466,11 +510,13 @@ of1x_match_t* of1x_init_ip6_exthdr_match(uint16_t value, uint16_t mask);
 /**
  * @brief Create an ICMPV6_TYPE match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_icmpv6_type_match(uint8_t value);
 /**
  * @brief Create an ICMPV6_CODE match
  * @ingroup core_of1x
+ * @warning parameter value must be in Host Byte Order
  */
 of1x_match_t* of1x_init_icmpv6_code_match(uint8_t value);
 
@@ -483,6 +529,7 @@ of1x_match_t* of1x_init_pbb_isid_match(uint32_t value, uint32_t mask);
 /**
  * @brief Create an TUNNEL_ID match
  * @ingroup core_of1x
+ * @warning parameters value and mask must be in Host Byte Order
  */
 of1x_match_t* of1x_init_tunnel_id_match(uint64_t value, uint64_t mask);
 

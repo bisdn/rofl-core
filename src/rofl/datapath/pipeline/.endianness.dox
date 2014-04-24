@@ -2,7 +2,19 @@
 * @page endianness
 * @section endianness_title Endianness clarifications 
 * @subsection endiannes_subtitle Endiannes of packet values, matches and actions:
-* The pipeline is designed to work with values in Network Byte Order (NBO). This means that the functions to initialize entry matches and actions need to provide the values in Big Endian. Only the matches external to the packet (port_in, port_phy_in, metadata) must be provided in Host Byte Order.
+* The pipeline is designed to work with values in a specially aligned Network Byte Order (NBO).
+* 
+* The reason for that lays in improving the performance of the packet classifier. The spirit is to minimize the operations done in the packet values.
+* For that reason all the packet values remain in NBO. The values that do not fill a standard type (u8, u16, u32 and u64) are stored in the lower part of the memory
+* and properly mask.
+*
+* This alignment is kept internally and therefore the functions to initialize entry matches and actions need to provide normal values in Host Byte Order.
+* Nevertheless the interface of the packet values (rofl/datapath/pipeline/platform/packet.h) uses this special aligment.
+*
+* Following you may find an explanation for each of them:
+*
+* All the matches and actions external to the packet (port_in, port_phy_in, metadata, queue) are kept in Host Byte Order.
+*
 * The non complete values have an special alignment explained here:
 * - mac address (6 bytes):
 *		Passed as an u64 variable where the 6 lower bytes are occupied with the mac address in NBO and the upper 2 are empty. Example: \n
@@ -12,10 +24,26 @@
 * 		Passed as an u16 variable where the vid lays in the upper 12 bits in NBO and the 4 lower bits are empty. Example: \n
 *		@code vlan_vid = 0x234 @endcode -> in memory @code uint_8* vid[2] = {0x02,0x34} @endcode \n
 *		which is represented in a BE machine as @code 0x0234 @endcode, and in a LE machine as @code 0x3402 @endcode \n
+* - vlan pcp (3 bits)
+*		Passed as an u8 variable where the pcp lays in the upper 3 bits and the 5 lower bits are empty. Example: \n
+*		@code vlan_pcp = 0x7 @endcode -> in memory @code uint_8* vid[1] = {0xE0} @endcode \n
+*		which is represented in as @code 0xE0 @endcode
 * - mpls label (20 bits):
 *		Passed as an u32 variable where the label lays in the lower 20 bits and the upper 12 are empty. Example: \n
 *		@code mpls_label = 0x12345 @endcode -> in memory: @code uint_8* label[4] = {0x12,0x34,0x50,0x00} @endcode \n
 *		which is represented in a BE machine as @code 0x12345000 @endcode and in a LE machine as @code 0x00503412 @endcode \n
+* - mpls tc (3 bits)
+*		Passed as an u8 variable where the tc lays in the 2nd to 4th bits and the other bits are empty. Example: \n
+*		@code mpls_tc = 0x7 @endcode -> in memory @code uint_8* tc[1] = {0x0E} @endcode \n
+*		which is represented in as @code 0x0E @endcode
+* - ip dscp (6 bytes)
+*		Passed as an u8 variable where the dscp lays in the upper 6 bits and the lower 2 bits are empty. Example: \n
+*		@code ip_dscp = 0x3F @endcode -> in memory @code uint_8* dscp[1] = {0xFC} @endcode \n
+*		which is represented in as @code 0xFC @endcode
+* - ipv6 flow label (20 bits)
+*		Passed as an u32 variable where the flabel lays from the 4th to the 24th bits and the oder 12 are empty. Example: \n
+*		@code ipv6_flabel = 0x12345 @endcode -> in memory: @code uint_8* flabel[4] = {0x01,0x23,0x45,0x00} @endcode \n
+*		which is represented in a BE machine as @code 0x01234500 @endcode and in a LE machine as @code 0x00452301 @endcode \n
 * - pbb isid (3 bytes):
 *		Passed as an u32 variable where the isid lays in the lower 3 bytes and the upper byte is empty. Exampe: \n
 *		@code pbb_isid = 0x123456 @endcode -> in memory:@code uint_8* isid[4] = {0x12,0x34,0x56,0x00} @endcode \n
