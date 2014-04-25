@@ -17,6 +17,7 @@
 
 std::string action_mask_to_string(const uint32_t action_types);
 std::string capabilities_to_string(const uint32_t capabilities);
+std::string port_as_string(uint16_t p);
 
 class morpheus : public rofl::crofbase {
 

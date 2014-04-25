@@ -72,88 +72,24 @@ std::cout << "TP" << __LINE__ << std::endl;
 	entry.actions = msg->get_actions();
 std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cofaclist inlist = msg->get_actions();
-	rofl::cofaclist outlist;
+	
 	bool already_set_vlan = false;
 	bool already_did_output = false;
 // now translate the action and the match
-	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
-		if( ! (be16toh(a->oac_header->type) & m_parent->get_supported_actions() ) ) {
-			// the action isn't supported by the underlying switch - complain - send an error message, then write to your MP. Start a Tea Party movement. Then start an Occupy OpenFlow group. If that still doesn't help become a recluse and blame the system.
-			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-			m_completed = true;
-			return m_completed;
-		}
-		switch(be16toh(a->oac_header->type)) {
-			case OFP10AT_OUTPUT: {
-				uint16_t oport = be16toh(a->oac_10output->port);
-				// TODO must add support for ports ALL and FLOOD
-				if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
-					// invalid virtual port number
-					m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
-					m_completed = true;
-					return m_completed;
-				}
-				cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( oport );
-				if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
-					outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
-					already_set_vlan = true;
-				}
-				outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
-				already_did_output = true;
-			} break;
-			case OFP10AT_SET_VLAN_VID: {
-				// VLAN-in-VLAN is not supported - return with error.
-				assert(false);
-				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-				m_completed = true;
-				return m_completed;
-			} break;
-			case OFP10AT_SET_VLAN_PCP: {
-				// VLAN-in-VLAN is not supported - return with error.
-				assert(false);
-				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-				m_completed = true;
-				return m_completed;
-			} break;
-			case OFP10AT_STRIP_VLAN: {
-				if(already_set_vlan) {
-					// cannot strip after we've already added a set-vlan message
-					std::cout << __FUNCTION__ << ": attempt was made to strip VLAN after an OFP10AT_OUTPUT action - this would strip VLAN from virtual port translation. Replying with OFPMFC_UNSUPPORTED." << std::endl;
-					m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-				}
-			} break;
-			case OFP10AT_ENQUEUE: {
-				// Queues not supported for now.
-				assert(false);
-				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-				m_completed = true;
-				return m_completed;
-			} break;
-			case OFP10AT_SET_DL_SRC:
-			case OFP10AT_SET_DL_DST:
-			case OFP10AT_SET_NW_SRC:
-			case OFP10AT_SET_NW_DST:
-			case OFP10AT_SET_NW_TOS:
-			case OFP10AT_SET_TP_SRC:
-			case OFP10AT_SET_TP_DST: {
-				// just pass the message through
-				outlist.next() = *a;
-			} break;
-			case OFP10AT_VENDOR: {
-				// We have no idea what could be in the vendor message, so we can't translate, so we kill it.
-				std::cout << __FUNCTION__ << " Vendor actions are unsupported. Sending error and dropping message." << std::endl;
-				m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-				m_completed = true;
-				return m_completed;
-			} break;
-			default:
-			std::cout << __FUNCTION__ << " unknown action type (" << (unsigned)be16toh(a->oac_header->type) << "). Sending error and dropping message." << std::endl;
-			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-			m_completed = true;
-			return m_completed;
-		}
+	try {
+		entry.actions = m_parent->get_mapper().action_convertor(inlist);
+	} catch (rofl::eBadActionBadArgument &) {
+		m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+		assert(false);
+		m_completed = true;
+		return m_completed;
 	}
-	entry.actions = outlist;
+	catch(rofl::eBadActionBadOutPort &) {
+		m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
+		assert(false);
+		m_completed = true;
+		return m_completed;
+	}
 	
 	rofl::cofmatch newmatch = msg->get_match();
 	rofl::cofmatch oldmatch = newmatch;
@@ -506,7 +442,11 @@ bool process_packet_out ( const rofl::cofctl * const src, rofl::cofmsg_packet_ou
 		m_completed = true;
 		return m_completed;
 	}
-	rofl::cofaclist actions(msg->get_actions());	// I think these actions are to be performed on either the buffered packet, or the one included in this message.
+	rofl::cofaclist actions(msg->get_actions());	// These actions are to be performed on either the buffered packet, or the one included in this message.
+	std::cout << "*** Actions copied: ";
+	for(rofl::cofaclist::iterator i = actions.begin(); i != actions.end(); ++i)
+		std::cout << i->c_str() << " ";
+	std::cout << std::endl;
 	std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cpacket packet(msg->get_packet());
 	std::cout << "TP" << __LINE__ << std::endl;
@@ -519,12 +459,38 @@ bool process_packet_out ( const rofl::cofctl * const src, rofl::cofmsg_packet_ou
 	}
 
 	const cportvlan_mapper & mapper = m_parent->get_mapper();
+	
+	uint16_t in_vport = msg->get_in_port();
+	std::cout << "packet_out in port is " <<  port_as_string(in_vport) << std::endl;
+	
+	for(rofl::cofaclist::iterator i = actions.begin(); i != actions.end(); ++i) {
+		// cannot support 
+		std::cout << i->c_str() << " ";
+	}
+	switch(in_vport) {
+		case OFPP10_ALL: 	// All physical ports except input port. */
+
+		case OFPP10_IN_PORT:// send the packet out the input port.  This virtual port must be explicitly used in order to send back out of the input port.
+		case OFPP10_TABLE:	// Perform actions in flow table. NB: This can only be the destination port for packet-out messages.
+		case OFPP10_NORMAL:	// Process with normal L2/L3 switching.
+		case OFPP10_CONTROLLER:	// Send to controller.
+		case OFPP10_LOCAL:	// Local OpenFlow "port".
+		case OFPP10_NONE:	// Not associated with a physical port.
+		case OFPP10_FLOOD: 	// All physical ports except input port and those disabled by STP.
+			std::cout << __FUNCTION__ << " doesn't support output port " << std::hex << (unsigned) in_vport << std::endl;
+			m_completed = true;
+			return m_completed;
+		default:	// an actual numbered port
+//		if(in_vport > OFPP10_MAX ) panic
+			break;
+	};
 	cportvlan_mapper::port_spec_t inport_spec( mapper.get_actual_port(msg->get_in_port()) );
 	if(!inport_spec.vlanid_is_none()) {
 		packet.push_vlan(rofl::fvlanframe::VLAN_CTAG_ETHER);	// create new vlan header
 		packet.vlan()->set_dl_vlan_id(inport_spec.vlan);				// set the VLAN ID
 	}
 	m_parent->send_packet_out_message(m_parent->get_dpt(), msg->get_buffer_id(), inport_spec.port, actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+
 	m_completed = true;
 	return m_completed;
 }

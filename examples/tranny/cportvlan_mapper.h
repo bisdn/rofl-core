@@ -120,6 +120,9 @@ std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t
 	return out;
 	}
 
+rofl::cofaclist action_convertor(const rofl::cofaclist & in) const;
+	
+
 friend std::ostream & operator<< (std::ostream & os, const cportvlan_mapper & translator) {
 	size_t N = translator.get_number_virtual_ports();
 	os << "List of " << N <<  " ports.\n";

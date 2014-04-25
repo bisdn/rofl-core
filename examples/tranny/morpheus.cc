@@ -189,8 +189,8 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633));
+	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633));
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
@@ -384,6 +384,20 @@ std::string action_mask_to_string(const uint32_t action_types) {
 	}
 	return out;
 }
+
+std::string port_as_string(uint16_t p) {	// maps a ofp10_port_no port number to a string if it has a meaning (like FLOOD), or just to a number.
+	static const uint32_t vals[] = { OFPP10_IN_PORT, OFPP10_TABLE, OFPP10_NORMAL, OFPP10_FLOOD, OFPP10_ALL, OFPP10_CONTROLLER, OFPP10_LOCAL, OFPP10_NONE };
+	static const std::string names[] = { "OFPP10_IN_PORT", "OFPP10_TABLE", "OFPP10_NORMAL", "OFPP10_FLOOD", "OFPP10_ALL", "OFPP10_CONTROLLER", "OFPP10_LOCAL", "OFPP10_NONE" };
+	static const size_t N = sizeof(vals)/sizeof(vals[0]);
+	for(size_t i=0;i<N;++i) {
+		if(vals[i]==p) return names[i];
+	}
+	std::stringstream s;
+	if(p <= OFPP10_MAX) s << "PORT_NO:";
+	else s << "INVALID_PORT_NO:";
+	s << p;
+	return s.str();
+	}
 
 std::string capabilities_to_string(uint32_t capabilities) {
 	static const std::string capabilities_sz [] = { "OFPC_FLOW_STATS", "OFPC_TABLE_STATS", "OFPC_PORT_STATS", "OFPC_STP", "OFPC_RESERVED", "OFPC_IP_REASM", "OFPC_QUEUE_STATS", "OFPC_ARP_MATCH_IP" };
