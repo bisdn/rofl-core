@@ -55,11 +55,11 @@ bool vlanid_is_none() const { return (vlan==NO_VLAN); }
 
 friend std::ostream & operator<< (std::ostream & os, const struct port_spec & spec) {
 	os << "port: ";
-	if(spec.port_is_wild()) os << "*"; else os << (unsigned) spec.port;
+	if(spec.port_is_wild()) os << "*"; else os << (unsigned int) spec.port;
 	os << " vlan: ";
 	if(spec.vlanid_is_wild()) os << "*";
 	else if(spec.vlanid_is_none()) os << "NO_VLAN";
-	else os << (unsigned) spec.vlan;
+	else os << (unsigned int) spec.vlan;
 	return os;
 	}
 };
@@ -120,7 +120,7 @@ std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t
 	return out;
 	}
 
-rofl::cofaclist action_convertor(const rofl::cofaclist & in) const;
+// rofl::cofaclist action_convertor(const rofl::cofaclist & in) const;
 	
 
 friend std::ostream & operator<< (std::ostream & os, const cportvlan_mapper & translator) {
