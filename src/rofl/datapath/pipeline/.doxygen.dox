@@ -3,70 +3,65 @@
 * @mainpage ROFL-PIPELINE library
 *
 * @section doc Documentation 
-* @subsection intro_sec Concept
+* @subsection intro_sec Introduction
 *
-* The ROFL-pipeline library is a platform-independent OpenFlow forwarding backend engine. The intention was to create a unified common OpenFlow forwarding backend for several platforms supported by our eXtensible DataPath (<a href="https://www.codebasin.net/redmine/projects/xdpd">xDPd</a>) in <a href="https://www.bisdn.de">BISDN</a>, like the UNIX, Network procesors or Broadcom family boards.
+* The ROFL-pipeline library is a platform-agnostic OpenFlow 1.0, 1.2 and 1.3.X pipeline, built focusing on performance and extensibility. The objective is to create a unified common OpenFlow pipeline implementation that can be reused in several platforms. ROFL-pipeline is used by the eXtensible DataPath (<a href="https://www.codebasin.net/redmine/projects/xdpd/wiki">xDPd</a>) in several platforms.
 * 
 * Features:
-*  - Complete OpenFlow processing pipeline, including abstractions of switch (forwarding only), pipeline, table, entry, matches, actions... as well as the subsystems of timers and stats.
-*  - Support for multiple OpenFlow pipeline versions simultaneously (in different logical switches).
-*  - Platform indepedent: the library is decoupled from platform specific code. 
-*  - Supports logical switch up to  \link PHYSICAL_SWITCH_MAX_LS \endlink running in parallel.
+*  - Complete dataplane data model.
+*  - Complete OpenFlow 1.0, 1.2 and 1.3.X processing pipeline, including abstractions of switch (forwarding plane only), pipeline, table, entry, matches, actions... as well as the subsystems of timers and stats.
+*  - Support for up to  \link PHYSICAL_SWITCH_MAX_LS \endlink logical switch instances (OF datapaths) running in parallel.
+*  - Support for multiple OpenFlow versions running simultaneously in different logical switches.
 *  - Runtime port(interface) attachment/detachment to/from logical switches
+*  - Platform indepedent: the library is decoupled from platform specific code. 
 *  - Extensible library:
-*     - Easy addition of new OpenFlow versions
+*     - New OpenFlow versions
 *     - New OpenFlow Matches
 *     - New OpenFlow Actions 
-*     - Clear API to create new software Table Matching Algorithms (flow entry lookup)
-*  - Optimzed for performance: specially when using advanced matching algorithms.
+*     - New software Table Matching Algorithms (flow entry lookup)
 *  
-* @subsubsection how_can How can ROFL-pipeline library be used
+* @subsection how_can How to use it 
 *
-*  - As the <b>forwarding engine of an OpenFlow software switch</b>: take a look at xDP software switch that uses ROFL-pipeline for its forwarding modules. 
-*  - To <b>keep the state of the forwarding backend</b> and <b>process flow entry expirations</b> and/or <b>some packets</b> in <b>hybrid hardware/software switches</b>: typically hardware switches that do not support
-*    all of the capabilities exposed by OpenFlow, and some must be done in software within embedded systems. 
-*  - To <b>only keep the state of the forwarding backend (OpenFlow configuration)</b> of OpenFlow Hardware switches: generally to be used by the OpenFlow endpoint(s)
+* ROFL-pipeline can be used as:
+*  - A <b>data-model</b> of the forwarding plane of an OpenFlow switch.  This is how ROFL-HAL uses it.
+*  - A <b>data-model</b> and <b>state manager</b> library. Keep the state of the flowmod entries installed, groupmods, associated timers, stats... and let the platform specific code capture events (flow_mod insertion, flow_mod removal) via @ref async_events_hooks APIs to mangle ASIC or other devices configuration.
+*  - A <b>data-model, state manager</b> and a software <b>OpenFlow packet processing</b> library. Use the @ref core_pp to process packets in software or hybrid hw/sw OF datapaths.
 *
-* @subsubsection what_is_not ROFL-pipeline is not...
+* ROFL-pipeline is not...
 * 
-*  - ...a full-fletched Datapath; it cannot be since it deliverately does not provide OpenFlow endpoint functionality (neither an OpenFlow protocol parser), nor the platform specific I/O subsystem for packet handling and injection to the OpenFlow pipeline. Take a look at our xDP for a full-blown datapath using ROFL-pipeline.
-*  - ...a complete OpenFlow-enabled Forwarding Backend; ROFL-pipeline is deliverately platform independent <b>library</b>, hence it does not deal with things like the I/O subsystem or other platform specific subsytems. Take a look at our xDP for a complete OpenFlow-enabled Forwarding Backend that uses ROFL-pipeline.
-*  - ...an OpenFlow endpoint. The OpenFlow endpoint is out of the scope of ROFL-pipeline.
+*  - ...a full-fletched datapath
+*  - ...a complete OpenFlow-enabled Forwarding Backend; ROFL-pipeline is deliverately a platform independent <b>library</b>, hence it does not deal with things like the I/O or other platform specific subsytems. Take a look at our xDPd for a complete OpenFlow-enabled Forwarding Backend that uses ROFL-pipeline.
+*  - ...an OpenFlow endpoint. The OpenFlow endpoint is out of the scope of ROFL-pipeline library. Take a look at ROFL-common.
 *
 * @subsection arch Architecture overview
 *
 * @code
-
-                    +           ^
-                    |           +
-           Mangement|           +Async events                              Legend:
-                 API|           +and hooks API
-                    |           +                           +-----+        +--> API exposed by
-           +--------v-----------+--------+               ++>|Alg.1|             the library
-           |                             |               +  +-----+
-           |                             |  Extensible   +                 <+++ API consumed by
-   Runtime |                             |  Matching     +  +-----+             the library
- +--------->        ROFL pipeline        ++++++++++++++++++>|Alg.2|
-     API   |          core lib           |  Algorithm    +  +-----+
-           |                             |  API          +    ...
-           |                             |               +  +-----+
-           +--------------+--------------+               ++>|Alg.N|
-                          +                                 +-----+
-                          +
-                          +
-            +-------------v-------------+
-            |       Platform APIs       |
-            +---------------------------+
-            | Locking,atomic ops,packet |
-            |        mangling...        |
-            +---------------------------+
+                                                                       Legend:
+ 
+                                                                       +--> API exposed by
+                                                                            the library
+ 
+                      +---------------------------------+              <+++ API consumed by
+                      |            Data-model           |                   the library
+   Async events       +---------------------------------+
+   and hooks API <+++++                                 |
+                      |         State management        ++++
+   Management API +--->                                 |  +   Platform APIs
+                      +---------------------------------+  ++> (locking, atomic ops, packet mangling...)
+                      |                                 |  +
+                      |        Packet processing        ++++
+                      |                                 | 
+                      | +------------------------------+|
+   Pkt processing +-----|-> Matching algorithms APIs   ||
+                      | +------------------------------+|
+                      +---------------------------------+
 * @endcode
 *
 * Exposed by the library:
 *
-*  - @ref core "Core APIs and data structures": @copybrief core
+*  - @ref core : @copybrief core
 *  - @ref mgmt : @copybrief mgmt 
-*  - @ref sw_runtime : @copybrief sw_runtime 
+*  - @ref core_pp : @copybrief core_pp 
 *
 * Consumed by the library:
 *  - @ref platform "Platform dependent APIs", which are subdivided in: 
@@ -78,33 +73,14 @@
 *  - @ref core_ma : @copybrief core_ma 
 *
 * @subsection endiannes Endiannes of packet values, matches and actions:
-* The pipeline is designed to work with values in Network Byte Order (NBO). This means that the functions to initialize entry matches and actions need to provide the values in Big Endian. Only the matches external to the packet (port_in, port_phy_in, metadata) must be provided in Host Byte Order.
-* The non complete values have an special alignment explained here:
-* - mac address (6 bytes):
-*		Passed as an u64 variable where the 6 lower bytes are occupied with the mac address in NBO and the upper 2 are empty. Example: \n
-*		@code mac_addr = 0x112233445566 @endcode -> in memory: @code uint_8* mac[8] = {0x11,0x22,0x33,0x44,0x55,0x66,0x00,0x00} @endcode \n
-*		which is represented in a BE machine as @code 0x1122334455660000 @endcode and in a LE machine as @code 0x0000665544332211 @endcode \n
-* - vlan vid (12 bits):
-* 		Passed as an u16 variable where the vid lays in the upper 12 bits in NBO and the 4 lower bits are empty. Example: \n
-*		@code vlan_vid = 0x234 @endcode -> in memory @code uint_8* vid[2] = {0x02,0x34} @endcode \n
-*		which is represented in a BE machine as @code 0x0234 @endcode, and in a LE machine as @code 0x3402 @endcode \n
-* - mpls label (20 bits):
-*		Passed as an u32 variable where the label lays in the lower 20 bits and the upper 12 are empty. Example: \n
-*		@code mpls_label = 0x12345 @endcode -> in memory: @code uint_8* label[4] = {0x12,0x34,0x50,0x00} @endcode \n
-*		which is represented in a BE machine as @code 0x12345000 @endcode and in a LE machine as @code 0x00503412 @endcode \n
-* - pbb isid (3 bytes):
-*		Passed as an u32 variable where the isid lays in the lower 3 bytes and the upper byte is empty. Exampe: \n
-*		@code pbb_isid = 0x123456 @endcode -> in memory:@code uint_8* isid[4] = {0x12,0x34,0x56,0x00} @endcode \n
-*		which is represented in a BE machine as @code 0x12345600 @endcode and in a LE machine as @code 0x00563412 @endcode \n
 *
+* ROFL-pipeline uses Network Byte Order (NBO). The alignment of particular headers types has to be carefully taken into account. Please, read @ref endianness section for more details.
 *
-* 
-* @subsection contrib How to contribute:
-*
-* TODO...
 * @subsection rel_proj Related projects:
 *
-*  TODO: ROFL, xDP, ROFL-AFA (Abstract Forwarding API)
+*  - ROFL-common: Revised OpenFlow Library OpenFlow endpoint code.
+*  - ROFL-HAL: Revised OpenFlow Hardware Abstraction Layer (HAL). 
+*  - xDPd: eXtensible DataPath daemon, a multi-platform open-source OpenFlow datapath. 
 *
 * @subsection author Authors:
 *  - Marc Sune Clos <marc.sune (at) bisdn.de>
@@ -112,7 +88,7 @@
 *  - Tobias Jungel <tobias.jungel (at) bisdn.de>
 *  - Andreas Koepsel <andreas.koepsel (at) bisdn.de>
 *
-* TODO: link to BISDN website
+* Copyright <a href="http://www.bisdn.de">BISDN</a>.
 *
 * @subsection license Licensing:
 *

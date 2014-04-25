@@ -150,9 +150,9 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 * @brief Dumps the flow entry for debugging purposes.  
 * @ingroup core_of1x 
 *
-* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
 */
-void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool nbo);
+void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool raw_nbo);
 
 //C++ extern C
 ROFL_END_DECLS

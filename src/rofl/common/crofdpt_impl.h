@@ -1040,7 +1040,7 @@ public:
 	 * @param data first (at least 64) bytes of failed reply/notification
 	 * @param datalen length of failed reply/notification appended to error message
 	 */
-	virtual uint32_t
+	virtual void
 	send_error_message(
 		uint32_t xid,
 		uint16_t type,

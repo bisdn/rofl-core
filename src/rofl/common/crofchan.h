@@ -79,6 +79,11 @@ public:
 	/**
 	 *
 	 */
+	crofchan();
+
+	/**
+	 *
+	 */
 	crofchan(
 			crofchan_env *env,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);

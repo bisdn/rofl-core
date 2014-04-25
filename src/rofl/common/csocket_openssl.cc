@@ -333,6 +333,7 @@ csocket_openssl::handle_listen(rofl::csocket& socket, int newsd)
 void
 csocket_openssl::handle_closed(rofl::csocket& socket)
 {
+	openssl_destroy_ssl();
 	if (socket_owner) socket_owner->handle_closed(*this);
 }
 
@@ -470,7 +471,7 @@ csocket_openssl::dequeue_packet()
 
 		rofl::cmemory *mem = txqueue.front();
 
-		if ((rc = SSL_write(ssl, mem->somem(), mem->memlen())) < 0) {
+		if ((NULL != ssl) && (rc = SSL_write(ssl, mem->somem(), mem->memlen())) < 0) {
 
 			switch (err_code = SSL_get_error(ssl, rc)) {
 			case SSL_ERROR_WANT_READ: {
@@ -510,10 +511,10 @@ csocket_openssl::close()
 {
 	int rc = 0;
 
-	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
-
-	if (socket_flags.test(FLAG_SSL_IDLE))
+	if (socket_flags.test(FLAG_SSL_IDLE) || socket_flags.test(FLAG_SSL_CLOSING))
 		return;
+
+	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
 
 	socket_flags.reset(FLAG_SSL_ESTABLISHED);
 	socket_flags.set(FLAG_SSL_CLOSING);

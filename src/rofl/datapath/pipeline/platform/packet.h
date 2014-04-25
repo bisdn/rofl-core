@@ -97,18 +97,21 @@ datapacket_t* platform_packet_replicate(datapacket_t* pkt);
 /**
 * @ingroup platform_packet
 * Retrieves the port in identifier (position in the of1x_switch_t->logical_ports array) where the packet got in
+* @warning Return value comes in HBO endianness
 */
 uint32_t platform_packet_get_port_in(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Retrieves the PHY port in identifier where the packet got in
 * @return id if existing, 0x0 otherwise.
+* @warning Return value comes in HBO endianness
 */
 uint32_t platform_packet_get_phy_port_in(datapacket_t *const pkt);	
 
 /**
 * @ingroup platform_packet
 * Set output queue of the packet 
+* @warning queue must be in HBO endianness
 */
 void platform_packet_set_queue(datapacket_t* pkt, uint32_t queue);
 
@@ -120,32 +123,38 @@ void platform_packet_set_queue(datapacket_t* pkt, uint32_t queue);
 /**
 * @ingroup platform_packet
 * Retrieve the Ethernet src MAC address of the packet 
+* @warning Return value comes in aligned NBO endianness
 */
 uint64_t platform_packet_get_eth_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Retrieve the Ethernet dst MAC address of the packet 
+* @warning Return value comes in aligned NBO endianness 
 */
 uint64_t platform_packet_get_eth_dst(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Retrieve the Ethernet ETH_TYPE of the packet 
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_eth_type(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new Ethernet src MAC address to the packet 
+* @warning eth_src must be in aligned NBO endianness
 */
 void platform_packet_set_eth_src(datapacket_t* pkt, uint64_t eth_src);
 /**
 * @ingroup platform_packet
 * Set a new Ethernet dst MAC address to the packet 
+* @warning eth_dst must be in aligned NBO endianness 
 */
 void platform_packet_set_eth_dst(datapacket_t* pkt, uint64_t eth_dst);
 /**
 * @ingroup platform_packet
 * Set a new ETH_TYPE to the packet if it is 802.X 
+* @warning eth_type must be in normal NBO endianness
 */
 void platform_packet_set_eth_type(datapacket_t* pkt, uint16_t eth_type);
 
@@ -162,22 +171,26 @@ bool platform_packet_has_vlan(datapacket_t *const pkt);
 * @ingroup platform_packet
 * Retrieves the VLAN id of the outer-most 802.1q VLAN tag
 * @return id if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_vlan_vid(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Retrieves the VLAN PCP of the outer-most 802.1q VLAN tag
 * @return id if existing, 0x0 otherwise.
+* @warning Return value comes specially aligned
 */
 uint8_t platform_packet_get_vlan_pcp(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Set a new VLAN VID value to the outer-most VLAN of the packet
+* @warning vlan_vid must be in normal NBO endianness
 */
 void platform_packet_set_vlan_vid(datapacket_t* pkt, uint16_t vlan_vid);
 /**
 * @ingroup platform_packet
 * Set a new VLAN PCP value to the outer-most VLAN of the packet
+* @warning vlan_pcp must be specially aligned
 */
 void platform_packet_set_vlan_pcp(datapacket_t* pkt, uint8_t vlan_pcp);
 /**
@@ -188,6 +201,7 @@ void platform_packet_pop_vlan(datapacket_t* pkt);
 /**
 * @ingroup platform_packet
 * Push a new 802.1q VLAN tag (outer-most)
+* @warning ether_type must be in normal NBO
 */
 void platform_packet_push_vlan(datapacket_t* pkt, uint16_t ether_type);
 
@@ -200,12 +214,14 @@ void platform_packet_push_vlan(datapacket_t* pkt, uint16_t ether_type);
 * @ingroup platform_packet
 * Retrieves the outer-most MPLS tag label
 * @return label if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint32_t platform_packet_get_mpls_label(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Retrieves the outer-most MPLS tag tc flag 
 * @return flag if existing, 0x0 otherwise.
+* @warning Return value comes specially aligned
 */
 uint8_t platform_packet_get_mpls_tc(datapacket_t *const pkt);
 /**
@@ -218,11 +234,13 @@ bool platform_packet_get_mpls_bos(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Set a new label to the outer-most MPLS tag of the packet
+* @warning label must be in aligned NBO endianness
 */
 void platform_packet_set_mpls_label(datapacket_t* pkt, uint32_t label);
 /**
 * @ingroup platform_packet
 * Set a new TC value to the outer-most MPLS MPLS tag of the packet
+* @warning tc must be specially aligned
 */
 void platform_packet_set_mpls_tc(datapacket_t* pkt, uint8_t tc);
 /**
@@ -244,11 +262,13 @@ void platform_packet_dec_mpls_ttl(datapacket_t* pkt);
 /**
 * @ingroup platform_packet
 * Pop outer-most MPLS tag, setting the BoS accordingly
+* @warning ether_type must be in normal NBO
 */
 void platform_packet_pop_mpls(datapacket_t* pkt, uint16_t ether_type);
 /**
 * @ingroup platform_packet
 * Push a new MPLS tag (outer-most), and set inner and outer tag BoS accordingly 
+* @warning ether_type must be in normal NBO
 */
 void platform_packet_push_mpls(datapacket_t* pkt, uint16_t ether_type);
 
@@ -259,11 +279,13 @@ void platform_packet_push_mpls(datapacket_t* pkt, uint16_t ether_type);
 /**
 * @ingroup platform_packet
 * Get Tunnel ID
+* @warning Return value comes in HBO endianness
 */
 uint64_t platform_packet_get_tunnel_id(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Set Tunnel ID
+* @warning tunnel_id must be in HBO endianness
 */
 void platform_packet_set_tunnel_id(datapacket_t*pkt, uint64_t tunnel_id);
 
@@ -274,22 +296,26 @@ void platform_packet_set_tunnel_id(datapacket_t*pkt, uint64_t tunnel_id);
 * @ingroup platform_packet
 * Get PBB I-SID value of the packet
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in specially aligned HBO endianness
 */
 uint32_t platform_packet_get_pbb_isid(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the PBB I-SID of the packet
+* @warning pbb_isid must be in specially aligned NBO endianness
 */
 void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid);
 /**
 * @ingroup platform_packet
 * Pop outer-most PBB header
+* @warning ether_type must be in normal NBO
 */
 void platform_packet_pop_pbb(datapacket_t* pkt, uint16_t ether_type);
 /**
 * @ingroup platform_packet
 * Push PBB header (outer-most)
+* @warning ether_type must be in normal NBO
 */
 void platform_packet_push_pbb(datapacket_t* pkt, uint16_t ether_type);
 
@@ -337,6 +363,7 @@ uint8_t platform_packet_get_ip_ecn(datapacket_t *const pkt);
 * @ingroup platform_packet
 * Get the ip DSCP value of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes specially aligned
 */
 uint8_t platform_packet_get_ip_dscp(datapacket_t *const pkt);
 
@@ -348,6 +375,7 @@ void platform_packet_set_ip_proto(datapacket_t* pkt, uint8_t ip_proto);
 /**
 * @ingroup platform_packet
 * Set a new value for the IP DSCP header field
+* @warning ip_dscp must be specially aligned
 */
 void platform_packet_set_ip_dscp(datapacket_t* pkt, uint8_t ip_dscp);
 /**
@@ -369,24 +397,28 @@ uint16_t platform_packet_get_arp_opcode(datapacket_t *const pkt);
 * @ingroup platform_packet
 * Get the ARP SHA value of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint64_t platform_packet_get_arp_sha(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the ARP SPA value of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint32_t platform_packet_get_arp_spa(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the ARP THA value of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint64_t platform_packet_get_arp_tha(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the ARP TPA value of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint32_t platform_packet_get_arp_tpa(datapacket_t *const pkt);
 
@@ -398,21 +430,25 @@ void platform_packet_set_arp_opcode(datapacket_t* pkt, uint16_t arp_opcode);
 /**
 * @ingroup platform_packet
 * Set a new value for the ARP SHA header field
+* @warning arp_sha must be in aligned NBO endianness
 */
 void platform_packet_set_arp_sha(datapacket_t* pkt, uint64_t arp_sha);
 /**
 * @ingroup platform_packet
 * Set a new value for the ARP SPA header field
+* @warning arp_spa must be in normal NBO endianness
 */
 void platform_packet_set_arp_spa(datapacket_t* pkt, uint32_t arp_spa);
 /**
 * @ingroup platform_packet
 * Set a new value for the ARP THA header field
+* @warning arp_tha must be in aligned NBO endianness
 */
 void platform_packet_set_arp_tha(datapacket_t* pkt, uint64_t arp_tha);
 /**
 * @ingroup platform_packet
 * Set a new value for the ARP TPA header field
+* @warning arp_tpa must be in normal NBO endianness
 */
 void platform_packet_set_arp_tpa(datapacket_t* pkt, uint32_t arp_tpa);
 
@@ -424,24 +460,28 @@ void platform_packet_set_arp_tpa(datapacket_t* pkt, uint32_t arp_tpa);
 * @ingroup platform_packet
 * Get the IPv4 src address of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint32_t platform_packet_get_ipv4_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv4 dst address of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint32_t platform_packet_get_ipv4_dst(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv4 src address
+* @warning ip_src must be in normal NBO endianness
 */
 void platform_packet_set_ipv4_src(datapacket_t* pkt, uint32_t ip_src);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv4 dst address
+* @warning ip_dst must be in normal NBO endianness
 */
 void platform_packet_set_ipv4_dst(datapacket_t* pkt, uint32_t ip_dst);
 
@@ -453,78 +493,92 @@ void platform_packet_set_ipv4_dst(datapacket_t* pkt, uint32_t ip_dst);
 * @ingroup platform_packet
 * Get the IPv6 src address of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint128__t platform_packet_get_ipv6_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 dst address of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint128__t platform_packet_get_ipv6_dst(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 label of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in alligned NBO endianness
 */
 uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 nd target of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint128__t platform_packet_get_ipv6_nd_target(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 nd sll of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint64_t platform_packet_get_ipv6_nd_sll(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 nd tll of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint64_t platform_packet_get_ipv6_nd_tll(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 exthdr of the packet 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
 */
 uint16_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 src address
+* @warning ipv6_src must be in normal NBO endianness
 */
 void platform_packet_set_ipv6_src(datapacket_t*pkt, uint128__t ipv6_src);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 dst address
+* @warning ipv6_dst must be in normal NBO endianness
 */
 void platform_packet_set_ipv6_dst(datapacket_t*pkt, uint128__t ipv6_dst);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 label
+* @warning ipv6_flabel must be in aligned NBO endianness
 */
 void platform_packet_set_ipv6_flabel(datapacket_t*pkt, uint64_t ipv6_flabel);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 nd target
+* @warning ipv6_nd_target must be in normal NBO endianness
 */
 void platform_packet_set_ipv6_nd_target(datapacket_t*pkt, uint128__t ipv6_nd_target);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 nd sll
+* @warning ipv6_nd_sll must be in aligned NBO endianness
 */
 void platform_packet_set_ipv6_nd_sll(datapacket_t*pkt, uint64_t ipv6_nd_sll);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 nd tll
+* @warning ipv6_nd_tll must be in aligned NBO endianness
 */
 void platform_packet_set_ipv6_nd_tll(datapacket_t*pkt, uint64_t ipv6_nd_tll);
 /**
 * @ingroup platform_packet
 * Set a new value for the IPv6 exthdr
+* @warning ipv6_exthdr must be in alligned NBO endianness
 */
 void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint16_t ipv6_exthdr);
 
@@ -535,23 +589,27 @@ void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint16_t ipv6_exthdr);
 * @ingroup platform_packet
 * Get the TCP src port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_tcp_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the TCP dst port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_tcp_dst(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the TCP src port
+* @warning tcp_src must be in normal NBO endianness
 */
 void platform_packet_set_tcp_src(datapacket_t* pkt, uint16_t tcp_src);
 /**
 * @ingroup platform_packet
 * Set a new value for the TCP dst port
+* @warning tcp_dst must be in normal NBO endianness
 */
 void platform_packet_set_tcp_dst(datapacket_t* pkt, uint16_t tcp_dst);
 
@@ -563,23 +621,27 @@ void platform_packet_set_tcp_dst(datapacket_t* pkt, uint16_t tcp_dst);
 * @ingroup platform_packet
 * Get the UDP src port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_udp_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the UDP dst port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_udp_dst(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the UDP src port
+* @warning udp_src must be in normal NBO endianness
 */
 void platform_packet_set_udp_src(datapacket_t* pkt, uint16_t udp_src);
 /**
 * @ingroup platform_packet
 * Set a new value for the UDP dst port
+* @warning udp_dst must be in normal NBO endianness
 */
 void platform_packet_set_udp_dst(datapacket_t* pkt, uint16_t udp_dst);
 
@@ -591,23 +653,27 @@ void platform_packet_set_udp_dst(datapacket_t* pkt, uint16_t udp_dst);
 * @ingroup platform_packet
 * Get the SCTP src port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_sctp_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the SCTP dst port 
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_sctp_dst(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the SCTP src port
+* @warning sctp_src must be in normal NBO endianness
 */
 void platform_packet_set_sctp_src(datapacket_t* pkt, uint16_t sctp_src);
 /**
 * @ingroup platform_packet
 * Set a new value for the SCTP dst port
+* @warning sctp_dst must be in normal NBO endianness
 */
 void platform_packet_set_sctp_dst(datapacket_t* pkt, uint16_t sctp_dst);
 
@@ -728,12 +794,14 @@ void platform_packet_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
 * @ingroup platform_packet
 * Get the PPP proto
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
 * Set a new value for the PPP proto 
+* @warning proto must be in normal NBO endianness
 */
 void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 
@@ -750,6 +818,7 @@ uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt);
 * @ingroup platform_packet
 * Get the GTP teid
 * @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
 */
 uint32_t platform_packet_get_gtp_teid(datapacket_t *const pkt);
 
@@ -761,6 +830,7 @@ void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type);
 /**
 * @ingroup platform_packet
 * Set a new value for the GTP teid 
+* @warning teid must be in normal NBO endianness
 */
 void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
 

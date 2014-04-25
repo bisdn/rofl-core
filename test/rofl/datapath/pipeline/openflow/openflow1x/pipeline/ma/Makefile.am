@@ -39,7 +39,7 @@ pipe_profile_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
 
 pipe_profile_CFLAGS = -O3 -pg 
 pipe_profile_CXXFLAGS = -O3 -pg 
-pipe_profile_CPPFLAGS = -UDEBUG -DNDEBUG=1 
+pipe_profile_CPPFLAGS = -UDEBUG 
 
 check_PROGRAMS= pipe_profile
 TESTS = pipe_profile

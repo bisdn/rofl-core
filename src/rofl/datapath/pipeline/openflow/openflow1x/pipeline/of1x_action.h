@@ -258,7 +258,7 @@ typedef struct of1x_packet_action{
 	of1x_packet_action_type_t type;
 
 	//Field (set field)
-	wrap_uint_t field;
+	wrap_uint_t __field;
 
 	//miss-send-len for OUTPUT actions only
 	uint16_t send_len;
@@ -340,6 +340,7 @@ ROFL_BEGIN_DECLS
 *
 * @param field union containing 8, 16, 32, 64 and 128 bit action field (e.g. port_num in output actions, header value in set field actions). Put if not used in this action type.
 * @param output_send_len Optional send to controller send len; leave to 0x0 if not used.
+* @warning The value inside the action field must be in Host Byte Order
 */
 of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len);
 
@@ -348,6 +349,226 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 * Destroys packet action (OF action)
 */
 void of1x_destroy_packet_action(of1x_packet_action_t* action);
+
+//Getters for the values of the 
+
+//8 bit
+static inline 
+uint8_t __of1x_get_packet_action_field8(const of1x_packet_action_t* action, bool raw_nbo){
+
+	if(raw_nbo)
+		return action->__field.u8;
+
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_IP_DSCP:
+			return OF1X_IP_DSCP_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_VLAN_PCP:
+			return OF1X_VLAN_PCP_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_MPLS_TC:
+			return OF1X_MPLS_TC_VALUE(action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_IP_ECN:
+		case OF1X_AT_SET_FIELD_NW_PROTO:
+		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
+		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+		case OF1X_AT_SET_MPLS_TTL:
+		case OF1X_AT_SET_NW_TTL:
+		case OF1X_AT_SET_FIELD_IP_PROTO:
+		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
+		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
+		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_FIELD_MPLS_BOS:
+			return action->__field.u8;
+			break;
+		default:
+			return 0x0;
+			break;
+	}
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 8 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
+	return __of1x_get_packet_action_field8(action, false);
+}
+
+
+//16 bit
+static inline 
+uint16_t __of1x_get_packet_action_field16(const of1x_packet_action_t* action, bool raw_nbo){
+
+	if(raw_nbo)
+		return action->__field.u16;
+
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_ETH_TYPE:
+		case OF1X_AT_SET_FIELD_ARP_OPCODE:
+		case OF1X_AT_SET_FIELD_TP_SRC:
+		case OF1X_AT_SET_FIELD_TP_DST:
+		case OF1X_AT_SET_FIELD_TCP_SRC:
+		case OF1X_AT_SET_FIELD_TCP_DST:
+		case OF1X_AT_SET_FIELD_UDP_SRC:
+		case OF1X_AT_SET_FIELD_UDP_DST:
+		case OF1X_AT_SET_FIELD_SCTP_SRC:
+		case OF1X_AT_SET_FIELD_SCTP_DST:
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+		case OF1X_AT_POP_MPLS:
+		case OF1X_AT_POP_PPPOE:
+		case OF1X_AT_POP_PBB:
+		case OF1X_AT_PUSH_PPPOE:
+		case OF1X_AT_PUSH_MPLS:
+		case OF1X_AT_PUSH_VLAN:
+		case OF1X_AT_PUSH_PBB:
+		case OF1X_AT_SET_FIELD_VLAN_VID:
+			return NTOHB16(action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
+		default:
+			return 0x0;
+			break;
+	}
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 16 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint16_t of1x_get_packet_action_field16(const of1x_packet_action_t* action){
+	return __of1x_get_packet_action_field16(action, false);
+}
+
+//32 bit
+static inline 
+uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bool raw_nbo){
+
+	if(raw_nbo)
+		return action->__field.u32;
+
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_MPLS_LABEL:
+			return OF1X_MPLS_LABEL_VALUE(NTOHB32(action->__field.u32));
+		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
+			return OF1X_IP6_FLABEL_VALUE(NTOHB32(action->__field.u32));
+			break;
+		case OF1X_AT_SET_FIELD_IPV4_SRC:
+		case OF1X_AT_SET_FIELD_IPV4_DST:
+		case OF1X_AT_SET_FIELD_NW_SRC:
+		case OF1X_AT_SET_FIELD_NW_DST:
+		case OF1X_AT_SET_FIELD_ARP_SPA:
+		case OF1X_AT_SET_FIELD_ARP_TPA:
+		case OF1X_AT_SET_FIELD_GTP_TEID:
+			return NTOHB32(action->__field.u32);
+			break;
+		case OF1X_AT_SET_QUEUE:
+		case OF1X_AT_OUTPUT:
+		case OF1X_AT_GROUP:
+			return action->__field.u32;
+			break;
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+		default:
+			return 0x0;
+			break;
+	}
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 32 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
+	return __of1x_get_packet_action_field32(action, false);
+}
+
+//64 bit
+static inline 
+uint64_t __of1x_get_packet_action_field64(const of1x_packet_action_t* action, bool raw_nbo){
+
+	if(raw_nbo)
+		return action->__field.u64;
+
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:
+			return action->__field.u64;
+			break;
+		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
+		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
+		case OF1X_AT_SET_FIELD_ETH_DST:
+		case OF1X_AT_SET_FIELD_ETH_SRC:
+		case OF1X_AT_SET_FIELD_ARP_SHA:
+		case OF1X_AT_SET_FIELD_ARP_THA:	
+			return OF1X_MAC_VALUE(NTOHB64(action->__field.u64));
+			break;
+		default:
+			return 0x0;
+			break;
+	}
+	return 0x0;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 64 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
+	return __of1x_get_packet_action_field64(action, false);
+}
+
+//128 bit
+static inline 
+uint128__t __of1x_get_packet_action_field128(const of1x_packet_action_t* action, bool raw_nbo){
+	uint128__t tmp;
+
+	if(raw_nbo)
+		return action->__field.u128;
+
+	switch(action->type){
+		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
+		case OF1X_AT_SET_FIELD_IPV6_SRC:
+		case OF1X_AT_SET_FIELD_IPV6_DST:
+			tmp = action->__field.u128;
+			NTOHB128(tmp);
+			return tmp;
+			break;
+		default:
+			return tmp;
+			break;
+	}
+	return tmp;
+}
+
+/**
+* @ingroup core_of1x 
+* Retrieve the action field for 128 bit values (or less) in HOST BYTE ORDER
+*
+* @retval The value of the field in host byte order 
+*/
+static inline 
+uint128__t of1x_get_packet_action_field128(const of1x_packet_action_t* action){
+	return __of1x_get_packet_action_field128(action, false);
+}
 
 //Action group
 /**
@@ -403,8 +624,8 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin);
 of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin);
 
 //Dump
-void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group, bool nbo);
-void __of1x_dump_action_group(of1x_action_group_t* action_group, bool nbo);
+void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group, bool raw_nbo);
+void __of1x_dump_action_group(of1x_action_group_t* action_group, bool raw_nbo);
 
 //validate actions
 rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, struct of1x_group_table *gt);

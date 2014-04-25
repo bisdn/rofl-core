@@ -8,6 +8,13 @@ Legend:
 Change log
 ==========
 
+v0.4RC2
+
+[+][hal] Improved doxygen documentation 
+
+[+][pipeline] Improved doxygen documentation 
+[+][pipeline] Unified the criteria used to align matches and actions in the pipeline. Changed constructors to use Host Byte Order. 
+
 v0.4RC1
 
 [+] Change in the build system. Documentation is compiled via 'make doc'.

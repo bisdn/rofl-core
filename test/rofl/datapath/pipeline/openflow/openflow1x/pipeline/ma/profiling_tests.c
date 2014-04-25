@@ -50,7 +50,7 @@ void profile_basic_match(){
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 
 	//PKT
-	pkt.matches.port_in = 1;
+	pkt.matches.__port_in = 1;
 
 	//Execute
 	for(i=0, accumulated_time=0;i<NUM_OF_ITERATONS;i++){
@@ -79,7 +79,7 @@ void profile_basic_no_match(){
 	uint32_t average_tics;
 
 	//PKT
-	pkt.matches.port_in = 2;
+	pkt.matches.__port_in = 2;
 
 	//Execute
 	for(i=0, accumulated_time=0;i<NUM_OF_ITERATONS;i++){
