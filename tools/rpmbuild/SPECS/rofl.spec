@@ -2,6 +2,7 @@ Name:		rofl
 Version:	0.4.0
 Release:	rc2%{?dist}
 Summary:	revised openflow library
+Epoch:		0
 
 Group:		System Environment/Libraries
 License:	Mozilla Public License Version 2.0, http://www.mozilla.org/MPL/2.0/
@@ -43,17 +44,23 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
+/bin/ln -s /usr/local/lib/librofl.so.0 /usr/local/lib/librofl.so
+/bin/ln -s /usr/local/lib/librofl_hal.so.0 /usr/local/lib/librofl_hal.so
+/bin/ln -s /usr/local/lib/librofl_pipeline.so.0 /usr/local/lib/librofl_pipeline.so
 %postun
 /sbin/ldconfig
+/bin/rm /usr/local/lib/librofl.so
+/bin/rm /usr/local/lib/librofl_hal.so
+/bin/rm /usr/local/lib/librofl_pipeline.so
 
 
 %define _unpackaged_files_terminate_build 0 
 
 %files
 %defattr(-,root,root,-)
+/usr/local/lib/librofl.so.0.1.1
 /usr/local/lib/librofl_hal.so.0.0.0
 /usr/local/lib/librofl_pipeline.so.0.0.0
-/usr/local/lib/librofl.so.0.1.1
 %doc
 
 
