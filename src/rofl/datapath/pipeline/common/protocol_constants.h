@@ -28,9 +28,9 @@
 	#define ETH_TYPE_PBB			0x88E7
 	
 	//VLAN values
-	#define VLAN_CTAG_ETHER 0x8100
- 	#define VLAN_STAG_ETHER 0x88a8
- 	#define VLAN_ITAG_ETHER 0x88e7
+	#define VLAN_CTAG_ETHER_TYPE 0x8100
+ 	#define VLAN_STAG_ETHER_TYPE 0x88a8
+ 	#define VLAN_ITAG_ETHER_TYPE 0x88e7
 	//MPLS values
 
 	//PPP values
@@ -63,9 +63,9 @@
 	#define ETH_TYPE_PBB			0xE788
 	
 	//VLAN values
-	#define VLAN_CTAG_ETHER 0x0081
- 	#define VLAN_STAG_ETHER 0xa888
- 	#define VLAN_ITAG_ETHER 0xe788
+	#define VLAN_CTAG_ETHER_TYPE 0x0081
+ 	#define VLAN_STAG_ETHER_TYPE 0xa888
+ 	#define VLAN_ITAG_ETHER_TYPE 0xe788
 	//MPLS values
 	
 	//PPP values
