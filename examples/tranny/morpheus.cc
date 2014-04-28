@@ -189,8 +189,8 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633));
+//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633)); // for general floodlight use
+	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633)); // for the oftest config
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??

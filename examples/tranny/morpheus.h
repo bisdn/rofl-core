@@ -57,6 +57,10 @@ xid_session_map_t m_sessions;
 mutable pthread_rwlock_t m_sessions_lock;	// a lock for m_sessions
 // xid_reverse_session_map_t m_reverse_sessions;
 cportvlan_mapper m_mapper;
+struct port_config_t {
+	
+};
+std::map<uint16_t, port_config_t> port_enabled;
 rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
 rofl::cofctl * m_master;	// the OF controller.
 uint64_t m_slave_dpid;

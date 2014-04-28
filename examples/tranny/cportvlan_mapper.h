@@ -63,12 +63,12 @@ friend std::ostream & operator<< (std::ostream & os, const struct port_spec & sp
 	return os;
 	}
 };
-
+/*
 enum port_spec_fields { // mimics ofp_flow_wildcards
-OFPFW_IN_PORT = 1 << 0, /* Switch input port. */
-OFPFW_DL_VLAN = 1 << 1, /* VLAN id. */
+OFPFW_IN_PORT = 1 << 0, // Switch input port.
+OFPFW_DL_VLAN = 1 << 1, // VLAN id.
 };
-
+*/
 typedef struct port_spec port_spec_t;
 
 protected:

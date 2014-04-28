@@ -42,8 +42,8 @@ int main(int, char**) {
 	morpheus morph (mapper);
 
 ///	morph.rpc_connect_to_ctl(rofl::caddress(AF_INET, "127.0.0.1", 6633));	// doxygen definition is invalid
-	morph.rpc_listen_for_dpts(rofl::caddress(AF_INET, "0.0.0.0", 16633));
-///	morph.rpc_listen_for_dpts(rofl::caddress(AF_INET, "10.100.0.1", 16633));
+///	morph.rpc_listen_for_dpts(rofl::caddress(AF_INET, "0.0.0.0", 16633));	// for general floodlight use
+	morph.rpc_listen_for_dpts(rofl::caddress(AF_INET, "10.100.0.1", 16633));	// for the oftest config
 
 ///	sleep(3);       // TODO should check for valid connections throughout handlers - this is just a hack
 
