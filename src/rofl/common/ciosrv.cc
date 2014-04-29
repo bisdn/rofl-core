@@ -385,7 +385,7 @@ cioloop::run_loop()
 				}
 
 			} catch (eSysCall& e) {
-				std::cerr << "[rofl][ciosrv] caught eSysCall in main loop:" << e << std::endl;
+				rofl::logging::debug << "[rofl][ciosrv] caught eSysCall in main loop:" << e << std::endl;
 
 			} catch (eNotConnected& e) {
 				rofl::logging::debug << "[rofl][ciosrv] caught eNotConnected in main loop:" << e << std::endl;
