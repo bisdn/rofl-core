@@ -5,6 +5,8 @@
 
 #include <sstream>
 #include <string>
+#include <iterator>
+#include <algorithm>
 #include <rofl/common/openflow/openflow_rofl_exceptions.h>
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
@@ -79,6 +81,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
 		if( ! (be16toh(a->oac_header->type) & m_parent->get_supported_actions() ) ) {
 			// the action isn't supported by the underlying switch - complain - send an error message, then write to your MP. Start a Tea Party movement. Then start an Occupy OpenFlow group. If that still doesn't help become a recluse and blame the system.
+			std::cout << "Received a flow-mod with an unsupported action: " << action_mask_to_string(be16toh(a->oac_header->type)) << ". Returning error." << std::endl;
 			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 			m_completed = true;
 			return m_completed;
@@ -86,19 +89,42 @@ std::cout << "TP" << __LINE__ << std::endl;
 		switch(be16toh(a->oac_header->type)) {
 			case OFP10AT_OUTPUT: {
 				uint16_t oport = be16toh(a->oac_10output->port);
-				// TODO must add support for ports ALL and FLOOD
-				if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
-					// invalid virtual port number
-					m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
-					m_completed = true;
-					return m_completed;
+				if ( ( oport == OFPP10_FLOOD ) || ( oport == OFPP10_ALL) ) {	// TODO check that the match isn't ALL
+					// ALL is all except input port
+					// FLOOD is all except input port and those disabled by STP.. which we don't support anyway - so I'm going to treat them the same way.
+					// we need to generate a list of untagged output actions, then a list of tagged output actions for all interfaces except the input interface.
+					rofl::cofaclist taggedoutputs;
+					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
+						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
+						if(outport_spec.port == msg->get_match().get_in_port()) {
+							// this is the input port - skipping
+							std::cout << "virtual port " << (unsigned) oport << " [" << outport_spec << "] is the input port - skipping as output." << std::endl;
+							continue;
+						}
+						std::cout << "Generating output action from virtual port " << (unsigned) oport << " to actual " << outport_spec << "." << std::endl;
+						if(outport_spec.vlanid_is_none()) 
+							myoutlist.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						else {
+							taggedoutputs.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, outport_spec.vlan);
+							taggedoutputs.next() = rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						}
+					}
+					for(rofl::cofaclist::iterator toi = taggedoutputs.begin(); toi != taggedoutputs.end(); ++toi) myoutlist.next() = *toi;
+					if(taggedoutputs.begin() != taggedoutputs.end()) myoutlist.next() = rofl::cofaction_strip_vlan( OFP10_VERSION );	// the input output action may not be the last such action so we need to clean up the VLAN that we've left on the "stack"
+				} else {
+					if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
+						// invalid virtual port number
+						m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
+						m_completed = true;
+						return m_completed;
+					}
+					cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( oport );
+					if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
+						outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
+						already_set_vlan = true;
+					}
+					outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
 				}
-				cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( oport );
-				if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
-					outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
-					already_set_vlan = true;
-				}
-				outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
 				already_did_output = true;
 			} break;
 			case OFP10AT_SET_VLAN_VID: {
@@ -116,9 +142,10 @@ std::cout << "TP" << __LINE__ << std::endl;
 				return m_completed;
 			} break;
 			case OFP10AT_STRIP_VLAN: {
-				if(already_set_vlan) {
-					// cannot strip after we've already added a set-vlan message
-					std::cout << __FUNCTION__ << ": attempt was made to strip VLAN after an OFP10AT_OUTPUT action - this would strip VLAN from virtual port translation. Replying with OFPMFC_UNSUPPORTED." << std::endl;
+				if(already_did_output) {	// cannot strip after output has already been done
+//				if(already_set_vlan) {
+//					// cannot strip after we've already added a set-vlan message  JSP TODO - is this correct?
+					std::cout << __FUNCTION__ << ": attempt was made to strip VLAN after an OFP10AT_OUTPUT action. Rejecting flow-mod." << std::endl;
 					m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 				}
 			} break;
@@ -598,12 +625,11 @@ bool process_packet_out ( rofl::cofctl * const src, rofl::cofmsg_packet_out * co
 					// since virtual ports may cover less than the number of actual ports, we have to replicate the packet-out for each port manually
 					// either send multiple packet-outs, or maybe on with multiple output actions?
 					std::cout << "packet-out to all or flood requested.." << std::endl;
-					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
+				/*	for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
 						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
 						std::cout << "Performing translation from virtual port " << (unsigned) oport << " to actual " << outport_spec << "." << std::endl;
 						rofl::cofaclist myoutlist = masteroutlist;
 						if(!outport_spec.vlanid_is_none()) {
-//							myoutlist.next() =  rofl::cofaction_push_vlan( OFP10_VERSION, rofl::fvlanframe::VLAN_CTAG_ETHER);
 							myoutlist.next() =  rofl::cofaction_set_vlan_vid( OFP10_VERSION, outport_spec.vlan);
 							std::cout << "VLAN tagging action with VID " << (unsigned)outport_spec.vlan << " added to action list destined for virtual port " << (unsigned)oport << "." << std::endl;
 						}
@@ -614,7 +640,38 @@ bool process_packet_out ( rofl::cofctl * const src, rofl::cofmsg_packet_out * co
 						std::cout << std::endl;
 						m_parent->send_packet_out_message(m_parent->get_dpt(), msg->get_buffer_id(), in_vport, myoutlist, msg->get_packet().soframe(), msg->get_packet().framelen() );	// TODO - the length fields are guesses.
 						std::cout << "Translated packet-out successfully sent." << std::endl;
+					} */
+					rofl::cofaclist myoutlist = masteroutlist;
+					rofl::cofaclist taggedoutputs;
+/*					rofl::cofaclist untaggedoutputs;
+					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
+						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
+						std::cout << "Generating output action from virtual port " << (unsigned) oport << " to actual " << outport_spec << "." << std::endl;
+						if(outport_spec.vlanid_is_none()) 
+							untaggedoutputs.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						else {
+							taggedoutputs.next() =  rofl::cofaction_set_vlan_vid( OFP10_VERSION, outport_spec.vlan);
+							taggedoutputs.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						}
+					} */
+					// myoutlist += untaggedoutputs;
+					// myoutlist += taggedoutputs;
+					// std::copy(untaggedoutputs.begin(), untaggedoutputs.end(), std::back_inserter(myoutlist));
+					// std::copy(taggedoutputs.begin(), taggedoutputs.end(), std::back_inserter(myoutlist));
+					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
+						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
+						std::cout << "Generating output action from virtual port " << (unsigned) oport << " to actual " << outport_spec << "." << std::endl;
+						if(outport_spec.vlanid_is_none()) 
+							myoutlist.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						else {
+							taggedoutputs.next() =  rofl::cofaction_set_vlan_vid( OFP10_VERSION, outport_spec.vlan);
+							taggedoutputs.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						}
 					}
+					for(rofl::cofaclist::iterator toi = taggedoutputs.begin(); toi != taggedoutputs.end(); ++toi) myoutlist.next() = *toi;
+					if(taggedoutputs.begin() != taggedoutputs.end()) myoutlist.next() = rofl::cofaction_strip_vlan( OFP10_VERSION );	// the input output action may not be the last such action so we need to clean up the VLAN that we've left on the "stack"
+					m_parent->send_packet_out_message(m_parent->get_dpt(), msg->get_buffer_id(), in_vport, myoutlist, msg->get_packet().soframe(), msg->get_packet().framelen() );	// TODO - the length fields are guesses.
+					std::cout << "Translated packet-out successfully sent." << std::endl;
 //					assert(false);	// TODO
 				} else {
 					// unsupported output port in action

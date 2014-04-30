@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <stdint.h>
+// #include <rofl/common/openflow/cofmatch.h>
 
 #define MAXVLANID 4095
 
@@ -52,6 +53,8 @@ port_spec(PORT port_, VLANID vlan_ = VLANID::NONE ):port(port_.val),vlan(vlan_.v
 bool port_is_wild() const { return (port==ANY_PORT); }
 bool vlanid_is_wild() const { return (vlan==ANY_VLAN); }
 bool vlanid_is_none() const { return (vlan==NO_VLAN); }
+
+// bool matches(const cofmatch & m) const {  }
 
 friend std::ostream & operator<< (std::ostream & os, const struct port_spec & spec) {
 	os << "port: ";
@@ -121,7 +124,6 @@ std::vector<std::pair<uint16_t, port_spec_t> > actual_to_virtual_map(port_spec_t
 	}
 
 // rofl::cofaclist action_convertor(const rofl::cofaclist & in) const;
-	
 
 friend std::ostream & operator<< (std::ostream & os, const cportvlan_mapper & translator) {
 	size_t N = translator.get_number_virtual_ports();
