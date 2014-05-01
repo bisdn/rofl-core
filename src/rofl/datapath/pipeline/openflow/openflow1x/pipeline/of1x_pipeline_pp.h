@@ -56,6 +56,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	of1x_flow_entry_t* match;
 	
 	//Initialize packet for OF1.X pipeline processing 
+	__init_packet_metadata(pkt);
 	__of1x_init_packet_write_actions(&pkt->write_actions.of1x);
 
 	//Mark packet as being processed by this sw

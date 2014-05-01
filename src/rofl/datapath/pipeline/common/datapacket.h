@@ -76,5 +76,9 @@ typedef struct datapacket{
 
 }datapacket_t;
 
+static inline void __init_packet_metadata(datapacket_t *const pkt){
+	pkt->__metadata = 0ULL;
+};
+
 #endif //DATAPACKET
 
