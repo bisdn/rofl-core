@@ -10,12 +10,13 @@
 #include "rofl.h"
 #include "ternary_fields.h"
 #include "../openflow/openflow1x/pipeline/of1x_utils.h"
+#include "../platform/packet.h"
 
 /**
 * @file packet_matches.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 * 
-* @brief Defines the set of header values that have been parsed for a certain packet. 
+* @brief Utils to dump the "packet header values"
 *
 * @warning The pipeline uses internally Network Byte Order (NBO) for storing the values. In addition
 * some of the values, for performance reasons, present a special alignment (byte-wise and/or intra-byte). For
@@ -23,7 +24,6 @@
 * strongly discouraged to access directly the values outside from rofl-pipeline. Please refer to @ref endianness
 * for more information about the special alignment within the pipeline. 
 */
-//Fwd decl
 struct datapacket;
 
 /* 
@@ -136,7 +136,14 @@ ROFL_BEGIN_DECLS
  * @ingroup core_of1x
  * @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
  */
-void dump_packet_matches(packet_matches_t *const pkt_matches, bool raw_nbo);
+void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo);
+
+/**
+ * @brief Fill in packet_matches (for PKT_INs)
+ * @ingroup core_of1x
+ */
+void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* pkt_matches);
+
 
 /**
 * @brief Get the packet match PACKET_LENGTH value in HOST BYTE ORDER 

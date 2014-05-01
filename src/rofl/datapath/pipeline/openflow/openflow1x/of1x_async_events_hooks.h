@@ -66,7 +66,8 @@ rofl_result_t platform_pre_destroy_of1x_switch(of1x_switch_t* sw);
 *
 * The implementation of packet_in must either store the buffer (pkt) for later reference
 * by the controller or DROP (release) the buffer (pkt) if there was an error on sending
-* the PKT_IN event or no controller is attached. 
+* the PKT_IN event or no controller is attached. The packet matches can be obtained by calling fill_packet_matches().
+*  
 */
 void platform_of1x_packet_in(const of1x_switch_t* sw, uint8_t table_id, datapacket_t* pkt, uint16_t send_len, of_packet_in_reason_t reason);
 

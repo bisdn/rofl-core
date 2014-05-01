@@ -22,7 +22,6 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 	
 	of1x_match_t* it;
 	of1x_flow_entry_t *entry;
-	packet_matches_t *pkt_matches = &pkt->matches;	
 
 	//Prevent writers to change structure during matching
 	platform_rwlock_rdlock(table->rwlock);
@@ -32,7 +31,7 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 		bool matched = true;
 		
 		for( it=entry->matches.head ; it ; it=it->next ){
-			if(!__of1x_check_match(pkt_matches, it)){
+			if(!__of1x_check_match(pkt, it)){
 				matched = false;
 				break;
 			}

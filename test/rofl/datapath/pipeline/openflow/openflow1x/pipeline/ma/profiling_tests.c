@@ -32,6 +32,9 @@ int tear_down(){
 	return EXIT_SUCCESS;
 }
 
+//tmp val
+extern uint128__t tmp_val;
+
 //Single flow_mod profiling
 void profile_basic_match(){
 
@@ -50,7 +53,7 @@ void profile_basic_match(){
 	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 
 	//PKT
-	pkt.matches.__port_in = 1;
+	*((uint32_t*)&tmp_val) = 1;
 
 	//Execute
 	for(i=0, accumulated_time=0;i<NUM_OF_ITERATONS;i++){
@@ -79,7 +82,7 @@ void profile_basic_no_match(){
 	uint32_t average_tics;
 
 	//PKT
-	pkt.matches.__port_in = 2;
+	*((uint32_t*)&tmp_val) = 2;
 
 	//Execute
 	for(i=0, accumulated_time=0;i<NUM_OF_ITERATONS;i++){
