@@ -67,11 +67,12 @@ uint64_t m_slave_dpid;
 uint64_t m_dpid;
 const uint32_t m_supported_actions_mask;
 uint32_t m_supported_actions;
-bool m_supported_actions_valid;
+uint32_t m_dpe_supported_actions;
+bool m_dpe_supported_actions_valid;
 const uint32_t m_supported_features;
 
 // uint32_t set_supported_actions (uint32_t new_actions);
-void set_supported_features (uint32_t new_capabilities, uint32_t new_actions);
+void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
 
 // crofbase overrides
 	virtual void handle_dpath_open (rofl::cofdpt *);

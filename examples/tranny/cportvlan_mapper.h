@@ -62,7 +62,7 @@ friend std::ostream & operator<< (std::ostream & os, const struct port_spec & sp
 	os << " vlan: ";
 	if(spec.vlanid_is_wild()) os << "*";
 	else if(spec.vlanid_is_none()) os << "NO_VLAN";
-	else os << (unsigned int) spec.vlan;
+	else os << std::dec << (unsigned int) spec.vlan;
 	return os;
 	}
 };

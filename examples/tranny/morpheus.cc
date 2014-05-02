@@ -82,7 +82,7 @@ bool morpheus::remove_xid_association( const bool ctl_or_dpt_xid, const uint32_t
 	return true;
 }
 
-// called to remove all associations to this session_base - returns the number of associations removed and deletes the p if necessary
+// called to remove all associations to this session_base - returns the number of associations removed - p is not deleted and reamins in the ownership of the caller
 unsigned morpheus::remove_session( chandlersession_base * p ) {
 	unsigned tally = 0;
 /*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
@@ -99,7 +99,7 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 			}
 		else ++it;
 	}
-	if(tally) delete(p);
+//	if(tally) delete(p);
 	return tally;
 }
 /*
@@ -110,15 +110,16 @@ uint32_t morpheus::set_supported_actions (uint32_t new_actions) {
 	return old_actions;
 }
 */
-void morpheus::set_supported_features (uint32_t new_capabilities, uint32_t new_actions) {
+void morpheus::set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions) {
 	// TODO new_capabilities are ignored, befause, well, we don't support any of them.
 	// m_supported_features = 0;
+	m_dpe_supported_actions = new_actions;
 	m_supported_actions = new_actions & m_supported_actions_mask;
-	m_supported_actions_valid = true;
+	m_dpe_supported_actions_valid = true;
 }
 
 uint32_t morpheus::get_supported_actions() {
-	if(!m_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
+	if(!m_dpe_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
 		std::auto_ptr < morpheus::cfeatures_request_session > s ( new morpheus::cfeatures_request_session ( this ) );
 		std::cout << __FUNCTION__ << ": sent request for features. Waiting..";
@@ -138,15 +139,14 @@ uint32_t morpheus::get_supported_actions() {
 	return m_supported_actions;
 }
 
-morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_),m_supported_features(0),m_supported_actions_mask( (1<<OFP10AT_OUTPUT)|(1<<OFP10AT_SET_DL_SRC)|(1<<OFP10AT_SET_DL_DST)|(1<<OFP10AT_SET_NW_SRC)|(1<<OFP10AT_SET_NW_DST)|(1<<OFP10AT_SET_NW_TOS)|(1<<OFP10AT_SET_TP_SRC)|(1<<OFP10AT_SET_TP_DST) ), m_supported_actions(0), m_supported_actions_valid(false) {
+morpheus::morpheus(const cportvlan_mapper & mapper_):rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0),m_mapper(mapper_),m_supported_features(0),m_supported_actions_mask( (1<<OFP10AT_OUTPUT)|(1<<OFP10AT_SET_DL_SRC)|(1<<OFP10AT_SET_DL_DST)|(1<<OFP10AT_SET_NW_SRC)|(1<<OFP10AT_SET_NW_DST)|(1<<OFP10AT_SET_NW_TOS)|(1<<OFP10AT_SET_TP_SRC)|(1<<OFP10AT_SET_TP_DST) ), m_supported_actions(0), m_dpe_supported_actions(0), m_dpe_supported_actions_valid(false) {
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
 	pthread_rwlock_init(&m_sessions_lock, 0);
-	
 }
 
 morpheus::~morpheus() {
 	// rpc_close_all();
-	std::cout << std::endl << "morpheus::~morpheus() called." << std::endl;	// TODO: proper logging
+	std::cout << std::endl << __FUNCTION__ << " called." << std::endl;	// TODO: proper logging
 	pthread_rwlock_destroy(&m_sessions_lock);
 }
 
@@ -188,9 +188,16 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave = src;	// TODO - what to do with previous m_slave?
 	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
+	std::cout << " Following new DPE connection, sending features request.." << std::endl;
+
+	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
+	morpheus::cfeatures_request_session * s = new morpheus::cfeatures_request_session ( this );	// this isn;t a memory leak - the object was registered with the xid database
+	if(!s) std::cout << "Dummy message to prevent above line being optimised out." << std::endl;
+
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
-//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633)); // for general floodlight use
-	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633)); // for the oftest config
+	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633)); // for general floodlight use
+//	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633)); // for the oftest config
+
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
@@ -207,6 +214,8 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+// TODO the auto_ptr and if(!s->isCompleted()) s.release(); are probably wrong and not necessary since the object takes ownership of itself.
+
 // this is from a ctl if CTL_DPT is true, false otherwise
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) {\
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
@@ -215,8 +224,11 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	if(sit!=m_sessions.end()) { \
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new "<< TOSTRING(MSG_TYPE) << " message." << std::endl; \
 		} else { \
-		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
-		if(!s->isCompleted()) s.release(); \
+		try { \
+			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+			if(!s->isCompleted()) s.release(); \
+		} catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \
+		catch (...) { std::cout << "unhandled exception"; assert(false); } \
 	}\
 	delete(msg); \
 	std::cout << ">>>>>>>\n" << *this; \
@@ -229,8 +241,11 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	if(sit!=m_sessions.end()) { \
 		SESSION_TYPE * s = dynamic_cast<SESSION_TYPE *>(sit->second); \
 		if(!s) { std::cout << func << ": xid (" << msg->get_xid() << ") maps to existing session of wrong type." << std::endl; } \
-		s->REPLY_FN( src, msg ); \
-		if(s->isCompleted()) remove_session(s); \
+		try { \
+			s->REPLY_FN( src, msg ); \
+		} catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \
+		catch (...) { std::cout << "unhandled exception"; assert(false); } \
+		if(s->isCompleted()) { remove_session(s); delete(s); } \
 		} else { \
 		std::cout << func << ": Unexpected " << TOSTRING(MSG_TYPE) << " received with xid " << msg->get_xid() << ". Dropping new message." << std::endl; \
 	}\
@@ -245,12 +260,19 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	if(sit!=m_sessions.end()) {\
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;\
 		} else {\
-		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
-		if(!s->isCompleted()) s.release(); \
+		try { \
+			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+			if(s->isCompleted()) { remove_session(s.get()); } \
+			else { /* s.release(); */ std::cout << func << " failed to complete session!" << std::endl; assert(false); } \
+		 } catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \
+		 catch (...) { std::cout << "unhandled exception"; assert(false); } \
 	} \
 	delete(msg);\
 	std::cout << ">>>>>>>\n" << *this; \
 }
+
+//		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+		if(!s->isCompleted()) s.release(); \
 
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
