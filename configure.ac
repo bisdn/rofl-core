@@ -1,5 +1,5 @@
 AC_INIT(ROFL, 0.3.0, rofl@bisdn.de, rofl)
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
 
@@ -94,6 +94,8 @@ AC_CONFIG_FILES([
 
 # Doxygen (here to be the last Makefile) 
 m4_include([config/doxygen.m4])
+
+
 
 AC_OUTPUT
 
