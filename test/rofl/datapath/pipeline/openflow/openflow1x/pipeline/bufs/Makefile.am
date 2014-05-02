@@ -1,24 +1,24 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/port_queue.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/of1x_switch.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_action.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_instruction.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_table.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_packet_matches.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_timers.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_statistics.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_match.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.c \
+SHARED_SRC= ../../../../../../../../src/rofl/datapath/pipeline/physical_switch.c \
+	../../../../../../../../src/rofl/datapath/pipeline/switch_port.c \
+	../../../../../../../../src/rofl/datapath/pipeline/port_queue.c \
+	../../../../../../../../src/rofl/datapath/pipeline/util/logging.c \
+	../../../../../../../../src/rofl/datapath/pipeline/common/ternary_fields.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/of_switch.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/of1x_switch.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_action.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_instruction.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_table.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_packet_matches.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_timers.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_statistics.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_match.c \
+	../../../../../../../../src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.c \
 	../memory.c \
 	../platform_empty_hooks_of12.cc\
 	../pthread_atomic_operations.c\
