@@ -1,7 +1,14 @@
 # Set application version based on the git version
 
 #Default
-ROFL_VERSION="Unknown (no GIT repository detected)"
+ROFL_VERSION="$PACKAGE_VERSION" #Unknown (no GIT repository detected)"
+FILE_VERSION=`cat ../VERSION`
+
+#Since AC_INIT caches VERSION; force an autogen.sh
+if test "$ROFL_VERSION" != "$FILE_VERSION"; 
+then
+	AC_MSG_ERROR("ROFL version file has been updated($ROFL_VERSION => $FILE_VERSION). Please regenerate Autoconf state by calling autogen.sh again.")
+fi
 
 AC_CHECK_PROG(ff_git,git,yes,no)
 
@@ -16,7 +23,7 @@ else
 		#Try to retrieve the build number
 		_ROFL_GIT_BUILD=`git log -1 --pretty=%H`
 		_ROFL_GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-		ROFL_VERSION=`git describe --abbrev=0`
+		#ROFL_VERSION=`git describe --abbrev=0`
 		_ROFL_GIT_DESCRIBE=`git describe --abbrev=40`
 
 		AC_SUBST([ROFL_BUILD], ["$_ROFL_GIT_BUILD"])
