@@ -285,12 +285,15 @@ cioloop::run_loop()
 
 		//logging::error << "[rofl][ciosrv][loop] minrfd:" << minrfd << " maxrfd:" << maxrfd << " minwfd:" << minwfd << " maxwfd:" << maxwfd << std::endl << *this;
 
+		FD_ZERO(&exceptfds);
+
 		FD_ZERO(&readfds);
 		{
 			RwLock lock(rfds_rwlock, RwLock::RWLOCK_READ);
 			for (unsigned int i = minrfd; i < maxrfd; i++) {
 				if (NULL != rfds[i]) {
 					FD_SET(i, &readfds);
+					FD_SET(i, &exceptfds);
 					maxfd = (i > maxfd) ? i : maxfd;
 				}
 			}
@@ -302,12 +305,12 @@ cioloop::run_loop()
 			for (unsigned int i = minwfd; i < maxwfd; i++) {
 				if (NULL != wfds[i]) {
 					FD_SET(i, &writefds);
+					FD_SET(i, &exceptfds);
 					maxfd = (i > maxfd) ? i : maxfd;
 				}
 			}
 		}
 
-		FD_ZERO(&exceptfds);
 
 		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 60));
 		{
@@ -367,8 +370,10 @@ cioloop::run_loop()
 			try {
 
 				for (unsigned int i = 0; i < rfds.size(); i++) {
-					if (FD_ISSET(i, &exceptfds) && ((NULL != rfds[i]) || (NULL != wfds[i]))) {
-						rfds[i]->handle_xevent(i);
+					if (FD_ISSET(i, &exceptfds)) {
+						if((NULL != rfds[i]) || (NULL != wfds[i])) {
+							rfds[i]->handle_xevent(i);
+						}
 					}
 				}
 
