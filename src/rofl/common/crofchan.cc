@@ -457,9 +457,6 @@ crofchan::handle_timeout(int opaque, void *data)
 void
 crofchan::backoff_reconnect(bool reset_timeout)
 {
-	logging::info << "[rofl][chan] " << " scheduled reconnect in "
-			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
-
 	int max_backoff = 16 * reconnect_start_timeout;
 
 	if ((0 == reconnect_timer_id) || (reset_timeout)) {
@@ -479,6 +476,10 @@ crofchan::backoff_reconnect(bool reset_timeout)
 		}
 
 	}
+
+	logging::info << "[rofl][chan] " << " scheduled reconnect in "
+			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
+
 
 	reconnect_timer_id = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
 
