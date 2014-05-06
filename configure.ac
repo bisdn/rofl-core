@@ -1,9 +1,5 @@
 AC_INIT(ROFL, 0.3.0, rofl@bisdn.de, rofl)
-<<<<<<< HEAD
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
-=======
 AM_INIT_AUTOMAKE([-Wall foreign ])
->>>>>>> Getting a workaround for autoconf1.14 probs
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
 
