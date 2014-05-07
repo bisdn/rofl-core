@@ -71,6 +71,11 @@ uint32_t m_dpe_supported_actions;
 bool m_dpe_supported_actions_valid;
 const uint32_t m_supported_features;
 
+bool indpt, inctl;
+rofl::caddress dptaddr, ctladdr;
+
+void init_dpe();
+
 // uint32_t set_supported_actions (uint32_t new_actions);
 void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
 
@@ -111,6 +116,10 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 	virtual void handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request * msg );
 	virtual void handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg );
 	virtual void handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod * msg );
+// timeout methods?
+	virtual void handle_timeout ( int opaque );
+	virtual void handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg );
+
 
 public:
 // our transaction management methods - they are public because the nested classes have to call them
@@ -120,7 +129,7 @@ public:
 	rofl::cofdpt * get_dpt() const;
 	rofl::cofctl * get_ctl() const;
 	uint64_t get_dpid() const { return m_dpid; }
-	morpheus(const cportvlan_mapper & mapper);
+	morpheus(const cportvlan_mapper & mapper, bool indpt, rofl::caddress dptaddr, bool inctl, rofl::caddress ctladdr);	// if indpt is true then morpheus will listen on dtpaddr, otherwise it will connect to it.
 	virtual ~morpheus();
 	const cportvlan_mapper & get_mapper() const { return m_mapper; }
 
