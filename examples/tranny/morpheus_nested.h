@@ -77,7 +77,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cofaclist inlist = msg->get_actions();
 	rofl::cofaclist outlist;
-	bool already_set_vlan = false;
+//	bool already_set_vlan = false;
 	bool already_did_output = false;
 // now translate the action and the match
 	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
@@ -132,7 +132,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 					cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( oport );
 					if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
 						outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
-						already_set_vlan = true;
+//						already_set_vlan = true;
 					}
 std::cout << "TP" << __LINE__ << std::endl;
 					outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
@@ -546,7 +546,7 @@ cpacket_out_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_pa
 	}
 bool process_packet_out ( rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	if(msg->get_buffer_id()!=-1) {
+	if(msg->get_buffer_id()!=0xffffffff) {		// TODO check that 0xffffffff is correct - specs say -1, but also say uint32_t
 		std::cout << __FUNCTION__ << ": buffered packets in PacketOut not supported." << std::endl;
 		assert(false);
 		m_completed = true;

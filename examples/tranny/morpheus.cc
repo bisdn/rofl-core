@@ -300,9 +300,6 @@ void morpheus::handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg ) {
 	if((!m_slave)||(!m_master)) { std::cout << "Dropping message due to lack of CTL/DPT connectivity." << std::endl; delete(msg); return; } \
 	*/
 
-//		std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
-		if(!s->isCompleted()) s.release(); \
-
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
 	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cflow_mod_session)

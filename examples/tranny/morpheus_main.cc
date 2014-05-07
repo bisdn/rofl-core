@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 	rofl::caddress defaultctladdr(AF_INET, "127.0.0.1", default_ctl_port);	// make active connection to controller on localhost
 
 	rofl::caddress dptaddr, ctladdr;
-	uint16_t dptport = default_dpt_port, ctlport = default_ctl_port;
+//	uint16_t dptport = default_dpt_port, ctlport = default_ctl_port;
 	bool dptset = false, ctlset = false;
 	dptaddr = defaultdptaddr;
 	ctladdr = defaultctladdr;

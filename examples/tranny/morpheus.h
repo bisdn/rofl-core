@@ -56,20 +56,22 @@ typedef std::map < std::pair< bool, uint32_t >, chandlersession_base * > xid_ses
 xid_session_map_t m_sessions;
 mutable pthread_rwlock_t m_sessions_lock;	// a lock for m_sessions
 // xid_reverse_session_map_t m_reverse_sessions;
-cportvlan_mapper m_mapper;
+
 struct port_config_t {
 	
 };
 std::map<uint16_t, port_config_t> port_enabled;
 rofl::cofdpt * m_slave;		// the datapath device that we'll be misrepresenting
 rofl::cofctl * m_master;	// the OF controller.
+cportvlan_mapper m_mapper;
 uint64_t m_slave_dpid;
 uint64_t m_dpid;
+const uint32_t m_supported_features;
 const uint32_t m_supported_actions_mask;
 uint32_t m_supported_actions;
 uint32_t m_dpe_supported_actions;
 bool m_dpe_supported_actions_valid;
-const uint32_t m_supported_features;
+
 
 bool indpt, inctl;
 rofl::caddress dptaddr, ctladdr;
