@@ -10,12 +10,16 @@ Change log
 
 v0.4RC2
 
+[K] Automake 1.4 compilation. Please refer to the README.
+
 [+][hal] Improved doxygen documentation 
 
 [+][pipeline] Improved doxygen documentation 
 [+][pipeline] Unified the criteria used to align matches and actions in the pipeline. Changed constructors to use Host Byte Order. 
 
 v0.4RC1
+
+[K] Automake 1.4 compilation. Please refer to the README.
 
 [+] Change in the build system. Documentation is compiled via 'make doc'.
 
