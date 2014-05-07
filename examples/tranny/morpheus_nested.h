@@ -19,7 +19,7 @@
  * Somewhere the number of bytes of ethernet frame to send for packet-in is set - this must be adjusted for removal of VLAN tag
  * There should be a database of match structs that were received as part of a flow mod, and their translated counter-parts so they could be quickly looked up and swapped back
  * During a packet-in - what to do with the buffer-id? Because we've sent a packet fragment up in the message, but the switch's buffer has a different version of the packet => should be ok, as switch won't be making changes to stored packet and will forward when asked.
- * 
+ * in Flow-mod - if the incoming virtual port is actually untagged should we set this in match? Can;t really do that in cofmatch (no access to vid_mask). Should we include a vlan_strip action always anyway?
  */
 
 
@@ -38,8 +38,8 @@ virtual std::string asString() { return "**chandlersession_base**"; }
 virtual bool isCompleted() { return m_completed; }	// returns true if the session has finished its work and shouldn't be kept alive further
 virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg) { std::cout << "** Received error message from dpt " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
 virtual void handle_error (rofl::cofctl *src, rofl::cofmsg *msg) { std::cout << "** Received error message from ctl " << src->c_str() << " with xid ( " << msg->get_xid() << " ): no handler implemented. Dropping it." << std::endl; delete(msg); }
-virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session was " << (m_completed?"":"NOT ") << "completed." << std::endl; }
-void push_features(uint32_t new_capabilities, uint32_t new_actions) { m_parent->set_supported_features( new_capabilities, new_actions ); }
+virtual ~chandlersession_base() { std::cout << __FUNCTION__ << " called. Session was " << (m_completed?"":"NOT ") << "completed." << std::endl; assert(m_completed); }
+void push_features(uint32_t new_capabilities, uint32_t new_actions) { m_parent->set_supported_dpe_features( new_capabilities, new_actions ); }
 };
 
 // TODO make sure that incoming VLAN is stripped
@@ -52,10 +52,12 @@ cflow_mod_session(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow
 bool process_flow_mod ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	std::cout << "Incoming msg match: " << msg->get_match().c_str() << " msg actions: " << msg->get_actions().c_str() << std::endl;
+	const cportvlan_mapper & mapper = m_parent->get_mapper();
 	struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
 dumpBytes( std::cout, (uint8_t *) p, sizeof(struct ofp10_match) );
 	rofl::cflowentry entry(OFP10_VERSION);
 	entry.set_command(msg->get_command());
+	// TODO !!!!!!!!
 	if(msg->get_command() != OFPFC_ADD) {
 		std::cout << __FUNCTION__ << ": FLOW_MOD command " << (unsigned)msg->get_command() << " not supported. Dropping message." << std::endl;
 		m_completed = true;
@@ -79,16 +81,20 @@ std::cout << "TP" << __LINE__ << std::endl;
 	bool already_did_output = false;
 // now translate the action and the match
 	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
-		if( ! (be16toh(a->oac_header->type) & m_parent->get_supported_actions() ) ) {
+		uint32_t supported_actions = m_parent->get_supported_actions();
+		std::cout << __FUNCTION__ << " supported actions by underlying switch found to be: " << action_mask_to_string(supported_actions) << "." << std::endl;
+		if( ! ((1<<(be16toh(a->oac_header->type))) & supported_actions )) {
 			// the action isn't supported by the underlying switch - complain - send an error message, then write to your MP. Start a Tea Party movement. Then start an Occupy OpenFlow group. If that still doesn't help become a recluse and blame the system.
-			std::cout << "Received a flow-mod with an unsupported action: " << action_mask_to_string(be16toh(a->oac_header->type)) << ". Returning error." << std::endl;
+			std::cout << "Received a flow-mod with an unsupported action: " << action_mask_to_string((1<<(be16toh(a->oac_header->type)))) << " (" << (1<<(be16toh(a->oac_header->type))) << "). Returning error." << std::endl;
 			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 			m_completed = true;
 			return m_completed;
 		}
+		std::cout << "Processing incoming action " << action_mask_to_string((1<<(be16toh(a->oac_header->type))))  << "." << std::endl;
 		switch(be16toh(a->oac_header->type)) {
 			case OFP10AT_OUTPUT: {
 				uint16_t oport = be16toh(a->oac_10output->port);
+std::cout << "TP" << __LINE__ << std::endl;
 				if ( ( oport == OFPP10_FLOOD ) || ( oport == OFPP10_ALL) ) {	// TODO check that the match isn't ALL
 					// ALL is all except input port
 					// FLOOD is all except input port and those disabled by STP.. which we don't support anyway - so I'm going to treat them the same way.
@@ -96,35 +102,42 @@ std::cout << "TP" << __LINE__ << std::endl;
 					rofl::cofaclist taggedoutputs;
 					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
 						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
+std::cout << "TP" << __LINE__ << std::endl;
 						if(outport_spec.port == msg->get_match().get_in_port()) {
 							// this is the input port - skipping
 							std::cout << "virtual port " << (unsigned) oport << " [" << outport_spec << "] is the input port - skipping as output." << std::endl;
 							continue;
 						}
+std::cout << "TP" << __LINE__ << std::endl;
 						std::cout << "Generating output action from virtual port " << (unsigned) oport << " to actual " << outport_spec << "." << std::endl;
-						if(outport_spec.vlanid_is_none()) 
-							myoutlist.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+						if(outport_spec.vlanid_is_none())
+							outlist.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(a->oac_10output->max_len) );
 						else {
 							taggedoutputs.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, outport_spec.vlan);
-							taggedoutputs.next() = rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(i->oac_10output->max_len) );
+							taggedoutputs.next() = rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(a->oac_10output->max_len) );
 						}
 					}
-					for(rofl::cofaclist::iterator toi = taggedoutputs.begin(); toi != taggedoutputs.end(); ++toi) myoutlist.next() = *toi;
-					if(taggedoutputs.begin() != taggedoutputs.end()) myoutlist.next() = rofl::cofaction_strip_vlan( OFP10_VERSION );	// the input output action may not be the last such action so we need to clean up the VLAN that we've left on the "stack"
-				} else {
-					if(oport > m_parent->get_mapper().get_number_virtual_ports() ) {
+std::cout << "TP" << __LINE__ << std::endl;
+					for(rofl::cofaclist::iterator toi = taggedoutputs.begin(); toi != taggedoutputs.end(); ++toi) outlist.next() = *toi;
+					if(taggedoutputs.begin() != taggedoutputs.end()) outlist.next() = rofl::cofaction_strip_vlan( OFP10_VERSION );	// the input output action may not be the last such action so we need to clean up the VLAN that we've left on the "stack"
+std::cout << "TP" << __LINE__ << std::endl;
+				} else {	// not FLOOD
+					if(oport > mapper.get_number_virtual_ports() ) {
 						// invalid virtual port number
 						m_parent->send_error_message(src, msg->get_xid(), OFP10ET_BAD_ACTION, OFP10BAC_BAD_OUT_PORT, msg->soframe(), msg->framelen() );
 						m_completed = true;
 						return m_completed;
 					}
-					cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( oport );
+std::cout << "TP" << __LINE__ << std::endl;
+					cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( oport );
 					if(!real_port.vlanid_is_none()) {	// add a vlan tagger before an output if necessary
 						outlist.next() = rofl::cofaction_set_vlan_vid( OFP10_VERSION, real_port.vlan );
 						already_set_vlan = true;
 					}
+std::cout << "TP" << __LINE__ << std::endl;
 					outlist.next() =  rofl::cofaction_output( OFP10_VERSION, real_port.port, be16toh(a->oac_10output->max_len) );	// add translated output action
 				}
+std::cout << "TP" << __LINE__ << std::endl;
 				already_did_output = true;
 			} break;
 			case OFP10AT_SET_VLAN_VID: {
@@ -147,6 +160,8 @@ std::cout << "TP" << __LINE__ << std::endl;
 //					// cannot strip after we've already added a set-vlan message  JSP TODO - is this correct?
 					std::cout << __FUNCTION__ << ": attempt was made to strip VLAN after an OFP10AT_OUTPUT action. Rejecting flow-mod." << std::endl;
 					m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+					m_completed = true;
+					return m_completed;
 				}
 			} break;
 			case OFP10AT_ENQUEUE: {
@@ -181,6 +196,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 		}
 	}
 	entry.actions = outlist;
+	std::cout << "Actions translated." << std::endl;
 	
 	rofl::cofmatch newmatch = msg->get_match();
 	rofl::cofmatch oldmatch = newmatch;
@@ -193,24 +209,27 @@ std::cout << "TP" << __LINE__ << std::endl;
 		m_completed = true;
 		return m_completed;
 	}
+std::cout << "TP" << __LINE__ << std::endl;
 	// make sure this is a valid port
 	// TODO check whether port is ANY/ALL
 	uint32_t old_inport = oldmatch.get_in_port();
+std::cout << "TP" << __LINE__ << std::endl;
 	try {
-		cportvlan_mapper::port_spec_t real_port = m_parent->get_mapper().get_actual_port( old_inport ); // could throw std::out_of_range
+		cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( old_inport ); // could throw std::out_of_range
 		if(!real_port.vlanid_is_none()) {
 			// vlan is set in actual port - update the match
 			newmatch.set_vlan_vid( real_port.vlan );
 		}
 		// update port
 		newmatch.set_in_port( real_port.port );
+std::cout << "TP" << __LINE__ << std::endl;
 	} catch (std::out_of_range &) {
-		std::cout << __FUNCTION__ << ": received a match request for an unknown port (" << old_inport << "). There are " << m_parent->get_mapper().get_number_virtual_ports() << " ports.  Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
+		std::cout << __FUNCTION__ << ": received a match request for an unknown port (" << old_inport << "). There are " << mapper.get_number_virtual_ports() << " ports.  Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
 		m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
 		m_completed = true;
 		return m_completed;
 	}
-	
+std::cout << "TP" << __LINE__ << std::endl;
 	entry.match = newmatch;
 	
 	std::cout << __FUNCTION__ << ": About to send flow_mod {";
@@ -227,7 +246,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 	m_completed = true;
 	return m_completed;
 }
-~cflow_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
+~cflow_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }
 };
 
 
@@ -496,7 +515,7 @@ if(vports.size() != 1) {	// TODO handle this better
 	m_completed = true;
 	return m_completed;
 }
-
+std::cout << "TP" << __LINE__ << std::endl; 
 std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
 
 // required changes:
@@ -505,7 +524,7 @@ std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
 // fiddle match struct
 
 if(in_vlan != -1) packet.pop_vlan();	// remove the first VLAN header
-
+std::cout << "TP" << __LINE__ << std::endl;
 // what to do with match??
 // ANSWER - NOTHING. It's not used in OF10..
 
