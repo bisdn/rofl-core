@@ -12,99 +12,106 @@
 */
 //Fill pkt matches structure
 void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
+	uint8_t*  ptr8;
+	uint16_t* ptr16;
+	uint32_t* ptr32;
+	uint64_t* ptr64;
+	uint128__t* ptr128;
+	uint128__t zero_u128 = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+	
 	//Packet size
 	m->__pkt_size_bytes = platform_packet_get_size_bytes(pkt);	
 
 	//Ports
-	m->__port_in = *platform_packet_get_port_in(pkt);		
-	m->__phy_port_in = *platform_packet_get_phy_port_in(pkt);		
+	m->__port_in = ( (ptr32=platform_packet_get_port_in(pkt))==NULL ? 0 : *ptr32);
+	m->__phy_port_in = ( (ptr32=platform_packet_get_phy_port_in(pkt))==NULL ? 0 : *ptr32);
 	
 	//Associated metadata
 	m->__metadata = pkt->__metadata; 
  
 	//802
-	m->__eth_dst = *platform_packet_get_eth_dst(pkt);		
-	m->__eth_src = *platform_packet_get_eth_src(pkt);		
-	m->__eth_type = *platform_packet_get_eth_type(pkt);		
+	m->__eth_dst = ( (ptr64=platform_packet_get_eth_dst(pkt))==NULL ? 0 : *ptr64);
+	m->__eth_src = ( (ptr64=platform_packet_get_eth_src(pkt))==NULL ? 0 : *ptr64);
+	m->__eth_type = ( (ptr16=platform_packet_get_eth_type(pkt))==NULL ? 0 : *ptr16);
 	
 	//802.1q VLAN outermost tag
 	m->__has_vlan = platform_packet_has_vlan(pkt);		
-	m->__vlan_vid = *platform_packet_get_vlan_vid(pkt);		
-	m->__vlan_pcp = *platform_packet_get_vlan_pcp(pkt);		
+	m->__vlan_vid = ( (ptr16=platform_packet_get_vlan_vid(pkt))==NULL ? 0 : *ptr16);
+	m->__vlan_pcp = ( (ptr8=platform_packet_get_vlan_pcp(pkt))==NULL ? 0 : *ptr8);
 
 	//ARP
-	m->__arp_opcode = *platform_packet_get_arp_opcode(pkt);		
-	m->__arp_sha = *platform_packet_get_arp_sha(pkt);		
-	m->__arp_spa = *platform_packet_get_arp_spa(pkt);		
-	m->__arp_tha = *platform_packet_get_arp_tha(pkt);		
-	m->__arp_tpa = *platform_packet_get_arp_tpa(pkt);		
+	m->__arp_opcode = ( (ptr16=platform_packet_get_arp_opcode(pkt))==NULL ? 0 : *ptr16);
+	m->__arp_sha = ( (ptr64=platform_packet_get_arp_sha(pkt))==NULL ? 0 : *ptr64);
+	m->__arp_spa = ( (ptr32=platform_packet_get_arp_spa(pkt))==NULL ? 0 : *ptr32);
+	m->__arp_tha = ( (ptr64=platform_packet_get_arp_tha(pkt))==NULL ? 0 : *ptr64);
+	m->__arp_tpa = ( (ptr32=platform_packet_get_arp_tpa(pkt))==NULL ? 0 : *ptr32);
 
 	//IP
-	m->__ip_proto = *platform_packet_get_ip_proto(pkt);		
-	m->__ip_dscp = *platform_packet_get_ip_dscp(pkt);		
-	m->__ip_ecn = *platform_packet_get_ip_ecn(pkt);			
+	m->__ip_proto = ( (ptr8=platform_packet_get_ip_proto(pkt))==NULL ? 0 : *ptr8);
+	m->__ip_dscp = platform_packet_get_ip_dscp(pkt);		
+	m->__ip_ecn = platform_packet_get_ip_ecn(pkt);			
 	
 	//IPv4
-	m->__ipv4_src = *platform_packet_get_ipv4_src(pkt);		
-	m->__ipv4_dst = *platform_packet_get_ipv4_dst(pkt);		
+	m->__ipv4_src = ( (ptr32=platform_packet_get_ipv4_src(pkt))==NULL ? 0 : *ptr32);
+	m->__ipv4_dst = ( (ptr32=platform_packet_get_ipv4_dst(pkt))==NULL ? 0 : *ptr32);
 
 	//TCP
-	m->__tcp_src = *platform_packet_get_tcp_src(pkt);		
-	m->__tcp_dst = *platform_packet_get_tcp_dst(pkt);		
+	m->__tcp_src = ( (ptr16=platform_packet_get_tcp_src(pkt))==NULL ? 0 : *ptr16);
+	m->__tcp_dst = ( (ptr16=platform_packet_get_tcp_dst(pkt))==NULL ? 0 : *ptr16);
 
 	//UDP
-	m->__udp_src = *platform_packet_get_udp_src(pkt);		
-	m->__udp_dst = *platform_packet_get_udp_dst(pkt);		
+	m->__udp_src = ( (ptr16=platform_packet_get_udp_src(pkt))==NULL ? 0 : *ptr16);
+	m->__udp_dst = ( (ptr16=platform_packet_get_udp_dst(pkt))==NULL ? 0 : *ptr16);
 
 	//SCTP
-	m->__sctp_src = *platform_packet_get_sctp_src(pkt);		
-	m->__sctp_dst = *platform_packet_get_sctp_dst(pkt);		
+	m->__sctp_src = ( (ptr16=platform_packet_get_sctp_src(pkt))==NULL ? 0 : *ptr16);
+	m->__sctp_dst = ( (ptr16=platform_packet_get_sctp_dst(pkt))==NULL ? 0 : *ptr16);
 
 
 	//ICMPv4
-	m->__icmpv4_type = *platform_packet_get_icmpv4_type(pkt);		
-	m->__icmpv4_code = *platform_packet_get_icmpv4_code(pkt);		
+	m->__icmpv4_type = ( (ptr8=platform_packet_get_icmpv4_type(pkt))==NULL ? 0 : *ptr8);
+	m->__icmpv4_code = ( (ptr8=platform_packet_get_icmpv4_code(pkt))==NULL ? 0 : *ptr8);
 
 	//MPLS-outermost label 
-	m->__mpls_label = *platform_packet_get_mpls_label(pkt);		
-	m->__mpls_tc = *platform_packet_get_mpls_tc(pkt);		
+	m->__mpls_label = ( (ptr32=platform_packet_get_mpls_label(pkt))==NULL ? 0 : *ptr32);
+	m->__mpls_tc = ( (ptr8=platform_packet_get_mpls_tc(pkt))==NULL ? 0 : *ptr8);
 	m->__mpls_bos = platform_packet_get_mpls_bos(pkt);		
 
 
 	//IPv6
-	m->__ipv6_src = *platform_packet_get_ipv6_src(pkt);		
-	m->__ipv6_dst = *platform_packet_get_ipv6_dst(pkt);		
-	m->__ipv6_flabel = *platform_packet_get_ipv6_flabel(pkt);		
-	m->__ipv6_nd_target = *platform_packet_get_ipv6_nd_target(pkt);	
-	m->__ipv6_nd_sll = *platform_packet_get_ipv6_nd_sll(pkt);		
-	m->__ipv6_nd_tll = *platform_packet_get_ipv6_nd_tll(pkt);		
-	m->__ipv6_exthdr = *platform_packet_get_ipv6_exthdr(pkt);		
+	m->__ipv6_src = ( (ptr128=platform_packet_get_ipv6_src(pkt))==NULL ? zero_u128 : *ptr128);
+	m->__ipv6_dst = ( (ptr128=platform_packet_get_ipv6_dst(pkt))==NULL ? zero_u128 : *ptr128);
+	m->__ipv6_flabel = ( (ptr32=platform_packet_get_ipv6_flabel(pkt))==NULL ? 0 : *ptr32);
+	m->__ipv6_nd_target = ( (ptr128=platform_packet_get_ipv6_nd_target(pkt))==NULL ? zero_u128 : *ptr128);
+	m->__ipv6_nd_sll = ( (ptr64=platform_packet_get_ipv6_nd_sll(pkt))==NULL ? 0 : *ptr64);
+	m->__ipv6_nd_tll = ( (ptr64=platform_packet_get_ipv6_nd_tll(pkt))==NULL ? 0 : *ptr64);
+	m->__ipv6_exthdr = ( (ptr16=platform_packet_get_ipv6_exthdr(pkt))==NULL ? 0 : *ptr16);
 	
 	//ICMPv6 
-	m->__icmpv6_code = *platform_packet_get_icmpv6_code(pkt);		
-	m->__icmpv6_type = *platform_packet_get_icmpv6_type(pkt);		
+	m->__icmpv6_code = ( (ptr8=platform_packet_get_icmpv6_code(pkt))==NULL ? 0 : *ptr8);
+	m->__icmpv6_type = ( (ptr8=platform_packet_get_icmpv6_type(pkt))==NULL ? 0 : *ptr8);
 
 	//PBB
-	m->__pbb_isid = *platform_packet_get_pbb_isid(pkt);		
+	m->__pbb_isid = ( (ptr32=platform_packet_get_pbb_isid(pkt))==NULL ? 0 : *ptr32);
 	
 	//Tunnel id
-	m->__tunnel_id = *platform_packet_get_tunnel_id(pkt);		
+	m->__tunnel_id = ( (ptr64=platform_packet_get_tunnel_id(pkt))==NULL ? 0 : *ptr64);
 
 	/*	
 	* Extensions
 	*/
 
 	//PPPoE related extensions
-	m->__pppoe_code = *platform_packet_get_pppoe_code(pkt);		
-	m->__pppoe_type = *platform_packet_get_pppoe_type(pkt);		
-	m->__pppoe_sid = *platform_packet_get_pppoe_sid(pkt);		
+	m->__pppoe_code = ( (ptr8=platform_packet_get_pppoe_code(pkt))==NULL ? 0 : *ptr8);
+	m->__pppoe_type = ( (ptr8=platform_packet_get_pppoe_type(pkt))==NULL ? 0 : *ptr8);
+	m->__pppoe_sid = ( (ptr16=platform_packet_get_pppoe_sid(pkt))==NULL ? 0 : *ptr16);
 	
 	//PPP related extensions
-	m->__ppp_proto = *platform_packet_get_ppp_proto(pkt);		
+	m->__ppp_proto = ( (ptr16=platform_packet_get_ppp_proto(pkt))==NULL ? 0 : *ptr16);
 	
 	//GTP related extensions
-	m->__gtp_msg_type = *platform_packet_get_gtp_msg_type(pkt);		
-	m->__gtp_teid = *platform_packet_get_gtp_teid(pkt);		
+	m->__gtp_msg_type = ( (ptr8=platform_packet_get_gtp_msg_type(pkt))==NULL ? 0 : *ptr8);
+	m->__gtp_teid = ( (ptr32=platform_packet_get_gtp_teid(pkt))==NULL ? 0 : *ptr32);
 
 
 }

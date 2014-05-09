@@ -358,14 +358,14 @@ uint8_t* platform_packet_get_ip_proto(datapacket_t *const pkt);
 * Get the ip ECN value of the packet 
 * @return value if existing, 0x0 otherwise.
 */
-uint8_t* platform_packet_get_ip_ecn(datapacket_t *const pkt);
+uint8_t platform_packet_get_ip_ecn(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the ip DSCP value of the packet 
 * @return value if existing, 0x0 otherwise.
 * @warning Return value comes specially aligned
 */
-uint8_t* platform_packet_get_ip_dscp(datapacket_t *const pkt);
+uint8_t platform_packet_get_ip_dscp(datapacket_t *const pkt);
 
 /**
 * @ingroup platform_packet
@@ -509,7 +509,7 @@ uint128__t* platform_packet_get_ipv6_dst(datapacket_t *const pkt);
 * @return value if existing, 0x0 otherwise.
 * @warning Return value comes in alligned NBO endianness
 */
-uint64_t* platform_packet_get_ipv6_flabel(datapacket_t *const pkt);
+uint32_t* platform_packet_get_ipv6_flabel(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
 * Get the IPv6 nd target of the packet 
