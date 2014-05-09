@@ -373,8 +373,20 @@ crofconn::action_send_hello_message()
 			return;
 		}
 
-		cmemory body(versionbitmap.length());
-		versionbitmap.pack(body.somem(), body.memlen());
+
+		cmemory body(0);
+
+		switch (versionbitmap.get_highest_ofp_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			// do nothing, as there should be no padding to prevent NOX from crashing
+
+		} break;
+		default: {
+			body.resize(versionbitmap.length());
+			versionbitmap.pack(body.somem(), body.memlen());
+
+		};
+		}
 
 		rofl::openflow::cofmsg_hello *hello =
 				new rofl::openflow::cofmsg_hello(

@@ -36,7 +36,7 @@
 #define ROFL_DESCRIBE "@ROFL_DESCRIBE@"
 
 /* Description */
-#define ROFL_VERSION_ "@ROFL_VERSION_@"
+#define ROFL_VERSION_ "@ROFL_VERSION@"
 
 @ROFL_HAVE_OPENSSL@
 
