@@ -8,10 +8,8 @@ sbin_PROGRAMS = tranny morpheus
 
 morpheus_SOURCES = \
 	cportvlan_mapper.cc \
-	cportvlan_mapper.h \
 	morpheus_main.cc \
 	morpheus.cc \
-	morpheus.h
 morpheus_LDADD = ../../src/rofl/librofl.la \
 	-lpthread \
 	-lrt 
