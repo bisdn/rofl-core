@@ -10,7 +10,6 @@
 #include "rofl.h"
 #include "ternary_fields.h"
 #include "../openflow/openflow1x/pipeline/of1x_utils.h"
-#include "../platform/packet.h"
 
 /**
 * @file packet_matches.h
@@ -136,13 +135,13 @@ ROFL_BEGIN_DECLS
  * @ingroup core_of1x
  * @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
  */
-void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo);
+void dump_packet_matches(struct datapacket *const pkt, bool raw_nbo);
 
 /**
  * @brief Fill in packet_matches (for PKT_INs)
  * @ingroup core_of1x
  */
-void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* pkt_matches);
+void fill_packet_matches(struct datapacket *const pkt, packet_matches_t* pkt_matches);
 
 
 /**

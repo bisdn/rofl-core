@@ -3,6 +3,7 @@
 #include "rofl.h"
 #include "endianness.h"
 #include "protocol_constants.h"
+#include "../platform/packet.h"
 #include "../util/logging.h"
 
 //FIXME: unify packet matches alignment with MATCHEs and ACTIONs; there should be only one piece of code dealing with alignment
