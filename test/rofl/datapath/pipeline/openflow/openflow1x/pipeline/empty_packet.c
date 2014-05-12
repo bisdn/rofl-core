@@ -124,11 +124,11 @@ uint32_t* platform_packet_get_arp_tpa(datapacket_t *const pkt){
 uint8_t* platform_packet_get_ip_proto(datapacket_t *const pkt){
 	return (uint8_t*)&tmp_val;
 }
-uint8_t* platform_packet_get_ip_ecn(datapacket_t *const pkt){
-	return (uint8_t*)&tmp_val;
+uint8_t platform_packet_get_ip_ecn(datapacket_t *const pkt){
+	return 0x0;
 }
-uint8_t* platform_packet_get_ip_dscp(datapacket_t *const pkt){
-	return (uint8_t*)&tmp_val;
+uint8_t platform_packet_get_ip_dscp(datapacket_t *const pkt){
+	return 0x0;
 }
 uint32_t* platform_packet_get_ipv4_src(datapacket_t *const pkt){
 	return (uint32_t*)&tmp_val;
@@ -187,8 +187,8 @@ uint128__t* platform_packet_get_ipv6_src(datapacket_t *const pkt){
 uint128__t* platform_packet_get_ipv6_dst(datapacket_t *const pkt){
 	return &tmp_val;
 }
-uint64_t* platform_packet_get_ipv6_flabel(datapacket_t *const pkt){
-	return (uint64_t*)&tmp_val;
+uint32_t* platform_packet_get_ipv6_flabel(datapacket_t *const pkt){
+	return (uint32_t*)&tmp_val;
 }
 uint128__t* platform_packet_get_ipv6_nd_target(datapacket_t *const pkt){
 	return &tmp_val;
