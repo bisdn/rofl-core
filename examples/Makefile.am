@@ -1,4 +1,4 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = ethswctld 
+SUBDIRS = pex_controller ethswctld
 

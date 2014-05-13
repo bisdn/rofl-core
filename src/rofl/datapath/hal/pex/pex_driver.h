@@ -21,6 +21,16 @@
 HAL_BEGIN_DECLS
 
 /**
+*	According to the PEX type, the xDPD behaves differently when PEX commands
+*	are called through the CMM.
+*
+*	@brief:	INTERNAL			PEX and xDPD are the same process
+*	@brief: DPDK				PEX is a DPDK secondary process
+*	@brief: EXTERNAL			PEX is something external, e.g., a VM
+*/
+enum PexType {INTERNAL,DPDK,EXTERNAL};
+
+/**
  * @name hal_driver_pex_exists
  * @brief Checks if a PEX with the specified name exists
  *
@@ -40,13 +50,11 @@ pex_name_list_t* hal_driver_get_all_pex_names();
  * @brief   Instructs driver to create a new PEX 
  *
  * @param pex_name				Name of the PEX to be created
- * @param path					Path of the script to be used to run the PEX
- * @param core_mask				Core to which the PEX must be bound
- * @param num_memory_channels	Number of memory channels used by the PEX
- * @param lcore_id				Identifier needed to support multiple PEX on the same core
+ * @param pex_type				Type of the PEX to be created
+ * @param path					Path of the PEX excutable (may be not needed)
 
  */
-hal_result_t hal_driver_pex_create_pex(const char *pex_name, const char *path, uint32_t core_mask, uint32_t num_memory_channels, uint32_t lcore_id);
+hal_result_t hal_driver_pex_create_pex(const char *pex_name, PexType pexType, const char *path);
 
 /**
  * @name    hal_result_t hal_driver_pex_destroy_pex
