@@ -54,21 +54,30 @@ rofl_result_t __destroy_utern(utern_t* utern );
 
 //Comparison
 static inline bool __utern_compare8(const utern_t* tern, const uint8_t* value){
+	if(!value)
+		return false;
 	return (tern->value.u8 & tern->mask.u8) == (*value & tern->mask.u8); 
 }
 static inline bool __utern_compare16(const utern_t* tern, const uint16_t* value){
+	if(!value)
+		return false;
 	return (tern->value.u16 & tern->mask.u16) == (*value & tern->mask.u16); 
 }
 static inline bool __utern_compare32(const utern_t* tern, const uint32_t* value){
+	if(!value)
+		return false;
 	return (tern->value.u32 & tern->mask.u32) == (*value & tern->mask.u32); 
 }
 static inline bool __utern_compare64(const utern_t* tern, const uint64_t* value){
+	if(!value)
+		return false;
 	return (tern->value.u64 & tern->mask.u64) == (*value & tern->mask.u64); 
 }
 static inline bool __utern_compare128(const utern_t* tern, const uint128__t* value){
+	if(!value)
+		return false;
 	return ( (UINT128__T_HI(tern->value.u128) & UINT128__T_HI(tern->mask.u128)) == (UINT128__T_HI(*value) & UINT128__T_HI(tern->mask.u128)) )&&
 			( (UINT128__T_LO(tern->value.u128) & UINT128__T_LO(tern->mask.u128)) == (UINT128__T_LO(*value) & UINT128__T_LO(tern->mask.u128)) );
-	
 }
 //Check if two ternary values are equal
 bool __utern_equals(const utern_t* tern1, const utern_t* tern2);
