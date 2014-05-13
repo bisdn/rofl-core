@@ -259,6 +259,23 @@ crofchan::handle_connect_refused(
 
 
 void
+crofchan::handle_connect_failed(
+		crofconn *conn)
+{
+	logging::warn << "[rofl][chan] connection failed." << std::endl << *conn;
+
+	uint8_t aux_id = conn->get_aux_id();
+
+	if (0 == aux_id) {
+		backoff_reconnect(false);
+	} else {
+		conn->reconnect();
+	}
+}
+
+
+
+void
 crofchan::handle_connected(
 		crofconn *conn,
 		uint8_t ofp_version)
@@ -328,6 +345,8 @@ crofchan::handle_closed(crofconn *conn)
 				delete conns[aux_id];
 				conns.erase(aux_id);
 			}
+
+			run_engine(EVENT_DISCONNECTED);
 
 		/*
 		 * active connection (=datapath) => close all connections and reconnect them
@@ -455,9 +474,6 @@ crofchan::handle_timeout(int opaque, void *data)
 void
 crofchan::backoff_reconnect(bool reset_timeout)
 {
-	logging::info << "[rofl][chan] " << " scheduled reconnect in "
-			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
-
 	int max_backoff = 16 * reconnect_start_timeout;
 
 	if ((0 == reconnect_timer_id) || (reset_timeout)) {
@@ -477,6 +493,10 @@ crofchan::backoff_reconnect(bool reset_timeout)
 		}
 
 	}
+
+	logging::info << "[rofl][chan] " << " scheduled reconnect in "
+			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
+
 
 	reconnect_timer_id = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
 

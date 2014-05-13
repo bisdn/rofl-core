@@ -243,9 +243,9 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *cons
 /*
 * Table dumping. Not recommended to use it directly
 *
-* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
 */
-void of1x_dump_table(of1x_flow_table_t* table, bool nbo);
+void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo);
 
 //C++ extern C
 ROFL_END_DECLS

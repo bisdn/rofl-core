@@ -176,6 +176,36 @@ crofconn::event_disconnected()
 	} break;
 	case STATE_CONNECT_PENDING: {
 		if (not flags.test(FLAGS_PASSIVE)) {
+			if (flags.test(FLAGS_CONNECT_REFUSED)) {
+				env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
+			}
+			if (flags.test(FLAGS_CONNECT_FAILED)) {
+				env->handle_connect_failed(this); flags.reset(FLAGS_CONNECT_FAILED);
+			}
+		}
+	} break;
+	case STATE_WAIT_FOR_HELLO:
+	case STATE_ESTABLISHED:
+	default: {
+		state = STATE_DISCONNECTED;
+		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
+		}
+		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+		}
+		rofsock.close();
+		env->handle_closed(this);
+	};
+	}
+
+#if 0
+	switch (state) {
+	case STATE_DISCONNECTED: {
+
+	} break;
+	case STATE_CONNECT_PENDING: {
+		if (not flags.test(FLAGS_PASSIVE)) {
 			env->handle_connect_refused(this);
 		}
 	} break;
@@ -196,6 +226,7 @@ crofconn::event_disconnected()
 		logging::error << "[rofl][conn] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
 	};
 	}
+#endif
 }
 
 
@@ -347,8 +378,20 @@ crofconn::action_send_hello_message()
 			return;
 		}
 
-		cmemory body(versionbitmap.length());
-		versionbitmap.pack(body.somem(), body.memlen());
+
+		cmemory body(0);
+
+		switch (versionbitmap.get_highest_ofp_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			// do nothing, as there should be no padding to prevent NOX from crashing
+
+		} break;
+		default: {
+			body.resize(versionbitmap.length());
+			versionbitmap.pack(body.somem(), body.memlen());
+
+		};
+		}
 
 		rofl::openflow::cofmsg_hello *hello =
 				new rofl::openflow::cofmsg_hello(
@@ -427,6 +470,17 @@ void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
 	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_REFUSED);
+	run_engine(EVENT_DISCONNECTED);
+}
+
+
+
+void
+crofconn::handle_connect_failed(crofsock *endpnt)
+{
+	logging::warn << "[rofl][conn] OFP socket indicated connection failed." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_FAILED);
 	run_engine(EVENT_DISCONNECTED);
 }
 

@@ -67,6 +67,7 @@ class crofsock_env {
 public:
 	virtual ~crofsock_env() {};
 	virtual void handle_connect_refused(crofsock *endpnt) = 0;
+	virtual void handle_connect_failed(crofsock *endpnt) = 0;
 	virtual void handle_connected(crofsock *endpnt) = 0;
 	virtual void handle_closed(crofsock *endpnt) = 0;
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
@@ -304,6 +305,13 @@ private:
 	 */
 	virtual void
 	handle_connect_refused(
+			csocket& socket);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_failed(
 			csocket& socket);
 
 	/**

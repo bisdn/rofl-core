@@ -109,6 +109,15 @@ public:
 	handle_connect_refused(csocket& socket) = 0;
 
 	/**
+	 * @brief	Called once a connection request to a remote entity failed.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 * @param sd socket descriptor used for connection
+	 */
+	virtual void
+	handle_connect_failed(csocket& socket) = 0;
+
+	/**
 	 * @brief	Called once new data is available for reading from the socket.
 	 *
 	 * @param socket pointer to csocket instance emitting the notification

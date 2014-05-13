@@ -30,6 +30,7 @@ class crofconn_env {
 public:
 	virtual ~crofconn_env() {};
 	virtual void handle_connect_refused(crofconn *conn) = 0;
+	virtual void handle_connect_failed(crofconn *conn) = 0;
 	virtual void handle_connected(crofconn *conn, uint8_t ofp_version) = 0;
 	virtual void handle_closed(crofconn *conn) = 0;
 	virtual void recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) = 0;
@@ -99,6 +100,8 @@ class crofconn :
 
 	enum crofconn_flags_t {
 		FLAGS_PASSIVE			= 1,
+		FLAGS_CONNECT_REFUSED	= 2,
+		FLAGS_CONNECT_FAILED	= 3,
 	};
 
 #define DEFAULT_HELLO_TIMEOUT	5
@@ -215,6 +218,9 @@ private:
 
 	virtual void
 	handle_connect_refused(crofsock *rofsock);
+
+	virtual void
+	handle_connect_failed(crofsock *rofsock);
 
 	virtual void
 	handle_connected (crofsock *rofsock);

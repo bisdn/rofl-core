@@ -304,35 +304,39 @@ crofbase::send_port_status_message(
 void
 crofbase::rpc_close_all()
 {
-	// close the listening sockets
-	for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
-			it != rpc[RPC_CTL].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_CTL].clear();
+	try {
+		// close the listening sockets
+		for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
+				it != rpc[RPC_CTL].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_CTL].clear();
 
-	for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
-			it != rpc[RPC_DPT].end(); ++it)
-	{
-		delete (*it);
-	}
-	rpc[RPC_DPT].clear();
+		for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
+				it != rpc[RPC_DPT].end(); ++it)
+		{
+			delete (*it);
+		}
+		rpc[RPC_DPT].clear();
 
-	// detach from higher layer entities
-	for (std::set<crofctl*>::iterator
-			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-	{
-		delete (*it);
-	}
-	ofctl_set.clear();
+		// detach from higher layer entities
+		for (std::set<crofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofctl_set.clear();
 
-	for (std::set<crofdpt*>::iterator
-			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-	{
-		delete (*it);
+		for (std::set<crofdpt*>::iterator
+				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
+		{
+			delete (*it);
+		}
+		ofdpt_set.clear();
+	} catch (RoflException& e) {
+		rofl::logging::error << "[rofl][crofbase][rpc_close_all] exception:" << e << std::endl;
 	}
-	ofdpt_set.clear();
 }
 
 
@@ -358,7 +362,16 @@ void
 crofbase::handle_connect_refused(
 		crofconn *conn)
 {
+	logging::info << "[rofl][base] connection refused:" << std::endl << *conn;
+}
 
+
+
+void
+crofbase::handle_connect_failed(
+		crofconn *conn)
+{
+	logging::info << "[rofl][base] connection failed:" << std::endl << *conn;
 }
 
 
@@ -524,6 +537,15 @@ crofbase::handle_connected(
 
 void
 crofbase::handle_connect_refused(
+		csocket& socket)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
+crofbase::handle_connect_failed(
 		csocket& socket)
 {
 	// do nothing here, as our TCP sockets are used as listening sockets only

@@ -5,12 +5,13 @@
 #ifndef HAL_H
 #define HAL_H 
 
-/*
- * Hardware abstraction layer 
- *
- *  Created on: 16.08.2012
- *      Author: andreas, msune
- */
+/**
+* @file hal.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+* @author Andreas Koepsel<andreas.koepsel (at) bisdn.de>
+*
+* @brief Hardware Abstraction Layer (HAL) main header file
+*/
 
 #include <stdlib.h>
 #include <rofl.h>
@@ -19,7 +20,9 @@
 
 #include "hal_utils.h"
 
-//Return values
+/**
+* HAL return values
+*/
 typedef enum hal_result {
 	HAL_SUCCESS	= ROFL_SUCCESS,
 	HAL_FAILURE	= ROFL_FAILURE,

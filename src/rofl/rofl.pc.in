@@ -5,7 +5,7 @@ includedir=@includedir@
 
 Name: rofl
 Description: Revised OpenFlow Library (common part)
-Version: @PACKAGE_VERSION@
+Version: @ROFL_VERSION_NORMALIZED@
 Libs: -L${libdir} -lrofl
 Cflags: -I${includedir}
 

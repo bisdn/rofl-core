@@ -153,7 +153,7 @@ void __of1x_copy_instruction_group(of1x_instruction_group_t* origin, of1x_instru
 
 
 
-void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo){
+void __of1x_dump_instructions(of1x_instruction_group_t group, bool raw_nbo){
 
 	unsigned int i,has_write_actions=0, has_apply_actions=0;
 
@@ -194,11 +194,11 @@ void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo){
 	}
 	if( has_apply_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tAPP.ACTIONs:");
-		__of1x_dump_action_group(group.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, nbo);
+		__of1x_dump_action_group(group.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, raw_nbo);
 	}
 	if( has_write_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tWR.ACTIONs:");
-		__of1x_dump_write_actions(group.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, nbo);
+		__of1x_dump_write_actions(group.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, raw_nbo);
 	}	
 }
 
