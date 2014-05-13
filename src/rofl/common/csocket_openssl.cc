@@ -323,6 +323,16 @@ csocket_openssl::handle_connect_refused(rofl::csocket& socket)
 
 
 void
+csocket_openssl::handle_connect_failed(rofl::csocket& socket)
+{
+	socket.close();
+
+	if (socket_owner) socket_owner->handle_connect_failed(*this);
+}
+
+
+
+void
 csocket_openssl::handle_listen(rofl::csocket& socket, int newsd)
 {
 	if (socket_owner) socket_owner->handle_listen(*this, newsd);

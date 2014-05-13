@@ -259,6 +259,23 @@ crofchan::handle_connect_refused(
 
 
 void
+crofchan::handle_connect_failed(
+		crofconn *conn)
+{
+	logging::warn << "[rofl][chan] connection failed." << std::endl << *conn;
+
+	uint8_t aux_id = conn->get_aux_id();
+
+	if (0 == aux_id) {
+		backoff_reconnect(false);
+	} else {
+		conn->reconnect();
+	}
+}
+
+
+
+void
 crofchan::handle_connected(
 		crofconn *conn,
 		uint8_t ofp_version)
