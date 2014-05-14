@@ -2,13 +2,13 @@
 
 PKG_NAME="rofl"
 PKG_NAME_DBG="rofl-dbg"
-VERSION=""
-RELEASE=""
-REQUIRES+=""
-LICENSE="MPL"
+VERSION="0.4"
+RELEASE="0"
+REQUIRES+="libssl, libcrypto++"
+LICENSE="Mozilla Public License, Version 2.0"
 GROUP="net"
 MAINTAINER="rofl@bisdn.de"
-DESCRIPTION="Revised OpenFlow Library set"
+DESCRIPTION="Revised OpenFlow Libraries"
 IS_DEBUG=""
 
 check_root(){
