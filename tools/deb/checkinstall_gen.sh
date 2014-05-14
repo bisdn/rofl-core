@@ -7,7 +7,7 @@ RELEASE="0"
 REQUIRES+="libssl, libcrypto++"
 LICENSE="Mozilla Public License, Version 2.0"
 GROUP="net"
-MAINTAINER="rofl@bisdn.de"
+MAINTAINER="rofl-devel@roflibs.org"
 DESCRIPTION="Revised OpenFlow Libraries"
 IS_DEBUG=""
 
