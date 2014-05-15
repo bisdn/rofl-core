@@ -176,7 +176,12 @@ crofconn::event_disconnected()
 	} break;
 	case STATE_CONNECT_PENDING: {
 		if (not flags.test(FLAGS_PASSIVE)) {
-			env->handle_connect_refused(this);
+			if (flags.test(FLAGS_CONNECT_REFUSED)) {
+				env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
+			}
+			if (flags.test(FLAGS_CONNECT_FAILED)) {
+				env->handle_connect_failed(this); flags.reset(FLAGS_CONNECT_FAILED);
+			}
 		}
 	} break;
 	case STATE_WAIT_FOR_HELLO:
@@ -465,6 +470,17 @@ void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
 	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_REFUSED);
+	run_engine(EVENT_DISCONNECTED);
+}
+
+
+
+void
+crofconn::handle_connect_failed(crofsock *endpnt)
+{
+	logging::warn << "[rofl][conn] OFP socket indicated connection failed." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_FAILED);
 	run_engine(EVENT_DISCONNECTED);
 }
 

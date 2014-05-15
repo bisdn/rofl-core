@@ -103,6 +103,9 @@ public:
 	handle_connect_refused(crofconn *conn);
 
 	virtual void
+	handle_connect_failed(crofconn *conn);
+
+	virtual void
 	handle_connected(crofconn *conn, uint8_t ofp_version);
 
 	virtual void

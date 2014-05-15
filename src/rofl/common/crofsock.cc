@@ -126,6 +126,16 @@ crofsock::handle_connect_refused(
 
 
 void
+crofsock::handle_connect_failed(
+		csocket& socket)
+{
+	logging::info << "[rofl][sock] connection failed:" << std::endl << *this;
+	env->handle_connect_failed(this);
+}
+
+
+
+void
 crofsock::handle_closed(
 			csocket& socket)
 {
