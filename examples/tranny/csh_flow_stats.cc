@@ -49,6 +49,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 	}
 	rofl::cofflow_stats_request flows_stats_req = msg->get_flow_stats();
 	uint32_t new_outport, old_outport = flows_stats_req.get_out_port();
+	new_outport = old_outport;	// TODO - dummy translation
 //	*** TODO update match according to new_outport
 	rofl::cofflow_stats_request req(OFP10_VERSION, newmatch, flows_stats_req.get_table_id(), new_outport);
 	uint32_t newxid = m_parent->send_flow_stats_request(m_parent->get_dpt(), msg->get_stats_flags(), req ); // TODO is get_stats_flags correct ??
@@ -61,7 +62,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 
 bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_flow_stats_reply * const msg ) {
 	assert(!m_completed);
-	const cportvlan_mapper & mapper = m_parent->get_mapper();
+//	const cportvlan_mapper & mapper = m_parent->get_mapper();
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofdesc_stats_reply reply(src->get_version(),"morpheus_mfr_desc","morpheus_hw_desc","morpheus_sw_desc","morpheus_serial_num","morpheus_dp_desc");
 	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );

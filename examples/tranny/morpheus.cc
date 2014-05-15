@@ -447,6 +447,29 @@ rofl::cofaclist morpheus::get_flowmod_action_translation(bool virtual_to_actual,
 		throw std::out_of_range();
 	}
 }
+
+
+bool morpheus::add_flowmod_match_translation(const rofl::cofmatch & virt, const rofl::cofmatch & act) {
+	bool this_is_new_entry = (match_map.find(virt) == action_map.end());
+	match_map[virt] = act;
+	return this_is_new_entry;
+}
+bool morpheus::remove_flowmod_match_translation(const rofl::cofmatch & virt) {
+	return match_map.erase(virt);
+}
+// could throw std::out_of_range if virt_or_act is not found
+rofl::cofmatch morpheus::get_flowmod_match_translation(bool virtual_to_actual, const rofl::cofmatch & virt_or_act) const {
+	if(virtual_to_actual) {
+		// look up virtual action
+		return match_map.at(virt_or_act);
+	} else {
+		// do reverse lookup - see if virt_or_act is a value for any of the keys in action_map and return key;
+		for(std::map<rofl::cofmatch, rofl::cofmatch>::const_iterator i = match_map.begin(); i != match_map.begin(); ++i)
+			if(i->second==virt_or_act) return i->first;
+		// not found
+		throw std::out_of_range();
+	}
+}
 */
 
 std::string action_mask_to_string(const uint32_t action_types) {

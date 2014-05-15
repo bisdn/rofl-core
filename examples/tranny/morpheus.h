@@ -38,7 +38,7 @@ public:
 	class csh_packet_out;
 	class csh_packet_in;
 	class csh_barrier;
-//	class csh_table_mod;
+	class csh_table_mod;
 	class csh_port_mod;
 	class csh_set_config;
 
@@ -135,13 +135,17 @@ public:
 	morpheus(const cportvlan_mapper & mapper, bool indpt, rofl::caddress dptaddr, bool inctl, rofl::caddress ctladdr);	// if indpt is true then morpheus will listen on dtpaddr, otherwise it will connect to it.
 	virtual ~morpheus();
 	const cportvlan_mapper & get_mapper() const { return m_mapper; }
-
 /*
 	bool add_flowmod_action_translation(const rofl::cofaclist & virt, const rofl::cofaclist & act);	// returns true if the new action overwrote an old entry
 	bool remove_flowmod_action_translation(const rofl::cofaclist & virt);
 //	void get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
 	rofl::cofaclist get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
-	*/
+
+	bool add_flowmod_match_translation(const rofl::cofmatch & virt, const rofl::cofmatch & act);	// returns true if the new action overwrote an old entry
+	bool remove_flowmod_match_translation(const rofl::cofmatch & virt);
+	rofl::cofmatch get_flowmod_match_translation(bool virtual_to_actual, const rofl::cofmatch & virt_or_act) const;
+*/
+
 
 uint32_t get_supported_actions();
 uint32_t get_supported_features() { return m_supported_features; }
@@ -165,7 +169,7 @@ friend chandlersession_base;
 #include "csh_packet_out.h"
 #include "csh_port_mod.h"
 #include "csh_set_config.h"
-// #include "csh_table_mod.h"
+#include "csh_table_mod.h"
 #include "csh_table_stats.h"
 #include "morpheus_nested.h"
 

@@ -9,7 +9,8 @@ sbin_PROGRAMS = tranny morpheus
 morpheus_SOURCES = \
 	cportvlan_mapper.cc \
 	morpheus_main.cc \
-	morpheus.cc \ 
+	morpheus.cc \
+	morpheus_nested.cc \
 	csh_aggregate_stats.cc \
 	csh_barrier.cc \
 	csh_desc_stats.cc \
