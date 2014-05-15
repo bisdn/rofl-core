@@ -22,7 +22,7 @@ morpheus_SOURCES = \
 	csh_port_mod.cc \
 	csh_set_config.cc \
 	csh_table_mod.cc \
-	csh_table_stats.cc 
+	csh_table_stats.cc
 
 morpheus_LDADD = ../../src/rofl/librofl.la \
 	-lpthread \
