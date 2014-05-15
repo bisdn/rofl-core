@@ -2,7 +2,6 @@
 #ifndef UCL_EE_MORPHEUS_H
 #define UCL_EE_MORPHEUS_H
 
-// #include <boost/shared_ptr.hpp>
 #include <sstream>
 #include <string>
 #include <map>
@@ -23,25 +22,25 @@ class morpheus : public rofl::crofbase {
 
 public:
 
-private:
+// private:
 // forward declare our nested classes which will encapsulate the transaction (composed of persistent data etc)
 	class chandlersession_base;
-	class cflow_mod_session;
-	class cfeatures_request_session;
-	class cget_config_session;
-	class cdesc_stats_session;
-	class ctable_stats_session;
+	class csh_flow_mod;
+	class csh_features_request;
+	class csh_get_config;
+	class csh_desc_stats;
+	class csh_table_stats;
 	class cport_stats_session;
-	class cflow_stats_session;
-	class caggregate_stats_session;
+	class csh_flow_stats;
+	class csh_aggregate_stats;
 	class cqueue_stats_session;
-	class cpacket_in_session;
-	class cpacket_out_session;
-	class cpacket_in_session;
-	class cbarrier_session;
-	class ctable_mod_session;
-	class cport_mod_session;
-	class cset_config_session;
+	class csh_packet_in;
+	class csh_packet_out;
+	class csh_packet_in;
+	class csh_barrier;
+//	class csh_table_mod;
+	class csh_port_mod;
+	class csh_set_config;
 
 protected:
 
@@ -115,7 +114,7 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 	virtual void handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out * msg );
 	virtual void handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request * msg );
 	virtual void handle_barrier_reply ( rofl::cofdpt * dpt, rofl::cofmsg_barrier_reply * msg );
-	virtual void handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod * msg );
+	// virtual void handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod * msg );
 	virtual void handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod * msg );
 	virtual void handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request * msg );
 	virtual void handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg );
@@ -137,9 +136,12 @@ public:
 	virtual ~morpheus();
 	const cportvlan_mapper & get_mapper() const { return m_mapper; }
 
+/*
 	bool add_flowmod_action_translation(const rofl::cofaclist & virt, const rofl::cofaclist & act);	// returns true if the new action overwrote an old entry
 	bool remove_flowmod_action_translation(const rofl::cofaclist & virt);
-	void get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
+//	void get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
+	rofl::cofaclist get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
+	*/
 
 uint32_t get_supported_actions();
 uint32_t get_supported_features() { return m_supported_features; }
@@ -152,8 +154,20 @@ friend chandlersession_base;
 
 };
 
+#include "csh_aggregate_stats.h"
+#include "csh_barrier.h"
+#include "csh_desc_stats.h"
+#include "csh_features_request.h"
+#include "csh_flow_mod.h"
+#include "csh_flow_stats.h"
+#include "csh_get_config.h"
+#include "csh_packet_in.h"
+#include "csh_packet_out.h"
+#include "csh_port_mod.h"
+#include "csh_set_config.h"
+// #include "csh_table_mod.h"
+#include "csh_table_stats.h"
 #include "morpheus_nested.h"
-
 
 #endif // UCL_EE_MORPHEUS_H
 

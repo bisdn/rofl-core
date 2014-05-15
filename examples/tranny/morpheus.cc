@@ -121,7 +121,7 @@ void morpheus::set_supported_dpe_features (uint32_t new_capabilities, uint32_t n
 uint32_t morpheus::get_supported_actions() {
 	if(!m_dpe_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
-		std::auto_ptr < morpheus::cfeatures_request_session > s ( new morpheus::cfeatures_request_session ( this ) );
+		std::auto_ptr < morpheus::csh_features_request > s ( new morpheus::csh_features_request ( this ) );
 		std::cout << __FUNCTION__ << ": sent request for features. Waiting..";
 		unsigned wait_time = 5;
 		while(wait_time && !s->isCompleted()) {
@@ -198,7 +198,7 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	std::cout << " Following new DPE connection, sending features request.." << std::endl;
 
 	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	morpheus::cfeatures_request_session * s = new morpheus::cfeatures_request_session ( this );	// this isn;t a memory leak - the object was registered with the xid database
+	morpheus::csh_features_request * s = new morpheus::csh_features_request ( this );	// this isn;t a memory leak - the object was registered with the xid database
 	if(!s) std::cout << "Dummy message to prevent above line being optimised out." << std::endl;
 
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
@@ -304,57 +304,57 @@ void morpheus::handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg ) {
 
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cflow_mod_session)
-//	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::DEBUG_cflow_mod_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_flow_mod)
+//	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::DEBUG_csh_flow_mod)
 }
 void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::cfeatures_request_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::csh_features_request )
 }
 void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::cfeatures_request_session, process_features_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::csh_features_request, process_features_reply )
 }
 
 void morpheus::handle_get_config_request(rofl::cofctl *src, rofl::cofmsg_get_config_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_get_config_request, morpheus::cget_config_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_get_config_request, morpheus::csh_get_config )
 }
 void morpheus::handle_get_config_reply(rofl::cofdpt * src, rofl::cofmsg_get_config_reply * msg ) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_get_config_reply, morpheus::cget_config_session, process_config_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_get_config_reply, morpheus::csh_get_config, process_config_reply )
 }
 
 void morpheus::handle_desc_stats_request(rofl::cofctl *src, rofl::cofmsg_desc_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_desc_stats_request, morpheus::cdesc_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_desc_stats_request, morpheus::csh_desc_stats )
 }
 void morpheus::handle_desc_stats_reply(rofl::cofdpt * src, rofl::cofmsg_desc_stats_reply * msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_desc_stats_reply, morpheus::cdesc_stats_session, process_desc_stats_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_desc_stats_reply, morpheus::csh_desc_stats, process_desc_stats_reply )
 }
 
 void morpheus::handle_set_config(rofl::cofctl *src, rofl::cofmsg_set_config *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cset_config_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_set_config)
 }
 
 void morpheus::handle_table_stats_request(rofl::cofctl *src, rofl::cofmsg_table_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_table_stats_request, morpheus::ctable_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_table_stats_request, morpheus::csh_table_stats )
 }
 void morpheus::handle_table_stats_reply(rofl::cofdpt *src, rofl::cofmsg_table_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_table_stats_reply, morpheus::ctable_stats_session, process_table_stats_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_table_stats_reply, morpheus::csh_table_stats, process_table_stats_reply )
 }
 
 void morpheus::handle_aggregate_stats_request(rofl::cofctl *src, rofl::cofmsg_aggr_stats_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_aggr_stats_request, morpheus::caggregate_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_aggr_stats_request, morpheus::csh_aggregate_stats )
 }
 void morpheus::handle_aggregate_stats_reply(rofl::cofdpt *src, rofl::cofmsg_aggr_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_aggr_stats_reply, morpheus::caggregate_stats_session, process_aggr_stats_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_aggr_stats_reply, morpheus::csh_aggregate_stats, process_aggr_stats_reply )
 }
 
 /*
@@ -366,20 +366,20 @@ void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
 */
 void morpheus::handle_packet_in(rofl::cofdpt *src, rofl::cofmsg_packet_in * msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(false, morpheus::cpacket_in_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(false, morpheus::csh_packet_in)
 }
 void morpheus::handle_packet_out(rofl::cofctl *src, rofl::cofmsg_packet_out *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cpacket_out_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_packet_out)
 }
 
 void morpheus::handle_barrier_request(rofl::cofctl *src, rofl::cofmsg_barrier_request *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_barrier_request, morpheus::cbarrier_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_barrier_request, morpheus::csh_barrier )
 }
 void morpheus::handle_barrier_reply ( rofl::cofdpt * src, rofl::cofmsg_barrier_reply * msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_barrier_reply, morpheus::cbarrier_session, process_barrier_reply )
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_barrier_reply, morpheus::csh_barrier, process_barrier_reply )
 }
 
 void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_stats_request *msg) {
@@ -392,7 +392,7 @@ void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_st
 	static const char * func = __FUNCTION__;
 //	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 //	delete(msg);
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_flow_stats_request, morpheus::cflow_stats_session )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_flow_stats_request, morpheus::csh_flow_stats )
 }
 
 void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
@@ -405,14 +405,14 @@ void morpheus::handle_experimenter_stats_request(rofl::cofctl *src, rofl::cofmsg
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
-
+/*
 void morpheus::handle_table_mod(rofl::cofctl *src, rofl::cofmsg_table_mod *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::ctable_mod_session)
-}
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_table_mod)
+}*/
 void morpheus::handle_port_mod(rofl::cofctl *src, rofl::cofmsg_port_mod *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::cport_mod_session)
+	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_port_mod)
 }
 void morpheus::handle_queue_get_config_request(rofl::cofctl *src, rofl::cofmsg_queue_get_config_request *msg) {
 	static const char * func = __FUNCTION__;
@@ -425,17 +425,15 @@ void morpheus::handle_experimenter_message(rofl::cofctl *src, rofl::cofmsg_featu
 	delete(msg);
 }
 
-
+/*
 bool morpheus::add_flowmod_action_translation(const rofl::cofaclist & virt, const rofl::cofaclist & act) {
 	bool this_is_new_entry = (action_map.find(virt) == action_map.end());
 	action_map[virt] = act;
 	return this_is_new_entry;
 }
-
 bool morpheus::remove_flowmod_action_translation(const rofl::cofaclist & virt) {
 	return action_map.erase(virt);
 }
-
 // could throw std::out_of_range if virt_or_act is not found
 rofl::cofaclist morpheus::get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const {
 	if(virtual_to_actual) {
@@ -444,12 +442,12 @@ rofl::cofaclist morpheus::get_flowmod_action_translation(bool virtual_to_actual,
 	} else {
 		// do reverse lookup - see if virt_or_act is a value for any of the keys in action_map and return key;
 		for(std::map<rofl::cofaclist, rofl::cofaclist>::const_iterator i = action_map.begin(); i != action_map.begin(); ++i)
-			if(*i==virt_or_act) return *i;
+			if(i->second==virt_or_act) return i->first;
 		// not found
 		throw std::out_of_range();
 	}
 }
-
+*/
 
 std::string action_mask_to_string(const uint32_t action_types) {
 	std::string out;
