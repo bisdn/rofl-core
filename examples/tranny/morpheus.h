@@ -72,6 +72,8 @@ uint32_t m_supported_actions;
 uint32_t m_dpe_supported_actions;
 bool m_dpe_supported_actions_valid;
 
+std::map<rofl::cofaclist, rofl::cofaclist> action_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
+std::map<rofl::cofmatch, rofl::cofmatch> match_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
 
 bool indpt, inctl;
 rofl::caddress dptaddr, ctladdr;
@@ -134,6 +136,10 @@ public:
 	morpheus(const cportvlan_mapper & mapper, bool indpt, rofl::caddress dptaddr, bool inctl, rofl::caddress ctladdr);	// if indpt is true then morpheus will listen on dtpaddr, otherwise it will connect to it.
 	virtual ~morpheus();
 	const cportvlan_mapper & get_mapper() const { return m_mapper; }
+
+	bool add_flowmod_action_translation(const rofl::cofaclist & virt, const rofl::cofaclist & act);	// returns true if the new action overwrote an old entry
+	bool remove_flowmod_action_translation(const rofl::cofaclist & virt);
+	void get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const;
 
 uint32_t get_supported_actions();
 uint32_t get_supported_features() { return m_supported_features; }

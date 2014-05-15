@@ -204,8 +204,10 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 //	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
 ///	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633)); // for general floodlight use
 //	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "10.100.0.2", 6633)); // for the oftest config
-	if(inctl) rpc_listen_for_ctls(ctladdr);
-	else rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
+	if(!m_master){
+		if(inctl) rpc_listen_for_ctls(ctladdr);
+		else rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
+	}
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
@@ -215,7 +217,7 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	if(src!=m_slave) std::cout << "morpheus::handle_dpath_close: Was expecting " << (m_slave?m_slave->c_str():"NULL") << " but got " << (src?src->c_str():"NULL") << std::endl;
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	m_slave=0;	// TODO - m_slave ownership?
-	// must not disconnect from ctl
+
 	rpc_disconnect_from_ctl(m_master);
 //	init_dpe();
 // no need - we're still istening, apparently
@@ -388,8 +390,9 @@ void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_st
 void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_stats_request *msg) {
 // see ./examples/etherswitch/etherswitch.cc:95
 	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	delete(msg);
+//	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
+//	delete(msg);
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_flow_stats_request, morpheus::cflow_stats_session )
 }
 
 void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
@@ -421,6 +424,32 @@ void morpheus::handle_experimenter_message(rofl::cofctl *src, rofl::cofmsg_featu
 	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
+
+
+bool morpheus::add_flowmod_action_translation(const rofl::cofaclist & virt, const rofl::cofaclist & act) {
+	bool this_is_new_entry = (action_map.find(virt) == action_map.end());
+	action_map[virt] = act;
+	return this_is_new_entry;
+}
+
+bool morpheus::remove_flowmod_action_translation(const rofl::cofaclist & virt) {
+	return action_map.erase(virt);
+}
+
+// could throw std::out_of_range if virt_or_act is not found
+rofl::cofaclist morpheus::get_flowmod_action_translation(bool virtual_to_actual, const rofl::cofaclist & virt_or_act) const {
+	if(virtual_to_actual) {
+		// look up virtual action
+		return action_map.at(virt_or_act);
+	} else {
+		// do reverse lookup - see if virt_or_act is a value for any of the keys in action_map and return key;
+		for(std::map<rofl::cofaclist, rofl::cofaclist>::const_iterator i = action_map.begin(); i != action_map.begin(); ++i)
+			if(*i==virt_or_act) return *i;
+		// not found
+		throw std::out_of_range();
+	}
+}
+
 
 std::string action_mask_to_string(const uint32_t action_types) {
 	std::string out;

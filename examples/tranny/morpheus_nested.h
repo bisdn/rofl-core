@@ -81,6 +81,7 @@ std::cout << "TP" << __LINE__ << std::endl;
 	bool already_did_output = false;
 // now translate the action and the match
 	for(rofl::cofaclist::iterator a = inlist.begin(); a != inlist.end(); ++ a) {
+std::cout << "TP" << __LINE__ << std::endl;
 		uint32_t supported_actions = m_parent->get_supported_actions();
 		std::cout << __FUNCTION__ << " supported actions by underlying switch found to be: " << action_mask_to_string(supported_actions) << "." << std::endl;
 		if( ! ((1<<(be16toh(a->oac_header->type))) & supported_actions )) {
@@ -200,14 +201,19 @@ std::cout << "TP" << __LINE__ << std::endl;
 	
 	rofl::cofmatch newmatch = msg->get_match();
 	rofl::cofmatch oldmatch = newmatch;
-
+std::cout << "TP" << __LINE__ << std::endl;
 	//check that VLANs are wildcarded (i.e. not being matched on)
 	// TODO we *could* theoretically support incoming VLAN iff they are coming in on an port-translated-only port (i.e. a virtual port that doesn't map to a port+vlan, only a phsyical port), and that VLAN si then stripped in the action.
-	if(oldmatch.get_vlan_vid_mask() != 0xffff) {
-		std::cout << __FUNCTION__ << ": received a match which didn't have VLAN wildcarded. Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
-		m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
-		m_completed = true;
-		return m_completed;
+	try {
+		oldmatch.get_vlan_vid_mask();	// ignore result - we only care if it'll throw
+//		if(oldmatch.get_vlan_vid_mask() != 0xffff) {
+			std::cout << __FUNCTION__ << ": received a match which didn't have VLAN wildcarded. Sending error and dropping message. match:" << oldmatch.c_str() << std::endl;
+			m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+			m_completed = true;
+			return m_completed;
+//		}
+	} catch ( rofl::eOFmatchNotFound & ) {
+		// do nothing - there was no vlan_vid_mask
 	}
 std::cout << "TP" << __LINE__ << std::endl;
 	// make sure this is a valid port
@@ -248,7 +254,6 @@ std::cout << "TP" << __LINE__ << std::endl;
 }
 ~cflow_mod_session() { std::cout << __FUNCTION__ << " called." << std::endl; }
 };
-
 
 class morpheus::cfeatures_request_session : public morpheus::chandlersession_base {
 protected:
@@ -310,7 +315,7 @@ bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_featu
 			p.set_supported (feats);
 			p.set_state(0);	// link is up and ignoring STP
 			p.set_port_no(portno);
-			p.set_hwaddr(rofl::cmacaddr("00:B1:6B:00:B1:E5"));
+			p.set_hwaddr(rofl::cmacaddr("00:B1:6B:00:B1:E5"));	// This is wrong - it should follow the actual MAC
 			std::stringstream ss;
 			ss << "V_" << vport;
 			p.set_name(std::string(ss.str()));
@@ -380,6 +385,76 @@ bool process_desc_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_desc_stat
 }
 ~cdesc_stats_session() { std::cout << __FUNCTION__ << " called." << std::endl; }
 std::string asString() { std::stringstream ss; ss << "cdesc_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
+};
+
+class morpheus::cflow_stats_session : public morpheus::chandlersession_base {
+protected:
+uint32_t m_request_xid;
+public:
+cflow_stats_session(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent) {
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+	process_flow_stats_request(src, msg);
+	}
+bool process_flow_stats_request ( const rofl::cofctl * const src, const rofl::cofmsg_flow_stats_request * const msg ) {
+	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	m_request_xid = msg->get_xid();
+	rofl::cofmatch newmatch = msg->get_flow_stats().get_match();
+	rofl::cofmatch oldmatch = newmatch;
+
+std::cout << "TP" << __LINE__ << std::endl;
+	//check that VLANs are not being matched on
+	// TODO we *could*, but we don't, support incoming VLAN iff they are coming in on an port-translated-only port (i.e. a virtual port that doesn't map to a port+vlan, only a phsyical port), and that VLAN si then stripped in the action.
+	try {
+		oldmatch.get_vlan_vid_mask();	// ignore result - we only care if it'll throw
+//		if(oldmatch.get_vlan_vid_mask() != 0xffff) {
+			std::cout << __FUNCTION__ << ": received a match which didn't have VLAN wildcarded. Replying with blank stats response. match:" << oldmatch.c_str() << std::endl;
+			m_parent->send_flow_stats_reply( src, m_request_xid, std::vector< cofflow_stats_reply > (), false );
+			m_completed = true;
+			return m_completed;
+//		}
+	} catch ( rofl::eOFmatchNotFound & ) {
+		// do nothing - there was no vlan_vid_mask
+	}
+std::cout << "TP" << __LINE__ << std::endl;
+	// make sure this is a valid port
+	// TODO check whether port is ANY/ALL
+	uint32_t old_inport = oldmatch.get_in_port();
+std::cout << "TP" << __LINE__ << std::endl;
+	try {
+		cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( old_inport ); // could throw std::out_of_range
+		if(!real_port.vlanid_is_none()) {
+			// vlan is set in actual port - update the match
+			newmatch.set_vlan_vid( real_port.vlan );
+		}
+		// update port
+		newmatch.set_in_port( real_port.port );
+std::cout << "TP" << __LINE__ << std::endl;
+	} catch (std::out_of_range &) {
+		std::cout << __FUNCTION__ << ": received a match request for an unknown port (" << old_inport << "). There are " << mapper.get_number_virtual_ports() << " ports.  Sending null reply message. match:" << oldmatch.c_str() << std::endl;
+		m_parent->send_flow_stats_reply( src, m_request_xid, std::vector< cofflow_stats_reply > (), false );
+		m_completed = true;
+		return m_completed;
+	}
+	uint32_t new_outport, old_outport = msg->get_out_port();
+//	*** TODO update match according to new_outport
+	rofl::cofflow_stats_request req(OFP10_VERSION, newmatch, msg->get_table_id(), get_out_port());
+	uint32_t newxid = m_parent->send_flow_stats_request(m_parent->get_dpt(), msg->get_stats_flags(), req ); // TODO is get_stats_flags correct ??
+
+	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
+	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+	m_completed = false;
+	return m_completed;
+}
+bool process_flow_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_flow_stats_reply * const msg ) {
+	assert(!m_completed);
+	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	rofl::cofdesc_stats_reply reply(src->get_version(),"morpheus_mfr_desc","morpheus_hw_desc","morpheus_sw_desc","morpheus_serial_num","morpheus_dp_desc");
+	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );
+	m_completed = true;
+	return m_completed;
+}
+~cflow_stats_session() { std::cout << __FUNCTION__ << " called." << std::endl; }
+std::string asString() { std::stringstream ss; ss << "cflow_stats_session {request_xid=" << m_request_xid << "}"; return ss.str(); }
 };
 
 // TODO translation check
