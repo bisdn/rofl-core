@@ -171,7 +171,7 @@ uint32_t get_supported_features() { return m_supported_features; }
 std::string dump_sessions() const;
 std::string dump_config() const;
 friend std::ostream & operator<< (std::ostream & os, const morpheus & morph);
-friend chandlersession_base;
+// friend chandlersession_base;
 
 };
 
