@@ -18,6 +18,9 @@ std::string action_mask_to_string(const uint32_t action_types);
 std::string capabilities_to_string(const uint32_t capabilities);
 std::string port_as_string(uint16_t p);
 
+bool operator==(const rofl::cofaclist & a, const rofl::cofaclist & b);
+bool operator==(const rofl::cofaction & a, const rofl::cofaction & b);
+	
 class morpheus : public rofl::crofbase {
 
 public:
@@ -71,20 +74,63 @@ uint32_t m_supported_actions;
 uint32_t m_dpe_supported_actions;
 bool m_dpe_supported_actions_valid;
 
-std::map<rofl::cofaclist, rofl::cofaclist> action_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
-std::map<rofl::cofmatch, rofl::cofmatch> match_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
+// std::map<rofl::cofaclist, rofl::cofaclist> action_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
+// std::map<rofl::cofmatch, rofl::cofmatch> match_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
 
 struct flowentry {
 	rofl::cofmatch match;
 	rofl::cofaclist actions;
 	uint64_t cookie;
 	uint16_t idle_timeout;
-	uint16_t hardtime_timeout;
+	uint16_t hard_timeout;
 	uint16_t priority;
 	uint16_t flags;
+	bool match_is_set;
+	bool actions_is_set;
+	bool cookie_is_set;
+	bool idle_timeout_is_set;
+	bool hard_timeout_is_set;
+	bool priority_is_set;
+	bool flags_is_set;
+	flowentry(rofl::cofmatch & match_):match_is_set(true),actions_is_set(false),cookie_is_set(false),idle_timeout_is_set(false),hard_timeout_is_set(false),priority_is_set(false),flags_is_set(false) {}
+	flowentry & set_match(const rofl::cofmatch & match_) { match_is_set=true; match=match_; return *this; }
+	flowentry & set_actions(const rofl::cofaclist & actions_) { actions_is_set=true; actions=actions_; return *this; }
+	flowentry & set_cookie(const uint64_t cookie_) { cookie_is_set=true; cookie=cookie_; return *this; }
+	flowentry & set_idle_timeout(const uint16_t idle_timeout_) { idle_timeout_is_set=true; idle_timeout=idle_timeout_; return *this; }
+	flowentry & set_hard_timeout(const uint16_t hard_timeout_) { hard_timeout_is_set=true; hard_timeout=hard_timeout_; return *this; }
+	flowentry & set_priority(const uint16_t priority_) { priority_is_set=true; priority=priority_; return *this; }
+	flowentry & set_flags(const uint16_t flags_) { flags_is_set=true; flags=flags_; return *this; }
+	flowentry & unset_actions() { actions_is_set=false; return *this; }
+	flowentry & unset_cookie() { cookie_is_set=false; return *this; }
+	flowentry & unset_idle_timeout() { idle_timeout_is_set=false; return *this; }
+	flowentry & unset_hard_timeout() { hard_timeout_is_set=false; return *this; }
+	flowentry & unset_priority() { priority_is_set=false; return *this; }
+	flowentry & unset_flags() { flags_is_set=false; return *this; }
+	bool operator==(flowentry &b) { return ( \
+		( (match_is_set & b.match_is_set)?(match==b.match):true ) && \
+		( (actions_is_set & b.actions_is_set)?(actions==b.actions):true ) && \
+		( (cookie_is_set & b.cookie_is_set)?(cookie==b.cookie):true ) && \
+		( (idle_timeout_is_set & b.idle_timeout_is_set)?(idle_timeout==b.idle_timeout):true ) && \
+		( (hard_timeout_is_set & b.hard_timeout_is_set)?(hard_timeout==b.hard_timeout):true ) && \
+		( (priority_is_set & b.priority_is_set)?(priority==b.priority):true ) && \
+		( (flags_is_set & b.flags_is_set)?(flags==b.flags):true ) );
+	}
+		// TODO is cofmatch::contains the right call? Don;t bother check the docs - there aren't any
+	bool wildcard_match(flowentry &b) { return ( \
+		( (match_is_set & b.match_is_set)?match.contains(b.match):true ) && \
+		( (actions_is_set & b.actions_is_set)?(actions==b.actions):true ) && \
+		( (cookie_is_set & b.cookie_is_set)?(cookie==b.cookie):true ) && \
+		( (idle_timeout_is_set & b.idle_timeout_is_set)?(idle_timeout==b.idle_timeout):true ) && \
+		( (hard_timeout_is_set & b.hard_timeout_is_set)?(hard_timeout==b.hard_timeout):true ) && \
+		( (priority_is_set & b.priority_is_set)?(priority==b.priority):true ) && \
+		( (flags_is_set & b.flags_is_set)?(flags==b.flags):true ) );
+	}
+
 	};
 
-std::map< morpheus::flowentry, morpheus::flowentry > m_flowentry_db;	// value could also be std::vector<morpheus::flowentry> or this could just be a multimap
+//std::map< morpheus::flowentry, morpheus::flowentry > m_flowentry_db;	// value could also be std::vector<morpheus::flowentry> or this could just be a multimap
+typedef std::vector< std::pair<morpheus::flowentry, morpheus::flowentry> > flowentry_db_t;
+flowentry_db_t m_flowentry_db;
 
 bool indpt, inctl;
 rofl::caddress dptaddr, ctladdr;
@@ -156,12 +202,19 @@ public:
 	bool remove_flowmod_match_translation(const rofl::cofmatch & virt);
 	rofl::cofmatch get_flowmod_match_translation(bool virtual_to_actual, const rofl::cofmatch & virt_or_act) const;
 */
-	std::vector<morpheus::flowentry> getTranslatedFlowentry (rofl::cofmatch matchspec);	// returns empty vector if no matches
+/*	std::vector<morpheus::flowentry> getTranslatedFlowentry (rofl::cofmatch matchspec);	// returns empty vector if no matches
 	morpheus::flowentry getExactTranslatedFlowentry (rofl::cofmatch matchspec);	// throws std::out_of_range if not found
 	std::vector<morpheus::flowentry> getUnTranslatedFlowentry (rofl::cofmatch matchspec); // returns empty vector if no matches
 	morpheus::flowentry getExactUnTranslatedFlowentry (rofl::cofmatch matchspec); // throws std::out_of_range if not found
 	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );	// return true if added, false if such an untranslated entry already exists, and then doesn't overwrite
 	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );	// return true if removed, false if not found.	- if you want wildcarded remove on match then use alongside getTranslatedFlowentry
+*/
+	std::vector<morpheus::flowentry> getTranslatedFlowentry (const morpheus::flowentry & untranslated_flowentry);
+	morpheus::flowentry getExactTranslatedFlowentry (const morpheus::flowentry & untranslated_matchspec);
+	std::vector<morpheus::flowentry> getUnTranslatedFlowentry (const morpheus::flowentry & translated_matchspec);
+	morpheus::flowentry getExactUnTranslatedFlowentry (const morpheus::flowentry & translated_matchspec);
+	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );
+	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );
 
 
 uint32_t get_supported_actions();
@@ -171,7 +224,7 @@ uint32_t get_supported_features() { return m_supported_features; }
 std::string dump_sessions() const;
 std::string dump_config() const;
 friend std::ostream & operator<< (std::ostream & os, const morpheus & morph);
-friend chandlersession_base;
+// friend chandlersession_base;
 
 };
 

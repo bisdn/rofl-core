@@ -471,32 +471,37 @@ rofl::cofmatch morpheus::get_flowmod_match_translation(bool virtual_to_actual, c
 	}
 }
 */
+/*
+// returns empty vector if no matches
+std::vector<morpheus::flowentry_db_t::iterator> morpheus::getTranslatedFlowentry (const morpheus::flowentry & untranslated_flowentry) {
+	return std::vector<morpheus::flowentry>();
+}
+
+// throws std::range_error if not found
+morpheus::flowentry_db_t::iterator morpheus::getExactTranslatedFlowentry (const morpheus::flowentry & untranslated_flowspec){
+	throw std::range_error("entry not found, or more than one entry found in morpheus::getExactTranslatedFlowentry");
+}
 
 // returns empty vector if no matches
-std::vector<morpheus::flowentry> morpheus::getTranslatedFlowentry (rofl::cofmatch matchspec) {
+std::vector<morpheus::flowentry_db_t::iterator> morpheus::getUnTranslatedFlowentry (const morpheus::flowentry & translated_flowspec) {
 	return std::vector<morpheus::flowentry>();
 }
+
 // throws std::out_of_range if not found
-morpheus::flowentry morpheus::getExactTranslatedFlowentry (rofl::cofmatch matchspec){
-	throw std::out_of_range("entry not found in morpheus::getExactTranslatedFlowentry");
-}
-// returns empty vector if no matches
-std::vector<morpheus::flowentry> morpheus::getUnTranslatedFlowentry (rofl::cofmatch matchspec) {
-	return std::vector<morpheus::flowentry>();
-}
-// throws std::out_of_range if not found
-morpheus::flowentry morpheus::getExactUnTranslatedFlowentry (rofl::cofmatch matchspec) {
+morpheus::flowentry_db_t::iterator morpheus::getExactUnTranslatedFlowentry (const morpheus::flowentry & translated_flowspec) {
 	throw std::out_of_range("entry not found in morpheus::getExactUnTranslatedFlowentry");
 }
+
 // return true if added, false if such an untranslated entry already exists, and then doesn't overwrite
 bool morpheus::addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated ) {
-	return false;
-}
-// return true if removed, false if not found.	- if you want wildcarded remove on match then use alongside getTranslatedFlowentry
-bool morpheus::removeFlowentryTranslation ( const morpheus::flowentry & untranslated ) {
-	return false;
+//	return m_flowentry_db.insert(std::make_pair(untranslated,translated)).second;
 }
 
+// returns the number of removed entries
+template <InputIterator T> size_t morpheus::removeFlowentryTranslation ( I begin, I end ) {
+//	return m_flowentry_db.erase(untranslated);
+}
+*/
 
 std::string action_mask_to_string(const uint32_t action_types) {
 	std::string out;
@@ -530,14 +535,24 @@ std::string capabilities_to_string(uint32_t capabilities) {
 	return out;
 }
 
-
-
-namespace std {
+namespace std {	// TODO untested
 
 bool operator==(const rofl::cofaclist & a, const rofl::cofaclist & b) {
 	if(a.length()!=b.length()) return false;
 	return std::equal(a.begin(), a.end(), b.begin());
 	}
+/*
+bool operator<(const rofl::cofaclist & a, const rofl::cofaclist & b) {
+	size_t a_len = a.length(), b_len = b.length();
+	if(a_len<b_len) return true;
+	if(a_len>b_len) return false;
+	// return std::equal(a.begin(), a.end(), b.begin());
+	rofl::cofaclist::const_iterator a_i = a.begin(), b_i = b.begin();
+	while(a_i != a.end()) {
+		if(*a_i<)
+	}
+	}
+*/
 
 bool operator==(const rofl::cofaction & a, const rofl::cofaction & b) {
 	if(a.get_type()!=b.get_type()) return false;
