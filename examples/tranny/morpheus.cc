@@ -530,3 +530,96 @@ std::string capabilities_to_string(uint32_t capabilities) {
 	return out;
 }
 
+
+
+namespace std {
+
+bool operator==(const rofl::cofaclist & a, const rofl::cofaclist & b) {
+	if(a.length()!=b.length()) return false;
+	return std::equal(a.begin(), a.end(), b.begin());
+	}
+
+bool operator==(const rofl::cofaction & a, const rofl::cofaction & b) {
+	if(a.get_type()!=b.get_type()) return false;
+	
+	switch (a.get_type()) {
+		case OFP10AT_STRIP_VLAN: {
+			// no fields present in struct - nothing to compare other than type, which was already done
+			return true;
+			} break;
+		case OFP10AT_OUTPUT: {
+			struct ofp10_action_output * a_ = (struct ofp10_action_output*)a.soaction();
+			struct ofp10_action_output * b_ = (struct ofp10_action_output*)b.soaction();
+			// no padding to clear
+			// return ( *a_ == *b_ );
+			return std::equal((uint8_t *)a_, ((uint8_t *)a_)+sizeof(struct ofp10_action_output), (uint8_t *)b_);
+			} break;
+		case OFP10AT_SET_NW_SRC:
+		case OFP10AT_SET_NW_DST: {
+			struct ofp10_action_nw_addr *a_ = (struct ofp10_action_nw_addr*)a.soaction();
+			struct ofp10_action_nw_addr *b_ = (struct ofp10_action_nw_addr*)b.soaction();
+			// no padding to clear
+			return std::equal((uint8_t *)a_, ((uint8_t *)a_)+sizeof(struct ofp10_action_nw_addr), (uint8_t *)b_);
+		} break;
+		case OFP10AT_SET_VLAN_VID: {
+			struct ofp10_action_vlan_vid a_ = *(struct ofp10_action_vlan_vid*)a.soaction();
+			struct ofp10_action_vlan_vid b_ = *(struct ofp10_action_vlan_vid*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			//return ( a_ == b_ );
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_vlan_vid), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_VLAN_PCP: {
+			struct ofp10_action_vlan_pcp a_ = *(struct ofp10_action_vlan_pcp*)a.soaction();
+			struct ofp10_action_vlan_pcp b_ = *(struct ofp10_action_vlan_pcp*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_vlan_pcp), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_DL_SRC:
+		case OFP10AT_SET_DL_DST: {
+			struct ofp10_action_dl_addr a_ = *(struct ofp10_action_dl_addr*)a.soaction();
+			struct ofp10_action_dl_addr b_ = *(struct ofp10_action_dl_addr*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_dl_addr), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_NW_TOS: {
+			struct ofp10_action_nw_tos a_ = *(struct ofp10_action_nw_tos*)a.soaction();
+			struct ofp10_action_nw_tos b_ = *(struct ofp10_action_nw_tos*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_nw_tos), (uint8_t *)&b_);
+		} break;
+		case OFP10AT_SET_TP_SRC:
+		case OFP10AT_SET_TP_DST: {
+			struct ofp10_action_tp_port a_ = *(struct ofp10_action_tp_port*)a.soaction();
+			struct ofp10_action_tp_port b_ = *(struct ofp10_action_tp_port*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_tp_port), (uint8_t *)&b_);
+		} break;
+		case OFP10AT_ENQUEUE: {
+			struct ofp10_action_enqueue a_ = *(struct ofp10_action_enqueue*)a.soaction();
+			struct ofp10_action_enqueue b_ = *(struct ofp10_action_enqueue*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_enqueue), (uint8_t *)&b_);
+		} break;
+		default:
+			std::cout << __FUNCTION__ << " was asked to compare unknown action type." << std::endl;
+			assert(false);
+	}
+	assert (false);	// should never get here.
+	return false;
+}
+
+}	// namepsace std
+
+
