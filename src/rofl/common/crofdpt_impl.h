@@ -158,7 +158,13 @@ public:
 	 * @brief	Returns a reference to the associated crofchan instance
 	 */
 	virtual crofchan&
-	get_channel() { return rofchan; };
+	set_channel() { return rofchan; };
+
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	virtual crofchan const&
+	get_channel() const { return rofchan; };
 
 	/**
 	 * @brief	Returns true, when the OFP control channel is up

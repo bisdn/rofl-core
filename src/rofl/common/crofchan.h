@@ -9,6 +9,7 @@
 #define CROFCHAN_H_
 
 #include <map>
+#include <bitset>
 #include <inttypes.h>
 
 #include "rofl/common/croflexception.h"
@@ -17,6 +18,7 @@
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
+#include "rofl/common/ctimerid.h"
 
 namespace rofl {
 
@@ -46,6 +48,7 @@ class crofchan :
 	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
 	rofl::openflow::cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
 	uint8_t								ofp_version;		// OFP version negotiated
+	std::bitset<32>						flags;
 
 	enum crofchan_event_t {
 		EVENT_NONE				= 0,
@@ -65,11 +68,15 @@ class crofchan :
 		TIMER_RECONNECT			= 1,
 	};
 
+	enum crofchan_flag_t {
+		FLAG_RECONNECTING		= 1,
+	};
+
 	int									reconnect_start_timeout;
 	int 								reconnect_in_seconds; 	// reconnect in x seconds
 	int									reconnect_variance;
 	int 								reconnect_counter;
-	uint32_t							reconnect_timer_id;
+	ctimerid							reconnect_timer_id;
 
 #define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
 #define CROFCHAN_RECONNECT_VARIANCE_IN_SECS 2
@@ -141,40 +148,59 @@ public:
 	 *
 	 */
 	void
-	clear();
-
-	/**
-	 *
-	 */
-	void
-	add_conn(uint8_t aux_id,
-			int reconnect_start_timeout,
-			enum rofl::csocket::socket_type_t socket_type,
-			cparams const& socket_params);
-
-	/**
-	 *
-	 */
-	void
-	add_conn(crofconn* conn, uint8_t aux_id);
-
-	/**
-	 *
-	 */
-	crofconn&
-	get_conn(uint8_t aux_id);
-
-	/**
-	 *
-	 */
-	void
-	drop_conn(uint8_t aux_id);
+	close();
 
 	/**
 	 *
 	 */
 	void
 	send_message(rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
+
+
+	/**
+	 * @brief	Add a new connection while creating a new crofconn instance and do a socket connect.
+	 */
+	crofconn&
+	add_conn(
+			uint8_t aux_id,
+			enum rofl::csocket::socket_type_t socket_type,
+			cparams const& socket_params);
+
+	/**
+	 * @brief 	Add a new connection with an existing crofconn instance obtained from a listening socket.
+	 */
+	crofconn&
+	add_conn(
+			uint8_t aux_id, crofconn* conn);
+
+	/**
+	 *
+	 */
+	crofconn&
+	set_conn(
+			uint8_t aux_id);
+
+	/**
+	 *
+	 */
+	crofconn const&
+	get_conn(
+			uint8_t aux_id) const;
+
+	/**
+	 *
+	 */
+	void
+	drop_conn(
+			uint8_t aux_id);
+
+	/**
+	 *
+	 */
+	bool
+	has_conn(
+			uint8_t aux_id) const;
+
 
 private:
 

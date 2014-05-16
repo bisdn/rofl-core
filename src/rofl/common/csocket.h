@@ -28,7 +28,8 @@
 namespace rofl {
 
 class eSocketBase		: public RoflException {};
-class eSocketAgain		: public eSocketBase {};
+class eSocketRxAgain		: public eSocketBase {};
+class eSocketTxAgain		: public eSocketBase {};
 class eSocketNotConnected	: public eSocketBase {};
 class eSocketTypeNotFound	: public eSocketBase {};
 class eSocketParamNotFound	: public eSocketBase {};
@@ -327,7 +328,7 @@ public:
 	 *
 	 */
 	virtual bool
-	is_connected() const = 0;
+	is_established() const = 0;
 
 public:
 
@@ -455,8 +456,8 @@ public:
 			<< "type:" << sock.type << " "
 			<< "protocol:" << sock.protocol << " ";
 		os << ">" << std::endl;
-		os << rofl::indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
-		os << rofl::indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
+		os << rofl::indent(2) << "<raddr: " << sock.raddr << ":" << "TODO" << " >" << std::endl;
+		os << rofl::indent(2) << "<laddr: " << sock.laddr << ":" << "TODO" << " >" << std::endl;
 		rofl::indent i(2);
 		//os << sock.socket_params;
 		return os;

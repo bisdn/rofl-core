@@ -35,7 +35,7 @@ crofctl_impl::crofctl_impl(
 				transactions(this)
 {
 	async_config = rofbase->async_config_role_default_template;
-	rofchan.add_conn(/*aux-id=*/0, newsd);
+	//rofchan.add_conn(/*aux-id=*/0, newsd);
 }
 
 
@@ -54,7 +54,7 @@ crofctl_impl::crofctl_impl(
 				transactions(this)
 {
 	async_config = rofbase->async_config_role_default_template;
-	rofchan.add_conn(/*aux-id=*/0, reconnect_start_timeout, socket_type, socket_params);
+	rofchan.add_conn(/*aux-id=*/0, socket_type, socket_params);
 }
 
 

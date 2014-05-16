@@ -14,7 +14,7 @@ ctransactions::ctransactions(
 				env(env),
 				nxid(crandom(sizeof(uint32_t)).uint32()),
 				work_interval(1),
-				ta_queue_timer_id(0)
+				ta_queue_timer_id()
 {
 	//std::cerr << "ctransactions CONSTRUCTOR: " << std::hex << (int*)this << std::dec << std::endl;
 }

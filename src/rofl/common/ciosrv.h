@@ -302,7 +302,7 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	uint32_t
+	ctimerid const&
 	register_timer(int opaque, time_t t);
 
 	/**
@@ -314,8 +314,8 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	uint32_t
-	reset_timer(uint32_t timer_id, time_t t);
+	ctimerid const&
+	reset_timer(ctimerid const& timer_id, time_t t);
 
 	/**
 	 * @brief	Checks for a pending timer of type opaque.
@@ -324,7 +324,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(uint32_t timer_id);
+	pending_timer(ctimerid const& timer_id);
 
 	/**
 	 * @brief	Cancels a pending timer.
@@ -332,7 +332,7 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(uint32_t timer_id);
+	cancel_timer(ctimerid const& timer_id);
 
 	/**
 	 * @brief	Cancels all pending timer of this instance.

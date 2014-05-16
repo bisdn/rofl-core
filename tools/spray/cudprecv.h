@@ -17,6 +17,7 @@
 
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/csocket.h>
+#include <rofl/common/ctimerid.h>
 
 #include "cudpmsg.h"
 #include "ctimeval.h"
@@ -47,6 +48,7 @@ class cudprecv :
 	uint64_t			rxlost;
 	uint64_t			rxbytes;
 	int					pktcnt;
+	rofl::ctimerid		stats_timerid;
 
 	enum cudprecv_timer_t {
 		CUDPRECV_TIMER_PRINT_STATS = 1,

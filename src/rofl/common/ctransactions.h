@@ -15,6 +15,7 @@
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/ctransaction.h"
 #include "rofl/common/crandom.h"
+#include "rofl/common/ctimerid.h"
 
 namespace rofl {
 
@@ -37,7 +38,7 @@ class ctransactions :
 	uint32_t					nxid;			// next xid
 	unsigned int				work_interval; 	// time interval for checking work-queue
 	PthreadRwLock				queuelock;		// rwlock for work-queue
-	uint32_t					ta_queue_timer_id;
+	ctimerid					ta_queue_timer_id;
 
 	enum ctransactions_timer_t {
 		TIMER_WORK_ON_TA_QUEUE 	= 1,	// lookup all expired TAs in list

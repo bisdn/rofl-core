@@ -237,7 +237,7 @@ public:
 	 *
 	 */
 	virtual bool
-	is_connected() const { return socket_flags.test(FLAG_SSL_ESTABLISHED); };
+	is_established() const { return socket_flags.test(FLAG_SSL_ESTABLISHED); };
 
 
 	/**

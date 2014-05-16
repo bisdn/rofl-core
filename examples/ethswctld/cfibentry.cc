@@ -21,7 +21,7 @@ cfibentry::cfibentry(
 		rofbase(rofbase),
 		dpt(dpt),
 		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT),
-		expiration_timer_id(0)
+		expiration_timer_id()
 {
 	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
 }

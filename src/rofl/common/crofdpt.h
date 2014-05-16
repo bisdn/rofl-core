@@ -122,7 +122,15 @@ public:
 	 * @return
 	 */
 	virtual crofchan&
-	get_channel() = 0;
+	set_channel() = 0;
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan const&
+	get_channel() const = 0;
 
 
 public:

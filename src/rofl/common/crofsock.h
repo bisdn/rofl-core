@@ -229,8 +229,8 @@ public:
 	/**
 	 *
 	 */
-	csocket&
-	get_socket();
+	csocket const&
+	get_socket() const;
 
 
 	/**
@@ -239,6 +239,12 @@ public:
 	void
 	send_message(
 			rofl::openflow::cofmsg *msg);
+
+	/**
+	 *
+	 */
+	bool
+	is_established() const { return socket->is_established(); };
 
 private:
 
@@ -402,8 +408,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofsock const& rofsock) {
-		os << indent(0) << "<crofsock >" << std::endl;
-		{ indent i(2); os << *(rofsock.socket); }
+		os << indent(0) << "<crofsock: transport-connection-established: " << rofsock.get_socket().is_established() << ">" << std::endl;
 		return os;
 	};
 };

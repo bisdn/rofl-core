@@ -393,7 +393,7 @@ crofbase::handle_connected(
 	 */
 	try {
 
-		crofdpt::get_dpt(conn->get_dpid()).get_channel().add_conn(conn, conn->get_aux_id());
+		crofdpt::get_dpt(conn->get_dpid()).set_channel().add_conn(conn->get_aux_id(), conn);
 
 	} catch (eRofDptNotFound& e) {
 
@@ -403,7 +403,7 @@ crofbase::handle_connected(
 		logging::info << "[rofl][base] new dpt representing handle created for dpid:"
 				<< conn->get_dpid() << std::endl;
 
-		dpt->get_channel().add_conn(conn, conn->get_aux_id());
+		dpt->set_channel().add_conn(conn->get_aux_id(), conn);
 	}
 }
 

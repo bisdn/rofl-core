@@ -17,6 +17,7 @@
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
 #include "rofl/common/csegmentation.h"
+#include "rofl/common/ctimerid.h"
 
 namespace rofl {
 
@@ -52,7 +53,6 @@ class crofconn :
 	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
 	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
-	std::map<int, uint32_t>			timer_ids;				// timer-ids obtained from ciosrv
 	csegmentation					sar;					// segmentation and reassembly for multipart messages
 	size_t							fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
 
@@ -79,8 +79,9 @@ class crofconn :
 		EVENT_FEATURES_EXPIRED	= 6,
 		EVENT_ECHO_RCVD			= 7,
 		EVENT_ECHO_EXPIRED		= 8,
+		EVENT_NEED_LIFE_CHECK	= 9,
 	};
-	std::deque<enum crofconn_event_t> 	events;
+	std::deque<enum crofconn_event_t> 		events;
 
 	enum crofconn_state_t {
 		STATE_DISCONNECTED 		= 1,
@@ -89,14 +90,15 @@ class crofconn :
 		STATE_WAIT_FOR_FEATURES = 4,
 		STATE_ESTABLISHED 		= 5,
 	};
-	enum crofconn_state_t				state;
+	enum crofconn_state_t					state;
 
 	enum crofconn_timer_t {
 		TIMER_WAIT_FOR_HELLO	= 1,
 		TIMER_WAIT_FOR_FEATURES = 2,
-		TIMER_SEND_ECHO			= 3,
+		TIMER_NEED_LIFE_CHECK	= 3,
 		TIMER_WAIT_FOR_ECHO		= 4,
 	};
+	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
 
 	enum crofconn_flags_t {
 		FLAGS_PASSIVE			= 1,
@@ -105,8 +107,8 @@ class crofconn :
 	};
 
 #define DEFAULT_HELLO_TIMEOUT	5
-#define DEFAULT_ECHO_TIMEOUT 	5
-#define DEFAULT_ECHO_INTERVAL	10
+#define DEFAULT_ECHO_TIMEOUT 	60
+#define DEFAULT_ECHO_INTERVAL	60
 
 public:
 
@@ -199,8 +201,8 @@ public:
 	/**
 	 * @brief
 	 */
-	crofsock&
-	get_rofsocket() { return rofsock; };
+	crofsock const&
+	get_rofsocket() const { return rofsock; };
 
 	/**
 	 * @brief	Send OFP message via socket
@@ -292,6 +294,12 @@ private:
 	 */
 	void
 	event_echo_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_need_life_check();
 
 	/**
 	 *
@@ -424,12 +432,92 @@ private:
 	fragment_port_desc_stats_reply(
 			rofl::openflow::cofmsg_port_desc_stats_reply *msg);
 
+	/**
+	 *
+	 */
+	void
+	timer_start(
+			crofconn_timer_t type, time_t time);
+
+	/**
+	 *
+	 */
+	void
+	timer_stop(
+			crofconn_timer_t type);
+
+	/**
+	 *
+	 */
+	void
+	timer_start_life_check() {
+		timer_start(TIMER_NEED_LIFE_CHECK, echo_interval);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_stop_life_check() {
+		timer_stop(TIMER_NEED_LIFE_CHECK);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_start_wait_for_hello() {
+		timer_start(TIMER_WAIT_FOR_HELLO, hello_timeout);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_stop_wait_for_hello() {
+		timer_stop(TIMER_WAIT_FOR_HELLO);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_start_wait_for_features() {
+		timer_start(TIMER_WAIT_FOR_FEATURES, echo_interval);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_stop_wait_for_features() {
+		timer_stop(TIMER_WAIT_FOR_FEATURES);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_start_wait_for_echo() {
+		timer_start(TIMER_WAIT_FOR_ECHO, echo_timeout);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_stop_wait_for_echo() {
+		timer_stop(TIMER_WAIT_FOR_ECHO);
+	};
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofconn const& conn) {
 		os << indent(0) << "<crofconn ofp-version:" << (int)conn.ofp_version
-				<< " aux-id:" << (int)conn.auxiliary_id << " >" << std::endl;
+				<< " aux-id:" << (int)conn.auxiliary_id
+				<< " OFP-transport-connection-established:" << conn.rofsock.is_established()
+				<< " >" << std::endl;
 		if (conn.state == STATE_DISCONNECTED) {
 			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
 		}
@@ -443,7 +531,6 @@ public:
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
 		}
 
-		{ indent i(2); os << (conn.rofsock); }
 		os << indent(2) << "<versionbitmap-local: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap; }
 		os << indent(2) << "<versionbitmap-remote: >" << std::endl;

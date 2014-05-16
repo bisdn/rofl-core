@@ -22,7 +22,7 @@ crofconn::crofconn(
 				state(STATE_DISCONNECTED),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
-				echo_interval(DEFAULT_ECHO_INTERVAL)
+				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
 {
 
 }
@@ -31,9 +31,9 @@ crofconn::crofconn(
 
 crofconn::~crofconn()
 {
-	//if (STATE_DISCONNECTED != state) {
-	//	run_engine(EVENT_DISCONNECTED);
-	//}
+	if (STATE_DISCONNECTED != state) {
+		close();
+	}
 }
 
 
@@ -83,6 +83,9 @@ crofconn::close()
 		return;
 	}
 	state = STATE_DISCONNECTED;
+	while (not timer_ids.empty()) {
+		timer_stop(timer_ids.begin()->first);
+	}
 	rofsock.close();
 }
 
@@ -96,9 +99,8 @@ crofconn::handle_timeout(
 	case TIMER_WAIT_FOR_HELLO: {
 		run_engine(EVENT_HELLO_EXPIRED);
 	} break;
-	case TIMER_SEND_ECHO: {
-		action_send_echo_request();
-		timer_ids[TIMER_WAIT_FOR_ECHO] = register_timer(TIMER_WAIT_FOR_ECHO, echo_timeout);
+	case TIMER_NEED_LIFE_CHECK: {
+		run_engine(EVENT_NEED_LIFE_CHECK);
 	} break;
 	case TIMER_WAIT_FOR_ECHO: {
 		run_engine(EVENT_ECHO_EXPIRED);
@@ -134,6 +136,7 @@ crofconn::run_engine(crofconn_event_t event)
 		case EVENT_FEATURES_EXPIRED:event_features_expired();	return;
 		case EVENT_ECHO_RCVD:		event_echo_rcvd();			break;
 		case EVENT_ECHO_EXPIRED:	event_echo_expired();		return;
+		case EVENT_NEED_LIFE_CHECK: event_need_life_check();	break;
 		default: {
 			logging::error << "[rofl][conn] unknown event seen, internal error" << std::endl << *this;
 		};
@@ -152,11 +155,8 @@ crofconn::event_connected()
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		state = STATE_WAIT_FOR_HELLO;
+		timer_start_wait_for_hello();
 		action_send_hello_message();
-		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
-			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
-		}
-		timer_ids[TIMER_WAIT_FOR_HELLO] = register_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
 
 	} break;
 	default: {
@@ -188,45 +188,12 @@ crofconn::event_disconnected()
 	case STATE_ESTABLISHED:
 	default: {
 		state = STATE_DISCONNECTED;
-		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
-			cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
-		}
-		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
-			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
-		}
+		timer_stop_wait_for_echo();
+		timer_stop_wait_for_hello();
 		rofsock.close();
 		env->handle_closed(this);
 	};
 	}
-
-#if 0
-	switch (state) {
-	case STATE_DISCONNECTED: {
-
-	} break;
-	case STATE_CONNECT_PENDING: {
-		if (not flags.test(FLAGS_PASSIVE)) {
-			env->handle_connect_refused(this);
-		}
-	} break;
-	case STATE_WAIT_FOR_HELLO:
-	case STATE_ESTABLISHED: {
-		state = STATE_DISCONNECTED;
-		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
-			cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
-		}
-		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
-			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
-		}
-		rofsock.close();
-		env->handle_closed(this);
-
-	} break;
-	default: {
-		logging::error << "[rofl][conn] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
-	};
-	}
-#endif
 }
 
 
@@ -237,32 +204,30 @@ crofconn::event_hello_rcvd()
 	switch (state) {
 	case STATE_DISCONNECTED: {
 		state = STATE_WAIT_FOR_HELLO;
+		timer_start_wait_for_hello();
 		action_send_hello_message();
-		timer_ids[TIMER_WAIT_FOR_HELLO] = register_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
 
 	} break;
 	case STATE_WAIT_FOR_HELLO: {
 
-		cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+		timer_stop_wait_for_hello();
 
 		if (flags.test(FLAGS_PASSIVE)) {
 			state = STATE_WAIT_FOR_FEATURES;
-			action_send_features_request();
 
-			if (timer_ids.find(TIMER_WAIT_FOR_FEATURES) != timer_ids.end()) {
-				cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
-			}
-			timer_ids[TIMER_WAIT_FOR_FEATURES] = register_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
+			logging::info << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
+
+			action_send_features_request();
+			timer_start_wait_for_features();
 
 		} else {
 			state = STATE_ESTABLISHED;
 
-			if (timer_ids.find(TIMER_SEND_ECHO) != timer_ids.end()) {
-				cancel_timer(timer_ids[TIMER_SEND_ECHO]);
-			}
-			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval * (1 + crandom::draw_random_number()));
+			logging::info << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
+
 			env->handle_connected(this, ofp_version);
 		}
+
 
 	} break;
 	case STATE_ESTABLISHED: {
@@ -301,8 +266,7 @@ crofconn::event_features_rcvd()
 		if (flags.test(FLAGS_PASSIVE)) {
 			state = STATE_ESTABLISHED;
 			cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
-
-			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval * (1 + crandom::draw_random_number()));
+			timer_ids.erase(TIMER_WAIT_FOR_FEATURES);
 
 			env->handle_connected(this, ofp_version);
 		}
@@ -324,12 +288,12 @@ crofconn::event_features_expired()
 {
 	switch (state) {
 	case STATE_WAIT_FOR_FEATURES: {
-		logging::warn << "[rofl][conn] event -FEATURES-EXPIRED- occured in state -WAIT-FOR-FEATURES-" << std::endl << *this;
+		rofl::logging::warn << "[rofl][conn] event -FEATURES-EXPIRED- occured in state -WAIT-FOR-FEATURES-" << std::endl << *this;
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
 	default: {
-		logging::error << "[rofl][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -340,8 +304,9 @@ crofconn::event_echo_rcvd()
 {
 	switch (state) {
 	case STATE_ESTABLISHED: {
-		cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
-		timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
+		timer_stop_wait_for_echo();
+		rofl::logging::debug << "[rofl][conn] event-echo-rcvd; OFP transport connection is good." << std::endl << *this;
+		// do not restart TIMER_NEED_LIFE_CHECK here => ::recv()
 
 	} break;
 	default: {
@@ -357,14 +322,23 @@ crofconn::event_echo_expired()
 {
 	switch (state) {
 	case STATE_ESTABLISHED: {
-		logging::warn << "[rofl][conn] ECHO.reply timer expired " << std::endl << *this;
+		rofl::logging::warn << "[rofl][conn] event-echo-expired: OFP transport connection is congested or dead. Closing. " << std::endl << *this;
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
 	default: {
-		logging::error << "[rofl][conn] event -ECHO.reply-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] event -ECHO.reply-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
 	};
 	}
+}
+
+
+
+void
+crofconn::event_need_life_check()
+{
+	rofl::logging::debug << "[rofl][conn] event-need-life-check" << std::endl;
+	action_send_echo_request();
 }
 
 
@@ -399,7 +373,7 @@ crofconn::action_send_hello_message()
 						env->get_async_xid(this),
 						body.somem(), body.memlen());
 
-		logging::error << "[rofl][conn] sending HELLO.message:" << std::endl << *hello;
+		rofl::logging::error << "[rofl][conn] sending HELLO.message:" << std::endl << *hello;
 
 		rofsock.send_message(hello);
 
@@ -426,17 +400,17 @@ crofconn::action_send_features_request()
 		rofl::openflow::cofmsg_features_request *request =
 				new rofl::openflow::cofmsg_features_request(ofp_version, env->get_async_xid(this));
 
-		logging::error << "[rofl][conn] sending FEATURES.request:" << std::endl << *request;
+		rofl::logging::error << "[rofl][conn] sending FEATURES.request:" << std::endl << *request;
 
 		rofsock.send_message(request);
 
 	} catch (eRofConnXidSpaceExhausted& e) {
 
-		logging::error << "[rofl][conn] sending FEATURES.request failed: no idle xid available" << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] sending FEATURES.request failed: no idle xid available" << std::endl << *this;
 
 	} catch (RoflException& e) {
 
-		logging::error << "[rofl][conn] sending FEATURES.request failed " << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] sending FEATURES.request failed " << std::endl << *this;
 
 	}
 }
@@ -452,15 +426,25 @@ crofconn::action_send_echo_request()
 						ofp_version,
 						env->get_sync_xid(this, OFPT_ECHO_REQUEST));
 
+		rofl::logging::debug << "[rofl][conn] sending Echo.request" << std::endl;
+
 		rofsock.send_message(echo);
+
+		timer_start_wait_for_echo();
 
 	} catch (eRofConnXidSpaceExhausted& e) {
 
-		logging::error << "[rofl][conn] sending ECHO.request failed: no idle xid available" << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] sending ECHO.request failed: no idle xid available" << std::endl << *this;
+		timer_start_life_check();
+
+	} catch (eSocketTxAgain& e) {
+
+		rofl::logging::error << "[rofl][conn] sending ECHO.request failed: socket full" << std::endl << *this;
+		timer_start_life_check();
 
 	} catch (RoflException& e) {
 
-		logging::error << "[rofl][conn] sending ECHO.request failed " << std::endl << *this;
+		rofl::logging::error << "[rofl][conn] sending ECHO.request failed " << std::endl << *this;
 	}
 }
 
@@ -469,7 +453,7 @@ crofconn::action_send_echo_request()
 void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
-	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
+	logging::warn << "[rofl][conn] OFP socket indicated transport connection refused." << std::endl << *this;
 	flags.set(FLAGS_CONNECT_REFUSED);
 	run_engine(EVENT_DISCONNECTED);
 }
@@ -479,7 +463,7 @@ crofconn::handle_connect_refused(crofsock *endpnt)
 void
 crofconn::handle_connect_failed(crofsock *endpnt)
 {
-	logging::warn << "[rofl][conn] OFP socket indicated connection failed." << std::endl << *this;
+	logging::warn << "[rofl][conn] OFP socket indicated transport connection failed." << std::endl << *this;
 	flags.set(FLAGS_CONNECT_FAILED);
 	run_engine(EVENT_DISCONNECTED);
 }
@@ -489,7 +473,7 @@ crofconn::handle_connect_failed(crofsock *endpnt)
 void
 crofconn::handle_connected (crofsock *endpnt)
 {
-	logging::warn << "[rofl][conn] OFP socket indicated connection established." << std::endl << *this;
+	logging::warn << "[rofl][conn] OFP socket indicated transport connection established." << std::endl << *this;
 	run_engine(EVENT_CONNECTED);
 }
 
@@ -498,7 +482,7 @@ crofconn::handle_connected (crofsock *endpnt)
 void
 crofconn::handle_closed(crofsock *endpnt)
 {
-	logging::warn << "[rofl][conn] OFP socket indicated connection closed." << std::endl << *this;
+	logging::warn << "[rofl][conn] OFP socket indicated transport connection closed." << std::endl << *this;
 	run_engine(EVENT_DISCONNECTED);
 }
 
@@ -516,6 +500,9 @@ crofconn::recv_message(
 		delete msg; return;
 	}
 
+	// reset timer for transmitting next Echo.request, if we have seen a life signal from our peer
+	timer_start_life_check();
+
 	switch (msg->get_type()) {
 	case OFPT_HELLO: {
 		hello_rcvd(msg);
@@ -524,17 +511,9 @@ crofconn::recv_message(
 		error_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REQUEST: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_request_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_reply_rcvd(msg);
 	} break;
 	case OFPT_FEATURES_REPLY: {
@@ -542,10 +521,6 @@ crofconn::recv_message(
 	} break;
 	case OFPT_MULTIPART_REQUEST:
 	case OFPT_MULTIPART_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		/*
 		 * add multipart support here for receiving messages
 		 */
@@ -622,6 +597,8 @@ crofconn::hello_rcvd(
 
 	logging::info << "[rofl][conn] received HELLO message:" << std::endl << *hello;
 
+	timer_stop_wait_for_hello();
+
 	try {
 
 		/* Step 1: extract version information from HELLO message */
@@ -669,7 +646,6 @@ crofconn::hello_rcvd(
 			logging::warn << "[rofl][conn] no common OFP version supported, closing connection." << std::endl << *this;
 			run_engine(EVENT_DISCONNECTED);
 		} else {
-			logging::info << "[rofl][conn] connection established." << std::endl << *this;
 			run_engine(EVENT_HELLO_RCVD);
 		}
 
@@ -749,6 +725,8 @@ crofconn::echo_reply_rcvd(
 			logging::debug << "[rofl][conn] invalid message rcvd in method echo_reply_rcvd()" << std::endl << *msg;
 			delete msg; return;
 		}
+
+		rofl::logging::debug << "[rofl][conn] received Echo.reply" << std::endl;
 
 		env->release_sync_xid(this, msg->get_xid());
 
@@ -1326,5 +1304,52 @@ crofconn::fragment_port_desc_stats_reply(
 
 	delete msg;
 }
+
+
+
+void
+crofconn::timer_start(
+		crofconn_timer_t type, time_t time)
+{
+	timer_stop(type);
+	ctimerid const& tid = register_timer(type, time);
+	timer_ids[type] = tid;
+#if 0
+	rofl::logging::debug << "[rofl][conn] timer-start, registered timer-id: " << std::endl << tid;
+	rofl::logging::debug << "[rofl][conn] timer-start, registered timer-id: " << std::endl << timer_ids[type];
+
+	rofl::logging::debug << "[rofl][conn] timer-start: " << timer_ids.size() << " <=======================>" << std::endl;
+	rofl::indent i(2);
+	for (std::map<crofconn_timer_t, ctimerid>::iterator
+			it = timer_ids.begin(); it != timer_ids.end(); ++it) {
+		rofl::logging::debug << "[rofl][conn] timer-type: " << it->first << std::endl << it->second;
+	}
+#endif
+}
+
+
+
+void
+crofconn::timer_stop(
+		crofconn_timer_t type)
+{
+	if (timer_ids.find(type) == timer_ids.end()) {
+		return;
+	}
+#if 0
+	rofl::logging::debug << "[rofl][conn] timer-stop, cancel timer-id: " << std::endl << timer_ids[type];
+#endif
+	cancel_timer(timer_ids[type]);
+	timer_ids.erase(type);
+#if 0
+	rofl::logging::debug << "[rofl][conn] timer-stop: " << timer_ids.size() << " <========================>" << std::endl;
+	rofl::indent i(2);
+	for (std::map<crofconn_timer_t, ctimerid>::iterator
+			it = timer_ids.begin(); it != timer_ids.end(); ++it) {
+		rofl::logging::debug << "[rofl][conn] timer-type: " << it->first << std::endl << it->second;
+	}
+#endif
+}
+
 
 

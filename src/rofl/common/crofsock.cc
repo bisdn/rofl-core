@@ -70,6 +70,9 @@ void
 crofsock::close()
 {
 	socket->close();
+	if (fragment) {
+		delete fragment; fragment = NULL;
+	}
 }
 
 
@@ -79,7 +82,7 @@ crofsock::handle_listen(
 		csocket& socket,
 		int newsd)
 {
-	logging::info << "[rofl][sock] new connection request received:" << std::endl << *this;
+	rofl::logging::info << "[rofl][sock] new transport connection request received:" << std::endl << *this;
 	// this should never happen, as passively opened sockets are handled outside of crofsock
 }
 
@@ -89,7 +92,7 @@ void
 crofsock::handle_accepted(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection established (via accept):" << std::endl << *this;
+	rofl::logging::info << "[rofl][sock] transport connection established (via accept):" << std::endl << *this;
 	env->handle_connected(this);
 }
 
@@ -99,7 +102,7 @@ void
 crofsock::handle_accept_refused(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] accepted connection refused:" << std::endl << *this;
+	rofl::logging::info << "[rofl][sock] accepted transport connection refused:" << std::endl << *this;
 	// do nothing
 }
 
@@ -109,7 +112,7 @@ void
 crofsock::handle_connected(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection established (via connect):" << std::endl << *this;
+	rofl::logging::info << "[rofl][sock] transport connection established (via connect):" << std::endl << *this;
 	env->handle_connected(this);
 }
 
@@ -119,7 +122,7 @@ void
 crofsock::handle_connect_refused(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection refused:" << std::endl << *this;
+	rofl::logging::info << "[rofl][sock] transport connection refused:" << std::endl << *this;
 	env->handle_connect_refused(this);
 }
 
@@ -129,7 +132,7 @@ void
 crofsock::handle_connect_failed(
 		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection failed:" << std::endl << *this;
+	logging::info << "[rofl][sock] transport connection failed:" << std::endl << *this;
 	env->handle_connect_failed(this);
 }
 
@@ -139,7 +142,7 @@ void
 crofsock::handle_closed(
 			csocket& socket)
 {
-	logging::info << "[rofl][sock] connection closed:" << std::endl << *this;
+	logging::info << "[rofl][sock] transport connection closed:" << std::endl << *this;
 	if (fragment)
 		delete fragment;
 	fragment = (cmemory*)0;
@@ -208,7 +211,7 @@ crofsock::handle_read(
 			}
 		}
 
-	} catch (eSocketAgain& e) {
+	} catch (eSocketRxAgain& e) {
 
 		// more bytes are needed, keep pointer to msg in "fragment"
 
@@ -248,8 +251,8 @@ crofsock::handle_write(
 
 
 
-rofl::csocket&
-crofsock::get_socket()
+rofl::csocket const&
+crofsock::get_socket() const
 {
 	return *socket;
 }
@@ -260,7 +263,7 @@ void
 crofsock::send_message(
 		rofl::openflow::cofmsg *msg)
 {
-	if (not socket->is_connected()) {
+	if (not socket->is_established()) {
 		delete msg; return;
 	}
 

@@ -17,6 +17,7 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/csegmsg.h"
 #include "rofl/common/ciosrv.h"
+#include "rofl/common/ctimerid.h"
 
 namespace rofl {
 
@@ -34,7 +35,7 @@ class csegmentation :
 		TIMER_CHECK_EXPIRATION = 1,
 	};
 
-	uint32_t							check_expiration_id;	// timer-id
+	ctimerid							check_expiration_id;	// timer-id
 	time_t								check_expiration_interval;
 
 	static time_t const DEFAULT_CHECK_EXPIRATION_INTERVAL = 8; 	// seconds

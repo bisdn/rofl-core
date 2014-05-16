@@ -52,7 +52,7 @@ crofdpt_impl::crofdpt_impl(
 crofdpt_impl::~crofdpt_impl()
 {
 	crofdpt::rofdpts.erase(dpid);
-	rofchan.clear();
+	rofchan.close();
 	transactions.clear();
 	logging::info << "[rofl][dpt] removing datapath abstraction:" << std::endl << *this;
 }
@@ -146,7 +146,7 @@ crofdpt_impl::event_connected()
 void
 crofdpt_impl::event_disconnected()
 {
-	rofchan.clear();
+	rofchan.close();
 	transactions.clear();
 	state = STATE_DISCONNECTED;
 	register_timer(TIMER_SIGNAL_DISCONNECT, 1);

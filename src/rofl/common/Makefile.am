@@ -76,7 +76,9 @@ librofl_common_la_SOURCES = \
 		cparam.h \
 		cparam.cc \
 		cparams.h \
-		cparams.cc
+		cparams.cc \
+		ctimerid.h \
+		ctimerid.cc
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -126,7 +128,8 @@ library_include_HEADERS= \
 		csegmentation.h \
 		csegmsg.h \
 		cparam.h \
-		cparams.h
+		cparams.h \
+		ctimerid.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \
