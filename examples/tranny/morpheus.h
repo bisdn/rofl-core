@@ -74,6 +74,18 @@ bool m_dpe_supported_actions_valid;
 std::map<rofl::cofaclist, rofl::cofaclist> action_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
 std::map<rofl::cofmatch, rofl::cofmatch> match_map;	// TODO - this isn't properly managed - it's hard to know the lifetime of these so we don;t remove them at the moment - we should
 
+struct flowentry {
+	rofl::cofmatch match;
+	rofl::cofaclist actions;
+	uint64_t cookie;
+	uint16_t idle_timeout;
+	uint16_t hardtime_timeout;
+	uint16_t priority;
+	uint16_t flags;
+	};
+
+std::map< morpheus::flowentry, morpheus::flowentry > m_flowentry_db;	// value could also be std::vector<morpheus::flowentry> or this could just be a multimap
+
 bool indpt, inctl;
 rofl::caddress dptaddr, ctladdr;
 
@@ -123,7 +135,6 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 	virtual void handle_timeout ( int opaque );
 	virtual void handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg );
 
-
 public:
 // our transaction management methods - they are public because the nested classes have to call them
 	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
@@ -145,6 +156,12 @@ public:
 	bool remove_flowmod_match_translation(const rofl::cofmatch & virt);
 	rofl::cofmatch get_flowmod_match_translation(bool virtual_to_actual, const rofl::cofmatch & virt_or_act) const;
 */
+	std::vector<morpheus::flowentry> getTranslatedFlowentry (rofl::cofmatch matchspec);	// returns empty vector if no matches
+	morpheus::flowentry getExactTranslatedFlowentry (rofl::cofmatch matchspec);	// throws std::out_of_range if not found
+	std::vector<morpheus::flowentry> getUnTranslatedFlowentry (rofl::cofmatch matchspec); // returns empty vector if no matches
+	morpheus::flowentry getExactUnTranslatedFlowentry (rofl::cofmatch matchspec); // throws std::out_of_range if not found
+	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );	// return true if added, false if such an untranslated entry already exists, and then doesn't overwrite
+	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );	// return true if removed, false if not found.	- if you want wildcarded remove on match then use alongside getTranslatedFlowentry
 
 
 uint32_t get_supported_actions();
@@ -157,7 +174,96 @@ friend std::ostream & operator<< (std::ostream & os, const morpheus & morph);
 friend chandlersession_base;
 
 };
+/*
+namespace std {
 
+bool operator==(const rofl::cofaclist & a, const rofl::cofaclist & b) {
+	if(a.length()!=b.length()) return false;
+	return std::equal(a.begin(), a.end(), b.begin());
+	}
+
+bool operator==(const rofl::cofaction & a, const rofl::cofaction & b) {
+	if(a.get_type()!=b.get_type()) return false;
+	
+	switch (a.get_type()) {
+		case OFP10AT_STRIP_VLAN: {
+			// no fields present in struct - nothing to compare other than type, which was already done
+			return true;
+			} break;
+		case OFP10AT_OUTPUT: {
+			struct ofp10_action_output * a_ = (struct ofp10_action_output*)a.soaction();
+			struct ofp10_action_output * b_ = (struct ofp10_action_output*)b.soaction();
+			// no padding to clear
+			// return ( *a_ == *b_ );
+			return std::equal((uint8_t *)a_, ((uint8_t *)a_)+sizeof(struct ofp10_action_output), (uint8_t *)b_);
+			} break;
+		case OFP10AT_SET_NW_SRC:
+		case OFP10AT_SET_NW_DST: {
+			struct ofp10_action_nw_addr *a_ = (struct ofp10_action_nw_addr*)a.soaction();
+			struct ofp10_action_nw_addr *b_ = (struct ofp10_action_nw_addr*)b.soaction();
+			// no padding to clear
+			return std::equal((uint8_t *)a_, ((uint8_t *)a_)+sizeof(struct ofp10_action_nw_addr), (uint8_t *)b_);
+		} break;
+		case OFP10AT_SET_VLAN_VID: {
+			struct ofp10_action_vlan_vid a_ = *(struct ofp10_action_vlan_vid*)a.soaction();
+			struct ofp10_action_vlan_vid b_ = *(struct ofp10_action_vlan_vid*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			//return ( a_ == b_ );
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_vlan_vid), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_VLAN_PCP: {
+			struct ofp10_action_vlan_pcp a_ = *(struct ofp10_action_vlan_pcp*)a.soaction();
+			struct ofp10_action_vlan_pcp b_ = *(struct ofp10_action_vlan_pcp*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_vlan_pcp), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_DL_SRC:
+		case OFP10AT_SET_DL_DST: {
+			struct ofp10_action_dl_addr a_ = *(struct ofp10_action_dl_addr*)a.soaction();
+			struct ofp10_action_dl_addr b_ = *(struct ofp10_action_dl_addr*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_dl_addr), (uint8_t *)&b_);
+			} break;
+		case OFP10AT_SET_NW_TOS: {
+			struct ofp10_action_nw_tos a_ = *(struct ofp10_action_nw_tos*)a.soaction();
+			struct ofp10_action_nw_tos b_ = *(struct ofp10_action_nw_tos*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_nw_tos), (uint8_t *)&b_);
+		} break;
+		case OFP10AT_SET_TP_SRC:
+		case OFP10AT_SET_TP_DST: {
+			struct ofp10_action_tp_port a_ = *(struct ofp10_action_tp_port*)a.soaction();
+			struct ofp10_action_tp_port b_ = *(struct ofp10_action_tp_port*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_tp_port), (uint8_t *)&b_);
+		} break;
+		case OFP10AT_ENQUEUE: {
+			struct ofp10_action_enqueue a_ = *(struct ofp10_action_enqueue*)a.soaction();
+			struct ofp10_action_enqueue b_ = *(struct ofp10_action_enqueue*)b.soaction();
+			// copies of structs are made, instead of using referenced pointers to original, so that the padding can be zeroed for a safe comparison
+			std::fill( &a_.pad[0], &a_.pad[0]+sizeof(a_.pad), 0);
+			std::fill( &b_.pad[0], &b_.pad[0]+sizeof(b_.pad), 0);
+			return std::equal((uint8_t *)&a_, ((uint8_t *)&a_)+sizeof(struct ofp10_action_enqueue), (uint8_t *)&b_);
+		} break;
+		default:
+			std::cout << __FUNCTION__ << " was asked to compare unknown action type." << std::endl;
+			assert(false);
+	}
+	assert (false);	// should never get here.
+	return false;
+}
+
+}	// namepsace std */
 #include "csh_aggregate_stats.h"
 #include "csh_barrier.h"
 #include "csh_desc_stats.h"

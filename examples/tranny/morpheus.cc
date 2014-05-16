@@ -472,6 +472,32 @@ rofl::cofmatch morpheus::get_flowmod_match_translation(bool virtual_to_actual, c
 }
 */
 
+// returns empty vector if no matches
+std::vector<morpheus::flowentry> morpheus::getTranslatedFlowentry (rofl::cofmatch matchspec) {
+	return std::vector<morpheus::flowentry>();
+}
+// throws std::out_of_range if not found
+morpheus::flowentry morpheus::getExactTranslatedFlowentry (rofl::cofmatch matchspec){
+	throw std::out_of_range("entry not found in morpheus::getExactTranslatedFlowentry");
+}
+// returns empty vector if no matches
+std::vector<morpheus::flowentry> morpheus::getUnTranslatedFlowentry (rofl::cofmatch matchspec) {
+	return std::vector<morpheus::flowentry>();
+}
+// throws std::out_of_range if not found
+morpheus::flowentry morpheus::getExactUnTranslatedFlowentry (rofl::cofmatch matchspec) {
+	throw std::out_of_range("entry not found in morpheus::getExactUnTranslatedFlowentry");
+}
+// return true if added, false if such an untranslated entry already exists, and then doesn't overwrite
+bool morpheus::addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated ) {
+	return false;
+}
+// return true if removed, false if not found.	- if you want wildcarded remove on match then use alongside getTranslatedFlowentry
+bool morpheus::removeFlowentryTranslation ( const morpheus::flowentry & untranslated ) {
+	return false;
+}
+
+
 std::string action_mask_to_string(const uint32_t action_types) {
 	std::string out;
 	static const uint32_t vals[] = { OFP10AT_OUTPUT, OFP10AT_SET_VLAN_VID, OFP10AT_SET_VLAN_PCP, OFP10AT_STRIP_VLAN, OFP10AT_SET_DL_SRC, OFP10AT_SET_DL_DST, OFP10AT_SET_NW_SRC, OFP10AT_SET_NW_DST, OFP10AT_SET_NW_TOS, OFP10AT_SET_TP_SRC, OFP10AT_SET_TP_DST, OFP10AT_ENQUEUE };
