@@ -21,9 +21,9 @@ crofsock::crofsock(
 		outqueues.push_back(rofqueue());
 	}
 	// scheduler weights for transmission
-	outqueues[QUEUE_MGMT].set_limit(8);
-	outqueues[QUEUE_FLOW].set_limit(4);
-	outqueues[QUEUE_PKT ].set_limit(2);
+	outqueues[QUEUE_MGMT].set_max_limit(8);
+	outqueues[QUEUE_FLOW].set_max_limit(4);
+	outqueues[QUEUE_PKT ].set_max_limit(2);
 	// maximum congestion window for queues
 	outqueues[QUEUE_MGMT].set_max_cwnd(128);
 	outqueues[QUEUE_FLOW].set_max_cwnd(64);

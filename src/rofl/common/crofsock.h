@@ -141,7 +141,7 @@ class crofsock :
 				throw eRofSockTxAgain();
 			}
 			queue.push_back(msg);
-			return get_max_cwnd();
+			return get_cwnd();
 		};
 
 		/**
@@ -169,13 +169,13 @@ class crofsock :
 		 *
 		 */
 		void
-		set_limit(unsigned int limit) { this->limit = limit; };
+		set_max_limit(unsigned int limit) { this->limit = limit; };
 
 		/**
 		 *
 		 */
 		unsigned int
-		get_max_cwnd() const {
+		get_cwnd() const {
 			return (max_cwnd_size - queue.size());
 		};
 
