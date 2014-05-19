@@ -777,7 +777,7 @@ public:
 		os << indent(0) << "<crofctl_impl ";
 		os << "ctid:0x" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
 		os << ">" << std::endl;
-		indent i(2);
+		rofl::indent i(2);
 		os << ctl.rofchan;
 		return os;
 	};

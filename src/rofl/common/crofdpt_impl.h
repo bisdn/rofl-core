@@ -1077,7 +1077,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, crofdpt_impl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
-		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << std::endl;
+		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << " >" << std::endl;
+		{ rofl::indent i(2); os << dpt.rofchan; }
 		switch (dpt.state) {
 		case STATE_INIT: {
 			os << indent(2) << "<state: -INIT- >" << std::endl;
@@ -1110,10 +1111,9 @@ public:
 		os << indent(2) << "<capabilities: " << std::hex << (int)dpt.capabilities << std::dec << " >" << std::endl;
 		os << indent(2) << "<config: " << std::hex << (int)dpt.config << std::dec << " >" << std::endl;
 		os << indent(2) << "<miss-send-len: " << (int)dpt.miss_send_len << " >" << std::endl;
-		indent i(2);
+		rofl::indent j(2);
 		os << dpt.tables;
 		os << dpt.ports;
-		os << dpt.rofchan;
 		os << dpt.transactions;
 		return os;
 	};

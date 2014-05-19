@@ -59,6 +59,14 @@ class crofconn :
 	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
 	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
 
+	int								reconnect_start_timeout;
+	int 							reconnect_in_seconds; 	// reconnect in x seconds
+	int								reconnect_variance;
+	int 							reconnect_counter;
+
+	static int const CROFCONN_RECONNECT_START_TIMEOUT = 1;				// start reconnect timeout (default 1s)
+	static int const CROFCONN_RECONNECT_VARIANCE_IN_SECS = 2;
+
 	enum msg_type_t {
 		OFPT_HELLO = 0,
 		OFPT_ERROR = 1,
@@ -71,15 +79,16 @@ class crofconn :
 
 	enum crofconn_event_t {
 		EVENT_NONE				= 0,
-		EVENT_CONNECTED 		= 1,
-		EVENT_DISCONNECTED 		= 2,
-		EVENT_HELLO_RCVD 		= 3,
-		EVENT_HELLO_EXPIRED		= 4,
-		EVENT_FEATURES_RCVD		= 5,
-		EVENT_FEATURES_EXPIRED	= 6,
-		EVENT_ECHO_RCVD			= 7,
-		EVENT_ECHO_EXPIRED		= 8,
-		EVENT_NEED_LIFE_CHECK	= 9,
+		EVENT_RECONNECT			= 1,
+		EVENT_CONNECTED 		= 2,
+		EVENT_DISCONNECTED 		= 3,
+		EVENT_HELLO_RCVD 		= 4,
+		EVENT_HELLO_EXPIRED		= 5,
+		EVENT_FEATURES_RCVD		= 6,
+		EVENT_FEATURES_EXPIRED	= 7,
+		EVENT_ECHO_RCVD			= 8,
+		EVENT_ECHO_EXPIRED		= 9,
+		EVENT_NEED_LIFE_CHECK	= 10,
 	};
 	std::deque<enum crofconn_event_t> 		events;
 
@@ -93,10 +102,11 @@ class crofconn :
 	enum crofconn_state_t					state;
 
 	enum crofconn_timer_t {
-		TIMER_WAIT_FOR_HELLO	= 1,
-		TIMER_WAIT_FOR_FEATURES = 2,
-		TIMER_NEED_LIFE_CHECK	= 3,
-		TIMER_WAIT_FOR_ECHO		= 4,
+		TIMER_NEXT_RECONNECT	= 1,
+		TIMER_WAIT_FOR_HELLO	= 2,
+		TIMER_WAIT_FOR_FEATURES = 3,
+		TIMER_NEED_LIFE_CHECK	= 4,
+		TIMER_WAIT_FOR_ECHO		= 5,
 	};
 	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
 
@@ -104,11 +114,14 @@ class crofconn :
 		FLAGS_PASSIVE			= 1,
 		FLAGS_CONNECT_REFUSED	= 2,
 		FLAGS_CONNECT_FAILED	= 3,
+		FLAGS_CLOSED			= 4,
+		FLAGS_RECONNECTING		= 5,
 	};
 
 #define DEFAULT_HELLO_TIMEOUT	5
 #define DEFAULT_ECHO_TIMEOUT 	60
 #define DEFAULT_ECHO_INTERVAL	60
+
 
 public:
 
@@ -148,7 +161,8 @@ public:
 	 * @brief	Instruct crofsock instance to reconnect to previously connected peer.
 	 */
 	void
-	reconnect();
+	reconnect(
+			bool reset_backoff_timer = false);
 
 	/**
 	 * @brief	Instruct crofsock instance to close connection to peer.
@@ -251,6 +265,12 @@ private:
 	 *
 	 */
 	void
+	event_reconnect();
+
+	/**
+	 *
+	 */
+	void
 	event_connected();
 
 	/**
@@ -324,6 +344,13 @@ private:
 	 */
 	void
 	action_send_echo_request();
+
+	/**
+	 *
+	 */
+	void
+	backoff_reconnect(
+			bool reset_timeout = false);
 
 private:
 
@@ -445,6 +472,22 @@ private:
 	void
 	timer_stop(
 			crofconn_timer_t type);
+
+	/**
+	 *
+	 */
+	void
+	timer_start_next_reconnect() {
+		timer_start(TIMER_NEXT_RECONNECT, reconnect_in_seconds);
+	};
+
+	/**
+	 *
+	 */
+	void
+	timer_stop_next_reconnect() {
+		timer_stop(TIMER_NEXT_RECONNECT);
+	};
 
 	/**
 	 *

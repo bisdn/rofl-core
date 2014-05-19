@@ -26,6 +26,7 @@ class eRofChanBase			: public RoflException {};
 class eRofChanNotFound		: public eRofChanBase {};
 class eRofChanExists		: public eRofChanBase {};
 class eRofChanInval			: public eRofChanBase {};
+class eRofChanNotConnected	: public eRofChanBase {};
 
 class crofchan; // forward declaration
 
@@ -63,23 +64,6 @@ class crofchan :
 		STATE_ESTABLISHED 		= 3,
 	};
 	enum crofchan_state_t				state;
-
-	enum crofchan_timer_t {
-		TIMER_RECONNECT			= 1,
-	};
-
-	enum crofchan_flag_t {
-		FLAG_RECONNECTING		= 1,
-	};
-
-	int									reconnect_start_timeout;
-	int 								reconnect_in_seconds; 	// reconnect in x seconds
-	int									reconnect_variance;
-	int 								reconnect_counter;
-	ctimerid							reconnect_timer_id;
-
-#define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
-#define CROFCHAN_RECONNECT_VARIANCE_IN_SECS 2
 
 public:
 
@@ -154,7 +138,8 @@ public:
 	 *
 	 */
 	void
-	send_message(rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
+	send_message(
+			uint8_t aux_id, rofl::openflow::cofmsg *msg);
 
 
 	/**
@@ -208,7 +193,8 @@ private:
 	 *
 	 */
 	void
-	run_engine(enum crofchan_event_t event = EVENT_NONE);
+	run_engine(
+			enum crofchan_event_t event = EVENT_NONE);
 
 	/**
 	 *
@@ -221,19 +207,6 @@ private:
 	 */
 	void
 	event_disconnected();
-
-	/**
-	 *
-	 */
-	void
-	backoff_reconnect(
-			bool reset_timeout = false);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_timeout(int opaque, void *data = (void*)0);
 
 public:
 

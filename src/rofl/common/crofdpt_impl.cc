@@ -148,6 +148,8 @@ crofdpt_impl::event_disconnected()
 {
 	rofchan.close();
 	transactions.clear();
+	tables.clear();
+	ports.clear();
 	state = STATE_DISCONNECTED;
 	register_timer(TIMER_SIGNAL_DISCONNECT, 1);
 }
@@ -778,7 +780,7 @@ crofdpt_impl::send_features_request()
 	rofl::openflow::cofmsg_features_request *msg =
 			new rofl::openflow::cofmsg_features_request(rofchan.get_version(), xid);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -798,7 +800,7 @@ crofdpt_impl::send_get_config_request()
 	rofl::openflow::cofmsg_get_config_request *msg =
 			new rofl::openflow::cofmsg_get_config_request(rofchan.get_version(), xid);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -828,7 +830,7 @@ crofdpt_impl::send_stats_request(
 					body,
 					bodylen);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -852,7 +854,7 @@ crofdpt_impl::send_desc_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -878,7 +880,7 @@ crofdpt_impl::send_flow_stats_request(
 					flags,
 					flow_stats_request);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -904,7 +906,7 @@ crofdpt_impl::send_aggr_stats_request(
 					flags,
 					aggr_stats_request);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -928,7 +930,7 @@ crofdpt_impl::send_table_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -954,7 +956,7 @@ crofdpt_impl::send_port_stats_request(
 					flags,
 					port_stats_request);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -980,7 +982,7 @@ crofdpt_impl::send_queue_stats_request(
 					flags,
 					queue_stats_request);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1006,7 +1008,7 @@ crofdpt_impl::send_group_stats_request(
 					flags,
 					group_stats_request);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1030,7 +1032,7 @@ crofdpt_impl::send_group_desc_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1054,7 +1056,7 @@ crofdpt_impl::send_group_features_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1078,7 +1080,7 @@ crofdpt_impl::send_table_features_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1102,7 +1104,7 @@ crofdpt_impl::send_port_desc_stats_request(
 					xid,
 					flags);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1132,7 +1134,7 @@ crofdpt_impl::send_experimenter_stats_request(
 					exp_type,
 					body);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1164,7 +1166,7 @@ crofdpt_impl::send_packet_out_message(
 					data,
 					datalen);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1186,7 +1188,7 @@ crofdpt_impl::send_barrier_request()
 					rofchan.get_version(),
 					xid);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1210,7 +1212,7 @@ crofdpt_impl::send_role_request(
 					xid,
 					role);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1234,7 +1236,7 @@ crofdpt_impl::send_flow_mod_message(
 					xid,
 					fe);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1258,7 +1260,7 @@ crofdpt_impl::send_group_mod_message(
 					xid,
 					ge);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1284,7 +1286,7 @@ crofdpt_impl::send_table_mod_message(
 						table_id,
 						config);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1316,7 +1318,7 @@ crofdpt_impl::send_port_mod_message(
 					mask,
 					advertise);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	ports.set_port(port_no).recv_port_mod(config, mask, advertise);
 
@@ -1344,7 +1346,7 @@ crofdpt_impl::send_set_config_message(
 					flags,
 					miss_send_len);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1368,7 +1370,7 @@ crofdpt_impl::send_queue_get_config_request(
 					xid,
 					port);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1390,7 +1392,7 @@ crofdpt_impl::send_get_async_config_request()
 					rofchan.get_version(),
 					xid);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1414,7 +1416,7 @@ crofdpt_impl::send_set_async_config_message(
 					xid,
 					async_config);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
@@ -1443,7 +1445,7 @@ crofdpt_impl::send_error_message(
 					data,
 					datalen);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 }
 
 
@@ -1471,7 +1473,7 @@ crofdpt_impl::send_experimenter_message(
 						body,
 						bodylen);
 
-	rofchan.send_message(msg, 0);
+	rofchan.send_message(/*aux-id*/0, msg);
 
 	return xid;
 }
