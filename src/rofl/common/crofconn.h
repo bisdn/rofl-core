@@ -221,7 +221,7 @@ public:
 	/**
 	 * @brief	Send OFP message via socket
 	 */
-	void
+	unsigned int
 	send_message(rofl::openflow::cofmsg *msg);
 
 	/**
@@ -392,70 +392,70 @@ private:
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_and_send_message(
 			rofl::openflow::cofmsg *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_table_features_stats_request(
 			rofl::openflow::cofmsg_table_features_stats_request *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_flow_stats_reply(
 			rofl::openflow::cofmsg_flow_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_table_stats_reply(
 			rofl::openflow::cofmsg_table_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_port_stats_reply(
 			rofl::openflow::cofmsg_port_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_queue_stats_reply(
 			rofl::openflow::cofmsg_queue_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_group_stats_reply(
 			rofl::openflow::cofmsg_group_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_group_desc_stats_reply(
 			rofl::openflow::cofmsg_group_desc_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_table_features_stats_reply(
 			rofl::openflow::cofmsg_table_features_stats_reply *msg);
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	fragment_port_desc_stats_reply(
 			rofl::openflow::cofmsg_port_desc_stats_reply *msg);
 

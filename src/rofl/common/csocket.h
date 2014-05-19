@@ -330,6 +330,12 @@ public:
 	virtual bool
 	is_established() const = 0;
 
+	/**
+	 *
+	 */
+	virtual bool
+	write_would_block() const = 0;
+
 public:
 
 	/**

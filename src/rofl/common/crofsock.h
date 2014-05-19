@@ -23,6 +23,7 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/thread_helper.h"
+#include "rofl/common/croflexception.h"
 
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/messages/cofmsg_hello.h"
@@ -73,6 +74,9 @@ public:
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
 
+class eRofSockBase		: public RoflException {};
+class eRofSockTxAgain	: public eRofSockBase {};
+
 class crofsock :
 		public ciosrv,
 		public csocket_owner
@@ -82,6 +86,8 @@ class crofsock :
 	csocket								*socket;		// socket abstraction towards peer
 	cmemory								*fragment;
 	unsigned int						msg_bytes_read;
+	unsigned int						max_pkts_rcvd_per_round;
+	static unsigned int const			DEFAULT_MAX_PKTS_RVCD_PER_ROUND = 16;
 
 	enum outqueue_type_t {
 		QUEUE_MGMT = 0, // all packets, except ...
@@ -94,15 +100,18 @@ class crofsock :
 
 		static unsigned int const DEFAULT_OUTQUEUE_SIZE_THRESHOLD = 8;
 
-		PthreadRwLock					rwlock;
-		std::deque<rofl::openflow::cofmsg*>				queue;
-		unsigned int					limit; // #msgs sent from queue before rescheduling
+		PthreadRwLock							rwlock;
+		std::deque<rofl::openflow::cofmsg*>		queue;
+		unsigned int							max_cwnd_size;
+		static const unsigned int				DEFAULT_MAX_CWND_SIZE = 128;
+		unsigned int							limit; // #msgs sent from queue before rescheduling
+
 	public:
 		/**
 		 *
 		 */
 		rofqueue(unsigned int limit = DEFAULT_OUTQUEUE_SIZE_THRESHOLD) :
-			limit(limit) {};
+			max_cwnd_size(DEFAULT_MAX_CWND_SIZE), limit(limit) {};
 
 		/**
 		 *
@@ -125,10 +134,14 @@ class crofsock :
 		/**
 		 *
 		 */
-		void
+		unsigned int
 		store(rofl::openflow::cofmsg *msg) {
 			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			if (queue.size() >= max_cwnd_size) {
+				throw eRofSockTxAgain();
+			}
 			queue.push_back(msg);
+			return get_max_cwnd();
 		};
 
 		/**
@@ -148,7 +161,7 @@ class crofsock :
 		 *
 		 */
 		unsigned int
-		get_limit() {
+		get_limit() const {
 			return (queue.size() > limit) ? limit : queue.size();
 		};
 
@@ -157,6 +170,20 @@ class crofsock :
 		 */
 		void
 		set_limit(unsigned int limit) { this->limit = limit; };
+
+		/**
+		 *
+		 */
+		unsigned int
+		get_max_cwnd() const {
+			return (max_cwnd_size - queue.size());
+		};
+
+		/**
+		 *
+		 */
+		void
+		set_max_cwnd(unsigned int max_cwnd_size) { this->max_cwnd_size = max_cwnd_size; };
 
 		/**
 		 *
@@ -236,7 +263,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	send_message(
 			rofl::openflow::cofmsg *msg);
 
@@ -256,7 +283,8 @@ private:
 		env(NULL),
 		socket(NULL),
 		fragment(NULL),
-		msg_bytes_read(0)
+		msg_bytes_read(0),
+		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
 	{ };
 
 	/**

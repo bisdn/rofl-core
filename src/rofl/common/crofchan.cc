@@ -452,7 +452,7 @@ crofchan::recv_message(crofconn *conn, rofl::openflow::cofmsg *msg)
 
 
 
-void
+unsigned int
 crofchan::send_message(
 		uint8_t aux_id,
 		rofl::openflow::cofmsg *msg)
@@ -467,7 +467,7 @@ crofchan::send_message(
 		throw eRofChanNotConnected();
 	}
 
-	conns[aux_id]->send_message(msg);
+	return conns[aux_id]->send_message(msg);
 }
 
 

@@ -137,7 +137,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	send_message(
 			uint8_t aux_id, rofl::openflow::cofmsg *msg);
 

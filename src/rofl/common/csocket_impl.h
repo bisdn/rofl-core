@@ -238,6 +238,12 @@ public:
 	virtual bool
 	is_established() const { return sockflags.test(FLAG_CONNECTED); };
 
+	/**
+	 *
+	 */
+	virtual bool
+	write_would_block() const { return sockflags.test(FLAG_TX_WOULD_BLOCK); };
+
 
 	/**
 	 *

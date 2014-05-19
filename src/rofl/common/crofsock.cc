@@ -14,14 +14,20 @@ crofsock::crofsock(
 				env(env),
 				socket(NULL),
 				fragment((cmemory*)0),
-				msg_bytes_read(0)
+				msg_bytes_read(0),
+				max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
 {
 	for (unsigned int i = 0; i < QUEUE_MAX; i++) {
 		outqueues.push_back(rofqueue());
 	}
+	// scheduler weights for transmission
 	outqueues[QUEUE_MGMT].set_limit(8);
 	outqueues[QUEUE_FLOW].set_limit(4);
 	outqueues[QUEUE_PKT ].set_limit(2);
+	// maximum congestion window for queues
+	outqueues[QUEUE_MGMT].set_max_cwnd(128);
+	outqueues[QUEUE_FLOW].set_max_cwnd(64);
+	outqueues[QUEUE_PKT ].set_max_cwnd(32);
 }
 
 
@@ -72,6 +78,9 @@ crofsock::close()
 	socket->close();
 	if (fragment) {
 		delete fragment; fragment = NULL;
+	}
+	for (std::vector<rofqueue>::iterator it = outqueues.begin(); it != outqueues.end(); ++it) {
+		(*it).clear();
 	}
 }
 
@@ -160,13 +169,16 @@ void
 crofsock::handle_read(
 		csocket& socket)
 {
+	unsigned int pkts_rcvd_in_round = 0;
+
 	try {
-		if (0 == fragment) {
-			fragment = new cmemory(sizeof(struct openflow::ofp_header));
-			msg_bytes_read = 0;
-		}
 
 		while (true) {
+
+			if (0 == fragment) {
+				fragment = new cmemory(sizeof(struct openflow::ofp_header));
+				msg_bytes_read = 0;
+			}
 
 			uint16_t msg_len = 0;
 
@@ -206,7 +218,12 @@ crofsock::handle_read(
 					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
 					msg_bytes_read = 0;
 					parse_message(mem);
-					return;
+					pkts_rcvd_in_round++;
+					// read at most max_pkts_rcvd_per_round (default: 16) packets from socket, reschedule afterwards
+					if (pkts_rcvd_in_round >= max_pkts_rcvd_per_round) {
+						rofl::logging::debug << "[rofl][sock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
+						return;
+					}
 				}
 			}
 		}
@@ -214,6 +231,7 @@ crofsock::handle_read(
 	} catch (eSocketRxAgain& e) {
 
 		// more bytes are needed, keep pointer to msg in "fragment"
+		rofl::logging::debug << "[rofl][sock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
 
 	} catch (eSysCall& e) {
 
@@ -226,6 +244,8 @@ crofsock::handle_read(
 		// close socket, as it seems, we are out of sync
 		socket.close();
 
+		env->handle_closed(this);
+
 	} catch (RoflException& e) {
 
 		rofl::logging::warn << "[rofl][sock] dropping invalid message: " << e << std::endl;
@@ -236,6 +256,8 @@ crofsock::handle_read(
 
 		// close socket, as it seems, we are out of sync
 		socket.close();
+
+		env->handle_closed(this);
 	}
 
 }
@@ -259,13 +281,15 @@ crofsock::get_socket() const
 
 
 
-void
+unsigned int
 crofsock::send_message(
 		rofl::openflow::cofmsg *msg)
 {
 	if (not socket->is_established()) {
-		delete msg; return;
+		delete msg; return 0;
 	}
+
+	unsigned int cwnd_size = 0;
 
 	log_message(std::string("queueing message for sending:"), *msg);
 
@@ -274,14 +298,14 @@ crofsock::send_message(
 		switch (msg->get_type()) {
 		case rofl::openflow10::OFPT_PACKET_IN:
 		case rofl::openflow10::OFPT_PACKET_OUT: {
-			outqueues[QUEUE_PKT].store(msg);
+			cwnd_size = outqueues[QUEUE_PKT].store(msg);
 		} break;
 		case rofl::openflow10::OFPT_FLOW_MOD:
 		case rofl::openflow10::OFPT_FLOW_REMOVED: {
-			outqueues[QUEUE_FLOW].store(msg);
+			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
 		default: {
-			outqueues[QUEUE_MGMT].store(msg);
+			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
 		};
 		}
 	} break;
@@ -289,14 +313,14 @@ crofsock::send_message(
 		switch (msg->get_type()) {
 		case rofl::openflow12::OFPT_PACKET_IN:
 		case rofl::openflow12::OFPT_PACKET_OUT: {
-			outqueues[QUEUE_PKT].store(msg);
+			cwnd_size = outqueues[QUEUE_PKT].store(msg);
 		} break;
 		case rofl::openflow12::OFPT_FLOW_MOD:
 		case rofl::openflow12::OFPT_FLOW_REMOVED: {
-			outqueues[QUEUE_FLOW].store(msg);
+			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
 		default: {
-			outqueues[QUEUE_MGMT].store(msg);
+			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
 		};
 		}
 	} break;
@@ -304,24 +328,26 @@ crofsock::send_message(
 		switch (msg->get_type()) {
 		case rofl::openflow13::OFPT_PACKET_IN:
 		case rofl::openflow13::OFPT_PACKET_OUT: {
-			outqueues[QUEUE_PKT].store(msg);
+			cwnd_size = outqueues[QUEUE_PKT].store(msg);
 		} break;
 		case rofl::openflow13::OFPT_FLOW_MOD:
 		case rofl::openflow13::OFPT_FLOW_REMOVED: {
-			outqueues[QUEUE_FLOW].store(msg);
+			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
 		default: {
-			outqueues[QUEUE_MGMT].store(msg);
+			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
 		};
 		}
 	} break;
 	default: {
 		rofl::logging::alert << "[rofl][sock] dropping message with unsupported OpenFlow version" << std::endl;
-		delete msg; return;
+		delete msg; return 0;
 	};
 	}
 
 	notify(CROFSOCK_EVENT_WAKEUP);
+
+	return cwnd_size;
 }
 
 
@@ -341,7 +367,12 @@ crofsock::send_from_queue()
 
 			msg->pack(mem->somem(), mem->memlen());
 			delete msg;
-			socket->send(mem);
+			try {
+				socket->send(mem);
+			} catch (eSocketTxAgain& e) {
+				rofl::logging::error << "[rofl][sock][send-from-queue] transport "
+						<< "connection congested, dropping message." << std::endl;
+			}
 		}
 
 		if (not outqueues[queue_id].empty()) {

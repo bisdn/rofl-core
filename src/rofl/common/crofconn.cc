@@ -331,7 +331,7 @@ crofconn::event_echo_rcvd()
 	switch (state) {
 	case STATE_ESTABLISHED: {
 		timer_stop_wait_for_echo();
-		rofl::logging::debug << "[rofl][conn] event-echo-rcvd; OFP transport connection is good." << std::endl << *this;
+		rofl::logging::debug << "[rofl][conn] event-echo-rcvd: OFP transport connection is good." << std::endl << *this;
 		// do not restart TIMER_NEED_LIFE_CHECK here => ::recv()
 
 	} break;
@@ -859,7 +859,7 @@ crofconn::features_reply_rcvd(
 
 
 
-void
+unsigned int
 crofconn::send_message(
 		rofl::openflow::cofmsg *msg)
 {
@@ -873,31 +873,32 @@ crofconn::send_message(
 		case rofl::openflow13::OFPT_MULTIPART_REQUEST:
 		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
 
-			fragment_and_send_message(msg);
+			return fragment_and_send_message(msg);
 
 		} break;
 		default:
 			// no segmentation and reassembly for messages other than multipart request/reply
-			rofsock.send_message(msg);
+			return rofsock.send_message(msg);
 		}
 
 	} break;
 	default: {
 		// no segmentation and reassembly below OF13, so send message directly to rofsock
-		rofsock.send_message(msg);
+		return rofsock.send_message(msg);
 	};
 	}
+
+	return 0;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_and_send_message(
 		rofl::openflow::cofmsg *msg)
 {
 	if (msg->length() <= fragmentation_threshold) {
-		rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
-		return;
+		return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 	}
 
 	// fragment the packet
@@ -909,10 +910,10 @@ crofconn::fragment_and_send_message(
 
 			switch (dynamic_cast<rofl::openflow::cofmsg_stats_request*>( msg )->get_stats_type()) {
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-				fragment_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg));
+				return fragment_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg));
 			} break;
 			default: {
-				rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+				return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 			};
 			}
 
@@ -921,49 +922,51 @@ crofconn::fragment_and_send_message(
 
 			switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
 			case rofl::openflow13::OFPMP_FLOW: {
-				fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
+				return fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_TABLE: {
-				fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
+				return fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_PORT_STATS: {
-				fragment_port_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_stats_reply*>(msg));
+				return fragment_port_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_QUEUE: {
-				fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
+				return fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_GROUP: {
-				fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
+				return fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_GROUP_DESC: {
-				fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
+				return fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-				fragment_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply*>(msg));
+				return fragment_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply*>(msg));
 			} break;
 			case rofl::openflow13::OFPMP_PORT_DESC: {
-				fragment_port_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply*>(msg));
+				return fragment_port_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply*>(msg));
 			} break;
 			default: {
-				rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+				return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 			};
 			}
 
 		} break;
 		default: {
-			rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+			return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 		};
 		}
 	} break;
 	default: {
-		rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
+		return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 	};
 	}
+
+	return 0;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_table_features_stats_request(
 		rofl::openflow::cofmsg_table_features_stats_request *msg)
 {
@@ -994,17 +997,21 @@ crofconn::fragment_table_features_stats_request(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REQ_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_table_features_stats_request*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_flow_stats_reply(
 		rofl::openflow::cofmsg_flow_stats_reply *msg)
 {
@@ -1035,17 +1042,21 @@ crofconn::fragment_flow_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_flow_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_table_stats_reply(
 		rofl::openflow::cofmsg_table_stats_reply *msg)
 {
@@ -1076,17 +1087,21 @@ crofconn::fragment_table_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_table_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_port_stats_reply(
 		rofl::openflow::cofmsg_port_stats_reply *msg)
 {
@@ -1117,17 +1132,21 @@ crofconn::fragment_port_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_port_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_queue_stats_reply(
 		rofl::openflow::cofmsg_queue_stats_reply *msg)
 {
@@ -1161,17 +1180,21 @@ crofconn::fragment_queue_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_queue_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_group_stats_reply(
 		rofl::openflow::cofmsg_group_stats_reply *msg)
 {
@@ -1202,17 +1225,21 @@ crofconn::fragment_group_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_group_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_group_desc_stats_reply(
 		rofl::openflow::cofmsg_group_desc_stats_reply *msg)
 {
@@ -1243,17 +1270,21 @@ crofconn::fragment_group_desc_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_group_desc_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_table_features_stats_reply(
 		rofl::openflow::cofmsg_table_features_stats_reply *msg)
 {
@@ -1284,17 +1315,21 @@ crofconn::fragment_table_features_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_table_features_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
 
-void
+unsigned int
 crofconn::fragment_port_desc_stats_reply(
 		rofl::openflow::cofmsg_port_desc_stats_reply *msg)
 {
@@ -1325,12 +1360,16 @@ crofconn::fragment_port_desc_stats_reply(
 		fragments.back()->set_stats_flags(fragments.back()->get_stats_flags() & ~rofl::openflow13::OFPMPF_REPLY_MORE);
 	}
 
+	unsigned int cwnd_size = 0;
+
 	for (std::vector<rofl::openflow::cofmsg_port_desc_stats_reply*>::iterator
 			it = fragments.begin(); it != fragments.end(); ++it) {
-		rofsock.send_message(*it);
+		cwnd_size = rofsock.send_message(*it);
 	}
 
 	delete msg;
+
+	return cwnd_size;
 }
 
 
