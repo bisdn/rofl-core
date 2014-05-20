@@ -105,6 +105,7 @@ class eRofBaseOFportNotFound 		: public eRofBase {}; // cofport instance not fou
 class eRofBaseTableNotFound 		: public eRofBase {}; // flow-table not found (e.g. unknown table_id in flow_mod)
 class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
 class eRofBaseFspSupportDisabled 	: public eRofBase {};
+class eRofBaseCongested				: public eRofBase {}; // control channel is congested, dropping messages
 
 
 

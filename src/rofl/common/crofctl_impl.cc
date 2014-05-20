@@ -704,24 +704,34 @@ crofctl_impl::send_features_reply(
 		uint32_t of10_actions_bitmap,
 		rofl::openflow::cofports const& ports)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Features-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Features-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_features_reply *msg =
+				new rofl::openflow::cofmsg_features_reply(
+						rofchan.get_version(),
+						xid,
+						dpid,
+						n_buffers,
+						n_tables,
+						capabilities,
+						of10_actions_bitmap,
+						of13_auxiliary_id,
+						ports);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Features-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Features-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_features_reply *msg =
-			new rofl::openflow::cofmsg_features_reply(
-					rofchan.get_version(),
-					xid,
-					dpid,
-					n_buffers,
-					n_tables,
-					capabilities,
-					of10_actions_bitmap,
-					of13_auxiliary_id,
-					ports);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -733,19 +743,29 @@ crofctl_impl::send_get_config_reply(
 		uint16_t flags,
 		uint16_t miss_send_len)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Get-Config-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Get-Config-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_get_config_reply *msg =
+				new rofl::openflow::cofmsg_get_config_reply(
+						rofchan.get_version(),
+						xid,
+						flags,
+						miss_send_len);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Get-Config-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Get-Config-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_get_config_reply *msg =
-			new rofl::openflow::cofmsg_get_config_reply(
-					rofchan.get_version(),
-					xid,
-					flags,
-					miss_send_len);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -758,21 +778,31 @@ crofctl_impl::send_stats_reply(
 		uint16_t stats_flags,
 		uint8_t *body, size_t bodylen)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_stats *msg =
+				new rofl::openflow::cofmsg_stats(
+						rofchan.get_version(),
+						xid,
+						stats_type,
+						stats_flags,
+						body,
+						bodylen);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_stats *msg =
-			new rofl::openflow::cofmsg_stats(
-					rofchan.get_version(),
-					xid,
-					stats_type,
-					stats_flags,
-					body,
-					bodylen);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -784,19 +814,29 @@ crofctl_impl::send_desc_stats_reply(
 		rofl::openflow::cofdesc_stats_reply const& desc_stats,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Desc-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Desc-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_desc_stats_reply *msg =
+				new rofl::openflow::cofmsg_desc_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						desc_stats);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Desc-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Desc-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_desc_stats_reply *msg =
-			new rofl::openflow::cofmsg_desc_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					desc_stats);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -808,19 +848,30 @@ crofctl_impl::send_flow_stats_reply(
 		rofl::openflow::cofflowstatsarray const& flowstatsarray,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Flow-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Flow-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_flow_stats_reply *msg =
+				new rofl::openflow::cofmsg_flow_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						flowstatsarray);
+
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Flow-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Flow-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_flow_stats_reply *msg =
-			new rofl::openflow::cofmsg_flow_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					flowstatsarray);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -832,19 +883,29 @@ crofctl_impl::send_aggr_stats_reply(
 		rofl::openflow::cofaggr_stats_reply const& aggr_stats,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Aggr-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Aggr-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_aggr_stats_reply *msg =
+				new rofl::openflow::cofmsg_aggr_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						aggr_stats);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Aggregate-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Aggregate-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_aggr_stats_reply *msg =
-			new rofl::openflow::cofmsg_aggr_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					aggr_stats);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -856,19 +917,29 @@ crofctl_impl::send_table_stats_reply(
 		rofl::openflow::coftablestatsarray const& tablestatsarray,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Table-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Table-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_table_stats_reply *msg =
+				new rofl::openflow::cofmsg_table_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						tablestatsarray);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Table-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Table-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_table_stats_reply *msg =
-			new rofl::openflow::cofmsg_table_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					tablestatsarray);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -880,19 +951,29 @@ crofctl_impl::send_port_stats_reply(
 		rofl::openflow::cofportstatsarray const& portstatsarray,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_port_stats_reply *msg =
+				new rofl::openflow::cofmsg_port_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						portstatsarray);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Port-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_port_stats_reply *msg =
-			new rofl::openflow::cofmsg_port_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					portstatsarray);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -904,19 +985,29 @@ crofctl_impl::send_queue_stats_reply(
 		rofl::openflow::cofqueuestatsarray const& queuestatsarray,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Queue-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Queue-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_queue_stats_reply *msg =
+				new rofl::openflow::cofmsg_queue_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						queuestatsarray);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Queue-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Queue-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_queue_stats_reply *msg =
-			new rofl::openflow::cofmsg_queue_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					queuestatsarray);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -928,19 +1019,29 @@ crofctl_impl::send_group_stats_reply(
 		rofl::openflow::cofgroupstatsarray const& groupstatsarray,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_group_stats_reply *msg =
+				new rofl::openflow::cofmsg_group_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						groupstatsarray);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Group-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_group_stats_reply *msg =
-			new rofl::openflow::cofmsg_group_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					groupstatsarray);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -952,19 +1053,29 @@ crofctl_impl::send_group_desc_stats_reply(
 		rofl::openflow::cofgroupdescstatsarray const& groupdescs,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Desc-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Desc-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_group_desc_stats_reply *msg =
+				new rofl::openflow::cofmsg_group_desc_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						groupdescs);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Group-Desc-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Desc-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_group_desc_stats_reply *msg =
-			new rofl::openflow::cofmsg_group_desc_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					groupdescs);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -976,19 +1087,29 @@ crofctl_impl::send_group_features_stats_reply(
 		rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Features-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Group-Features-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_group_features_stats_reply *msg =
+				new rofl::openflow::cofmsg_group_features_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						group_features_stats);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Group-Features-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Features-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_group_features_stats_reply *msg =
-			new rofl::openflow::cofmsg_group_features_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					group_features_stats);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1000,19 +1121,29 @@ crofctl_impl::send_table_features_stats_reply(
 		rofl::openflow::coftables const& tables,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Table-Features-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Table-Features-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_table_features_stats_reply *msg =
+				new rofl::openflow::cofmsg_table_features_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						tables);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Table-Features-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Table-Features-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_table_features_stats_reply *msg =
-			new rofl::openflow::cofmsg_table_features_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					tables);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1024,19 +1155,29 @@ crofctl_impl::send_port_desc_stats_reply(
 		rofl::openflow::cofports const& ports,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Desc-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Desc-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_port_desc_stats_reply *msg =
+				new rofl::openflow::cofmsg_port_desc_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						ports);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Port-Desc-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Desc-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_port_desc_stats_reply *msg =
-			new rofl::openflow::cofmsg_port_desc_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					ports);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1050,21 +1191,31 @@ crofctl_impl::send_experimenter_stats_reply(
 		cmemory const& body,
 		uint16_t stats_flags)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Experimenter-Stats-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Experimenter-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_experimenter_stats_reply *msg =
+				new rofl::openflow::cofmsg_experimenter_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						exp_id,
+						exp_type,
+						body);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Experimenter-Stats-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Experimenter-Stats-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_experimenter_stats_reply *msg =
-			new rofl::openflow::cofmsg_experimenter_stats_reply(
-					rofchan.get_version(),
-					xid,
-					stats_flags,
-					exp_id,
-					exp_type,
-					body);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1082,26 +1233,36 @@ crofctl_impl::send_packet_in_message(
 		uint8_t* data,
 		size_t datalen)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Packet-In message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Packet-In message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_packet_in *msg =
+				new rofl::openflow::cofmsg_packet_in(
+						rofchan.get_version(),
+						transactions.get_async_xid(),
+						buffer_id,
+						total_len,
+						reason,
+						table_id,
+						cookie,
+						in_port, /* in_port for OF1.0 */
+						match,
+						data,
+						datalen);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Packet-In message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Packet-In message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_packet_in *msg =
-			new rofl::openflow::cofmsg_packet_in(
-					rofchan.get_version(),
-					transactions.get_async_xid(),
-					buffer_id,
-					total_len,
-					reason,
-					table_id,
-					cookie,
-					in_port, /* in_port for OF1.0 */
-					match,
-					data,
-					datalen);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1111,17 +1272,27 @@ crofctl_impl::send_barrier_reply(
 		const cauxid& auxid,
 		uint32_t xid)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Barrier-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Barrier-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_barrier_reply *msg =
+				new rofl::openflow::cofmsg_barrier_reply(
+						rofchan.get_version(),
+						xid);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Barrier-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Barrier-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_barrier_reply *msg =
-			new rofl::openflow::cofmsg_barrier_reply(
-					rofchan.get_version(),
-					xid);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1132,18 +1303,28 @@ crofctl_impl::send_role_reply(
 		uint32_t xid,
 		rofl::openflow::cofrole const& role)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Role-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Role-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_role_reply *msg =
+				new rofl::openflow::cofmsg_role_reply(
+						rofchan.get_version(),
+						xid,
+						role);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Role-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Role-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_role_reply *msg =
-			new rofl::openflow::cofmsg_role_reply(
-					rofchan.get_version(),
-					xid,
-					role);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1157,20 +1338,30 @@ crofctl_impl::send_error_message(
 		uint8_t* data,
 		size_t datalen)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Error message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Error message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_error *msg =
+				new rofl::openflow::cofmsg_error(
+						rofchan.get_version(),
+						xid,
+						type,
+						code,
+						data, datalen);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Error message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Error message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_error *msg =
-			new rofl::openflow::cofmsg_error(
-					rofchan.get_version(),
-					xid,
-					type,
-					code,
-					data, datalen);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1184,21 +1375,31 @@ crofctl_impl::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Experimenter message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Experimenter message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_experimenter *msg =
+				new rofl::openflow::cofmsg_experimenter(
+							rofchan.get_version(),
+							xid,
+							experimenter_id,
+							exp_type,
+							body,
+							bodylen);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Experimenter message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Experimenter message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_experimenter *msg =
-			new rofl::openflow::cofmsg_experimenter(
-						rofchan.get_version(),
-						xid,
-						experimenter_id,
-						exp_type,
-						body,
-						bodylen);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1219,28 +1420,38 @@ crofctl_impl::send_flow_removed_message(
 		uint64_t packet_count,
 		uint64_t byte_count)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Flow-Removed message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Flow-Removed message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_flow_removed *msg =
+				new rofl::openflow::cofmsg_flow_removed(
+						rofchan.get_version(),
+						transactions.get_async_xid(),
+						cookie,
+						priority,
+						reason,
+						table_id,
+						duration_sec,
+						duration_nsec,
+						idle_timeout,
+						hard_timeout,
+						packet_count,
+						byte_count,
+						ofmatch);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Flow-Removed message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Flow-Removed message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_flow_removed *msg =
-			new rofl::openflow::cofmsg_flow_removed(
-					rofchan.get_version(),
-					transactions.get_async_xid(),
-					cookie,
-					priority,
-					reason,
-					table_id,
-					duration_sec,
-					duration_nsec,
-					idle_timeout,
-					hard_timeout,
-					packet_count,
-					byte_count,
-					ofmatch);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1251,19 +1462,29 @@ crofctl_impl::send_port_status_message(
 		uint8_t reason,
 		rofl::openflow::cofport const& port)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Status message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Port-Status message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_port_status *msg =
+				new rofl::openflow::cofmsg_port_status(
+							rofchan.get_version(),
+							transactions.get_async_xid(),
+							reason,
+							port);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Port-Status message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Status message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_port_status *msg =
-			new rofl::openflow::cofmsg_port_status(
-						rofchan.get_version(),
-						transactions.get_async_xid(),
-						reason,
-						port);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1275,19 +1496,29 @@ crofctl_impl::send_queue_get_config_reply(
 		uint32_t portno,
 		rofl::openflow::cofpacket_queue_list const& pql)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Queue-Get-Config-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Queue-Get-Config-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_queue_get_config_reply *msg =
+				new rofl::openflow::cofmsg_queue_get_config_reply(
+						rofchan.get_version(),
+						xid,
+						portno,
+						pql);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Queue-Get-Config-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Queue-Get-Config-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_queue_get_config_reply *msg =
-			new rofl::openflow::cofmsg_queue_get_config_reply(
-					rofchan.get_version(),
-					xid,
-					portno,
-					pql);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1298,18 +1529,28 @@ crofctl_impl::send_get_async_config_reply(
 		uint32_t xid,
 		rofl::openflow::cofasync_config const& async_config)
 {
-	if (not is_established()) {
-		rofl::logging::warn << "[rofl][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
-		return;
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_get_async_config_reply *msg =
+				new rofl::openflow::cofmsg_get_async_config_reply(
+						rofchan.get_version(),
+						xid,
+						async_config);
+
+		unsigned int cwnd = rofchan.send_message(auxid, msg);
+
+		rofl::logging::debug << "[rofl][ctl] dropping Get-Async-Config-Reply message, cwnd:" << cwnd << std::endl;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Get-Async-Config-Reply message" << std::endl;
+
 	}
 
-	rofl::openflow::cofmsg_get_async_config_reply *msg =
-			new rofl::openflow::cofmsg_get_async_config_reply(
-					rofchan.get_version(),
-					xid,
-					async_config);
-
-	rofchan.send_message(auxid, msg);
+	throw eRofBaseCongested();
 }
 
 
@@ -1532,7 +1773,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
-	} catch (eFlowModBadTimeout&e ) {
+	} catch (eFlowModBadTimeout& e) {
 
 		rofl::logging::warn << "eFlowModBadTimeout " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_flow_mod_failed_bad_timeout(
