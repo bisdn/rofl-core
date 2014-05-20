@@ -445,6 +445,14 @@ restart:
 
 
 void
+crofchan::handle_write(crofconn *conn)
+{
+	env->handle_write(this, conn->get_aux_id());
+}
+
+
+
+void
 crofchan::recv_message(crofconn *conn, rofl::openflow::cofmsg *msg)
 {
 	env->recv_message(this, conn->get_aux_id(), msg);

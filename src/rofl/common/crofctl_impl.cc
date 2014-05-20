@@ -101,6 +101,15 @@ crofctl_impl::handle_disconnected(
 
 
 void
+crofctl_impl::handle_write(
+		rofl::crofchan *chan, const cauxid& auxid)
+{
+	rofbase->handle_write(*this, auxid);
+}
+
+
+
+void
 crofctl_impl::ta_expired(
 		ctransactions& tas,
 		ctransaction& ta)

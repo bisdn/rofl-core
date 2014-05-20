@@ -434,6 +434,10 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {
 
 		dequeue_packet();
+
+		if (socket_owner) {
+			socket_owner->handle_write(*this);
+		}
 	}
 }
 

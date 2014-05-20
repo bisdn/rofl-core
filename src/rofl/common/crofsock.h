@@ -71,6 +71,7 @@ public:
 	virtual void handle_connect_failed(crofsock *endpnt) = 0;
 	virtual void handle_connected(crofsock *endpnt) = 0;
 	virtual void handle_closed(crofsock *endpnt) = 0;
+	virtual void handle_write(crofsock *endpnt) = 0;
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
 

@@ -224,6 +224,9 @@ public:
 	handle_closed(crofconn *conn);
 
 	virtual void
+	handle_write(crofconn *conn);
+
+	virtual void
 	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) { delete msg; };
 
 	virtual uint32_t
@@ -686,6 +689,26 @@ protected:
 	 */
 
 	/**@{*/
+
+	/**
+	 *
+	 * @param ctl
+	 * @param auxid
+	 */
+	virtual void
+	handle_write(rofl::crofctl& ctl, const cauxid& auxid) {};
+
+
+
+	/**
+	 *
+	 * @param ctl
+	 * @param auxid
+	 */
+	virtual void
+	handle_write(rofl::crofdpt& dpt, const cauxid& auxid) {};
+
+
 
 	/**
 	 * @brief	Called once a FEATURES.request message was received from a controller entity.

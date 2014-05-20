@@ -36,6 +36,7 @@ public:
 	virtual ~crofchan_env() {};
 	virtual void handle_established(crofchan *chan) = 0;
 	virtual void handle_disconnected(crofchan *chan) = 0;
+	virtual void handle_write(crofchan *chan, const cauxid& auxid) = 0;
 	virtual void recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
@@ -102,6 +103,9 @@ public:
 
 	virtual void
 	handle_closed(crofconn *conn);
+
+	virtual void
+	handle_write(crofconn *conn);
 
 	virtual void
 	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg);

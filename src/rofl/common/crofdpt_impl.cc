@@ -463,6 +463,13 @@ crofdpt_impl::handle_disconnected(crofchan *chan)
 
 
 void
+crofdpt_impl::handle_write(crofchan *chan, const cauxid& auxid)
+{
+	rofbase->handle_write(*this, auxid);
+}
+
+
+void
 crofdpt_impl::recv_message(crofchan *chan, const cauxid& auxid, rofl::openflow::cofmsg *msg)
 {
 	try {

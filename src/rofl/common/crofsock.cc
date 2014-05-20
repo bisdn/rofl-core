@@ -270,7 +270,7 @@ void
 crofsock::handle_write(
 		csocket& socket)
 {
-
+	env->handle_write(this);
 }
 
 

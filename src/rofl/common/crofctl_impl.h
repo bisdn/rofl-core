@@ -147,6 +147,10 @@ public:
 			rofl::crofchan *chan);
 
 	virtual void
+	handle_write(
+			rofl::crofchan *chan, const cauxid& auxid);
+
+	virtual void
 	recv_message(
 			rofl::crofchan *chan,
 			const cauxid& aux_id, rofl::openflow::cofmsg *msg);

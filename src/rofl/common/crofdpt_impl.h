@@ -189,6 +189,9 @@ public:
 	handle_disconnected(crofchan *chan);
 
 	virtual void
+	handle_write(crofchan *chan, const cauxid& auxid);
+
+	virtual void
 	recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t

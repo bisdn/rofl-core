@@ -517,6 +517,14 @@ crofconn::handle_closed(crofsock *endpnt)
 
 
 void
+crofconn::handle_write(crofsock *endpnt)
+{
+	env->handle_write(this);
+}
+
+
+
+void
 crofconn::recv_message(
 		crofsock *endpnt,
 		rofl::openflow::cofmsg *msg)

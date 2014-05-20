@@ -422,6 +422,16 @@ crofbase::handle_closed(
 }
 
 
+
+void
+crofbase::handle_write(
+		crofconn *conn)
+{
+
+}
+
+
+
 #if 0
 void
 crofbase::handle_connected(

@@ -35,6 +35,7 @@ public:
 	virtual void handle_connect_failed(crofconn *conn) = 0;
 	virtual void handle_connected(crofconn *conn, uint8_t ofp_version) = 0;
 	virtual void handle_closed(crofconn *conn) = 0;
+	virtual void handle_write(crofconn *conn) = 0;
 	virtual void recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofconn *conn) = 0;
 	virtual uint32_t get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
@@ -244,6 +245,9 @@ private:
 
 	virtual void
 	handle_closed(crofsock *rofsock);
+
+	virtual void
+	handle_write(crofsock *rofsock);
 
 	virtual void
 	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg);
