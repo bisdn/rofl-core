@@ -695,7 +695,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_features_request& msg, uint8_t aux_id = 0) {};
+	handle_features_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_features_request& msg) {};
 
 
 
@@ -708,7 +708,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_features_reply& msg, uint8_t aux_id = 0) {};
+	handle_features_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_features_reply& msg) {};
 
 
 
@@ -733,7 +733,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_get_config_request& msg, uint8_t aux_id = 0) {};
+	handle_get_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_get_config_request& msg) {};
 
 
 
@@ -746,7 +746,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_get_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_get_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_get_config_reply& msg) {};
 
 
 
@@ -786,174 +786,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-	/**
-	 * @brief	Called once a DESC-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the DESC-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_desc_stats_request message containing the received message
-	 */
-	virtual void
-	handle_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a TABLE-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the TABLE-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_table_stats_request message containing the received message
-	 */
-	virtual void
-	handle_table_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a PORT-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the PORT-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_port_stats_request message containing the received message
-	 */
-	virtual void
-	handle_port_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a FLOW-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the FLOW-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_flow_stats_request message containing the received message
-	 */
-	virtual void
-	handle_flow_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_flow_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once an AGGREGATE-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the AGGREGATE-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_aggr_stats_request message containing the received message
-	 */
-	virtual void
-	handle_aggregate_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_aggr_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a QUEUE-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the QUEUE-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_queue_stats_request message containing the received message
-	 */
-	virtual void
-	handle_queue_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_queue_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a GROUP-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the GROUP-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_group_stats_request message containing the received message
-	 */
-	virtual void
-	handle_group_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a GROUP-DESC-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the GROUP-DESC-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_group_desc_stats_request message containing the received message
-	 */
-	virtual void
-	handle_group_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a GROUP-FEATURES-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the GROUP-FEATURES-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_group_features_stats_request message containing the received message
-	 */
-	virtual void
-	handle_group_features_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the TABLE-FEATURES-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_table_features_request message containing the received message
-	 */
-	virtual void
-	handle_table_features_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the PORT-DESC-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_port_desc_stats_request message containing the received message
-	 */
-	virtual void
-	handle_port_desc_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
-
-
-
-	/**
-	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
-	 *
-	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
-	 * of msg from heap and generation of proper error message sent to controller entity.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER-STATS.request was received
-	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter_stats_request message containing the received message
-	 */
-	virtual void
-	handle_experimenter_stats_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_experimenter_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -966,7 +799,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_stats_reply& msg) {};
 
 
 
@@ -984,6 +817,20 @@ protected:
 
 
 	/**
+	 * @brief	Called once a DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+
+
+
+	/**
 	 * @brief	Called once a DESC-STATS.reply message was received.
 	 *
 	 * To be overwritten by derived class. Default behavior: removes msg from heap.
@@ -992,7 +839,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_desc_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a TABLE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_table_stats_request message containing the received message
+	 */
+	virtual void
+	handle_table_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1005,7 +877,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_table_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_table_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a TABLE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_table_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_port_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1018,7 +915,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_port_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_port_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a FLOW-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the FLOW-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_flow_stats_request message containing the received message
+	 */
+	virtual void
+	handle_flow_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1031,7 +953,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_flow_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a FLOW-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_flow_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once an AGGREGATE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the AGGREGATE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_aggr_stats_request message containing the received message
+	 */
+	virtual void
+	handle_aggregate_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1045,7 +992,32 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_aggr_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_aggregate_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a AGGREGATE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_aggregate_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a QUEUE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the QUEUE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_queue_stats_request message containing the received message
+	 */
+	virtual void
+	handle_queue_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_queue_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1058,7 +1030,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_queue_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_queue_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_queue_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a QUEUE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_queue_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1071,7 +1068,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1084,7 +1106,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_features_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1097,7 +1144,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_group_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_table_features_request message containing the received message
+	 */
+	virtual void
+	handle_table_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1110,7 +1182,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_features_reply message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_table_features_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_table_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_port_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1123,7 +1220,32 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_desc_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_desc_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_port_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_port_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter_stats_request message containing the received message
+	 */
+	virtual void
+	handle_experimenter_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1136,7 +1258,18 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_experimenter_stats_reply& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once an EXPERIMENTER-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_experimenter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1149,7 +1282,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(rofl::crofctl& ctl, rofl::openflow::cofmsg_packet_out& msg, uint8_t aux_id = 0) {};
+	handle_packet_out(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_packet_out& msg) {};
 
 
 
@@ -1162,7 +1295,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(rofl::crofdpt& dpt, rofl::openflow::cofmsg_packet_in& msg, uint8_t aux_id = 0) {};
+	handle_packet_in(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg) {};
 
 
 
@@ -1175,7 +1308,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_barrier_request& msg, uint8_t aux_id = 0) {};
+	handle_barrier_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_barrier_request& msg) {};
 
 
 
@@ -1188,7 +1321,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_barrier_reply& msg, uint8_t aux_id = 0) {};
+	handle_barrier_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_barrier_reply& msg) {};
 
 
 
@@ -1215,7 +1348,7 @@ protected:
 	 */
 #if 0
 	virtual void
-	handle_error(rofl::crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 #endif
 
 
@@ -1228,7 +1361,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_flow_mod& msg, uint8_t aux_id = 0) {};
+	handle_flow_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_flow_mod& msg) {};
 
 
 
@@ -1241,7 +1374,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_group_mod& msg, uint8_t aux_id = 0) {};
+	handle_group_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_mod& msg) {};
 
 
 
@@ -1254,7 +1387,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_table_mod& msg, uint8_t aux_id = 0) {};
+	handle_table_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_mod& msg) {};
 
 
 
@@ -1267,7 +1400,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_port_mod& msg, uint8_t aux_id = 0) {};
+	handle_port_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_mod& msg) {};
 
 
 
@@ -1280,7 +1413,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(rofl::crofdpt& dpt, rofl::openflow::cofmsg_flow_removed& msg, uint8_t aux_id = 0) {};
+	handle_flow_removed(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_removed& msg) {};
 
 
 
@@ -1293,7 +1426,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(rofl::crofdpt& dpt, rofl::openflow::cofmsg_port_status& msg, uint8_t aux_id = 0) {};
+	handle_port_status(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_status& msg) {};
 
 
 
@@ -1307,7 +1440,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_queue_get_config_request& msg, uint8_t aux_id = 0) {};
+	handle_queue_get_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_request& msg) {};
 
 
 
@@ -1320,7 +1453,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_queue_get_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_queue_get_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_reply& msg) {};
 
 
 	/**
@@ -1344,7 +1477,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(rofl::crofctl& ctl, rofl::openflow::cofmsg_set_config& msg, uint8_t aux_id = 0) {};
+	handle_set_config(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_set_config& msg) {};
 
 
 
@@ -1358,7 +1491,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(rofl::crofdpt& dpt, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_message(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
 
 
 
@@ -1371,7 +1504,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(rofl::crofctl& ctl, rofl::openflow::cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
+	handle_experimenter_message(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
 
 
 
@@ -1385,7 +1518,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(rofl::crofdpt& dpt, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error_message(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 
 
 
@@ -1398,7 +1531,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(rofl::crofctl& ctl, rofl::openflow::cofmsg_error& msg, uint8_t aux_id = 0) {};
+	handle_error_message(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 
 
 
@@ -1435,7 +1568,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_role_request& msg, uint8_t aux_id = 0) {};
+	handle_role_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_role_request& msg) {};
 
 
 
@@ -1448,7 +1581,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_role_reply& msg, uint8_t aux_id = 0) {};
+	handle_role_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_role_reply& msg) {};
 
 
 
@@ -1473,7 +1606,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(rofl::crofctl& ctl, rofl::openflow::cofmsg_get_async_config_request& msg, uint8_t aux_id = 0) {};
+	handle_get_async_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_get_async_config_request& msg) {};
 
 
 
@@ -1486,7 +1619,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(rofl::crofdpt& dpt, rofl::openflow::cofmsg_get_async_config_reply& msg, uint8_t aux_id = 0) {};
+	handle_get_async_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_get_async_config_reply& msg) {};
 
 
 	/**
@@ -1509,7 +1642,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(rofl::crofctl& ctl, rofl::openflow::cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
+	handle_set_async_config(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_set_async_config& msg) {};
 
 
 	/**@}*/
@@ -1562,6 +1695,7 @@ protected:
 	 */
 	void
 	send_packet_in_message(
+			const cauxid& auxid,
 			uint32_t buffer_id,
 			uint16_t total_len,
 			uint8_t reason,
@@ -1577,25 +1711,27 @@ protected:
 	 */
 	void
 	send_flow_removed_message(
-		rofl::openflow::cofmatch& match,
-		uint64_t cookie,
-		uint16_t priority,
-		uint8_t reason,
-		uint8_t table_id,
-		uint32_t duration_sec,
-		uint32_t duration_nsec,
-		uint16_t idle_timeout,
-		uint16_t hard_timeout,
-		uint64_t packet_count,
-		uint64_t byte_count);
+			const cauxid& auxid,
+			rofl::openflow::cofmatch& match,
+			uint64_t cookie,
+			uint16_t priority,
+			uint8_t reason,
+			uint8_t table_id,
+			uint32_t duration_sec,
+			uint32_t duration_nsec,
+			uint16_t idle_timeout,
+			uint16_t hard_timeout,
+			uint64_t packet_count,
+			uint64_t byte_count);
 
 	/**
 	 *
 	 */
 	void
 	send_port_status_message(
-		uint8_t reason,
-		rofl::openflow::cofport const& port);
+			const cauxid& auxid,
+			uint8_t reason,
+			rofl::openflow::cofport const& port);
 
 
 private:

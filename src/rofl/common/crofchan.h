@@ -19,6 +19,7 @@
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
 #include "rofl/common/ctimerid.h"
+#include "rofl/common/cauxid.h"
 
 namespace rofl {
 
@@ -35,7 +36,7 @@ public:
 	virtual ~crofchan_env() {};
 	virtual void handle_established(crofchan *chan) = 0;
 	virtual void handle_disconnected(crofchan *chan) = 0;
-	virtual void recv_message(crofchan *chan, uint8_t aux_id, rofl::openflow::cofmsg *msg) = 0;
+	virtual void recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
@@ -46,7 +47,7 @@ class crofchan :
 		public ciosrv
 {
 	crofchan_env						*env;
-	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
+	std::map<cauxid, crofconn*>			conns;				// main and auxiliary connections
 	rofl::openflow::cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
 	uint8_t								ofp_version;		// OFP version negotiated
 	std::bitset<32>						flags;
@@ -139,7 +140,7 @@ public:
 	 */
 	unsigned int
 	send_message(
-			uint8_t aux_id, rofl::openflow::cofmsg *msg);
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
 
 
 	/**
@@ -147,7 +148,7 @@ public:
 	 */
 	crofconn&
 	add_conn(
-			uint8_t aux_id,
+			const cauxid& aux_id,
 			enum rofl::csocket::socket_type_t socket_type,
 			cparams const& socket_params);
 
@@ -156,35 +157,35 @@ public:
 	 */
 	crofconn&
 	add_conn(
-			uint8_t aux_id, crofconn* conn);
+			const cauxid& aux_id, crofconn* conn);
 
 	/**
 	 *
 	 */
 	crofconn&
 	set_conn(
-			uint8_t aux_id);
+			const cauxid& aux_id);
 
 	/**
 	 *
 	 */
 	crofconn const&
 	get_conn(
-			uint8_t aux_id) const;
+			const cauxid& aux_id) const;
 
 	/**
 	 *
 	 */
 	void
 	drop_conn(
-			uint8_t aux_id);
+			const cauxid& aux_id);
 
 	/**
 	 *
 	 */
 	bool
 	has_conn(
-			uint8_t aux_id) const;
+			const cauxid& aux_id) const;
 
 
 private:
@@ -216,7 +217,7 @@ public:
 				<< " ofp-version: " << (int)chan.ofp_version << " >" << std::endl;
 		indent i(2);
 		os << chan.versionbitmap;
-		for (std::map<uint8_t, crofconn*>::const_iterator
+		for (std::map<cauxid, crofconn*>::const_iterator
 				it = chan.conns.begin(); it != chan.conns.end(); ++it) {
 			os << *(it->second);
 		}

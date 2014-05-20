@@ -62,7 +62,7 @@ crofconn::reconnect(
 
 void
 crofconn::connect(
-		uint8_t aux_id,
+		const cauxid& aux_id,
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {

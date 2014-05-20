@@ -26,6 +26,7 @@
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
 #include "rofl/common/openflow/cofrole.h"
+#include "rofl/common/cauxid.h"
 
 
 namespace rofl
@@ -364,7 +365,7 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_features_request() = 0;
+	send_features_request(const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a GET-CONFIG.request to a data path element.
@@ -372,7 +373,7 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_get_config_request() = 0;
+	send_get_config_request(const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-STATS.request to a data path element.
@@ -382,6 +383,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_features_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags) = 0;
 
 	/**
@@ -395,6 +397,7 @@ public:
 	 */
 	virtual uint32_t
 	send_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_type,
 			uint16_t stats_flags,
 			uint8_t *body = NULL,
@@ -408,6 +411,7 @@ public:
 	 */
 	virtual uint32_t
 	send_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags) = 0;
 
 	/**
@@ -419,6 +423,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofflow_stats_request const& flow_stats_request) = 0;
 
@@ -431,6 +436,7 @@ public:
 	 */
 	virtual uint32_t
 	send_aggr_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags,
 			rofl::openflow::cofaggr_stats_request const& aggr_stats_request) = 0;
 
@@ -443,6 +449,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -454,6 +461,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofport_stats_request const& port_stats_request) = 0;
 
@@ -466,6 +474,7 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofqueue_stats_request const& queue_stats_request) = 0;
 
@@ -478,6 +487,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofgroup_stats_request const& group_stats_request) = 0;
 
@@ -489,6 +499,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags = 0) = 0;
 
 	/**
@@ -499,6 +510,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags) = 0;
 
 	/**
@@ -509,6 +521,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags) = 0;
 
 	/**
@@ -522,6 +535,7 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			uint32_t exp_id,
 			uint32_t exp_type,
@@ -539,6 +553,7 @@ public:
 	 */
 	virtual uint32_t
 	send_packet_out_message(
+			const cauxid& aux_id,
 			uint32_t buffer_id,
 			uint32_t in_port,
 			rofl::openflow::cofactions& aclist,
@@ -551,7 +566,8 @@ public:
 	 * @result transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_barrier_request() = 0;
+	send_barrier_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a ROLE.request to a data path element.
@@ -561,6 +577,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
+			const cauxid& aux_id,
 			rofl::openflow::cofrole const& role) = 0;
 
 	/**
@@ -570,6 +587,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_mod_message(
+			const cauxid& aux_id,
 			rofl::openflow::cofflowmod const& flowentry) = 0;
 
 	/**
@@ -579,6 +597,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_mod_message(
+			const cauxid& aux_id,
 			rofl::openflow::cofgroupmod const& groupentry) = 0;
 
 	/**
@@ -589,6 +608,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_mod_message(
+			const cauxid& aux_id,
 			uint8_t table_id,
 			uint32_t config) = 0;
 
@@ -603,6 +623,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_mod_message(
+			const cauxid& aux_id,
 			uint32_t port_no,
 			cmacaddr const& hwaddr,
 			uint32_t config,
@@ -617,8 +638,9 @@ public:
 	 */
 	virtual uint32_t
 	send_set_config_message(
-		uint16_t flags,
-		uint16_t miss_send_len) = 0;
+			const cauxid& aux_id,
+			uint16_t flags,
+			uint16_t miss_send_len) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
@@ -628,7 +650,8 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_get_config_request(
-		uint32_t port) = 0;
+			const cauxid& aux_id,
+			uint32_t port) = 0;
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
@@ -636,7 +659,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_get_async_config_request() = 0;
+	send_get_async_config_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
@@ -644,7 +668,8 @@ public:
 	 */
 	virtual uint32_t
 	send_set_async_config_message(
-		rofl::openflow::cofasync_config const& async_config) = 0;
+			const cauxid& aux_id,
+			rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**
 	 * @brief	Sends an ERROR.message to a data path element.
@@ -660,11 +685,12 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		uint32_t xid,
-		uint16_t type,
-		uint16_t code,
-		uint8_t* data = NULL,
-		size_t datalen = 0) = 0;
+			const cauxid& aux_id,
+			uint32_t xid,
+			uint16_t type,
+			uint16_t code,
+			uint8_t* data = NULL,
+			size_t datalen = 0) = 0;
 
 	/**
 	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
@@ -677,6 +703,7 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_message(
+			const cauxid& aux_id,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,

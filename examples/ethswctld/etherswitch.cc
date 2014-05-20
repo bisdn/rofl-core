@@ -82,7 +82,7 @@ ethswitch::request_flow_stats()
 
 
 void
-ethswitch::handle_flow_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id)
+ethswitch::handle_flow_stats_reply(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg)
 {
 #if 0
 	if (fib.find(dpt) == fib.end()) {
@@ -157,7 +157,7 @@ ethswitch::handle_dpath_open(
 		throw eBadVersion();
 	}
 
-	dpt.send_flow_mod_message(fe);
+	dpt.send_flow_mod_message(cauxid(0), fe);
 
 	cfib::get_fib(dpt.get_dpid()).dpt_bind(this, &dpt);
 }
@@ -178,8 +178,8 @@ ethswitch::handle_dpath_close(
 void
 ethswitch::handle_packet_in(
 		crofdpt& dpt,
-		rofl::openflow::cofmsg_packet_in& msg,
-		uint8_t aux_id)
+		const cauxid& auxid,
+		rofl::openflow::cofmsg_packet_in& msg)
 {
 	try {
 		msg.set_packet().classify(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
@@ -234,7 +234,7 @@ ethswitch::handle_packet_in(
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
 
-			dpt.send_flow_mod_message(fe);
+			dpt.send_flow_mod_message(auxid, fe);
 
 			return;
 		}
@@ -275,7 +275,7 @@ ethswitch::handle_packet_in(
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
 
-			dpt.send_flow_mod_message(fe);
+			dpt.send_flow_mod_message(auxid, fe);
 
 			return;
 		}
@@ -322,7 +322,7 @@ ethswitch::handle_packet_in(
 
 				indent i(2); rofl::logging::debug << "[ethsw][packet-in] installing flow mod" << std::endl << fe;
 
-				dpt.send_flow_mod_message(fe);
+				dpt.send_flow_mod_message(auxid, fe);
 
 				return;
 
@@ -365,9 +365,9 @@ ethswitch::handle_packet_in(
 		}
 
 		if (ofp_no_buffer != msg.get_buffer_id()) {
-			dpt.send_packet_out_message(msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions);
+			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions);
 		} else {
-			dpt.send_packet_out_message(msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions,
+			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions,
 					msg.set_packet().soframe(), msg.set_packet().framelen());
 		}
 

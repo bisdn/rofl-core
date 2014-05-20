@@ -90,9 +90,10 @@ class crofsock :
 	static unsigned int const			DEFAULT_MAX_PKTS_RVCD_PER_ROUND = 16;
 
 	enum outqueue_type_t {
-		QUEUE_MGMT = 0, // all packets, except ...
-		QUEUE_FLOW = 1, // Flow-Mod/Flow-Removed
-		QUEUE_PKT  = 2, // Packet-In/Packet-Out
+		QUEUE_OAM  = 0, // Echo.request/Echo.reply
+		QUEUE_MGMT = 1, // all remaining packets, except ...
+		QUEUE_FLOW = 2, // Flow-Mod/Flow-Removed
+		QUEUE_PKT  = 3, // Packet-In/Packet-Out
 		QUEUE_MAX,		// do not use
 	};
 
@@ -153,8 +154,19 @@ class crofsock :
 			if (queue.empty())
 				return NULL;
 			rofl::openflow::cofmsg *msg = queue.front();
-			queue.pop_front();
+			//queue.pop_front();
 			return msg;
+		};
+
+		/**
+		 *
+		 */
+		void
+		pop() {
+			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			if (queue.empty())
+				return;
+			queue.pop_front();
 		};
 
 		/**

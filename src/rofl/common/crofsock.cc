@@ -21,10 +21,12 @@ crofsock::crofsock(
 		outqueues.push_back(rofqueue());
 	}
 	// scheduler weights for transmission
+	outqueues[QUEUE_OAM ].set_max_limit(4);
 	outqueues[QUEUE_MGMT].set_max_limit(8);
 	outqueues[QUEUE_FLOW].set_max_limit(4);
 	outqueues[QUEUE_PKT ].set_max_limit(2);
 	// maximum congestion window for queues
+	outqueues[QUEUE_OAM ].set_max_cwnd(64);
 	outqueues[QUEUE_MGMT].set_max_cwnd(128);
 	outqueues[QUEUE_FLOW].set_max_cwnd(64);
 	outqueues[QUEUE_PKT ].set_max_cwnd(32);
@@ -304,6 +306,10 @@ crofsock::send_message(
 		case rofl::openflow10::OFPT_FLOW_REMOVED: {
 			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
+		case rofl::openflow10::OFPT_ECHO_REQUEST:
+		case rofl::openflow10::OFPT_ECHO_REPLY: {
+			cwnd_size = outqueues[QUEUE_OAM].store(msg);
+		} break;
 		default: {
 			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
 		};
@@ -319,6 +325,10 @@ crofsock::send_message(
 		case rofl::openflow12::OFPT_FLOW_REMOVED: {
 			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
+		case rofl::openflow12::OFPT_ECHO_REQUEST:
+		case rofl::openflow12::OFPT_ECHO_REPLY: {
+			cwnd_size = outqueues[QUEUE_OAM].store(msg);
+		} break;
 		default: {
 			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
 		};
@@ -333,6 +343,10 @@ crofsock::send_message(
 		case rofl::openflow13::OFPT_FLOW_MOD:
 		case rofl::openflow13::OFPT_FLOW_REMOVED: {
 			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
+		} break;
+		case rofl::openflow13::OFPT_ECHO_REQUEST:
+		case rofl::openflow13::OFPT_ECHO_REPLY: {
+			cwnd_size = outqueues[QUEUE_OAM].store(msg);
 		} break;
 		default: {
 			cwnd_size = outqueues[QUEUE_MGMT].store(msg);
@@ -356,22 +370,36 @@ void
 crofsock::send_from_queue()
 {
 	bool reschedule = false;
+	bool congested = false;
 
 	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
 
 		for (unsigned int num = 0; num < outqueues[queue_id].get_limit(); ++num) {
-			rofl::openflow::cofmsg *msg = outqueues[queue_id].retrieve();
-			if (NULL == msg)
-				break;
-			cmemory *mem = new cmemory(msg->length());
 
-			msg->pack(mem->somem(), mem->memlen());
-			delete msg;
+			cmemory *mem = (cmemory*)0;
+
 			try {
-				socket->send(mem);
+				rofl::openflow::cofmsg *msg = outqueues[queue_id].retrieve();
+				if (NULL == msg)
+					break;
+
+				mem = new cmemory(msg->length());
+				msg->pack(mem->somem(), mem->memlen());
+
+				socket->send(mem); // may throw exception
+
+				outqueues[queue_id].pop();
+				delete msg;
+
 			} catch (eSocketTxAgain& e) {
 				rofl::logging::error << "[rofl][sock][send-from-queue] transport "
-						<< "connection congested, dropping message." << std::endl;
+						<< "connection congested, waiting." << std::endl;
+
+				congested = true;
+
+				if (mem) {
+					delete mem;
+				}
 			}
 		}
 
@@ -380,7 +408,7 @@ crofsock::send_from_queue()
 		}
 	}
 
-	if (reschedule) {
+	if (reschedule && not congested) {
 		notify(CROFSOCK_EVENT_WAKEUP);
 	}
 }

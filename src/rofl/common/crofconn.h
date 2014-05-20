@@ -18,6 +18,7 @@
 #include "rofl/common/crandom.h"
 #include "rofl/common/csegmentation.h"
 #include "rofl/common/ctimerid.h"
+#include "rofl/common/cauxid.h"
 
 namespace rofl {
 
@@ -47,7 +48,7 @@ class crofconn :
 {
 	crofconn_env 					*env;
 	uint64_t						dpid;
-	uint8_t							auxiliary_id;
+	cauxid							auxiliary_id;
 	crofsock						rofsock;
 	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
 	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
@@ -155,7 +156,7 @@ public:
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
 	 */
 	void
-	connect(uint8_t aux_id, enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+	connect(const cauxid& aux_id, enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
 
 	/**
 	 * @brief	Instruct crofsock instance to reconnect to previously connected peer.
@@ -209,7 +210,7 @@ public:
 	/**
 	 * @brief	Return auxialiary_id
 	 */
-	uint8_t
+	cauxid const&
 	get_aux_id() const { return auxiliary_id; };
 
 	/**
@@ -558,9 +559,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, crofconn const& conn) {
 		os << indent(0) << "<crofconn ofp-version:" << (int)conn.ofp_version
-				<< " aux-id:" << (int)conn.auxiliary_id
 				<< " OFP-transport-connection-established:" << conn.rofsock.is_established()
 				<< " >" << std::endl;
+		{ rofl::indent i(2); os << conn.get_aux_id(); }
 		if (conn.state == STATE_DISCONNECTED) {
 			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
 		}

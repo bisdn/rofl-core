@@ -57,6 +57,7 @@ crofbase::~crofbase()
 
 void
 crofbase::send_packet_in_message(
+		const cauxid& auxid,
 		uint32_t buffer_id,
 		uint16_t total_len,
 		uint8_t reason,
@@ -121,6 +122,7 @@ crofbase::send_packet_in_message(
 		}
 
 		ctl.send_packet_in_message(
+				auxid,
 				buffer_id,
 				total_len,
 				reason,
@@ -143,17 +145,18 @@ crofbase::send_packet_in_message(
 
 void
 crofbase::send_flow_removed_message(
+		const cauxid& auxid,
 		rofl::openflow::cofmatch& match,
-	uint64_t cookie,
-	uint16_t priority,
-	uint8_t reason,
-	uint8_t table_id,
-	uint32_t duration_sec,
-	uint32_t duration_nsec,
-	uint16_t idle_timeout,
-	uint16_t hard_timeout,
-	uint64_t packet_count,
-	uint64_t byte_count)
+		uint64_t cookie,
+		uint16_t priority,
+		uint8_t reason,
+		uint8_t table_id,
+		uint32_t duration_sec,
+		uint32_t duration_nsec,
+		uint16_t idle_timeout,
+		uint16_t hard_timeout,
+		uint64_t packet_count,
+		uint64_t byte_count)
 {
 	bool sent_out = false;
 
@@ -209,6 +212,7 @@ crofbase::send_flow_removed_message(
 		}
 
 		ctl.send_flow_removed_message(
+				auxid,
 				match,
 				cookie,
 				priority,
@@ -233,8 +237,9 @@ crofbase::send_flow_removed_message(
 
 void
 crofbase::send_port_status_message(
-	uint8_t reason,
-	rofl::openflow::cofport const& port)
+		const cauxid& auxid,
+		uint8_t reason,
+		rofl::openflow::cofport const& port)
 {
 	bool sent_out = false;
 
@@ -289,7 +294,7 @@ crofbase::send_port_status_message(
 		};
 		}
 
-		ctl.send_port_status_message(reason, port);
+		ctl.send_port_status_message(auxid, reason, port);
 
 		sent_out = true;
 	}
