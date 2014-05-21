@@ -71,6 +71,15 @@ public:
 	 *
 	 */
 	bool
+	operator!= (
+			cctlid const& ctlid) const {
+		return (id != ctlid.id);
+	};
+
+	/**
+	 *
+	 */
+	bool
 	operator< (
 			cctlid const& ctlid) const {
 		return (id < ctlid.id);

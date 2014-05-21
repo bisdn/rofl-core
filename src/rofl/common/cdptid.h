@@ -71,6 +71,15 @@ public:
 	 *
 	 */
 	bool
+	operator!= (
+			cdptid const& dptid) const {
+		return (id != dptid.id);
+	};
+
+	/**
+	 *
+	 */
+	bool
 	operator< (
 			cdptid const& dptid) const {
 		return (id < dptid.id);
