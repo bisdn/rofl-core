@@ -11,6 +11,8 @@
 #include "openflow/openflow.h"
 #include "croflexception.h"
 #include "cmemory.h"
+#include "rofl/common/cctlid.h"
+#include "rofl/common/csocket.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofports.h"
@@ -45,15 +47,15 @@ class crofctl
 {
 	static uint64_t next_ctlid;
 
-	static std::map<uint64_t, crofctl*> rofctls;
+	static std::map<cctlid, crofctl*> rofctls;
 
-	uint64_t   ctlid;
+	cctlid   ctlid;
 
 public: // methods
 
 
 	static crofctl&
-	get_ctl(uint64_t ctlid);
+	get_ctl(const cctlid& ctlid);
 
 
 	/**
@@ -62,7 +64,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofctl() :
-			ctlid(++crofctl::next_ctlid) {
+			ctlid(cctlid(++crofctl::next_ctlid)) {
 		crofctl::rofctls[ctlid] = this;
 	};
 
@@ -79,10 +81,30 @@ public:
 	/**
 	 * @brief	Returns the controller handle id
 	 */
-	virtual uint64_t
+	virtual const cctlid&
 	get_ctlid() const { return ctlid; };
 
+
 public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() = 0;
+
+
+public:
+
 
 	/**
 	 *
@@ -553,6 +575,21 @@ public:
 			rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	class crofctl_find_by_ctlid {
+		cctlid ctlid;
+	public:
+		crofctl_find_by_ctlid(const cctlid& ctlid) : ctlid(ctlid) {};
+		bool operator() (const crofctl* rofctl) {
+			return (rofctl->get_ctlid() == ctlid);
+		};
+	};
+
 };
 
 

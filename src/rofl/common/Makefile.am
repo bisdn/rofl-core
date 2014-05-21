@@ -79,7 +79,9 @@ librofl_common_la_SOURCES = \
 		cparams.cc \
 		ctimerid.h \
 		ctimerid.cc \
-		cauxid.h
+		cauxid.h \
+		cctlid.h \
+		cdptid.h
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -131,7 +133,9 @@ library_include_HEADERS= \
 		cparam.h \
 		cparams.h \
 		ctimerid.h \
-		cauxid.h
+		cauxid.h \
+		cctlid.h \
+		cdptid.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \

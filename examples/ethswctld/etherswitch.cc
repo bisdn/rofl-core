@@ -115,14 +115,14 @@ ethswitch::handle_flow_stats_reply(crofdpt& dpt, const cauxid& auxid, rofl::open
 
 
 void
-ethswitch::handle_dpath_open(
+ethswitch::handle_dpt_attached(
 		crofdpt& dpt)
 {
 	dpt.flow_mod_reset();
 
 	rofl::openflow::cofflowmod fe(dpt.get_version());
 
-	cfib::get_fib(dpt.get_dpid()).clear();
+	cfib::get_fib(dpt.get_dptid()).clear();
 
 	dpt.flow_mod_reset();
 	dpt.group_mod_reset();
@@ -159,18 +159,18 @@ ethswitch::handle_dpath_open(
 
 	dpt.send_flow_mod_message(cauxid(0), fe);
 
-	cfib::get_fib(dpt.get_dpid()).dpt_bind(this, &dpt);
+	cfib::get_fib(dpt.get_dptid()).dpt_bind(this, &dpt);
 }
 
 
 
 void
-ethswitch::handle_dpath_close(
+ethswitch::handle_dpt_detached(
 		crofdpt& dpt)
 {
-	cfib::get_fib(dpt.get_dpid()).dpt_release(this, &dpt);
+	cfib::get_fib(dpt.get_dptid()).dpt_release(this, &dpt);
 
-	logging::info << "[ethsw][dpath-close]" << std::endl << cfib::get_fib(dpt.get_dpid());
+	logging::info << "[ethsw][dpath-close]" << std::endl << cfib::get_fib(dpt.get_dptid());
 }
 
 
@@ -190,12 +190,12 @@ ethswitch::handle_packet_in(
 
 
 		logging::info << "[ethsw][packet-in] PACKET-IN => frame seen, "
-							<< "dpid:" << std::hex << (unsigned long long)dpt.get_dpid() << std::dec << " "
 							<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
 							<< "eth-src:" << msg.set_packet().ether()->get_dl_src() << " "
 							<< "eth-dst:" << msg.set_packet().ether()->get_dl_dst() << " "
 							<< "eth-type:0x" << std::hex << msg.set_packet().ether()->get_dl_type() << std::dec << " "
 							<< std::endl;
+		logging::info << dpt.get_dptid();
 
 		/*
 		 * sanity check: if source mac is multicast => invalid frame
@@ -241,7 +241,7 @@ ethswitch::handle_packet_in(
 
 
 
-		cfib::get_fib(dpt.get_dpid()).fib_update(
+		cfib::get_fib(dpt.get_dptid()).fib_update(
 								this,
 								dpt,
 								msg.set_packet().ether()->get_dl_src(),
@@ -288,7 +288,7 @@ ethswitch::handle_packet_in(
 		} else {
 
 			try {
-				cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
+				cfibentry& entry = cfib::get_fib(dpt.get_dptid()).fib_lookup(
 							this,
 							dpt,
 							msg.set_packet().ether()->get_dl_dst(),
@@ -328,7 +328,7 @@ ethswitch::handle_packet_in(
 
 			} catch (eFibInval& e) {
 
-				rofl::logging::debug << "[ethsw][packet-in] eFibInval, ignoring." << std::endl << cfib::get_fib(dpt.get_dpid());
+				rofl::logging::debug << "[ethsw][packet-in] eFibInval, ignoring." << std::endl << cfib::get_fib(dpt.get_dptid());
 
 				return;
 

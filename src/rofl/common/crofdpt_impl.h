@@ -85,8 +85,7 @@ private: // data structures
 
 		std::bitset<32>     		            flags;
 
-		uint64_t 								dpid;			// datapath id
-		std::string	 							s_dpid;			// datapath id as std::string
+
 		cmacaddr 								hwaddr;			// datapath mac address
 		uint32_t 								n_buffers; 		// number of buffer lines
 		uint8_t 								n_tables;		// number of tables
@@ -221,24 +220,6 @@ public:
 	/**@{*/
 
 	/**
-	 * @brief	Returns the data path element's data path ID.
-	 *
-	 * @return dpid
-	 */
-	virtual uint64_t
-	get_dpid() const { return dpid; };
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	virtual std::string
-	get_dpid_s() const { return s_dpid; };
-
-
-	/**
 	 * @brief	Returns the data path element's hardware address.
 	 *
 	 * @return hwaddr
@@ -338,6 +319,36 @@ public:
 
 
 	/**@}*/
+
+public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) {
+		rofchan.close();
+		transactions.clear();
+		tables.clear();
+		ports.clear();
+		state = STATE_DISCONNECTED;
+		/* establish main connection */
+		rofchan.add_conn(cauxid(0), socket_type, socket_params);
+	};
+
+
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() {
+		/* terminate main connection */
+		rofchan.drop_conn(cauxid(0));
+	};
 
 
 public:
@@ -1112,8 +1123,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofdpt_impl const& dpt) {
-		os << indent(0) << "<cofdptImpl ";
-		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << " >" << std::endl;
+		os << indent(0) << "<cofdptImpl >";
+		{ rofl::indent i(2); os << dpt.get_dptid(); }
 		{ rofl::indent i(2); os << dpt.rofchan; }
 		switch (dpt.state) {
 		case STATE_INIT: {

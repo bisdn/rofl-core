@@ -14,7 +14,9 @@
 
 
 #include "rofl/common/croflexception.h"
+#include "rofl/common/csocket.h"
 #include "rofl/common/cmemory.h"
+#include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
@@ -65,11 +67,8 @@ class crofdpt
 {
 public:
 
-	static std::map<uint64_t, crofdpt*> rofdpts;
-
-
 	static crofdpt&
-	get_dpt(uint64_t dptid);
+	get_dpt(const cdptid& dptid);
 
 public:
 
@@ -79,7 +78,10 @@ public:
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofdpt() {};
+	crofdpt() :
+		dptid(cdptid(++crofdpt::next_dptid)), dpid(0) {
+		crofdpt::rofdpts[dptid] = this;
+	};
 
 
 	/**
@@ -89,7 +91,41 @@ public:
 	 * exposed by the data path element.
 	 */
 	virtual
-	~crofdpt() {};
+	~crofdpt() {
+		crofdpt::rofdpts.erase(dptid);
+	};
+
+
+
+
+	/**
+	 * @brief	Returns the data path element's data path ID.
+	 *
+	 * @return dpid
+	 */
+	virtual const cdptid&
+	get_dptid() const { return dptid; };
+
+
+	/**
+	 * @brief	Returns the data path element's data path ID.
+	 *
+	 * @return dpid
+	 */
+	const uint64_t&
+	get_dpid() const { return dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's ID string.
+	 *
+	 * @return s_dpid
+	 */
+	const std::string&
+	get_dpid_s() const { return s_dpid; };
+
+
+public:
 
 
 	/**
@@ -143,25 +179,6 @@ public:
 	 */
 
 	/**@{*/
-
-
-
-	/**
-	 * @brief	Returns the data path element's data path ID.
-	 *
-	 * @return dpid
-	 */
-	virtual uint64_t
-	get_dpid() const = 0;
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	virtual std::string
-	get_dpid_s() const = 0;
 
 
 	/**
@@ -264,6 +281,23 @@ public:
 
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() = 0;
 
 
 public:
@@ -710,6 +744,43 @@ public:
 			size_t bodylen = 0) = 0;
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	class crofdpt_find_by_dptid {
+		cdptid dptid;
+	public:
+		crofdpt_find_by_dptid(const cdptid& dptid) : dptid(dptid) {};
+		bool operator() (const crofdpt* rofdpt) {
+			return (rofdpt->get_dptid() == dptid);
+		};
+	};
+
+protected:
+
+	/**
+	 *
+	 */
+	void
+	set_dpid(uint64_t dpid) {
+		std::stringstream sstr; sstr << dpid;
+		s_dpid = sstr.str();
+	};
+
+
+private:
+
+	static uint64_t 					next_dptid;
+
+	static std::map<cdptid, crofdpt*> 	rofdpts;
+
+	cdptid   							dptid;			// handle for this crofdpt instance
+	uint64_t 							dpid;			// datapath id
+	std::string	 						s_dpid;			// datapath id as std::string
+
 };
 
 

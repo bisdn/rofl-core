@@ -53,10 +53,10 @@ public:
 	handle_timeout(int opaque, void *data = (void*)0);
 
 	virtual void
-	handle_dpath_open(crofdpt& dpt);
+	handle_dpt_attached(crofdpt& dpt);
 
 	virtual void
-	handle_dpath_close(crofdpt& dpt);
+	handle_dpt_detached(crofdpt& dpt);
 
 	virtual void
 	handle_packet_in(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
