@@ -391,15 +391,13 @@ crofsock::send_from_queue()
 				outqueues[queue_id].pop();
 				delete msg;
 
+
 			} catch (eSocketTxAgain& e) {
 				rofl::logging::error << "[rofl][sock][send-from-queue] transport "
 						<< "connection congested, waiting." << std::endl;
 
 				congested = true;
 
-				if (mem) {
-					delete mem;
-				}
 			}
 		}
 
