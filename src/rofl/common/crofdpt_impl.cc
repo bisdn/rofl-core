@@ -796,9 +796,7 @@ crofdpt_impl::send_features_request(
 		rofl::openflow::cofmsg_features_request *msg =
 				new rofl::openflow::cofmsg_features_request(rofchan.get_version(), xid);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Features-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -830,9 +828,7 @@ crofdpt_impl::send_get_config_request(
 		rofl::openflow::cofmsg_get_config_request *msg =
 				new rofl::openflow::cofmsg_get_config_request(rofchan.get_version(), xid);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Get-Config-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -874,9 +870,7 @@ crofdpt_impl::send_stats_request(
 						body,
 						bodylen);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -912,9 +906,7 @@ crofdpt_impl::send_desc_stats_request(
 						xid,
 						flags);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Desc-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -952,9 +944,7 @@ crofdpt_impl::send_flow_stats_request(
 						flags,
 						flow_stats_request);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Flow-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -992,9 +982,7 @@ crofdpt_impl::send_aggr_stats_request(
 						flags,
 						aggr_stats_request);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Aggregate-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1030,9 +1018,7 @@ crofdpt_impl::send_table_stats_request(
 						xid,
 						flags);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Table-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1070,9 +1056,7 @@ crofdpt_impl::send_port_stats_request(
 						flags,
 						port_stats_request);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Port-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1110,9 +1094,7 @@ crofdpt_impl::send_queue_stats_request(
 						flags,
 						queue_stats_request);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Queue-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1150,9 +1132,7 @@ crofdpt_impl::send_group_stats_request(
 						flags,
 						group_stats_request);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Group-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1189,9 +1169,7 @@ crofdpt_impl::send_group_desc_stats_request(
 						flags);
 
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Group-Desc-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1227,9 +1205,7 @@ crofdpt_impl::send_group_features_stats_request(
 						xid,
 						flags);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Group-Features-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1265,9 +1241,7 @@ crofdpt_impl::send_table_features_stats_request(
 						xid,
 						flags);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Table-Features-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1303,9 +1277,7 @@ crofdpt_impl::send_port_desc_stats_request(
 						xid,
 						flags);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Port-Desc-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1347,9 +1319,7 @@ crofdpt_impl::send_experimenter_stats_request(
 						exp_type,
 						body);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Experimenter-Stats-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1393,9 +1363,7 @@ crofdpt_impl::send_packet_out_message(
 						data,
 						datalen);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Packet-Out message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1429,9 +1397,7 @@ crofdpt_impl::send_barrier_request(
 						rofchan.get_version(),
 						xid);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Barrier-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1467,9 +1433,7 @@ crofdpt_impl::send_role_request(
 						xid,
 						role);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Role-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1505,9 +1469,7 @@ crofdpt_impl::send_flow_mod_message(
 						xid,
 						fe);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Flow-Mod message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1542,9 +1504,7 @@ crofdpt_impl::send_group_mod_message(
 						xid,
 						ge);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Group-Mod message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1581,9 +1541,7 @@ crofdpt_impl::send_table_mod_message(
 							table_id,
 							config);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Table-Mod message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1626,11 +1584,9 @@ crofdpt_impl::send_port_mod_message(
 						mask,
 						advertise);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
+		rofchan.send_message(auxid, msg);
 
 		ports.set_port(port_no).recv_port_mod(config, mask, advertise);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Port-Mod message, cwnd:" << cwnd << std::endl;
 
 		return xid;
 
@@ -1668,9 +1624,7 @@ crofdpt_impl::send_set_config_message(
 						flags,
 						miss_send_len);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Set-Config message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1705,9 +1659,7 @@ crofdpt_impl::send_queue_get_config_request(
 						xid,
 						port);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Queue-Get-Config-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1741,9 +1693,7 @@ crofdpt_impl::send_get_async_config_request(
 						rofchan.get_version(),
 						xid);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Get-Async-Config-Request message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1779,9 +1729,7 @@ crofdpt_impl::send_set_async_config_message(
 						xid,
 						async_config);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Set-Async-Config message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
@@ -1820,9 +1768,7 @@ crofdpt_impl::send_error_message(
 						data,
 						datalen);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Error message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][dpt] control channel congested, dropping Error message" << std::endl;
@@ -1862,9 +1808,7 @@ crofdpt_impl::send_experimenter_message(
 							body,
 							bodylen);
 
-		unsigned int cwnd = rofchan.send_message(auxid, msg);
-
-		rofl::logging::debug << "[rofl][dpt] dropping Experimenter message, cwnd:" << cwnd << std::endl;
+		rofchan.send_message(auxid, msg);
 
 		return xid;
 
