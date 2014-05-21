@@ -741,7 +741,7 @@ crofbase::rpc_disconnect_from_dpt(
 	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
 		crofdpt *dpt = (*it);
-		if (dpt->get_dpid() == dpid) {
+		if (dpt->get_dptid() == dpid) {
 			rpc_disconnect_from_dpt(dpt);
 			return;
 		}
@@ -885,7 +885,7 @@ crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->get_dpid() == dpid)
+		if ((*it)->get_dptid() == dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -898,7 +898,7 @@ crofbase::get_dpt(
 {
 	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
-		if ((*it)->get_dpid() == dpid)
+		if ((*it)->get_dptid() == dpid)
 			return *(*it);
 	}
 	throw eRofBaseNotFound();
@@ -911,7 +911,7 @@ crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->get_dpid_s() == s_dpid)
+		if ((*it)->get_dptid().get_dptid_s() == s_dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();

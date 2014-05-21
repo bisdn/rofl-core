@@ -1841,7 +1841,7 @@ crofdpt_impl::features_reply_rcvd(
 	try {
 		transactions.drop_ta(msg->get_xid());
 
-		dpid 			= reply->get_dpid();
+		dpid 			= cdptid(reply->get_dpid());
 		n_buffers 		= reply->get_n_buffers();
 		n_tables 		= reply->get_n_tables();
 		capabilities 	= reply->get_capabilities();
@@ -1856,17 +1856,13 @@ crofdpt_impl::features_reply_rcvd(
 		} break;
 		}
 
-		// dpid as std::string
-		cvastring vas;
-		s_dpid = std::string(vas("0x%llx", dpid));
-
 		// lower 48bits from dpid as datapath mac address
-		hwaddr[0] = (dpid & 0x0000ff0000000000ULL) >> 40;
-		hwaddr[1] = (dpid & 0x000000ff00000000ULL) >> 32;
-		hwaddr[2] = (dpid & 0x00000000ff000000ULL) >> 24;
-		hwaddr[3] = (dpid & 0x0000000000ff0000ULL) >> 16;
-		hwaddr[4] = (dpid & 0x000000000000ff00ULL) >>  8;
-		hwaddr[5] = (dpid & 0x00000000000000ffULL) >>  0;
+		hwaddr[0] = (dpid.get_dptid() & 0x0000ff0000000000ULL) >> 40;
+		hwaddr[1] = (dpid.get_dptid() & 0x000000ff00000000ULL) >> 32;
+		hwaddr[2] = (dpid.get_dptid() & 0x00000000ff000000ULL) >> 24;
+		hwaddr[3] = (dpid.get_dptid() & 0x0000000000ff0000ULL) >> 16;
+		hwaddr[4] = (dpid.get_dptid() & 0x000000000000ff00ULL) >>  8;
+		hwaddr[5] = (dpid.get_dptid() & 0x00000000000000ffULL) >>  0;
 		hwaddr[0] &= 0xfc;
 
 		if (STATE_ESTABLISHED == state) {

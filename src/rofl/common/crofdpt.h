@@ -15,6 +15,7 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
+#include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
@@ -65,11 +66,11 @@ class crofdpt
 {
 public:
 
-	static std::map<uint64_t, crofdpt*> rofdpts;
+	static std::map<cdptid, crofdpt*> rofdpts;
 
 
 	static crofdpt&
-	get_dpt(uint64_t dptid);
+	get_dpt(const cdptid& dptid);
 
 public:
 
@@ -151,17 +152,8 @@ public:
 	 *
 	 * @return dpid
 	 */
-	virtual uint64_t
-	get_dpid() const = 0;
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	virtual std::string
-	get_dpid_s() const = 0;
+	virtual const cdptid&
+	get_dptid() const = 0;
 
 
 	/**

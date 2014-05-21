@@ -85,7 +85,7 @@ private: // data structures
 
 		std::bitset<32>     		            flags;
 
-		uint64_t 								dpid;			// datapath id
+		cdptid	 								dpid;			// datapath id
 		std::string	 							s_dpid;			// datapath id as std::string
 		cmacaddr 								hwaddr;			// datapath mac address
 		uint32_t 								n_buffers; 		// number of buffer lines
@@ -225,8 +225,8 @@ public:
 	 *
 	 * @return dpid
 	 */
-	virtual uint64_t
-	get_dpid() const { return dpid; };
+	virtual const cdptid&
+	get_dptid() const { return dpid; };
 
 
 	/**
@@ -235,7 +235,7 @@ public:
 	 * @return s_dpid
 	 */
 	virtual std::string
-	get_dpid_s() const { return s_dpid; };
+	get_dptid_s() const { return s_dpid; };
 
 
 	/**
@@ -1112,8 +1112,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofdpt_impl const& dpt) {
-		os << indent(0) << "<cofdptImpl ";
-		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << " >" << std::endl;
+		os << indent(0) << "<cofdptImpl >";
+		{ rofl::indent i(2); os << dpt.get_dptid(); }
 		{ rofl::indent i(2); os << dpt.rofchan; }
 		switch (dpt.state) {
 		case STATE_INIT: {

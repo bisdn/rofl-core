@@ -11,6 +11,7 @@
 #include "openflow/openflow.h"
 #include "croflexception.h"
 #include "cmemory.h"
+#include "rofl/common/cctlid.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofports.h"
@@ -45,15 +46,15 @@ class crofctl
 {
 	static uint64_t next_ctlid;
 
-	static std::map<uint64_t, crofctl*> rofctls;
+	static std::map<cctlid, crofctl*> rofctls;
 
-	uint64_t   ctlid;
+	cctlid   ctlid;
 
 public: // methods
 
 
 	static crofctl&
-	get_ctl(uint64_t ctlid);
+	get_ctl(const cctlid& ctlid);
 
 
 	/**
@@ -62,7 +63,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofctl() :
-			ctlid(++crofctl::next_ctlid) {
+			ctlid(cctlid(++crofctl::next_ctlid)) {
 		crofctl::rofctls[ctlid] = this;
 	};
 
@@ -79,7 +80,7 @@ public:
 	/**
 	 * @brief	Returns the controller handle id
 	 */
-	virtual uint64_t
+	virtual const cctlid&
 	get_ctlid() const { return ctlid; };
 
 public:
