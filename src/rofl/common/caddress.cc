@@ -71,7 +71,7 @@ caddress::caddress(int af)
 {
 	switch (af) {
 	case AF_UNSPEC: {
-		salen = sizeof(struct sockaddr);
+		salen = sizeof(struct sockaddr_un);
 	} break;
 	case AF_INET: {
 		salen = sizeof(struct sockaddr_in);

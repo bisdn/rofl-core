@@ -362,7 +362,16 @@ void
 crofbase::handle_connect_refused(
 		crofconn *conn)
 {
+	logging::info << "[rofl][base] connection refused:" << std::endl << *conn;
+}
 
+
+
+void
+crofbase::handle_connect_failed(
+		crofconn *conn)
+{
+	logging::info << "[rofl][base] connection failed:" << std::endl << *conn;
 }
 
 
@@ -528,6 +537,15 @@ crofbase::handle_connected(
 
 void
 crofbase::handle_connect_refused(
+		csocket& socket)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
+crofbase::handle_connect_failed(
 		csocket& socket)
 {
 	// do nothing here, as our TCP sockets are used as listening sockets only

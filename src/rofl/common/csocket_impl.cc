@@ -230,7 +230,15 @@ csocket_impl::handle_wevent(int fd)
 		} break;
 		default: {
 			logging::error << "[rofl][csocket][impl] error occured during connection establishment." << std::endl << *this;
-			throw eSysCall(optval);
+			//throw eSysCall(optval);
+
+			close();
+
+			if (sockflags.test(FLAG_DO_RECONNECT)) {
+				backoff_reconnect(false);
+			} else {
+				handle_conn_failed();
+			}
 		};
 		}
 	} else {
@@ -708,8 +716,10 @@ csocket_impl::connect(
 
 		} break;
 		default: {
+			//throw eSysCall("connect ");
+			close();
+			backoff_reconnect(false);
 			logging::debug << "[rofl][csocket][impl] Unknown error:"<< strerror(errno) <<"("<< errno <<")"<< std::endl << *this;
-			throw eSysCall("connect ");
 		};
 		}
 	} else {

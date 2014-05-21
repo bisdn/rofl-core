@@ -176,7 +176,12 @@ crofconn::event_disconnected()
 	} break;
 	case STATE_CONNECT_PENDING: {
 		if (not flags.test(FLAGS_PASSIVE)) {
-			env->handle_connect_refused(this);
+			if (flags.test(FLAGS_CONNECT_REFUSED)) {
+				env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
+			}
+			if (flags.test(FLAGS_CONNECT_FAILED)) {
+				env->handle_connect_failed(this); flags.reset(FLAGS_CONNECT_FAILED);
+			}
 		}
 	} break;
 	case STATE_WAIT_FOR_HELLO:
@@ -465,6 +470,17 @@ void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
 	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_REFUSED);
+	run_engine(EVENT_DISCONNECTED);
+}
+
+
+
+void
+crofconn::handle_connect_failed(crofsock *endpnt)
+{
+	logging::warn << "[rofl][conn] OFP socket indicated connection failed." << std::endl << *this;
+	flags.set(FLAGS_CONNECT_FAILED);
 	run_engine(EVENT_DISCONNECTED);
 }
 
@@ -508,17 +524,9 @@ crofconn::recv_message(
 		error_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REQUEST: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_request_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_reply_rcvd(msg);
 	} break;
 	case OFPT_FEATURES_REPLY: {
@@ -526,10 +534,6 @@ crofconn::recv_message(
 	} break;
 	case OFPT_MULTIPART_REQUEST:
 	case OFPT_MULTIPART_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		/*
 		 * add multipart support here for receiving messages
 		 */

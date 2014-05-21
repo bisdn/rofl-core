@@ -360,6 +360,16 @@ protected:
 	handle_connect_refused(rofl::csocket& socket);
 
 	/**
+	 * Connect on socket failed (client mode).
+	 *
+	 * This notification method is called if the connect() operation fails
+	 * on the socket. It should be overwritten by a derived class
+	 * if the derived class wants to act upon this condition.
+	 */
+	virtual void
+	handle_connect_failed(rofl::csocket& socket);
+
+	/**
 	 * A new incoming connection was accepted (listening mode).
 	 *
 	 * This notification method is called upon receipt of a new incoming
