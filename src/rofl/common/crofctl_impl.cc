@@ -733,6 +733,8 @@ crofctl_impl::send_features_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Features-Reply message" << std::endl;
 
@@ -764,6 +766,8 @@ crofctl_impl::send_get_config_reply(
 						miss_send_len);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Get-Config-Reply message" << std::endl;
@@ -800,6 +804,8 @@ crofctl_impl::send_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Stats-Reply message" << std::endl;
 
@@ -831,6 +837,8 @@ crofctl_impl::send_desc_stats_reply(
 						desc_stats);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Desc-Stats-Reply message" << std::endl;
@@ -865,6 +873,8 @@ crofctl_impl::send_flow_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Flow-Stats-Reply message" << std::endl;
 
@@ -896,6 +906,8 @@ crofctl_impl::send_aggr_stats_reply(
 						aggr_stats);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Aggregate-Stats-Reply message" << std::endl;
@@ -929,6 +941,8 @@ crofctl_impl::send_table_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Table-Stats-Reply message" << std::endl;
 
@@ -960,6 +974,8 @@ crofctl_impl::send_port_stats_reply(
 						portstatsarray);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Stats-Reply message" << std::endl;
@@ -993,6 +1009,8 @@ crofctl_impl::send_queue_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Queue-Stats-Reply message" << std::endl;
 
@@ -1024,6 +1042,8 @@ crofctl_impl::send_group_stats_reply(
 						groupstatsarray);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Stats-Reply message" << std::endl;
@@ -1057,6 +1077,8 @@ crofctl_impl::send_group_desc_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Desc-Stats-Reply message" << std::endl;
 
@@ -1088,6 +1110,8 @@ crofctl_impl::send_group_features_stats_reply(
 						group_features_stats);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Group-Features-Stats-Reply message" << std::endl;
@@ -1121,6 +1145,8 @@ crofctl_impl::send_table_features_stats_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Table-Features-Stats-Reply message" << std::endl;
 
@@ -1152,6 +1178,8 @@ crofctl_impl::send_port_desc_stats_reply(
 						ports);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Desc-Stats-Reply message" << std::endl;
@@ -1188,6 +1216,8 @@ crofctl_impl::send_experimenter_stats_reply(
 						body);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Experimenter-Stats-Reply message" << std::endl;
@@ -1234,6 +1264,8 @@ crofctl_impl::send_packet_in_message(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Packet-In message" << std::endl;
 
@@ -1261,6 +1293,8 @@ crofctl_impl::send_barrier_reply(
 						xid);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Barrier-Reply message" << std::endl;
@@ -1291,6 +1325,8 @@ crofctl_impl::send_role_reply(
 						role);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Role-Reply message" << std::endl;
@@ -1327,6 +1363,8 @@ crofctl_impl::send_error_message(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Error message" << std::endl;
 
@@ -1362,6 +1400,8 @@ crofctl_impl::send_experimenter_message(
 							bodylen);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Experimenter message" << std::endl;
@@ -1413,6 +1453,8 @@ crofctl_impl::send_flow_removed_message(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Flow-Removed message" << std::endl;
 
@@ -1443,6 +1485,8 @@ crofctl_impl::send_port_status_message(
 							port);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Port-Status message" << std::endl;
@@ -1476,6 +1520,8 @@ crofctl_impl::send_queue_get_config_reply(
 
 		rofchan.send_message(auxid, msg);
 
+		return;
+
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Queue-Get-Config-Reply message" << std::endl;
 
@@ -1505,6 +1551,8 @@ crofctl_impl::send_get_async_config_reply(
 						async_config);
 
 		rofchan.send_message(auxid, msg);
+
+		return;
 
 	} catch (eRofSockTxAgain& e) {
 		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Get-Async-Config-Reply message" << std::endl;
