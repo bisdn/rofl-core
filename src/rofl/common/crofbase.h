@@ -187,16 +187,6 @@ public:
 
 
 	/**
-	 * @brief	Method for waking up this thread from another thread.
-	 *
-	 */
-	void
-	wakeup();
-
-
-
-
-	/**
 	 * @brief 	enable/disable flowspace registration support in crofbase
 	 *
 	 * @param enable true: enable flowspace support, false: disable flowspace support
@@ -1655,46 +1645,6 @@ protected:
 	/**@}*/
 
 
-
-
-	/**
-	 * @name Event handlers overwritten from rofl::ciosrv
-	 *
-	 * When overwriting these methods for implementing own timers/events, please
-	 * make sure to call crofbase::handle_timeout() or crofbase::handle_event()
-	 * within the derived handler method.
-	 */
-
-
-
-	/**@{*/
-
-	/**
-	 * @brief	Handle timer events from rofl::ciosrv.
-	 *
-	 * Timers are used for sending notifications within a single thread.
-	 *
-	 * @param opaque expired timer type
-	 */
-	virtual void
-	handle_timeout(
-		int opaque, void *data = (void*)0);
-
-
-	/**
-	 * @brief 	Handle non-timer events from rofl::ciosrv
-	 *
-	 * Events are used for sending notifications among different threads.
-	 *
-	 * @param ev event instance
-	 */
-	virtual void
-	handle_event(cevent const& ev);
-
-
-	/**@}*/
-
-
 protected:
 
 	/**
@@ -1756,22 +1706,6 @@ private:
 
 	std::bitset<32> 					fe_flags;
 
-	/** \enum crofbase::crofbase_event_t
-	 *
-	 * events defined by crofbase
-	 */
-	enum crofbase_event_t {
-		CROFBASE_EVENT_WAKEUP	= 1, /**< wakeup event used in method \see{ wakeup } */
-	};
-
-	/** \enum crofbase::crofbase_timer_t
-	 *
-	 * timers defined by crofbase
-	 */
-	enum crofbase_timer_t {
-		TIMER_FE_BASE = (0x0020 << 16),	/**< random number for base timer */
-		CROFBASE_TIMER_WAKEUP,			/**< timer used for waking up via crofbase::wakeup() */
-	};
 
 
 	/** \enum crofbase::crofbase_rpc_t

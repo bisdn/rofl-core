@@ -396,51 +396,6 @@ crofbase::role_request_rcvd(
 
 
 
-void
-crofbase::handle_timeout(int opaque, void *data)
-{
-	try {
-		switch (opaque) {
-		case CROFBASE_TIMER_WAKEUP: {
-			// do nothing, just re-schedule via ciosrv::run()::pselect()
-		} break;
-		default: {
-		} break;
-		}
-
-	} catch (eIoSvcUnhandledTimer& e) {
-		// ignore
-	}
-}
-
-
-
-void
-crofbase::handle_event(cevent const& ev)
-{
-	cevent event(ev);
-	switch (event.cmd) {
-	case CROFBASE_EVENT_WAKEUP: {
-		// do nothing, just re-schedule via ciosrv::run()::pselect()
-	} break;
-	}
-}
-
-
-void
-crofbase::wakeup()
-{
-	if (get_thread_id() != pthread_self())
-	{
-		notify(CROFBASE_EVENT_WAKEUP);
-	}
-}
-
-
-
-
-
-
 uint32_t
 crofbase::get_ofp_no_buffer(uint8_t ofp_version)
 {
