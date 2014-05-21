@@ -397,7 +397,6 @@ crofsock::send_from_queue()
 						<< "connection congested, waiting." << std::endl;
 
 				congested = true;
-
 			}
 		}
 
