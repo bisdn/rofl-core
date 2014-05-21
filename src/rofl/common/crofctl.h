@@ -12,6 +12,7 @@
 #include "croflexception.h"
 #include "cmemory.h"
 #include "rofl/common/cctlid.h"
+#include "rofl/common/csocket.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofports.h"
@@ -83,7 +84,27 @@ public:
 	virtual const cctlid&
 	get_ctlid() const { return ctlid; };
 
+
 public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() = 0;
+
+
+public:
+
 
 	/**
 	 *
@@ -554,6 +575,21 @@ public:
 			rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	class crofctl_find_by_ctlid {
+		cctlid ctlid;
+	public:
+		crofctl_find_by_ctlid(const cctlid& ctlid) : ctlid(ctlid) {};
+		bool operator() (const crofctl* rofctl) {
+			return (rofctl->get_ctlid() == ctlid);
+		};
+	};
+
 };
 
 

@@ -85,8 +85,7 @@ private: // data structures
 
 		std::bitset<32>     		            flags;
 
-		cdptid	 								dpid;			// datapath id
-		std::string	 							s_dpid;			// datapath id as std::string
+
 		cmacaddr 								hwaddr;			// datapath mac address
 		uint32_t 								n_buffers; 		// number of buffer lines
 		uint8_t 								n_tables;		// number of tables
@@ -221,24 +220,6 @@ public:
 	/**@{*/
 
 	/**
-	 * @brief	Returns the data path element's data path ID.
-	 *
-	 * @return dpid
-	 */
-	virtual const cdptid&
-	get_dptid() const { return dpid; };
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	virtual std::string
-	get_dptid_s() const { return s_dpid; };
-
-
-	/**
 	 * @brief	Returns the data path element's hardware address.
 	 *
 	 * @return hwaddr
@@ -338,6 +319,36 @@ public:
 
 
 	/**@}*/
+
+public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) {
+		rofchan.close();
+		transactions.clear();
+		tables.clear();
+		ports.clear();
+		state = STATE_DISCONNECTED;
+		/* establish main connection */
+		rofchan.add_conn(cauxid(0), socket_type, socket_params);
+	};
+
+
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() {
+		/* terminate main connection */
+		rofchan.drop_conn(cauxid(0));
+	};
 
 
 public:
