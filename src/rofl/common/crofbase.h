@@ -581,7 +581,7 @@ public:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpt_attached(rofl::crofdpt& dpt) {};
+	handle_dpt_open(rofl::crofdpt& dpt) {};
 
 
 	/**
@@ -601,7 +601,7 @@ public:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpt_detached(rofl::crofdpt& dpt) {};
+	handle_dpt_close(rofl::crofdpt& dpt) {};
 
 
 
@@ -614,7 +614,7 @@ public:
 	 * @param ctl pointer to new cofctl instance
 	 */
 	virtual void
-	handle_ctl_attached(crofctl& ctl) {};
+	handle_ctl_open(crofctl& ctl) {};
 
 
 
@@ -635,7 +635,7 @@ public:
 	 * @param ctl pointer to cofctl instance
 	 */
 	virtual void
-	handle_ctl_detached(crofctl& ctl) {};
+	handle_ctl_close(crofctl& ctl) {};
 
 
 	/**@}*/
@@ -1821,32 +1821,32 @@ private:
 	 *
 	 */
 	void
-	handle_dpt_open(crofdpt *dpt) {
-		handle_dpt_attached(*dpt);
+	handle_dpt_attached(crofdpt& dpt) {
+		handle_dpt_open(dpt);
 	};
 
 	/** for use by cofdpt
 	 *
 	 */
 	void
-	handle_dpt_close(crofdpt *dpt) {
-		handle_dpt_detached(*dpt);
+	handle_dpt_detached(crofdpt& dpt) {
+		handle_dpt_close(dpt);
 	};
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_open(crofctl *ctl) {
-		handle_ctl_attached(*ctl);
+	handle_ctl_attached(crofctl& ctl) {
+		handle_ctl_open(ctl);
 	};
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_close(crofctl *ctl) {
-		handle_ctl_detached(*ctl);
+	handle_ctl_detached(crofctl& ctl) {
+		handle_ctl_close(ctl);
 	};
 
 	/** get highest support OF protocol version

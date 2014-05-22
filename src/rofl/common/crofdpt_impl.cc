@@ -287,7 +287,7 @@ crofdpt_impl::event_table_stats_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec << "" << *this << indent(2)
 								<< "Table-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_open(this);
+			rofbase->handle_dpt_attached(*this);
 		} break;
 		default: {
 			// do nothing
@@ -340,7 +340,7 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec << "" << *this << indent(2)
 								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> table-features-rcvd)" << std::endl;
 			send_port_desc_stats_request(0, 0);
-			//rofbase->handle_dpt_open(this);
+			//rofbase->handle_dpt_attached(*this);
 		} break;
 		default: {
 			// do nothing
@@ -394,7 +394,7 @@ crofdpt_impl::event_port_desc_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec << "" << *this << indent(2)
 							<< "Port-Desc-Stats-Reply rcvd (table-features-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_open(this);
+			rofbase->handle_dpt_attached(*this);
 
 		} break;
 		}
@@ -715,7 +715,7 @@ crofdpt_impl::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_SIGNAL_DISCONNECT: {
-		rofbase->handle_dpt_close(this);
+		rofbase->handle_dpt_detached(*this);
 	} break;
 	default: {
 		logging::error << "[rofl][dpt] dpid:0x"
