@@ -461,6 +461,7 @@ csocket_openssl::handle_event(cevent const& e)
 	switch (e.get_cmd()) {
 	case EVENT_SEND_TXQUEUE: {
 		dequeue_packet();
+		if (socket_owner) socket_owner->handle_write(*this);
 	} break;
 	case EVENT_RECV_RXQUEUE: {
 		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
