@@ -82,7 +82,7 @@ public:
 	/**
 	 * @brief	Returns the controller handle id
 	 */
-	virtual const cctlid&
+	const cctlid&
 	get_ctlid() const { return ctlid; };
 
 

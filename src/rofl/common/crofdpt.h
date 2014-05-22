@@ -34,18 +34,10 @@
 namespace rofl
 {
 
-class eRofDptBase 		: public RoflException {};
-class eRofDptNotFound 	: public eRofDptBase {};
-
 
 /* error classes */
-class eOFdptBase					: public RoflException {};
-class eDataPathIdInUse 				: public eOFdptBase {}; // datapath id already in use
-class eDataPathAlreadyAttached 		: public eOFdptBase {}; // crofbase *entity is already attached
-class eOFswitchBase 				: public eOFdptBase {};
-class eOFswitchInvalid 				: public eOFdptBase {};
-class eOFdpathNotFound 				: public eOFdptBase {}; // element not found
-
+class eRofDptBase 					: public RoflException {};
+class eRofDptNotFound 				: public eRofDptBase {};
 
 class crofbase;
 
@@ -63,13 +55,26 @@ class crofbase;
  * or grouptable entries.
  *
  */
-class crofdpt
-{
-public:
+class crofdpt {
+public: // static
 
+	/**
+	 * @brief	Returns reference to crofdpt instance identified by cdptid object.
+	 *
+	 * @param	dptid - cdptid handle
+	 * @throw	eRofDptNotFound
+	 * @return	Reference to crofdpt instance
+	 */
 	static crofdpt&
 	get_dpt(const cdptid& dptid);
 
+	/**
+	 * @brief	Returns reference to crofdpt instance identified by OpenFlow dpid (uint64_t).
+	 *
+	 * @param	dpid - OpenFlow dpid
+	 * @throw	eRofDptNotFound
+	 * @return	Reference to crofdpt instance
+	 */
 	static crofdpt&
 	get_dpt(uint64_t dpid);
 
@@ -77,9 +82,8 @@ public:
 
 
 	/**
-	 * @brief 	Default constructor for generating an empty rofl::openflow::cofdpt instance
+	 * @brief 	Creates new crofdpt instance.
 	 *
-	 * @param rofbase pointer to crofbase instance
 	 */
 	crofdpt() :
 		dptid(cdptid(++crofdpt::next_dptid)), dpid(0) {
@@ -88,10 +92,8 @@ public:
 
 
 	/**
-	 * @brief	Destructor.
+	 * @brief	Destroys crodpt instance.
 	 *
-	 * Deallocates all previously allocated resources for storing data model
-	 * exposed by the data path element.
 	 */
 	virtual
 	~crofdpt() {
@@ -102,16 +104,16 @@ public:
 
 
 	/**
-	 * @brief	Returns the data path element's data path ID.
+	 * @brief	Returns cdptid handle for this crofdpt instance.
 	 *
 	 * @return dpid
 	 */
-	virtual const cdptid&
+	const cdptid&
 	get_dptid() const { return dptid; };
 
 
 	/**
-	 * @brief	Returns the data path element's data path ID.
+	 * @brief	Returns OpenFlow dpid for this crofdpt instance.
 	 *
 	 * @return dpid
 	 */
@@ -402,7 +404,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_features_request(const cauxid& aux_id) = 0;
+	send_features_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a GET-CONFIG.request to a data path element.
@@ -410,7 +413,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_get_config_request(const cauxid& aux_id) = 0;
+	send_get_config_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-STATS.request to a data path element.
