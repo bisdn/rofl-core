@@ -32,53 +32,53 @@ enum PexType {INTERNAL,DPDK,EXTERNAL};
 
 /**
  * @name hal_driver_pex_exists
- * @brief Checks if a PEX with the specified name exists
+ * @brief Checks if a PEX port with the specified name exists
  *
- * @param pex_name	Name of the PEX to be checked
+ * @param pex_port_name	Name of the PEX port to be checked
  */
-bool hal_driver_pex_exists(const char *pex_name);
+bool hal_driver_pex_port_exists(const char *pex_port_name);
 
 /**
-* @brief   Retrieve the list of names of the available PEX of the platform 
-* @ingroup pex_management
-* @retval  List of available PEX names, which MUST be deleted using pex_name_list_destroy().
+* @brief   Retrieve the list of names of the available PEX ports of the platform 
+* @ingroup pex_port_management
+* @retval  List of available PEX port names, which MUST be deleted using pex_port_name_list_destroy().
 */
-pex_name_list_t* hal_driver_get_all_pex_names();
+pex_port_name_list_t* hal_driver_get_all_pex_port_names();
 
 /**
- * @name    hal_result_t hal_driver_pex_create_pex
- * @brief   Instructs driver to create a new PEX 
+ * @name    hal_result_t hal_driver_pex_create_pex_port
+ * @brief   Instructs driver to create a new PEX port
  *
- * @param pex_name				Name of the PEX to be created
+ * @param pex_name				Name of the PEX associated with the port to be created
+ * @param pex_port_name			Name of the PEX port to be created
  * @param pex_type				Type of the PEX to be created
- * @param path					Path of the PEX excutable (may be not needed)
 
  */
-hal_result_t hal_driver_pex_create_pex(const char *pex_name, PexType pexType, const char *path);
-
-/**
- * @name    hal_result_t hal_driver_pex_destroy_pex
- * @brief   Instructs driver to destroy a PEX 
- *
- * @param pex_name		Name of the PEX to be destroyed
- */
-hal_result_t hal_driver_pex_destroy_pex(const char *pex_name);
+hal_result_t hal_driver_pex_create_pex_port(const char *pex_name, const char *pex_port_name, PexType pexType);
 
 /**
- * @name    hal_result_t hal_driver_pex_start_pex
- * @brief   Instructs driver to start a PEX (associated with an existing PEX port)
+ * @name    hal_result_t hal_driver_pex_destroy_pex_port
+ * @brief   Instructs driver to destroy a PEX port
  *
- * @param pex_id				Identifier of the PEX to be created
+ * @param pex_port_name		Name of the PEX port to be destroyed
  */
-hal_result_t hal_driver_pex_start_pex(uint32_t pex_id);
+hal_result_t hal_driver_pex_destroy_pex_port(const char *pex_port_name);
 
 /**
- * @name    hal_result_t hal_driver_pex_stop_pex
- * @brief   Instructs driver to stop a PEX 
+ * @name    hal_result_t hal_driver_pex_start_pex_port
+ * @brief   Instructs driver to start a PEX port
  *
- * @param pex_id		Identifier of the PEX to be stopped
+ * @param pex_port_id		Identifier of the PEX port to be started
  */
-hal_result_t hal_driver_pex_stop_pex(uint32_t pex_id);
+hal_result_t hal_driver_pex_start_pex_port(uint32_t pex_port_id);
+
+/**
+ * @name    hal_result_t hal_driver_pex_stop_pex_port
+ * @brief   Instructs driver to stop a PEX port
+ *
+ * @param pex_port_id		Identifier of the PEX port to be stopped
+ */
+hal_result_t hal_driver_pex_stop_pex_port(uint32_t pex_port_id);
 
 
 // [+] Add more here..

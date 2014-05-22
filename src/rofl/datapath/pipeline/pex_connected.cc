@@ -4,10 +4,11 @@
 #include "platform/lock.h"
 #include "platform/memory.h"
 
-//Destroy a PEX name list
-void pex_name_list_destroy(pex_name_list_t* list)
+//Destroy a PEX port name list
+void pex_port_name_list_destroy(pex_port_name_list_t* list)
 {
-	if(list){
+	if(list)
+	{
 		platform_free_shared(list->names);
 		platform_free_shared(list);
 	}
