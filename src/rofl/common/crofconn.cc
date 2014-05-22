@@ -23,6 +23,7 @@ crofconn::crofconn(
 				reconnect_in_seconds(CROFCONN_RECONNECT_START_TIMEOUT),
 				reconnect_variance(CROFCONN_RECONNECT_VARIANCE_IN_SECS),
 				reconnect_counter(0),
+				flavour(FLAVOUR_UNSPECIFIED),
 				state(STATE_DISCONNECTED),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
@@ -43,8 +44,9 @@ crofconn::~crofconn()
 
 
 void
-crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd)
+crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
+	this->flavour = flavour;
 	flags.set(FLAGS_PASSIVE);
 	rofsock.accept(socket_type, socket_params, newsd);
 }

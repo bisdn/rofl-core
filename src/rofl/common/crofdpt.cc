@@ -22,3 +22,19 @@ crofdpt::get_dpt(
 	}
 	return *(crofdpt::rofdpts[dptid]);
 }
+
+
+
+/*static*/crofdpt&
+crofdpt::get_dpt(
+		uint64_t dpid)
+{
+	std::map<cdptid, crofdpt*>::iterator it;
+	if ((it = find_if(crofdpt::rofdpts.begin(), crofdpt::rofdpts.end(),
+			crofdpt::crofdpt_find_by_dpid(dpid))) == crofdpt::rofdpts.end()) {
+		throw eRofDptNotFound();
+	}
+	return *(it->second);
+}
+
+

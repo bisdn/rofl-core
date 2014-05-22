@@ -47,28 +47,6 @@ class crofconn :
 		public crofsock_env,
 		public ciosrv
 {
-	crofconn_env 					*env;
-	uint64_t						dpid;
-	cauxid							auxiliary_id;
-	crofsock						rofsock;
-	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
-	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
-	uint8_t							ofp_version;			// negotiated OFP version
-	std::bitset<32>					flags;
-	csegmentation					sar;					// segmentation and reassembly for multipart messages
-	size_t							fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
-
-	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
-	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
-
-	int								reconnect_start_timeout;
-	int 							reconnect_in_seconds; 	// reconnect in x seconds
-	int								reconnect_variance;
-	int 							reconnect_counter;
-
-	static int const CROFCONN_RECONNECT_START_TIMEOUT = 1;				// start reconnect timeout (default 1s)
-	static int const CROFCONN_RECONNECT_VARIANCE_IN_SECS = 2;
-
 	enum msg_type_t {
 		OFPT_HELLO = 0,
 		OFPT_ERROR = 1,
@@ -92,7 +70,6 @@ class crofconn :
 		EVENT_ECHO_EXPIRED		= 9,
 		EVENT_NEED_LIFE_CHECK	= 10,
 	};
-	std::deque<enum crofconn_event_t> 		events;
 
 	enum crofconn_state_t {
 		STATE_DISCONNECTED 		= 1,
@@ -101,7 +78,6 @@ class crofconn :
 		STATE_WAIT_FOR_FEATURES = 4,
 		STATE_ESTABLISHED 		= 5,
 	};
-	enum crofconn_state_t					state;
 
 	enum crofconn_timer_t {
 		TIMER_NEXT_RECONNECT	= 1,
@@ -110,7 +86,6 @@ class crofconn :
 		TIMER_NEED_LIFE_CHECK	= 4,
 		TIMER_WAIT_FOR_ECHO		= 5,
 	};
-	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
 
 	enum crofconn_flags_t {
 		FLAGS_PASSIVE			= 1,
@@ -120,16 +95,13 @@ class crofconn :
 		FLAGS_RECONNECTING		= 5,
 	};
 
-#define DEFAULT_HELLO_TIMEOUT	5
-#define DEFAULT_ECHO_TIMEOUT 	60
-#define DEFAULT_ECHO_INTERVAL	60
-
-
 public:
 
-	unsigned int					hello_timeout;
-	unsigned int					echo_timeout;
-	unsigned int					echo_interval;
+	enum crofconn_flavour_t {
+		FLAVOUR_UNSPECIFIED		= 0,
+		FLAVOUR_CTL 			= 1,
+		FLAVOUR_DPT				= 2,
+	};
 
 public:
 
@@ -150,8 +122,14 @@ public:
 	/**
 	 *
 	 */
+	enum crofconn_flavour_t
+	get_flavour() const { return flavour; };
+
+	/**
+	 *
+	 */
 	void
-	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd);
+	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour);
 
 	/**
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
@@ -585,6 +563,48 @@ public:
 		{ indent i(4); os << conn.versionbitmap_peer; }
 		return os;
 	};
+
+private:
+
+	crofconn_env 					*env;
+	uint64_t						dpid;
+	cauxid							auxiliary_id;
+	crofsock						rofsock;
+	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
+	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
+	uint8_t							ofp_version;			// negotiated OFP version
+	std::bitset<32>					flags;
+	csegmentation					sar;					// segmentation and reassembly for multipart messages
+	size_t							fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
+
+	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
+	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
+
+	int								reconnect_start_timeout;
+	int 							reconnect_in_seconds; 	// reconnect in x seconds
+	int								reconnect_variance;
+	int 							reconnect_counter;
+
+	static int const CROFCONN_RECONNECT_START_TIMEOUT = 1;				// start reconnect timeout (default 1s)
+	static int const CROFCONN_RECONNECT_VARIANCE_IN_SECS = 2;
+
+	enum crofconn_flavour_t			flavour;
+	std::deque<enum crofconn_event_t> 		events;
+	enum crofconn_state_t					state;
+	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
+
+
+#define DEFAULT_HELLO_TIMEOUT	5
+#define DEFAULT_ECHO_TIMEOUT 	60
+#define DEFAULT_ECHO_INTERVAL	60
+
+
+public:
+
+	unsigned int					hello_timeout;
+	unsigned int					echo_timeout;
+	unsigned int					echo_interval;
+
 };
 
 }; /* namespace rofl */

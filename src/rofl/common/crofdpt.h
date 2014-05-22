@@ -70,6 +70,9 @@ public:
 	static crofdpt&
 	get_dpt(const cdptid& dptid);
 
+	static crofdpt&
+	get_dpt(uint64_t dpid);
+
 public:
 
 
@@ -756,6 +759,18 @@ public:
 		crofdpt_find_by_dptid(const cdptid& dptid) : dptid(dptid) {};
 		bool operator() (const crofdpt* rofdpt) {
 			return (rofdpt->get_dptid() == dptid);
+		};
+	};
+
+	/**
+	 *
+	 */
+	class crofdpt_find_by_dpid {
+		uint64_t dpid;
+	public:
+		crofdpt_find_by_dpid(uint64_t dpid) : dpid(dpid) {};
+		bool operator() (const std::pair<cdptid, crofdpt*>& p) {
+			return (p.second->get_dpid() == dpid);
 		};
 	};
 

@@ -13,6 +13,7 @@
 #include "cmemory.h"
 #include "rofl/common/cctlid.h"
 #include "rofl/common/csocket.h"
+#include "rofl/common/crofchan.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofports.h"
@@ -101,6 +102,25 @@ public:
 	 */
 	virtual void
 	disconnect() = 0;
+
+
+public:
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan&
+	set_channel() = 0;
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan const&
+	get_channel() const = 0;
 
 
 public:

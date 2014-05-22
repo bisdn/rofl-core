@@ -97,6 +97,21 @@ public:
 	rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() { return rofchan.get_versionbitmap(); };
 
+
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	virtual crofchan&
+	set_channel() { return rofchan; };
+
+
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	virtual crofchan const&
+	get_channel() const { return rofchan; };
+
+
 	/**
 	 * @brief	Returns a reference to the associated crofchan instance
 	 */

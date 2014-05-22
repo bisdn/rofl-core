@@ -114,19 +114,26 @@ crofbase::handle_connected(
 	 * next step: check for existing crofdpt instance for dpid seen by crofconn
 	 * if none exists, create new one, otherwise, add connection to existing crofdpt
 	 */
-	try {
+
+	switch (conn->get_flavour()) {
+	case crofconn::FLAVOUR_CTL: {
+
+		set_ctl(add_ctl(conn->get_versionbitmap())).set_channel().add_conn(conn->get_aux_id(), conn);
+
+	} break;
+	case crofconn::FLAVOUR_DPT: try {
 
 		crofdpt::get_dpt(conn->get_dpid()).set_channel().add_conn(conn->get_aux_id(), conn);
 
 	} catch (eRofDptNotFound& e) {
-
-		// TODO: THINK: test for aux_id == 0 here?
-		crofdpt *dpt = rofdpt_factory(this, versionbitmap);
-		rofdpts[dpt->get_dptid()] = dpt;
 		rofl::logging::info << "[rofl][base] new dpt representing handle created for dpid:"
 				<< conn->get_dpid() << std::endl;
 
-		dpt->set_channel().add_conn(conn->get_aux_id(), conn);
+		set_dpt(add_dpt(conn->get_versionbitmap())).set_channel().add_conn(conn->get_aux_id(), conn);
+	} break;
+	default: {
+
+	};
 	}
 }
 
@@ -175,7 +182,14 @@ void
 crofbase::handle_listen(
 		csocket& socket, int newsd)
 {
-	(new rofl::crofconn(this, versionbitmap))->accept(socket.get_socket_type(), socket.get_socket_params(), newsd);
+	if (listening_sockets[RPC_CTL].find(&socket) != listening_sockets[RPC_CTL].end()) {
+		(new rofl::crofconn(this, versionbitmap))->accept(
+				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_CTL);
+	} else
+	if (listening_sockets[RPC_DPT].find(&socket) != listening_sockets[RPC_DPT].end()) {
+		(new rofl::crofconn(this, versionbitmap))->accept(
+				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_DPT);
+	}
 }
 
 
