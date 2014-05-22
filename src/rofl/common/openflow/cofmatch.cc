@@ -260,7 +260,6 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 		const uint16_t dl_type = be16toh(m->dl_type);
 		matches.add_match(coxmatch_ofb_eth_type(dl_type));
 
-		// OpenFlow 1.0.2 states the following:
 		// The following text is added in the OpenFlow 1.0.1 specification:
 		// Protocol-specific fields within ofp_match must be ignored when the corresponding protocol
 		// is not specified in the match. The IP header and transport header fields must be ignored
@@ -289,13 +288,6 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 				if (num_of_bits <= 32) {
 					matches.add_match(coxmatch_ofx_nw_src(addr, mask));
 				}
-#ifdef FALSCH
-				if (num_of_bits > 0) {
-					set_nw_src(addr, mask);
-				} else {
-					set_nw_src(addr);
-				}
-#endif
 			}
 
 			// nw_dst
@@ -311,13 +303,6 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 				if (num_of_bits <= 32) {
 					matches.add_match(coxmatch_ofx_nw_dst(addr, mask));
 				}
-#ifdef FALSCH
-				if (num_of_bits > 0) {
-					set_nw_dst(addr, mask);
-				} else {
-					set_nw_dst(addr);
-				}
-#endif
 			}
 
 			// nw_proto
