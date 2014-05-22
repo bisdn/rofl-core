@@ -785,7 +785,8 @@ protected:
 	 */
 	void
 	set_dpid(uint64_t dpid) {
-		std::stringstream sstr; sstr << dpid;
+		this->dpid = dpid;
+		std::stringstream sstr; sstr << this->dpid;
 		s_dpid = sstr.str();
 	};
 
