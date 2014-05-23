@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.4.1
+[B][common] OpenFlow 1.0.1 clarified handling of wildcards
+
+
 v0.4RC2
 
 [K] Automake 1.4 compilation. Please refer to the README.
