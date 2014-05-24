@@ -63,6 +63,18 @@ public:
 	void
 	clear();
 
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t of_version) { this->of_version = of_version; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return of_version; };
+
 
 	// cofmeter_band_drop
 
