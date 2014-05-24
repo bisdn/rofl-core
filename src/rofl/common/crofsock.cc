@@ -989,6 +989,9 @@ crofsock::parse_of13_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 	case rofl::openflow13::OFPT_SET_ASYNC: {
     	(*pmsg = new rofl::openflow::cofmsg_set_async_config(mem))->validate();
     } break;
+	case rofl::openflow13::OFPT_METER_MOD: {
+		(*pmsg = new rofl::openflow::cofmsg_meter_mod(mem))->validate();
+	} break;
 
 	default: {
 		(*pmsg = new rofl::openflow::cofmsg(mem))->validate();

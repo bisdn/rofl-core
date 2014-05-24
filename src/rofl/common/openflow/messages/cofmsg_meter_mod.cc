@@ -1,8 +1,8 @@
-#include "rofl/common/openflow/messages/cofmsg_meter.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_mod.h"
 
 using namespace rofl::openflow;
 
-cofmsg_meter::cofmsg_meter(
+cofmsg_meter_mod::cofmsg_meter_mod(
 		uint8_t of_version,
 		uint32_t xid,
 		const rofl::openflow::cofmeter_bands& meter_bands) :
@@ -29,7 +29,7 @@ cofmsg_meter::cofmsg_meter(
 
 
 
-cofmsg_meter::cofmsg_meter(
+cofmsg_meter_mod::cofmsg_meter_mod(
 		cmemory *memarea) :
 	cofmsg(memarea),
 	command(0),
@@ -42,17 +42,17 @@ cofmsg_meter::cofmsg_meter(
 
 
 
-cofmsg_meter::cofmsg_meter(
-		cofmsg_meter const& msg)
+cofmsg_meter_mod::cofmsg_meter_mod(
+		cofmsg_meter_mod const& msg)
 {
 	*this = msg;
 }
 
 
 
-cofmsg_meter&
-cofmsg_meter::operator= (
-		cofmsg_meter const& msg)
+cofmsg_meter_mod&
+cofmsg_meter_mod::operator= (
+		cofmsg_meter_mod const& msg)
 {
 	if (this == &msg)
 		return *this;
@@ -69,7 +69,7 @@ cofmsg_meter::operator= (
 
 
 
-cofmsg_meter::~cofmsg_meter()
+cofmsg_meter_mod::~cofmsg_meter_mod()
 {
 
 }
@@ -77,7 +77,7 @@ cofmsg_meter::~cofmsg_meter()
 
 
 void
-cofmsg_meter::reset()
+cofmsg_meter_mod::reset()
 {
 	command = 0;
 	flags = 0;
@@ -89,7 +89,7 @@ cofmsg_meter::reset()
 
 
 size_t
-cofmsg_meter::length() const
+cofmsg_meter_mod::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
@@ -104,7 +104,7 @@ cofmsg_meter::length() const
 
 
 void
-cofmsg_meter::pack(uint8_t *buf, size_t buflen)
+cofmsg_meter_mod::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -139,7 +139,7 @@ cofmsg_meter::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_meter::unpack(uint8_t *buf, size_t buflen)
+cofmsg_meter_mod::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -149,7 +149,7 @@ cofmsg_meter::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_meter::validate()
+cofmsg_meter_mod::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 

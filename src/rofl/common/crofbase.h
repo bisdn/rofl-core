@@ -1512,6 +1512,19 @@ protected:
 	handle_set_async_config(rofl::crofctl& ctl, rofl::openflow::cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
 
 
+
+	/**
+	 * @brief	Called once a METER-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_mod message containing the received message
+	 */
+	virtual void
+	handle_meter_mod(rofl::crofctl& ctl, rofl::openflow::cofmsg_meter_mod& msg, uint8_t aux_id = 0) {};
+
+
 	/**@}*/
 
 

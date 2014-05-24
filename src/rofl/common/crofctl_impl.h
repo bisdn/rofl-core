@@ -269,6 +269,13 @@ private:
 			rofl::openflow::cofmsg_table_mod *pack,
 			uint8_t aux_id = 0);
 
+	/** handle incoming METER-MOD messages
+	 */
+	void
+	meter_mod_rcvd(
+			rofl::openflow::cofmsg_meter_mod *pack,
+			uint8_t aux_id = 0);
+
 	/** STATS-REQUEST received
 	 *
 	 */

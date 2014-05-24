@@ -1,12 +1,12 @@
 /*
- * cofmsg_meter.h
+ * cofmsg_meter_mod.h
  *
  *  Created on: 24.05.2014
  *      Author: andi
  */
 
-#ifndef COFMSG_METER_H
-#define COFMSG_METER_H 1
+#ifndef COFMSG_METER_MOD_H
+#define COFMSG_METER_MOD_H 1
 
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofmeterbands.h"
@@ -17,7 +17,7 @@ namespace openflow {
 /**
  *
  */
-class cofmsg_meter :
+class cofmsg_meter_mod :
 	public cofmsg
 {
 public:
@@ -26,7 +26,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_meter(
+	cofmsg_meter_mod(
 			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			const rofl::openflow::cofmeter_bands& mbs = rofl::openflow::cofmeter_bands());
@@ -35,29 +35,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_meter(
-			const cofmsg_meter& meter);
+	cofmsg_meter_mod(
+			const cofmsg_meter_mod& meter);
 
 
 	/**
 	 *
 	 */
-	cofmsg_meter&
+	cofmsg_meter_mod&
 	operator= (
-			const cofmsg_meter& meter);
+			const cofmsg_meter_mod& meter);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_meter();
+	~cofmsg_meter_mod();
 
 
 	/**
 	 *
 	 */
-	cofmsg_meter(
+	cofmsg_meter_mod(
 			rofl::cmemory *memarea);
 
 
@@ -149,7 +149,7 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_meter const& msg) {
+	operator<< (std::ostream& os, cofmsg_meter_mod const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(0) << "<cofmsg_meter >" << std::endl;
 		rofl::indent i(2);
@@ -169,4 +169,4 @@ private:
 } // end of namespace openflow
 } // end of namespace rofl
 
-#endif /* COFMSG_METER_H_ */
+#endif /* COFMSG_METER_MOD_H_ */
