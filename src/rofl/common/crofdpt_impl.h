@@ -24,6 +24,7 @@
 #include "rofl/common/crofchan.h"
 #include "rofl/common/ctransactions.h"
 #include "rofl/common/openflow/cofpacketqueue.h"
+#include "rofl/common/openflow/cofmeterbands.h"
 
 namespace rofl
 {
@@ -1027,6 +1028,19 @@ public:
 	virtual uint32_t
 	send_set_async_config_message(
 			rofl::openflow::cofasync_config const& async_config);
+
+	/**
+	 * @brief	Sends a METER-MOD.message to a data path element.
+	 *
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
+	 */
+	virtual uint32_t
+	send_meter_mod_message(
+			uint16_t command,
+			uint16_t flags,
+			uint32_t meter_id,
+			const rofl::openflow::cofmeter_bands& meter_bands);
 
 	/**
 	 * @brief	Sends an ERROR.message to a data path element.

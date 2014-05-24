@@ -639,6 +639,19 @@ public:
 		rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**
+	 * @brief	Sends a METER-MOD.message to a data path element.
+	 *
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
+	 */
+	virtual uint32_t
+	send_meter_mod_message(
+			uint16_t command,
+			uint16_t flags,
+			uint32_t meter_id,
+			const rofl::openflow::cofmeter_bands& meter_bands) = 0;
+
+	/**
 	 * @brief	Sends an ERROR.message to a data path element.
 	 *
 	 * These messages are used for failed HELLO negotiations and

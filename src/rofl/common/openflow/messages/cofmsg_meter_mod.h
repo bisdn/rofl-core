@@ -29,6 +29,9 @@ public:
 	cofmsg_meter_mod(
 			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
+			uint16_t command = 0,
+			uint16_t flags = 0,
+			uint32_t meter_id = 0,
 			const rofl::openflow::cofmeter_bands& mbs = rofl::openflow::cofmeter_bands());
 
 

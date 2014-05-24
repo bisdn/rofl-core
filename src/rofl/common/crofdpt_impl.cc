@@ -1421,6 +1421,36 @@ crofdpt_impl::send_set_async_config_message(
 
 
 
+uint32_t
+crofdpt_impl::send_meter_mod_message(
+		uint16_t command,
+		uint16_t flags,
+		uint32_t meter_id,
+		const rofl::openflow::cofmeter_bands& meter_bands)
+{
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Meter-Mod message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
+	uint32_t xid = transactions.get_async_xid();
+
+	rofl::openflow::cofmsg_meter_mod *msg =
+			new rofl::openflow::cofmsg_meter_mod(
+						rofchan.get_version(),
+						xid,
+						command,
+						flags,
+						meter_id,
+						meter_bands);
+
+	rofchan.send_message(msg, 0);
+
+	return xid;
+}
+
+
+
 void
 crofdpt_impl::send_error_message(
 	uint32_t xid,

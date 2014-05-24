@@ -5,11 +5,14 @@ using namespace rofl::openflow;
 cofmsg_meter_mod::cofmsg_meter_mod(
 		uint8_t of_version,
 		uint32_t xid,
+		uint16_t command,
+		uint16_t flags,
+		uint32_t meter_id,
 		const rofl::openflow::cofmeter_bands& meter_bands) :
 				cofmsg(sizeof(struct rofl::openflow::ofp_header)),
-				command(0),
-				flags(0),
-				meter_id(0),
+				command(command),
+				flags(flags),
+				meter_id(meter_id),
 				meter_bands(meter_bands)
 {
 	this->meter_bands.set_version(of_version);
