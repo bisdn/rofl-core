@@ -83,8 +83,8 @@ libopenflow_la_SOURCES= \
 	cofpacketqueuelist.cc \
 	cofmeterband.h \
 	cofmeterband.cc \
-	cofmeterbandset.h \
-	cofmeterbandset.cc \
+	cofmeterbands.h \
+	cofmeterbands.cc \
 	cofhelloelem.h \
 	cofhelloelem.cc \
 	cofhelloelemversionbitmap.h \
@@ -154,7 +154,7 @@ library_include_HEADERS = \
 	cofpacketqueue.h \
 	cofpacketqueuelist.h \
 	cofmeterband.h \
-	cofmeterbandset.h \
+	cofmeterbands.h \
 	cofhelloelem.h \
 	cofhelloelemversionbitmap.h \
 	cofhelloelems.h \

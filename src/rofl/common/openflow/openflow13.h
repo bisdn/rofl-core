@@ -936,6 +936,7 @@ namespace openflow13 {
 		uint16_t len;					/* Length in bytes of this band. */
 		uint32_t rate;					/* Rate for this band. */
 		uint32_t burst_size; 			/* Size of bursts. */
+		uint8_t  body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_meter_band_header) == 12);
 
@@ -1011,6 +1012,7 @@ namespace openflow13 {
 		uint32_t rate;			/* Rate for this band. */
 		uint32_t burst_size;	/* Size of bursts. */
 		uint32_t experimenter; 	/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
+		uint8_t body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_meter_band_experimenter) == 16);
 
