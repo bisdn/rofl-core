@@ -95,6 +95,10 @@ private:
 			rofl::csocket& socket);
 
 	virtual void
+	handle_connect_failed(
+			rofl::csocket& socket);
+
+	virtual void
 	handle_read(
 			rofl::csocket& socket);
 

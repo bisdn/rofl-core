@@ -33,7 +33,7 @@ public:
 	 *
 	 */
 	cofmeter_band(
-			uint8_t of_version = rofl::openflow13::OFP_VERSION,
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			size_t len = sizeof(struct rofl::openflow13::ofp_meter_band_header));
 
 
@@ -57,6 +57,15 @@ public:
 	cofmeter_band&
 	operator= (
 			const cofmeter_band& mb);
+
+
+
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band& mb) const;
 
 
 public:
@@ -189,10 +198,12 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmeter_band const& mb) {
 		os << rofl::indent(0) << "<cofmeter_band "
-			<< "type: " << mb.get_type()
-			<< "len: " << mb.get_length()
-			<< "rate: " << mb.get_rate()
-			<< "burst_size: " << mb.get_burst_size()
+			<< std::hex
+			<< " type: 0x" << mb.get_type()
+			<< " len: 0x" << mb.get_length()
+			<< " rate: 0x" << mb.get_rate()
+			<< " burst_size: 0x" << mb.get_burst_size()
+			<< std::dec
 			<< " >" << std::endl;
 		{ rofl::indent i(2); os << mb.get_body(); }
 		return os;
@@ -253,8 +264,9 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_band_drop& mb) {
+		os << rofl::indent(0) << "<cofmeter_band_drop >" << std::endl;
+		rofl::indent i(2);
 		os << dynamic_cast<const cofmeter_band&>( mb );
-		os << rofl::indent(2) << "<cofmeter_band_drop >" << std::endl;
 		return os;
 	};
 };
@@ -308,6 +320,13 @@ public:
 	/**
 	 *
 	 */
+	virtual size_t
+	length() const;
+
+
+	/**
+	 *
+	 */
 	virtual void
 	pack(uint8_t *buf, size_t buflen);
 
@@ -339,9 +358,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_band_dscp_remark& mb) {
+		os << rofl::indent(0) << "<cofmeter_band_dscp_remark prec-level: 0x"
+				<< std::hex << (int)mb.get_prec_level() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
 		os << dynamic_cast<const cofmeter_band&>( mb );
-		os << rofl::indent(2) << "<cofmeter_band_dscp_remark prec-level:"
-				<< (int)mb.get_prec_level() << " >" << std::endl;
 		return os;
 	};
 
@@ -444,14 +464,29 @@ public:
 	set_exp_body() { return exp_body; };
 
 
+	/**
+	 *
+	 */
+	cmemory const&
+	get_body() const { return exp_body; };
+
+
+	/**
+	 *
+	 */
+	cmemory&
+	set_body() { return exp_body; };
+
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_band_experimenter& mb) {
-		os << dynamic_cast<const cofmeter_band&>( mb );
-		os << rofl::indent(2) << "<cofmeter_band_experimenter exp_id:"
-				<< (int)mb.get_exp_id() << " >" << std::endl;
-		{ rofl::indent i(4); os << mb.get_body(); }
+		os << rofl::indent(0) << "<cofmeter_band_experimenter exp_id: 0x"
+				<< std::hex << (int)mb.get_exp_id() << std::dec << " >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofmeter_band&>( mb ); }
+		os << rofl::indent(2) << "<experimental body: >" << std::endl;
+		{ rofl::indent i(4); os << mb.get_exp_body(); }
 		return os;
 	};
 

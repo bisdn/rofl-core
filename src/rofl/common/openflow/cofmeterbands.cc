@@ -75,6 +75,14 @@ cofmeter_bands::clear()
 
 
 
+unsigned int
+cofmeter_bands::get_num_of_mbs() const
+{
+	return (mbs_drop.size() + mbs_dscp_remark.size() + mbs_experimenter.size());
+}
+
+
+
 cofmeter_band_drop&
 cofmeter_bands::add_meter_band_drop(
 		unsigned int index)
@@ -347,17 +355,17 @@ cofmeter_bands::unpack(
 
 			switch (type) {
 			case rofl::openflow13::OFPMBT_DROP: {
-				add_meter_band_drop(index_drop).unpack(buf, len);
+				add_meter_band_drop(index_drop).unpack(buf + offset, len);
 				offset += len;
 				index_drop++;
 			} break;
 			case rofl::openflow13::OFPMBT_DSCP_REMARK: {
-				add_meter_band_dscp_remark(index_dscp_remark).unpack(buf, len);
+				add_meter_band_dscp_remark(index_dscp_remark).unpack(buf + offset, len);
 				offset += len;
 				index_dscp_remark++;
 			} break;
 			case rofl::openflow13::OFPMBT_EXPERIMENTER: {
-				add_meter_band_experimenter(index_experimenter).unpack(buf, len);
+				add_meter_band_experimenter(index_experimenter).unpack(buf + offset, len);
 				offset += len;
 				index_experimenter++;
 			} break;

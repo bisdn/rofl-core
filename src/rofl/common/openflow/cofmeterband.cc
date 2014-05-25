@@ -58,6 +58,20 @@ cofmeter_band::operator =(
 
 
 
+const bool
+cofmeter_band::operator== (
+		const cofmeter_band& mb) const
+{
+	return ((of_version == mb.of_version) &&
+			(type == mb.type) &&
+			(len == mb.len) &&
+			(rate == mb.rate) &&
+			(burst_size == mb.burst_size) &&
+			(body == mb.body));
+}
+
+
+
 size_t
 cofmeter_band::length() const
 {
@@ -83,10 +97,12 @@ cofmeter_band::pack(uint8_t *buf, size_t buflen)
 
 	switch (of_version) {
 	case rofl::openflow13::OFP_VERSION: {
+		len = length();
+
 		struct rofl::openflow13::ofp_meter_band_header *mbh =
 				(struct rofl::openflow13::ofp_meter_band_header*)buf;
 		mbh->type 		= htobe16(type);
-		mbh->len		= htobe16(length());
+		mbh->len		= htobe16(len);
 		mbh->rate		= htobe32(rate);
 		mbh->burst_size	= htobe32(burst_size);
 		memcpy(mbh->body, body.somem(), body.memlen());
@@ -106,7 +122,7 @@ cofmeter_band::unpack(uint8_t *buf, size_t buflen)
 	case openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow13::ofp_meter_band_header)) {
 			rofl::logging::error << "[rofl][cofmeterband][unpack] buffer too short" << std::endl;
-			throw eMeterModBadBand();
+			throw eBadRequestBadLen();
 		}
 
 		struct rofl::openflow13::ofp_meter_band_header *mbh =
@@ -189,7 +205,7 @@ cofmeter_band_drop::operator= (
 
 cofmeter_band_dscp_remark::cofmeter_band_dscp_remark(
 	uint8_t of_version) :
-		cofmeter_band(of_version, sizeof(struct rofl::openflow13::ofp_meter_band_dscp_remark)),
+		cofmeter_band(of_version, sizeof(struct rofl::openflow13::ofp_meter_band_header)),
 		prec_level(0)
 {
 	switch (of_version) {
@@ -227,19 +243,23 @@ cofmeter_band_dscp_remark::operator= (
 		return *this;
 
 	cofmeter_band::operator= (mb);
-
-	switch (get_version()) {
-	case rofl::openflow13::OFP_VERSION: {
-		struct rofl::openflow13::ofp_meter_band_dscp_remark* mbh =
-				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)mb.get_body().somem();
-		prec_level = mbh->prec_level;
-	} break;
-	default: {
-		prec_level = 0;
-	};
-	}
+	prec_level = mb.prec_level;
 
 	return *this;
+}
+
+
+
+size_t
+cofmeter_band_dscp_remark::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_meter_band_dscp_remark));
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -259,7 +279,7 @@ cofmeter_band_dscp_remark::pack(uint8_t *buf, size_t buflen)
 		cofmeter_band::pack(buf, buflen);
 
 		struct rofl::openflow13::ofp_meter_band_dscp_remark* mbh =
-				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)get_body().somem();
+				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)buf;
 		mbh->prec_level = prec_level;
 	} break;
 	default:
@@ -276,8 +296,12 @@ cofmeter_band_dscp_remark::unpack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
+
+		if (buflen < length())
+			throw eInval();
+
 		struct rofl::openflow13::ofp_meter_band_dscp_remark* mbh =
-				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)get_body().somem();
+				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)buf;
 		prec_level = mbh->prec_level;
 
 	} break;
@@ -376,11 +400,10 @@ cofmeter_band_experimenter::pack(uint8_t *buf, size_t buflen)
 		}
 
 		// pack common header
-		cofmeter_band::pack(buf, sizeof(struct rofl::openflow13::ofp_meter_band_header));
+		cofmeter_band::pack(buf, buflen);
 
 		struct rofl::openflow13::ofp_meter_band_experimenter* mbh =
 				(struct rofl::openflow13::ofp_meter_band_experimenter*)buf;
-		mbh->len			= htobe16(length());
 		mbh->experimenter 	= htobe32(exp_id);
 		memcpy(mbh->body, exp_body.somem(), exp_body.memlen());
 	} break;
@@ -404,7 +427,7 @@ cofmeter_band_experimenter::unpack(uint8_t *buf, size_t buflen)
 		}
 
 		// unpack common header
-		cofmeter_band::unpack(buf, sizeof(struct rofl::openflow13::ofp_meter_band_header));
+		cofmeter_band::unpack(buf, buflen);
 
 		struct rofl::openflow13::ofp_meter_band_experimenter* mbh =
 				(struct rofl::openflow13::ofp_meter_band_experimenter*)buf;

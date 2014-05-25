@@ -29,7 +29,7 @@ public:
 	 *
 	 */
 	cofmeter_bands(
-			uint8_t of_version = openflow13::OFP_VERSION);
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN);
 
 
 	/**
@@ -43,7 +43,7 @@ public:
 	 *
 	 */
 	cofmeter_bands(
-			cofmeter_bands const& mbset);
+			const cofmeter_bands& mbset);
 
 
 	/**
@@ -51,7 +51,7 @@ public:
 	 */
 	cofmeter_bands&
 	operator= (
-			cofmeter_bands const& mbset);
+			const cofmeter_bands& mbset);
 
 
 public:
@@ -74,6 +74,55 @@ public:
 	 */
 	uint8_t
 	get_version() const { return of_version; };
+
+
+	/**
+	 *
+	 */
+	unsigned int
+	get_num_of_mbs() const;
+
+
+	/**
+	 *
+	 */
+	std::map<unsigned int, cofmeter_band_drop>&
+	set_mbs_drop() { return mbs_drop; };
+
+
+	/**
+	 *
+	 */
+	const std::map<unsigned int, cofmeter_band_drop>&
+	get_mbs_drop() const { return mbs_drop; };
+
+
+	/**
+	 *
+	 */
+	std::map<unsigned int, cofmeter_band_dscp_remark>&
+	set_mbs_dscp_remark() { return mbs_dscp_remark; };
+
+
+	/**
+	 *
+	 */
+	const std::map<unsigned int, cofmeter_band_dscp_remark>&
+	get_mbs_dscp_remark() const { return mbs_dscp_remark; };
+
+
+	/**
+	 *
+	 */
+	std::map<unsigned int, cofmeter_band_experimenter>&
+	set_mbs_experimenter() { return mbs_experimenter; };
+
+
+	/**
+	 *
+	 */
+	const std::map<unsigned int, cofmeter_band_experimenter>&
+	get_mbs_experimenter() const { return mbs_experimenter; };
 
 
 	// cofmeter_band_drop
@@ -235,7 +284,24 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_bands& mbs) {
-
+		os << "<cofmeterbands version: " << (int)mbs.get_version()
+				<< " #mbs: " << mbs.get_num_of_mbs() << " >" << std::endl;
+		rofl::indent i(2);
+		// drop
+		for (std::map<unsigned int, cofmeter_band_drop>::const_iterator
+				it = mbs.get_mbs_drop().begin(); it != mbs.get_mbs_drop().end(); ++it) {
+			os << it->second;
+		}
+		// dscp_remark
+		for (std::map<unsigned int, cofmeter_band_dscp_remark>::const_iterator
+				it = mbs.get_mbs_dscp_remark().begin(); it != mbs.get_mbs_dscp_remark().end(); ++it) {
+			os << it->second;
+		}
+		// experimenter
+		for (std::map<unsigned int, cofmeter_band_experimenter>::const_iterator
+				it = mbs.get_mbs_experimenter().begin(); it != mbs.get_mbs_experimenter().end(); ++it) {
+			os << it->second;
+		}
 		return os;
 	};
 
