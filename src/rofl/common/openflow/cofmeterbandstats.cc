@@ -51,6 +51,15 @@ cofmeter_band_stats::operator= (
 
 
 
+const bool
+cofmeter_band_stats::operator== (
+		const cofmeter_band_stats& mbs) const
+{
+	return ((packet_band_count == mbs.packet_band_count) && (byte_band_count == mbs.byte_band_count));
+}
+
+
+
 size_t
 cofmeter_band_stats::length() const
 {
@@ -80,8 +89,8 @@ cofmeter_band_stats::pack(uint8_t *buf, size_t buflen)
 		struct rofl::openflow13::ofp_meter_band_stats* mbs =
 				(struct rofl::openflow13::ofp_meter_band_stats*)buf;
 
-		packet_band_count 	= be64toh(mbs->packet_band_count);
-		byte_band_count		= be64toh(mbs->byte_band_count);
+		mbs->packet_band_count	= htobe64(packet_band_count);
+		mbs->byte_band_count	= htobe64(byte_band_count);
 
 	} break;
 	default:
@@ -103,8 +112,8 @@ cofmeter_band_stats::unpack(uint8_t *buf, size_t buflen)
 		struct rofl::openflow13::ofp_meter_band_stats* mbs =
 				(struct rofl::openflow13::ofp_meter_band_stats*)buf;
 
-		mbs->packet_band_count	= htobe64(packet_band_count);
-		mbs->byte_band_count	= htobe64(byte_band_count);
+		packet_band_count 	= be64toh(mbs->packet_band_count);
+		byte_band_count		= be64toh(mbs->byte_band_count);
 
 	} break;
 	default:

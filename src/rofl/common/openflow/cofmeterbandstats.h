@@ -51,6 +51,13 @@ public:
 	operator= (
 			const cofmeter_band_stats& mbs);
 
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band_stats& mbs) const;
+
 public:
 
 	/**
@@ -120,9 +127,10 @@ public:
 	operator<< (std::ostream& os, const cofmeter_band_stats& mbs) {
 		os << rofl::indent(0) << "<cofmeter_band_stats "
 				<< std::hex
-				<< "packet_band_count: " << mbs.get_packet_band_count() << " "
-				<< "byte_band_count: " << mbs.get_byte_band_count() << " "
-				<< ">" << std::endl;
+				<< "packet_band_count: 0x" << mbs.get_packet_band_count() << " "
+				<< "byte_band_count: 0x" << mbs.get_byte_band_count() << " "
+				<< ">"
+				<< std::dec << std::endl;
 		return os;
 	};
 

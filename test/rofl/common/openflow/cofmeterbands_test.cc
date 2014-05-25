@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofmeterbands_test );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void
