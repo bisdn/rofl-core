@@ -284,7 +284,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_bands& mbs) {
-		os << "<cofmeterbands version: " << (int)mbs.get_version()
+		os << rofl::indent(0) << "<cofmeterbands version: " << (int)mbs.get_version()
 				<< " #mbs: " << mbs.get_num_of_mbs() << " >" << std::endl;
 		rofl::indent i(2);
 		// drop

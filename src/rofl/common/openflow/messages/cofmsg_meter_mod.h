@@ -154,8 +154,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_meter_mod const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
-		os << indent(0) << "<cofmsg_meter >" << std::endl;
-		rofl::indent i(2);
+		os << indent(2) << "<cofmsg_meter >" << std::endl;
+		rofl::indent i(4);
 		os << msg.meter_bands;
 		return os;
 	};
