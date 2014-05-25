@@ -106,7 +106,11 @@ libopenflow_la_SOURCES= \
 	cofasyncconfig.h \
 	cofasyncconfig.cc \
 	cofrole.h \
-	cofrole.cc
+	cofrole.cc \
+	cofmeterbandstats.h \
+	cofmeterbandstats.cc \
+	cofmeterbandstatsarray.h \
+	cofmeterbandstatsarray.cc
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -165,7 +169,9 @@ library_include_HEADERS = \
 	coftablefeatures.h \
 	coftables.h \
 	cofasyncconfig.h \
-	cofrole.h
+	cofrole.h \
+	cofmeterbandstats.h \
+	cofmeterbandstatsarray.h
 
 
 

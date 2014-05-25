@@ -67,7 +67,21 @@ public:
 	 *
 	 */
 	void
-	set_version(uint8_t of_version) { this->of_version = of_version; };
+	set_version(uint8_t of_version) {
+		this->of_version = of_version;
+		for (std::map<unsigned int, cofmeter_band_drop>::iterator
+				it = mbs_drop.begin(); it != mbs_drop.end(); ++it) {
+			it->second.set_version(of_version);
+		}
+		for (std::map<unsigned int, cofmeter_band_dscp_remark>::iterator
+				it = mbs_dscp_remark.begin(); it != mbs_dscp_remark.end(); ++it) {
+			it->second.set_version(of_version);
+		}
+		for (std::map<unsigned int, cofmeter_band_experimenter>::iterator
+				it = mbs_experimenter.begin(); it != mbs_experimenter.end(); ++it) {
+			it->second.set_version(of_version);
+		}
+	};
 
 	/**
 	 *
