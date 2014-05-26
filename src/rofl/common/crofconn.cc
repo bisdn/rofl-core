@@ -608,7 +608,7 @@ crofconn::hello_rcvd(
 		delete msg; return;
 	}
 
-	logging::info << "[rofl][conn] received HELLO message:" << std::endl << *hello;
+	logging::debug << "[rofl][conn] received HELLO message:" << std::endl << *hello;
 
 	try {
 
