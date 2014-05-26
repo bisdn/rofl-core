@@ -90,7 +90,7 @@ cofport_stats_request::pack(uint8_t *buf, size_t buflen) const
 
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < sizeof(struct rofl::openflow12::ofp_flow_stats_request))
+		if (buflen < sizeof(struct rofl::openflow12::ofp_port_stats_request))
 			throw eInval();
 
 		struct rofl::openflow12::ofp_port_stats_request *req = (struct rofl::openflow12::ofp_port_stats_request*)buf;
@@ -98,7 +98,7 @@ cofport_stats_request::pack(uint8_t *buf, size_t buflen) const
 
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < sizeof(struct rofl::openflow13::ofp_flow_stats_request))
+		if (buflen < sizeof(struct rofl::openflow13::ofp_port_stats_request))
 			throw eInval();
 
 		struct rofl::openflow13::ofp_port_stats_request *req = (struct rofl::openflow13::ofp_port_stats_request*)buf;
