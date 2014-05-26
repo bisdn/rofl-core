@@ -307,6 +307,13 @@ private:
 			rofl::openflow::cofmsg_table_mod *pack);
 
 
+	/** handle incoming METER-MOD messages
+	 */
+	void
+	meter_mod_rcvd(
+			const cauxid& auxid,
+			rofl::openflow::cofmsg_meter_mod *pack);
+
 	/** STATS-REQUEST received
 	 *
 	 */

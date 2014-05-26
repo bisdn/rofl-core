@@ -266,7 +266,7 @@ crofctl_impl::recv_message(
 				set_async_config_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_set_async_config*>( msg ));
 			} break;
 			case rofl::openflow13::OFPT_METER_MOD: {
-				//TODO: meter_mod_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_meter_mod*>( msg ));
+				meter_mod_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_meter_mod*>( msg ));
 			} break;
 			default: {
 
@@ -608,6 +608,7 @@ crofctl_impl::recv_message(
 
 		rofl::logging::error << "[rofl[ctl] eBadMatchBadDlAddrMask " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_dladdr_mask(
+
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
@@ -671,6 +672,95 @@ crofctl_impl::recv_message(
 	} catch (eBadMatchBase& e) {
 
 		rofl::logging::error << "[rofl[ctl] eBadMatchBase " << *msg << std::endl;
+		delete msg;
+
+	} catch (eMeterModUnknown& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModUnknown " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModMeterExists& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModMeterExists " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_meter_exists(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModInvalidMeter& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModInvalidMeter " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_invalid_meter(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModUnknownMeter& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModUnknownMeter " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown_meter(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadCommand& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadCommand " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_command(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadFlags& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadFlags " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_flags(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadRate& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadRate " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_rate(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBurst& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadBurst " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_burst(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBand& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadBand " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBandValue& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBadBandValue " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band_value(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModOutOfMeters& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModOutOfMeters " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_meters(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModOutOfBands& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModOutOfBands " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_bands(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBase& e) {
+
+		rofl::logging::error << "[rofl][ctl] eMeterModBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (RoflException& e) {
@@ -2064,6 +2154,116 @@ crofctl_impl::table_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_table_m
 	} catch (eTableModBase& e) {
 
 		rofl::logging::warn << "eTableModBase " << *msg << std::endl;
+		delete msg;
+	}
+}
+
+
+
+void
+crofctl_impl::meter_mod_rcvd(
+		const cauxid& auxid,
+		rofl::openflow::cofmsg_meter_mod *msg)
+{
+	rofl::openflow::cofmsg_meter_mod& message = dynamic_cast<rofl::openflow::cofmsg_meter_mod&>( *msg );
+
+	rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Meter-Mod message received" << std::endl << message;
+
+	try {
+		check_role();
+
+		rofbase->handle_meter_mod(*this, auxid, message);
+
+		delete msg;
+
+	} catch (eMeterModUnknown& e) {
+
+		rofl::logging::warn << "eMeterModUnknown " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModMeterExists& e) {
+
+		rofl::logging::warn << "eMeterModMeterExists " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_meter_exists(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModInvalidMeter& e) {
+
+		rofl::logging::warn << "eMeterModInvalidMeter " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_invalid_meter(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModUnknownMeter& e) {
+
+		rofl::logging::warn << "eMeterModUnknownMeter " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown_meter(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadCommand& e) {
+
+		rofl::logging::warn << "eMeterModBadCommand " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_command(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadFlags& e) {
+
+		rofl::logging::warn << "eMeterModBadFlags " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_flags(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadRate& e) {
+
+		rofl::logging::warn << "eMeterModBadRate " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_rate(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBurst& e) {
+
+		rofl::logging::warn << "eMeterModBadBurst " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_burst(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBand& e) {
+
+		rofl::logging::warn << "eMeterModBadBand " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBadBandValue& e) {
+
+		rofl::logging::warn << "eMeterModBadBandValue " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band_value(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModOutOfMeters& e) {
+
+		rofl::logging::warn << "eMeterModOutOfMeters " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_meters(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModOutOfBands& e) {
+
+		rofl::logging::warn << "eMeterModOutOfBands " << *msg << std::endl;
+		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_bands(
+				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		delete msg;
+
+	} catch (eMeterModBase& e) {
+
+		rofl::logging::warn << "eMeterModBase " << *msg << std::endl;
 		delete msg;
 	}
 }

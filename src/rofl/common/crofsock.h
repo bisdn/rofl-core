@@ -58,6 +58,7 @@
 #include "rofl/common/openflow/messages/cofmsg_experimenter_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_async_config.h"
 #include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_mod.h"
 
 
 namespace rofl {
