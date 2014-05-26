@@ -54,6 +54,23 @@ cofmeter_band_stats_array::operator= (
 
 
 
+const bool
+cofmeter_band_stats_array::operator== (
+		const cofmeter_band_stats_array& mbs) const
+{
+	if (array.size() != mbs.array.size())
+		return false;
+
+	for (std::map<unsigned int, cofmeter_band_stats>::const_iterator
+				it = array.begin(), jt = mbs.array.begin(); it != array.end(), jt != mbs.array.end(); ++it, ++jt) {
+		if (not (it->second == jt->second))
+			return false;
+	}
+	return true;
+}
+
+
+
 void
 cofmeter_band_stats_array::clear()
 {

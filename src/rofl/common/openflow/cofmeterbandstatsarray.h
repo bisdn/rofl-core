@@ -47,6 +47,13 @@ public:
 	operator= (
 			const cofmeter_band_stats_array& array);
 
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band_stats_array& array) const;
+
 public:
 
 	/**

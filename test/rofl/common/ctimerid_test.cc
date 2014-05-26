@@ -50,12 +50,10 @@ ctimerid_test::testDefaultConstructor()
 void
 ctimerid_test::testCopyConstructor()
 {
-	uint32_t tid = 0x12345678;
-	rofl::ctimerid tid1(tid);
+	rofl::ctimerid tid1;
 	rofl::ctimerid tid2(tid1);
 
-	CPPUNIT_ASSERT(tid1.get_tid() == tid);
-	CPPUNIT_ASSERT(tid2.get_tid() == tid);
+	CPPUNIT_ASSERT(tid1.get_tid() == tid2.get_tid());
 }
 
 
@@ -63,30 +61,10 @@ ctimerid_test::testCopyConstructor()
 void
 ctimerid_test::testAssignmentOperator()
 {
-	uint32_t tid = 0x12345678;
-	rofl::ctimerid tid1(tid);
+	rofl::ctimerid tid1;
 	rofl::ctimerid tid2 = tid1;
 
-	CPPUNIT_ASSERT(tid1.get_tid() == tid);
-	CPPUNIT_ASSERT(tid2.get_tid() == tid);
-}
-
-
-
-void
-ctimerid_test::testComparisonOperator()
-{
-	uint32_t tid = 0x12345678;
-	rofl::ctimerid tid1(tid);
-	rofl::ctimerid tid2(tid);
-
-	CPPUNIT_ASSERT(tid1.get_tid() == tid);
-	CPPUNIT_ASSERT(tid2.get_tid() == tid);
-	CPPUNIT_ASSERT(tid1 == tid2);
-
-	tid1.set_tid(0x55555555);
-
-	CPPUNIT_ASSERT(not (tid1 == tid2));
+	CPPUNIT_ASSERT(tid1.get_tid() == tid2.get_tid());
 }
 
 
@@ -94,32 +72,12 @@ ctimerid_test::testComparisonOperator()
 void
 ctimerid_test::testGetterAndSetter()
 {
-	uint32_t tid = 0x12345678;
-	rofl::ctimerid tid1(tid);
+	rofl::ctimerid tid1;
 
-	CPPUNIT_ASSERT(tid1.get_tid() == tid);
-
-	tid = 0x55555555;
+	uint32_t tid = 0x55555555;
 	tid1.set_tid(tid);
 
 	CPPUNIT_ASSERT(tid1.get_tid() == tid);
-}
-
-
-
-void
-ctimerid_test::testTimerIdWithMap()
-{
-	std::map<int, rofl::ctimerid> tids;
-
-	for (int i = 0; i < 4; i++) {
-		tids[i] = rofl::ctimerid((uint32_t)i);
-	}
-
-	for (int i = 0; i < 4; i++) {
-		std::cerr << tids[i];
-		CPPUNIT_ASSERT(tids[i].get_tid() == (uint32_t)i);
-	}
 }
 
 

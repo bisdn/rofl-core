@@ -19,9 +19,7 @@ class ctimerid_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testDefaultConstructor );
 	CPPUNIT_TEST( testCopyConstructor );
 	CPPUNIT_TEST( testAssignmentOperator );
-	CPPUNIT_TEST( testComparisonOperator );
 	CPPUNIT_TEST( testGetterAndSetter );
-	CPPUNIT_TEST( testTimerIdWithMap );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -34,9 +32,7 @@ public:
 	void testDefaultConstructor();
 	void testCopyConstructor();
 	void testAssignmentOperator();
-	void testComparisonOperator();
 	void testGetterAndSetter();
-	void testTimerIdWithMap();
 };
 
 #endif /* CTIMERID_TEST_H_ */

@@ -110,7 +110,9 @@ libopenflow_la_SOURCES= \
 	cofmeterbandstats.h \
 	cofmeterbandstats.cc \
 	cofmeterbandstatsarray.h \
-	cofmeterbandstatsarray.cc
+	cofmeterbandstatsarray.cc \
+	cofmeterstats.h \
+	cofmeterstats.cc
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -171,7 +173,8 @@ library_include_HEADERS = \
 	cofasyncconfig.h \
 	cofrole.h \
 	cofmeterbandstats.h \
-	cofmeterbandstatsarray.h
+	cofmeterbandstatsarray.h \
+	cofmeterstats.h
 
 
 

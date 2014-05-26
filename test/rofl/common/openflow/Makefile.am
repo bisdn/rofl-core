@@ -47,7 +47,9 @@ unittest_SOURCES= \
 	cofmeterbandstats_test.cc \
 	cofmeterbandstats_test.h \
 	cofmeterbandstatsarray_test.cc \
-	cofmeterbandstatsarray_test.h
+	cofmeterbandstatsarray_test.h \
+	cofmeterstats_test.cc \
+	cofmeterstats_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
