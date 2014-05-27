@@ -43,7 +43,7 @@ public:
 	 *
 	 */
 	cofmeter_bands(
-			const cofmeter_bands& mbset);
+			const cofmeter_bands& mbands);
 
 
 	/**
@@ -51,8 +51,14 @@ public:
 	 */
 	cofmeter_bands&
 	operator= (
-			const cofmeter_bands& mbset);
+			const cofmeter_bands& mbands);
 
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_bands& mbands);
 
 public:
 
@@ -299,7 +305,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_bands& mbs) {
 		os << rofl::indent(0) << "<cofmeterbands version: " << (int)mbs.get_version()
-				<< " #mbs: " << mbs.get_num_of_mbs() << " >" << std::endl;
+				<< " #mbands: " << mbs.get_num_of_mbs() << " >" << std::endl;
 		rofl::indent i(2);
 		// drop
 		for (std::map<unsigned int, cofmeter_band_drop>::const_iterator

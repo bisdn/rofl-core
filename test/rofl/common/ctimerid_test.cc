@@ -41,8 +41,6 @@ void
 ctimerid_test::testDefaultConstructor()
 {
 	rofl::ctimerid tid;
-
-	CPPUNIT_ASSERT(tid.get_tid() == 0);
 }
 
 
