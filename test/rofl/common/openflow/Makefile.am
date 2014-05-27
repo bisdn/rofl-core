@@ -51,7 +51,9 @@ unittest_SOURCES= \
 	cofmeterstats_test.cc \
 	cofmeterstats_test.h \
 	cofmeterconfig_test.cc \
-	cofmeterconfig_test.h
+	cofmeterconfig_test.h \
+	cofmeterfeatures_test.cc \
+	cofmeterfeatures_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
