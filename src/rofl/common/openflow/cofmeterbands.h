@@ -305,7 +305,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofmeter_bands& mbs) {
 		os << rofl::indent(0) << "<cofmeterbands version: " << (int)mbs.get_version()
-				<< " #mbands: " << mbs.get_num_of_mbs() << " >" << std::endl;
+				<< " #meter-bands: " << mbs.get_num_of_mbs() << " >" << std::endl;
 		rofl::indent i(2);
 		// drop
 		for (std::map<unsigned int, cofmeter_band_drop>::const_iterator

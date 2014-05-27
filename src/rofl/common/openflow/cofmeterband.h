@@ -260,6 +260,15 @@ public:
 	operator= (
 			const cofmeter_band_drop& mb);
 
+
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band_drop& mb) const;
+
+
 public:
 
 	friend std::ostream&
@@ -312,6 +321,13 @@ public:
 	operator= (
 			const cofmeter_band_dscp_remark& mb);
 
+
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band_dscp_remark& mb) const;
 
 
 public:
@@ -407,6 +423,13 @@ public:
 	operator= (
 			const cofmeter_band_experimenter& mb);
 
+
+	/**
+	 *
+	 */
+	const bool
+	operator== (
+			const cofmeter_band_experimenter& mb) const;
 
 
 public:

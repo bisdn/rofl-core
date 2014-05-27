@@ -40,7 +40,7 @@ cofmeter_band::cofmeter_band(
 
 
 cofmeter_band&
-cofmeter_band::operator =(
+cofmeter_band::operator= (
 		cofmeter_band const& mb)
 {
 	if (this == &mb)
@@ -197,6 +197,14 @@ cofmeter_band_drop::operator= (
 
 
 
+const bool
+cofmeter_band_drop::operator== (
+		const cofmeter_band_drop& mb) const
+{
+	return (cofmeter_band::operator== (mb));
+}
+
+
 
 
 
@@ -250,6 +258,15 @@ cofmeter_band_dscp_remark::operator= (
 
 
 
+const bool
+cofmeter_band_dscp_remark::operator== (
+		const cofmeter_band_dscp_remark& mb) const
+{
+	return (cofmeter_band::operator== (mb) && (prec_level == mb.prec_level));
+}
+
+
+
 size_t
 cofmeter_band_dscp_remark::length() const
 {
@@ -299,6 +316,8 @@ cofmeter_band_dscp_remark::unpack(uint8_t *buf, size_t buflen)
 
 		if (buflen < length())
 			throw eInval();
+
+		set_body() = rofl::cmemory(0);
 
 		struct rofl::openflow13::ofp_meter_band_dscp_remark* mbh =
 				(struct rofl::openflow13::ofp_meter_band_dscp_remark*)buf;
@@ -369,6 +388,15 @@ cofmeter_band_experimenter::operator= (
 
 
 
+const bool
+cofmeter_band_experimenter::operator== (
+		const cofmeter_band_experimenter& mb) const
+{
+	return (cofmeter_band::operator== (mb) && (exp_id == mb.exp_id) && (exp_body == mb.exp_body));
+}
+
+
+
 size_t
 cofmeter_band_experimenter::length() const
 {
@@ -428,6 +456,8 @@ cofmeter_band_experimenter::unpack(uint8_t *buf, size_t buflen)
 
 		// unpack common header
 		cofmeter_band::unpack(buf, buflen);
+
+		set_body() = rofl::cmemory(0);
 
 		struct rofl::openflow13::ofp_meter_band_experimenter* mbh =
 				(struct rofl::openflow13::ofp_meter_band_experimenter*)buf;

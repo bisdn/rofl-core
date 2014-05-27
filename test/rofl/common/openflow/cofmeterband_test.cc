@@ -238,6 +238,15 @@ cofmeterband_test::testDscpRemark()
 #endif
 
 	CPPUNIT_ASSERT(packed[12] == prec_level);
+
+	rofl::openflow::cofmeter_band_dscp_remark mb2(of_version);
+	mb2.unpack(packed.somem(), packed.memlen());
+
+#ifdef DEBUG
+	std::cerr << "mb2:" << std::endl << mb2;
+#endif
+
+	CPPUNIT_ASSERT(mb1 == mb2);
 }
 
 

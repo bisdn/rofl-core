@@ -125,10 +125,10 @@ cofmeterconfig_test::testPackUnpack()
 	rofl::openflow::cofmeter_config_reply msrep1(rofl::openflow13::OFP_VERSION);
 	msrep1.set_flags(flags);
 	msrep1.set_meter_id(meter_id);
-	msrep1.set_mbands().set_meter_band_drop(0).set_rate(rate);
-	msrep1.set_mbands().set_meter_band_drop(0).set_burst_size(burst_size);
-	msrep1.set_mbands().set_meter_band_drop(1).set_rate(rate);
-	msrep1.set_mbands().set_meter_band_drop(1).set_burst_size(burst_size);
+	msrep1.set_meter_bands().set_meter_band_drop(0).set_rate(rate);
+	msrep1.set_meter_bands().set_meter_band_drop(0).set_burst_size(burst_size);
+	msrep1.set_meter_bands().set_meter_band_drop(1).set_rate(rate);
+	msrep1.set_meter_bands().set_meter_band_drop(1).set_burst_size(burst_size);
 
 	rofl::cmemory packed2(msrep1.length());
 	msrep1.pack(packed2.somem(), packed2.memlen());
@@ -145,7 +145,7 @@ cofmeterconfig_test::testPackUnpack()
 	std::cerr << "msrep2:" << std::endl << msrep2;
 #endif
 
-	CPPUNIT_ASSERT(msrep2.get_mbands().get_num_of_mbs() == 2);
+	CPPUNIT_ASSERT(msrep2.get_meter_bands().get_num_of_mbs() == 2);
 	CPPUNIT_ASSERT(msrep2.get_flags()	 		== flags);
 	CPPUNIT_ASSERT(msrep2.get_meter_id() 		== meter_id);
 	CPPUNIT_ASSERT(msrep1 == msrep2);

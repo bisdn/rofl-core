@@ -117,6 +117,8 @@ libopenflow_la_SOURCES= \
 	cofmeterstatsarray.cc \
 	cofmeterconfig.h \
 	cofmeterconfig.cc \
+	cofmeterconfigarray.h \
+	cofmeterconfigarray.cc \
 	cofmeterfeatures.h \
 	cofmeterfeatures.cc 
 
@@ -183,6 +185,7 @@ library_include_HEADERS = \
 	cofmeterstats.h \
 	cofmeterstatsarray.h \
 	cofmeterconfig.h \
+	cofmeterconfigarray.h \
 	cofmeterfeatures.h
 
 

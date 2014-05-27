@@ -54,6 +54,8 @@ unittest_SOURCES= \
 	cofmeterstatsarray_test.h \
 	cofmeterconfig_test.cc \
 	cofmeterconfig_test.h \
+	cofmeterconfigarray_test.cc \
+	cofmeterconfigarray_test.h \
 	cofmeterfeatures_test.cc \
 	cofmeterfeatures_test.h
 

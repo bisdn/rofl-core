@@ -1,63 +1,63 @@
 /*
- * cofmeterstatsarray.h
+ * cofmeterconfigarray.h
  *
  *  Created on: 27.05.2014
  *      Author: andreas
  */
 
-#ifndef COFMETERSTATSARRAY_H_
-#define COFMETERSTATSARRAY_H_
+#ifndef COFMETERCONFIGARRAY_H_
+#define COFMETERCONFIGARRAY_H_
 
 #include <iostream>
 #include <map>
 
-#include "rofl/common/openflow/cofmeterstats.h"
+#include "rofl/common/openflow/cofmeterconfig.h"
 
 namespace rofl {
 namespace openflow {
 
-class cofmeterstatsarray
+class cofmeterconfigarray
 {
 public:
 
 	/**
 	 *
 	 */
-	cofmeterstatsarray(
+	cofmeterconfigarray(
 			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 	/**
 	 *
 	 */
 	virtual
-	~cofmeterstatsarray();
+	~cofmeterconfigarray();
 
 	/**
 	 *
 	 */
-	cofmeterstatsarray(
-			const cofmeterstatsarray& mstats);
+	cofmeterconfigarray(
+			const cofmeterconfigarray& mconfig);
 
 	/**
 	 *
 	 */
-	cofmeterstatsarray&
+	cofmeterconfigarray&
 	operator= (
-			const cofmeterstatsarray& mstats);
+			const cofmeterconfigarray& mconfig);
 
 	/**
 	 *
 	 */
 	bool
 	operator== (
-			const cofmeterstatsarray& mstats);
+			const cofmeterconfigarray& mconfig);
 
 	/**
 	 *
 	 */
-	cofmeterstatsarray&
+	cofmeterconfigarray&
 	operator+= (
-			const cofmeterstatsarray& mstats);
+			const cofmeterconfigarray& mconfig);
 
 public:
 
@@ -105,7 +105,7 @@ public:
 	void
 	set_version(uint8_t ofp_version) {
 		this->ofp_version = ofp_version;
-		for (std::map<unsigned int, cofmeter_stats_reply>::iterator
+		for (std::map<unsigned int, cofmeter_config_reply>::iterator
 				it = array.begin(); it != array.end(); ++it) {
 			it->second.set_version(ofp_version);
 		}
@@ -114,60 +114,60 @@ public:
 	/**
 	 *
 	 */
-	const std::map<unsigned int, cofmeter_stats_reply>&
-	get_mstats() const { return array; };
+	const std::map<unsigned int, cofmeter_config_reply>&
+	get_mconfig() const { return array; };
 
 	/**
 	 *
 	 */
-	std::map<unsigned int, cofmeter_stats_reply>&
-	set_mstats() { return array; };
+	std::map<unsigned int, cofmeter_config_reply>&
+	set_mconfig() { return array; };
 
 public:
 
 	/**
 	 *
 	 */
-	cofmeter_stats_reply&
-	add_meter_stats(
+	cofmeter_config_reply&
+	add_meter_config(
 			unsigned int index = 0);
 
 	/**
 	 *
 	 */
 	void
-	drop_meter_stats(
+	drop_meter_config(
 			unsigned int index = 0);
 
 	/**
 	 *
 	 */
-	cofmeter_stats_reply&
-	set_meter_stats(
+	cofmeter_config_reply&
+	set_meter_config(
 			unsigned int index = 0);
 
 	/**
 	 *
 	 */
-	const cofmeter_stats_reply&
-	get_meter_stats(
+	const cofmeter_config_reply&
+	get_meter_config(
 			unsigned int index = 0) const;
 
 	/**
 	 *
 	 */
 	bool
-	has_meter_stats(
+	has_meter_config(
 			unsigned int index = 0) const;
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmeterstatsarray const& mstats) {
-		os << "<cofmeterstatsarray #meter-stats:" << (int)mstats.array.size() << " >" << std::endl;
+	operator<< (std::ostream& os, cofmeterconfigarray const& mconfig) {
+		os << "<cofmeterconfigarray #meter-config:" << (int)mconfig.array.size() << " >" << std::endl;
 		rofl::indent i(2);
-		for (std::map<unsigned int, cofmeter_stats_reply>::const_iterator
-				it = mstats.array.begin(); it != mstats.array.end(); ++it) {
+		for (std::map<unsigned int, cofmeter_config_reply>::const_iterator
+				it = mconfig.array.begin(); it != mconfig.array.end(); ++it) {
 			os << it->second;
 		}
 		return os;
@@ -176,7 +176,7 @@ public:
 private:
 
 	uint8_t											ofp_version;
-	std::map<unsigned int, cofmeter_stats_reply>	array;
+	std::map<unsigned int, cofmeter_config_reply>	array;
 };
 
 }; // end of openflow
@@ -184,4 +184,4 @@ private:
 
 
 
-#endif /* COFMETERSTATSARRAY_H_ */
+#endif /* COFMETERCONFIGARRAY_H_ */

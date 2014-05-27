@@ -1,7 +1,7 @@
 /*
- * cofports.cc
+ * cofmeterstatsarray.cc
  *
- *  Created on: 14.03.2014
+ *  Created on: 27.05.2014
  *      Author: andreas
  */
 
@@ -25,24 +25,24 @@ cofmeterstatsarray::~cofmeterstatsarray()
 
 
 cofmeterstatsarray::cofmeterstatsarray(
-		const cofmeterstatsarray& ports)
+		const cofmeterstatsarray& mstats)
 {
-	*this = ports;
+	*this = mstats;
 }
 
 
 cofmeterstatsarray&
 cofmeterstatsarray::operator= (
-		const cofmeterstatsarray& ports)
+		const cofmeterstatsarray& mstats)
 {
-	if (this == &ports)
+	if (this == &mstats)
 		return *this;
 
 	this->array.clear();
 
-	ofp_version = ports.ofp_version;
+	ofp_version = mstats.ofp_version;
 	for (std::map<unsigned int, cofmeter_stats_reply>::const_iterator
-			it = ports.array.begin(); it != ports.array.end(); ++it) {
+			it = mstats.array.begin(); it != mstats.array.end(); ++it) {
 		this->array[it->first] = it->second;
 	}
 
@@ -53,16 +53,16 @@ cofmeterstatsarray::operator= (
 
 bool
 cofmeterstatsarray::operator== (
-		const cofmeterstatsarray& ports)
+		const cofmeterstatsarray& mstats)
 {
-	if (ofp_version != ports.ofp_version)
+	if (ofp_version != mstats.ofp_version)
 		return false;
 
-	if (array.size() != ports.array.size())
+	if (array.size() != mstats.array.size())
 		return false;
 
 	for (std::map<unsigned int, cofmeter_stats_reply>::const_iterator
-				it = ports.array.begin(); it != ports.array.end(); ++it) {
+				it = mstats.array.begin(); it != mstats.array.end(); ++it) {
 		if (not (array[it->first] == it->second))
 			return false;
 	}
@@ -187,12 +187,12 @@ cofmeterstatsarray::drop_meter_stats(unsigned int index)
 
 
 cofmeter_stats_reply&
-cofmeterstatsarray::set_meter_stats(uint32_t port_id)
+cofmeterstatsarray::set_meter_stats(unsigned int index)
 {
-	if (array.find(port_id) == array.end()) {
-		array[port_id] = cofmeter_stats_reply(ofp_version);
+	if (array.find(index) == array.end()) {
+		array[index] = cofmeter_stats_reply(ofp_version);
 	}
-	return array[port_id];
+	return array[index];
 }
 
 
