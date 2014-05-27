@@ -226,10 +226,7 @@ rofl_result_t __monitoring_init(monitoring_state_t* monitoring){
 	return ROFL_SUCCESS;
 }
 
-/**
-* @brief Destroys the monitoring state 
-* @ingroup  mgmt
-*/
+//Destroys the monitoring state 
 void __monitoring_destroy(monitoring_state_t* monitoring){
 
 	if(!monitoring)
@@ -378,10 +375,7 @@ monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitor
 	return sn;
 }
 
-/**
-* @brief Update(inc atomically) the rev counter
-* @ingroup  mgmt
-*/
+//Update(inc atomically) the rev counter
 void monitoring_state_inc_rev(monitoring_state_t* mon){
 	platform_atomic_inc64(&mon->last_rev, mon->mutex);
 }

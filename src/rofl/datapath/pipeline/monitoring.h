@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
-* @file port_queue.h
+* @file monitoring.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
 * @brief This file contains the abstractions to monitor particular elements
@@ -22,6 +22,10 @@
 //fwd decl
 struct monitored_entity;
 
+/**
+* @brief Sensor data type
+* @ingroup core_monitoring
+*/
 enum sensor_data_type{
 	SENSOR_DATA_T_OHTER=1,		//a measure other than those listed below
 	SENSOR_DATA_T_UNKNOWN=2,	//unknown measurement, or arbitrary, relative numbers
@@ -37,6 +41,10 @@ enum sensor_data_type{
 	SENSOR_DATA_T_TRUTH_VALUE=12	//value takes { true(1), false(2) }
 };
 
+/**
+* @brief Sensor data scale
+* @ingroup core_monitoring
+*/
 enum sensor_data_scale{
 	SENSOR_DATA_S_YOCTO=1,	//10^-24
 	SENSOR_DATA_S_ZEPTO=2,	//10^-21
@@ -57,6 +65,10 @@ enum sensor_data_scale{
 	SENSOR_DATA_S_YOTTA=17	//10^24
 };
 
+/**
+* @brief Sensor data operational status
+* @ingroup core_monitoring
+*/
 enum sensor_data_oper_status{
 	SENSOR_DATA_OS_OK=1,
 	SENSOR_DATA_OS_UNAVAILABLE=2,
@@ -64,7 +76,8 @@ enum sensor_data_oper_status{
 };
 
 /**
-* Sensor data information
+* @brief Sensor data information
+* @ingroup core_monitoring
 */
 typedef struct sensor_data{
 	enum sensor_data_type type;
@@ -79,8 +92,8 @@ typedef struct sensor_data{
 
 
 /**
-* Monitoring entity type enum
-* defined according to RFC2737
+* @brief Monitoring entity type enum, defined according to RFC2737
+* @ingroup core_monitoring
 */
 enum monitored_entity_type{
 	ME_TYPE_OTHER=1,
@@ -96,10 +109,17 @@ enum monitored_entity_type{
 	ME_TYPE_STACK=11
 };
 
+/**
+* @brief Maximum number of sensors per monitored entity
+* @ingroup core_monitoring
+*/
 #define MONITORED_ENTITY_MAX_SENSOR_DATA 8
 
 /**
-* Monitored entity data 
+* @brief Abstraction of a monitored entity data. A monitored entity contains the information of an object that can be monitored. 
+* A monitored entity _can_ contain inner monitored entity data elements, and entities at its own level, allowing to create
+* tree structures of monitored entitities
+* @ingroup core_monitoring
 */
 typedef struct monitored_entity{
 
@@ -142,7 +162,8 @@ typedef struct monitored_entity{
 
 
 /**
-* Wrapper for the monitoMonitored entity data 
+* @brief Container of the monitoring state 
+* @ingroup core_monitoring
 */
 typedef struct monitoring_state{
 

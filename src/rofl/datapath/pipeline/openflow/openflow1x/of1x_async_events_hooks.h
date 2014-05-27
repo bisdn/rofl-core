@@ -12,7 +12,7 @@
 #include "../../../pipeline/common/datapacket.h"
 
 /**
-* @file of1x_async_events_hooks_hooks.h
+* @file of1x_async_events_hooks.h 
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
 *
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 switch(fwd module) -> asynchronous event notification and hooks) 
@@ -82,34 +82,34 @@ void platform_of1x_notify_flow_removed(const of1x_switch_t* sw,
 						of1x_flow_entry_t* removed_flow_entry);
 
 /**
- * todo documentation
- * @param new_entry		flow entry to add
- */
-void
-plaftorm_of1x_add_entry_hook(of1x_flow_entry_t* new_entry);
+* @brief It can be used by hardware or other software (non rofl-pipeline) pipelines, to install the new entry. The entry has been already validated and added the state management
+* @param new_entry		flow entry to add
+* @ingroup async_events_hooks_of1x 
+*/
+void plaftorm_of1x_add_entry_hook(of1x_flow_entry_t* new_entry);
 
 /**
- * todo documentation
- * @param old_entry		the original entry
- * @param mod			the modifications
- * @param reset_count	if set reset statistic counters
- */
-void
-platform_of1x_modify_entry_hook(of1x_flow_entry_t* old_entry, of1x_flow_entry_t* mod, int reset_count);
+* @brief It can be used by hardware or other software (non rofl-pipeline) pipelines, to modify an entry (single entry). The state management has already modified the state in rofl-pipeline 
+* @param old_entry		the original entry
+* @param mod			the modifications
+* @param reset_count	if set reset statistic counters
+* @ingroup async_events_hooks_of1x 
+*/
+void platform_of1x_modify_entry_hook(of1x_flow_entry_t* old_entry, of1x_flow_entry_t* mod, int reset_count);
 
 /**
- * todo documentation
- * @param entry			flow entry to remove
- */
-void
-platform_of1x_remove_entry_hook(of1x_flow_entry_t* entry);
+* @brief It can be used by hardware or other software (non rofl-pipeline) pipelines, to remove an entry (single entry). The state management has already removed the state in rofl-pipeline 
+* @param entry			flow entry to remove
+* @ingroup async_events_hooks_of1x 
+*/
+void platform_of1x_remove_entry_hook(of1x_flow_entry_t* entry);
 
 /**
- * todo documentation
- * @param entry			flow entry to update statistics from the platform
- */
-void
-platform_of1x_update_stats_hook(of1x_flow_entry_t* entry);
+* @brief It can be used by hardware or other software (non rofl-pipeline) pipelines, to update the stats of an entry when a request for stats is done.
+* @param entry			flow entry to update statistics from the platform
+* @ingroup async_events_hooks_of1x 
+*/
+void platform_of1x_update_stats_hook(of1x_flow_entry_t* entry);
 
 //Extern C
 ROFL_END_DECLS
