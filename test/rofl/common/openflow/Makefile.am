@@ -50,6 +50,8 @@ unittest_SOURCES= \
 	cofmeterbandstatsarray_test.h \
 	cofmeterstats_test.cc \
 	cofmeterstats_test.h \
+	cofmeterstatsarray_test.cc \
+	cofmeterstatsarray_test.h \
 	cofmeterconfig_test.cc \
 	cofmeterconfig_test.h \
 	cofmeterfeatures_test.cc \

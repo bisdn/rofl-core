@@ -218,6 +218,18 @@ public:
 	/**
 	 *
 	 */
+	rofl::openflow::cofmeter_band_stats_array&
+	set_meter_band_stats() { return mbstats; };
+
+	/**
+	 *
+	 */
+	const rofl::openflow::cofmeter_band_stats_array&
+	get_meter_band_stats() const { return mbstats; };
+
+	/**
+	 *
+	 */
 	void
 	set_version(uint8_t of_version) { this->of_version = of_version; };
 
@@ -312,6 +324,7 @@ public:
 		os << indent(2) << "<duration-sec: 0x" 		<< (unsigned long long)r.get_duration_sec() 	<< " >" << std::endl;
 		os << indent(2) << "<duration-nsec: 0x" 	<< (unsigned long long)r.get_duration_nsec() 	<< " >" << std::endl;
 		os << std::dec;
+		{ rofl::indent i(2); os << r.get_meter_band_stats(); }
 		return os;
 	};
 

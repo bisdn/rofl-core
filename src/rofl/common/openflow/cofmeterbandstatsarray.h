@@ -148,9 +148,10 @@ public:
 	operator<< (std::ostream& os, const cofmeter_band_stats_array& array) {
 		os << rofl::indent(0) << "<cofmeter_band_stats_array #stats: "
 				<< array.get_mbs_array().size() << " >" << std::endl;
+		rofl::indent i(2);
 		for (std::map<unsigned int, cofmeter_band_stats>::const_iterator
 				it = array.get_mbs_array().begin(); it != array.get_mbs_array().end(); ++it) {
-			os << rofl::indent(2) << it->second;
+			os << it->second;
 		}
 		return os;
 	};
