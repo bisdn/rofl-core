@@ -118,6 +118,9 @@ cofmeter_band::pack(uint8_t *buf, size_t buflen)
 void
 cofmeter_band::unpack(uint8_t *buf, size_t buflen)
 {
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	switch (of_version) {
 	case openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow13::ofp_meter_band_header)) {
@@ -309,6 +312,9 @@ cofmeter_band_dscp_remark::pack(uint8_t *buf, size_t buflen)
 void
 cofmeter_band_dscp_remark::unpack(uint8_t *buf, size_t buflen)
 {
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	cofmeter_band::unpack(buf, buflen);
 
 	switch (get_version()) {
@@ -446,6 +452,9 @@ cofmeter_band_experimenter::pack(uint8_t *buf, size_t buflen)
 void
 cofmeter_band_experimenter::unpack(uint8_t *buf, size_t buflen)
 {
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
 

@@ -135,6 +135,9 @@ cofmeterstatsarray::unpack(uint8_t *buf, size_t buflen)
 {
 	array.clear();
 
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	unsigned int offset = 0;
 	unsigned int index = 0;
 

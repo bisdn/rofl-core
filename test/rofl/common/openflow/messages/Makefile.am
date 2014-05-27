@@ -7,7 +7,9 @@ unittest_SOURCES= \
 	cofmsgtablefeatures_test.cc \
 	cofmsgtablefeatures_test.h \
 	cofmsgmetermod_test.cc \
-	cofmsgmetermod_test.h
+	cofmsgmetermod_test.h \
+	cofmsgmeterfeatures_test.cc \
+	cofmsgmeterfeatures_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

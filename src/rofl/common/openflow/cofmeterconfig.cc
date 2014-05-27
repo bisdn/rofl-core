@@ -103,6 +103,9 @@ cofmeter_config_request::pack(uint8_t *buf, size_t buflen)
 void
 cofmeter_config_request::unpack(uint8_t *buf, size_t buflen)
 {
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	switch (of_version) {
 	case rofl::openflow13::OFP_VERSION: {
 		if (buflen < length())
@@ -248,6 +251,9 @@ cofmeter_config_reply::pack(uint8_t *buf, size_t buflen)
 void
 cofmeter_config_reply::unpack(uint8_t *buf, size_t buflen)
 {
+	if ((0 == buf) || (0 == buflen))
+		return;
+
 	switch (of_version) {
 	case rofl::openflow13::OFP_VERSION: {
 		mbands.clear();
