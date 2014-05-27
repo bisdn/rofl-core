@@ -11,19 +11,16 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		match(of_version, __type)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {		// JSPEDIT
+	case OFP10_VERSION: {
 		flow_mod_area.resize(sizeof(struct ofp10_flow_mod));
 		of10m_flow_mod = (struct ofp10_flow_mod*)flow_mod_area.somem();
 
-// JSP		of10m_flow_mod->table_id 		= 0;
-// JSP		of10m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of10m_flow_mod->buffer_id 		= htobe32(OFP_NO_BUFFER);	// default: buffer_id = -1
 		of10m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
 		of10m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 5 secs
 		of10m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of10m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
 		of10m_flow_mod->out_port 		= htobe32(OFPP10_NONE);	// JSP OFPP10_ANY -> OFPP10_NONE - only really needed in OFPFC_DELETE* anyway
-// JSP		of10m_flow_mod->out_group 		= htobe32(OFPG10_ANY);
 
 	} break;
 	case OFP12_VERSION: {
@@ -88,12 +85,12 @@ cflowentry::operator= (const cflowentry& fe)
 
 	this->match 		= fe.match;
 	this->instructions 	= fe.instructions;
-	this->actions 	= fe.actions;	// JSP
+	this->actions 	= fe.actions;
 	this->flow_mod_area = fe.flow_mod_area;
 	this->of_version	= fe.of_version;
 
 	switch (of_version) {
-	case OFP10_VERSION: {	// JSPEDIT
+	case OFP10_VERSION: {
 		of10m_flow_mod = (struct ofp10_flow_mod*)(flow_mod_area.somem());
 	} break;
 	case OFP12_VERSION: {
@@ -158,23 +155,20 @@ cflowentry::reset()
 
 	instructions.clear();
 	
-	actions.clear();		// JSP
+	actions.clear();
 
 	flow_mod_area.clear();
 
 	switch (of_version) {
-	case OFP10_VERSION: {			// JSPEDIT
+	case OFP10_VERSION: {
 		of10m_flow_mod = (struct ofp10_flow_mod*)(flow_mod_area.somem());
 
-// JSP		of10m_flow_mod->table_id 		= 0;
-// JSP		of10m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of10m_flow_mod->buffer_id 		= htobe32(OFP_NO_BUFFER);	// default: buffer_id = -1
 		of10m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
 		of10m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
 		of10m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of10m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
 		of10m_flow_mod->out_port 		= htobe32(OFPP10_NONE);		// JSP OFPP10_ANY -> OFPP10_NONE
-//	JSP	of10m_flow_mod->out_group 		= htobe32(OFPG10_ANY);
 
 	} break;
 	case OFP12_VERSION: {
@@ -220,7 +214,7 @@ cflowentry::c_str()
 	std::string s_cmd;
 
 	switch (of_version) {
-	case OFP10_VERSION: {	// JSPEDIT
+	case OFP10_VERSION: {
 		switch (of10m_flow_mod->command) {
 		case OFPFC_ADD:
 			s_cmd.assign("OFPFC_ADD");
@@ -244,18 +238,15 @@ cflowentry::c_str()
 
 		cvastring vas(2048);
 		info.assign(vas("[cflowentry(%p) "
-//				"%s table-id[%d] buffer-id[0x%x] idle_timeout[%d] hard_timeout[%d] priority[%d] "
 				"%s buffer-id[0x%x] idle_timeout[%d] hard_timeout[%d] priority[%d] "
 				"\n%s\n%s]",
 				this,
 				s_cmd.c_str(),
-// JSP				of10m_flow_mod->table_id,
 				be32toh(of10m_flow_mod->buffer_id),
 				be16toh(of10m_flow_mod->idle_timeout),
 				be16toh(of10m_flow_mod->hard_timeout),
 				be16toh(of10m_flow_mod->priority),
 				match.c_str(),
-				// instructions.c_str()));
 				actions.c_str()));
 
 	} break;
@@ -347,7 +338,7 @@ void
 cflowentry::set_table_id(uint8_t table_id)
 {
 	switch (of_version) {
-	case OFP12_VERSION:	// JSP - not of12m_flow_mod ?
+	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->table_id = table_id;
 	} break;
@@ -362,7 +353,9 @@ void
 cflowentry::set_command(uint8_t command)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->command = command; break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->command = command;
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->command = command;
@@ -378,7 +371,9 @@ void
 cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->idle_timeout = htobe16(idle_timeout); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->idle_timeout = htobe16(idle_timeout);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->idle_timeout = htobe16(idle_timeout);
@@ -394,7 +389,9 @@ void
 cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->hard_timeout = htobe16(hard_timeout); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->hard_timeout = htobe16(hard_timeout);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->hard_timeout = htobe16(hard_timeout);
@@ -410,7 +407,9 @@ void
 cflowentry::set_cookie(const uint64_t& cookie)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->cookie = htobe64(cookie); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->cookie = htobe64(cookie);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->cookie = htobe64(cookie);
@@ -441,7 +440,9 @@ void
 cflowentry::set_priority(const uint16_t& priority)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->priority = htobe16(priority); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->priority = htobe16(priority);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->priority = htobe16(priority);
@@ -457,7 +458,9 @@ void
 cflowentry::set_buffer_id(const uint32_t& buffer_id)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->buffer_id = htobe32(buffer_id); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->buffer_id = htobe32(buffer_id);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->buffer_id = htobe32(buffer_id);
@@ -473,7 +476,9 @@ void
 cflowentry::set_out_port(const uint32_t& out_port)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->out_port = htobe32(out_port); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->out_port = htobe32(out_port);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->out_port = htobe32(out_port);
@@ -504,7 +509,9 @@ void
 cflowentry::set_flags(const uint16_t& flags)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->flags = htobe16(flags); break;	// JSP
+	case OFP10_VERSION: {
+		of10m_flow_mod->flags = htobe16(flags);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->flags = htobe16(flags);
@@ -520,7 +527,9 @@ uint8_t
 cflowentry::get_command() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->command;	//JSP
+	case OFP10_VERSION: {
+		return of10m_flow_mod->command;
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return of13m_flow_mod->command;
@@ -553,7 +562,9 @@ uint16_t
 cflowentry::get_idle_timeout() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be16toh(of10m_flow_mod->idle_timeout);	//JSP
+	case OFP10_VERSION: {
+		return be16toh(of10m_flow_mod->idle_timeout);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->idle_timeout);
@@ -570,7 +581,9 @@ uint16_t
 cflowentry::get_hard_timeout() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be16toh(of10m_flow_mod->hard_timeout);	//JSP
+	case OFP10_VERSION: {
+		return be16toh(of10m_flow_mod->hard_timeout);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->hard_timeout);
@@ -587,7 +600,9 @@ uint64_t
 cflowentry::get_cookie() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be64toh(of10m_flow_mod->cookie);	//JSP
+	case OFP10_VERSION: {
+		return be64toh(of10m_flow_mod->cookie);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be64toh(of13m_flow_mod->cookie);
@@ -620,7 +635,9 @@ uint16_t
 cflowentry::get_priority() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be16toh(of10m_flow_mod->priority);	//JSP
+	case OFP10_VERSION: {
+		return be16toh(of10m_flow_mod->priority);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->priority);
@@ -637,7 +654,9 @@ uint32_t
 cflowentry::get_buffer_id() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be32toh(of10m_flow_mod->buffer_id);	//JSP
+	case OFP10_VERSION: {
+		return be32toh(of10m_flow_mod->buffer_id);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be32toh(of13m_flow_mod->buffer_id);
@@ -654,7 +673,9 @@ uint32_t
 cflowentry::get_out_port() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be32toh(of10m_flow_mod->out_port);	//JSP
+	case OFP10_VERSION: {
+		return be32toh(of10m_flow_mod->out_port);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be32toh(of13m_flow_mod->out_port);
@@ -687,7 +708,9 @@ uint16_t
 cflowentry::get_flags() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return be16toh(of10m_flow_mod->flags);	//JSP
+	case OFP10_VERSION: {
+		return be16toh(of10m_flow_mod->flags);
+	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->flags);
@@ -710,21 +733,10 @@ cflowentry::pack()
 	size_t actlistlen = 0;
 
 	switch (of_version) {
-	case OFP10_VERSION:	{	// JSP	- FFS - ignore this - it's actually done in cofmsg_flow_mod.cc:203
+	case OFP10_VERSION:	{	// JSP	- FFS - ignore this - it's actually done in cofmsg_flow_mod.cc:203 - this needs testing
 		actlistlen = actions.length();	// size in bytes - returns the sum of length() called on each contained cofaction - length on cofaction is returned in bytes
 		ofmatch_len = match.length();	// size in byte - eventually returns sizeof(struct ofp10_match)
-/*
-		// fiddled from https://www.codebasin.net/redmine/projects/rofl-core/repository/revisions/devel-0.4/entry/src/rofl/common/openflow/cofflowmod.cc
-		packlen = sizeof(struct ofp10_flow_mod) + actions.length();
-		if (packlen > flow_mod_area.memlen()) {// not enough space, resize memory area for flow_mod
-			flow_mod_area.resize(packlen);
-		}
-		match.pack((uint8_t*)&(of10m_flow_mod->match), sizeof(of10m_flow_mod->match));
-		actions.pack((uint8_t*)of10m_flow_mod->actions, actions.length());
-*/
 
-		// length of generic ofp_flow_mod header without ofp_match
-//		fm_len = sizeof(struct ofp10_flow_mod) - sizeof(ofp10_match);
 		fm_len = sizeof(struct ofp10_flow_mod) - ofmatch_len;
 
 		packlen = fm_len + ofmatch_len + actlistlen;

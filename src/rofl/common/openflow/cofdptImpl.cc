@@ -347,7 +347,9 @@ cofdptImpl::handle_message(
 					"assert(msg != 0) failed", this);
 			return;
 		}
+
 		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
+
 		const uint8_t OFPT_HELLO = 0;
 
 		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
@@ -355,6 +357,7 @@ cofdptImpl::handle_message(
 				"no HELLO rcvd yet, dropping message, msg: %s", this, mem->c_str());
 			delete mem; return;
 		}
+
 		switch (ofp_version) {
 		case OFP10_VERSION: {
 
@@ -647,6 +650,7 @@ cofdptImpl::handle_message(
 
 		delete msg;
 	} catch (eBadVersion& e) {
+
 		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
 				"ofp_header.version not supported, pack: %s", this, mem->c_str());
 

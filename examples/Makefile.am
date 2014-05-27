@@ -1,3 +1,3 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = etherswitch queuetest rfc2889 ofperftest tranny
+SUBDIRS = etherswitch queuetest rfc2889 ofperftest

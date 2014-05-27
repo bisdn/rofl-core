@@ -276,11 +276,11 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 
 	// in_port
 	try {
-//		m->in_port = htobe16((uint16_t)(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
-		m->in_port = htobe16((uint16_t)(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() & 0x0000ffff));	// JSP BUG - stick a fork in me - I'm done
+		m->in_port = htobe16((uint16_t)(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() & 0x0000ffff));
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_IN_PORT;
 	}
+
 	// dl_src
 	try {
 		memcpy(m->dl_src, oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr().somem(), OFP_ETH_ALEN);
@@ -342,6 +342,7 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_NW_SRC_ALL;
 	}
+
 
 	// nw_dst
 	try {

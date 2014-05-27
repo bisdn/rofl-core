@@ -1045,14 +1045,18 @@ crofbase::send_aggr_stats_request(
 	default:
 		throw eBadVersion();
 	}
+
 	cofmsg_aggr_stats_request *msg =
 			new cofmsg_aggr_stats_request(
 					dpt->get_version(),
 					ta_add_request(msg_type),
 					flags,
 					aggr_stats_request);
+
 	msg->pack();
+
 	uint32_t xid = msg->get_xid();
+
 	dpt_find(dpt)->send_message(msg);
 
 	return xid;
@@ -1654,14 +1658,15 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
-// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
-//		cpacket n_pack(data, datalen, match.get_in_port());	// JSP
-		cpacket n_pack(data, datalen, ((ctl&&(ctl->get_version()!= OFP10_VERSION))?match.get_in_port():in_port) );	// JSP
-// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
+
+		cpacket n_pack(data, datalen, ((ctl&&(ctl->get_version()!= OFP10_VERSION))?match.get_in_port():in_port) );
+
 		if (0 != ctl) { // cofctl instance was specified
+
 			if (ofctl_set.find(ctl) == ofctl_set.end()) {
 				throw eRofBaseNotConnected();
 			}
+
 			cofmsg_packet_in *pack =
 					new cofmsg_packet_in(
 							ctl->get_version(),
@@ -1675,11 +1680,15 @@ crofbase::send_packet_in_message(
 							match,
 							data,
 							datalen);
+
 			pack->pack();
+
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x pack: %s",
 							this, buffer_id, pack->c_str());
+
 			ctl_find(ctl)->send_message(pack);
+
 		} else if (fe_flags.test(NSP_ENABLED)) { //cofctl was not specified and flowspace registration is enabled
 
 			std::set<cfspentry*> nse_list;
@@ -2053,6 +2062,7 @@ crofbase::send_error_message(
  * FLOW-MOD message
  */
 
+
 void
 crofbase::send_flow_mod_message(
 	cofdpt *dpt,
@@ -2104,41 +2114,41 @@ crofbase::send_flow_mod_message(
 		cflowentry& fe)
 {
 	cofmsg_flow_mod *pack;
-	switch(dpt->get_version())	// JSP
+	switch(dpt->get_version())
 	{
 		case OFP10_VERSION:
 			pack = new cofmsg_flow_mod(
-							dpt->get_version(),
-							ta_new_async_xid(),
-							fe.get_cookie(),
-							fe.get_command(),
-							fe.get_idle_timeout(),
-							fe.get_hard_timeout(),
-							fe.get_priority(),
-							fe.get_buffer_id(),
-							fe.get_out_port(),
-							fe.get_flags(),
-							fe.actions,
-							fe.match);
+					dpt->get_version(),
+					ta_new_async_xid(),
+					fe.get_cookie(),
+					fe.get_command(),
+					fe.get_idle_timeout(),
+					fe.get_hard_timeout(),
+					fe.get_priority(),
+					fe.get_buffer_id(),
+					fe.get_out_port(),
+					fe.get_flags(),
+					fe.actions,
+					fe.match);
 		break;
 	case OFP12_VERSION:
 	case OFP13_VERSION:
-		pack = new cofmsg_flow_mod(	// ORIGINAL
-						dpt->get_version(),
-						ta_new_async_xid(),
-						fe.get_cookie(),
-						fe.get_cookie_mask(),
-						fe.get_table_id(),
-						fe.get_command(),
-						fe.get_idle_timeout(),
-						fe.get_hard_timeout(),
-						fe.get_priority(),
-						fe.get_buffer_id(),
-						fe.get_out_port(),
-						fe.get_out_group(),
-						fe.get_flags(),
-						fe.instructions,
-						fe.match);
+		pack = new cofmsg_flow_mod(
+					dpt->get_version(),
+					ta_new_async_xid(),
+					fe.get_cookie(),
+					fe.get_cookie_mask(),
+					fe.get_table_id(),
+					fe.get_command(),
+					fe.get_idle_timeout(),
+					fe.get_hard_timeout(),
+					fe.get_priority(),
+					fe.get_buffer_id(),
+					fe.get_out_port(),
+					fe.get_out_group(),
+					fe.get_flags(),
+					fe.instructions,
+					fe.match);
 		break;
 	default:
 		throw eBadVersion();

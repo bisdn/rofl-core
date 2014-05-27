@@ -44,15 +44,15 @@ public: // data structures
 
 	cofinlist 		instructions; 	// list of instructions
 	
-	cofaclist		actions;		// JSP
+	cofaclist		actions;		// OF10 only
 
 	union {
-		struct ofp10_flow_mod 		*ofmu10_flow_mod;	// JSP
+		struct ofp10_flow_mod 		*ofmu10_flow_mod;
 		struct ofp12_flow_mod 		*ofmu12_flow_mod;
 		struct ofp13_flow_mod		*ofmu13_flow_mod;
 	} ofm_ofmu;
 
-#define of10m_flow_mod		ofm_ofmu.ofmu10_flow_mod	// JSP
+#define of10m_flow_mod		ofm_ofmu.ofmu10_flow_mod
 #define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
 #define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
 

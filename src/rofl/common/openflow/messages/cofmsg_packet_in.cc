@@ -16,8 +16,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
 	match(match),
-//	packet(data, datalen, match.get_in_port())
-	packet(data, datalen, ((of_version==OFP10_VERSION)?in_port:match.get_in_port()))		// JSP
+	packet(data, datalen, ((of_version==OFP10_VERSION)?in_port:match.get_in_port()))
 {
 	ofh_packet_in = soframe();
 
@@ -215,13 +214,12 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-//		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN - 2;		// JSP
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN - 2;
 
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
-// JSP +2 isn't magic - it causes the drop of the first four bytes of data - dest addr. It should be -2.
+
 	} break;
 	case OFP12_VERSION: {
 		/*

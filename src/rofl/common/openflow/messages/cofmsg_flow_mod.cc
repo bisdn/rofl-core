@@ -183,7 +183,6 @@ cofmsg_flow_mod::length() const
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
-//		return (OFP10_FLOW_MOD_STATIC_HDR_LEN + match.length() + actions.length());		// JSP BULLSHIT - OFP10_FLOW_MOD_STATIC_HDR_LEN already includes match
 		return (OFP10_FLOW_MOD_STATIC_HDR_LEN + actions.length());
 	} break;
 	case OFP12_VERSION: {
@@ -213,19 +212,12 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-/*		memcpy(buf, soframe(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
 		match.pack((struct ofp10_match*)
 				(struct ofp10_match*)(buf + sizeof(struct ofp_header)),
 												sizeof(struct ofp10_match));
 		actions.pack((struct ofp_action_header*)
 				(buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length());
-*/
-// JSP
-		memcpy(buf, soframe(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
-//		std::cout << __FUNCTION__ << ": packing match at offset of " << (unsigned)(sizeof(struct ofp_header)) << " for " << sizeof(struct ofp10_match) << " bytes." << std::endl;
-		match.pack( (struct ofp10_match*)(buf + sizeof(struct ofp_header)), sizeof(struct ofp10_match) );
-//		std::cout << __FUNCTION__ << ": packing actions at offset of " << (unsigned) OFP10_FLOW_MOD_STATIC_HDR_LEN << " for " << actions.length() << " bytes." << std::endl;
-		actions.pack( (struct ofp_action_header*) (buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length() );
 	} break;
 	case OFP12_VERSION: {
 		memcpy(buf, soframe(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
