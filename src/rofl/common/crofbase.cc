@@ -1658,7 +1658,7 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
-
+		// OFP10 doesn't have match.get_in_port()
 		cpacket n_pack(data, datalen, ((ctl&&(ctl->get_version()!= OFP10_VERSION))?match.get_in_port():in_port) );
 
 		if (0 != ctl) { // cofctl instance was specified
