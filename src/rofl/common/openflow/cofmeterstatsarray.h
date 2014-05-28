@@ -164,7 +164,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmeterstatsarray const& mstats) {
-		os << "<cofmeterstatsarray #meter-stats:" << (int)mstats.array.size() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofmeterstatsarray #meter-stats:" << (int)mstats.array.size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<unsigned int, cofmeter_stats_reply>::const_iterator
 				it = mstats.array.begin(); it != mstats.array.end(); ++it) {

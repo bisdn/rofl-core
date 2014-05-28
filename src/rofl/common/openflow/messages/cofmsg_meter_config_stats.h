@@ -30,10 +30,10 @@ public:
 	 *
 	 */
 	cofmsg_meter_config_stats_request(
-			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			uint32_t xid = 0,
-			uint16_t stats_flags = 0,
-			uint32_t meter_id = 0);
+			uint8_t of_version,
+			uint32_t xid,
+			uint16_t stats_flags,
+			uint32_t meter_id);
 
 
 	/** constructor

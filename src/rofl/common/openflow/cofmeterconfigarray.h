@@ -164,7 +164,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmeterconfigarray const& mconfig) {
-		os << "<cofmeterconfigarray #meter-config:" << (int)mconfig.array.size() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofmeterconfigarray #meter-config:" << (int)mconfig.array.size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<unsigned int, cofmeter_config_reply>::const_iterator
 				it = mconfig.array.begin(); it != mconfig.array.end(); ++it) {
