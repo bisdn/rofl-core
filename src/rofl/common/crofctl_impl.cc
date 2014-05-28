@@ -2409,13 +2409,13 @@ crofctl_impl::stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_sta
 		group_features_stats_request_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request*>( msg ));
 	} break;
 	case openflow13::OFPMP_METER: {
-		// TODO
+		meter_stats_request_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_meter_stats_request*>( msg ));
 	} break;
 	case openflow13::OFPMP_METER_CONFIG: {
-		// TODO
+		meter_config_stats_request_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request*>( msg ));
 	} break;
 	case openflow13::OFPMP_METER_FEATURES: {
-		// TODO
+		meter_features_stats_request_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request*>( msg ));
 	} break;
 	case openflow13::OFPMP_TABLE_FEATURES: {
 		table_features_stats_request_rcvd(auxid, dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>( msg ));
@@ -2562,6 +2562,51 @@ crofctl_impl::group_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 			<< " Group-Features-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_group_features_stats_request(*this, auxid, request);
+
+	delete msg;
+}
+
+
+
+void
+crofctl_impl::meter_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request* msg)
+{
+	rofl::openflow::cofmsg_meter_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_stats_request&>( *msg );
+
+	rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Meter-Stats-Request message received" << std::endl << request;
+
+	rofbase->handle_meter_stats_request(*this, auxid, request);
+
+	delete msg;
+}
+
+
+
+void
+crofctl_impl::meter_config_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request* msg)
+{
+	rofl::openflow::cofmsg_meter_config_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request&>( *msg );
+
+	rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Meter-Config-Stats-Request message received" << std::endl << request;
+
+	rofbase->handle_meter_config_stats_request(*this, auxid, request);
+
+	delete msg;
+}
+
+
+
+void
+crofctl_impl::meter_features_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request* msg)
+{
+	rofl::openflow::cofmsg_meter_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request&>( *msg );
+
+	rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Meter-Features-Stats-Request message received" << std::endl << request;
+
+	rofbase->handle_meter_features_stats_request(*this, auxid, request);
 
 	delete msg;
 }

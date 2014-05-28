@@ -1160,6 +1160,120 @@ protected:
 
 
 	/**
+	 * @brief	Called once a METER-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request& msg) { throw eBadRequestBadStat(); };
+
+
+
+	/**
+	 * @brief	Called once a METER-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a METER-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-CONFIG-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_config_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_config_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request& msg) { throw eBadRequestBadStat(); };
+
+
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-CONFIG-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_config_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_config_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_config_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_features_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request& msg) { throw eBadRequestBadStat(); };
+
+
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_features_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_reply& msg) {};
+
+
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+
+
+	/**
 	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
 	 *
 	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal

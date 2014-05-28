@@ -939,13 +939,13 @@ crofsock::parse_of13_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 			(*pmsg = new rofl::openflow::cofmsg_group_features_stats_request(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_stats_request(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_config_stats_request(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_features_stats_request(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			(*pmsg = new rofl::openflow::cofmsg_table_features_stats_request(mem))->validate();
@@ -996,13 +996,13 @@ crofsock::parse_of13_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 			(*pmsg = new rofl::openflow::cofmsg_group_features_stats_reply(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_stats_reply(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_config_stats_reply(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			// TODO
+			(*pmsg = new rofl::openflow::cofmsg_meter_features_stats_reply(mem))->validate();
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			(*pmsg = new rofl::openflow::cofmsg_table_features_stats_reply(mem))->validate();
@@ -1476,13 +1476,13 @@ crofsock::log_of13_message(
 			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>( msg );
@@ -1528,13 +1528,13 @@ crofsock::log_of13_message(
 			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			// TODO
+			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>( msg );
@@ -1576,6 +1576,9 @@ crofsock::log_of13_message(
 	} break;
 	case rofl::openflow13::OFPT_SET_ASYNC: {
     	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
+    } break;
+	case rofl::openflow13::OFPT_METER_MOD: {
+    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_mod const&>( msg );
     } break;
 	default: {
 		rofl::logging::debug << "[rofl][sock] unknown message " << msg << std::endl;

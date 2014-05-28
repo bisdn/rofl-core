@@ -664,13 +664,13 @@ crofdpt_impl::ta_expired(
 			rofbase->handle_group_features_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER: {
-			//rofbase->handle_meter_stats_reply_timeout(*this, ta.get_xid());
+			rofbase->handle_meter_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER_CONFIG: {
-			//rofbase->handle_meter_config_stats_reply_timeout(*this, ta.get_xid());
+			rofbase->handle_meter_config_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER_FEATURES: {
-			//rofbase->handle_meter_features_stats_reply_timeout(*this, ta.get_xid());
+			rofbase->handle_meter_features_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_TABLE_FEATURES: {
 			event_table_features_stats_request_expired(ta.get_xid());
@@ -2284,8 +2284,15 @@ crofdpt_impl::meter_stats_reply_rcvd(
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)
 {
+	rofl::openflow::cofmsg_meter_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec
+			<< " Meter-Stats-Reply message received" << std::endl;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_meter_stats_reply(*this, auxid, reply);
+	}
 	delete msg;
-	throw eNotImplemented("crofdpt_impl::meter_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -2295,8 +2302,15 @@ crofdpt_impl::meter_config_stats_reply_rcvd(
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)
 {
+	rofl::openflow::cofmsg_meter_config_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec
+			<< " Meter-Config-Stats-Reply message received" << std::endl;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_meter_config_stats_reply(*this, auxid, reply);
+	}
 	delete msg;
-	throw eNotImplemented("crofdpt_impl::meter_config_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -2306,8 +2320,15 @@ crofdpt_impl::meter_features_stats_reply_rcvd(
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)
 {
+	rofl::openflow::cofmsg_meter_features_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << get_dpid() << std::dec
+			<< " Meter-Features-Stats-Reply message received" << std::endl;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_meter_features_stats_reply(*this, auxid, reply);
+	}
 	delete msg;
-	throw eNotImplemented("crofdpt_impl::meter_features_stats_reply_rcvd()"); // TODO
 }
 
 

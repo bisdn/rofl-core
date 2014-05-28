@@ -445,6 +445,20 @@ private:
 	/**
 	 *
 	 */
+	unsigned int
+	fragment_meter_stats_reply(
+			rofl::openflow::cofmsg_meter_stats_reply *msg);
+
+	/**
+	 *
+	 */
+	unsigned int
+	fragment_meter_config_stats_reply(
+			rofl::openflow::cofmsg_meter_config_stats_reply *msg);
+
+	/**
+	 *
+	 */
 	void
 	timer_start(
 			crofconn_timer_t type, time_t time);

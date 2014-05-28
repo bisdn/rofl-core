@@ -378,11 +378,23 @@ private:
 			rofl::openflow::cofmsg_group_features_stats_request *msg);
 
 
-	// TODO : METER
+	void
+	meter_stats_request_rcvd(
+			const cauxid& auxid,
+			rofl::openflow::cofmsg_meter_stats_request *msg);
 
-	// TODO : METER_CONFIG
 
-	// TODO : METER_FEATURES
+	void
+	meter_config_stats_request_rcvd(
+			const cauxid& auxid,
+			rofl::openflow::cofmsg_meter_config_stats_request *msg);
+
+
+	void
+	meter_features_stats_request_rcvd(
+			const cauxid& auxid,
+			rofl::openflow::cofmsg_meter_features_stats_request *msg);
+
 
 	void
 	table_features_stats_request_rcvd(
