@@ -1329,6 +1329,118 @@ crofdpt_impl::send_experimenter_stats_request(
 
 
 uint32_t
+crofdpt_impl::send_meter_stats_request(
+		const cauxid& auxid,
+		uint16_t stats_flags,
+		const rofl::openflow::cofmeter_stats_request& meter_stats_request)
+{
+	uint32_t xid = 0;
+
+	try {
+		if (not is_established()) {
+			logging::warn << "[rofl][dpt] not connected, dropping Meter-Stats-Request message" << std::endl;
+			throw eRofBaseNotConnected();
+		}
+
+		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER);
+
+		rofl::openflow::cofmsg_meter_stats_request *msg =
+				new rofl::openflow::cofmsg_meter_stats_request(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						meter_stats_request);
+
+		rofchan.send_message(auxid, msg);
+
+		return xid;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][dpt] control channel congested, dropping Meter-Stats-Request message" << std::endl;
+
+		transactions.drop_ta(xid);
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+uint32_t
+crofdpt_impl::send_meter_config_stats_request(
+		const cauxid& auxid,
+		uint16_t stats_flags,
+		const rofl::openflow::cofmeter_config_request& meter_config_request)
+{
+	uint32_t xid = 0;
+
+	try {
+		if (not is_established()) {
+			logging::warn << "[rofl][dpt] not connected, dropping Meter-Config-Stats-Request message" << std::endl;
+			throw eRofBaseNotConnected();
+		}
+
+		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_CONFIG);
+
+		rofl::openflow::cofmsg_meter_config_stats_request *msg =
+				new rofl::openflow::cofmsg_meter_config_stats_request(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						meter_config_request);
+
+		rofchan.send_message(auxid, msg);
+
+		return xid;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][dpt] control channel congested, dropping Meter-Config-Stats-Request message" << std::endl;
+
+		transactions.drop_ta(xid);
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+uint32_t
+crofdpt_impl::send_meter_features_stats_request(
+		const cauxid& auxid,
+		uint16_t stats_flags)
+{
+	uint32_t xid = 0;
+
+	try {
+		if (not is_established()) {
+			logging::warn << "[rofl][dpt] not connected, dropping Meter-Features-Stats-Request message" << std::endl;
+			throw eRofBaseNotConnected();
+		}
+
+		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_FEATURES);
+
+		rofl::openflow::cofmsg_meter_features_stats_request *msg =
+				new rofl::openflow::cofmsg_meter_features_stats_request(
+						rofchan.get_version(),
+						xid,
+						stats_flags);
+
+		rofchan.send_message(auxid, msg);
+
+		return xid;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][dpt] control channel congested, dropping Meter-Features-Stats-Request message" << std::endl;
+
+		transactions.drop_ta(xid);
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+uint32_t
 crofdpt_impl::send_packet_out_message(
 		const cauxid& auxid,
 		uint32_t buffer_id,

@@ -15,9 +15,9 @@
 namespace rofl {
 namespace openflow {
 
-class eRofMeterConfigBase		: public RoflException {};
-class eRofMeterConfigInval		: public eRofMeterConfigBase {};
-class eRofMeterConfigNotFound	: public eRofMeterConfigBase {};
+class eRofMeterFeaturesBase		: public RoflException {};
+class eRofMeterFeaturesInval	: public eRofMeterFeaturesBase {};
+class eRofMeterFeaturesNotFound	: public eRofMeterFeaturesBase {};
 
 class cofmeter_features_reply
 {

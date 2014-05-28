@@ -1301,6 +1301,108 @@ crofctl_impl::send_experimenter_stats_reply(
 
 
 void
+crofctl_impl::send_meter_stats_reply(
+		const cauxid& auxid,
+		uint32_t xid,
+		const rofl::openflow::cofmeterstatsarray& meter_stats_array,
+		uint16_t stats_flags)
+{
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Meter-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_meter_stats_reply *msg =
+				new rofl::openflow::cofmsg_meter_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						meter_stats_array);
+
+		rofchan.send_message(auxid, msg);
+
+		return;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Meter-Stats-Reply message" << std::endl;
+
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+void
+crofctl_impl::send_meter_config_stats_reply(
+		const cauxid& auxid,
+		uint32_t xid,
+		const rofl::openflow::cofmeterconfigarray& meter_config_array,
+		uint16_t stats_flags)
+{
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Meter-Config-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_meter_config_stats_reply *msg =
+				new rofl::openflow::cofmsg_meter_config_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						meter_config_array);
+
+		rofchan.send_message(auxid, msg);
+
+		return;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Meter-Config-Stats-Reply message" << std::endl;
+
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+void
+crofctl_impl::send_meter_features_stats_reply(
+		const cauxid& auxid,
+		uint32_t xid,
+		const rofl::openflow::cofmeter_features& meter_features,
+		uint16_t stats_flags)
+{
+	try {
+		if (not is_established()) {
+			rofl::logging::warn << "[rofl][ctl] not connected, dropping Meter-Features-Stats-Reply message" << std::endl;
+			return;
+		}
+
+		rofl::openflow::cofmsg_meter_features_stats_reply *msg =
+				new rofl::openflow::cofmsg_meter_features_stats_reply(
+						rofchan.get_version(),
+						xid,
+						stats_flags,
+						meter_features);
+
+		rofchan.send_message(auxid, msg);
+
+		return;
+
+	} catch (eRofSockTxAgain& e) {
+		rofl::logging::warn << "[rofl][ctl] control channel congested, dropping Meter-Features-Stats-Reply message" << std::endl;
+
+	}
+
+	throw eRofBaseCongested();
+}
+
+
+
+void
 crofctl_impl::send_packet_in_message(
 		const cauxid& auxid,
 		uint32_t buffer_id,

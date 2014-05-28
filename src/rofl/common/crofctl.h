@@ -30,6 +30,9 @@
 #include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
+#include "rofl/common/openflow/cofmeterstatsarray.h"
+#include "rofl/common/openflow/cofmeterconfigarray.h"
+#include "rofl/common/openflow/cofmeterfeatures.h"
 #include "rofl/common/cauxid.h"
 
 
@@ -440,6 +443,51 @@ public:
 			uint32_t exp_id,
 			uint32_t exp_type,
 			cmemory const& body,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_stats_array instance of type cofmeterstatsarray
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeterstatsarray& meter_stats_array,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-CONFIG-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_config_array instance of type cofmeterconfigarray
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_config_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeterconfigarray& meter_config_array,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-FEATURES-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_config_array instance of type cofmeterfeatures
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_features_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeter_features& meter_features,
 			uint16_t stats_flags = 0) = 0;
 
 	/**

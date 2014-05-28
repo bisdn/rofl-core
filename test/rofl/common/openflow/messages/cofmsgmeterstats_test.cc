@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( cofmsgmeterstatsTest );
 
 #if defined DEBUG
-//#undef DEBUG
+#undef DEBUG
 #endif
 
 void

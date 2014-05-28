@@ -28,6 +28,9 @@
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
 #include "rofl/common/openflow/cofrole.h"
+#include "rofl/common/openflow/cofmeterstats.h"
+#include "rofl/common/openflow/cofmeterconfig.h"
+#include "rofl/common/openflow/cofmeterfeatures.h"
 #include "rofl/common/cauxid.h"
 
 
@@ -581,6 +584,43 @@ public:
 			uint32_t exp_id,
 			uint32_t exp_type,
 			cmemory const& body) = 0;
+
+	/**
+	 * @brief	Sends a METER-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_stats_request& mstats) = 0;
+
+	/**
+	 * @brief	Sends a METER-CONFIG-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-CONFIG-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_config_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_config_request& mstats) = 0;
+
+	/**
+	 * @brief	Sends a METER-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this METER-FEATURES-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_features_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags) = 0;
 
 	/**
 	 * @brief	Sends a PACKET-OUT.message to a data path element.

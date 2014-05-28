@@ -945,6 +945,42 @@ public:
 			cmemory const& body);
 
 	/**
+	 * @brief	Sends a METER-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_stats_request& meter_stats_request);
+
+	/**
+	 * @brief	Sends a METER-CONFIG-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-CONFIG-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_config_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_config_request& mstats);
+
+	/**
+	 * @brief	Sends a METER-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this METER-FEATURES-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_features_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags);
+	/**
 	 * @brief	Sends a PACKET-OUT.message to a data path element.
 	 *
 	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
