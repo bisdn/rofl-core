@@ -76,6 +76,8 @@ http://www.roflibs.org/doc/
 
 Documentation can be compiled via 'make doc'. Documentation is generated in build/doc/ folder
 
+For getting support or participate in the discussions, join the mailing list rofl-devel@roflibs.org at https://lists.roflibs.org/mailman
+
 Authorship
 ==========
 
