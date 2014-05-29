@@ -18,20 +18,20 @@ How to build
 
 Install the dependencies and run:
 
-sh# ./autogen.sh  
-sh# cd build  
-sh# ../configure  
-sh# make  
-sh# make install  
+	sh# ./autogen.sh  
+	sh# cd build  
+	sh# ../configure  
+	sh# make  
+	sh# make install  
 
 Optionally you can 'make check' for consistency checks.
 
 Optional ../configure parameters
 ================================
 
---enable-debug: Compile with debug symbols (-g) and debug output (warning, it may affect performance)  
---enable-verbose: Increase the level of debug (useless without --enable-debug)  
---disable-silent-rules: Enable verbose compilation mode (AM_SILENT_RULES disabled)
+	--enable-debug: Compile with debug symbols (-g) and debug output (warning, it may affect performance)  
+	--enable-verbose: Increase the level of debug (useless without --enable-debug)  
+	--disable-silent-rules: Enable verbose compilation mode (AM_SILENT_RULES disabled)
 
 Known issues with Automake 1.4
 ==============================
