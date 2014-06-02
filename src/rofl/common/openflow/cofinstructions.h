@@ -9,10 +9,6 @@
 #include <map>
 #include <algorithm>
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cvastring.h"
-#include "rofl/common/coflist.h"
-
-#include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
 namespace rofl {
