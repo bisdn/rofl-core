@@ -125,6 +125,25 @@ public:
 public:
 
 	/*
+	 * Generic
+	 */
+	cofinstruction&
+	add_inst(uint16_t type);
+
+	cofinstruction&
+	set_inst(uint16_t type);
+
+	const cofinstruction&
+	get_inst(uint16_t type) const;
+
+	void
+	drop_inst(uint16_t type);
+
+	bool
+	has_inst(uint16_t type) const;
+
+
+	/*
 	 * Goto-Table
 	 */
 	cofinstruction_goto_table&

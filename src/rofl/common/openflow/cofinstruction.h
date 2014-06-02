@@ -27,6 +27,7 @@ namespace openflow {
 /* error classes */
 class eInstructionBase 				: public RoflException {}; // error base class for class cofinstruction
 class eInstructionInval 			: public eInstructionBase {}; // invalid parameter
+class eInstructionNotFound 			: public eInstructionBase {}; // not found
 class eInstructionBadLen 			: public eInstructionBase {}; // bad length
 class eInstructionInvalType 		: public eInstructionBase {}; // invalid instruction type
 class eInstructionHeaderInval 		: public eInstructionBase {}; // invalid instruction header
