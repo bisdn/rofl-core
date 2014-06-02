@@ -10,29 +10,17 @@
 using namespace rofl::openflow;
 
 cofpacket_queue::cofpacket_queue(
-	uint8_t of_version) :
-		of_version(of_version),
-		qpl(of_version)
+		uint8_t ofp_version,
+		uint32_t port_no,
+		uint32_t queue_id,
+		const cofqueue_props& props) :
+				ofp_version(ofp_version),
+				port_no(port_no),
+				queue_id(queue_id),
+				len(0),
+				queue_props(props)
 {
-	switch (of_version) {
-	case openflow::OFP_VERSION_UNKNOWN: {
 
-	} break;
-	case openflow10::OFP_VERSION: {
-		cmemory::resize(sizeof(struct openflow10::ofp_packet_queue));
-	} break;
-	case openflow12::OFP_VERSION: {
-		cmemory::resize(sizeof(struct openflow12::ofp_packet_queue));
-	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-
-	ofp_pqueue = somem();
 }
 
 
@@ -45,9 +33,7 @@ cofpacket_queue::~cofpacket_queue()
 
 
 cofpacket_queue::cofpacket_queue(
-	cofpacket_queue const& pq) :
-		of_version(pq.of_version),
-		qpl(pq.of_version)
+		const cofpacket_queue& pq)
 {
 	*this = pq;
 }
@@ -56,15 +42,15 @@ cofpacket_queue::cofpacket_queue(
 
 cofpacket_queue&
 cofpacket_queue::operator= (
-	cofpacket_queue const& pq)
+		const cofpacket_queue& pq)
 {
 	if (this == &pq)
 		return *this;
 
-	cmemory::operator= (pq);
-	of_version = pq.of_version;
-	qpl = pq.qpl;
-	ofp_pqueue = somem();
+	ofp_version 	= pq.ofp_version;
+	port_no			= pq.port_no;
+	queue_id		= pq.queue_id;
+	queue_props 	= pq.queue_props;
 
 	return *this;
 }
@@ -74,57 +60,62 @@ cofpacket_queue::operator= (
 size_t
 cofpacket_queue::length() const
 {
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		return (sizeof(struct openflow10::ofp_packet_queue) + qpl.length());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow10::ofp_packet_queue) + queue_props.length());
 	} break;
-	case openflow12::OFP_VERSION: {
-		return (sizeof(struct openflow12::ofp_packet_queue) + qpl.length());
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_packet_queue) + queue_props.length());
 	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
+	default:
 		throw eBadVersion();
-	} break;
  	}
-	return 0;
 }
 
 
 
 void
 cofpacket_queue::pack(
-			uint8_t *buf, size_t buflen) const
+			uint8_t *buf, size_t buflen)
 {
-	if (buflen < length())
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofpacket_queue::length())
 		throw eInval();
 
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
 
-		memcpy(buf, somem(), sizeof(struct openflow10::ofp_packet_queue));
-		struct openflow10::ofp_packet_queue *pq = (struct openflow10::ofp_packet_queue*)buf;
-		pq->len = htobe16(length());
+		struct rofl::openflow10::ofp_packet_queue* hdr =
+				(struct rofl::openflow10::ofp_packet_queue*)buf;
 
-		qpl.pack(buf + sizeof(struct openflow10::ofp_packet_queue), buflen - sizeof(struct openflow10::ofp_packet_queue));
+		len = length();
 
-	} break;
-	case openflow12::OFP_VERSION: {
+		hdr->queue_id	= htobe32(queue_id);
+		hdr->len		= htobe16(len);
 
-		memcpy(buf, somem(), sizeof(struct openflow12::ofp_packet_queue));
-		struct openflow12::ofp_packet_queue *pq = (struct openflow12::ofp_packet_queue*)buf;
-		pq->len = htobe16(length());
-
-		qpl.pack(buf + sizeof(struct openflow12::ofp_packet_queue), buflen - sizeof(struct openflow12::ofp_packet_queue));
+		queue_props.pack((uint8_t*)(hdr->properties), queue_props.length());
 
 	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_packet_queue* hdr =
+				(struct rofl::openflow13::ofp_packet_queue*)buf;
+
+		len = length();
+
+		hdr->queue_id	= htobe32(queue_id);
+		hdr->port		= htobe32(port_no);
+		hdr->len		= htobe16(len);
+
+		queue_props.pack((uint8_t*)(hdr->properties), queue_props.length());
+
 	} break;
-	default: {
+	default:
 		throw eBadVersion();
-	} break;
 	}
 }
 
@@ -134,142 +125,51 @@ void
 cofpacket_queue::unpack(
 			uint8_t *buf, size_t buflen)
 {
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	if ((0 == buf) || (0 == buflen))
+		return;
 
-		if (buflen < sizeof(struct openflow10::ofp_packet_queue))
+	queue_props.clear();
+
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		if (buflen < sizeof(struct rofl::openflow10::ofp_packet_queue))
 			throw eInval();
 
-		struct openflow10::ofp_packet_queue *pq = (struct openflow10::ofp_packet_queue*)buf;
+		struct rofl::openflow10::ofp_packet_queue* hdr =
+				(struct rofl::openflow10::ofp_packet_queue*)buf;
 
-		if (buflen < be16toh(pq->len))
+		queue_id 	= be32toh(hdr->queue_id);
+		len			= be16toh(hdr->len);
+
+		if (buflen < len)
 			throw eInval();
 
-		cmemory::resize(sizeof(struct openflow10::ofp_packet_queue));
-		ofp_pqueue = somem();
-
-		memcpy(somem(), buf, sizeof(struct openflow10::ofp_packet_queue));
-
-		if (be16toh(pq->len) > sizeof(struct openflow10::ofp_packet_queue))
-			qpl.unpack(buf + sizeof(struct openflow10::ofp_packet_queue), be16toh(pq->len) - sizeof(struct openflow10::ofp_packet_queue));
+		queue_props.unpack((uint8_t*hdr->properties, len - sizeof(struct rofl::openflow10::ofp_packet_queue));
 
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 
-		if (buflen < sizeof(struct openflow12::ofp_packet_queue))
+		if (buflen < sizeof(struct rofl::openflow13::ofp_packet_queue))
 			throw eInval();
 
-		struct openflow12::ofp_packet_queue *pq = (struct openflow12::ofp_packet_queue*)buf;
+		struct rofl::openflow12::ofp_packet_queue* hdr =
+				(struct rofl::openflow12::ofp_packet_queue*)buf;
 
-		if (buflen < be16toh(pq->len))
+		queue_id 	= be32toh(hdr->queue_id);
+		port_no		= be32toh(hdr->port);
+		len			= be16toh(hdr->len);
+
+		if (buflen < len)
 			throw eInval();
 
-		cmemory::resize(sizeof(struct openflow12::ofp_packet_queue));
-		ofp_pqueue = somem();
-
-		memcpy(somem(), buf, sizeof(struct openflow12::ofp_packet_queue));
-
-		if (be16toh(pq->len) > sizeof(struct openflow12::ofp_packet_queue))
-			qpl.unpack(buf + sizeof(struct openflow12::ofp_packet_queue), be16toh(pq->len) - sizeof(struct openflow12::ofp_packet_queue));
+		queue_props.unpack((uint8_t*hdr->properties, len - sizeof(struct rofl::openflow13::ofp_packet_queue));
 
 	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
+	default:
 		throw eBadVersion();
-	} break;
 	}
-}
-
-
-
-uint32_t
-cofpacket_queue::get_queue_id() const
-{
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		return be32toh(ofp10_pqueue->queue_id);
-	} break;
-	case openflow12::OFP_VERSION: {
-		return be32toh(ofp12_pqueue->queue_id);
-	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-	return 0;
-}
-
-
-
-void
-cofpacket_queue::set_queue_id(
-			uint32_t queue_id)
-{
-	switch(of_version) {
-	case openflow10::OFP_VERSION: {
-		ofp10_pqueue->queue_id = htobe32(queue_id);
-	} break;
-	case openflow12::OFP_VERSION: {
-		ofp12_pqueue->queue_id = htobe32(queue_id);
-	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-
-uint32_t
-cofpacket_queue::get_port() const
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION: {
-		return be32toh(ofp12_pqueue->port);
-	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-	return 0;
-}
-
-
-
-void
-cofpacket_queue::set_port(
-			uint32_t port_no)
-{
-	switch(of_version) {
-	case openflow12::OFP_VERSION: {
-		ofp12_pqueue->port = htobe32(port_no);
-	} break;
-	case openflow13::OFP_VERSION: {
-		throw eNotImplemented();
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-
-cofqueue_prop_list&
-cofpacket_queue::get_queue_prop_list()
-{
-	return qpl;
 }
 
 
