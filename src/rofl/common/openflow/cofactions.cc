@@ -57,18 +57,27 @@ bool
 cofactions::operator== (
 		cofactions const& actions)
 {
-	if (ofp_version != actions.ofp_version)
+	if (ofp_version != actions.ofp_version) {
+		//FIXME: std::cerr << "PUNKT 1" << std::endl;
 		return false;
+	}
 
-	if (std::list<cofaction*>::size() != actions.size())
+	if (std::list<cofaction*>::size() != actions.size()) {
+		// FIXME: std::cerr << "PUNKT 2" << std::endl;
 		return false;
+	}
 
 	for (std::list<cofaction*>::const_iterator
 			it = actions.begin(), jt = this->begin(); it != actions.end(), jt != this->end(); ++it, ++jt) {
-		if (not (**it == **jt))
+		if (not (**it == **jt)) {
+			//FIXME: std::cerr << "PUNKT 3" << std::endl;
+			//FIXME: std::cerr << "it:" << std::endl << **it;
+			//FIXME: std::cerr << "jt:" << std::endl << **jt;
 			return false;
+		}
 	}
 
+	//FIXME: std::cerr << "PUNKT 4" << std::endl;
 	return true;
 }
 

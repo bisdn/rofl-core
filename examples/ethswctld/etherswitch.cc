@@ -115,7 +115,7 @@ ethswitch::handle_flow_stats_reply(crofdpt& dpt, const cauxid& auxid, rofl::open
 
 
 void
-ethswitch::handle_dpt_attached(
+ethswitch::handle_dpt_open(
 		crofdpt& dpt)
 {
 	dpt.flow_mod_reset();
@@ -165,7 +165,7 @@ ethswitch::handle_dpt_attached(
 
 
 void
-ethswitch::handle_dpt_detached(
+ethswitch::handle_dpt_close(
 		crofdpt& dpt)
 {
 	cfib::get_fib(dpt.get_dptid()).dpt_release(this, &dpt);

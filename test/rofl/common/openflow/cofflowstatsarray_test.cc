@@ -92,8 +92,8 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[0].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	array[0].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	array[0].set_flow_stats(0).set_match().set_eth_type(0x3333);
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().set_actions().append_action_copy_ttl_in();
+	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().set_actions().append_action_output(6);
 
 	array[0].set_flow_stats(1).set_version(rofl::openflow13::OFP_VERSION);
 	array[0].set_flow_stats(1).set_table_id(2);
@@ -118,8 +118,8 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[1].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	array[1].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	array[1].set_flow_stats(0).set_match().set_eth_type(0x7777);
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().set_actions().append_action_copy_ttl_in();
+	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().set_actions().append_action_output(6);
 
 #ifdef DEBUG
 	std::cerr << "array[0]:" << std::endl << array[0];
@@ -163,8 +163,8 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[0].set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	stats[0].set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	stats[0].set_match().set_eth_type(0x3333);
-	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	stats[0].set_instructions().set_inst_apply_actions().set_actions().append_action_copy_ttl_in();
+	stats[0].set_instructions().set_inst_apply_actions().set_actions().append_action_output(6);
 
 	stats[1].set_version(rofl::openflow13::OFP_VERSION);
 	stats[1].set_table_id(2);
@@ -198,8 +198,8 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[3].set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	stats[3].set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	stats[3].set_match().set_eth_type(0x3333);
-	stats[3].set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	stats[3].set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	stats[3].set_instructions().set_inst_apply_actions().set_actions().append_action_copy_ttl_in();
+	stats[3].set_instructions().set_inst_apply_actions().set_actions().append_action_output(6);
 
 
 	size_t len = 0;

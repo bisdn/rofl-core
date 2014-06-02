@@ -126,7 +126,7 @@ cofinstruction::unpack(uint8_t* buf, size_t buflen)
 		type = be16toh(hdr->type);
 		len	= be16toh(hdr->len);
 
-		if (len > sizeof(struct ofp_instruction)) {
+		if (buflen > sizeof(struct ofp_instruction)) {
 			if (buflen < be16toh(hdr->len))
 				throw eInval();
 			body.unpack(hdr->body, len - sizeof(struct ofp_instruction));

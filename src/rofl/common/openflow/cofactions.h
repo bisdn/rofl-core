@@ -155,6 +155,18 @@ public:
 	void
 	check_prerequisites() const;
 
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
 private:
 
 

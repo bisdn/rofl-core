@@ -157,8 +157,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstruction const& inst) {
 		os << rofl::indent(0) << "<cofinstruction ";
-		os << "type:" << (int)inst.get_type() << " ";
-		os << "length:" << (int)inst.length() << " ";
+		os << "type: 0x" << std::hex << (int)inst.get_type() << std::dec << " ";
+		os << "length: " << (int)inst.length() << " ";
 		os << ">" << std::endl;
 		if (not inst.get_body().empty()) {
 			rofl::indent i(2); os << inst.get_body();
@@ -205,7 +205,9 @@ public:
 			uint16_t type = 0,
 			const rofl::openflow::cofactions& actions = rofl::openflow::cofactions()) :
 				cofinstruction(ofp_version, type),
-				actions(actions) {};
+				actions(actions) {
+		this->actions.set_version(ofp_version);
+	};
 
 	/**
 	 *
@@ -452,7 +454,7 @@ public:
 	cofinstruction_goto_table(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t table_id = 0) :
-				cofinstruction(ofp_version, sizeof(struct openflow::ofp_instruction)),
+				cofinstruction(ofp_version, rofl::openflow13::OFPIT_GOTO_TABLE),
 				table_id(table_id) {};
 
 	/**
@@ -865,8 +867,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstruction_meter const& inst) {
 		os << "<cofinstruction_meter >" << std::endl;
-		os << rofl::indent(2) << dynamic_cast<cofinstruction const&>( inst );
-		os << rofl::indent(2) << "<meter-id: 0x" << std::hex << inst.get_meter_id() << " >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<cofinstruction const&>( inst ); }
+		os << rofl::indent(4) << "<meter-id: 0x" << std::hex << inst.get_meter_id() << " >" << std::endl;
 		return os;
 	};
 
