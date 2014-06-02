@@ -55,7 +55,7 @@ public:
 	 *
 	 */
 	void
-	actionset_clear(const cofinst_actions& inst);
+	actionset_clear(const cofinstruction_actions& inst);
 
 	/** clear the packets action_set
 	 *
@@ -67,13 +67,13 @@ public:
 	 *
 	 */
 	void
-	actionset_write_actions(const cofinst_actions& inst);
+	actionset_write_actions(const cofinstruction_actions& inst);
 
 	/** write metadata to the packets action_set
 	 *
 	 */
 	void
-	actionset_write_metadata(const cofinst_write_metadata& inst);
+	actionset_write_metadata(const cofinstruction_write_metadata& inst);
 
 
 	/**

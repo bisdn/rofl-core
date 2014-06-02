@@ -34,13 +34,13 @@ class eInstructionActionNotFound 	: public eInstructionBase {}; // action not fo
 class eInstructionBadExperimenter 	: public eInstructionBase {}; // unknown experimenter instruction
 
 
-class cofinst {
+class cofinstruction {
 public:
 
 	/**
 	 *
 	 */
-	cofinst(
+	cofinstruction(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
 			uint16_t type = 0,
 			const rofl::cmemory& body = rofl::cmemory((size_t)0));
@@ -48,28 +48,28 @@ public:
 	/**
 	 *
 	 */
-	cofinst(
-			cofinst const& inst);
+	cofinstruction(
+			cofinstruction const& inst);
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst();
+	~cofinstruction();
 
 	/**
 	 *
 	 */
-	cofinst&
+	cofinstruction&
 	operator= (
-			const cofinst& inst);
+			const cofinstruction& inst);
 
 	/**
 	 *
 	 */
 	bool
 	operator== (
-			const cofinst& inst);
+			const cofinstruction& inst);
 
 
 public:
@@ -155,8 +155,8 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst const& inst) {
-		os << rofl::indent(0) << "<cofinst ";
+	operator<< (std::ostream& os, cofinstruction const& inst) {
+		os << rofl::indent(0) << "<cofinstruction ";
 		os << "type:" << (int)inst.get_type() << " ";
 		os << "length:" << (int)inst.length() << " ";
 		os << ">" << std::endl;
@@ -171,11 +171,11 @@ public:
 		cofinst_find_type(uint16_t type) :
 			type(type) { };
 
-		bool operator() (cofinst const& inst) {
+		bool operator() (cofinstruction const& inst) {
 			return (inst.get_type() == type);
 		};
 
-		bool operator() (std::pair<uint16_t, cofinst*> const& p) {
+		bool operator() (std::pair<uint16_t, cofinstruction*> const& p) {
 			return (p.second->get_type() == type);
 		};
 
@@ -194,43 +194,43 @@ private:
 
 
 
-class cofinst_actions : public cofinst {
+class cofinstruction_actions : public cofinstruction {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_actions(
+	cofinstruction_actions(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t type = 0,
 			const rofl::openflow::cofactions& actions = rofl::openflow::cofactions()) :
-				cofinst(ofp_version, type),
+				cofinstruction(ofp_version, type),
 				actions(actions) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_actions() {};
+	~cofinstruction_actions() {};
 
 	/**
 	 *
 	 */
-	cofinst_actions(
-			const cofinst_actions& inst) {
+	cofinstruction_actions(
+			const cofinstruction_actions& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_actions&
+	cofinstruction_actions&
 	operator= (
-			const cofinst_actions& inst) {
+			const cofinstruction_actions& inst) {
 		if (this == &inst)
 			return *this;
 
-		cofinst::operator= (inst);
+		cofinstruction::operator= (inst);
 		actions		= inst.actions;
 
 		return *this;
@@ -282,9 +282,9 @@ public:
 
 public:
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst_actions const& inst) {
-		os << rofl::indent(0) << "<cofinst_actions >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<cofinst const&>( inst ); }
+	operator<< (std::ostream& os, cofinstruction_actions const& inst) {
+		os << rofl::indent(0) << "<cofinstruction_actions >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<cofinstruction const&>( inst ); }
 		{ rofl::indent i(4); os << inst.actions; }
 		return os;
 	};
@@ -296,189 +296,189 @@ private:
 
 
 
-class cofinst_apply_actions : public cofinst_actions {
+class cofinstruction_apply_actions : public cofinstruction_actions {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_apply_actions(
+	cofinstruction_apply_actions(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::openflow::cofactions& actions = rofl::openflow::cofactions()) :
-				cofinst_actions(ofp_version, rofl::openflow13::OFPIT_APPLY_ACTIONS, actions) {};
+				cofinstruction_actions(ofp_version, rofl::openflow13::OFPIT_APPLY_ACTIONS, actions) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_apply_actions() {};
+	~cofinstruction_apply_actions() {};
 
 	/**
 	 *
 	 */
-	cofinst_apply_actions(
-			const cofinst_apply_actions& inst) {
+	cofinstruction_apply_actions(
+			const cofinstruction_apply_actions& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_apply_actions&
+	cofinstruction_apply_actions&
 	operator= (
-			const cofinst_apply_actions& inst) {
+			const cofinstruction_apply_actions& inst) {
 		if (this == &inst)
 			return *this;
-		cofinst_actions::operator= (inst);
+		cofinstruction_actions::operator= (inst);
 		return *this;
 	}
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofinst_apply_actions& inst) {
-		os << rofl::indent(0) << "<cofinst_apply_actions >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst_actions&>( inst ); }
+	operator<< (std::ostream& os, const cofinstruction_apply_actions& inst) {
+		os << rofl::indent(0) << "<cofinstruction_apply_actions >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
 	};
 };
 
 
 
-class cofinst_write_actions : public cofinst_actions {
+class cofinstruction_write_actions : public cofinstruction_actions {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_write_actions(
+	cofinstruction_write_actions(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::openflow::cofactions& actions = rofl::openflow::cofactions()) :
-				cofinst_actions(ofp_version, rofl::openflow13::OFPIT_WRITE_ACTIONS, actions) {};
+				cofinstruction_actions(ofp_version, rofl::openflow13::OFPIT_WRITE_ACTIONS, actions) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_write_actions() {};
+	~cofinstruction_write_actions() {};
 
 	/**
 	 *
 	 */
-	cofinst_write_actions(
-			const cofinst_write_actions& inst) {
+	cofinstruction_write_actions(
+			const cofinstruction_write_actions& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_write_actions&
+	cofinstruction_write_actions&
 	operator= (
-			const cofinst_write_actions& inst) {
+			const cofinstruction_write_actions& inst) {
 		if (this == &inst)
 			return *this;
-		cofinst_actions::operator= (inst);
+		cofinstruction_actions::operator= (inst);
 		return *this;
 	}
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofinst_write_actions& inst) {
-		os << rofl::indent(0) << "<cofinst_write_actions >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst_actions&>( inst ); }
+	operator<< (std::ostream& os, const cofinstruction_write_actions& inst) {
+		os << rofl::indent(0) << "<cofinstruction_write_actions >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
 	};
 };
 
 
 
-class cofinst_clear_actions : public cofinst_actions {
+class cofinstruction_clear_actions : public cofinstruction_actions {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_clear_actions(
+	cofinstruction_clear_actions(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::openflow::cofactions& actions = rofl::openflow::cofactions()) :
-				cofinst_actions(ofp_version, rofl::openflow13::OFPIT_CLEAR_ACTIONS, actions) {};
+				cofinstruction_actions(ofp_version, rofl::openflow13::OFPIT_CLEAR_ACTIONS, actions) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_clear_actions() {};
+	~cofinstruction_clear_actions() {};
 
 	/**
 	 *
 	 */
-	cofinst_clear_actions(
-			const cofinst_clear_actions& inst) {
+	cofinstruction_clear_actions(
+			const cofinstruction_clear_actions& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_clear_actions&
+	cofinstruction_clear_actions&
 	operator= (
-			const cofinst_clear_actions& inst) {
+			const cofinstruction_clear_actions& inst) {
 		if (this == &inst)
 			return *this;
-		cofinst_actions::operator= (inst);
+		cofinstruction_actions::operator= (inst);
 		return *this;
 	}
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofinst_clear_actions& inst) {
-		os << rofl::indent(0) << "<cofinst_clear_actions >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst_actions&>( inst ); }
+	operator<< (std::ostream& os, const cofinstruction_clear_actions& inst) {
+		os << rofl::indent(0) << "<cofinstruction_clear_actions >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
 	};
 };
 
 
 
-class cofinst_goto_table : public cofinst {
+class cofinstruction_goto_table : public cofinstruction {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_goto_table(
+	cofinstruction_goto_table(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t table_id = 0) :
-				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction)),
+				cofinstruction(ofp_version, sizeof(struct openflow::ofp_instruction)),
 				table_id(table_id) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_goto_table() {};
+	~cofinstruction_goto_table() {};
 
 	/**
 	 *
 	 */
-	cofinst_goto_table(
-			const cofinst_goto_table& inst) {
+	cofinstruction_goto_table(
+			const cofinstruction_goto_table& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_goto_table&
+	cofinstruction_goto_table&
 	operator= (
-			const cofinst_goto_table& inst) {
+			const cofinstruction_goto_table& inst) {
 		if (this == &inst)
 			return *this;
 
-		cofinst::operator= (inst);
+		cofinstruction::operator= (inst);
 		table_id	= inst.table_id;
 
 		return *this;
@@ -528,9 +528,9 @@ public:
 
 public:
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst_goto_table const& inst) {
-		os << rofl::indent(0) << "<cofinst_goto_table >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst&>( inst ); }
+	operator<< (std::ostream& os, cofinstruction_goto_table const& inst) {
+		os << rofl::indent(0) << "<cofinstruction_goto_table >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction&>( inst ); }
 		os << rofl::indent(4) << "<table-id:" << (int)inst.get_table_id() << " >" << std::endl;
 		return os;
 	};
@@ -542,16 +542,16 @@ public:
 
 
 
-class cofinst_write_metadata : public cofinst {
+class cofinstruction_write_metadata : public cofinstruction {
 public:
 	/**
 	 *
 	 */
-	cofinst_write_metadata(
+	cofinstruction_write_metadata(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint64_t metadata = 0,
 			uint64_t metadata_mask = 0) :
-				cofinst(ofp_version, rofl::openflow13::OFPIT_WRITE_METADATA),
+				cofinstruction(ofp_version, rofl::openflow13::OFPIT_WRITE_METADATA),
 				metadata(metadata),
 				metadata_mask(metadata_mask) {};
 
@@ -559,26 +559,26 @@ public:
 	 *
 	 */
 	virtual
-	~cofinst_write_metadata() {};
+	~cofinstruction_write_metadata() {};
 
 	/**
 	 *
 	 */
-	cofinst_write_metadata(
-			const cofinst_write_metadata& inst) {
+	cofinstruction_write_metadata(
+			const cofinstruction_write_metadata& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_write_metadata&
+	cofinstruction_write_metadata&
 	operator= (
-			const cofinst_write_metadata& inst) {
+			const cofinstruction_write_metadata& inst) {
 		if (this == &inst)
 			return *this;
 
-		cofinst::operator= (inst);
+		cofinstruction::operator= (inst);
 		metadata 		= inst.metadata;
 		metadata_mask	= inst.metadata_mask;
 
@@ -636,9 +636,9 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst_write_metadata const& inst) {
-		os << rofl::indent(0) << "<cofinst_write_metadata >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst&>( inst ); }
+	operator<< (std::ostream& os, cofinstruction_write_metadata const& inst) {
+		os << rofl::indent(0) << "<cofinstruction_write_metadata >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction&>( inst ); }
 		os << std::hex;
 		os << indent(4) << "<metadata: 0x" << (unsigned long long)inst.get_metadata() << " >" << std::endl;
 		os << indent(4) << "<metadata-mask: 0x" << (unsigned long long)inst.get_metadata_mask() << " >" << std::endl;
@@ -657,17 +657,17 @@ private:
 
 
 
-class cofinst_experimenter : public cofinst {
+class cofinstruction_experimenter : public cofinstruction {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_experimenter(
+	cofinstruction_experimenter(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t exp_id = 0,
 			const rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
-				cofinst(ofp_version, rofl::openflow13::OFPIT_EXPERIMENTER),
+				cofinstruction(ofp_version, rofl::openflow13::OFPIT_EXPERIMENTER),
 				exp_id(exp_id),
 				exp_body(exp_body) {};
 
@@ -675,26 +675,26 @@ public:
 	 *
 	 */
 	virtual
-	~cofinst_experimenter() {};
+	~cofinstruction_experimenter() {};
 
 	/**
 	 *
 	 */
-	cofinst_experimenter(
-			const cofinst_experimenter& inst) {
+	cofinstruction_experimenter(
+			const cofinstruction_experimenter& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_experimenter&
+	cofinstruction_experimenter&
 	operator= (
-			const cofinst_experimenter& inst) {
+			const cofinstruction_experimenter& inst) {
 		if (this == &inst)
 			return *this;
 
-		cofinst::operator= (inst);
+		cofinstruction::operator= (inst);
 		exp_id		= inst.exp_id;
 		exp_body	= inst.exp_body;
 
@@ -765,9 +765,9 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst_experimenter const& inst) {
-		os << rofl::indent(0) << "<cofinst_experimenter >" << std::endl;
-		{ rofl::indent i(2); os << dynamic_cast<const cofinst&>( inst ); }
+	operator<< (std::ostream& os, cofinstruction_experimenter const& inst) {
+		os << rofl::indent(0) << "<cofinstruction_experimenter >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction&>( inst ); }
 		os << rofl::indent(4) << "<exp-id: 0x" << std::hex << inst.get_exp_id() << std::dec << " >" << std::endl;
 		{ rofl::indent i(4); os << inst.get_exp_body(); }
 		return os;
@@ -782,43 +782,43 @@ private:
 
 
 
-class cofinst_meter : public cofinst
+class cofinstruction_meter : public cofinstruction
 {
 public:
 
 	/**
 	 *
 	 */
-	cofinst_meter(
+	cofinstruction_meter(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t meter_id = 0) :
-				cofinst(ofp_version, rofl::openflow13::OFPIT_METER),
+				cofinstruction(ofp_version, rofl::openflow13::OFPIT_METER),
 				meter_id(meter_id) {};
 
 	/**
 	 *
 	 */
 	virtual
-	~cofinst_meter() {};
+	~cofinstruction_meter() {};
 
 	/**
 	 *
 	 */
-	cofinst_meter(
-			 const cofinst_meter& inst) {
+	cofinstruction_meter(
+			 const cofinstruction_meter& inst) {
 		*this = inst;
 	};
 
 	/**
 	 *
 	 */
-	cofinst_meter&
+	cofinstruction_meter&
 	operator= (
-			const cofinst_meter& inst) {
+			const cofinstruction_meter& inst) {
 		if (this == &inst)
 			return *this;
 
-		cofinst::operator= (inst);
+		cofinstruction::operator= (inst);
 		meter_id	= inst.meter_id;
 
 		return *this;
@@ -863,9 +863,9 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinst_meter const& inst) {
-		os << "<cofinst_meter >" << std::endl;
-		os << rofl::indent(2) << dynamic_cast<cofinst const&>( inst );
+	operator<< (std::ostream& os, cofinstruction_meter const& inst) {
+		os << "<cofinstruction_meter >" << std::endl;
+		os << rofl::indent(2) << dynamic_cast<cofinstruction const&>( inst );
 		os << rofl::indent(2) << "<meter-id: 0x" << std::hex << inst.get_meter_id() << " >" << std::endl;
 		return os;
 	};

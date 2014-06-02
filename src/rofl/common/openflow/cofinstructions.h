@@ -70,7 +70,7 @@ public:
 	void
 	set_version(uint8_t ofp_version) {
 		this->ofp_version = ofp_version;
-		for (std::map<uint16_t, cofinst*>::iterator
+		for (std::map<uint16_t, cofinstruction*>::iterator
 				it = instmap.begin(); it != instmap.end(); ++it) {
 			it->second->set_version(ofp_version);
 		}
@@ -85,13 +85,13 @@ public:
 	/**
 	 *
 	 */
-	std::map<uint16_t, cofinst*>&
+	std::map<uint16_t, cofinstruction*>&
 	set_instructions() { return instmap; };
 
 	/**
 	 *
 	 */
-	const std::map<uint16_t, cofinst*>&
+	const std::map<uint16_t, cofinstruction*>&
 	get_instructions() const { return instmap; };
 
 public:
@@ -127,13 +127,13 @@ public:
 	/*
 	 * Goto-Table
 	 */
-	cofinst_goto_table&
+	cofinstruction_goto_table&
 	add_inst_goto_table();
 
-	cofinst_goto_table&
+	cofinstruction_goto_table&
 	set_inst_goto_table();
 
-	const cofinst_goto_table&
+	const cofinstruction_goto_table&
 	get_inst_goto_table() const;
 
 	void
@@ -146,13 +146,13 @@ public:
 	/*
 	 * Write-Metadata
 	 */
-	cofinst_write_metadata&
+	cofinstruction_write_metadata&
 	add_inst_write_metadata();
 
-	cofinst_write_metadata&
+	cofinstruction_write_metadata&
 	set_inst_write_metadata();
 
-	const cofinst_write_metadata&
+	const cofinstruction_write_metadata&
 	get_inst_write_metadata() const;
 
 	void
@@ -165,13 +165,13 @@ public:
 	/*
 	 * Write-Actions
 	 */
-	cofinst_write_actions&
+	cofinstruction_write_actions&
 	add_inst_write_actions();
 
-	cofinst_write_actions&
+	cofinstruction_write_actions&
 	set_inst_write_actions();
 
-	const cofinst_write_actions&
+	const cofinstruction_write_actions&
 	get_inst_write_actions() const;
 
 	void
@@ -184,13 +184,13 @@ public:
 	/*
 	 * Apply-Actions
 	 */
-	cofinst_apply_actions&
+	cofinstruction_apply_actions&
 	add_inst_apply_actions();
 
-	cofinst_apply_actions&
+	cofinstruction_apply_actions&
 	set_inst_apply_actions();
 
-	const cofinst_apply_actions&
+	const cofinstruction_apply_actions&
 	get_inst_apply_actions() const;
 
 	void
@@ -203,13 +203,13 @@ public:
 	/*
 	 * Clear-Actions
 	 */
-	cofinst_clear_actions&
+	cofinstruction_clear_actions&
 	add_inst_clear_actions();
 
-	cofinst_clear_actions&
+	cofinstruction_clear_actions&
 	set_inst_clear_actions();
 
-	const cofinst_clear_actions&
+	const cofinstruction_clear_actions&
 	get_inst_clear_actions() const;
 
 	void
@@ -222,13 +222,13 @@ public:
 	/*
 	 * Meter
 	 */
-	cofinst_meter&
+	cofinstruction_meter&
 	add_inst_meter();
 
-	cofinst_meter&
+	cofinstruction_meter&
 	set_inst_meter();
 
-	const cofinst_meter&
+	const cofinstruction_meter&
 	get_inst_meter() const;
 
 	void
@@ -241,13 +241,13 @@ public:
 	/*
 	 * Experimenter
 	 */
-	cofinst_experimenter&
+	cofinstruction_experimenter&
 	add_inst_experimenter();
 
-	cofinst_experimenter&
+	cofinstruction_experimenter&
 	set_inst_experimenter();
 
-	const cofinst_experimenter&
+	const cofinstruction_experimenter&
 	get_inst_experimenter() const;
 
 	void
@@ -270,7 +270,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstructions const& inlist) {
 		os << indent(0) << "<cofintructions ofp-version:" << (int)inlist.ofp_version << " >" << std::endl;
-		for (std::map<uint16_t, cofinst*>::const_iterator
+		for (std::map<uint16_t, cofinstruction*>::const_iterator
 				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
 			indent i(2);
 			switch (it->second->get_type()) {
@@ -298,7 +298,7 @@ public:
 private:
 
 	uint8_t 						ofp_version;
-	std::map<uint16_t, cofinst*> 	instmap;
+	std::map<uint16_t, cofinstruction*> 	instmap;
 
 };
 

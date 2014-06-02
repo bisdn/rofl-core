@@ -60,7 +60,7 @@ cofactionset::get_action_index(uint16_t action_type)
 }
 
 void
-cofactionset::actionset_clear(const cofinst_actions& inst)
+cofactionset::actionset_clear(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
 	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
@@ -90,7 +90,7 @@ cofactionset::actionset_clear()
 
 
 void
-cofactionset::actionset_write_actions(const cofinst_actions& inst)
+cofactionset::actionset_write_actions(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
 	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().size() << std::endl;
@@ -121,7 +121,7 @@ cofactionset::actionset_write_actions(const cofinst_actions& inst)
 
 
 void
-cofactionset::actionset_write_metadata(const cofinst_write_metadata& inst)
+cofactionset::actionset_write_metadata(const cofinstruction_write_metadata& inst)
 {
 	uint64_t mask =  inst.get_metadata_mask();
 	uint64_t value = inst.get_metadata();

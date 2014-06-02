@@ -7,7 +7,7 @@
 using namespace rofl::openflow;
 
 
-cofinst::cofinst(
+cofinstruction::cofinstruction(
 		uint8_t ofp_version, uint16_t type, const rofl::cmemory& body) :
 				ofp_version(ofp_version),
 				type(type),
@@ -19,22 +19,22 @@ cofinst::cofinst(
 
 
 
-cofinst::cofinst(cofinst const& inst)
+cofinstruction::cofinstruction(cofinstruction const& inst)
 {
 	*this = inst;
 }
 
 
 
-cofinst::~cofinst()
+cofinstruction::~cofinstruction()
 {
 
 }
 
 
 
-cofinst&
-cofinst::operator= (const cofinst& inst)
+cofinstruction&
+cofinstruction::operator= (const cofinstruction& inst)
 {
 	if (this == &inst)
 		return *this;
@@ -50,7 +50,7 @@ cofinst::operator= (const cofinst& inst)
 
 
 bool
-cofinst::operator== (const cofinst& inst)
+cofinstruction::operator== (const cofinstruction& inst)
 {
 	return ((ofp_version == inst.ofp_version) && (type == inst.type) && (body == inst.body));
 }
@@ -58,7 +58,7 @@ cofinst::operator== (const cofinst& inst)
 
 
 size_t
-cofinst::length() const
+cofinstruction::length() const
 {
 	switch (ofp_version) {
 	case rofl::openflow12::OFP_VERSION:
@@ -73,13 +73,13 @@ cofinst::length() const
 
 
 void
-cofinst::pack(
+cofinstruction::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst::length())
+	if (buflen < cofinstruction::length())
 		throw eInval();
 
 	switch (ofp_version) {
@@ -106,7 +106,7 @@ cofinst::pack(
 
 
 void
-cofinst::unpack(uint8_t* buf, size_t buflen)
+cofinstruction::unpack(uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
@@ -141,7 +141,7 @@ cofinst::unpack(uint8_t* buf, size_t buflen)
 
 
 size_t
-cofinst_actions::length() const
+cofinstruction_actions::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
@@ -156,20 +156,20 @@ cofinst_actions::length() const
 
 
 void
-cofinst_actions::pack(
+cofinstruction_actions::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst_actions::length())
+	if (buflen < cofinstruction_actions::length())
 		throw eInval();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::pack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_actions* hdr =
 				(struct rofl::openflow13::ofp_instruction_actions*)buf;
@@ -185,7 +185,7 @@ cofinst_actions::pack(
 
 
 void
-cofinst_actions::unpack(
+cofinstruction_actions::unpack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
@@ -200,7 +200,7 @@ cofinst_actions::unpack(
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::unpack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_actions* hdr =
 				(struct rofl::openflow13::ofp_instruction_actions*)buf;
@@ -219,7 +219,7 @@ cofinst_actions::unpack(
 
 
 size_t
-cofinst_goto_table::length() const
+cofinstruction_goto_table::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
@@ -234,20 +234,20 @@ cofinst_goto_table::length() const
 
 
 void
-cofinst_goto_table::pack(
+cofinstruction_goto_table::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst_goto_table::length())
+	if (buflen < cofinstruction_goto_table::length())
 		throw eInval();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::pack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_goto_table* hdr =
 				(struct rofl::openflow13::ofp_instruction_goto_table*)buf;
@@ -263,7 +263,7 @@ cofinst_goto_table::pack(
 
 
 void
-cofinst_goto_table::unpack(
+cofinstruction_goto_table::unpack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
@@ -276,7 +276,7 @@ cofinst_goto_table::unpack(
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::unpack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_goto_table* hdr =
 				(struct rofl::openflow13::ofp_instruction_goto_table*)buf;
@@ -295,7 +295,7 @@ cofinst_goto_table::unpack(
 
 
 void
-cofinst_goto_table::check_prerequisites() const
+cofinstruction_goto_table::check_prerequisites() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
@@ -313,7 +313,7 @@ cofinst_goto_table::check_prerequisites() const
 
 
 size_t
-cofinst_write_metadata::length() const
+cofinstruction_write_metadata::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
@@ -328,20 +328,20 @@ cofinst_write_metadata::length() const
 
 
 void
-cofinst_write_metadata::pack(
+cofinstruction_write_metadata::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst_write_metadata::length())
+	if (buflen < cofinstruction_write_metadata::length())
 		throw eInval();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::pack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_write_metadata* hdr =
 				(struct rofl::openflow13::ofp_instruction_write_metadata*)buf;
@@ -358,7 +358,7 @@ cofinst_write_metadata::pack(
 
 
 void
-cofinst_write_metadata::unpack(
+cofinstruction_write_metadata::unpack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
@@ -371,7 +371,7 @@ cofinst_write_metadata::unpack(
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::unpack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_write_metadata* hdr =
 				(struct rofl::openflow13::ofp_instruction_write_metadata*)buf;
@@ -391,7 +391,7 @@ cofinst_write_metadata::unpack(
 
 
 size_t
-cofinst_meter::length() const
+cofinstruction_meter::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
@@ -405,19 +405,19 @@ cofinst_meter::length() const
 
 
 void
-cofinst_meter::pack(
+cofinstruction_meter::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst_meter::length())
+	if (buflen < cofinstruction_meter::length())
 		throw eInval();
 
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::pack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_meter* hdr =
 				(struct rofl::openflow13::ofp_instruction_meter*)buf;
@@ -433,7 +433,7 @@ cofinst_meter::pack(
 
 
 void
-cofinst_meter::unpack(
+cofinstruction_meter::unpack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
@@ -445,7 +445,7 @@ cofinst_meter::unpack(
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::unpack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_meter* hdr =
 				(struct rofl::openflow13::ofp_instruction_meter*)buf;
@@ -465,7 +465,7 @@ cofinst_meter::unpack(
 
 
 size_t
-cofinst_experimenter::length() const
+cofinstruction_experimenter::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
@@ -480,20 +480,20 @@ cofinst_experimenter::length() const
 
 
 void
-cofinst_experimenter::pack(
+cofinstruction_experimenter::pack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	if (buflen < cofinst_experimenter::length())
+	if (buflen < cofinstruction_experimenter::length())
 		throw eInval();
 
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::pack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_experimenter* hdr =
 				(struct rofl::openflow13::ofp_instruction_experimenter*)buf;
@@ -511,7 +511,7 @@ cofinst_experimenter::pack(
 
 
 void
-cofinst_experimenter::unpack(
+cofinstruction_experimenter::unpack(
 		uint8_t* buf, size_t buflen)
 {
 	if ((0 == buf) || (0 == buflen))
@@ -524,7 +524,7 @@ cofinst_experimenter::unpack(
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 
-		cofinst::unpack(buf, sizeof(struct ofp_instruction));
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
 
 		struct rofl::openflow13::ofp_instruction_experimenter* hdr =
 				(struct rofl::openflow13::ofp_instruction_experimenter*)buf;
