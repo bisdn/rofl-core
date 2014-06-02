@@ -581,6 +581,11 @@ cofinstructions::unpack(
 			buflen -= get_inst_meter().length();
 			buf += get_inst_meter().length();
 		} break;
+		case rofl::openflow::OFPIT_EXPERIMENTER: {
+			add_inst_experimenter().unpack(buf, len);
+			buflen -= get_inst_experimenter().length();
+			buf += get_inst_experimenter().length();
+		} break;
 		default:
 			rofl::logging::warn << "[rofl][instructions] unknown instruction type:" << type << std::endl;
 		}
