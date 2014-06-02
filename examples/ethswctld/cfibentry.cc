@@ -107,7 +107,7 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_dst(dst);
 
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
@@ -120,7 +120,7 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_src(dst);
 
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
@@ -148,7 +148,7 @@ cfibentry::flow_mod_modify()
 	fe.set_hard_timeout(entry_timeout);
 	fe.match.set_eth_dst(dst);
 
-	fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
+	fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
 
 	dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 }

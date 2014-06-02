@@ -135,7 +135,7 @@ ethswitch::handle_dpt_attached(
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow10::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(openflow10::OFPP_CONTROLLER);
 		fe.match.set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
 
 	} break;
@@ -143,14 +143,14 @@ ethswitch::handle_dpt_attached(
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.match.set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow12::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(openflow12::OFPP_CONTROLLER);
 
 	} break;
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.match.set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow13::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(openflow13::OFPP_CONTROLLER);
 
 	} break;
 	default:
@@ -271,7 +271,7 @@ ethswitch::handle_packet_in(
 			fe.match.set_eth_dst(msg.set_packet().ether()->get_dl_dst());
 			fe.match.set_eth_type(msg.set_match().get_eth_type());
 			fe.instructions.add_inst_apply_actions();
-			fe.instructions.set_inst_apply_actions().get_actions().append_action_output(crofbase::get_ofp_flood_port(dpt.get_version()));
+			fe.instructions.set_inst_apply_actions().set_actions().append_action_output(crofbase::get_ofp_flood_port(dpt.get_version()));
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
 
@@ -318,7 +318,7 @@ ethswitch::handle_packet_in(
 				fe.match.set_eth_src(eth_src);
 				fe.match.set_eth_type(msg.set_match().get_eth_type());
 
-				fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
+				fe.instructions.add_inst_apply_actions().set_actions().append_action_output(entry.get_out_port_no());
 
 				indent i(2); rofl::logging::debug << "[ethsw][packet-in] installing flow mod" << std::endl << fe;
 

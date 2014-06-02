@@ -560,6 +560,7 @@ namespace openflow13 {
 									 * - MSB 0: low-order bytes are IEEE OUI.
 									 * - MSB != 0: defined by OpenFlow
 									 *   consortium. */
+		uint8_t body[0];
 		/* Experimenter-defined arbitrary additional data. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_instruction_experimenter) == 8);

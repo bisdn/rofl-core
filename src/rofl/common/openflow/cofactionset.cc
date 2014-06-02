@@ -60,16 +60,15 @@ cofactionset::get_action_index(uint16_t action_type)
 }
 
 void
-cofactionset::actionset_clear(cofinst& inst)
+cofactionset::actionset_clear(const cofinst_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
 	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
 	acset.clear();
 
-	cofactions::iterator at;
-	for (std::list<cofaction*>::iterator
+	for (rofl::openflow::cofactions::const_iterator
 			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
-		cofaction& action = *(*at);
+		const cofaction& action = *(*at);
 		switch (be16toh(action.oac_header->type)) {
 		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
@@ -91,14 +90,14 @@ cofactionset::actionset_clear()
 
 
 void
-cofactionset::actionset_write_actions(cofinst& inst)
+cofactionset::actionset_write_actions(const cofinst_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
-	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.actions.size() << std::endl;
+	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().size() << std::endl;
 
-	for (std::list<cofaction*>::iterator
+	for (rofl::openflow::cofactions::const_iterator
 			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
-		cofaction& action = *(*at);
+		const cofaction& action = *(*at);
 
 		/*WRITELOG(COFACTION, DBG, "write action %u at position %u",
 				be16toh(action.oac_header->type),
@@ -122,10 +121,10 @@ cofactionset::actionset_write_actions(cofinst& inst)
 
 
 void
-cofactionset::actionset_write_metadata(cofinst & inst)
+cofactionset::actionset_write_metadata(const cofinst_write_metadata& inst)
 {
-	uint64_t mask =  be64toh(inst.oin_write_metadata->metadata_mask);
-	uint64_t value = be64toh(inst.oin_write_metadata->metadata);
+	uint64_t mask =  inst.get_metadata_mask();
+	uint64_t value = inst.get_metadata();
 
 	this->metadata = (this->metadata & ~mask) | (value & mask);
 }
