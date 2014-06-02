@@ -138,7 +138,6 @@ cofinstructions::set_inst_goto_table()
 const cofinstruction_goto_table&
 cofinstructions::get_inst_goto_table() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_GOTO_TABLE) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -193,7 +192,6 @@ cofinstructions::set_inst_write_metadata()
 const cofinstruction_write_metadata&
 cofinstructions::get_inst_write_metadata() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_WRITE_METADATA) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -248,7 +246,6 @@ cofinstructions::set_inst_write_actions()
 const cofinstruction_write_actions&
 cofinstructions::get_inst_write_actions() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_WRITE_ACTIONS) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -303,7 +300,6 @@ cofinstructions::set_inst_apply_actions()
 const cofinstruction_apply_actions&
 cofinstructions::get_inst_apply_actions() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_APPLY_ACTIONS) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -358,7 +354,6 @@ cofinstructions::set_inst_clear_actions()
 const cofinstruction_clear_actions&
 cofinstructions::get_inst_clear_actions() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_CLEAR_ACTIONS) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -413,7 +408,6 @@ cofinstructions::set_inst_experimenter()
 const cofinstruction_experimenter&
 cofinstructions::get_inst_experimenter() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_EXPERIMENTER) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -468,7 +462,6 @@ cofinstructions::set_inst_meter()
 const cofinstruction_meter&
 cofinstructions::get_inst_meter() const
 {
-	// may throw std::out_of_range
 	if (instmap.find(rofl::openflow::OFPIT_METER) == instmap.end()) {
 		throw eInstructionsNotFound();
 	}
@@ -534,7 +527,6 @@ cofinstructions::unpack(
 {
 	clear();
 
-	// sanity check: bclen must be of size of at least ofp_instruction
 	if (buflen < (int)sizeof(struct rofl::openflow::ofp_instruction))
 		return;
 
