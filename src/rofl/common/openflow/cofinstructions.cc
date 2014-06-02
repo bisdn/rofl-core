@@ -69,6 +69,9 @@ cofinstructions::operator= (
 			case rofl::openflow::OFPIT_METER: {
 				add_inst_meter() = instructions.get_inst_meter();
 			} break;
+			case rofl::openflow::OFPIT_EXPERIMENTER: {
+				add_inst_experimenter() = instructions.get_inst_experimenter();
+			} break;
 			default: {
 				instmap[it->first] = new cofinstruction(*(it->second));
 			} break;
