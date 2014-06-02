@@ -545,4 +545,3 @@ cofaction::get_oxm() const
 	return oxm;
 }
 
-template class coflist<cofaction>;
