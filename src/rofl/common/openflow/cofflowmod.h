@@ -23,196 +23,255 @@
 namespace rofl {
 namespace openflow {
 
-class eFlowEntryBase : public RoflException {}; // error base class cflowentry
-class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
-class eFlowEntryOutOfMem : public eFlowEntryBase {}; // out of memory
+class eFlowModBase 		: public RoflException {}; // error base class cflowentry
+class eFlowModInvalid 	: public eFlowModBase {}; // invalid parameter
+class eFlowModOutOfMem 	: public eFlowModBase {}; // out of memory
 
 
-class cofflowmod
-{
-private: // data structures
-
-	uint8_t 		of_version;		// OpenFlow version in use
-
-public: // data structures
-
-	cofmatch 		match; 			// cofmatch class containing ofp_match structure
-	cofactions		actions;		// list of actions for OF 1.0
-	cofinstructions instructions; 	// list of instructions since OF1.2
-
-	union {
-		uint8_t								*ofmu_generic;
-		struct openflow10::ofp_flow_mod		*ofmu10_flow_mod;
-		struct openflow12::ofp_flow_mod 	*ofmu12_flow_mod;
-		struct openflow13::ofp_flow_mod		*ofmu13_flow_mod;
-	} ofm_ofmu;
-
-#define ofm_generic			ofm_ofmu.ofmu_generic
-#define of10m_flow_mod		ofm_ofmu.ofmu10_flow_mod
-#define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
-#define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
-
-
-public: // static methods
-
-	static void example();
-
-
-
+class cofflowmod {
 public: // methods
 
-	/** constructor
+	/**
+	 *
 	 */
-	cofflowmod(uint8_t of_version, uint16_t type = openflow::OFPMT_OXM);
+	cofflowmod(
+			uint8_t ofp_version);
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofflowmod();
 
-	/** copy constructor
+	/**
+	 *
 	 */
-	cofflowmod(cofflowmod const& fe);
+	cofflowmod(
+			const cofflowmod& fe);
 
-	/** assignment operator
+	/**
+	 *
 	 */
-	cofflowmod& operator= (const cofflowmod& fe);
+	cofflowmod&
+	operator= (
+			const cofflowmod& fe);
 
-	/** reset flowentry
+	/**
 	 *
 	 */
 	void
 	reset();
 
-	/**
-	 * @brief
-	 */
-	size_t
-	length() const;
-
-	/** pack flowentry, i.e. add actions to flow_mod structure ready for transmission
-	 * @return length of flow_mod structure including actions
-	 */
-	size_t
-	pack();
-
 
 public: // setter methods for ofp_flow_mod structure
 
 	/**
+	 *
 	 */
 	void
-	set_version(uint8_t of_version) { this->of_version = of_version; };
-	/**
-	 */
-	void
-	set_command(uint8_t command);
-	/**
-	 */
-	void
-	set_table_id(uint8_t table_id);
-	/**
-	 */
-	void
-	set_idle_timeout(const uint16_t& idle_timeout);
-	/**
-	 */
-	void
-	set_hard_timeout(const uint16_t& hard_timeout);
-	/**
-	 */
-	void
-	set_cookie(const uint64_t& cookie);
-	/**
-	 */
-	void
-	set_cookie_mask(const uint64_t& cookie_mask);
-	/**
-	 */
-	void
-	set_priority(const uint16_t& priority);
-	/**
-	 */
-	void
-	set_buffer_id(const uint32_t& buffer_id);
-	/**
-	 */
-	void
-	set_out_port(const uint32_t& out_port);
-	/**
-	 */
-	void
-	set_out_group(const uint32_t& out_group);
-	/**
-	 */
-	void
-	set_flags(const uint16_t& flags);
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
 
-public: // getter methods for ofp_flow_mod structure
+	/**
+	 *
+	 */
+	rofl::openflow::cofmatch&
+	set_match() { return match; };
+
+	/**
+	 *
+	 */
+	const rofl::openflow::cofmatch&
+	get_match() const { return match; };
+
+	/**
+	 *
+	 */
+	rofl::openflow::cofactions&
+	set_actions() { return actions; };
+
+	/**
+	 *
+	 */
+	const rofl::openflow::cofactions&
+	get_actions() const { return actions; };
+
+	/**
+	 *
+	 */
+	rofl::openflow::cofinstructions&
+	set_instructions() { return instructions; };
+
+	/**
+	 *
+	 */
+	const rofl::openflow::cofinstructions&
+	get_instructions() const { return instructions; };
+
+	/**
+	 *
+	 */
+	void
+	set_command(uint8_t command) { this->command = command; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_command() const { return command; };
+
+	/**
+	 *
+	 */
+	void
+	set_table_id(uint8_t table_id) { this->table_id = table_id; }
 
 	/**
 	 */
 	uint8_t
-	get_version() const { return of_version; };
+	get_table_id() const { return table_id; };
+
 	/**
+	 *
 	 */
-	uint8_t
-	get_command() const;
+	void
+	set_idle_timeout(uint16_t idle_timeout) { this->idle_timeout = idle_timeout; };
+
 	/**
+	 *
 	 */
-	uint8_t
-	get_table_id() const;
+	uint16_t
+	get_idle_timeout() const { return idle_timeout; };
+
+	/**
+	 *
+	 */
+	void
+	set_hard_timeout(uint16_t hard_timeout) { this->hard_timeout = hard_timeout; };
+
 	/**
 	 */
 	uint16_t
-	get_idle_timeout() const;
+	get_hard_timeout() const { return hard_timeout; };
+
 	/**
+	 *
 	 */
-	uint16_t
-	get_hard_timeout() const;
+	void
+	set_cookie(uint64_t cookie) { this->cookie = cookie; };
+
 	/**
+	 *
 	 */
 	uint64_t
-	get_cookie() const;
+	get_cookie() const { return cookie; };
+
 	/**
+	 *
+	 */
+	void
+	set_cookie_mask(uint64_t cookie_mask) { this->cookie_mask = cookie_mask; };
+
+	/**
+	 *
 	 */
 	uint64_t
-	get_cookie_mask() const;
+	get_cookie_mask() const { return cookie_mask; };
+
 	/**
+	 *
+	 */
+	void
+	set_priority(uint16_t priority) { this->priority = priority; };
+
+	/**
+	 *
 	 */
 	uint16_t
-	get_priority() const;
+	get_priority() const { return priority; };
+
 	/**
+	 *
+	 */
+	void
+	set_buffer_id(uint32_t buffer_id) { this->buffer_id = buffer_id; };
+
+	/**
+	 *
 	 */
 	uint32_t
-	get_buffer_id() const;
+	get_buffer_id() const { return buffer_id; };
+
 	/**
+	 *
+	 */
+	void
+	set_out_port(uint32_t out_port) { this->out_port = out_port; };
+
+	/**
+	 *
 	 */
 	uint32_t
-	get_out_port() const;
+	get_out_port() const { return out_port; };
+
 	/**
+	 *
+	 */
+	void
+	set_out_group(uint32_t out_group) { this->out_group = out_group; };
+
+	/**
+	 *
 	 */
 	uint32_t
-	get_out_group() const;
+	get_out_group() const { return out_group; };
+
 	/**
+	 *
+	 */
+	void
+	set_flags(uint16_t flags) { this->flags = flags; };
+
+	/**
+	 *
 	 */
 	uint16_t
-	get_flags() const;
+	get_flags() const { return flags; };
 
+public:
 
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
 
+	/**
+	 *
+	 */
+	virtual size_t
+	pack(
+			uint8_t *buf, size_t buflen);
 
-private: // data structures
+	/**
+	 *
+	 */
+	virtual size_t
+	unpack(
+			uint8_t *buf, size_t buflen);
 
-	cmemory flow_mod_area;			// flow mod memory area
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofflowmod const& fe) {
 		os << indent(0) << "<cflowentry >";
-		switch (fe.of_version) {
+		switch (fe.ofp_version) {
 		case openflow10::OFP_VERSION: {
 			os << indent(2) << "<cookie:0x" << std::hex << (int)fe.get_cookie() 	<< std::dec << " >" << std::endl;
 			switch (fe.get_command()) {
@@ -275,6 +334,27 @@ public:
 		}
 		return os;
 	};
+
+private: // data structures
+
+	uint8_t 			ofp_version;
+
+	cofmatch 			match;
+	cofactions			actions;	// for OFP 1.0 only
+	cofinstructions 	instructions;
+
+	uint8_t				command;
+	uint8_t				table_id;
+	uint16_t			idle_timeout;
+	uint16_t			hard_timeout;
+	uint64_t			cookie;
+	uint64_t			cookie_mask;
+	uint16_t 			priority;
+	uint32_t			buffer_id;
+	uint32_t			out_port;
+	uint32_t			out_group;
+	uint16_t			flags;
+
 };
 
 }; // end of namespace openflow
