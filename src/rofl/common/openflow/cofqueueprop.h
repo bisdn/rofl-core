@@ -254,7 +254,7 @@ public:
 	operator<< (std::ostream& os, const cofqueue_prop_min_rate& prop) {
 		os << "<cofqueue_prop_min_rate version: " << (unsigned int)prop.get_version() << " >" << std::endl;
 		{ rofl::indent i(2); os << dynamic_cast<const cofqueue_prop&>( prop ); }
-		os << rofl::indent(4) << "<min-rate: " << (unsigned int)prop.get_min_rate() << " >" << std::endl;
+		os << rofl::indent(4) << "<min-rate: 0x" << std::hex << (unsigned int)prop.get_min_rate() << std::dec << " >" << std::endl;
 		return os;
 	};
 
@@ -350,7 +350,7 @@ public:
 	operator<< (std::ostream& os, const cofqueue_prop_max_rate& prop) {
 		os << "<cofqueue_prop_max_rate version: " << (unsigned int)prop.get_version() << " >" << std::endl;
 		{ rofl::indent i(2); os << dynamic_cast<const cofqueue_prop&>( prop ); }
-		os << rofl::indent(4) << "<max-rate: " << (unsigned int)prop.get_max_rate() << " >" << std::endl;
+		os << rofl::indent(4) << "<max-rate: 0x" << std::hex << (unsigned int)prop.get_max_rate() << std::dec << " >" << std::endl;
 		return os;
 	};
 
@@ -433,7 +433,7 @@ public:
 	/**
 	 *
 	 */
-	uint16_t
+	uint32_t
 	get_exp_id() const { return exp_id; };
 
 
@@ -441,7 +441,7 @@ public:
 	 *
 	 */
 	void
-	set_exp_id(uint16_t exp_id) { this->exp_id = exp_id; };
+	set_exp_id(uint32_t exp_id) { this->exp_id = exp_id; };
 
 	/**
 	 *
@@ -468,7 +468,7 @@ public:
 
 private:
 
-	uint16_t 		exp_id;
+	uint32_t 		exp_id;
 	rofl::cmemory 	exp_body;
 };
 

@@ -75,6 +75,9 @@ cofqueue_prop::unpack(uint8_t *buf, size_t buflen)
 		property	= be16toh(hdr->property);
 		len			= be16toh(hdr->len);
 
+		if (len < sizeof(struct rofl::openflow13::ofp_queue_prop_header))
+			throw eInval();
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -143,6 +146,9 @@ cofqueue_prop_min_rate::unpack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		cofqueue_prop::unpack(buf, buflen);
+
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_queue_prop_min_rate))
+			throw eInval();
 
 		struct rofl::openflow13::ofp_queue_prop_min_rate* hdr =
 				(struct rofl::openflow13::ofp_queue_prop_min_rate*)buf;
@@ -217,6 +223,9 @@ cofqueue_prop_max_rate::unpack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		cofqueue_prop::unpack(buf, buflen);
+
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_queue_prop_max_rate))
+			throw eInval();
 
 		struct rofl::openflow13::ofp_queue_prop_max_rate* hdr =
 				(struct rofl::openflow13::ofp_queue_prop_max_rate*)buf;

@@ -208,9 +208,9 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cofqueue_props const& props) {
-		os << indent(0) << "<cofqueue_props version: " << (unsigned int)props.get_version()
-				<< " #props: " << props.get_properties().size() << ">";
-		indent i(2);
+		os << rofl::indent(0) << "<cofqueue_props version: " << (unsigned int)props.get_version()
+				<< " #props: " << props.get_properties().size() << " >" << std::endl;
+		rofl::indent i(2);
 		for (std::map<uint16_t, cofqueue_prop*>::const_iterator
 				it = props.properties.begin(); it != props.properties.end(); ++it) {
 			os << (*(it->second));
