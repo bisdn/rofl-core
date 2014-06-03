@@ -20,7 +20,7 @@ cofpacket_queue::cofpacket_queue(
 				len(0),
 				queue_props(props)
 {
-
+	queue_props.set_version(ofp_version);
 }
 
 
@@ -129,6 +129,7 @@ cofpacket_queue::unpack(
 		return;
 
 	queue_props.clear();
+	queue_props.set_version(ofp_version);
 
 	switch (ofp_version) {
 	case rofl::openflow10::OFP_VERSION: {

@@ -63,7 +63,11 @@ unittest_SOURCES= \
 	cofqueueprop_test.cc \
 	cofqueueprop_test.h \
 	cofqueueprops_test.cc \
-	cofqueueprops_test.h
+	cofqueueprops_test.h \
+	cofpacketqueue_test.cc \
+	cofpacketqueue_test.h \
+	cofpacketqueues_test.cc \
+	cofpacketqueues_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

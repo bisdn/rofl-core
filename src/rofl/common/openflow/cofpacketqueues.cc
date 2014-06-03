@@ -175,6 +175,8 @@ cofpacket_queues::unpack(
 	if ((0 == buf) || (0 == buflen))
 		return;
 
+	clear();
+
 	switch (ofp_version) {
 	case rofl::openflow10::OFP_VERSION: {
 
@@ -188,8 +190,7 @@ cofpacket_queues::unpack(
 				throw eInval();
 
 			// we use port_no 0 for all ofp_packet_queue structs received in OFP 1.0
-			add_pqueue(/*port-no*/0, be32toh(hdr->queue_id)).set_queue_props().unpack(
-					(uint8_t*)hdr->properties, len - sizeof(struct rofl::openflow10::ofp_packet_queue));
+			add_pqueue(/*port-no*/0, be32toh(hdr->queue_id)).unpack(buf, len);
 
 			buflen -= len;
 			buf += len;
@@ -208,8 +209,7 @@ cofpacket_queues::unpack(
 			if ((buflen < len) || (len == 0))
 				throw eInval();
 
-			add_pqueue(be32toh(hdr->port), be32toh(hdr->queue_id)).set_queue_props().unpack(
-					(uint8_t*)hdr->properties, len - sizeof(struct rofl::openflow10::ofp_packet_queue));
+			add_pqueue(be32toh(hdr->port), be32toh(hdr->queue_id)).unpack(buf, len);
 
 			buflen -= len;
 			buf += len;

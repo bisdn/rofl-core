@@ -24,7 +24,7 @@ public:
 	 *
 	 */
 	cofpacket_queues(
-		uint8_t of_version);
+		uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN);
 
 	/**
 	 *
@@ -137,7 +137,12 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cofpacket_queues const& pql) {
-		os << rofl::indent(0) << "<cofpacket_queues >";
+		unsigned int count = 0;
+		for (std::map<uint32_t, std::map<uint32_t, cofpacket_queue> >::const_iterator
+				it = pql.pqueues.begin(); it != pql.pqueues.end(); ++it) {
+			count += it->second.size();
+		}
+		os << rofl::indent(0) << "<cofpacket_queues #queues: " << count << " >" << std::endl;
 		for (std::map<uint32_t, std::map<uint32_t, cofpacket_queue> >::const_iterator
 				it = pql.pqueues.begin(); it != pql.pqueues.end(); ++it) {
 			for (std::map<uint32_t, cofpacket_queue>::const_iterator

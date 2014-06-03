@@ -213,7 +213,20 @@ public:
 		rofl::indent i(2);
 		for (std::map<uint16_t, cofqueue_prop*>::const_iterator
 				it = props.properties.begin(); it != props.properties.end(); ++it) {
-			os << (*(it->second));
+			switch (it->second->get_property()) {
+			case rofl::openflow13::OFPQT_MIN_RATE: {
+				os << dynamic_cast<const cofqueue_prop_min_rate&>( *(it->second) );
+			} break;
+			case rofl::openflow13::OFPQT_MAX_RATE: {
+				os << dynamic_cast<const cofqueue_prop_max_rate&>( *(it->second) );
+			} break;
+			case rofl::openflow13::OFPQT_EXPERIMENTER: {
+				os << dynamic_cast<const cofqueue_prop_experimenter&>( *(it->second) );
+			} break;
+			default: {
+				os << (*(it->second));
+			}
+			}
 		}
 		return os;
 	};

@@ -50,13 +50,13 @@ cofqueueprops_test::testQueueProps()
 	rofl::cmemory packed(props.length());
 	props.pack(packed.somem(), packed.memlen());
 
-	std::cerr << "props:" << std::endl << props;
-	std::cerr << "packed:" << std::endl << packed;
+	//std::cerr << "props:" << std::endl << props;
+	//std::cerr << "packed:" << std::endl << packed;
 
 	rofl::openflow::cofqueue_props clone(rofl::openflow13::OFP_VERSION);
 	clone.unpack(packed.somem(), packed.memlen());
 
-	std::cerr << "clone:" << std::endl << clone;
+	//std::cerr << "clone:" << std::endl << clone;
 
 	CPPUNIT_ASSERT(clone.get_properties().size() == 3);
 	CPPUNIT_ASSERT(clone.length() == props.length());
