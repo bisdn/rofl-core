@@ -11,7 +11,6 @@
 #include <map>
 #include <ostream>
 
-#include "rofl/common/coflist.h"
 #include "rofl/common/openflow/cofpacketqueue.h"
 
 namespace rofl {
