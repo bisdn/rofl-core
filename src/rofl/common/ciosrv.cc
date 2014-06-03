@@ -183,7 +183,7 @@ ciosrv::get_next_timer()
 }
 
 
-uint32_t
+ctimerid const&
 ciosrv::register_timer(int opaque, time_t t)
 {
 	if (timers.empty())
@@ -192,22 +192,22 @@ ciosrv::register_timer(int opaque, time_t t)
 }
 
 
-uint32_t
-ciosrv::reset_timer(uint32_t timer_id, time_t t)
+ctimerid const&
+ciosrv::reset_timer(ctimerid const& timer_id, time_t t)
 {
 	return timers.reset(timer_id, t);
 }
 
 
 bool
-ciosrv::pending_timer(uint32_t timer_id)
+ciosrv::pending_timer(ctimerid const& timer_id)
 {
 	return timers.pending(timer_id);
 }
 
 
 void
-ciosrv::cancel_timer(uint32_t timer_id)
+ciosrv::cancel_timer(ctimerid const& timer_id)
 {
 	timers.cancel(timer_id);
 	if (timers.empty())

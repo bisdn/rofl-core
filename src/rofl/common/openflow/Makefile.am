@@ -83,8 +83,8 @@ libopenflow_la_SOURCES= \
 	cofpacketqueuelist.cc \
 	cofmeterband.h \
 	cofmeterband.cc \
-	cofmeterbandset.h \
-	cofmeterbandset.cc \
+	cofmeterbands.h \
+	cofmeterbands.cc \
 	cofhelloelem.h \
 	cofhelloelem.cc \
 	cofhelloelemversionbitmap.h \
@@ -106,7 +106,21 @@ libopenflow_la_SOURCES= \
 	cofasyncconfig.h \
 	cofasyncconfig.cc \
 	cofrole.h \
-	cofrole.cc
+	cofrole.cc \
+	cofmeterbandstats.h \
+	cofmeterbandstats.cc \
+	cofmeterbandstatsarray.h \
+	cofmeterbandstatsarray.cc \
+	cofmeterstats.h \
+	cofmeterstats.cc \
+	cofmeterstatsarray.h \
+	cofmeterstatsarray.cc \
+	cofmeterconfig.h \
+	cofmeterconfig.cc \
+	cofmeterconfigarray.h \
+	cofmeterconfigarray.cc \
+	cofmeterfeatures.h \
+	cofmeterfeatures.cc 
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -154,7 +168,7 @@ library_include_HEADERS = \
 	cofpacketqueue.h \
 	cofpacketqueuelist.h \
 	cofmeterband.h \
-	cofmeterbandset.h \
+	cofmeterbands.h \
 	cofhelloelem.h \
 	cofhelloelemversionbitmap.h \
 	cofhelloelems.h \
@@ -165,7 +179,14 @@ library_include_HEADERS = \
 	coftablefeatures.h \
 	coftables.h \
 	cofasyncconfig.h \
-	cofrole.h
+	cofrole.h \
+	cofmeterbandstats.h \
+	cofmeterbandstatsarray.h \
+	cofmeterstats.h \
+	cofmeterstatsarray.h \
+	cofmeterconfig.h \
+	cofmeterconfigarray.h \
+	cofmeterfeatures.h
 
 
 

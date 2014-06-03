@@ -14,7 +14,9 @@
 
 
 #include "rofl/common/croflexception.h"
+#include "rofl/common/csocket.h"
 #include "rofl/common/cmemory.h"
+#include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
@@ -26,23 +28,19 @@
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
 #include "rofl/common/openflow/cofrole.h"
+#include "rofl/common/openflow/cofmeterstats.h"
+#include "rofl/common/openflow/cofmeterconfig.h"
+#include "rofl/common/openflow/cofmeterfeatures.h"
+#include "rofl/common/cauxid.h"
 
 
 namespace rofl
 {
 
-class eRofDptBase 		: public RoflException {};
-class eRofDptNotFound 	: public eRofDptBase {};
-
 
 /* error classes */
-class eOFdptBase					: public RoflException {};
-class eDataPathIdInUse 				: public eOFdptBase {}; // datapath id already in use
-class eDataPathAlreadyAttached 		: public eOFdptBase {}; // crofbase *entity is already attached
-class eOFswitchBase 				: public eOFdptBase {};
-class eOFswitchInvalid 				: public eOFdptBase {};
-class eOFdpathNotFound 				: public eOFdptBase {}; // element not found
-
+class eRofDptBase 					: public RoflException {};
+class eRofDptNotFound 				: public eRofDptBase {};
 
 class crofbase;
 
@@ -60,35 +58,82 @@ class crofbase;
  * or grouptable entries.
  *
  */
-class crofdpt
-{
-public:
-
-	static std::map<uint64_t, crofdpt*> rofdpts;
-
-
-	static crofdpt&
-	get_dpt(uint64_t dptid);
-
-public:
-
+class crofdpt {
+public: // static
 
 	/**
-	 * @brief 	Default constructor for generating an empty rofl::openflow::cofdpt instance
+	 * @brief	Returns reference to crofdpt instance identified by cdptid object.
 	 *
-	 * @param rofbase pointer to crofbase instance
+	 * @param	dptid - cdptid handle
+	 * @throw	eRofDptNotFound
+	 * @return	Reference to crofdpt instance
 	 */
-	crofdpt() {};
+	static crofdpt&
+	get_dpt(const cdptid& dptid);
+
+	/**
+	 * @brief	Returns reference to crofdpt instance identified by OpenFlow dpid (uint64_t).
+	 *
+	 * @param	dpid - OpenFlow dpid
+	 * @throw	eRofDptNotFound
+	 * @return	Reference to crofdpt instance
+	 */
+	static crofdpt&
+	get_dpt(uint64_t dpid);
+
+public:
 
 
 	/**
-	 * @brief	Destructor.
+	 * @brief 	Creates new crofdpt instance.
 	 *
-	 * Deallocates all previously allocated resources for storing data model
-	 * exposed by the data path element.
+	 */
+	crofdpt() :
+		dptid(cdptid(++crofdpt::next_dptid)), dpid(0) {
+		crofdpt::rofdpts[dptid] = this;
+	};
+
+
+	/**
+	 * @brief	Destroys crodpt instance.
+	 *
 	 */
 	virtual
-	~crofdpt() {};
+	~crofdpt() {
+		crofdpt::rofdpts.erase(dptid);
+	};
+
+
+
+
+	/**
+	 * @brief	Returns cdptid handle for this crofdpt instance.
+	 *
+	 * @return dpid
+	 */
+	const cdptid&
+	get_dptid() const { return dptid; };
+
+
+	/**
+	 * @brief	Returns OpenFlow dpid for this crofdpt instance.
+	 *
+	 * @return dpid
+	 */
+	const uint64_t&
+	get_dpid() const { return dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's ID string.
+	 *
+	 * @return s_dpid
+	 */
+	const std::string&
+	get_dpid_s() const { return s_dpid; };
+
+
+public:
 
 
 	/**
@@ -122,7 +167,15 @@ public:
 	 * @return
 	 */
 	virtual crofchan&
-	get_channel() = 0;
+	set_channel() = 0;
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan const&
+	get_channel() const = 0;
 
 
 public:
@@ -134,25 +187,6 @@ public:
 	 */
 
 	/**@{*/
-
-
-
-	/**
-	 * @brief	Returns the data path element's data path ID.
-	 *
-	 * @return dpid
-	 */
-	virtual uint64_t
-	get_dpid() const = 0;
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	virtual std::string
-	get_dpid_s() const = 0;
 
 
 	/**
@@ -256,6 +290,23 @@ public:
 
 	/**@}*/
 
+public:
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() = 0;
+
 
 public:
 
@@ -356,7 +407,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_features_request() = 0;
+	send_features_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a GET-CONFIG.request to a data path element.
@@ -364,7 +416,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_get_config_request() = 0;
+	send_get_config_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-STATS.request to a data path element.
@@ -374,6 +427,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_features_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags) = 0;
 
 	/**
@@ -387,6 +441,7 @@ public:
 	 */
 	virtual uint32_t
 	send_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_type,
 			uint16_t stats_flags,
 			uint8_t *body = NULL,
@@ -400,6 +455,7 @@ public:
 	 */
 	virtual uint32_t
 	send_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags) = 0;
 
 	/**
@@ -411,6 +467,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofflow_stats_request const& flow_stats_request) = 0;
 
@@ -423,6 +480,7 @@ public:
 	 */
 	virtual uint32_t
 	send_aggr_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags,
 			rofl::openflow::cofaggr_stats_request const& aggr_stats_request) = 0;
 
@@ -435,6 +493,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags = 0) = 0;
 
 	/**
@@ -446,6 +505,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofport_stats_request const& port_stats_request) = 0;
 
@@ -458,6 +518,7 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofqueue_stats_request const& queue_stats_request) = 0;
 
@@ -470,6 +531,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			rofl::openflow::cofgroup_stats_request const& group_stats_request) = 0;
 
@@ -481,6 +543,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags = 0) = 0;
 
 	/**
@@ -491,6 +554,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags) = 0;
 
 	/**
@@ -501,6 +565,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_desc_stats_request(
+			const cauxid& aux_id,
 			uint16_t flags) = 0;
 
 	/**
@@ -514,10 +579,48 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_stats_request(
+			const cauxid& aux_id,
 			uint16_t stats_flags,
 			uint32_t exp_id,
 			uint32_t exp_type,
 			cmemory const& body) = 0;
+
+	/**
+	 * @brief	Sends a METER-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_stats_request& mstats) = 0;
+
+	/**
+	 * @brief	Sends a METER-CONFIG-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param mstats meter multipart request
+	 * @return transaction ID for this METER-CONFIG-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_config_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags,
+			const rofl::openflow::cofmeter_config_request& mstats) = 0;
+
+	/**
+	 * @brief	Sends a METER-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this METER-FEATURES-STATS.request
+	 */
+	virtual uint32_t
+	send_meter_features_stats_request(
+			const cauxid& aux_id,
+			uint16_t stats_flags) = 0;
 
 	/**
 	 * @brief	Sends a PACKET-OUT.message to a data path element.
@@ -531,6 +634,7 @@ public:
 	 */
 	virtual uint32_t
 	send_packet_out_message(
+			const cauxid& aux_id,
 			uint32_t buffer_id,
 			uint32_t in_port,
 			rofl::openflow::cofactions& aclist,
@@ -543,7 +647,8 @@ public:
 	 * @result transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_barrier_request() = 0;
+	send_barrier_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a ROLE.request to a data path element.
@@ -553,6 +658,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
+			const cauxid& aux_id,
 			rofl::openflow::cofrole const& role) = 0;
 
 	/**
@@ -562,6 +668,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_mod_message(
+			const cauxid& aux_id,
 			rofl::openflow::cofflowmod const& flowentry) = 0;
 
 	/**
@@ -571,6 +678,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_mod_message(
+			const cauxid& aux_id,
 			rofl::openflow::cofgroupmod const& groupentry) = 0;
 
 	/**
@@ -581,6 +689,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_mod_message(
+			const cauxid& aux_id,
 			uint8_t table_id,
 			uint32_t config) = 0;
 
@@ -595,6 +704,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_mod_message(
+			const cauxid& aux_id,
 			uint32_t port_no,
 			cmacaddr const& hwaddr,
 			uint32_t config,
@@ -609,8 +719,9 @@ public:
 	 */
 	virtual uint32_t
 	send_set_config_message(
-		uint16_t flags,
-		uint16_t miss_send_len) = 0;
+			const cauxid& aux_id,
+			uint16_t flags,
+			uint16_t miss_send_len) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
@@ -620,7 +731,8 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_get_config_request(
-		uint32_t port) = 0;
+			const cauxid& aux_id,
+			uint32_t port) = 0;
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
@@ -628,7 +740,8 @@ public:
 	 * @return transaction ID assigned to this request
 	 */
 	virtual uint32_t
-	send_get_async_config_request() = 0;
+	send_get_async_config_request(
+			const cauxid& aux_id) = 0;
 
 	/**
 	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
@@ -636,7 +749,22 @@ public:
 	 */
 	virtual uint32_t
 	send_set_async_config_message(
-		rofl::openflow::cofasync_config const& async_config) = 0;
+			const cauxid& aux_id,
+			rofl::openflow::cofasync_config const& async_config) = 0;
+
+	/**
+	 * @brief	Sends a METER-MOD.message to a data path element.
+	 *
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
+	 */
+	virtual uint32_t
+	send_meter_mod_message(
+			const cauxid& auxid,
+			uint16_t command,
+			uint16_t flags,
+			uint32_t meter_id,
+			const rofl::openflow::cofmeter_bands& meter_bands) = 0;
 
 	/**
 	 * @brief	Sends an ERROR.message to a data path element.
@@ -652,11 +780,12 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		uint32_t xid,
-		uint16_t type,
-		uint16_t code,
-		uint8_t* data = NULL,
-		size_t datalen = 0) = 0;
+			const cauxid& aux_id,
+			uint32_t xid,
+			uint16_t type,
+			uint16_t code,
+			uint8_t* data = NULL,
+			size_t datalen = 0) = 0;
 
 	/**
 	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
@@ -669,12 +798,63 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_message(
+			const cauxid& aux_id,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0) = 0;
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	class crofdpt_find_by_dptid {
+		cdptid dptid;
+	public:
+		crofdpt_find_by_dptid(const cdptid& dptid) : dptid(dptid) {};
+		bool operator() (const crofdpt* rofdpt) {
+			return (rofdpt->get_dptid() == dptid);
+		};
+	};
+
+	/**
+	 *
+	 */
+	class crofdpt_find_by_dpid {
+		uint64_t dpid;
+	public:
+		crofdpt_find_by_dpid(uint64_t dpid) : dpid(dpid) {};
+		bool operator() (const std::pair<cdptid, crofdpt*>& p) {
+			return (p.second->get_dpid() == dpid);
+		};
+	};
+
+protected:
+
+	/**
+	 *
+	 */
+	void
+	set_dpid(uint64_t dpid) {
+		this->dpid = dpid;
+		std::stringstream sstr; sstr << this->dpid;
+		s_dpid = sstr.str();
+	};
+
+
+private:
+
+	static uint64_t 					next_dptid;
+
+	static std::map<cdptid, crofdpt*> 	rofdpts;
+
+	cdptid   							dptid;			// handle for this crofdpt instance
+	uint64_t 							dpid;			// datapath id
+	std::string	 						s_dpid;			// datapath id as std::string
+
 };
 
 

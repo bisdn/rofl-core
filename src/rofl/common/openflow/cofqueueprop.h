@@ -23,8 +23,8 @@
 namespace rofl {
 namespace openflow {
 
-class eQueuePropBase : public RoflException {};
-class eQueuePropNotFound : public eQueuePropBase {};
+class eQueuePropBase 		: public RoflException {};
+class eQueuePropNotFound 	: public eQueuePropBase {};
 
 
 class cofqueue_prop :

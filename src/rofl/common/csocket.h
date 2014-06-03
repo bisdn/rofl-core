@@ -28,7 +28,8 @@
 namespace rofl {
 
 class eSocketBase		: public RoflException {};
-class eSocketAgain		: public eSocketBase {};
+class eSocketRxAgain		: public eSocketBase {};
+class eSocketTxAgain		: public eSocketBase {};
 class eSocketNotConnected	: public eSocketBase {};
 class eSocketTypeNotFound	: public eSocketBase {};
 class eSocketParamNotFound	: public eSocketBase {};
@@ -127,7 +128,7 @@ public:
 	handle_read(csocket& socket) = 0;
 
 	/**
-	 * @brief	Called once new data is available for reading from the socket.
+	 * @brief	Called once the socket accept additional data for sending.
 	 *
 	 * @param socket pointer to csocket instance emitting the notification
 	 * @param sd socket descriptor used by the connection
@@ -327,7 +328,13 @@ public:
 	 *
 	 */
 	virtual bool
-	is_connected() const = 0;
+	is_established() const = 0;
+
+	/**
+	 *
+	 */
+	virtual bool
+	write_would_block() const = 0;
 
 public:
 
@@ -455,8 +462,8 @@ public:
 			<< "type:" << sock.type << " "
 			<< "protocol:" << sock.protocol << " ";
 		os << ">" << std::endl;
-		os << rofl::indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
-		os << rofl::indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
+		os << rofl::indent(2) << "<raddr: " << sock.raddr << ":" << "TODO" << " >" << std::endl;
+		os << rofl::indent(2) << "<laddr: " << sock.laddr << ":" << "TODO" << " >" << std::endl;
 		rofl::indent i(2);
 		//os << sock.socket_params;
 		return os;

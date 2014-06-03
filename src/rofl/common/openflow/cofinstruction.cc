@@ -6,68 +6,43 @@
 
 using namespace rofl::openflow;
 
-std::set<cofinst*> cofinst::cofinst_set;
 
-cofinst::cofinst(
-		uint8_t ofp_version,
-		size_t size) :
+cofinstruction::cofinstruction(
+		uint8_t ofp_version, uint16_t type, const rofl::cmemory& body) :
 				ofp_version(ofp_version),
-				actions(ofp_version),
-				instruction(size)
+				type(type),
+				len(sizeof(struct ofp_instruction) + body.memlen()),
+				body(body)
 {
-	switch (ofp_version) {
-	case openflow::OFP_VERSION_UNKNOWN: break;
-	case openflow12::OFP_VERSION: break;
-	case openflow13::OFP_VERSION: break;
-	default: throw eBadVersion();
-	}
-	oin_generic = instruction.somem();
-	pthread_mutex_init(&inmutex, NULL);
+
 }
 
 
-cofinst::cofinst(
-		uint8_t ofp_version,
-		uint8_t* inhdr,
-		size_t inlen) :
-				ofp_version(ofp_version),
-				actions(ofp_version),
-				instruction(inlen)
-{
-	switch (ofp_version) {
-	case openflow::OFP_VERSION_UNKNOWN: break;
-	case openflow12::OFP_VERSION: break;
-	case openflow13::OFP_VERSION: break;
-	default: throw eBadVersion();
-	}
-	pthread_mutex_init(&inmutex, NULL);
-	unpack(inhdr, inlen);
-}
 
-
-cofinst::cofinst(cofinst const& inst)
+cofinstruction::cofinstruction(cofinstruction const& inst)
 {
-	pthread_mutex_init(&inmutex, NULL);
 	*this = inst;
 }
 
 
-cofinst::~cofinst()
+
+cofinstruction::~cofinstruction()
 {
-	pthread_mutex_destroy(&inmutex);
+
 }
 
 
-cofinst&
-cofinst::operator= (const cofinst& inst)
+
+cofinstruction&
+cofinstruction::operator= (const cofinstruction& inst)
 {
 	if (this == &inst)
 		return *this;
 
-	this->ofp_version 	= inst.ofp_version;
-	this->actions 		= inst.actions;
-	this->instruction 	= inst.instruction;
-	this->oin_generic 	= this->instruction.somem();
+	ofp_version 	= inst.ofp_version;
+	type			= inst.type;
+	len				= inst.len;
+	body			= inst.body;
 
 	return *this;
 }
@@ -75,184 +50,411 @@ cofinst::operator= (const cofinst& inst)
 
 
 bool
-cofinst::operator== (const cofinst& inst)
+cofinstruction::operator== (const cofinstruction& inst)
 {
-	return ((ofp_version == inst.ofp_version) && (actions == inst.actions) && (instruction == inst.instruction));
+	return ((ofp_version == inst.ofp_version) && (type == inst.type) && (body == inst.body));
 }
 
-
-
-void
-cofinst::reset()
-{
-	instruction.clear();
-	actions.clear();
-}
-
-
-void
-cofinst::resize(size_t len)
-{
-	instruction.resize(len);
-	oin_generic = instruction.somem();
-}
-
-
-uint8_t*
-cofinst::pack(uint8_t* buf, size_t buflen)
-{
-	switch (ofp_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: return pack_of12(buf, buflen);
-	default: throw eBadVersion();
-	}
-}
-
-
-uint8_t*
-cofinst::pack_of12(uint8_t* buf, size_t buflen)
-{
-	if (buflen < this->length())
-		throw eInstructionInval();
-
-	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)buf;
-
-	inhdr->type = oin_header->type; // set type field, hint: this is already network byte order
-	inhdr->len  = htobe16(length()); // set length field
-
-	// step -2- copy all actions into the memory area for instructions APPLY/CLEAR/WRITE_ACTIONS
-	switch (be16toh(inhdr->type)) {
-	case openflow12::OFPIT_APPLY_ACTIONS:
-	case openflow12::OFPIT_CLEAR_ACTIONS:
-	case openflow12::OFPIT_WRITE_ACTIONS: {
-		if (buflen < (sizeof(struct openflow12::ofp_instruction_actions) + actions.length())) {
-			throw eInstructionInval();
-		}
-		size_t aclen = this->length() - sizeof(struct openflow12::ofp_instruction_actions);
-		actions.pack((uint8_t*)((struct openflow12::ofp_instruction_actions*)inhdr)->actions, aclen);
-	} break;
-	case openflow12::OFPIT_WRITE_METADATA: {
-		if (buflen < sizeof(struct openflow12::ofp_instruction_write_metadata)) {
-			throw eInstructionInval();
-		}
-		memcpy(inhdr, oin_header, sizeof(struct openflow12::ofp_instruction_write_metadata));
-	} break;
-	case openflow12::OFPIT_GOTO_TABLE: {
-		if (buflen < sizeof(struct openflow12::ofp_instruction_goto_table)) {
-			throw eInstructionInval();
-		}
-		memcpy(inhdr, oin_header, sizeof(struct openflow12::ofp_instruction_goto_table));
-	} break;
-	case openflow13::OFPIT_METER: {
-		if (buflen < sizeof(struct openflow13::ofp_instruction_meter)) {
-			throw eInstructionInval();
-		}
-		memcpy(inhdr, oin_header, sizeof(struct openflow13::ofp_instruction_meter));
-	} break;
-	case openflow12::OFPIT_EXPERIMENTER:
-		// do nothing for now
-		logging::warn << "[rofl][instruction] unsupported experimental instruction type: " << (int)inhdr->type << std::endl;
-		break;
-	default:
-		logging::error << "[rofl][instruction] unsupported instruction type: " << (int)inhdr->type << std::endl;
-	}
-
-	oin_header->len = htobe16(length());
-
-	return buf;
-}
-
-
-void
-cofinst::unpack(uint8_t* buf, size_t buflen)
-{
-	switch (ofp_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: unpack_of12(buf, buflen); break;
-	default: throw eBadVersion();
-	}
-}
-
-
-void
-cofinst::unpack_of12(uint8_t* buf, size_t buflen)
-{
-	reset();
-
-	if (buflen > instruction.memlen()) {
-		oin_generic = instruction.resize(buflen);
-	} else {
-		oin_generic = instruction.somem();
-	}
-
-	memcpy(instruction.somem(), buf, buflen);
-
-	switch (get_type()) {
-	case openflow12::OFPIT_APPLY_ACTIONS:
-	case openflow12::OFPIT_WRITE_ACTIONS:
-	case openflow12::OFPIT_CLEAR_ACTIONS: {
-		oin_actions = (struct openflow12::ofp_instruction_actions*)oin_header;
-		size_t aclen = buflen - sizeof(struct openflow12::ofp_instruction_actions);
-		if (aclen >= sizeof(struct openflow12::ofp_action_header)) {
-			actions.unpack((uint8_t*)(oin_actions->actions), aclen);
-		}
-	} break;
-	case openflow12::OFPIT_WRITE_METADATA:
-		oin_write_metadata = (struct openflow12::ofp_instruction_write_metadata*)oin_header;
-		break;
-	case openflow12::OFPIT_GOTO_TABLE:
-		oin_goto_table = (struct openflow12::ofp_instruction_goto_table*)oin_header;
-		break;
-	case openflow12::OFPIT_EXPERIMENTER:
-		oin_experimenter = (struct openflow12::ofp_instruction_experimenter*)oin_header;
-		logging::warn << "[rofl][instruction] unsupported experimental instruction type: " << (int)get_type() << std::endl;
-		switch (be32toh(oin_experimenter->experimenter)) {
-		/*
-		 * add your known experimenter extensions here
-		 */
-		default:
-			throw eInstructionBadExperimenter();
-		}
-		break;
-	case openflow13::OFPIT_METER:
-		oin_meter = (struct openflow13::ofp_instruction_meter*)oin_header;
-		// TODO: parse remaining instructions
-		break;
-	default:
-		logging::error << "[rofl][instruction] unsupported instruction type: " << (int)get_type() << std::endl;
-		throw eInstructionInvalType();
-	}
-}
-
-
-struct rofl::openflow::ofp_instruction*
-cofinst::soinst()
-{
-	return ((struct openflow::ofp_instruction*)instruction.somem());
-}
 
 
 size_t
-cofinst::length() const
+cofinstruction::length() const
 {
+	switch (ofp_version) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (len = sizeof(struct ofp_instruction) + body.memlen());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction::length())
+		throw eInval();
+
 	switch (ofp_version) {
 	case openflow12::OFP_VERSION:
 	case openflow13::OFP_VERSION: {
-		switch (get_type()) {
-		case openflow12::OFPIT_APPLY_ACTIONS:
-		case openflow12::OFPIT_CLEAR_ACTIONS:
-		case openflow12::OFPIT_WRITE_ACTIONS:
-			return (sizeof(struct openflow12::ofp_instruction_actions) + actions.length());
-		case openflow12::OFPIT_WRITE_METADATA:
-			return sizeof(struct openflow12::ofp_instruction_write_metadata);
-		case openflow12::OFPIT_GOTO_TABLE:
-			return sizeof(struct openflow12::ofp_instruction_goto_table);
-		case openflow12::OFPIT_EXPERIMENTER:
-			return sizeof(struct openflow12::ofp_instruction_experimenter);
-		default:
-			logging::error << "[rofl][instruction] unsupported instruction type: " << (int)get_type() << std::endl;
-			throw eInstructionInvalType();
+
+		struct ofp_instruction* hdr = (struct ofp_instruction*)buf;
+
+		len = length(); // take virtual length()
+
+		hdr->type = htobe16(type);
+		hdr->len  = htobe16(len);
+
+		if (body.memlen() > 0) {
+			body.pack(hdr->body, body.memlen());
 		}
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction::unpack(uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct ofp_instruction))
+		throw eInval();
+
+	body = rofl::cmemory(0);
+	type = len = 0;
+
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
+
+		struct ofp_instruction* hdr = (struct ofp_instruction*)buf;
+
+		type = be16toh(hdr->type);
+		len	= be16toh(hdr->len);
+
+		if (buflen > sizeof(struct ofp_instruction)) {
+			if (buflen < be16toh(hdr->len))
+				throw eInval();
+			body.unpack(hdr->body, len - sizeof(struct ofp_instruction));
+		}
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+size_t
+cofinstruction_actions::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_instruction_actions) + actions.length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_actions::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction_actions::length())
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_actions* hdr =
+				(struct rofl::openflow13::ofp_instruction_actions*)buf;
+
+		actions.pack((uint8_t*)hdr->actions, actions.length());
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_actions::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct rofl::openflow13::ofp_instruction_actions))
+		throw eInval();
+
+	actions.clear();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_actions* hdr =
+				(struct rofl::openflow13::ofp_instruction_actions*)buf;
+
+		if (buflen < get_length())
+			throw eInval();
+
+		actions.unpack((uint8_t*)hdr->actions, get_length() - sizeof(struct rofl::openflow13::ofp_instruction_actions));
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+size_t
+cofinstruction_goto_table::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_instruction_goto_table));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_goto_table::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction_goto_table::length())
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_goto_table* hdr =
+				(struct rofl::openflow13::ofp_instruction_goto_table*)buf;
+
+		hdr->table_id	= table_id;
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_goto_table::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct rofl::openflow13::ofp_instruction_goto_table))
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_goto_table* hdr =
+				(struct rofl::openflow13::ofp_instruction_goto_table*)buf;
+
+		if (buflen < get_length())
+			throw eInval();
+
+		table_id	= hdr->table_id;
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_goto_table::check_prerequisites() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		if (rofl::openflow13::OFPTT_ALL == get_table_id()) {
+			throw eBadInstBadTableId();
+		}
+	} break;
+	default: {
+		// do nothing
+	};
+	}
+};
+
+
+
+size_t
+cofinstruction_write_metadata::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_instruction_write_metadata));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_write_metadata::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction_write_metadata::length())
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_write_metadata* hdr =
+				(struct rofl::openflow13::ofp_instruction_write_metadata*)buf;
+
+		hdr->metadata		= htobe64(metadata);
+		hdr->metadata_mask	= htobe64(metadata_mask);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_write_metadata::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct rofl::openflow13::ofp_instruction_write_metadata))
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_write_metadata* hdr =
+				(struct rofl::openflow13::ofp_instruction_write_metadata*)buf;
+
+		if (buflen < get_length())
+			throw eInval();
+
+		metadata		= be64toh(hdr->metadata);
+		metadata_mask	= be64toh(hdr->metadata_mask);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+size_t
+cofinstruction_meter::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_instruction_meter));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_meter::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction_meter::length())
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_meter* hdr =
+				(struct rofl::openflow13::ofp_instruction_meter*)buf;
+
+		hdr->meter_id	= htobe32(meter_id);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_meter::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct rofl::openflow13::ofp_instruction_meter))
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_meter* hdr =
+				(struct rofl::openflow13::ofp_instruction_meter*)buf;
+
+		if (buflen < get_length())
+			throw eInval();
+
+		meter_id	= be32toh(hdr->meter_id);
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -262,7 +464,82 @@ cofinst::length() const
 
 
 
+size_t
+cofinstruction_experimenter::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_instruction_experimenter) + exp_body.memlen());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
 
 
 
-template class coflist<cofinst>;
+void
+cofinstruction_experimenter::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofinstruction_experimenter::length())
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::pack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_experimenter* hdr =
+				(struct rofl::openflow13::ofp_instruction_experimenter*)buf;
+
+		hdr->experimenter	= htobe32(exp_id);
+
+		exp_body.pack(hdr->body, exp_body.memlen());
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofinstruction_experimenter::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < sizeof(struct rofl::openflow13::ofp_instruction_experimenter))
+		throw eInval();
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		cofinstruction::unpack(buf, sizeof(struct ofp_instruction));
+
+		struct rofl::openflow13::ofp_instruction_experimenter* hdr =
+				(struct rofl::openflow13::ofp_instruction_experimenter*)buf;
+
+		if (buflen < get_length())
+			throw eInval();
+
+		exp_id			= be32toh(hdr->experimenter);
+
+		exp_body.unpack(hdr->body, get_length() - sizeof(struct rofl::openflow13::ofp_instruction_experimenter));
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+

@@ -95,7 +95,7 @@ cudprecv::start_receiving()
 		fprintf(stderr, "error creating thread: %d (%s)\n", errno, strerror(errno));
 	}
 
-	register_timer(CUDPRECV_TIMER_PRINT_STATS, 0);
+	stats_timerid = register_timer(CUDPRECV_TIMER_PRINT_STATS, 0);
 }
 
 
@@ -105,7 +105,7 @@ cudprecv::stop_receiving()
 {
 	keep_going = false;
 
-	cancel_timer(CUDPRECV_TIMER_PRINT_STATS);
+	cancel_timer(stats_timerid);
 }
 
 
@@ -264,7 +264,7 @@ cudprecv::print_statistics()
 			rxseqno, rxbytes, rxlost, rxseqno - startseqno, rxrcvd, loss, bitrate);
 
 	if (keep_going)
-		register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
+		stats_timerid = register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
 }
 
 

@@ -26,7 +26,6 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
-#include "rofl/common/coflist.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/thread_helper.h"

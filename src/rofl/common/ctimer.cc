@@ -9,19 +9,9 @@
 
 using namespace rofl;
 
-uint32_t ctimer::next_timer_id = 0;
-
-uint32_t
-ctimer::get_next_timer_id() {
-	if (++ctimer::next_timer_id == 0) {
-		++ctimer::next_timer_id;
-	}
-	return ctimer::next_timer_id;
-}
 
 
 ctimer::ctimer() :
-		timer_id(0),
 		ptr(0),
 		opaque(0),
 		data(0)
@@ -32,7 +22,6 @@ ctimer::ctimer() :
 
 
 ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec) :
-		timer_id(++next_timer_id),
 		ptr(ptr),
 		opaque(opaque),
 		data(0)
@@ -44,7 +33,6 @@ ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec) :
 
 
 ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec) :
-		timer_id(++next_timer_id),
 		ptr(ptr),
 		opaque(opaque),
 		data(0)
@@ -56,7 +44,6 @@ ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec) :
 
 
 ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec, void *data) :
-		timer_id(++next_timer_id),
 		ptr(ptr),
 		opaque(opaque),
 		data(data)

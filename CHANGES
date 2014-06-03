@@ -9,9 +9,15 @@ Change log
 ==========
 
 v0.4.1
-[B][common] OpenFlow 1.0.1 clarified handling of wildcards
 
+[K] Automake 1.4 compilation. Please refer to the README.
 
+[B][common] OpenFlow 1.0.1 clarified handling of wildcards #2
+[B][common] Fixed bug in port stats for OFP1.2; corrected length check
+
+[+][pipeline] Async APIs not shown in doxygen documentation #1
+
+v0.4.0
 v0.4RC2
 
 [K] Automake 1.4 compilation. Please refer to the README.

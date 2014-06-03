@@ -11,6 +11,9 @@
 #include "openflow/openflow.h"
 #include "croflexception.h"
 #include "cmemory.h"
+#include "rofl/common/cctlid.h"
+#include "rofl/common/csocket.h"
+#include "rofl/common/crofchan.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofports.h"
@@ -27,6 +30,10 @@
 #include "rofl/common/openflow/cofqueuestatsarray.h"
 #include "rofl/common/openflow/cofgroupstatsarray.h"
 #include "rofl/common/openflow/cofgroupdescstatsarray.h"
+#include "rofl/common/openflow/cofmeterstatsarray.h"
+#include "rofl/common/openflow/cofmeterconfigarray.h"
+#include "rofl/common/openflow/cofmeterfeatures.h"
+#include "rofl/common/cauxid.h"
 
 
 
@@ -44,15 +51,15 @@ class crofctl
 {
 	static uint64_t next_ctlid;
 
-	static std::map<uint64_t, crofctl*> rofctls;
+	static std::map<cctlid, crofctl*> rofctls;
 
-	uint64_t   ctlid;
+	cctlid   ctlid;
 
 public: // methods
 
 
 	static crofctl&
-	get_ctl(uint64_t ctlid);
+	get_ctl(const cctlid& ctlid);
 
 
 	/**
@@ -61,7 +68,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofctl() :
-			ctlid(++crofctl::next_ctlid) {
+			ctlid(cctlid(++crofctl::next_ctlid)) {
 		crofctl::rofctls[ctlid] = this;
 	};
 
@@ -78,10 +85,49 @@ public:
 	/**
 	 * @brief	Returns the controller handle id
 	 */
-	virtual uint64_t
+	const cctlid&
 	get_ctlid() const { return ctlid; };
 
+
 public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect() = 0;
+
+
+public:
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan&
+	set_channel() = 0;
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan const&
+	get_channel() const = 0;
+
+
+public:
+
 
 	/**
 	 *
@@ -184,6 +230,7 @@ public:
 	 */
 	virtual void
 	send_features_reply(
+			const cauxid& auxid,
 			uint32_t xid,
 			uint64_t dpid,
 			uint32_t n_buffers,
@@ -202,6 +249,7 @@ public:
 	 */
 	virtual void
 	send_get_config_reply(
+			const cauxid& auxid,
 			uint32_t xid,
 			uint16_t flags,
 			uint16_t miss_send_len) = 0;
@@ -217,11 +265,12 @@ public:
 	 */
 	virtual void
 	send_stats_reply(
-		uint32_t xid,
-		uint16_t stats_type,
-		uint16_t stats_flags,
-		uint8_t *body = NULL,
-		size_t bodylen = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			uint16_t stats_type,
+			uint16_t stats_flags,
+			uint8_t *body = NULL,
+			size_t bodylen = 0) = 0;
 
 	/**
 	 * @brief	Sends a DESC-STATS.reply to a controller entity.
@@ -232,9 +281,10 @@ public:
 	 */
 	virtual void
 	send_desc_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofdesc_stats_reply const& desc_stats,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofdesc_stats_reply const& desc_stats,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a FLOW-STATS.reply to a controller entity.
@@ -245,9 +295,10 @@ public:
 	 */
 	virtual void
 	send_flow_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofflowstatsarray const& flow_stats,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofflowstatsarray const& flow_stats,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends an AGGREGATE-STATS.reply to a controller entity.
@@ -258,9 +309,10 @@ public:
 	 */
 	virtual void
 	send_aggr_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofaggr_stats_reply const& aggr_stats,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofaggr_stats_reply const& aggr_stats,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-STATS.reply to a controller entity.
@@ -271,9 +323,10 @@ public:
 	 */
 	virtual void
 	send_table_stats_reply(
-		uint32_t xid,
-		rofl::openflow::coftablestatsarray const& tablestatsarray,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::coftablestatsarray const& tablestatsarray,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a PORT-STATS.reply to a controller entity.
@@ -284,9 +337,10 @@ public:
 	 */
 	virtual void
 	send_port_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofportstatsarray const& portstatsarray,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofportstatsarray const& portstatsarray,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-STATS.reply to a controller entity.
@@ -297,9 +351,10 @@ public:
 	 */
 	virtual void
 	send_queue_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofqueuestatsarray const& queuestatsarray,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofqueuestatsarray const& queuestatsarray,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-STATS.reply to a controller entity.
@@ -310,9 +365,10 @@ public:
 	 */
 	virtual void
 	send_group_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofgroupstatsarray const& groupstatsarray,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofgroupstatsarray const& groupstatsarray,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-DESC-STATS.reply to a controller entity.
@@ -323,9 +379,10 @@ public:
 	 */
 	virtual void
 	send_group_desc_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofgroupdescstatsarray const& groupdescstatsarray,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofgroupdescstatsarray const& groupdescstatsarray,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-FEATURES-STATS.reply to a controller entity.
@@ -336,9 +393,10 @@ public:
 	 */
 	virtual void
 	send_group_features_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-FEATURES-STATS.reply to a controller entity.
@@ -349,9 +407,10 @@ public:
 	 */
 	virtual void
 	send_table_features_stats_reply(
-		uint32_t xid,
-		rofl::openflow::coftables const& tables,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::coftables const& tables,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a PORT-DESC-STATS.reply to a controller entity.
@@ -362,9 +421,10 @@ public:
 	 */
 	virtual void
 	send_port_desc_stats_reply(
-		uint32_t xid,
-		rofl::openflow::cofports const& ports,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			rofl::openflow::cofports const& ports,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends an EXPERIMENTER-STATS.reply to a controller entity.
@@ -378,11 +438,57 @@ public:
 	 */
 	virtual void
 	send_experimenter_stats_reply(
-		uint32_t xid,
-		uint32_t exp_id,
-		uint32_t exp_type,
-		cmemory const& body,
-		uint16_t stats_flags = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			uint32_t exp_id,
+			uint32_t exp_type,
+			cmemory const& body,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_stats_array instance of type cofmeterstatsarray
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeterstatsarray& meter_stats_array,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-CONFIG-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_config_array instance of type cofmeterconfigarray
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_config_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeterconfigarray& meter_config_array,
+			uint16_t stats_flags = 0) = 0;
+
+	/**
+	 * @brief	Sends a METER-FEATURES-STATS.reply to a controller entity.
+	 *
+	 * @param auxid auxiliary connection id
+	 * @param xid transaction ID from received STATS.request
+	 * @param meter_config_array instance of type cofmeterfeatures
+	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
+	 */
+	virtual void
+	send_meter_features_stats_reply(
+			const cauxid& auxid,
+			uint32_t xid,
+			const rofl::openflow::cofmeter_features& meter_features,
+			uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a PACKET-IN.message to a controller entity.
@@ -399,15 +505,16 @@ public:
 	 */
 	virtual void
 	send_packet_in_message(
-		uint32_t buffer_id,
-		uint16_t total_len,
-		uint8_t reason,
-		uint8_t table_id,
-		uint64_t cookie,
-		uint16_t in_port, // for OF1.0
-		rofl::openflow::cofmatch &match,
-		uint8_t *data,
-		size_t datalen) = 0;
+			const cauxid& auxid,
+			uint32_t buffer_id,
+			uint16_t total_len,
+			uint8_t reason,
+			uint8_t table_id,
+			uint64_t cookie,
+			uint16_t in_port, // for OF1.0
+			rofl::openflow::cofmatch &match,
+			uint8_t *data,
+			size_t datalen) = 0;
 
 	/**
 	 * @brief	Sends a BARRIER-reply to a controller entity.
@@ -416,6 +523,7 @@ public:
 	 */
 	virtual void
 	send_barrier_reply(
+			const cauxid& auxid,
 			uint32_t xid) = 0;
 
 	/**
@@ -429,11 +537,12 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		uint32_t xid,
-		uint16_t type,
-		uint16_t code,
-		uint8_t* data = NULL,
-		size_t datalen = 0) = 0;
+			const cauxid& auxid,
+			uint32_t xid,
+			uint16_t type,
+			uint16_t code,
+			uint8_t* data = NULL,
+			size_t datalen = 0) = 0;
 
 	/**
 	 * @brief 	Sends an EXPERIMENTER.message to a controller entity.
@@ -446,6 +555,7 @@ public:
 	 */
 	virtual void
 	send_experimenter_message(
+			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
@@ -469,17 +579,18 @@ public:
 	 */
 	virtual void
 	send_flow_removed_message(
+			const cauxid& auxid,
 			rofl::openflow::cofmatch& match,
-		uint64_t cookie,
-		uint16_t priority,
-		uint8_t reason,
-		uint8_t table_id,
-		uint32_t duration_sec,
-		uint32_t duration_nsec,
-		uint16_t idle_timeout,
-		uint16_t hard_timeout,
-		uint64_t packet_count,
-		uint64_t byte_count) = 0;
+			uint64_t cookie,
+			uint16_t priority,
+			uint8_t reason,
+			uint8_t table_id,
+			uint32_t duration_sec,
+			uint32_t duration_nsec,
+			uint16_t idle_timeout,
+			uint16_t hard_timeout,
+			uint64_t packet_count,
+			uint64_t byte_count) = 0;
 
 	/**
 	 * @brief	Sends a PORT-STATUS.message to a controller entity.
@@ -489,8 +600,9 @@ public:
 	 */
 	virtual void
 	send_port_status_message(
-		uint8_t reason,
-		rofl::openflow::cofport const& port) = 0;
+			const cauxid& auxid,
+			uint8_t reason,
+			rofl::openflow::cofport const& port) = 0;
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
@@ -500,6 +612,7 @@ public:
 	 */
 	virtual void
 	send_queue_get_config_reply(
+			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t portno,
 			rofl::openflow::cofpacket_queue_list const& pql) = 0;
@@ -514,6 +627,7 @@ public:
 	 */
 	virtual void
 	send_role_reply(
+			const cauxid& auxid,
 			uint32_t xid,
 			rofl::openflow::cofrole const& role) = 0;
 
@@ -524,10 +638,26 @@ public:
 	 */
 	virtual void
 	send_get_async_config_reply(
+			const cauxid& auxid,
 			uint32_t xid,
 			rofl::openflow::cofasync_config const& async_config) = 0;
 
 	/**@}*/
+
+public:
+
+	/**
+	 *
+	 */
+	class crofctl_find_by_ctlid {
+		cctlid ctlid;
+	public:
+		crofctl_find_by_ctlid(const cctlid& ctlid) : ctlid(ctlid) {};
+		bool operator() (const crofctl* rofctl) {
+			return (rofctl->get_ctlid() == ctlid);
+		};
+	};
+
 };
 
 

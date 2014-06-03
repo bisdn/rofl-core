@@ -10,9 +10,6 @@
 #include <algorithm>
 
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cvastring.h"
-
-#include "rofl/common/coflist.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofaction.h"
 
@@ -154,6 +151,18 @@ public:
 	 */
 	void
 	check_prerequisites() const;
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
 
 private:
 

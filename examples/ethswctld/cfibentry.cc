@@ -21,7 +21,7 @@ cfibentry::cfibentry(
 		rofbase(rofbase),
 		dpt(dpt),
 		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT),
-		expiration_timer_id(0)
+		expiration_timer_id()
 {
 	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
 }
@@ -107,9 +107,9 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_dst(dst);
 
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
 
-		dpt->send_flow_mod_message(fe);
+		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
 	} else {
 
@@ -120,9 +120,9 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_src(dst);
 
-		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port);
+		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port);
 
-		dpt->send_flow_mod_message(fe);
+		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
 	}
 }
@@ -148,9 +148,9 @@ cfibentry::flow_mod_modify()
 	fe.set_hard_timeout(entry_timeout);
 	fe.match.set_eth_dst(dst);
 
-	fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
+	fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
 
-	dpt->send_flow_mod_message(fe);
+	dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 }
 
 
@@ -184,7 +184,7 @@ cfibentry::flow_mod_delete()
 		fe.set_table_id(0);
 		fe.match.set_eth_dst(dst);
 
-		dpt->send_flow_mod_message(fe);
+		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
 	} else {
 
@@ -194,7 +194,7 @@ cfibentry::flow_mod_delete()
 		fe.set_table_id(0);
 		fe.match.set_eth_src(dst);
 
-		dpt->send_flow_mod_message(fe);
+		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
 	}
 }

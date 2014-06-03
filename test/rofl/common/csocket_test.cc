@@ -342,6 +342,18 @@ csocket_test::handle_connect_refused(
 
 
 void
+csocket_test::handle_connect_failed(
+		rofl::csocket& socket)
+{
+#ifdef DEBUG
+	std::cerr << "handle_connect_failed" << std::endl;
+#endif
+	CPPUNIT_ASSERT(false);
+}
+
+
+
+void
 csocket_test::handle_read(
 		rofl::csocket& socket)
 {

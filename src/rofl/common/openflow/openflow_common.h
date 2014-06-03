@@ -175,6 +175,7 @@ namespace openflow {
 	struct ofp_instruction {
 		uint16_t type;                /* Instruction type */
 		uint16_t len;                 /* Length of this struct in bytes. */
+		uint8_t body[0];
 		//uint8_t pad[4];             /* Align to 64-bits */
 	};
 	OFP_ASSERT(sizeof(struct ofp_instruction) == 4);

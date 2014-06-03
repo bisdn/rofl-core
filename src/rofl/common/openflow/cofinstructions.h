@@ -2,113 +2,115 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFINSTRUCTIONLIST_H
-#define COFINSTRUCTIONLIST_H 1
+#ifndef COFINSTRUCTIONS_H
+#define COFINSTRUCTIONS_H 1
 
 #include <assert.h>
 #include <map>
 #include <algorithm>
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cvastring.h"
-#include "rofl/common/coflist.h"
-
-#include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 
 namespace rofl {
 namespace openflow {
 
-class eInstructionsBase 		: public RoflException {}; // base error class cofinlist
-class eInstructionsInval 		: public eInstructionsBase {}; // invalid parameter
-class eInstructionsNotFound 	: public eInstructionsBase {}; // element not found
-class eInstructionsOutOfRange	: public eInstructionsBase {}; // out of range
+class eInstructionsBase 		: public RoflException {};
+class eInstructionsInval 		: public eInstructionsBase {};
+class eInstructionsNotFound 	: public eInstructionsBase {};
+class eInstructionsOutOfRange	: public eInstructionsBase {};
 
 
 
 class cofinstructions
 {
-	std::map<uint16_t, cofinst*> instmap;
-
-public: // iterators
-
-	typedef std::map<uint16_t, cofinst*>::iterator iterator;
-	typedef std::map<uint16_t, cofinst*>::const_iterator const_iterator;
-	iterator begin() { return instmap.begin(); }
-	iterator end() { return instmap.end(); }
-	const_iterator begin() const { return instmap.begin(); }
-	const_iterator end() const { return instmap.end(); }
-
-	typedef std::map<uint16_t, cofinst*>::reverse_iterator reverse_iterator;
-	typedef std::map<uint16_t, cofinst*>::const_reverse_iterator const_reverse_iterator;
-	reverse_iterator rbegin() { return instmap.rbegin(); }
-	reverse_iterator rend() { return instmap.rend(); }
-
 public:
 
-	uint8_t ofp_version;
-
 	/**
-	 */
-	static void test();
-
-public: // methods
-
-	/** constructor
+	 *
 	 */
 	cofinstructions(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN);
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofinstructions();
 
 	/**
+	 *
 	 */
 	cofinstructions(
-			cofinstructions const& inlist);
+			cofinstructions const& instructions);
 
 	/**
+	 *
 	 */
 	cofinstructions&
 	operator= (
-			cofinstructions const& inlist);
+			cofinstructions const& instructions);
 
 	/**
 	 *
  	 */
 	bool
 	operator== (
-			cofinstructions const& inlist);
+			cofinstructions const& instructions);
+
+
+public:
 
 	/**
 	 *
 	 */
-	cofinst&
-	operator[] (
-			unsigned int index);
+	void
+	set_version(uint8_t ofp_version) {
+		this->ofp_version = ofp_version;
+		for (std::map<uint16_t, cofinstruction*>::iterator
+				it = instmap.begin(); it != instmap.end(); ++it) {
+			it->second->set_version(ofp_version);
+		}
+	};
 
 	/**
+	 *
 	 */
-	void
-	unpack(
-			uint8_t *buf, size_t buflen);
+	uint8_t
+	get_version() const { return ofp_version; };
 
-
-	/** builds an array of struct ofp_instruction from this->invec
+	/**
+	 *
 	 */
-	uint8_t*			// returns parameter "struct ofp_instruction *instructions"
-	pack(
-			uint8_t *instructions, // pointer to memory area for storing this->invec
-			size_t inlen); 					// length of memory area
+	std::map<uint16_t, cofinstruction*>&
+	set_instructions() { return instmap; };
 
+	/**
+	 *
+	 */
+	const std::map<uint16_t, cofinstruction*>&
+	get_instructions() const { return instmap; };
 
-	/** returns required length for array of struct ofp_instruction
-	 * for all instructions defined in this->invec
+public:
+
+	/**
+	 *
 	 */
 	size_t
 	length() const;
 
+	/**
+	 *
+	 */
+	void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	void
+	unpack(
+			uint8_t *buf, size_t buflen);
 
 	/**
 	 *
@@ -116,25 +118,37 @@ public: // methods
 	void
 	check_prerequisites() const;
 
+public:
 
-	/**
-	 *
+	/*
+	 * Generic
 	 */
-	cofinst&
-	add_inst(
-			cofinst const& inst);
+	cofinstruction&
+	add_inst(uint16_t type);
+
+	cofinstruction&
+	set_inst(uint16_t type);
+
+	const cofinstruction&
+	get_inst(uint16_t type) const;
+
+	void
+	drop_inst(uint16_t type);
+
+	bool
+	has_inst(uint16_t type) const;
 
 
 	/*
 	 * Goto-Table
 	 */
-	cofinst_goto_table&
+	cofinstruction_goto_table&
 	add_inst_goto_table();
 
-	cofinst_goto_table&
+	cofinstruction_goto_table&
 	set_inst_goto_table();
 
-	cofinst_goto_table&
+	const cofinstruction_goto_table&
 	get_inst_goto_table() const;
 
 	void
@@ -147,13 +161,13 @@ public: // methods
 	/*
 	 * Write-Metadata
 	 */
-	cofinst_write_metadata&
+	cofinstruction_write_metadata&
 	add_inst_write_metadata();
 
-	cofinst_write_metadata&
+	cofinstruction_write_metadata&
 	set_inst_write_metadata();
 
-	cofinst_write_metadata&
+	const cofinstruction_write_metadata&
 	get_inst_write_metadata() const;
 
 	void
@@ -166,13 +180,13 @@ public: // methods
 	/*
 	 * Write-Actions
 	 */
-	cofinst_write_actions&
+	cofinstruction_write_actions&
 	add_inst_write_actions();
 
-	cofinst_write_actions&
+	cofinstruction_write_actions&
 	set_inst_write_actions();
 
-	cofinst_write_actions&
+	const cofinstruction_write_actions&
 	get_inst_write_actions() const;
 
 	void
@@ -185,13 +199,13 @@ public: // methods
 	/*
 	 * Apply-Actions
 	 */
-	cofinst_apply_actions&
+	cofinstruction_apply_actions&
 	add_inst_apply_actions();
 
-	cofinst_apply_actions&
+	cofinstruction_apply_actions&
 	set_inst_apply_actions();
 
-	cofinst_apply_actions&
+	const cofinstruction_apply_actions&
 	get_inst_apply_actions() const;
 
 	void
@@ -204,13 +218,13 @@ public: // methods
 	/*
 	 * Clear-Actions
 	 */
-	cofinst_clear_actions&
+	cofinstruction_clear_actions&
 	add_inst_clear_actions();
 
-	cofinst_clear_actions&
+	cofinstruction_clear_actions&
 	set_inst_clear_actions();
 
-	cofinst_clear_actions&
+	const cofinstruction_clear_actions&
 	get_inst_clear_actions() const;
 
 	void
@@ -221,34 +235,15 @@ public: // methods
 
 
 	/*
-	 * Experimenter
-	 */
-	cofinst_experimenter&
-	add_inst_experimenter();
-
-	cofinst_experimenter&
-	set_inst_experimenter();
-
-	cofinst_experimenter&
-	get_inst_experimenter() const;
-
-	void
-	drop_inst_experimenter();
-
-	bool
-	has_inst_experimenter() const;
-
-
-	/*
 	 * Meter
 	 */
-	cofinst_meter&
+	cofinstruction_meter&
 	add_inst_meter();
 
-	cofinst_meter&
+	cofinstruction_meter&
 	set_inst_meter();
 
-	cofinst_meter&
+	const cofinstruction_meter&
 	get_inst_meter() const;
 
 	void
@@ -258,13 +253,24 @@ public: // methods
 	has_inst_meter() const;
 
 
-
-
-	/** find a specific instruction
+	/*
+	 * Experimenter
 	 */
-	cofinst&
-	find_inst(
-			uint8_t type);
+	cofinstruction_experimenter&
+	add_inst_experimenter();
+
+	cofinstruction_experimenter&
+	set_inst_experimenter();
+
+	const cofinstruction_experimenter&
+	get_inst_experimenter() const;
+
+	void
+	drop_inst_experimenter();
+
+	bool
+	has_inst_experimenter() const;
+
 
 	/**
 	 *
@@ -272,18 +278,14 @@ public: // methods
 	void
 	clear();
 
-	/**
-	 *
-	 */
-	unsigned int
-	size() { return instmap.size(); };
+
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstructions const& inlist) {
 		os << indent(0) << "<cofintructions ofp-version:" << (int)inlist.ofp_version << " >" << std::endl;
-		for (std::map<uint16_t, cofinst*>::const_iterator
+		for (std::map<uint16_t, cofinstruction*>::const_iterator
 				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
 			indent i(2);
 			switch (it->second->get_type()) {
@@ -307,6 +309,12 @@ public:
 		}
 		return os;
 	};
+
+private:
+
+	uint8_t 						ofp_version;
+	std::map<uint16_t, cofinstruction*> 	instmap;
+
 };
 
 }; // end of namespace openflow

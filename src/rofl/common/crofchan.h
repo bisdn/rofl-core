@@ -9,6 +9,7 @@
 #define CROFCHAN_H_
 
 #include <map>
+#include <bitset>
 #include <inttypes.h>
 
 #include "rofl/common/croflexception.h"
@@ -17,6 +18,8 @@
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
+#include "rofl/common/ctimerid.h"
+#include "rofl/common/cauxid.h"
 
 namespace rofl {
 
@@ -24,6 +27,7 @@ class eRofChanBase			: public RoflException {};
 class eRofChanNotFound		: public eRofChanBase {};
 class eRofChanExists		: public eRofChanBase {};
 class eRofChanInval			: public eRofChanBase {};
+class eRofChanNotConnected	: public eRofChanBase {};
 
 class crofchan; // forward declaration
 
@@ -32,7 +36,8 @@ public:
 	virtual ~crofchan_env() {};
 	virtual void handle_established(crofchan *chan) = 0;
 	virtual void handle_disconnected(crofchan *chan) = 0;
-	virtual void recv_message(crofchan *chan, uint8_t aux_id, rofl::openflow::cofmsg *msg) = 0;
+	virtual void handle_write(crofchan *chan, const cauxid& auxid) = 0;
+	virtual void recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
@@ -43,9 +48,10 @@ class crofchan :
 		public ciosrv
 {
 	crofchan_env						*env;
-	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
+	std::map<cauxid, crofconn*>			conns;				// main and auxiliary connections
 	rofl::openflow::cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
 	uint8_t								ofp_version;		// OFP version negotiated
+	std::bitset<32>						flags;
 
 	enum crofchan_event_t {
 		EVENT_NONE				= 0,
@@ -60,19 +66,6 @@ class crofchan :
 		STATE_ESTABLISHED 		= 3,
 	};
 	enum crofchan_state_t				state;
-
-	enum crofchan_timer_t {
-		TIMER_RECONNECT			= 1,
-	};
-
-	int									reconnect_start_timeout;
-	int 								reconnect_in_seconds; 	// reconnect in x seconds
-	int									reconnect_variance;
-	int 								reconnect_counter;
-	uint32_t							reconnect_timer_id;
-
-#define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
-#define CROFCHAN_RECONNECT_VARIANCE_IN_SECS 2
 
 public:
 
@@ -112,6 +105,9 @@ public:
 	handle_closed(crofconn *conn);
 
 	virtual void
+	handle_write(crofconn *conn);
+
+	virtual void
 	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t
@@ -141,40 +137,60 @@ public:
 	 *
 	 */
 	void
-	clear();
+	close();
 
 	/**
 	 *
 	 */
-	void
-	add_conn(uint8_t aux_id,
-			int reconnect_start_timeout,
+	unsigned int
+	send_message(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+
+	/**
+	 * @brief	Add a new connection while creating a new crofconn instance and do a socket connect.
+	 */
+	crofconn&
+	add_conn(
+			const cauxid& aux_id,
 			enum rofl::csocket::socket_type_t socket_type,
 			cparams const& socket_params);
 
 	/**
-	 *
+	 * @brief 	Add a new connection with an existing crofconn instance obtained from a listening socket.
 	 */
-	void
-	add_conn(crofconn* conn, uint8_t aux_id);
+	crofconn&
+	add_conn(
+			const cauxid& aux_id, crofconn* conn);
 
 	/**
 	 *
 	 */
 	crofconn&
-	get_conn(uint8_t aux_id);
+	set_conn(
+			const cauxid& aux_id);
+
+	/**
+	 *
+	 */
+	crofconn const&
+	get_conn(
+			const cauxid& aux_id) const;
 
 	/**
 	 *
 	 */
 	void
-	drop_conn(uint8_t aux_id);
+	drop_conn(
+			const cauxid& aux_id);
 
 	/**
 	 *
 	 */
-	void
-	send_message(rofl::openflow::cofmsg *msg, uint8_t aux_id = 0);
+	bool
+	has_conn(
+			const cauxid& aux_id) const;
+
 
 private:
 
@@ -182,7 +198,8 @@ private:
 	 *
 	 */
 	void
-	run_engine(enum crofchan_event_t event = EVENT_NONE);
+	run_engine(
+			enum crofchan_event_t event = EVENT_NONE);
 
 	/**
 	 *
@@ -196,19 +213,6 @@ private:
 	void
 	event_disconnected();
 
-	/**
-	 *
-	 */
-	void
-	backoff_reconnect(
-			bool reset_timeout = false);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_timeout(int opaque, void *data = (void*)0);
-
 public:
 
 	friend std::ostream&
@@ -217,7 +221,7 @@ public:
 				<< " ofp-version: " << (int)chan.ofp_version << " >" << std::endl;
 		indent i(2);
 		os << chan.versionbitmap;
-		for (std::map<uint8_t, crofconn*>::const_iterator
+		for (std::map<cauxid, crofconn*>::const_iterator
 				it = chan.conns.begin(); it != chan.conns.end(); ++it) {
 			os << *(it->second);
 		}

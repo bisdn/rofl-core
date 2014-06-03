@@ -463,14 +463,14 @@ coxmatch_test::testOxmIPv6Src()
 	 */
 	{
 		rofl::openflow::coxmatch_ofb_ipv6_src oxm(addr, mask);
-		std::cerr << std::endl << oxm;
+		//std::cerr << std::endl << oxm;
 	}
 	/*
 	 * check value only
 	 */
 	{
 		rofl::openflow::coxmatch_ofb_ipv6_src oxm(addr);
-		std::cerr << std::endl << oxm;
+		//std::cerr << std::endl << oxm;
 	}
 }
 

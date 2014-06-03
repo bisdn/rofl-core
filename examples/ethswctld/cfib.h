@@ -31,16 +31,16 @@ class eFibNotFound		: public eFibBase {};
 class cfib :
 		public cfibtable
 {
-	static std::map<uint64_t, cfib*> fibs;
+	static std::map<rofl::cdptid, cfib*> fibs;
 
 public:
 
 	static cfib&
-	get_fib(uint64_t dpid);
+	get_fib(const rofl::cdptid& dpid);
 
 private:
 
-	uint64_t 								dpid;
+	rofl::cdptid							dpid;
 	rofl::crofbase							*rofbase;
 	rofl::crofdpt							*dpt;
 	std::map<rofl::cmacaddr, cfibentry*>	fibtable;
@@ -50,7 +50,7 @@ public:
 	/**
 	 *
 	 */
-	cfib(uint64_t dpid);
+	cfib(const rofl::cdptid& dpid);
 
 	/**
 	 *

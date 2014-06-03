@@ -1945,6 +1945,198 @@ public:
 	virtual ~cofmsg_error_role_request_failed_bad_role() {};
 };
 
+
+
+class cofmsg_error_meter_mod_unknown : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_unknown(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_UNKNOWN, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_unknown() {};
+};
+
+
+
+class cofmsg_error_meter_mod_meter_exists : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_meter_exists(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_METER_EXISTS, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_meter_exists() {};
+};
+
+
+
+class cofmsg_error_meter_mod_invalid_meter : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_invalid_meter(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_INVALID_METER, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_invalid_meter() {};
+};
+
+
+
+class cofmsg_error_meter_mod_unknown_meter : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_unknown_meter(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_UNKNOWN_METER, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_unknown_meter() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_command : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_command(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_COMMAND, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_command() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_flags : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_flags(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_FLAGS, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_flags() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_rate : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_rate(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_RATE, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_rate() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_burst : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_burst(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_BURST, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_burst() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_band : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_band(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_BAND, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_band() {};
+};
+
+
+
+class cofmsg_error_meter_mod_bad_band_value : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_bad_band_value(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_BAD_BAND_VALUE, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_bad_band_value() {};
+};
+
+
+
+class cofmsg_error_meter_mod_out_of_meters : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_out_of_meters(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_OUT_OF_METERS, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_out_of_meters() {};
+};
+
+
+
+class cofmsg_error_meter_mod_out_of_bands : public cofmsg_error {
+public:
+	cofmsg_error_meter_mod_out_of_bands(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_METER_MOD_FAILED, OFPMMFC_OUT_OF_BANDS, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_meter_mod_out_of_bands() {};
+};
+
 } // end of namespace openflow
 } // end of namespace rofl
 

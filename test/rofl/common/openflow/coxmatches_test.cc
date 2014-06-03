@@ -457,9 +457,9 @@ coxmatches_test::testOxmVlanVidUnpack()
 
 	matches.unpack(mem.somem(), mem.memlen());
 
-	std::cerr << "testOxmVlanVidUnpack:" << std::endl;
-	std::cerr << "mem:" << std::endl << mem;
-	std::cerr << "matches:" << std::endl << matches;
+	//std::cerr << "testOxmVlanVidUnpack:" << std::endl;
+	//std::cerr << "mem:" << std::endl << mem;
+	//std::cerr << "matches:" << std::endl << matches;
 }
 
 
