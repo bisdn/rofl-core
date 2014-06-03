@@ -69,9 +69,12 @@ Some distributions, in particular Red Hat based, do not include by default /usr/
 More information, documentation and support
 ===========================================
 
-Please visit: 
+You can have a look on: 
 
-https://www.codebasin.net/redmine/projects/rofl-core/wiki
+http://www.roflibs.org/
+http://www.roflibs.org/doc/
+
+Documentation can be compiled via 'make doc'. Documentation is generated in build/doc/ folder
 
 Authorship
 ==========

@@ -4,11 +4,11 @@ PKG_NAME="rofl"
 PKG_NAME_DBG="rofl-dbg"
 VERSION=""
 RELEASE=""
-REQUIRES+=""
-LICENSE="MPL"
+DEFAULT_REQUIRES="libssl1.0.0, libcrypto++9"
+LICENSE="Mozilla Public License, Version 2.0"
 GROUP="net"
-MAINTAINER="rofl@bisdn.de"
-DESCRIPTION="Revised OpenFlow Library set"
+MAINTAINER="rofl-devel@roflibs.org"
+DESCRIPTION="Revised OpenFlow Libraries"
 IS_DEBUG=""
 
 check_root(){
@@ -16,6 +16,12 @@ check_root(){
 	   echo "This script must be run as root" 1>&2
 	   exit 1
 	fi
+}
+
+assign_default_requires(){
+	if [ -z "${REQUIRES}" ]; then
+		REQUIRES=$DEFAULT_REQUIRES 
+	fi	
 }
 
 dump_result(){
@@ -62,6 +68,7 @@ generate_pkg(){
 
 #Detect stuff
 check_root
+assign_default_requires
 is_debug
 get_version
 get_release

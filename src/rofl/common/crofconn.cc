@@ -524,17 +524,9 @@ crofconn::recv_message(
 		error_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REQUEST: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_request_rcvd(msg);
 	} break;
 	case OFPT_ECHO_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		echo_reply_rcvd(msg);
 	} break;
 	case OFPT_FEATURES_REPLY: {
@@ -542,10 +534,6 @@ crofconn::recv_message(
 	} break;
 	case OFPT_MULTIPART_REQUEST:
 	case OFPT_MULTIPART_REPLY: {
-		if (state != STATE_ESTABLISHED) {
-			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
-			delete msg; return;
-		}
 		/*
 		 * add multipart support here for receiving messages
 		 */
