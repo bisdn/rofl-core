@@ -73,7 +73,7 @@ cofpacket_queues::add_pqueue(uint32_t port_no, uint32_t queue_id)
 	if (pqueues[port_no].find(queue_id) != pqueues[port_no].end()) {
 		pqueues[port_no].erase(queue_id);
 	}
-	pqueues[port_no][queue_id] = cofpacket_queue(ofp_version);
+	pqueues[port_no][queue_id] = cofpacket_queue(ofp_version, port_no, queue_id);
 	return pqueues[port_no][queue_id];
 }
 
@@ -83,7 +83,7 @@ cofpacket_queue&
 cofpacket_queues::set_pqueue(uint32_t port_no, uint32_t queue_id)
 {
 	if (pqueues[port_no].find(queue_id) == pqueues[port_no].end()) {
-		pqueues[port_no][queue_id] = cofpacket_queue(ofp_version);
+		pqueues[port_no][queue_id] = cofpacket_queue(ofp_version, port_no, queue_id);
 	}
 	return pqueues[port_no][queue_id];
 }
