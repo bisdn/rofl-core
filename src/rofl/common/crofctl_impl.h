@@ -888,7 +888,7 @@ public:
 			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t portno,
-			rofl::openflow::cofpacket_queue_list const& pql);
+			rofl::openflow::cofpacket_queues const& pql);
 
 
 	/**

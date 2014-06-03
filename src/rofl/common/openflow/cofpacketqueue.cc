@@ -145,7 +145,7 @@ cofpacket_queue::unpack(
 		if (buflen < len)
 			throw eInval();
 
-		queue_props.unpack((uint8_t*hdr->properties, len - sizeof(struct rofl::openflow10::ofp_packet_queue));
+		queue_props.unpack((uint8_t*)hdr->properties, len - sizeof(struct rofl::openflow10::ofp_packet_queue));
 
 	} break;
 	case rofl::openflow12::OFP_VERSION:
@@ -164,7 +164,7 @@ cofpacket_queue::unpack(
 		if (buflen < len)
 			throw eInval();
 
-		queue_props.unpack((uint8_t*hdr->properties, len - sizeof(struct rofl::openflow13::ofp_packet_queue));
+		queue_props.unpack((uint8_t*)hdr->properties, len - sizeof(struct rofl::openflow13::ofp_packet_queue));
 
 	} break;
 	default:

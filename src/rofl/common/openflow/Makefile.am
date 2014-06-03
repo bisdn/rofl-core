@@ -79,8 +79,8 @@ libopenflow_la_SOURCES= \
 	cofqueueprops.cc \
 	cofpacketqueue.h \
 	cofpacketqueue.cc \
-	cofpacketqueuelist.h \
-	cofpacketqueuelist.cc \
+	cofpacketqueues.h \
+	cofpacketqueues.cc \
 	cofmeterband.h \
 	cofmeterband.cc \
 	cofmeterbands.h \
@@ -166,7 +166,7 @@ library_include_HEADERS = \
 	cofqueueprop.h \
 	cofqueueprops.h \
 	cofpacketqueue.h \
-	cofpacketqueuelist.h \
+	cofpacketqueues.h \
 	cofmeterband.h \
 	cofmeterbands.h \
 	cofhelloelem.h \
