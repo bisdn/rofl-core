@@ -309,7 +309,7 @@ cofqueue_props::unpack(
 			uint16_t property 	= be16toh(hdr->property);
 			uint16_t len		= be16toh(hdr->len);
 
-			if (buflen < len)
+			if ((buflen < len) || (0 == len))
 				throw eInval();
 
 			switch (property) {

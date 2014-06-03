@@ -49,8 +49,8 @@ cofpacketqueues_test::testPacketQueues()
 	rofl::cmemory packed(queues.length());
 	queues.pack(packed.somem(), packed.memlen());
 
-	std::cerr << "queues:" << std::endl << queues;
-	std::cerr << "packed:" << std::endl << packed;
+	//std::cerr << "queues:" << std::endl << queues;
+	//std::cerr << "packed:" << std::endl << packed;
 
 	rofl::openflow::cofpacket_queues clone(rofl::openflow13::OFP_VERSION);
 	clone.unpack(packed.somem(), packed.memlen());
