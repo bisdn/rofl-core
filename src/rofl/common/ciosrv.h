@@ -591,6 +591,12 @@ public:
 		events[iosrv] = false;
 	};
 
+	/**
+	 *
+	 */
+	pthread_t
+	get_tid() const { return tid; };
+
 private:
 
 	/**
@@ -657,7 +663,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cioloop const& ioloop) {
-		os << indent(0) << "<cioloop >" << std::endl;
+		os << indent(0) << "<cioloop tid:0x"
+				<< std::hex << ioloop.get_tid() << std::dec << ">" << std::endl;
 
 		os << indent(2) << "<read-fds: ";
 		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
