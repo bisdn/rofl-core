@@ -1538,9 +1538,9 @@ crofconn::timer_stop(
 void
 crofconn::backoff_reconnect(bool reset_timeout)
 {
-	if ((not flags.test(FLAGS_RECONNECTING)) || (reset_timeout)) {
+	timer_stop_next_reconnect();
 
-		timer_stop_next_reconnect();
+	if ((not flags.test(FLAGS_RECONNECTING)) || (reset_timeout)) {
 
 		reconnect_variance.set_timespec().tv_sec *= crandom::draw_random_number();
 		reconnect_variance.set_timespec().tv_nsec *= crandom::draw_random_number();
