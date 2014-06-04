@@ -146,6 +146,7 @@ public:
 	operator>= (
 			const ctimespec& t) const;
 
+
 public:
 
 	friend std::ostream&
