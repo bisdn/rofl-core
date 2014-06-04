@@ -139,7 +139,6 @@ ciosrv::__handle_event()
 			return;
 		}
 
-		cioloop::get_loop().has_no_event(this);
 		cevents clone = events; events.clear();
 
 		while (not clone.empty()) {
@@ -400,8 +399,16 @@ cioloop::run_loop()
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
 					logging::trace << "[rofl][cioloop] entering event loop:" << std::endl << *this;
 					pipe.recvmsg();
-					RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
-					for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+
+					std::map<ciosrv*, bool> clone;
+					{
+						RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+						for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+							clone[it->first] = it->second;
+						}
+					}
+					for (std::map<ciosrv*, bool>::iterator it = clone.begin(); it != clone.end(); ++it) {
+						cioloop::get_loop().has_no_event(it->first);
 						it->first->__handle_event();
 					}
 				}
@@ -428,11 +435,23 @@ cioloop::run_loop()
 		// clean-up timers map
 		if (true) {
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-restart:
+restartT:
 			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
 				if ((*it).second == false) {
 					timers.erase(it);
-					goto restart;
+					goto restartT;
+				}
+			}
+		}
+
+		// clean-up events map
+		if (true) {
+			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+restartE:
+			for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+				if ((*it).second == false) {
+					events.erase(it);
+					goto restartE;
 				}
 			}
 		}

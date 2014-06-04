@@ -569,7 +569,7 @@ public:
 	 */
 	void
 	has_no_event(ciosrv* iosrv) {
-		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
 		events[iosrv] = false;
 	};
 
