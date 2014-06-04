@@ -34,7 +34,7 @@ ctimer::ctimer(ptrciosrv* ptr, int opaque, const ctimespec& timespec, void* data
 		opaque(opaque),
 		data(data)
 {
-	this->timespec += ctimespec::now();
+
 }
 
 

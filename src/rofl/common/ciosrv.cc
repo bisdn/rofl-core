@@ -328,7 +328,7 @@ cioloop::run_loop()
 		}
 
 
-		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 60));
+		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, ctimespec(60)));
 		{
 			std::map<ciosrv*, int> urgent;
 			{
