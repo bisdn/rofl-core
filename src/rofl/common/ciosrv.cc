@@ -328,7 +328,7 @@ cioloop::run_loop()
 		}
 
 
-		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, ctimespec(60)));
+		std::pair<ciosrv*, ctimespec> next_timeout(0, ctimespec(60));
 		{
 			std::map<ciosrv*, int> urgent;
 			{
@@ -337,7 +337,7 @@ cioloop::run_loop()
 					try {
 						ctimer timer((*it).first->get_next_timer());
 
-						if ((*it).first->get_next_timer() < ctimer::now()) {
+						if ((*it).first->get_next_timer().get_timespec() < ctimespec::now()) {
 							//logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
 							//logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
 							//logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
@@ -346,10 +346,10 @@ cioloop::run_loop()
 							continue;
 						}
 
-						timer -= ctimer::now();
+						timer.set_timespec() -= ctimespec::now();
 
-						if (timer < next_timeout.second) {
-							next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
+						if (timer.get_timespec() < next_timeout.second) {
+							next_timeout = std::pair<ciosrv*, ctimespec>( (*it).first, timer.get_timespec() );
 						}
 					} catch (eTimersNotFound& e) {}
 				}
@@ -366,7 +366,7 @@ cioloop::run_loop()
 		logging::trace << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
-		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec().get_timespec()), &empty_mask)) < 0) {
+		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask)) < 0) {
 			switch (errno) {
 			case EINTR:
 				break;

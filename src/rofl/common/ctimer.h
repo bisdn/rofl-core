@@ -106,6 +106,7 @@ public:
 	const ctimespec&
 	get_timespec() const { return timespec; };
 
+#if 0
 	/**
 	 *
 	 */
@@ -129,6 +130,7 @@ public:
 	 */
 	ctimer&
 	operator-= (ctimer const& t);
+#endif
 
 	/**
 	 *

@@ -34,7 +34,7 @@ ctimer::ctimer(ptrciosrv* ptr, int opaque, const ctimespec& timespec, void* data
 		opaque(opaque),
 		data(data)
 {
-
+	this->timespec += ctimespec::now();
 }
 
 
@@ -66,7 +66,7 @@ ctimer::~ctimer()
 }
 
 
-
+#if 0
 ctimer
 ctimer::operator+ (ctimer const& t)
 {
@@ -102,7 +102,7 @@ ctimer::operator-= (ctimer const& t)
 	timespec -= t.timespec;
 	return *this;
 }
-
+#endif
 
 
 bool

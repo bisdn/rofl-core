@@ -20,7 +20,6 @@ ctimespec::ctimespec(long tv_sec)
 {
 	ts.tv_sec 	= tv_sec;
 	ts.tv_nsec 	= 0;
-	*this += ctimespec::now();
 }
 
 
@@ -28,7 +27,6 @@ ctimespec::ctimespec(long tv_sec, long tv_nsec)
 {
 	ts.tv_sec 	= tv_sec;
 	ts.tv_nsec 	= tv_nsec;
-	*this += ctimespec::now();
 }
 
 
