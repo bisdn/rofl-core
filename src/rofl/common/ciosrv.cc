@@ -44,6 +44,7 @@ ciosrv::~ciosrv()
 	timers.clear();
 	events.clear();
 	cioloop::get_loop().has_no_timer(this);
+	cioloop::get_loop().has_no_event(this);
 	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
 		cioloop::get_loop().drop_readfd(this, (*it));
 	}
