@@ -340,11 +340,18 @@ protected:
 	cancel_timer(ctimerid const& timer_id);
 
 	/**
-	 * @brief	Cancels all pending timer of this instance.
+	 * @brief	Cancels all pending timers of this instance.
 	 *
 	 */
 	void
-	cancel_all_timer();
+	cancel_all_timers();
+
+	/**
+	 * @brief	Cancels all pending events of this instance.
+	 *
+	 */
+	void
+	cancel_all_events();
 
 	/**@}*/
 

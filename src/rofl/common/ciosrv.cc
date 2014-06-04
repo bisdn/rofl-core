@@ -222,12 +222,20 @@ ciosrv::cancel_timer(ctimerid const& timer_id)
 
 
 void
-ciosrv::cancel_all_timer()
+ciosrv::cancel_all_timers()
 {
 	timers.cancel_all();
 	cioloop::get_loop().has_no_timer(this);
 }
 
+
+
+void
+ciosrv::cancel_all_events()
+{
+	events.clear();
+	cioloop::get_loop().has_no_event(this);
+}
 
 
 

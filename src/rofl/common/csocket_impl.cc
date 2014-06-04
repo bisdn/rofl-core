@@ -757,6 +757,8 @@ csocket_impl::reconnect()
 		throw eInval();
 	}
 	close();
+	sockflags.reset(FLAG_CLOSING);
+	sockflags.reset(FLAG_CONNECTING);
 	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));
 }
 

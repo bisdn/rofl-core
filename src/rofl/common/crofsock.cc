@@ -61,6 +61,8 @@ crofsock::connect(
 {
 	if (socket)
 		delete socket;
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 	(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
 }
 
@@ -69,6 +71,8 @@ crofsock::connect(
 void
 crofsock::reconnect()
 {
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 	socket->reconnect();
 }
 

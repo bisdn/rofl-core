@@ -47,7 +47,7 @@ ctransactions::clear()
 	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 	std::list<ctransaction>::clear();
 	//cancel_timer(ta_queue_timer_id);
-	cancel_all_timer();
+	cancel_all_timers();
 }
 
 
