@@ -93,7 +93,7 @@ void
 ciosrv::register_filedesc_r(int fd)
 {
 	rfds.insert(fd);
-	cioloop::get_loop().add_readfd(this, fd);
+	cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
 }
 
 
@@ -101,7 +101,7 @@ void
 ciosrv::deregister_filedesc_r(int fd)
 {
 	rfds.erase(fd);
-	cioloop::get_loop().drop_readfd(this, fd);
+	cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
 }
 
 
@@ -109,7 +109,7 @@ void
 ciosrv::register_filedesc_w(int fd)
 {
 	wfds.insert(fd);
-	cioloop::get_loop().add_writefd(this, fd);
+	cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
 }
 
 
@@ -117,7 +117,7 @@ void
 ciosrv::deregister_filedesc_w(int fd)
 {
 	wfds.erase(fd);
-	cioloop::get_loop().drop_writefd(this, fd);
+	cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
 }
 
 
