@@ -428,6 +428,17 @@ public:
 	/**
 	 *
 	 */
+	static cioloop&
+	get_loop(pthread_t tid) {
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			cioloop::threads[tid] = new cioloop();
+		}
+		return *(cioloop::threads[tid]);
+	};
+
+	/**
+	 *
+	 */
 	static void
 	run() {
 		cioloop::get_loop().run_loop();

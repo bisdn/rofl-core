@@ -125,7 +125,7 @@ void
 ciosrv::notify(cevent const& ev)
 {
 	events.add_event(ev);
-	cioloop::get_loop().has_event(this);
+	cioloop::get_loop(get_thread_id()).has_event(this);
 }
 
 
