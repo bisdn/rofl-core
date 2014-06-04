@@ -377,6 +377,20 @@ cioloop::run_loop()
 
 			try {
 
+				for (unsigned int i = 0; i < rfds.size(); i++) {
+					if (FD_ISSET(i, &exceptfds)) {
+						if((NULL != rfds[i]) || (NULL != wfds[i])) {
+							rfds[i]->handle_xevent(i);
+						}
+					}
+				}
+
+				for (unsigned int i = minwfd; i < maxwfd; i++) {
+					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
+						wfds[i]->handle_wevent(i);
+					}
+				}
+
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
 					logging::trace << "[rofl][cioloop] entering event loop:" << std::endl << *this;
 					pipe.recvmsg();
@@ -391,20 +405,6 @@ cioloop::run_loop()
 					for (std::map<ciosrv*, bool>::iterator it = clone.begin(); it != clone.end(); ++it) {
 						cioloop::get_loop().has_no_event(it->first);
 						it->first->__handle_event();
-					}
-				}
-
-				for (unsigned int i = 0; i < rfds.size(); i++) {
-					if (FD_ISSET(i, &exceptfds)) {
-						if((NULL != rfds[i]) || (NULL != wfds[i])) {
-							rfds[i]->handle_xevent(i);
-						}
-					}
-				}
-
-				for (unsigned int i = minwfd; i < maxwfd; i++) {
-					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
-						wfds[i]->handle_wevent(i);
 					}
 				}
 
