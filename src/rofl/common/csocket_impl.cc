@@ -485,6 +485,9 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 
 	this->sd = sd;
 
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+
 	sockflags.reset(FLAG_ACTIVE_SOCKET);
 
 
@@ -662,6 +665,9 @@ csocket_impl::connect(
 	if (sd >= 0)
 		close();
 
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+
 	sockflags.set(FLAG_ACTIVE_SOCKET);
 
 	if (do_reconnect)
@@ -757,6 +763,8 @@ csocket_impl::reconnect()
 		throw eInval();
 	}
 	close();
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 	sockflags.reset(FLAG_CLOSING);
 	sockflags.reset(FLAG_CONNECTING);
 	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));

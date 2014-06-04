@@ -399,6 +399,12 @@ cioloop::run_loop()
 					}
 				}
 
+				for (unsigned int i = minrfd; i < maxrfd; i++) {
+					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
+						rfds[i]->__handle_revent(i);
+					}
+				}
+
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
 					logging::trace << "[rofl][cioloop] entering event loop:" << std::endl << *this;
 					pipe.recvmsg();
@@ -413,12 +419,6 @@ cioloop::run_loop()
 					for (std::map<ciosrv*, bool>::iterator it = clone.begin(); it != clone.end(); ++it) {
 						cioloop::get_loop().has_no_event(it->first);
 						it->first->__handle_event();
-					}
-				}
-
-				for (unsigned int i = minrfd; i < maxrfd; i++) {
-					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
-						rfds[i]->__handle_revent(i);
 					}
 				}
 
