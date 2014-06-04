@@ -189,19 +189,19 @@ ciosrv::get_next_timer()
 }
 
 
-ctimerid const&
-ciosrv::register_timer(int opaque, time_t t)
+const ctimerid&
+ciosrv::register_timer(int opaque, const ctimespec& timespec)
 {
 	if (timers.empty())
 		cioloop::get_loop().has_timer(this);
-	return timers.add_timer(ctimer(this, opaque, t));
+	return timers.add_timer(ctimer(this, opaque, timespec));
 }
 
 
-ctimerid const&
-ciosrv::reset_timer(ctimerid const& timer_id, time_t t)
+const ctimerid&
+ciosrv::reset_timer(const ctimerid& timer_id, const ctimespec& timespec)
 {
-	return timers.reset(timer_id, t);
+	return timers.reset(timer_id, timespec);
 }
 
 
@@ -366,7 +366,7 @@ cioloop::run_loop()
 		logging::trace << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
-		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
+		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec().get_timespec()), &empty_mask)) < 0) {
 			switch (errno) {
 			case EINTR:
 				break;

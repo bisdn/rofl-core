@@ -74,7 +74,7 @@ public:
 	 *
 	 */
 	ctimerid const&
-	reset(ctimerid const& timer_id, time_t t);
+	reset(ctimerid const& timer_id, const ctimespec& t);
 
 	/**
 	 *

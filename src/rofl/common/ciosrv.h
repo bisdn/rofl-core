@@ -304,11 +304,11 @@ protected:
 	 * @brief	Installs a new timer to fire in t seconds.
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
-	 * @param t timeout in seconds of this timer
+	 * @param ctimer object
 	 * @return timer handle
 	 */
-	ctimerid const&
-	register_timer(int opaque, time_t t);
+	const ctimerid&
+	register_timer(int opaque, const ctimespec& timespec);
 
 	/**
 	 * @brief	Resets a running timer of type opaque.
@@ -319,8 +319,8 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	ctimerid const&
-	reset_timer(ctimerid const& timer_id, time_t t);
+	const ctimerid&
+	reset_timer(const ctimerid& timer_id, const ctimespec& timespec);
 
 	/**
 	 * @brief	Checks for a pending timer of type opaque.

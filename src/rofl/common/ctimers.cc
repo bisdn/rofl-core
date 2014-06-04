@@ -71,19 +71,14 @@ ctimers::add_timer(ctimer const& t)
 
 
 ctimerid const&
-ctimers::reset(ctimerid const& timer_id, time_t t)
+ctimers::reset(ctimerid const& timer_id, const ctimespec& timespec)
 {
-	ctimer timer;
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		throw eTimersNotFound();
 	}
-	timer = (*it);
-	timers.erase(it);
-	timer.get_ts().tv_sec = t;
-	timers.insert(timer);
-	return timer_id;
+	return timers.insert(ctimer(it->get_ptrciosrv(), it->get_opaque(), timespec))->get_timer_id();
 }
 
 

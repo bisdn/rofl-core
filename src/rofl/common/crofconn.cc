@@ -1493,7 +1493,7 @@ crofconn::timer_start(
 		crofconn_timer_t type, time_t time)
 {
 	timer_stop(type);
-	ctimerid const& tid = register_timer(type, time);
+	ctimerid const& tid = register_timer(type, ctimespec(time));
 	timer_ids[type] = tid;
 #if 0
 	rofl::logging::debug << "[rofl][conn] timer-start, registered timer-id: " << std::endl << tid;

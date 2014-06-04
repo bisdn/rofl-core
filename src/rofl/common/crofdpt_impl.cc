@@ -148,7 +148,7 @@ crofdpt_impl::event_disconnected()
 	tables.clear();
 	ports.clear();
 	state = STATE_DISCONNECTED;
-	register_timer(TIMER_SIGNAL_DISCONNECT, 1);
+	register_timer(TIMER_SIGNAL_DISCONNECT, ctimespec(1));
 }
 
 

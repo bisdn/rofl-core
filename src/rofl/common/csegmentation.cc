@@ -13,7 +13,7 @@ using namespace rofl;
 csegmentation::csegmentation(time_t check_expiration_interval) :
 		check_expiration_interval(check_expiration_interval)
 {
-	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, check_expiration_interval);
+	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, ctimespec(check_expiration_interval));
 }
 
 
@@ -125,7 +125,7 @@ restart:
 	}
 
 	// re-add timer
-	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, check_expiration_interval);
+	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, ctimespec(check_expiration_interval));
 }
 
 

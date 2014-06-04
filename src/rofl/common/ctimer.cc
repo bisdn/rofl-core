@@ -10,47 +10,31 @@
 using namespace rofl;
 
 
+ctimer
+ctimer::now()
+{
+	ctimer timer;
+	timer.set_timespec() = ctimespec::now();
+	return timer;
+}
+
 
 ctimer::ctimer() :
 		ptr(0),
 		opaque(0),
 		data(0)
 {
-	ts.tv_sec 	= 0;
-	ts.tv_nsec 	= 0;
+
 }
 
 
-ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec) :
+ctimer::ctimer(ptrciosrv* ptr, int opaque, const ctimespec& timespec, void* data) :
 		ptr(ptr),
-		opaque(opaque),
-		data(0)
-{
-	ts.tv_sec 	= tv_sec;
-	ts.tv_nsec 	= 0;
-	*this += ctimer::now();
-}
-
-
-ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec) :
-		ptr(ptr),
-		opaque(opaque),
-		data(0)
-{
-	ts.tv_sec 	= tv_sec;
-	ts.tv_nsec 	= tv_nsec;
-	*this += ctimer::now();
-}
-
-
-ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec, void *data) :
-		ptr(ptr),
+		timespec(timespec),
 		opaque(opaque),
 		data(data)
 {
-	ts.tv_sec 	= tv_sec;
-	ts.tv_nsec 	= tv_nsec;
-	*this += ctimer::now();
+	this->timespec += ctimespec::now();
 }
 
 
@@ -68,8 +52,7 @@ ctimer::operator= (ctimer const& timer)
 
 	timer_id	= timer.timer_id;
 	ptr			= timer.ptr;
-	ts.tv_sec	= timer.ts.tv_sec;
-	ts.tv_nsec	= timer.ts.tv_nsec;
+	timespec	= timer.timespec;
 	opaque		= timer.opaque;
 	data		= timer.data;
 
@@ -85,29 +68,10 @@ ctimer::~ctimer()
 
 
 ctimer
-ctimer::now()
-{
-	ctimer timer;
-	if (clock_gettime(CLOCK_MONOTONIC, &(timer.ts)) < 0) {
-		throw eSysCall("clock_gettime()");
-	}
-	return timer;
-}
-
-
-ctimer
 ctimer::operator+ (ctimer const& t)
 {
 	ctimer timer;
-
-	timer.ts.tv_sec		= ts.tv_sec  + t.ts.tv_sec;
-	timer.ts.tv_nsec 	= ts.tv_nsec + t.ts.tv_nsec;
-
-	if (timer.ts.tv_nsec > CC_TIMER_ONE_SECOND_NS) {
-		timer.ts.tv_sec 	+=  CC_TIMER_ONE_SECOND_S;
-		timer.ts.tv_nsec 	-=  CC_TIMER_ONE_SECOND_NS;
-	}
-
+	timer.timespec = timespec + t.timespec;
 	return timer;
 }
 
@@ -117,15 +81,7 @@ ctimer
 ctimer::operator- (ctimer const& t)
 {
 	ctimer timer;
-
-	if (t.ts.tv_nsec > ts.tv_nsec) {
-		timer.ts.tv_nsec 	= ts.tv_nsec - t.ts.tv_nsec + CC_TIMER_ONE_SECOND_NS;
-		timer.ts.tv_sec		= ts.tv_sec  - t.ts.tv_sec  - CC_TIMER_ONE_SECOND_S;
-	} else {
-		timer.ts.tv_nsec	= ts.tv_nsec - t.ts.tv_nsec;
-		timer.ts.tv_sec		= ts.tv_sec  - t.ts.tv_sec;
-	}
-
+	timer.timespec = timespec - t.timespec;
 	return timer;
 }
 
@@ -134,14 +90,7 @@ ctimer::operator- (ctimer const& t)
 ctimer&
 ctimer::operator+= (ctimer const& t)
 {
-	ts.tv_sec	+= t.ts.tv_sec;
-	ts.tv_nsec 	+= t.ts.tv_nsec;
-
-	if (ts.tv_nsec >  CC_TIMER_ONE_SECOND_NS) {
-		ts.tv_sec 	+= CC_TIMER_ONE_SECOND_S;
-		ts.tv_nsec 	-= CC_TIMER_ONE_SECOND_NS;
-	}
-
+	timespec += t.timespec;
 	return *this;
 }
 
@@ -150,14 +99,7 @@ ctimer::operator+= (ctimer const& t)
 ctimer&
 ctimer::operator-= (ctimer const& t)
 {
-	if (t.ts.tv_nsec > ts.tv_nsec) {
-		ts.tv_nsec 	= ts.tv_nsec - t.ts.tv_nsec + CC_TIMER_ONE_SECOND_NS;
-		ts.tv_sec	= ts.tv_sec  - t.ts.tv_sec  - CC_TIMER_ONE_SECOND_S;
-	} else {
-		ts.tv_nsec	= ts.tv_nsec - t.ts.tv_nsec;
-		ts.tv_sec	= ts.tv_sec  - t.ts.tv_sec;
-	}
-
+	timespec -= t.timespec;
 	return *this;
 }
 
@@ -174,25 +116,7 @@ ctimer::operator!= (ctimer const& t) const
 bool
 ctimer::operator< (ctimer const& t) const
 {
-	if (ts.tv_sec < t.ts.tv_sec) {
-		return true;
-	} else
-	if (ts.tv_sec > t.ts.tv_sec) {
-		return false;
-	}
-
-	// here: ts.tv_sec == t.ts.tv_sec
-
-	if (ts.tv_nsec < t.ts.tv_nsec) {
-		return true;
-	} else
-	if (ts.tv_nsec > t.ts.tv_nsec) {
-		return false;
-	}
-
-	// here: ts.tv_nsec == t.ts.tv_nsec
-
-	return false;
+	return (timespec < t.timespec);
 }
 
 
