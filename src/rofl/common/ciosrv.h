@@ -82,7 +82,6 @@ class ciosrv :
 	static std::set<ciosrv*> 		ciolist;
 
 	pthread_t						tid;
-	cpipe							pipe;
 	std::set<int>					rfds;
 	std::set<int>					wfds;
 	ctimers							timers;
@@ -159,6 +158,12 @@ protected:
 	events_clear() { events.clear(); };
 
 	friend class cioloop;
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_event();
 
 	/**
 	 * @brief	Called by cioloop
@@ -381,7 +386,10 @@ class cioloop {
 	PthreadRwLock							wfds_rwlock;
 	std::map<ciosrv*, bool>					timers;
 	PthreadRwLock							timers_rwlock;
+	std::map<ciosrv*, bool>					events;
+	PthreadRwLock							events_rwlock;
 
+	cpipe									pipe;
 	pthread_t        			       		tid;
 	struct timespec 						ts;
 	bool									keep_on_running;
@@ -443,6 +451,7 @@ public:
 	};
 
 public:
+
 
 
 	/**
@@ -545,6 +554,24 @@ public:
 		timers[iosrv] = false;
 	};
 
+	/**
+	 *
+	 */
+	void
+	has_event(ciosrv* iosrv) {
+		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+		events[iosrv] = true;
+		pipe.writemsg('1'); // wakeup main loop, just in case
+	};
+
+	/**
+	 *
+	 */
+	void
+	has_no_event(ciosrv* iosrv) {
+		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+		events[iosrv] = false;
+	};
 
 private:
 

@@ -32,8 +32,6 @@ ciosrv::ciosrv() :
 		tid(pthread_self())
 {
 	ciosrv::ciolist.insert(this);
-	rfds.insert(pipe.pipefd[0]);
-	register_filedesc_r(pipe.pipefd[0]);
 }
 
 
@@ -46,7 +44,6 @@ ciosrv::~ciosrv()
 	timers.clear();
 	events.clear();
 	cioloop::get_loop().has_no_timer(this);
-	deregister_filedesc_r(pipe.pipefd[0]);
 	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
 		cioloop::get_loop().drop_readfd(this, (*it));
 	}
@@ -127,7 +124,37 @@ void
 ciosrv::notify(cevent const& ev)
 {
 	events.add_event(ev);
-	pipe.writemsg('1');
+	cioloop::get_loop().has_event(this);
+}
+
+
+void
+ciosrv::__handle_event()
+{
+	try {
+
+		logging::trace << "[rofl][ciosrv][event] entering event loop:" << std::endl << *this;
+		if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+			logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+			return;
+		}
+
+		cioloop::get_loop().has_no_event(this);
+		cevents clone = events; events.clear();
+
+		while (not clone.empty()) {
+			logging::trace << "[rofl][ciosrv][event] inside event loop:" << std::endl << clone;
+			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+				logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+				return;
+			}
+			handle_event(clone.get_event());
+		}
+		logging::trace << "[rofl][ciosrv][event] leaving event loop:" << std::endl << clone;
+
+	} catch (eEventsNotFound& e) {
+		// do nothing
+	}
 }
 
 
@@ -135,28 +162,7 @@ void
 ciosrv::__handle_revent(int fd)
 {
 	try {
-		if (pipe.pipefd[0] == fd) {
-			logging::trace << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
-			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-				logging::trace << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
-				return;
-			}
-			pipe.recvmsg();
-
-			cevents clone = events; events.clear();
-
-			while (not clone.empty()) {
-				logging::trace << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
-				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-					logging::trace << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
-					return;
-				}
-				handle_event(clone.get_event());
-			}
-			logging::trace << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
-		} else {
-			handle_revent(fd);
-		}
+		handle_revent(fd);
 	} catch (eEventsNotFound& e) {
 		// do nothing
 	}
@@ -298,6 +304,8 @@ cioloop::run_loop()
 				}
 			}
 		}
+		FD_SET(pipe.pipefd[0], &readfds);
+		FD_SET(pipe.pipefd[0], &exceptfds);
 
 		FD_ZERO(&writefds);
 		{
@@ -355,7 +363,7 @@ cioloop::run_loop()
 			case EINTR:
 				break;
 			default:
-				rofl::logging::error << "[rofl][ciosrv] " << eSysCall("pselect()") << std::endl;
+				rofl::logging::error << "[rofl][cioloop] " << eSysCall("pselect()") << std::endl;
 				break;
 			}
 
@@ -386,6 +394,15 @@ cioloop::run_loop()
 				for (unsigned int i = minrfd; i < maxrfd; i++) {
 					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
 						rfds[i]->__handle_revent(i);
+					}
+				}
+
+				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
+					logging::trace << "[rofl][cioloop] entering event loop:" << std::endl << *this;
+					pipe.recvmsg();
+					RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+					for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+						it->first->__handle_event();
 					}
 				}
 
