@@ -44,7 +44,7 @@
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofactions.h"
-#include "rofl/common/openflow/cofpacketqueuelist.h"
+#include "rofl/common/openflow/cofpacketqueues.h"
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofstats.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"

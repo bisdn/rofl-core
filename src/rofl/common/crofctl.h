@@ -23,7 +23,7 @@
 #include "rofl/common/openflow/cofdescstats.h"
 #include "rofl/common/openflow/cofaggrstats.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
-#include "rofl/common/openflow/cofpacketqueuelist.h"
+#include "rofl/common/openflow/cofpacketqueues.h"
 #include "rofl/common/openflow/cofflowstatsarray.h"
 #include "rofl/common/openflow/coftablestatsarray.h"
 #include "rofl/common/openflow/cofportstatsarray.h"
@@ -615,7 +615,7 @@ public:
 			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t portno,
-			rofl::openflow::cofpacket_queue_list const& pql) = 0;
+			rofl::openflow::cofpacket_queues const& pql) = 0;
 
 
 	/**

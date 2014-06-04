@@ -1676,7 +1676,7 @@ crofctl_impl::send_queue_get_config_reply(
 		const cauxid& auxid,
 		uint32_t xid,
 		uint32_t portno,
-		rofl::openflow::cofpacket_queue_list const& pql)
+		rofl::openflow::cofpacket_queues const& pql)
 {
 	try {
 		if (not is_established()) {

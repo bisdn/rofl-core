@@ -8,6 +8,12 @@ Legend:
 Change log
 ==========
 
+v0.4.2
+
+[K] Automake 1.4 compilation. Please refer to the README.
+
+[B][pipeline] Fixing compilation issues for 32 bit systems
+
 v0.4.1
 
 [K] Automake 1.4 compilation. Please refer to the README.

@@ -184,6 +184,7 @@ namespace openflow13 {
 
 	/* Min rate > 1000 means not configured. */
 	#define OFPQ_MIN_RATE_UNCFG     0xffff
+	#define OFPQ_MAX_RATE_UNCFG		0xffff
 
 	enum ofp_queue_properties {
 		OFPQT_MIN_RATE 	= 1,  /* Minimum datarate guaranteed. */
@@ -197,7 +198,7 @@ namespace openflow13 {
 	struct ofp_queue_prop_header {
 		uint16_t property;    /* One of OFPQT_. */
 		uint16_t len;         /* Length of property, including this header. */
-		uint8_t pad[4];       /* 64-bit alignemnt. */
+		uint8_t pad[4];       /* 64-bit alignment. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_queue_prop_header) == 8);
 

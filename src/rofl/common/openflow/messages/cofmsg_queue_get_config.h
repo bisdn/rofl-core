@@ -11,7 +11,7 @@
 #include <ostream>
 
 #include "rofl/common/openflow/messages/cofmsg.h"
-#include "rofl/common/openflow/cofpacketqueuelist.h"
+#include "rofl/common/openflow/cofpacketqueues.h"
 
 namespace rofl {
 namespace openflow {
@@ -154,9 +154,7 @@ class cofmsg_queue_get_config_reply :
 {
 private:
 
-	// TODO: cofqueuelist
-	//cmemory				queues;
-	cofpacket_queue_list	pql;
+	cofpacket_queues	pql;
 
 	union {
 		uint8_t*								ofhu_queue_get_config_reply;
@@ -180,7 +178,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint32_t port_no = 0,
-			cofpacket_queue_list const &pql = cofpacket_queue_list(openflow12::OFP_VERSION));
+			cofpacket_queues const &pql = cofpacket_queues(openflow12::OFP_VERSION));
 #if 0
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
@@ -273,7 +271,7 @@ public:
 	/**
 	 *
 	 */
-	cofpacket_queue_list&
+	cofpacket_queues&
 	get_queues();
 
 public:
