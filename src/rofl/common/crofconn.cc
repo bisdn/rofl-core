@@ -244,7 +244,7 @@ crofconn::event_hello_rcvd()
 		if (flags.test(FLAGS_PASSIVE)) {
 			state = STATE_WAIT_FOR_FEATURES;
 
-			rofl::logging::info << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
+			rofl::logging::debug << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
 
 			action_send_features_request();
 			timer_start_wait_for_features();
@@ -252,7 +252,7 @@ crofconn::event_hello_rcvd()
 		} else {
 			state = STATE_ESTABLISHED;
 
-			rofl::logging::info << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
+			rofl::logging::debug << "[rofl][conn] event-hello-rcvd: OFP connection established." << std::endl << *this;
 
 			env->handle_connected(this, ofp_version);
 		}
