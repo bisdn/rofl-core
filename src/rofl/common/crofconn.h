@@ -600,8 +600,8 @@ private:
 	ctimespec						reconnect_variance;
 	int 							reconnect_counter;
 
-	static int const CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS = 100000;				// start reconnect timeout (default 1s)
-	static int const CROFCONN_RECONNECT_VARIANCE_IN_NSECS = 200000;
+	static int const CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS = 100000000;				// start reconnect timeout (default 1s)
+	static int const CROFCONN_RECONNECT_VARIANCE_IN_NSECS = 100000000;
 
 	enum crofconn_flavour_t			flavour;
 	std::deque<enum crofconn_event_t> 		events;
