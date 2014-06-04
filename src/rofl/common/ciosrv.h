@@ -665,6 +665,14 @@ public:
 		}
 		os << ">" << std::endl;
 
+		os << indent(2) << "<instances with event needs: ";
+		// locking?
+		for (std::map<ciosrv*, bool>::const_iterator
+				it = ioloop.events.begin(); it != ioloop.events.end(); ++it) {
+			os << it->first << ":" << it->second << " ";
+		}
+		os << ">" << std::endl;
+
 		return os;
 	};
 };
