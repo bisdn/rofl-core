@@ -1658,8 +1658,8 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
-
-		cpacket n_pack(data, datalen, match.get_in_port());
+		// OFP10 doesn't have match.get_in_port()
+		cpacket n_pack(data, datalen, ((ctl&&(ctl->get_version()!= OFP10_VERSION))?match.get_in_port():in_port) );
 
 		if (0 != ctl) { // cofctl instance was specified
 
@@ -2113,48 +2113,47 @@ crofbase::send_flow_mod_message(
 		cofdpt *dpt,
 		cflowentry& fe)
 {
-	cofmsg_flow_mod *pack = (cofmsg_flow_mod*)0;
-
-	switch (dpt->get_version()) {
-	case OFP10_VERSION: {
+	cofmsg_flow_mod *pack;
+	switch(dpt->get_version())
+	{
+		case OFP10_VERSION:
+			pack = new cofmsg_flow_mod(
+					dpt->get_version(),
+					ta_new_async_xid(),
+					fe.get_cookie(),
+					fe.get_command(),
+					fe.get_idle_timeout(),
+					fe.get_hard_timeout(),
+					fe.get_priority(),
+					fe.get_buffer_id(),
+					fe.get_out_port(),
+					fe.get_flags(),
+					fe.actions,
+					fe.match);
+		break;
+	case OFP12_VERSION:
+	case OFP13_VERSION:
 		pack = new cofmsg_flow_mod(
-						dpt->get_version(),
-						ta_new_async_xid(),
-						fe.get_cookie(),
-						fe.get_command(),
-						fe.get_idle_timeout(),
-						fe.get_hard_timeout(),
-						fe.get_priority(),
-						fe.get_buffer_id(),
-						fe.get_out_port(),
-						fe.get_flags(),
-						fe.actions,
-						fe.match);
-
-	} break;
-	case OFP12_VERSION: {
-		pack = new cofmsg_flow_mod(
-						dpt->get_version(),
-						ta_new_async_xid(),
-						fe.get_cookie(),
-						fe.get_cookie_mask(),
-						fe.get_table_id(),
-						fe.get_command(),
-						fe.get_idle_timeout(),
-						fe.get_hard_timeout(),
-						fe.get_priority(),
-						fe.get_buffer_id(),
-						fe.get_out_port(),
-						fe.get_out_group(),
-						fe.get_flags(),
-						fe.instructions,
-						fe.match);
-
-	} break;
+					dpt->get_version(),
+					ta_new_async_xid(),
+					fe.get_cookie(),
+					fe.get_cookie_mask(),
+					fe.get_table_id(),
+					fe.get_command(),
+					fe.get_idle_timeout(),
+					fe.get_hard_timeout(),
+					fe.get_priority(),
+					fe.get_buffer_id(),
+					fe.get_out_port(),
+					fe.get_out_group(),
+					fe.get_flags(),
+					fe.instructions,
+					fe.match);
+		break;
 	default:
-		return;
-	}
+		throw eBadVersion();
 
+	}
 	pack->pack();
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() pack: %s",

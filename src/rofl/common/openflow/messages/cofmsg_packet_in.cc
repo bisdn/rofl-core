@@ -16,7 +16,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
 	match(match),
-	packet(data, datalen, match.get_in_port())
+	packet(data, datalen, ((of_version==OFP10_VERSION)?in_port:match.get_in_port()))
 {
 	ofh_packet_in = soframe();
 
@@ -214,7 +214,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN - 2;
 
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
