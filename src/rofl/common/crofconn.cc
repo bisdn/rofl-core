@@ -45,6 +45,19 @@ crofconn::~crofconn()
 
 
 void
+crofconn::set_max_backoff(
+		const ctimespec& timespec)
+{
+	if (timespec < reconnect_start_timeout) {
+		max_backoff = reconnect_start_timeout + reconnect_start_timeout;
+	} else {
+		max_backoff = timespec;
+	}
+}
+
+
+
+void
 crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
 	this->flavour = flavour;
@@ -180,6 +193,7 @@ crofconn::event_connected()
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		state = STATE_WAIT_FOR_HELLO;
+		reconnect_timespec = reconnect_start_timeout;
 		timer_start_wait_for_hello();
 		timer_stop_next_reconnect();
 		action_send_hello_message();
@@ -679,6 +693,9 @@ crofconn::hello_rcvd(
 		ofp_version = versionbitmap_common.get_highest_ofp_version();
 
 		rofl::logging::info << "[rofl][conn] negotiated OFP version:" << (int)ofp_version << std::endl << *this;
+
+		rofl::logging::debug << "[rofl][conn] local version-bitmap:" << std::endl << versionbitmap;
+		rofl::logging::debug << "[rofl][conn]  peer version-bitmap:" << std::endl << versionbitmap_peer;
 
 		// move on state machine
 		if (ofp_version == rofl::openflow::OFP_VERSION_UNKNOWN) {

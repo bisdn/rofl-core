@@ -210,6 +210,13 @@ public:
 	void
 	set_env(crofconn_env* env) { this->env = env; };
 
+	/**
+	 *
+	 */
+	void
+	set_max_backoff(
+			const ctimespec& timespec);
+
 private:
 
 	virtual void
@@ -570,11 +577,14 @@ public:
 		else if (conn.state == STATE_ESTABLISHED) {
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
 		}
-
+		{ rofl::indent i(2); os << "<current-backoff: >" << std::endl << conn.reconnect_timespec; };
+		{ rofl::indent i(2); os << "<max-backoff: >" << std::endl << conn.max_backoff; };
+#if 0
 		os << indent(2) << "<versionbitmap-local: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap; }
 		os << indent(2) << "<versionbitmap-remote: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap_peer; }
+#endif
 		return os;
 	};
 
