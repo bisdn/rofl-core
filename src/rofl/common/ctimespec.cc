@@ -179,7 +179,25 @@ ctimespec::operator<= (const ctimespec& t) const
 bool
 ctimespec::operator> (const ctimespec& t) const
 {
-	return not (*this <= t);
+	if (ts.tv_sec > t.ts.tv_sec) {
+		return true;
+	} else
+	if (ts.tv_sec < t.ts.tv_sec) {
+		return false;
+	}
+
+	// here: ts.tv_sec == t.ts.tv_sec
+
+	if (ts.tv_nsec > t.ts.tv_nsec) {
+		return true;
+	} else
+	if (ts.tv_nsec < t.ts.tv_nsec) {
+		return false;
+	}
+
+	// here: ts.tv_nsec == t.ts.tv_nsec
+
+	return false;
 }
 
 
