@@ -61,7 +61,7 @@ ctimers::get_next_timer()
 }
 
 
-ctimerid const&
+const ctimerid&
 ctimers::add_timer(ctimer const& t)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
@@ -70,15 +70,17 @@ ctimers::add_timer(ctimer const& t)
 }
 
 
-ctimerid const&
-ctimers::reset(ctimerid const& timer_id, const ctimespec& timespec)
+const ctimerid&
+ctimers::reset(const ctimerid& timer_id, const ctimespec& timespec)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		throw eTimersNotFound();
 	}
-	return timers.insert(ctimer(it->get_ptrciosrv(), it->get_opaque(), timespec))->get_timer_id();
+	const ctimerid& timerid = timers.insert(ctimer(it->get_ptrciosrv(), it->get_opaque(), timespec))->get_timer_id();
+	timers.erase(it);
+	return timerid;
 }
 
 
@@ -106,7 +108,7 @@ ctimers::get_expired_timer()
 
 
 bool
-ctimers::pending(ctimerid const& timer_id)
+ctimers::pending(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_READ);
 	std::set<ctimer>::iterator it;
@@ -118,7 +120,7 @@ ctimers::pending(ctimerid const& timer_id)
 
 
 void
-ctimers::cancel(ctimerid const& timer_id)
+ctimers::cancel(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	//rofl::logging::debug << "[rofl][ctimers][0] cancel: " << std::endl << timer_id;
