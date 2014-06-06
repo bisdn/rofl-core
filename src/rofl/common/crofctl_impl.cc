@@ -1866,7 +1866,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 		if (rofbase->fe_flags.test(crofbase::NSP_ENABLED)) {
 			switch (get_version()) {
 			case openflow10::OFP_VERSION: {
-				switch (msg->get_command()) {
+				switch (msg->get_flowmod().get_command()) {
 				case openflow10::OFPFC_ADD:
 				case openflow10::OFPFC_MODIFY:
 				case openflow10::OFPFC_MODIFY_STRICT: {
@@ -1882,7 +1882,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 				}
 			} break;
 			case openflow12::OFP_VERSION: {
-				switch (msg->get_command()) {
+				switch (msg->get_flowmod().get_command()) {
 				case openflow12::OFPFC_ADD:
 				case openflow12::OFPFC_MODIFY:
 				case openflow12::OFPFC_MODIFY_STRICT: {
@@ -1898,7 +1898,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 				}
 			} break;
 			case openflow13::OFP_VERSION: {
-				switch (msg->get_command()) {
+				switch (msg->get_flowmod().get_command()) {
 				case openflow13::OFPFC_ADD:
 				case openflow13::OFPFC_MODIFY:
 				case openflow13::OFPFC_MODIFY_STRICT: {

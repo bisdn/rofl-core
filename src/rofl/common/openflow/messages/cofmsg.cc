@@ -144,6 +144,17 @@ cofmsg::type2desc(uint8_t ofp_version, uint8_t ptype)
 
 
 
+cofmsg::cofmsg(
+		uint8_t ofp_version, uint32_t xid, uint8_t type) :
+				memarea(new cmemory((size_t)sizeof(struct rofl::openflow::ofp_header)))
+{
+	ofh_header = (struct openflow::ofp_header*)soframe();
+	set_version(ofp_version);
+	set_xid(xid);
+	set_type(type);
+	set_length(sizeof(struct rofl::openflow::ofp_header));
+}
+
 
 
 cofmsg::cofmsg(size_t size) :

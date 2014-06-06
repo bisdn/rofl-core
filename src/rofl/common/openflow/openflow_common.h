@@ -62,6 +62,7 @@ namespace openflow {
 		uint32_t xid;       /* Transaction id associated with this packet.
 							   Replies use the same id as was in the request
 							   to facilitate pairing. */
+		uint8_t body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_header) == 8);
 

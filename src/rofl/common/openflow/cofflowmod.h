@@ -29,13 +29,13 @@ class eFlowModOutOfMem 	: public eFlowModBase {}; // out of memory
 
 
 class cofflowmod {
-public: // methods
+public:
 
 	/**
 	 *
 	 */
 	cofflowmod(
-			uint8_t ofp_version);
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN);
 
 	/**
 	 *
@@ -60,8 +60,13 @@ public: // methods
 	 *
 	 */
 	void
-	reset();
+	clear();
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
 
 public: // setter methods for ofp_flow_mod structure
 
@@ -254,14 +259,14 @@ public:
 	/**
 	 *
 	 */
-	virtual size_t
+	virtual void
 	pack(
 			uint8_t *buf, size_t buflen);
 
 	/**
 	 *
 	 */
-	virtual size_t
+	virtual void
 	unpack(
 			uint8_t *buf, size_t buflen);
 
@@ -355,6 +360,35 @@ private: // data structures
 	uint32_t			out_group;
 	uint16_t			flags;
 
+	struct ofp10_flow_mod {
+		struct rofl::openflow10::ofp_match match;
+		uint64_t cookie;
+		uint16_t command;
+		uint16_t idle_timeout;
+		uint16_t hard_timeout;
+		uint16_t priority;
+		uint32_t buffer_id;
+		uint16_t out_port;
+		uint16_t flags;
+		uint8_t actions[0];
+	} __attribute__((packed));
+
+	struct ofp13_flow_mod {
+		uint64_t cookie;
+		uint64_t cookie_mask;
+		uint8_t table_id;
+		uint8_t command;
+		uint16_t idle_timeout;
+		uint16_t hard_timeout;
+		uint16_t priority;
+		uint32_t buffer_id;
+		uint32_t out_port;
+		uint32_t out_group;
+		uint16_t flags;
+		uint8_t pad[2];
+		uint8_t match[0];
+		//uint8_t instructions[0];
+	} __attribute__((packed));
 };
 
 }; // end of namespace openflow
