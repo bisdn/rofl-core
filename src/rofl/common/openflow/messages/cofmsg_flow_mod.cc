@@ -7,7 +7,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 				cofmsg(ofp_version, xid, rofl::openflow::OFPT_FLOW_MOD),
 				flowmod(flowmod)
 {
-
+	this->flowmod.set_version(ofp_version);
 }
 
 

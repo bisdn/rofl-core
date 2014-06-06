@@ -226,8 +226,8 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_version(uint8_t versiob);
+	virtual void
+	set_version(uint8_t ofp_version);
 
 
 	/**

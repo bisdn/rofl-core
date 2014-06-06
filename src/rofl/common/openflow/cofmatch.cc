@@ -349,7 +349,7 @@ cofmatch::unpack_of13(uint8_t* buf, size_t buflen)
 {
 	matches.clear();
 
-	if (buflen < length()) {
+	if (buflen < 2*sizeof(uint16_t)) {
 		throw eOFmatchInval();
 	}
 

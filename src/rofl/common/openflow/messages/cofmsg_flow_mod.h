@@ -75,6 +75,15 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	set_version(uint8_t ofp_version) {
+		cofmsg::set_version(ofp_version);
+		flowmod.set_version(ofp_version);
+	};
+
+	/**
+	 *
+	 */
 	rofl::openflow::cofflowmod&
 	set_flowmod() { return flowmod; };
 
