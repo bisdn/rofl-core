@@ -17,7 +17,9 @@ unittest_SOURCES= \
 	csocket_test.cc \
 	csocket_test.h \
 	ctimerid_test.cc \
-	ctimerid_test.h
+	ctimerid_test.h \
+	ctimespec_test.cc \
+	ctimespec_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

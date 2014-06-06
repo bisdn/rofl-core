@@ -492,7 +492,7 @@ coxmatch::get_u64value() const {
 uint64_t
 coxmatch::get_u64mask() const {
 	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint64_t))
-		return 0xffffffffffffffff;
+		return 0xffffffffffffffffULL;
 	struct rofl::openflow::ofp_oxm_ofb_uint64_t* oxm =
 			(struct rofl::openflow::ofp_oxm_ofb_uint64_t*)somem();
 	return be64toh(oxm->mask);
