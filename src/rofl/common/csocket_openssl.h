@@ -26,8 +26,9 @@ class eOpenSSL 		: public	RoflException {
 	std::string error;
 public:
 	eOpenSSL(std::string const& error) : error(error) {};
+	virtual ~eOpenSSL() throw() {};
 	friend std::ostream& operator<< (std::ostream& os, eOpenSSL const& e) {
-		os << "EXCEPTION: <eOpenSSL error: " << e.error << " >" << std::endl;
+		os << "<eOpenSSL error: " << e.error << " >" << std::endl;
 		return os;
 	};
 };
