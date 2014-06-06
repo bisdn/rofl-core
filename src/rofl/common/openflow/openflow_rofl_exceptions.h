@@ -14,7 +14,7 @@ namespace rofl {
 
 class eOpenFlowBase					: public RoflException {
 public:
-	eOpenFlowBase(const std::string& __arg) : RoflException(__arg) {};
+	eOpenFlowBase(const std::string& __arg = std::string("")) : RoflException(__arg) {};
 	virtual ~eOpenFlowBase() throw() {};
 };
 

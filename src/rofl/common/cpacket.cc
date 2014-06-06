@@ -1651,7 +1651,7 @@ cpacket::frame_append(
 		frame->prev = tail;
 		tail = frame;
 	} else {
-		throw eInternalError();
+		throw RoflException();
 	}
 }
 
@@ -1673,7 +1673,7 @@ cpacket::frame_push(
 			tail = frame;
 		}
 	} else {
-		throw eInternalError();
+		throw RoflException();
 	}
 }
 

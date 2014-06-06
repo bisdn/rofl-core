@@ -26,9 +26,15 @@ namespace rofl
  */
 class RoflException : public std::runtime_error {
 public:
-	RoflException(const std::string& __arg) :
+	RoflException(const std::string& __arg = std::string("")) :
 		std::runtime_error(__arg) {};
 	virtual ~RoflException() throw() {};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, const RoflException& e) {
+		os << "<RoflException: " << e.what() << " >";
+		return os;
+	};
 };
 
 
@@ -62,7 +68,7 @@ public:
 
 class eInval : public RoflException {
 public:
-	eInval(const std::string& __arg) : RoflException(__arg) {};
+	eInval(const std::string& __arg = std::string("")) : RoflException(__arg) {};
 	virtual ~eInval() throw() {};
 };
 
@@ -74,9 +80,11 @@ class eTooShort				: public RoflException {};
 
 class eBadVersion : public RoflException {
 public:
-	eBadVersion(const std::string& __arg) : RoflException(__arg) {
+	eBadVersion(const std::string& __arg = std::string("")) : RoflException(__arg) {
+#ifndef NDEBUG
 		std::cerr << "BAD-WOLF" << std::endl;
 		assert(0 == 1);
+#endif
 	};
 };
 
