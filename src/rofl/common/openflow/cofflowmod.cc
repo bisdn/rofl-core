@@ -142,7 +142,7 @@ cofflowmod::pack(
 		hdr->hard_timeout	= htobe16(hard_timeout);
 		hdr->priority		= htobe16(priority);
 		hdr->buffer_id		= htobe32(buffer_id);
-		hdr->out_port		= htobe16(out_port);
+		hdr->out_port		= htobe16((uint16_t)out_port);
 		hdr->flags			= htobe16(flags);
 
 		actions.pack(hdr->actions, actions.length());
@@ -204,7 +204,7 @@ cofflowmod::unpack(
 		hard_timeout	= be16toh(hdr->hard_timeout);
 		priority		= be16toh(hdr->priority);
 		buffer_id		= be32toh(hdr->buffer_id);
-		out_port		= be32toh(hdr->out_port);
+		out_port		= be16toh(hdr->out_port);
 		flags			= be16toh(hdr->flags);
 
 		size_t actionslen = buflen - sizeof(struct ofp10_flow_mod);

@@ -74,7 +74,12 @@ public: // setter methods for ofp_flow_mod structure
 	 *
 	 */
 	void
-	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+	set_version(uint8_t ofp_version) {
+		this->ofp_version = ofp_version;
+		match.set_version(ofp_version);
+		actions.set_version(ofp_version);
+		instructions.set_version(ofp_version);
+	};
 
 	/**
 	 *
@@ -275,68 +280,52 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofflowmod const& fe) {
-		os << indent(0) << "<cflowentry >";
-		switch (fe.ofp_version) {
-		case openflow10::OFP_VERSION: {
-			os << indent(2) << "<cookie:0x" << std::hex << (int)fe.get_cookie() 	<< std::dec << " >" << std::endl;
-			switch (fe.get_command()) {
-			case openflow10::OFPFC_ADD:
-				os << indent(2) << "<command:ADD >" 			<< std::endl; break;
-			case openflow10::OFPFC_DELETE:
-				os << indent(2) << "<command:DELETE >" 			<< std::endl; break;
-			case openflow10::OFPFC_DELETE_STRICT:
-				os << indent(2) << "<command:DELETE-STRICT >" 	<< std::endl; break;
-			case openflow10::OFPFC_MODIFY:
-				os << indent(2) << "<command:MODIFY >" 			<< std::endl; break;
-			case openflow10::OFPFC_MODIFY_STRICT:
-				os << indent(2) << "<command:MODIFY-STRICT >" 	<< std::endl; break;
-			default:
-				os << indent(2) << "<command:UNKNOWN >" 		<< std::endl; break;
-			}
-			os << indent(2) << "<idle-timeout:" 	<< (int)fe.get_idle_timeout() 	<< " >" << std::endl;
-			os << indent(2) << "<hard-timeout:" 	<< (int)fe.get_hard_timeout() 	<< " >" << std::endl;
-			os << indent(2) << "<priority:" 		<< (int)fe.get_priority() 		<< " >" << std::endl;
-			os << indent(2) << "<buffer-id:" 		<< (int)fe.get_buffer_id() 		<< " >" << std::endl;
-			os << indent(2) << "<out-port:0x" << std::hex << (int)fe.get_out_port() 	<< std::dec << " >" << std::endl;
-			os << indent(2) << "<flags:" 	<< std::hex << (int)fe.get_flags() 		<< std::dec << " >" << std::endl;
-			indent i(4);
-			os << fe.match;
-			os << fe.actions;
+		os << rofl::indent(0) << "<cofflowmod ofp-version:" << (int)fe.get_version() << " >" << std::endl;
+
+		switch (fe.get_command()) {
+		case rofl::openflow::OFPFC_ADD:
+			os << rofl::indent(2) << "<command: ADD >" 			<< std::endl; break;
+		case rofl::openflow::OFPFC_DELETE:
+			os << rofl::indent(2) << "<command: DELETE >" 		<< std::endl; break;
+		case rofl::openflow::OFPFC_DELETE_STRICT:
+			os << rofl::indent(2) << "<command: DELETE-STRICT >"<< std::endl; break;
+		case rofl::openflow::OFPFC_MODIFY:
+			os << rofl::indent(2) << "<command: MODIFY >" 		<< std::endl; break;
+		case rofl::openflow::OFPFC_MODIFY_STRICT:
+			os << rofl::indent(2) << "<command: MODIFY-STRICT >"<< std::endl; break;
+		default:
+			os << rofl::indent(2) << "<command: UNKNOWN >" 		<< std::endl; break;
+		}
+
+		os << std::hex;
+		os << rofl::indent(2) << "<cookie: 0x" 		<< (unsigned long long)fe.get_cookie() 		<< " >" << std::endl;
+		os << rofl::indent(2) << "<cookie-mask: 0x"	<< (unsigned long long)fe.get_cookie_mask()	<< " >" << std::endl;
+		os << std::dec;
+		os << rofl::indent(2) << "<table-id: " 		<< (unsigned int)fe.get_table_id() 		<< " >" << std::endl;
+		os << rofl::indent(2) << "<idle-timeout: " 	<< (unsigned int)fe.get_idle_timeout() 	<< " >" << std::endl;
+		os << rofl::indent(2) << "<hard-timeout: " 	<< (unsigned int)fe.get_hard_timeout() 	<< " >" << std::endl;
+
+		os << std::hex;
+		os << rofl::indent(2) << "<priority: 0x" 	<< (unsigned int)fe.get_priority() 		<< " >" << std::endl;
+		os << rofl::indent(2) << "<buffer-id: 0x"	<< (unsigned int)fe.get_buffer_id() 	<< " >" << std::endl;
+		os << rofl::indent(2) << "<out-port: 0x" 	<< (unsigned int)fe.get_out_port() 		<< " >" << std::endl;
+		os << rofl::indent(2) << "<out-group: 0x"	<< (unsigned int)fe.get_out_group() 	<< " >" << std::endl;
+		os << rofl::indent(2) << "<flags: 0x" 		<< (unsigned int)fe.get_flags() 		<< " >" << std::endl;
+		os << std::dec;
+
+		rofl::indent i(2);
+		os << fe.get_match();
+
+		switch (fe.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << fe.get_actions();
 		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			os << indent(2) << "<cookie:0x" << std::hex << (int)fe.get_cookie() 	<< std::dec << " >" << std::endl;
-			os << indent(2) << "<cookie-mask:0x" << std::hex << (int)fe.get_cookie_mask() << std::dec << " >" << std::endl;
-			os << indent(2) << "<table-id:" 		<< (int)fe.get_table_id() 		<< " >" << std::endl;
-			switch (fe.get_command()) {
-			case openflow12::OFPFC_ADD:
-				os << indent(2) << "<command:ADD >" 			<< std::endl; break;
-			case openflow12::OFPFC_DELETE:
-				os << indent(2) << "<command:DELETE >" 			<< std::endl; break;
-			case openflow12::OFPFC_DELETE_STRICT:
-				os << indent(2) << "<command:DELETE-STRICT >" 	<< std::endl; break;
-			case openflow12::OFPFC_MODIFY:
-				os << indent(2) << "<command:MODIFY >" 			<< std::endl; break;
-			case openflow12::OFPFC_MODIFY_STRICT:
-				os << indent(2) << "<command:MODIFY-STRICT >" 	<< std::endl; break;
-			default:
-				os << indent(2) << "<command:UNKNOWN >" 		<< std::endl; break;
-			}
-			os << indent(2) << "<idle-timeout:" 	<< (int)fe.get_idle_timeout() 	<< " >" << std::endl;
-			os << indent(2) << "<hard-timeout:" 	<< (int)fe.get_hard_timeout() 	<< " >" << std::endl;
-			os << indent(2) << "<priority:" 		<< (int)fe.get_priority() 		<< " >" << std::endl;
-			os << indent(2) << "<buffer-id:" 		<< (int)fe.get_buffer_id() 		<< " >" << std::endl;
-			os << indent(2) << "<out-port:0x" << std::hex << (int)fe.get_out_port() 	<< std::dec << " >" << std::endl;
-			os << indent(2) << "<out-group:0x" << std::hex << (int)fe.get_out_group() 	<< std::dec << " >" << std::endl;
-			os << indent(2) << "<flags:" 	<< std::hex << (int)fe.get_flags() 		<< std::dec << " >" << std::endl;
-			indent i(4);
-			os << fe.match;
-			os << fe.instructions;
-		} break;
-		default: {
-			os << indent(2) << "<unknown OFP version >" << std::endl;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << fe.get_instructions();
 		} break;
 		}
+
 		return os;
 	};
 

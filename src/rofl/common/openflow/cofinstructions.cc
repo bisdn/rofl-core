@@ -645,7 +645,7 @@ cofinstructions::unpack(
 		if (len < sizeof(struct rofl::openflow::ofp_instruction))
 			throw eInstructionBadLen();
 
-		if (len < buflen)
+		if (len > buflen)
 			throw eInstructionBadLen();
 
 
