@@ -367,11 +367,7 @@ cofactions::check_prerequisites() const
 cofaction&
 cofactions::append_action(cofaction const action)
 {
-	cofaction *n_action = new cofaction(action);
-
-	push_back(n_action);
-
-	return *n_action;
+	map_and_insert(action); return back();
 }
 
 
