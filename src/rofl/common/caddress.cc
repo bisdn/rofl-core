@@ -248,7 +248,7 @@ void
 caddress::pack(uint8_t* buf, size_t buflen)
 {
 	if (buflen < length()) {
-		throw eInval();
+		throw eInval("caddress::pack() buflen too short");
 	}
 
 	switch (ca_saddr->sa_family) {

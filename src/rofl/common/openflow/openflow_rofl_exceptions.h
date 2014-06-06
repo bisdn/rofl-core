@@ -12,7 +12,11 @@
 
 namespace rofl {
 
-class eOpenFlowBase					: public RoflException {};
+class eOpenFlowBase					: public RoflException {
+public:
+	eOpenFlowBase(const std::string& __arg) : RoflException(__arg) {};
+	virtual ~eOpenFlowBase() throw() {};
+};
 
 /* exceptions for hello according to OpenFlow */
 class eHelloBase					: public eOpenFlowBase {};
@@ -167,18 +171,6 @@ class eTableFeaturesReqBadLen		: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_
 class eTableFeaturesReqBadArgument	: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_ARGUMENT
 class eTableFeaturesReqEPerm		: public eTableFeaturesReqBase {};	//OFPTFFC_EPERM
 
-/*
- * further rofl internal exceptions
- */
-class eBadVersion					: public RoflException {
-public:
-	eBadVersion() {
-		std::cerr << "BAD-WOLF" << std::endl;
-		assert(0 == 1);
-	};
-};
-class eBadSyntax					: public RoflException {};
-class eBadSyntaxTooShort			: public eBadSyntax {};
-}
+}; // end of namespace
 
 #endif

@@ -421,7 +421,7 @@ cioloop::run_loop()
 						it->first->__handle_event();
 					}
 				}
-
+#if 0
 			} catch (eSysCall& e) {
 				rofl::logging::debug << "[rofl][ciosrv] caught eSysCall in main loop:" << e << std::endl;
 
@@ -433,8 +433,9 @@ cioloop::run_loop()
 #ifndef NDEBUG
 				throw;
 #endif
-			} catch (...) {
-				rofl::logging::error << "[rofl][ciosrv] caught exception in main loop:" << std::endl;
+#endif
+			} catch (std::runtime_error& e) {
+				rofl::logging::error << "[rofl][ciosrv] caught exception in main loop:" << e.what() << std::endl;
 #ifndef NDEBUG
 				throw;
 #endif
