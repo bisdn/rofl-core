@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFACLIST_H
-#define COFACLIST_H 1
+#ifndef COFACTIONS_H
+#define COFACTIONS_H 1
 
 #include <inttypes.h>
 #include <vector>

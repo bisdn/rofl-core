@@ -7,434 +7,90 @@
 
 using namespace rofl::openflow;
 
-cofaction::cofaction(uint8_t ofp_version, size_t datalen) :
-			ofp_version(ofp_version),
-			action(datalen)
-{
-	oac_header = (struct openflow::ofp_action_header*)action.somem();
-}
-
-
-cofaction::cofaction(uint8_t ofp_version, struct openflow::ofp_action_header* achdr, size_t aclen) :
-			ofp_version(ofp_version),
-			action(aclen)
-{
-	oac_header = (struct openflow::ofp_action_header*)action.somem();
-
-	if (be16toh(oac_header->len) > aclen) {
-		throw eBadActionBadLen();
-	}
-
-	unpack((uint8_t*)achdr, aclen);
-}
-
-
-cofaction::~cofaction()
-{
-
-}
-
-
-cofaction::cofaction(cofaction const& action)
-{
-	*this = action;
-}
-
-
-cofaction&
-cofaction::operator= (const cofaction& ac)
-{
-	if (this == &ac)
-		return *this;
-
-	this->ofp_version 	= ac.ofp_version;
-	this->action 		= ac.action;
-	this->oac_generic 	= this->action.somem();
-
-	return *this;
-}
-
-
-bool
-cofaction::operator== (const cofaction& ac)
-{
-	return ((ofp_version == ac.ofp_version) && (action == ac.action));
-}
-
-
-uint8_t*
-cofaction::pack(
-		uint8_t* achdr,
-		size_t aclen)
-{
-	if (aclen < this->length())
-		throw eActionInval();
-
-	oac_header->len = htobe16(length());
-
-	memcpy((uint8_t*)achdr, (uint8_t*)soaction(), length());
-
-	return achdr;
-}
-
-
-void
-cofaction::unpack(uint8_t* achdr, size_t aclen)
-{
-	if (action.memlen() < aclen) {
-		oac_generic = action.resize(aclen);;
-	}
-
-	memcpy(oac_generic, achdr, aclen);
-
-	if (be16toh(oac_header->len) < sizeof(struct openflow::ofp_action_header)) {
-		throw eBadActionBadLen();
-	}
-
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-		unpack_of10(achdr, aclen);
-	} break;
-	case openflow12::OFP_VERSION: {
-		unpack_of12(achdr, aclen);
-	} break;
-	case openflow13::OFP_VERSION: {
-		unpack_of13(achdr, aclen);
-	} break;
-	}
-}
-
-
-
-void
-cofaction::unpack_of10(uint8_t* buf, size_t buflen)
-{
-	/*
-	 * OpenFlow 1.0
-	 */
-
-	switch (be16toh(oac_header->type)) {
-	case openflow10::OFPAT_OUTPUT: {
-		//oac_output = (struct openflow10::ofp_action_output*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_output)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_VLAN_VID: {
-		//oac_vlanvid = (struct openflow10::ofp_action_vlan_vid*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_vlan_vid)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_VLAN_PCP: {
-		//oac_vlanpcp = (struct openflow10::ofp_action_vlan_pcp*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_vlan_pcp)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_STRIP_VLAN: {
-		if (action.memlen() < sizeof(struct openflow::ofp_action_header)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_DL_SRC:
-	case openflow10::OFPAT_SET_DL_DST: {
-		//oac_dladdr = (struct openflow10::ofp_action_dl_addr*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_dl_addr)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_NW_SRC:
-	case openflow10::OFPAT_SET_NW_DST: {
-		//oac_nwaddr = (struct openflow10::ofp_action_nw_addr*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_nw_addr)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_NW_TOS: {
-		//oac_nwtos = (struct openflow10::ofp_action_nw_tos*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_nw_tos)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_SET_TP_SRC:
-	case openflow10::OFPAT_SET_TP_DST: {
-		//oac_tpport = (struct openflow10::ofp_action_tp_port*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_tp_port)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_ENQUEUE: {
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_enqueue)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow10::OFPAT_VENDOR: {
-		//oac_10vendor = (struct openflow10::ofp_action_vendor_header*)oac_header;
-		if (action.memlen() < sizeof(struct openflow10::ofp_action_vendor_header)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	default: {
-		throw eBadActionBadType();
-	} break;
-	}
-}
-
-
-
-void
-cofaction::unpack_of12(uint8_t *buf, size_t buflen)
-{
-	/*
-	 * OpenFlow 1.2
-	 */
-	switch (be16toh(oac_header->type)) {
-	case openflow12::OFPAT_OUTPUT: {
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_output)) {
-			throw eBadActionBadLen();
-		}
-	} break;
-	case openflow12::OFPAT_SET_FIELD:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_set_field)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_COPY_TTL_OUT:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_header)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_COPY_TTL_IN:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_header)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_SET_MPLS_TTL:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_mpls_ttl)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_DEC_MPLS_TTL:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_push)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_PUSH_VLAN:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_push)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_POP_VLAN:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_header)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_PUSH_MPLS:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_push)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_POP_MPLS:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_pop_mpls)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_SET_QUEUE:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_set_queue)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_GROUP:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_group)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_SET_NW_TTL:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_nw_ttl)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_DEC_NW_TTL:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_header)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	case openflow12::OFPAT_EXPERIMENTER:
-		if (action.memlen() < sizeof(struct openflow12::ofp_action_experimenter_header)) {
-			throw eBadActionBadLen();
-		}
-		break;
-	default:
-		throw eBadActionBadType();
-		break;
-	}
-}
-
-
-
-void
-cofaction::unpack_of13(uint8_t *buf, size_t buflen)
-{
-	/*
-	 * OpenFlow 1.2
-	 */
-	unpack_of12(buf, buflen);
-}
-
-
-
-
-struct rofl::openflow::ofp_action_header*
-cofaction::soaction() const
-{
-	return (struct openflow::ofp_action_header*)(action.somem());
-}	
-
 
 size_t
 cofaction::length() const
 {
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-
-		switch (be16toh(oac_header->type)) {
-		case openflow10::OFPAT_OUTPUT:
-			return sizeof(struct openflow10::ofp_action_output);
-
-		case openflow10::OFPAT_SET_VLAN_VID:
-			return sizeof(struct openflow10::ofp_action_vlan_vid);
-
-		case openflow10::OFPAT_SET_VLAN_PCP:
-			return sizeof(struct openflow10::ofp_action_vlan_pcp);
-
-		case openflow10::OFPAT_STRIP_VLAN:
-			return sizeof(struct openflow10::ofp_action_header);
-
-		case openflow10::OFPAT_SET_DL_SRC:
-		case openflow10::OFPAT_SET_DL_DST:
-			return sizeof(struct openflow10::ofp_action_dl_addr);
-
-		case openflow10::OFPAT_SET_NW_SRC:
-		case openflow10::OFPAT_SET_NW_DST:
-			return sizeof(struct openflow10::ofp_action_nw_addr);
-
-		case openflow10::OFPAT_SET_TP_SRC:
-		case openflow10::OFPAT_SET_TP_DST:
-			return sizeof(struct openflow10::ofp_action_tp_port);
-
-		case openflow10::OFPAT_ENQUEUE:
-			return sizeof(struct openflow10::ofp_action_enqueue);
-
-		case openflow10::OFPAT_VENDOR:
-			return action.memlen();
-
-		default:
-			return action.memlen();
-		}
-
-	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-
-		switch (be16toh(oac_header->type)) {
-		case openflow12::OFPAT_OUTPUT:
-			return sizeof(struct openflow12::ofp_action_output);
-
-		case openflow12::OFPAT_COPY_TTL_OUT:
-			return sizeof(openflow12::ofp_action_header);
-
-		case openflow12::OFPAT_COPY_TTL_IN:
-			return sizeof(openflow12::ofp_action_header);
-
-		case openflow12::OFPAT_SET_MPLS_TTL:
-			return sizeof(struct openflow12::ofp_action_mpls_ttl);
-
-		case openflow12::OFPAT_DEC_MPLS_TTL:
-			return sizeof(openflow12::ofp_action_header);
-
-		case openflow12::OFPAT_PUSH_VLAN:
-			return sizeof(struct openflow12::ofp_action_push);
-
-		case openflow12::OFPAT_POP_VLAN:
-			return sizeof(openflow12::ofp_action_header);
-
-		case openflow12::OFPAT_PUSH_MPLS:
-			return sizeof(struct openflow12::ofp_action_push);
-
-		case openflow12::OFPAT_POP_MPLS:
-			return sizeof(openflow12::ofp_action_pop_mpls);
-
-		case openflow12::OFPAT_SET_QUEUE:
-			return sizeof(struct openflow12::ofp_action_set_queue);
-
-		case openflow12::OFPAT_GROUP:
-			return sizeof(struct openflow12::ofp_action_group);
-
-		case openflow12::OFPAT_SET_NW_TTL:
-			return sizeof(struct openflow12::ofp_action_nw_ttl);
-
-		case openflow12::OFPAT_DEC_NW_TTL:
-			return sizeof(openflow12::ofp_action_header);
-
-		case openflow12::OFPAT_EXPERIMENTER:
-			return sizeof(struct openflow12::ofp_action_experimenter_header);
-
-		case openflow12::OFPAT_SET_FIELD:
-			return action.memlen();
-
-		default:
-			return action.memlen();
-		}
-
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow::ofp_action) + body.memlen());
 	} break;
 	default:
-		throw eBadVersion();
+		throw eBadVersion("cofaction::length() invalid version");
 	}
 }
 
 
 
-uint8_t
-cofaction::get_version() const
+void
+cofaction::pack(
+		uint8_t* buf, size_t buflen)
 {
-	return ofp_version;
+	len = length(); // use final length
+
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction::length())
+		throw eInval("cofaction::pack() buflen too short");
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow::ofp_action* hdr = (struct rofl::openflow::ofp_action*)buf;
+
+		hdr->type	= htobe16(type);
+		hdr->len	= htobe16(len);
+
+		if (body.length() > 0) {
+			body.pack(hdr->body, body.length());
+		}
+
+	} break;
+	default:
+		throw eBadVersion("cofaction::pack() invalid version");
+	}
 }
 
-
-uint16_t
-cofaction::get_type() const
-{
-	return be16toh(oac_header->type);
-}
 
 
 void
-cofaction::set_type(uint16_t type)
+cofaction::unpack(
+		uint8_t* buf, size_t buflen)
 {
-	oac_header->type = htobe16(type);
-}
+	if ((0 == buf) || (0 == buflen))
+		return;
 
+	body.clear();
 
-uint16_t
-cofaction::get_length() const
-{
-	return be16toh(oac_header->len);
-}
+	if (buflen < cofaction::length())
+		throw eInval("cofaction::unpack() buflen too short");
 
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 
-void
-cofaction::set_length(uint16_t len)
-{
-	oac_header->len = htobe16(len);
-}
+		struct rofl::openflow::ofp_action* hdr = (struct rofl::openflow::ofp_action*)buf;
 
+		type	= be16toh(hdr->type);
+		len		= be16toh(hdr->len);
 
-void
-cofaction::resize(size_t len)
-{
-	action.resize(len);
-	oac_generic = action.somem();
+		if (len < sizeof(struct rofl::openflow::ofp_action))
+			throw eBadActionBadLen();
+
+		if (len > sizeof(struct rofl::openflow::ofp_action)) {
+			body.unpack(hdr->body, len - sizeof(struct rofl::openflow::ofp_action));
+		}
+
+	} break;
+	default:
+		throw eBadVersion("cofaction::unpack() invalid version");
+	}
 }
 
 
@@ -444,90 +100,443 @@ cofaction_output::check_prerequisites() const
 {
 	switch (ofp_version) {
 	case rofl::openflow10::OFP_VERSION: {
-		uint16_t port_no = be16toh(oac_10output->port);
 		if (0 == port_no) {
 			throw eBadActionBadOutPort();
 		}
 	} break;
-	case rofl::openflow12::OFP_VERSION: {
-		uint32_t port_no = be32toh(oac_12output->port);
-		if ((rofl::openflow12::OFPP_ANY == port_no) || (0 == port_no)) {
-			throw eBadActionBadOutPort();
-		}
-	} break;
+	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
-		uint32_t port_no = be32toh(oac_13output->port);
 		if ((rofl::openflow13::OFPP_ANY == port_no) || (0 == port_no)) {
 			throw eBadActionBadOutPort();
 		}
 	} break;
-	case rofl::openflow::OFP_VERSION_UNKNOWN:
-	default: {
-
-	};
 	}
 }
 
 
 
-uint32_t
-cofaction_output::get_port() const
+size_t
+cofaction_output::length() const
 {
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-		if (openflow10::OFPAT_OUTPUT != get_type())
-			throw eActionInvalType();
-		return be16toh(oac_10output->port);
-	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		if (openflow12::OFPAT_OUTPUT != get_type())
-			throw eActionInvalType();
-		return be32toh(oac_12output->port);
-	} break;
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_output);
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
+		return sizeof(struct rofl::openflow13::ofp_action_output);
 	default:
-		throw eActionInvalType();
+		throw eBadVersion("cofaction_output::length() invalid version");
 	}
 }
+
+
 
 void
-cofaction_output::set_max_len(uint16_t max_len)
+cofaction_output::pack(
+		uint8_t* buf, size_t buflen)
 {
-	switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			if (openflow10::OFPAT_OUTPUT != get_type())
-				throw eActionInvalType();
-			oac_10output->max_len = htobe16(max_len);
-		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			if (openflow12::OFPAT_OUTPUT != get_type())
-				throw eActionInvalType();
-			oac_12output->max_len = htobe16(max_len);
-		} break;
-		default:
-			throw eActionInvalType();
-	}
-}
-uint16_t
-cofaction_output::get_max_len() const
-{
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-		if (openflow10::OFPAT_OUTPUT != get_type())
-			throw eActionInvalType();
-		return be16toh(oac_10output->max_len);
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_output::length())
+		throw eInval("cofaction_output::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_output* hdr = (struct rofl::openflow10::ofp_action_output*)buf;
+
+		hdr->port		= htobe16((uint16_t)port_no);
+		hdr->max_len	= htobe16(max_len);
+
 	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		if (openflow12::OFPAT_OUTPUT != get_type())
-			throw eActionInvalType();
-		return be16toh(oac_12output->max_len);
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_action_output* hdr = (struct rofl::openflow13::ofp_action_output*)buf;
+
+		hdr->port		= htobe32(port_no);
+		hdr->max_len	= htobe16(max_len);
+
 	} break;
 	default:
-		throw eActionInvalType();
+		throw eBadVersion("cofaction_output::pack() invalid version");
 	}
 }
+
+
+
+void
+cofaction_output::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_output::length())
+		throw eInval("cofaction_output::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_output* hdr = (struct rofl::openflow10::ofp_action_output*)buf;
+
+		port_no 	= be16toh(hdr->port);
+		max_len		= be16toh(hdr->max_len);
+
+	} break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_action_output* hdr = (struct rofl::openflow13::ofp_action_output*)buf;
+
+		port_no		= be32toh(hdr->port);
+		max_len		= be32toh(hdr->max_len);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_output::unpack() invalid version");
+	}
+}
+
+
+
+
+
+size_t
+cofaction_set_vlan_vid::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_vlan_vid);
+	default:
+		throw eBadVersion("cofaction_set_vlan_vid::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_vlan_vid::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_vlan_vid::length())
+		throw eInval("cofaction_set_vlan_vid::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vlan_vid* hdr = (struct rofl::openflow10::ofp_action_vlan_vid*)buf;
+
+		hdr->vlan_vid	= htobe16(vlan_vid);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_vlan_vid::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_vlan_vid::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_vlan_vid::length())
+		throw eInval("cofaction_set_vlan_vid::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vlan_vid* hdr = (struct rofl::openflow10::ofp_action_vlan_vid*)buf;
+
+		vlan_vid	= be16toh(hdr->vlan_vid);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_vlan_vid::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_set_vlan_pcp::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_vlan_pcp);
+	default:
+		throw eBadVersion("cofaction_set_vlan_pcp::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_vlan_pcp::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_vlan_pcp::length())
+		throw eInval("cofaction_set_vlan_pcp::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vlan_pcp* hdr = (struct rofl::openflow10::ofp_action_vlan_pcp*)buf;
+
+		hdr->vlan_pcp	= vlan_pcp;
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_vlan_pcp::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_vlan_pcp::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_vlan_pcp::length())
+		throw eInval("cofaction_set_vlan_pcp::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vlan_pcp* hdr = (struct rofl::openflow10::ofp_action_vlan_pcp*)buf;
+
+		vlan_pcp	= hdr->vlan_pcp;
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_vlan_pcp::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_strip_vlan::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_header);
+	default:
+		throw eBadVersion("cofaction_strip_vlan::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_strip_vlan::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_strip_vlan::length())
+		throw eInval("cofaction_strip_vlan::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_strip_vlan::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_strip_vlan::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_strip_vlan::length())
+		throw eInval("cofaction_strip_vlan::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_strip_vlan::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_set_dl_src::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_dl_addr);
+	default:
+		throw eBadVersion("cofaction_set_dl_src::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_dl_src::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_dl_src::length())
+		throw eInval("cofaction_set_dl_src::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_dl_addr* hdr = (struct rofl::openflow10::ofp_action_dl_addr*)buf;
+
+		macaddr.pack(hdr->dl_addr, OFP_ETH_ALEN);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_dl_src::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_dl_src::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_dl_src::length())
+		throw eInval("cofaction_set_dl_src::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_dl_addr* hdr = (struct rofl::openflow10::ofp_action_dl_addr*)buf;
+
+		macaddr.unpack(hdr->dl_addr, OFP_ETH_ALEN);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_dl_src::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_set_dl_dst::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_dl_addr);
+	default:
+		throw eBadVersion("cofaction_set_dl_dst::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_dl_dst::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_dl_dst::length())
+		throw eInval("cofaction_set_dl_dst::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_dl_addr* hdr = (struct rofl::openflow10::ofp_action_dl_addr*)buf;
+
+		macaddr.pack(hdr->dl_addr, OFP_ETH_ALEN);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_dl_dst::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_dl_dst::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_dl_dst::length())
+		throw eInval("cofaction_set_dl_dst::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_dl_addr* hdr = (struct rofl::openflow10::ofp_action_dl_addr*)buf;
+
+		macaddr.unpack(hdr->dl_addr, OFP_ETH_ALEN);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_dl_dst::unpack() invalid version");
+	}
+}
+
+
+
+
+
+#if 0
 
 
 coxmatch
@@ -544,4 +553,8 @@ cofaction::get_oxm() const
 
 	return oxm;
 }
+
+
+#endif
+
 

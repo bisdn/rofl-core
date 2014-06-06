@@ -189,6 +189,7 @@ namespace openflow {
 										   header.  This is the length of action,
 										   including any padding to make it
 										   64-bit aligned. */
+		uint8_t body[0];
 		//uint8_t pad[4];
 	};
 	OFP_ASSERT(sizeof(struct ofp_action) == 4);

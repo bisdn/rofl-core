@@ -229,6 +229,14 @@ public:
 
 
 	/**
+	 *
+	 */
+	virtual size_t
+	length() const { return data.second; };
+
+
+
+	/**
 	 * @brief	Resizes allocated memory area by calling C-function realloc().
 	 *
 	 * This method resizes the internal memory area and adjusts all internal
