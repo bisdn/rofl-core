@@ -2639,7 +2639,7 @@ public:
 	operator<< (std::ostream& os, cofaction_experimenter const& action) {
 		os << rofl::indent(0) << "<cofaction_experimenter ";
 		os << std::hex;
-		os << "exp-id:" 	<< (unsigned int)action.get_exp_id() 	<< " ";
+		os << "exp-id:0x" << (unsigned int)action.get_exp_id() << " ";
 		os << std::dec;
 		os << ">" << std::endl;
 		rofl::indent i(2);
@@ -2653,6 +2653,168 @@ private:
 	uint32_t		exp_id;
 	rofl::cmemory	exp_body;
 };
+
+
+
+class cofaction_push_pbb : public cofaction {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_push_pbb(
+			uint8_t ofp_version = 0,
+			uint16_t eth_type = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_PBB),
+				eth_type(eth_type) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cofaction_push_pbb() {};
+
+	/**
+	 *
+	 */
+	cofaction_push_pbb(
+			const cofaction_push_pbb& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_push_pbb&
+	operator= (
+			const cofaction_push_pbb& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		eth_type = action.eth_type;
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t eth_type) { this->eth_type = eth_type; };
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_eth_type() const { return eth_type; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_push_pbb& action) {
+		os << rofl::indent(0) << "<cofaction_push_pbb ";
+		os << "eth-type:0x" << std::hex << (unsigned int)action.get_eth_type() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		return os;
+	};
+
+private:
+
+	uint16_t	eth_type;
+};
+
+
+
+class cofaction_pop_pbb : public cofaction {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_pop_pbb(uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_POP_PBB) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cofaction_pop_pbb() {};
+
+	/**
+	 *
+	 */
+	cofaction_pop_pbb(
+			const cofaction_pop_pbb& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_pop_pbb&
+	operator= (
+			const cofaction_pop_pbb& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_pop_pbb& action) {
+		os << rofl::indent(0) << "<cofaction_pop_pbb >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		return os;
+	};
+};
+
+
+
 
 
 }; // end of namespace openflow
