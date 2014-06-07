@@ -65,7 +65,7 @@ cofaction::unpack(
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	body.clear();
+	body.resize(0);
 
 	if (buflen < cofaction::length())
 		throw eInval("cofaction::unpack() buflen too short");
@@ -868,6 +868,150 @@ cofaction_set_tp_dst::unpack(
 	} break;
 	default:
 		throw eBadVersion("cofaction_set_tp_dst::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_enqueue::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_enqueue);
+	default:
+		throw eBadVersion("cofaction_enqueue::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_enqueue::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_enqueue::length())
+		throw eInval("cofaction_enqueue::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_enqueue* hdr = (struct rofl::openflow10::ofp_action_enqueue*)buf;
+
+		hdr->port		= htobe16(port_no);
+		hdr->queue_id	= htobe32(queue_id):
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_enqueue::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_enqueue::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_enqueue::length())
+		throw eInval("cofaction_enqueue::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_enqueue* hdr = (struct rofl::openflow10::ofp_action_enqueue*)buf;
+
+		port_no		= be16toh(hdr->port);
+		queue_id	= be32toh(hdr->queue_id);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_enqueue::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_vendor::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION:
+		return sizeof(struct rofl::openflow10::ofp_action_vendor_header) + exp_body.length();
+	default:
+		throw eBadVersion("cofaction_vendor::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_vendor::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_vendor::length())
+		throw eInval("cofaction_vendor::pack() buflen too short");
+
+	cofaction::pack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vendor_header* hdr = (struct rofl::openflow10::ofp_action_vendor_header*)buf;
+
+		hdr->vendor		= htobe32(exp_id);
+
+		exp_body.pack(hdr->data, exp_body.length())
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_vendor::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_vendor::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	exp_body.resize(0);
+
+	if (buflen < cofaction_vendor::length())
+		throw eInval("cofaction_vendor::unpack() buflen too short");
+
+	cofaction::unpack(buf, buflen);
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+
+		struct rofl::openflow10::ofp_action_vendor_header* hdr = (struct rofl::openflow10::ofp_action_vendor_header*)buf;
+
+		exp_id		= be32toh(hdr->vendor);
+
+		if (get_length() > sizeof(struct rofl::openflow10::ofp_action_vendor_header)) {
+			exp_body.unpack(hdr->data, get_length() > sizeof(struct rofl::openflow10::ofp_action_vendor_header));
+		}
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_vendor::unpack() invalid version");
 	}
 }
 

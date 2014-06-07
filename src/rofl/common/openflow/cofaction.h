@@ -1329,7 +1329,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_enqueue& action) {
 		os << rofl::indent(0) << "<cofaction_enqueue ";
-		os << "port: " << (unsigned int)action.get_port() << " ";
+		os << "port-no: " << (unsigned int)action.get_port() << " ";
 		os << "queue-id: " << (unsigned int)action.get_queue_id() << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
@@ -1343,50 +1343,23 @@ private:
 };
 
 
-#if 0
 
-
-/** OFPAT_VENDOR
- *
- */
 class cofaction_vendor : public cofaction {
 public:
-	/** constructor
-	 */
-	cofaction_vendor(
-			uint8_t ofp_version,
-			uint32_t vendor,
-			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
-			oac_10vendor->type 		= htobe16(openflow10::OFPAT_VENDOR);
-			oac_10vendor->len 		= htobe16(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
-			oac_10vendor->vendor 	= htobe32(vendor);
-
-			if (data && datalen) {
-				memcpy(oac_10vendor->data, data, datalen);
-			}
-		} break;
-		default:
-			logging::warn << "cofaction_vendor: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
 	/**
-	 * constructor
+	 *
 	 */
-	cofaction_vendor(cofaction const& action) :
-		cofaction(action)
-	{
-		if (openflow10::OFPAT_VENDOR != action.get_type())
-			throw eActionInvalType();
-	};
+	cofaction_vendor(
+			uint8_t ofp_version = 0,
+			uint32_t exp_id = 0,
+			rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_EXPERIMENTER),
+				exp_id(exp_id),
+				exp_body(exp_body) {};
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_vendor() {};
@@ -1394,39 +1367,104 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_vendor(uint32_t vendor_id) {
-		oac_10vendor->vendor = htobe32(vendor_id);
+	cofaction_vendor(
+			const cofaction_vendor& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_vendor&
+	operator= (
+			const cofaction_vendor& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		exp_id		= action.exp_id;
+		exp_body	= action.exp_body;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_exp_id(uint32_t exp_id) { this->exp_id = exp_id; };
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_vendor() const {
-		return be32toh(oac_10vendor->vendor);
-	};
+	get_exp_id() const { return exp_id; };
+
+	/**
+	 *
+	 */
+	const rofl::cmemory&
+	get_exp_body() const { return exp_body; };
+
+	/**
+	 *
+	 */
+	rofl::cmemory&
+	set_exp_body() { return exp_body; };
+
+	/**
+	 * @brief 	Shadow intentionally cofaction::get_body()
+	 */
+	const rofl::cmemory&
+	get_body() const { return exp_body; };
+
+	/**
+	 * @brief 	Shadow intentionally cofaction::set_body()
+	 */
+	rofl::cmemory&
+	set_body() { return exp_body; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_vendor const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_vendor ";
-			os << "vendor-id:" << (int)action.get_vendor() << " >" << std::endl;
-			os << action.action;
-		} break;
-		default: {
-			os << indent(2) << "<action type VENDOR not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_vendor& action) {
+		os << rofl::indent(0) << "<cofaction_vendor ";
+		os << "exp-id:" << (unsigned int)action.get_exp_id() << " >" << std::endl;
+		rofl::indent i(2);
+		os << action.get_exp_body();
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint32_t		exp_id;
+	rofl::cmemory	exp_body;
 };
 
+
+
+#if 0
 
 
 /*
