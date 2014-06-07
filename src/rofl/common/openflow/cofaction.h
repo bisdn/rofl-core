@@ -1464,51 +1464,20 @@ private:
 
 
 
-#if 0
-
-
-/*
- * new OF1.2 actions
- */
-
-/** OFPAT_SET_MPLS_TTL
- *
- */
 class cofaction_set_mpls_ttl : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_mpls_ttl(
-			uint8_t ofp_version,
-			uint8_t mpls_ttl) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_mpls_ttl));
-			oac_12mpls_ttl->type 		= htobe16(openflow12::OFPAT_SET_MPLS_TTL);
-			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_mpls_ttl));
-			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
-		} break;
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow13::ofp_action_mpls_ttl));
-			oac_12mpls_ttl->type 		= htobe16(openflow13::OFPAT_SET_MPLS_TTL);
-			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow13::ofp_action_mpls_ttl));
-			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
-		} break;
-		default:
-			logging::warn << "cofaction_set_mpls_ttl: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint8_t mpls_ttl = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_MPLS_TTL),
+				mpls_ttl(mpls_ttl) {};
 
-	/** constructor
-	 */
-	cofaction_set_mpls_ttl(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_mpls_ttl() {};
@@ -1516,96 +1485,146 @@ public:
 	/**
 	 *
 	 */
+	cofaction_set_mpls_ttl(
+			const cofaction_set_mpls_ttl& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_mpls_ttl&
+	operator= (
+			const cofaction_set_mpls_ttl& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		mpls_ttl = action.mpls_ttl;
+		return *this;
+	}
+
+public:
+
+	/**
+	 *
+	 */
 	void
-	set_mpls_ttl(uint8_t mpls_ttl) {
-		oac_12mpls_ttl->mpls_ttl = mpls_ttl;
-	};
+	set_mpls_ttl(uint8_t mpls_ttl) { this->mpls_ttl = mpls_ttl; };
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_mpls_ttl() const {
-		return oac_12mpls_ttl->mpls_ttl;
-	};
+	get_mpls_ttl() const { return mpls_ttl; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_mpls_ttl const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_mpls_ttl ";
-			os << "mpls-ttl:" << (int)action.get_mpls_ttl() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-MPLS-TTL not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_mpls_ttl& action) {
+		os << rofl::indent(0) << "<cofaction_set_mpls_ttl ";
+		os << "mpls-ttl:" << (unsigned int)action.get_mpls_ttl() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint8_t		mpls_ttl;
 };
 
 
-/** OFPAT_DEC_MPLS_TTL
- *
- */
+
 class cofaction_dec_mpls_ttl : public cofaction {
 public:
-	/** constructor
-	 */
-	cofaction_dec_mpls_ttl(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
-			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_MPLS_TTL);
-			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
-		} break;
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow13::ofp_action_header));
-			oac_header->type 	= htobe16(openflow13::OFPAT_DEC_MPLS_TTL);
-			oac_header->len 	= htobe16(sizeof(struct openflow13::ofp_action_header));
-		} break;
-		default:
-			logging::warn << "cofaction_dec_mpls_ttl: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
-	/** constructor
+	/**
+	 *
 	 */
 	cofaction_dec_mpls_ttl(
-			cofaction const& action) :
-				cofaction(action) {};
+			uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_DEC_MPLS_TTL) {};
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_dec_mpls_ttl() {};
+
+	/**
+	 *
+	 */
+	cofaction_dec_mpls_ttl(
+			const cofaction_dec_mpls_ttl& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_dec_mpls_ttl&
+	operator= (
+			const cofaction_dec_mpls_ttl& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_dec_mpls_ttl const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_dec_mpls_ttl >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type DEC-MPLS-TTL not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_dec_mpls_ttl >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
 };
+
+
+
+#if 0
 
 
 /** OFPAT_PUSH_VLAN

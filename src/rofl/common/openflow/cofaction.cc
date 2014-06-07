@@ -141,7 +141,7 @@ cofaction_output::pack(
 	if (buflen < cofaction_output::length())
 		throw eInval("cofaction_output::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -178,7 +178,7 @@ cofaction_output::unpack(
 	if (buflen < cofaction_output::length())
 		throw eInval("cofaction_output::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -230,7 +230,7 @@ cofaction_set_vlan_vid::pack(
 	if (buflen < cofaction_set_vlan_vid::length())
 		throw eInval("cofaction_set_vlan_vid::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -257,7 +257,7 @@ cofaction_set_vlan_vid::unpack(
 	if (buflen < cofaction_set_vlan_vid::length())
 		throw eInval("cofaction_set_vlan_vid::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -297,7 +297,7 @@ cofaction_set_vlan_pcp::pack(
 	if (buflen < cofaction_set_vlan_pcp::length())
 		throw eInval("cofaction_set_vlan_pcp::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -324,7 +324,7 @@ cofaction_set_vlan_pcp::unpack(
 	if (buflen < cofaction_set_vlan_pcp::length())
 		throw eInval("cofaction_set_vlan_pcp::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -364,7 +364,7 @@ cofaction_strip_vlan::pack(
 	if (buflen < cofaction_strip_vlan::length())
 		throw eInval("cofaction_strip_vlan::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -387,7 +387,7 @@ cofaction_strip_vlan::unpack(
 	if (buflen < cofaction_strip_vlan::length())
 		throw eInval("cofaction_strip_vlan::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -423,7 +423,7 @@ cofaction_set_dl_src::pack(
 	if (buflen < cofaction_set_dl_src::length())
 		throw eInval("cofaction_set_dl_src::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -450,7 +450,7 @@ cofaction_set_dl_src::unpack(
 	if (buflen < cofaction_set_dl_src::length())
 		throw eInval("cofaction_set_dl_src::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -490,7 +490,7 @@ cofaction_set_dl_dst::pack(
 	if (buflen < cofaction_set_dl_dst::length())
 		throw eInval("cofaction_set_dl_dst::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -517,7 +517,7 @@ cofaction_set_dl_dst::unpack(
 	if (buflen < cofaction_set_dl_dst::length())
 		throw eInval("cofaction_set_dl_dst::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -557,7 +557,7 @@ cofaction_set_nw_src::pack(
 	if (buflen < cofaction_set_nw_src::length())
 		throw eInval("cofaction_set_nw_src::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -584,7 +584,7 @@ cofaction_set_nw_src::unpack(
 	if (buflen < cofaction_set_nw_src::length())
 		throw eInval("cofaction_set_nw_src::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -626,7 +626,7 @@ cofaction_set_nw_dst::pack(
 	if (buflen < cofaction_set_nw_dst::length())
 		throw eInval("cofaction_set_nw_dst::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -653,7 +653,7 @@ cofaction_set_nw_dst::unpack(
 	if (buflen < cofaction_set_nw_dst::length())
 		throw eInval("cofaction_set_nw_dst::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -695,7 +695,7 @@ cofaction_set_nw_tos::pack(
 	if (buflen < cofaction_set_nw_tos::length())
 		throw eInval("cofaction_set_nw_tos::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -722,7 +722,7 @@ cofaction_set_nw_tos::unpack(
 	if (buflen < cofaction_set_nw_tos::length())
 		throw eInval("cofaction_set_nw_tos::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -762,7 +762,7 @@ cofaction_set_tp_src::pack(
 	if (buflen < cofaction_set_tp_src::length())
 		throw eInval("cofaction_set_tp_src::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -789,7 +789,7 @@ cofaction_set_tp_src::unpack(
 	if (buflen < cofaction_set_tp_src::length())
 		throw eInval("cofaction_set_tp_src::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -829,7 +829,7 @@ cofaction_set_tp_dst::pack(
 	if (buflen < cofaction_set_tp_dst::length())
 		throw eInval("cofaction_set_tp_dst::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -856,7 +856,7 @@ cofaction_set_tp_dst::unpack(
 	if (buflen < cofaction_set_tp_dst::length())
 		throw eInval("cofaction_set_tp_dst::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -896,7 +896,7 @@ cofaction_enqueue::pack(
 	if (buflen < cofaction_enqueue::length())
 		throw eInval("cofaction_enqueue::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -924,7 +924,7 @@ cofaction_enqueue::unpack(
 	if (buflen < cofaction_enqueue::length())
 		throw eInval("cofaction_enqueue::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -965,7 +965,7 @@ cofaction_vendor::pack(
 	if (buflen < cofaction_vendor::length())
 		throw eInval("cofaction_vendor::pack() buflen too short");
 
-	cofaction::pack(buf, buflen);
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -996,7 +996,7 @@ cofaction_vendor::unpack(
 	if (buflen < cofaction_vendor::length())
 		throw eInval("cofaction_vendor::unpack() buflen too short");
 
-	cofaction::unpack(buf, buflen);
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
@@ -1014,6 +1014,139 @@ cofaction_vendor::unpack(
 		throw eBadVersion("cofaction_vendor::unpack() invalid version");
 	}
 }
+
+
+
+size_t
+cofaction_set_mpls_ttl::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
+		return sizeof(struct rofl::openflow13::ofp_action_mpls_ttl);
+	default:
+		throw eBadVersion("cofaction_set_mpls_ttl::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_mpls_ttl::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_mpls_ttl::length())
+		throw eInval("cofaction_set_mpls_ttl::pack() buflen too short");
+
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_action_mpls_ttl* hdr = (struct rofl::openflow13::ofp_action_mpls_ttl*)buf;
+
+		hdr->mpls_ttl	= mpls_ttl;
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_mpls_ttl::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_set_mpls_ttl::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_set_mpls_ttl::length())
+		throw eInval("cofaction_set_mpls_ttl::unpack() buflen too short");
+
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_action_mpls_ttl* hdr = (struct rofl::openflow13::ofp_action_mpls_ttl*)buf;
+
+		mpls_ttl = hdr->mpls_ttl;
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_set_mpls_ttl::unpack() invalid version");
+	}
+}
+
+
+
+size_t
+cofaction_dec_mpls_ttl::length() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
+		return sizeof(struct rofl::openflow13::ofp_action_header);
+	default:
+		throw eBadVersion("cofaction_dec_mpls_ttl::length() invalid version");
+	}
+}
+
+
+
+void
+cofaction_dec_mpls_ttl::pack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_dec_mpls_ttl::length())
+		throw eInval("cofaction_dec_mpls_ttl::pack() buflen too short");
+
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_dec_mpls_ttl::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_dec_mpls_ttl::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_dec_mpls_ttl::length())
+		throw eInval("cofaction_dec_mpls_ttl::unpack() buflen too short");
+
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_dec_mpls_ttl::unpack() invalid version");
+	}
+}
+
 
 
 
