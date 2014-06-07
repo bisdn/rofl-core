@@ -774,7 +774,7 @@ public:
 	 */
 	cofaction_set_nw_src(
 			uint8_t ofp_version = 0,
-			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0") :
+			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0")) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_SRC),
 				addr(addr) {};
 
