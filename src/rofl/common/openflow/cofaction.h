@@ -788,7 +788,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_src(
-			const cofaction_set_nw_src& action) { *this = action };
+			const cofaction_set_nw_src& action) { *this = action; };
 
 	/**
 	 *
@@ -886,7 +886,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_dst(
-			const cofaction_set_nw_dst& action) { *this = action };
+			const cofaction_set_nw_dst& action) { *this = action; };
 
 	/**
 	 *
@@ -1353,7 +1353,7 @@ public:
 	cofaction_vendor(
 			uint8_t ofp_version = 0,
 			uint32_t exp_id = 0,
-			rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
+			const rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_EXPERIMENTER),
 				exp_id(exp_id),
 				exp_body(exp_body) {};
@@ -1624,42 +1624,20 @@ public:
 
 
 
-#if 0
-
-
-/** OFPAT_PUSH_VLAN
- *
- */
 class cofaction_push_vlan : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_push_vlan(
-			uint8_t ofp_version,
-			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
-			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_VLAN);
-			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
-			oac_12push->ethertype 	= htobe16(ethertype);
-		} break;
-		default:
-			logging::warn << "cofaction_push_vlan: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t eth_type = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
+				eth_type(eth_type) {};
 
-	/** constructor
-	 */
-	cofaction_push_vlan(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_push_vlan() {};
@@ -1667,73 +1645,158 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_eth_type(uint16_t ethertype) {
-		oac_12push->ethertype = htobe16(ethertype);
+	cofaction_push_vlan(
+			const cofaction_push_vlan& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_push_vlan&
+	operator= (
+			const cofaction_push_vlan& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		eth_type = action.eth_type;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t eth_type) { this->eth_type = eth_type; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_eth_type() const {
-		return be16toh(oac_12push->ethertype);
-	};
+	get_eth_type() const { return eth_type; };
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_push_vlan const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_push_vlan ";
-			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type PUSH-VLAN not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_push_vlan& action) {
+		os << rofl::indent(0) << "<cofaction_push_vlan ";
+		os << "eth-type:0x" << std::hex << (unsigned int)action.get_eth_type() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		return os;
+	};
+
+private:
+
+	uint16_t	eth_type;
+};
+
+
+
+class cofaction_pop_vlan : public cofaction {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_pop_vlan(uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_POP_VLAN) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cofaction_pop_vlan() {};
+
+	/**
+	 *
+	 */
+	cofaction_pop_vlan(
+			const cofaction_pop_vlan& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_pop_vlan&
+	operator= (
+			const cofaction_pop_vlan& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_pop_vlan& action) {
+		os << rofl::indent(0) << "<cofaction_pop_vlan >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
 };
 
 
-/** OFPAT_PUSH_MPLS
- *
- */
+
 class cofaction_push_mpls : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_push_mpls(
-			uint8_t ofp_version,
-			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
-			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_MPLS);
-			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
-			oac_12push->ethertype 	= htobe16(ethertype);
-		} break;
-		default:
-			logging::warn << "cofaction_push_mpls: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t eth_type = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
+				eth_type(eth_type) {};
 
-	/** constructor
-	 */
-	cofaction_push_mpls(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_push_mpls() {};
@@ -1741,127 +1804,90 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_eth_type(uint16_t ethertype) {
-		oac_12push->ethertype = htobe16(ethertype);
+	cofaction_push_mpls(
+			const cofaction_push_mpls& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_push_mpls&
+	operator= (
+			const cofaction_push_mpls& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		eth_type = action.eth_type;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t eth_type) { this->eth_type = eth_type; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_eth_type() const {
-		return be16toh(oac_12push->ethertype);
-	};
+	get_eth_type() const { return eth_type; };
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_push_mpls const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_push_mpls ";
-			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type PUSH-MPLS not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_push_mpls& action) {
+		os << rofl::indent(0) << "<cofaction_push_mpls ";
+		os << "eth-type:0x" << std::hex << (unsigned int)action.get_eth_type() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint16_t	eth_type;
 };
 
 
-/** OFPAT_POP_VLAN
- *
- */
-class cofaction_pop_vlan : public cofaction {
-public:
-	/** constructor
-	 */
-	cofaction_pop_vlan(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
-			oac_header->type 	= htobe16(openflow12::OFPAT_POP_VLAN);
-			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
-		} break;
-		default:
-			logging::warn << "cofaction_pop_vlan: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
-	/** constructor
-	 */
-	cofaction_pop_vlan(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_pop_vlan() {};
-
-public:
-
-	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_pop_vlan const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_pop_vlan >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type POP-VLAN not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
-		return os;
-	};
-};
-
-
-/** OFPAT_POP_MPLS
- *
- */
 class cofaction_pop_mpls : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_pop_mpls(
-			uint8_t ofp_version,
-			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_pop_mpls));
-			oac_12pop_mpls->type 		= htobe16(openflow12::OFPAT_POP_MPLS);
-			oac_12pop_mpls->len 		= htobe16(sizeof(struct openflow12::ofp_action_pop_mpls));
-			oac_12pop_mpls->ethertype 	= htobe16(ethertype);
-		} break;
-		default:
-			logging::warn << "cofaction_pop_mpls: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t eth_type = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
+				eth_type(eth_type) {};
 
-	/** constructor
-	 */
-	cofaction_pop_mpls(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_pop_mpls() {};
@@ -1869,74 +1895,90 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_eth_type(uint16_t ethertype) {
-		oac_12pop_mpls->ethertype = htobe16(ethertype);
+	cofaction_pop_mpls(
+			const cofaction_pop_mpls& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_pop_mpls&
+	operator= (
+			const cofaction_pop_mpls& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		eth_type = action.eth_type;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t eth_type) { this->eth_type = eth_type; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_eth_type() const {
-		return be16toh(oac_12pop_mpls->ethertype);
-	};
+	get_eth_type() const { return eth_type; };
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_pop_mpls const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_pop_mpls ";
-			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type POP-MPLS not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_pop_mpls& action) {
+		os << rofl::indent(0) << "<cofaction_pop_mpls ";
+		os << "eth-type:0x" << std::hex << (unsigned int)action.get_eth_type() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint16_t	eth_type;
 };
 
 
 
-/** OFPAT_GROUP
- *
- */
 class cofaction_group : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_group(
-			uint8_t ofp_version,
-			uint32_t group_id) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_group));
-			oac_12group->type 		= htobe16(openflow12::OFPAT_GROUP);
-			oac_12group->len 		= htobe16(sizeof(struct openflow12::ofp_action_group));
-			oac_12group->group_id 	= htobe32(group_id);
-		} break;
-		default:
-			logging::warn << "cofaction_group: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint32_t group_id = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_GROUP),
+				group_id(group_id) {};
 
-	/** constructor
-	 */
-	cofaction_group(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_group() {};
@@ -1944,74 +1986,89 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_group_id(uint32_t group_id) {
-		oac_12group->group_id = htobe32(group_id);
+	cofaction_group(
+			const cofaction_group& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_group&
+	operator= (
+			const cofaction_group& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		group_id = action.group_id;
+		return *this;
 	};
+
+public:
+	/**
+	 *
+	 */
+	void
+	set_group_id(uint32_t group_id) { this->group_id = group_id; };
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_group_id() const {
-		return be32toh(oac_12group->group_id);
-	};
+	get_group_id() const { return group_id; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_group const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_group ";
-			os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type GROUP not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_group& action) {
+		os << rofl::indent(0) << "<cofaction_group ";
+		os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint32_t	group_id;
 };
 
 
-/** OFPAT_SET_NW_TTL
- *
- */
+
 class cofaction_set_nw_ttl : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_nw_ttl(
-			uint8_t ofp_version,
-			uint8_t nw_ttl) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_nw_ttl));
-			oac_12nw_ttl->type 		= htobe16(openflow12::OFPAT_SET_NW_TTL);
-			oac_12nw_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_nw_ttl));
-			oac_12nw_ttl->nw_ttl 	= nw_ttl;
-		} break;
-		default:
-			logging::warn << "cofaction_set_nw_ttl: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
+			uint8_t ofp_version = 0,
+			uint8_t nw_ttl = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_TTL),
+				nw_ttl(nw_ttl) {};
 
-	};
-
-	/** constructor
-	 */
-	cofaction_set_nw_ttl(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_nw_ttl() {};
@@ -2019,237 +2076,294 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_nw_ttl(uint8_t nw_ttl) {
-		oac_12nw_ttl->nw_ttl = nw_ttl;
+	cofaction_set_nw_ttl(
+			const cofaction_set_nw_ttl& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_nw_ttl&
+	operator= (
+			const cofaction_set_nw_ttl& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		nw_ttl = action.nw_ttl;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_nw_ttl(uint8_t nw_ttl) { this->nw_ttl = nw_ttl; };
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_nw_ttl() const {
-		return oac_12nw_ttl->nw_ttl;
-	};
+	get_nw_ttl() const { return nw_ttl; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_nw_ttl const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_nw_ttl ";
-			os << "nw-ttl:" << (int)action.get_nw_ttl() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-NW-TTL not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_nw_ttl& action) {
+		os << rofl::indent(0) << "<cofaction_set_nw_ttl ";
+		os << "nw-ttl:" << (unsigned int)action.get_nw_ttl() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint8_t nw_ttl;
 };
 
 
-/** OFPAT_DEC_NW_TTL
- *
- */
+
 class cofaction_dec_nw_ttl : public cofaction {
 public:
-	/** constructor
-	 */
-	cofaction_dec_nw_ttl(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
-			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_NW_TTL);
-			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
-		} break;
-		default:
-			logging::warn << "cofaction_dec_nw_ttl: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
-	/** constructor
+	/**
+	 *
 	 */
-	cofaction_dec_nw_ttl(
-			cofaction const& action) :
-				cofaction(action) {};
+	cofaction_dec_nw_ttl(uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_DEC_NW_TTL) {};
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_dec_nw_ttl() {};
+
+	/**
+	 *
+	 */
+	cofaction_dec_nw_ttl(
+			const cofaction_dec_nw_ttl& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_dec_nw_ttl&
+	operator= (
+			const cofaction_dec_nw_ttl& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_dec_nw_ttl const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_dec_nw_ttl >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type DEC-NW-TTL not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_dec_nw_ttl >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
 };
 
 
-/** OFPAT_COPY_TTL_OUT
- *
- */
+
 class cofaction_copy_ttl_out : public cofaction {
 public:
-	/** constructor
-	 */
-	cofaction_copy_ttl_out(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
-			oac_header->type 	= htobe16(openflow12::OFPAT_COPY_TTL_OUT);
-			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
-		} break;
-		default:
-			logging::warn << "cofaction_copy_ttl_out: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
-	/** constructor
+	/**
+	 *
 	 */
-	cofaction_copy_ttl_out(
-			cofaction const& action) :
-				cofaction(action) {};
+	cofaction_copy_ttl_out(uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
 
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_copy_ttl_out() {};
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_out(
+			const cofaction_copy_ttl_out& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_out&
+	operator= (
+			const cofaction_copy_ttl_out& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_copy_ttl_out const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_copy_ttl_out >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type COPY-TTL-OUT not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_copy_ttl_out >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
 };
 
 
-/** OFPAT_COPY_TTL_IN
- *
- */
+
 class cofaction_copy_ttl_in : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
-	cofaction_copy_ttl_in(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
-			oac_header->type	= htobe16(openflow12::OFPAT_COPY_TTL_IN);
-			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
-		} break;
-		default:
-			logging::warn << "cofaction_copy_ttl_in: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
+	cofaction_copy_ttl_in(uint8_t ofp_version = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
 
-	};
-
-	/** constructor
-	 */
-	cofaction_copy_ttl_in(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_copy_ttl_in() {};
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_in(
+			const cofaction_copy_ttl_in& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_in&
+	operator= (
+			const cofaction_copy_ttl_in& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_copy_ttl_in const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_copy_ttl_in >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type COPY-TTL-IN not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_copy_ttl_in >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
 };
 
 
 
-/** OFPAT_SET_QUEUE
- *
- */
 class cofaction_set_queue : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_queue(
-			uint8_t ofp_version,
-			uint32_t queue_id) :
-				cofaction(ofp_version, sizeof(struct openflow12::ofp_action_set_queue))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_set_queue));
-			oac_12set_queue->type 		= htobe16(openflow12::OFPAT_SET_QUEUE);
-			oac_12set_queue->len 		= htobe16(sizeof(struct openflow12::ofp_action_set_queue));
-			oac_12set_queue->queue_id 	= htobe32(queue_id);
-		} break;
-		default:
-			logging::warn << "cofaction_set_queue: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint32_t queue_id = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_QUEUE),
+				queue_id(queue_id) {};
 
-	/** constructor
-	 */
-	cofaction_set_queue(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_queue() {};
@@ -2257,198 +2371,184 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_queue_id(uint32_t queue_id) {
-		oac_12set_queue->queue_id = htobe32(queue_id);
+	cofaction_set_queue(
+			const cofaction_set_queue& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_queue&
+	operator= (
+			const cofaction_set_queue& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		queue_id = action.queue_id;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_queue_id(uint32_t queue_id) { this->queue_id = queue_id; };
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_queue_id() const {
-		return be32toh(oac_12set_queue->queue_id);
-	};
+	get_queue_id() const { return queue_id; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_queue const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_queue ";
-			os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-QUEUE not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_queue& action) {
+		os << rofl::indent(0) << "<cofaction_set_queue ";
+		os << "queue-id:" << (unsigned int)action.get_queue_id() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint32_t queue_id;
 };
 
 
-/** OFPAT_SET_FIELD
- *
- */
+
 class cofaction_set_field : public cofaction {
 public:
-	/** constructor
+
+	/**
 	 *
 	 */
 	cofaction_set_field(
-			uint8_t ofp_version,
-			coxmatch const& oxm) :
-				cofaction(ofp_version, 0)
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			size_t total_length = 2 * sizeof(uint16_t) + oxm.length();
+			uint8_t ofp_version = 0,
+			const rofl::openflow::coxmatch& oxm = rofl::openflow::coxmatch()) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_FIELD),
+				oxm(oxm) {};
 
-			size_t pad = (0x7 & total_length);
-
-			/* append padding if not a multiple of 8 */
-			if (pad) {
-				total_length += 8 - pad;
-			}
-
-			action.resize(total_length);
-
-			oac_12set_field 		= (struct openflow12::ofp_action_set_field*)action.somem();
-			oac_12set_field->type 	= htobe16(openflow12::OFPAT_SET_FIELD);
-			oac_12set_field->len 	= htobe16(total_length);
-
-			memcpy(oac_12set_field->field, (void*)oxm.somem(), oxm.memlen());
-		} break;
-		default:
-			logging::warn << "cofaction_set_field: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
-
-	/** constructor
-	 */
-	cofaction_set_field(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_field() {};
+
+	/**
+	 *
+	 */
+	cofaction_set_field(
+			const cofaction_set_field& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_field&
+	operator= (
+			const cofaction_set_field& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		oxm = action.oxm;
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	rofl::openflow::coxmatch&
+	set_oxm() { return oxm; };
+
+	/**
+	 *
+	 */
+	const rofl::openflow::coxmatch&
+	get_oxm() const { return oxm; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_field const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_field >" << std::endl;
-#if 0
-			coxmatch oxm((struct openflow::ofp_oxm_hdr*)(action.oac_12set_field->field),
-					be16toh(action.oac_12set_field->len) - 4*sizeof(uint8_t));
-#endif
-			indent i(4);
-			os << coxmatch_output(action.get_oxm());
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-FIELD not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_set_field >" << std::endl;
+		rofl::indent i(2);
+		os << coxmatch_output(action.get_oxm());
+		rofl::indent j(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	rofl::openflow::coxmatch oxm;
 };
 
 
 
-
-/** OFPAT_EXPERIMENTER
- *
- */
 class cofaction_experimenter : public cofaction {
 public:
-	/** constructor
-	 */
-	cofaction_experimenter(
-			uint8_t ofp_version,
-			uint32_t exp_id,
-			uint32_t exp_type,
-			size_t datalen) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
-			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
-			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
-			oac_12experimenter->experimenter 	= htobe32(exp_id);
-			oac_12experimenter->type			= htobe32(exp_type);
-		} break;
-		default:
-			logging::warn << "cofaction_experimenter: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
-
-	/** constructor
-	 */
-	cofaction_experimenter(
-			uint8_t ofp_version,
-			uint32_t exp_id,
-			uint32_t exp_type,
-			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
-			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
-			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
-			oac_12experimenter->experimenter 	= htobe32(exp_id);
-			oac_12experimenter->exp_type		= htobe32(exp_type);
-
-			if (data && datalen) {
-				memcpy(oac_12experimenter->data, data, datalen);
-			}
-		} break;
-		default:
-			logging::warn << "cofaction_experimenter: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
 
 	/**
-	 * constructor
+	 *
 	 */
-	cofaction_experimenter(cofaction const& action) :
-		cofaction(action)
-	{
-		switch (action.get_version()) {
-		case openflow12::OFP_VERSION: {
-			if (openflow12::OFPAT_EXPERIMENTER != action.get_type())
-				throw eActionInvalType();
-		} break;
-		case openflow13::OFP_VERSION: {
-			if (openflow13::OFPAT_EXPERIMENTER != action.get_type())
-				throw eActionInvalType();
-		} break;
-		default:
-			logging::warn << "cofaction_experimenter: 'copy' constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
+	cofaction_experimenter(
+			uint8_t ofp_version = 0,
+			uint32_t exp_id = 0,
+			const rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_EXPERIMENTER),
+				exp_id(exp_id),
+				exp_body(exp_body) {};
 
-	};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_experimenter() {};
@@ -2456,57 +2556,104 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_exp_id(uint32_t exp_id) const {
-		oac_12experimenter->experimenter = htobe32(exp_id);
+	cofaction_experimenter(
+			const cofaction_experimenter& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_experimenter&
+	operator= (
+			const cofaction_experimenter& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		exp_id		= action.exp_id;
+		exp_body	= action.exp_body;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_exp_id(uint32_t exp_id) { this->exp_id = exp_id; };
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_exp_id() const {
-		return be32toh(oac_12experimenter->experimenter);
-	};
+	get_exp_id() const { return exp_id; };
 
 	/**
 	 *
 	 */
-	void
-	set_exp_type(uint32_t exp_type) {
-		oac_12experimenter->exp_type = htobe32(exp_type);
-	};
+	rofl::cmemory&
+	set_exp_body() { return exp_body; };
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_exp_type() const {
-		return be32toh(oac_12experimenter->exp_type);
-	};
+	const rofl::cmemory&
+	get_exp_body() const { return exp_body; };
+
+	/**
+	 *
+	 */
+	rofl::cmemory&
+	set_body() { return exp_body; };
+
+	/**
+	 *
+	 */
+	const rofl::cmemory&
+	get_body() const { return exp_body; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_experimenter const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_experimenter ";
-			os << "exp-id:" << (int)action.get_exp_id() << " ";
-			os << "exp-type:" << (int)action.get_exp_type() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type EXPERIMENTER not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_experimenter ";
+		os << std::hex;
+		os << "exp-id:" 	<< (unsigned int)action.get_exp_id() 	<< " ";
+		os << std::dec;
+		os << ">" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		os << action.get_exp_body();
 		return os;
 	};
+
+private:
+
+	uint32_t		exp_id;
+	rofl::cmemory	exp_body;
 };
 
-#endif
 
 }; // end of namespace openflow
 }; // end of namespace rofl
