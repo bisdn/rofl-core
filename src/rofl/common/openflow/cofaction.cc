@@ -98,7 +98,7 @@ cofaction::unpack(
 void
 cofaction_output::check_prerequisites() const
 {
-	switch (ofp_version) {
+	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
 		if (0 == port_no) {
 			throw eBadActionBadOutPort();
@@ -904,7 +904,7 @@ cofaction_enqueue::pack(
 		struct rofl::openflow10::ofp_action_enqueue* hdr = (struct rofl::openflow10::ofp_action_enqueue*)buf;
 
 		hdr->port		= htobe16(port_no);
-		hdr->queue_id	= htobe32(queue_id):
+		hdr->queue_id	= htobe32(queue_id);
 
 	} break;
 	default:
@@ -974,7 +974,7 @@ cofaction_vendor::pack(
 
 		hdr->vendor		= htobe32(exp_id);
 
-		exp_body.pack(hdr->data, exp_body.length())
+		exp_body.pack(hdr->data, exp_body.length());
 
 	} break;
 	default:
@@ -1887,9 +1887,9 @@ cofaction_set_field::unpack(
 		struct rofl::openflow13::ofp_action_set_field* hdr = (struct rofl::openflow13::ofp_action_set_field*)buf;
 
 		if (get_length() > buflen)
-			throw eBadActionBadLen("cofaction_set_field::unpack() buflen too short");
+			throw eBadActionBadLen();
 
-		struct rofl::openflow::ofp_oxm_hdr* oxm_hdr = (struct rofl::openflow::ofp_oxm_hdr*)hdr->field;
+		//struct rofl::openflow::ofp_oxm_hdr* oxm_hdr = (struct rofl::openflow::ofp_oxm_hdr*)hdr->field;
 		size_t oxm_len = get_length() - sizeof(struct rofl::openflow13::ofp_action_header); // without action header
 
 		oxm.unpack(hdr->field, oxm_len);
@@ -1971,7 +1971,7 @@ cofaction_experimenter::unpack(
 		exp_id = be32toh(hdr->experimenter);
 
 		if (get_length() > buflen)
-			throw eBadActionBadLen("cofaction_experimenter::unpack() buflen too short");
+			throw eBadActionBadLen();
 
 		if (get_length() > sizeof(struct rofl::openflow13::ofp_action_experimenter_header)) {
 			exp_body.unpack(hdr->data, get_length() - sizeof(struct rofl::openflow13::ofp_action_experimenter_header));

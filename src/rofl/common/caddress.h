@@ -556,8 +556,6 @@ public: // static
 	void
 	set_ipv6_addr(uint128__t addr);
 
-private:
-
 	/**
 	 *
 	 */
