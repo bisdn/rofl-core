@@ -17,6 +17,7 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatch.h"
 #include "rofl/common/logging.h"
@@ -39,12 +40,12 @@ public:
 	 *
 	 */
 	cofaction(
-			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = 0,
 			uint16_t type = 0,
 			const rofl::cmemory& body = rofl::cmemory((size_t)0)) :
 				ofp_version(ofp_version),
 				type(type),
-				len(sizeof(struct rofl::openflow::ofp_action) + body.memlen()),
+				len(sizeof(struct rofl::openflow::ofp_action) + body.length()),
 				body(body) {};
 
 	/**
@@ -198,7 +199,7 @@ public:
 	 *
 	 */
 	cofaction_output(
-			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = 0,
 			uint32_t port_no = 0,
 			uint16_t max_len = 128) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_OUTPUT),
@@ -321,7 +322,7 @@ public:
 	 *
 	 */
 	cofaction_set_vlan_vid(
-			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = 0,
 			uint16_t vlan_vid = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_VLAN_VID),
 				vlan_vid(vlan_vid) {};
@@ -416,7 +417,7 @@ public:
 	 *
 	 */
 	cofaction_set_vlan_pcp(
-			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = 0,
 			uint8_t vlan_pcp = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_VLAN_PCP),
 				vlan_pcp(vlan_pcp) {};
@@ -579,7 +580,7 @@ public:
 	 */
 	cofaction_set_dl_src(
 			uint8_t ofp_version = 0,
-			const rofl::cmacaddr& macaddr) :
+			const rofl::cmacaddr& macaddr = rofl::cmacaddr("00:00:00:00:00:00")) :
 					cofaction(ofp_version, rofl::openflow::OFPAT_SET_DL_SRC),
 					macaddr(macaddr) {};
 
@@ -676,7 +677,7 @@ public:
 	 */
 	cofaction_set_dl_dst(
 			uint8_t ofp_version = 0,
-			const rofl::cmacaddr& macaddr) :
+			const rofl::cmacaddr& macaddr = rofl::cmacaddr("00:00:00:00:00:00")) :
 					cofaction(ofp_version, rofl::openflow::OFPAT_SET_DL_DST),
 					macaddr(macaddr) {};
 
@@ -765,41 +766,20 @@ private:
 
 
 
-#if 0
-
-
-/** OFPAT_SET_NW_SRC
- *
- */
 class cofaction_set_nw_src : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_nw_src(
-			uint8_t ofp_version,
-			rofl::caddress const& addr) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
-			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_SRC);
-			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
-			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
-		} break;
-		default:
-			logging::warn << "cofaction_set_nw_src: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0") :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_SRC),
+				addr(addr) {};
 
-	/** constructor
-	 */
-	cofaction_set_nw_src(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_nw_src() {};
@@ -807,72 +787,97 @@ public:
 	/**
 	 *
 	 */
-	caddress
-	get_nw_src() const {
-		caddress addr(AF_INET, "0.0.0.0");
-		addr.ca_s4addr->sin_addr.s_addr = oac_10nwaddr->nw_addr;
-		return addr;
+	cofaction_set_nw_src(
+			const cofaction_set_nw_src& action) { *this = action };
+
+	/**
+	 *
+	 */
+	cofaction_set_nw_src&
+	operator= (
+			const cofaction_set_nw_src& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		addr = action.addr;
+		return *this;
 	};
+
+
+public:
+
+	/**
+	 *
+	 */
+	const caddress&
+	get_nw_src() const { return addr; };
+
+	/**
+	 *
+	 */
+	caddress&
+	set_nw_src() { return addr; };
 
 	/**
 	 *
 	 */
 	void
-	set_nw_src(caddress addr) {
-		oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
-	};
+	set_nw_src(const caddress& addr) { this->addr = addr; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_nw_src const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_nw_src ";
-			os << "nw-src:" << action.get_nw_src() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-NW-SRC not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_nw_src& action) {
+		os << rofl::indent(0) << "<cofaction_set_nw_src ";
+		os << "nw-src:" << action.get_nw_src() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	rofl::caddress		addr;
 };
 
-/** OFPAT_SET_NW_DST
- *
- */
+
+
 class cofaction_set_nw_dst : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_nw_dst(
-			uint8_t ofp_version,
-			rofl::caddress const& addr) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
-			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_DST);
-			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
-			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
-		} break;
-		default:
-			logging::warn << "cofaction_set_nw_dst: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0") :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_DST),
+				addr(addr) {};
 
-	/** constructor
-	 */
-	cofaction_set_nw_dst(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_nw_dst() {};
@@ -880,72 +885,98 @@ public:
 	/**
 	 *
 	 */
-	caddress
-	get_nw_dst() const {
-		caddress addr(AF_INET, "0.0.0.0");
-		addr.ca_s4addr->sin_addr.s_addr = oac_10nwaddr->nw_addr;
-		return addr;
+	cofaction_set_nw_dst(
+			const cofaction_set_nw_dst& action) { *this = action };
+
+	/**
+	 *
+	 */
+	cofaction_set_nw_dst&
+	operator= (
+			const cofaction_set_nw_dst& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		addr = action.addr;
+		return *this;
 	};
+
+
+public:
+
+	/**
+	 *
+	 */
+	const caddress&
+	get_nw_dst() const { return addr; };
+
+	/**
+	 *
+	 */
+	caddress&
+	set_nw_dst() { return addr; };
 
 	/**
 	 *
 	 */
 	void
-	set_nw_dst(caddress addr) {
-		oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
-	};
+	set_nw_dst(const caddress& addr) { this->addr = addr; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_nw_dst const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_nw_dst ";
-			os << "nw-dst:" << action.get_nw_dst() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-NW-DST not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_nw_dst& action) {
+		os << rofl::indent(0) << "<cofaction_set_nw_dst ";
+		os << "nw-dst:" << action.get_nw_dst() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	rofl::caddress		addr;
 };
 
-/** OFPAT_SET_NW_TOS
- *
- */
+
+
+
 class cofaction_set_nw_tos : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_nw_tos(
-			uint8_t ofp_version,
-			uint8_t nw_tos) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_tos));
-			oac_10nwtos->type 	= htobe16(openflow10::OFPAT_SET_NW_TOS);
-			oac_10nwtos->len 	= htobe16(sizeof(struct openflow10::ofp_action_nw_tos));
-			oac_10nwtos->nw_tos = nw_tos;
-		} break;
-		default:
-			logging::warn << "cofaction_set_nw_tos: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint8_t nw_tos = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_TOS),
+				nw_tos(nw_tos) {};
 
-	/** constructor
-	 */
-	cofaction_set_nw_tos(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_nw_tos() {};
@@ -953,70 +984,90 @@ public:
 	/**
 	 *
 	 */
+	cofaction_set_nw_tos(
+			const cofaction_set_nw_tos& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_nw_tos&
+	operator= (
+			const cofaction_set_nw_tos& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		nw_tos = action.nw_tos;
+		return *this;
+	}
+
+public:
+
+	/**
+	 *
+	 */
 	void
-	set_nw_tos(uint8_t nw_tos) {
-		oac_10nwtos->nw_tos = nw_tos;
-	};
+	set_nw_tos(uint8_t nw_tos) { this->nw_tos = nw_tos; };
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_nw_tos() const {
-		return oac_10nwtos->nw_tos;
-	};
+	get_nw_tos() const { return nw_tos; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_tos const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_nw_tos ";
-			os << "nw-tos:" << (int)action.get_nw_tos() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-NW-TOS not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+		os << rofl::indent(0) << "<cofaction_set_nw_tos ";
+		os << "nw-tos:" << (unsigned int)action.get_nw_tos() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint8_t		nw_tos;
 };
 
-/** OFPAT_SET_TP_SRC
- *
- */
+
+
 class cofaction_set_tp_src : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_tp_src(
-			uint8_t ofp_version,
-			uint16_t tp_src) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
-			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_SRC);
-			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
-			oac_10tpport->tp_port 	= htobe16(tp_src);
-		} break;
-		default:
-			logging::warn << "cofaction_set_tp_src: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t tp_src = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_TP_SRC),
+				tp_src(tp_src) {};
 
-	/** constructor
-	 */
-	cofaction_set_tp_src(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_tp_src() {};
@@ -1024,70 +1075,90 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_tp_src(uint16_t tp_src) {
-		oac_10tpport->tp_port 	= htobe16(tp_src);
+	cofaction_set_tp_src(
+			const cofaction_set_tp_src& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_tp_src&
+	operator= (
+			const cofaction_set_tp_src& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		tp_src = action.tp_src;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_tp_src(uint16_t tp_src) { this->tp_src = tp_src; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_tp_src() const {
-		return be16toh(oac_10tpport->tp_port);
-	};
+	get_tp_src() const { return tp_src; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_tp_src const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_tp_src ";
-			os << "tp-src:" << (int)action.get_tp_src() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-TP-SRC not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_tp_src& action) {
+		os << rofl::indent(0) << "<cofaction_set_tp_src ";
+		os << "tp-src:" << (unsigned int)action.get_tp_src() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint16_t	tp_src;
 };
 
-/** OFPAT_SET_TP_DST
- *
- */
+
+
 class cofaction_set_tp_dst : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_set_tp_dst(
-			uint8_t ofp_version,
-			uint16_t tp_dst) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
-			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_DST);
-			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
-			oac_10tpport->tp_port 	= htobe16(tp_dst);
-		} break;
-		default:
-			logging::warn << "cofaction_set_tp_dst: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t tp_dst = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_TP_DST),
+				tp_dst(tp_dst) {};
 
-	/** constructor
-	 */
-	cofaction_set_tp_dst(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_set_tp_dst() {};
@@ -1095,71 +1166,92 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_tp_dst(uint16_t tp_dst) {
-		oac_10tpport->tp_port 	= htobe16(tp_dst);
+	cofaction_set_tp_dst(
+			const cofaction_set_tp_dst& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_set_tp_dst&
+	operator= (
+			const cofaction_set_tp_dst& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		tp_dst = action.tp_dst;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_tp_dst(uint16_t tp_dst) { this->tp_dst = tp_dst; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_tp_dst() const {
-		return be16toh(oac_10tpport->tp_port);
-	};
+	get_tp_dst() const { return tp_dst; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_set_tp_dst const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_set_tp_dst ";
-			os << "tp-dst:" << (int)action.get_tp_dst() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type SET-TP-DST not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_set_tp_dst& action) {
+		os << rofl::indent(0) << "<cofaction_set_tp_dst ";
+		os << "tp-dst:" << (unsigned int)action.get_tp_dst() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint16_t	tp_dst;
 };
 
-/** OFPAT_ENQUEUE
- *
- */
+
+
 class cofaction_enqueue : public cofaction {
 public:
-	/** constructor
+
+	/**
+	 *
 	 */
 	cofaction_enqueue(
-			uint8_t ofp_version,
-			uint16_t port, uint32_t queue_id) :
-				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
-	{
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			cofaction::resize(sizeof(struct openflow10::ofp_action_enqueue));
-			oac_10enqueue->type 	= htobe16(openflow10::OFPAT_ENQUEUE);
-			oac_10enqueue->len 		= htobe16(sizeof(struct openflow10::ofp_action_enqueue));
-			oac_10enqueue->port 	= htobe16(port);
-			oac_10enqueue->queue_id = htobe32(queue_id);
-		} break;
-		default:
-			logging::warn << "cofaction_enqueue: constructor called for invalid OFP version" << std::endl;
-			throw eBadVersion();
-		}
-	};
+			uint8_t ofp_version = 0,
+			uint16_t port_no = 0,
+			uint32_t queue_id = 0) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_SET_QUEUE),
+				port_no(port_no),
+				queue_id(queue_id) {};
 
-	/** constructor
-	 */
-	cofaction_enqueue(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
+	/**
+	 *
 	 */
 	virtual
 	~cofaction_enqueue() {};
@@ -1167,55 +1259,91 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_port_no(uint16_t port_no) {
-		oac_10enqueue->port	= htobe16(port_no);
+	cofaction_enqueue(
+			const cofaction_enqueue& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_enqueue&
+	operator= (
+			const cofaction_enqueue& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		port_no 	= action.port_no;
+		queue_id 	= action.queue_id;
+		return *this;
 	};
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	set_port_no(uint16_t port_no) { this->port_no = port_no; };
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_port() const {
-		return be16toh(oac_10enqueue->port);
-	};
+	get_port() const { return port_no; };
 
 	/**
 	 *
 	 */
 	void
-	set_queue_id(uint32_t queue_id) {
-		oac_10enqueue->queue_id = htobe32(queue_id);
-	};
+	set_queue_id(uint32_t queue_id) { this->queue_id = queue_id; };
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_queue_id() const {
-		return be32toh(oac_10enqueue->queue_id);
-	};
+	get_queue_id() const { return queue_id; };
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_enqueue const& action) {
-		switch (action.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			os << dynamic_cast<cofaction const&>( action );
-			os << indent(2) << "<cofaction_enqueue ";
-			os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
-			os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
-		} break;
-		default: {
-			os << indent(2) << "<action type ENQUEUE not supported by OF version:"
-					<< action.get_version() << " >" << std::endl;
-		};
-		}
+	operator<< (std::ostream& os, const cofaction_enqueue& action) {
+		os << rofl::indent(0) << "<cofaction_enqueue ";
+		os << "port: " << (unsigned int)action.get_port() << " ";
+		os << "queue-id: " << (unsigned int)action.get_queue_id() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+
+private:
+
+	uint16_t	port_no;
+	uint32_t	queue_id;
 };
 
+
+#if 0
 
 
 /** OFPAT_VENDOR
