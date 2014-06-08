@@ -148,15 +148,6 @@ public:
 
 public:
 
-	cofaction&
-	add_action(unsigned int index);
-
-	cofaction&
-	set_action(unsigned int index);
-
-	const cofaction&
-	get_action(unsigned int index) const;
-
 	void
 	drop_action(unsigned int index);
 

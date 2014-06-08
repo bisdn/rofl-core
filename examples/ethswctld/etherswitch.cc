@@ -131,26 +131,30 @@ ethswitch::handle_dpt_open(
 
 	//register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, 30);
 
+	unsigned int index = 0;
+
 	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.set_instructions().set_inst_apply_actions().set_actions().append_action_output(openflow10::OFPP_CONTROLLER);
 		fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
+		fe.set_actions().add_action_output(index++).set_port_no(rofl::openflow10::OFPP_CONTROLLER);
 
 	} break;
 	case openflow12::OFP_VERSION: {
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
-		fe.set_instructions().set_inst_apply_actions().set_actions().append_action_output(openflow12::OFPP_CONTROLLER);
+		fe.set_instructions().set_inst_apply_actions().set_actions().
+				add_action_output(index++).set_port_no(rofl::openflow12::OFPP_CONTROLLER);
 
 	} break;
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(farpv4frame::ARPV4_ETHER));
-		fe.set_instructions().set_inst_apply_actions().set_actions().append_action_output(openflow13::OFPP_CONTROLLER);
+		fe.set_instructions().set_inst_apply_actions().set_actions().
+				add_action_output(index++).set_port_no(rofl::openflow13::OFPP_CONTROLLER);
 
 	} break;
 	default:
@@ -253,6 +257,7 @@ ethswitch::handle_packet_in(
 		 */
 		if ((msg.set_packet().ether()->get_dl_dst() == cmacaddr("33:33:00:00:00:02"))) {
 			rofl::openflow::cofflowmod fe(dpt.get_version());
+			unsigned int index = 0;
 
 			switch (dpt.get_version()) {
 			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
@@ -271,7 +276,7 @@ ethswitch::handle_packet_in(
 			fe.set_match().set_eth_dst(msg.set_packet().ether()->get_dl_dst());
 			fe.set_match().set_eth_type(msg.set_match().get_eth_type());
 			fe.set_instructions().add_inst_apply_actions();
-			fe.set_instructions().set_inst_apply_actions().set_actions().append_action_output(crofbase::get_ofp_flood_port(dpt.get_version()));
+			fe.set_instructions().set_inst_apply_actions().set_actions().add_action_output(index++).set_port_no(crofbase::get_ofp_flood_port(dpt.get_version()));
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
 
@@ -305,6 +310,7 @@ ethswitch::handle_packet_in(
 				}
 
 				rofl::openflow::cofflowmod fe(dpt.get_version());
+				unsigned int index = 0;
 
 				fe.set_command(rofl::openflow12::OFPFC_ADD);
 				fe.set_table_id(0);
@@ -318,7 +324,8 @@ ethswitch::handle_packet_in(
 				fe.set_match().set_eth_src(eth_src);
 				fe.set_match().set_eth_type(msg.set_match().get_eth_type());
 
-				fe.set_instructions().add_inst_apply_actions().set_actions().append_action_output(entry.get_out_port_no());
+				fe.set_instructions().add_inst_apply_actions().set_actions().
+						add_action_output(index++).set_port_no(entry.get_out_port_no());
 
 				indent i(2); rofl::logging::debug << "[ethsw][packet-in] installing flow mod" << std::endl << fe;
 
@@ -342,15 +349,15 @@ ethswitch::handle_packet_in(
 
 
 		rofl::openflow::cofactions actions(dpt.get_version());
-
+		unsigned int index = 0;
 
 		switch (dpt.get_version()) {
 		case openflow10::OFP_VERSION:
-			actions.append_action_output(openflow10::OFPP_FLOOD); break;
+			actions.add_action_output(index).set_port_no(openflow10::OFPP_FLOOD); break;
 		case openflow12::OFP_VERSION:
-			actions.append_action_output(openflow12::OFPP_FLOOD); break;
+			actions.add_action_output(index).set_port_no(openflow12::OFPP_FLOOD); break;
 		case openflow13::OFP_VERSION:
-			actions.append_action_output(openflow13::OFPP_FLOOD); break;
+			actions.add_action_output(index).set_port_no(openflow13::OFPP_FLOOD); break;
 		default:
 			throw eBadVersion();
 		}

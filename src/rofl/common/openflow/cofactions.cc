@@ -245,7 +245,7 @@ cofactions::unpack(uint8_t* buf, size_t buflen)
 			}
 		} break;
 		default: {
-			add_action(index++).unpack(buf, len);
+			rofl::logging::warn << "[rofl][cofactions][unpack] unknown action type:" << (unsigned int)type << std::endl;
 		}
 		}
 
