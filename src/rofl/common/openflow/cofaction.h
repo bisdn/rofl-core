@@ -1446,6 +1446,142 @@ private:
 
 
 
+class cofaction_copy_ttl_out : public cofaction {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_out(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cofaction_copy_ttl_out() {};
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_out(
+			const cofaction_copy_ttl_out& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_out&
+	operator= (
+			const cofaction_copy_ttl_out& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_copy_ttl_out const& action) {
+		os << rofl::indent(0) << "<cofaction_copy_ttl_out >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		return os;
+	};
+};
+
+
+
+class cofaction_copy_ttl_in : public cofaction {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_in(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
+				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cofaction_copy_ttl_in() {};
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_in(
+			const cofaction_copy_ttl_in& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_copy_ttl_in&
+	operator= (
+			const cofaction_copy_ttl_in& action) {
+		if (this == &action)
+			return *this;
+		cofaction::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_copy_ttl_in const& action) {
+		os << rofl::indent(0) << "<cofaction_copy_ttl_in >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( action );
+		return os;
+	};
+};
+
+
+
 class cofaction_set_mpls_ttl : public cofaction {
 public:
 
@@ -2196,142 +2332,6 @@ public:
 
 
 
-class cofaction_copy_ttl_out : public cofaction {
-public:
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_out(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
-
-	/**
-	 *
-	 */
-	virtual
-	~cofaction_copy_ttl_out() {};
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_out(
-			const cofaction_copy_ttl_out& action) { *this = action; };
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_out&
-	operator= (
-			const cofaction_copy_ttl_out& action) {
-		if (this == &action)
-			return *this;
-		cofaction::operator= (action);
-		return *this;
-	};
-
-public:
-
-	/**
-	 *
-	 */
-	virtual size_t
-	length() const;
-
-	/**
-	 *
-	 */
-	virtual void
-	pack(
-			uint8_t* buf, size_t buflen);
-
-	/**
-	 *
-	 */
-	virtual void
-	unpack(
-			uint8_t* buf, size_t buflen);
-
-public:
-
-	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_copy_ttl_out const& action) {
-		os << rofl::indent(0) << "<cofaction_copy_ttl_out >" << std::endl;
-		rofl::indent i(2);
-		os << dynamic_cast<cofaction const&>( action );
-		return os;
-	};
-};
-
-
-
-class cofaction_copy_ttl_in : public cofaction {
-public:
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_in(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
-
-	/**
-	 *
-	 */
-	virtual
-	~cofaction_copy_ttl_in() {};
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_in(
-			const cofaction_copy_ttl_in& action) { *this = action; };
-
-	/**
-	 *
-	 */
-	cofaction_copy_ttl_in&
-	operator= (
-			const cofaction_copy_ttl_in& action) {
-		if (this == &action)
-			return *this;
-		cofaction::operator= (action);
-		return *this;
-	};
-
-public:
-
-	/**
-	 *
-	 */
-	virtual size_t
-	length() const;
-
-	/**
-	 *
-	 */
-	virtual void
-	pack(
-			uint8_t* buf, size_t buflen);
-
-	/**
-	 *
-	 */
-	virtual void
-	unpack(
-			uint8_t* buf, size_t buflen);
-
-public:
-
-	friend std::ostream&
-	operator<< (std::ostream& os, cofaction_copy_ttl_in const& action) {
-		os << rofl::indent(0) << "<cofaction_copy_ttl_in >" << std::endl;
-		rofl::indent i(2);
-		os << dynamic_cast<cofaction const&>( action );
-		return os;
-	};
-};
-
-
-
 class cofaction_set_queue : public cofaction {
 public:
 
@@ -2782,9 +2782,6 @@ public:
 		return os;
 	};
 };
-
-
-
 
 
 }; // end of namespace openflow

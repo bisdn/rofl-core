@@ -167,198 +167,524 @@ public:
 	// ActionOutput
 
 	cofaction_output&
-	add_action_output(unsigned int index = 0);
+	add_action_output(unsigned int index);
 
 	cofaction_output&
-	set_action_output(unsigned int index = 0);
+	set_action_output(unsigned int index);
 
 	const cofaction_output&
-	get_action_output(unsigned int index = 0) const;
+	get_action_output(unsigned int index) const;
 
 	void
-	drop_action_output(unsigned int index = 0);
+	drop_action_output(unsigned int index);
 
 	bool
-	has_action_output(unsigned int index = 0) const;
+	has_action_output(unsigned int index) const;
 
 
 	// ActionSetVlanVid
 
 	cofaction_set_vlan_vid&
-	add_action_set_vlan_vid(unsigned int index = 0);
+	add_action_set_vlan_vid(unsigned int index);
 
 	cofaction_set_vlan_vid&
-	set_action_set_vlan_vid(unsigned int index = 0);
+	set_action_set_vlan_vid(unsigned int index);
 
 	const cofaction_set_vlan_vid&
-	get_action_set_vlan_vid(unsigned int index = 0) const;
+	get_action_set_vlan_vid(unsigned int index) const;
 
 	void
-	drop_action_set_vlan_vid(unsigned int index = 0);
+	drop_action_set_vlan_vid(unsigned int index);
 
 	bool
-	has_action_set_vlan_vid(unsigned int index = 0) const;
+	has_action_set_vlan_vid(unsigned int index) const;
+
 
 	// ActionSetVlanPcp
 
 	cofaction_set_vlan_pcp&
-	add_action_set_vlan_pcp(unsigned int index = 0);
+	add_action_set_vlan_pcp(unsigned int index);
 
 	cofaction_set_vlan_pcp&
-	set_action_set_vlan_pcp(unsigned int index = 0);
+	set_action_set_vlan_pcp(unsigned int index);
 
 	const cofaction_set_vlan_pcp&
-	get_action_set_vlan_pcp(unsigned int index = 0) const;
+	get_action_set_vlan_pcp(unsigned int index) const;
 
 	void
-	drop_action_set_vlan_pcp(unsigned int index = 0);
+	drop_action_set_vlan_pcp(unsigned int index);
 
 	bool
-	has_action_set_vlan_pcp(unsigned int index = 0) const;
+	has_action_set_vlan_pcp(unsigned int index) const;
+
+
+	// ActionStripVlan
+
+	cofaction_strip_vlan&
+	add_action_strip_vlan(unsigned int index);
+
+	cofaction_strip_vlan&
+	set_action_strip_vlan(unsigned int index);
+
+	const cofaction_strip_vlan&
+	get_action_strip_vlan(unsigned int index) const;
+
+	void
+	drop_action_strip_vlan(unsigned int index);
+
+	bool
+	has_action_strip_vlan(unsigned int index) const;
+
 
 	// ActionSetDlSrc
 
 	cofaction_set_dl_src&
-	add_action_set_dl_src(unsigned int index = 0);
+	add_action_set_dl_src(unsigned int index);
 
 	cofaction_set_dl_src&
-	set_action_set_dl_src(unsigned int index = 0);
+	set_action_set_dl_src(unsigned int index);
 
 	const cofaction_set_dl_src&
-	get_action_set_dl_src(unsigned int index = 0) const;
+	get_action_set_dl_src(unsigned int index) const;
 
 	void
-	drop_action_set_dl_src(unsigned int index = 0);
+	drop_action_set_dl_src(unsigned int index);
 
 	bool
-	has_action_set_dl_src(unsigned int index = 0) const;
+	has_action_set_dl_src(unsigned int index) const;
+
 
 	// ActionSetDlDst
 
 	cofaction_set_dl_dst&
-	add_action_set_dl_dst(unsigned int index = 0);
+	add_action_set_dl_dst(unsigned int index);
 
 	cofaction_set_dl_dst&
-	set_action_set_dl_dst(unsigned int index = 0);
+	set_action_set_dl_dst(unsigned int index);
 
 	const cofaction_set_dl_dst&
-	get_action_set_dl_dst(unsigned int index = 0) const;
+	get_action_set_dl_dst(unsigned int index) const;
 
 	void
-	drop_action_set_dl_dst(unsigned int index = 0);
+	drop_action_set_dl_dst(unsigned int index);
 
 	bool
-	has_action_set_dl_dst(unsigned int index = 0) const;
+	has_action_set_dl_dst(unsigned int index) const;
 
 
+	// ActionSetNwSrc
 
+	cofaction_set_nw_src&
+	add_action_set_nw_src(unsigned int index);
+
+	cofaction_set_nw_src&
+	set_action_set_nw_src(unsigned int index);
+
+	const cofaction_set_nw_src&
+	get_action_set_nw_src(unsigned int index) const;
+
+	void
+	drop_action_set_nw_src(unsigned int index);
+
+	bool
+	has_action_set_nw_src(unsigned int index) const;
+
+
+	// ActionSetNwDst
+
+	cofaction_set_nw_dst&
+	add_action_set_nw_dst(unsigned int index);
+
+	cofaction_set_nw_dst&
+	set_action_set_nw_dst(unsigned int index);
+
+	const cofaction_set_nw_dst&
+	get_action_set_nw_dst(unsigned int index) const;
+
+	void
+	drop_action_set_nw_dst(unsigned int index);
+
+	bool
+	has_action_set_nw_dst(unsigned int index) const;
+
+
+	// ActionSetNwTos
+
+	cofaction_set_nw_tos&
+	add_action_set_nw_tos(unsigned int index);
+
+	cofaction_set_nw_tos&
+	set_action_set_nw_tos(unsigned int index);
+
+	const cofaction_set_nw_tos&
+	get_action_set_nw_tos(unsigned int index) const;
+
+	void
+	drop_action_set_nw_tos(unsigned int index);
+
+	bool
+	has_action_set_nw_tos(unsigned int index) const;
+
+
+	// ActionSetTpSrc
+
+	cofaction_set_tp_src&
+	add_action_set_tp_src(unsigned int index);
+
+	cofaction_set_tp_src&
+	set_action_set_tp_src(unsigned int index);
+
+	const cofaction_set_tp_src&
+	get_action_set_tp_src(unsigned int index) const;
+
+	void
+	drop_action_set_tp_src(unsigned int index);
+
+	bool
+	has_action_set_tp_src(unsigned int index) const;
+
+
+	// ActionSetTpDst
+
+	cofaction_set_tp_dst&
+	add_action_set_tp_dst(unsigned int index);
+
+	cofaction_set_tp_dst&
+	set_action_set_tp_dst(unsigned int index);
+
+	const cofaction_set_tp_dst&
+	get_action_set_tp_dst(unsigned int index) const;
+
+	void
+	drop_action_set_tp_dst(unsigned int index);
+
+	bool
+	has_action_set_tp_dst(unsigned int index) const;
+
+
+	// ActionEnqueue
+
+	cofaction_enqueue&
+	add_action_enqueue(unsigned int index);
+
+	cofaction_enqueue&
+	set_action_enqueue(unsigned int index);
+
+	const cofaction_enqueue&
+	get_action_enqueue(unsigned int index) const;
+
+	void
+	drop_action_enqueue(unsigned int index);
+
+	bool
+	has_action_enqueue(unsigned int index) const;
+
+
+	// ActionVendor
+
+	cofaction_vendor&
+	add_action_vendor(unsigned int index);
+
+	cofaction_vendor&
+	set_action_vendor(unsigned int index);
+
+	const cofaction_vendor&
+	get_action_vendor(unsigned int index) const;
+
+	void
+	drop_action_vendor(unsigned int index);
+
+	bool
+	has_action_vendor(unsigned int index) const;
+
+
+	// ActionCopyTtlOut
+
+	cofaction_copy_ttl_out&
+	add_action_copy_ttl_out(unsigned int index);
+
+	cofaction_copy_ttl_out&
+	set_action_copy_ttl_out(unsigned int index);
+
+	const cofaction_copy_ttl_out&
+	get_action_copy_ttl_out(unsigned int index) const;
+
+	void
+	drop_action_copy_ttl_out(unsigned int index);
+
+	bool
+	has_action_copy_ttl_out(unsigned int index) const;
+
+
+	// ActionCopyTtlIn
+
+	cofaction_copy_ttl_in&
+	add_action_copy_ttl_in(unsigned int index);
+
+	cofaction_copy_ttl_in&
+	set_action_copy_ttl_in(unsigned int index);
+
+	const cofaction_copy_ttl_in&
+	get_action_copy_ttl_in(unsigned int index) const;
+
+	void
+	drop_action_copy_ttl_in(unsigned int index);
+
+	bool
+	has_action_copy_ttl_in(unsigned int index) const;
+
+
+	// ActionSetMplsTtl
+
+	cofaction_set_mpls_ttl&
+	add_action_set_mpls_ttl(unsigned int index);
+
+	cofaction_set_mpls_ttl&
+	set_action_set_mpls_ttl(unsigned int index);
+
+	const cofaction_set_mpls_ttl&
+	get_action_set_mpls_ttl(unsigned int index) const;
+
+	void
+	drop_action_set_mpls_ttl(unsigned int index);
+
+	bool
+	has_action_set_mpls_ttl(unsigned int index) const;
+
+
+	// ActionDecMplsTtl
+
+	cofaction_dec_mpls_ttl&
+	add_action_dec_mpls_ttl(unsigned int index);
+
+	cofaction_dec_mpls_ttl&
+	set_action_dec_mpls_ttl(unsigned int index);
+
+	const cofaction_dec_mpls_ttl&
+	get_action_dec_mpls_ttl(unsigned int index) const;
+
+	void
+	drop_action_dec_mpls_ttl(unsigned int index);
+
+	bool
+	has_action_dec_mpls_ttl(unsigned int index) const;
+
+
+	// ActionPushVlan
+
+	cofaction_push_vlan&
+	add_action_push_vlan(unsigned int index);
+
+	cofaction_push_vlan&
+	set_action_push_vlan(unsigned int index);
+
+	const cofaction_push_vlan&
+	get_action_push_vlan(unsigned int index) const;
+
+	void
+	drop_action_push_vlan(unsigned int index);
+
+	bool
+	has_action_push_vlan(unsigned int index) const;
+
+
+	// ActionPopVlan
+
+	cofaction_pop_vlan&
+	add_action_pop_vlan(unsigned int index);
+
+	cofaction_pop_vlan&
+	set_action_pop_vlan(unsigned int index);
+
+	const cofaction_pop_vlan&
+	get_action_pop_vlan(unsigned int index) const;
+
+	void
+	drop_action_pop_vlan(unsigned int index);
+
+	bool
+	has_action_pop_vlan(unsigned int index) const;
+
+
+	// ActionPushMpls
+
+	cofaction_push_mpls&
+	add_action_push_mpls(unsigned int index);
+
+	cofaction_push_mpls&
+	set_action_push_mpls(unsigned int index);
+
+	const cofaction_push_mpls&
+	get_action_push_mpls(unsigned int index) const;
+
+	void
+	drop_action_push_mpls(unsigned int index);
+
+	bool
+	has_action_push_mpls(unsigned int index) const;
+
+
+	// ActionPopMpls
+
+	cofaction_pop_mpls&
+	add_action_pop_mpls(unsigned int index);
+
+	cofaction_pop_mpls&
+	set_action_pop_mpls(unsigned int index);
+
+	const cofaction_pop_mpls&
+	get_action_pop_mpls(unsigned int index) const;
+
+	void
+	drop_action_pop_mpls(unsigned int index);
+
+	bool
+	has_action_pop_mpls(unsigned int index) const;
+
+
+	// ActionGroup
+
+	cofaction_group&
+	add_action_group(unsigned int index);
+
+	cofaction_group&
+	set_action_group(unsigned int index);
+
+	const cofaction_group&
+	get_action_group(unsigned int index) const;
+
+	void
+	drop_action_group(unsigned int index);
+
+	bool
+	has_action_group(unsigned int index) const;
+
+
+	// ActionSetNwTtl
+
+	cofaction_set_nw_ttl&
+	add_action_set_nw_ttl(unsigned int index);
+
+	cofaction_set_nw_ttl&
+	set_action_set_nw_ttl(unsigned int index);
+
+	const cofaction_set_nw_ttl&
+	get_action_set_nw_ttl(unsigned int index) const;
+
+	void
+	drop_action_set_nw_ttl(unsigned int index);
+
+	bool
+	has_action_set_nw_ttl(unsigned int index) const;
+
+
+	// ActionDecNwTtl
+
+	cofaction_dec_nw_ttl&
+	add_action_dec_nw_ttl(unsigned int index);
+
+	cofaction_dec_nw_ttl&
+	set_action_dec_nw_ttl(unsigned int index);
+
+	const cofaction_dec_nw_ttl&
+	get_action_dec_nw_ttl(unsigned int index) const;
+
+	void
+	drop_action_dec_nw_ttl(unsigned int index);
+
+	bool
+	has_action_dec_nw_ttl(unsigned int index) const;
+
+
+	// ActionSetQueue
+
+	cofaction_set_queue&
+	add_action_set_queue(unsigned int index);
+
+	cofaction_set_queue&
+	set_action_set_queue(unsigned int index);
+
+	const cofaction_set_queue&
+	get_action_set_queue(unsigned int index) const;
+
+	void
+	drop_action_set_queue(unsigned int index);
+
+	bool
+	has_action_set_queue(unsigned int index) const;
 
 
 	// ActionSetField
 
 	cofaction_set_field&
-	add_action_set_field(unsigned int index = 0);
+	add_action_set_field(unsigned int index);
 
 	cofaction_set_field&
-	set_action_set_field(unsigned int index = 0);
+	set_action_set_field(unsigned int index);
 
 	const cofaction_set_field&
-	get_action_set_field(unsigned int index = 0) const;
+	get_action_set_field(unsigned int index) const;
 
 	void
-	drop_action_set_field(unsigned int index = 0);
+	drop_action_set_field(unsigned int index);
 
 	bool
-	has_action_set_field(unsigned int index = 0) const;
+	has_action_set_field(unsigned int index) const;
 
 
-public:
-
-#if 0
-	cofaction&
-	append_action(cofaction const action);
-
-	cofaction_output&
-	append_action_output(uint32_t port_no, uint16_t max_len = 128);
-
-	cofaction_set_vlan_vid&
-	append_action_set_vlan_vid(uint16_t vid);
-
-	cofaction_set_vlan_pcp&
-	append_action_set_vlan_pcp(uint8_t pcp);
-
-	cofaction_strip_vlan&
-	append_action_strip_vlan();
-
-	cofaction_set_dl_src&
-	append_action_set_dl_src(cmacaddr const& maddr);
-
-	cofaction_set_dl_dst&
-	append_action_set_dl_dst(cmacaddr const& maddr);
-
-	cofaction_set_nw_src&
-	append_action_set_nw_src(caddress const& addr);
-
-	cofaction_set_nw_dst&
-	append_action_set_nw_dst(caddress const& addr);
-
-	cofaction_set_nw_tos&
-	append_action_set_nw_tos(uint8_t tos);
-
-	cofaction_set_tp_src&
-	append_action_set_tp_src(uint16_t tp_src);
-
-	cofaction_set_tp_dst&
-	append_action_set_tp_dst(uint16_t tp_dst);
-
-	cofaction_enqueue&
-	append_action_enqueue(uint16_t port_no, uint32_t queue_id);
-
-	cofaction_copy_ttl_out&
-	append_action_copy_ttl_out();
-
-	cofaction_copy_ttl_in&
-	append_action_copy_ttl_in();
-
-	cofaction_set_mpls_ttl&
-	append_action_set_mpls_ttl(uint8_t ttl);
-
-	cofaction_dec_mpls_ttl&
-	append_action_dec_mpls_ttl();
-
-	cofaction_push_vlan&
-	append_action_push_vlan(uint16_t eth_type);
-
-	cofaction_pop_vlan&
-	append_action_pop_vlan();
-
-	cofaction_push_mpls&
-	append_action_push_mpls(uint16_t eth_type);
-
-	cofaction_pop_mpls&
-	append_action_pop_mpls(uint16_t eth_type);
-
-	cofaction_set_queue&
-	append_action_set_queue(uint32_t queue_id);
-
-	cofaction_group&
-	append_action_group(uint32_t group_id);
-
-	cofaction_set_nw_ttl&
-	append_action_set_nw_ttl(uint8_t ttl);
-
-	cofaction_dec_nw_ttl&
-	append_action_dec_nw_ttl();
-
-	cofaction_set_field&
-	append_action_set_field(coxmatch const& oxm);
+	// ActionExperimenter
 
 	cofaction_experimenter&
-	append_action_experimenter(cofaction const& action);
+	add_action_experimenter(unsigned int index);
 
-	cofaction_vendor&
-	append_action_vendor(cofaction const& action);
-#endif
+	cofaction_experimenter&
+	set_action_experimenter(unsigned int index);
+
+	const cofaction_experimenter&
+	get_action_experimenter(unsigned int index) const;
+
+	void
+	drop_action_experimenter(unsigned int index);
+
+	bool
+	has_action_experimenter(unsigned int index) const;
+
+
+	// ActionPushPbb
+
+	cofaction_push_pbb&
+	add_action_push_pbb(unsigned int index);
+
+	cofaction_push_pbb&
+	set_action_push_pbb(unsigned int index);
+
+	const cofaction_push_pbb&
+	get_action_push_pbb(unsigned int index) const;
+
+	void
+	drop_action_push_pbb(unsigned int index);
+
+	bool
+	has_action_push_pbb(unsigned int index) const;
+
+
+	// ActionPopPbb
+
+	cofaction_pop_pbb&
+	add_action_pop_pbb(unsigned int index);
+
+	cofaction_pop_pbb&
+	set_action_pop_pbb(unsigned int index);
+
+	const cofaction_pop_pbb&
+	get_action_pop_pbb(unsigned int index) const;
+
+	void
+	drop_action_pop_pbb(unsigned int index);
+
+	bool
+	has_action_pop_pbb(unsigned int index) const;
+
 
 public:
 
