@@ -68,6 +68,8 @@ unittest_SOURCES= \
 	cofpacketqueue_test.h \
 	cofpacketqueues_test.cc \
 	cofpacketqueues_test.h \
+	cofaction_test.cc \
+	cofaction_test.h \
 	cofactions_test.cc \
 	cofactions_test.h \
 	cofflowmod_test.cc \

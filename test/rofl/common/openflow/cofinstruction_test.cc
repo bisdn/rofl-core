@@ -103,8 +103,8 @@ cofinstruction_test::test_cofinstruction_apply_actions()
 	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == inst.get_version());
 
 	rofl::openflow::cofactions actions(rofl::openflow13::OFP_VERSION);
-	actions.append_action_copy_ttl_in();
-	actions.append_action_output(0x01);
+	actions.add_action_copy_ttl_in(0);
+	actions.add_action_output(1).set_port_no(0x01);
 
 	inst = rofl::openflow::cofinstruction_apply_actions(rofl::openflow13::OFP_VERSION, actions);
 
@@ -138,8 +138,8 @@ cofinstruction_test::test_cofinstruction_write_actions()
 	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == inst.get_version());
 
 	rofl::openflow::cofactions actions(rofl::openflow13::OFP_VERSION);
-	actions.append_action_copy_ttl_in();
-	actions.append_action_output(0x01);
+	actions.add_action_copy_ttl_in(0);
+	actions.add_action_output(1).set_port_no(0x01);
 
 	inst = rofl::openflow::cofinstruction_write_actions(rofl::openflow13::OFP_VERSION, actions);
 

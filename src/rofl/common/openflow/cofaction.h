@@ -2471,6 +2471,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_oxm(const rofl::openflow::coxmatch& oxm) { this->oxm = oxm; };
+
+	/**
+	 *
+	 */
 	const rofl::openflow::coxmatch&
 	get_oxm() const { return oxm; };
 
@@ -2502,9 +2508,9 @@ public:
 	operator<< (std::ostream& os, cofaction_set_field const& action) {
 		os << rofl::indent(0) << "<cofaction_set_field >" << std::endl;
 		rofl::indent i(2);
-		os << coxmatch_output(action.get_oxm());
-		rofl::indent j(2);
 		os << dynamic_cast<cofaction const&>( action );
+		rofl::indent j(2);
+		os << coxmatch_output(action.get_oxm());
 		return os;
 	};
 

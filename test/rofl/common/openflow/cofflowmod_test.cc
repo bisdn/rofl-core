@@ -62,21 +62,22 @@ cofflowmod_test::testFlowMod10()
 	flowmod.set_match().set_eth_src(eth_src);
 	flowmod.set_match().set_eth_type(eth_type);
 
-	flowmod.set_actions().append_action_output(port_no, max_len);
+	flowmod.set_actions().add_action_output(0).set_port_no(port_no);
+	flowmod.set_actions().set_action_output(0).set_max_len(max_len);
 
-	std::cerr << "[10] flowmod:" << std::endl << flowmod;
+	//std::cerr << "[10] flowmod:" << std::endl << flowmod;
 
 	rofl::cmemory packed(flowmod.length());
 
 	flowmod.pack(packed.somem(), packed.memlen());
 
-	std::cerr << "[10] packed:" << std::endl << packed;
+	//std::cerr << "[10] packed:" << std::endl << packed;
 
 	rofl::openflow::cofflowmod clone(rofl::openflow10::OFP_VERSION);
 
 	clone.unpack(packed.somem(), packed.memlen());
 
-	std::cerr << "[10] clone:" << std::endl << clone;
+	//std::cerr << "[10] clone:" << std::endl << clone;
 
 	CPPUNIT_ASSERT(clone.get_command() 		== command);
 	CPPUNIT_ASSERT(clone.get_idle_timeout() == idle_timeout);
@@ -136,21 +137,22 @@ cofflowmod_test::testFlowMod13()
 	flowmod.set_match().set_eth_type(eth_type);
 
 	flowmod.set_instructions().set_inst_goto_table().set_table_id(table_id+1);
-	flowmod.set_instructions().set_inst_apply_actions().set_actions().append_action_output(port_no, max_len);
+	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(0).set_port_no(port_no);
+	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(0).set_max_len(max_len);
 
-	std::cerr << "[13] flowmod:" << std::endl << flowmod;
+	//std::cerr << "[13] flowmod:" << std::endl << flowmod;
 
 	rofl::cmemory packed(flowmod.length());
 
 	flowmod.pack(packed.somem(), packed.memlen());
 
-	std::cerr << "[13] packed:" << std::endl << packed;
+	//std::cerr << "[13] packed:" << std::endl << packed;
 
 	rofl::openflow::cofflowmod clone(rofl::openflow13::OFP_VERSION);
 
 	clone.unpack(packed.somem(), packed.memlen());
 
-	std::cerr << "[13] clone:" << std::endl << clone;
+	//std::cerr << "[13] clone:" << std::endl << clone;
 
 	CPPUNIT_ASSERT(clone.get_command() 		== command);
 	CPPUNIT_ASSERT(clone.get_table_id() 	== table_id);

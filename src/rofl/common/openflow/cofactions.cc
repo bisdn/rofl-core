@@ -42,9 +42,105 @@ cofactions::operator= (
 
 	clear();
 
-	for (std::map<unsigned int, cofaction*>::const_iterator
-			it = actions.begin(); it != actions.end(); ++it) {
-		//map_and_insert(*(it->second));
+	for (std::map<unsigned int, unsigned int>::const_iterator
+			it = actions.actions_index.begin(); it != actions.actions_index.end(); ++it) {
+
+		const unsigned int& index 	= it->first;
+		const unsigned int& type 	= it->second;
+
+		switch (type) {
+		case rofl::openflow::OFPAT_OUTPUT: {
+			add_action_output(index) = actions.get_action_output(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_VID: {
+			add_action_set_vlan_vid(index) = actions.get_action_set_vlan_vid(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_PCP: {
+			add_action_set_vlan_pcp(index) = actions.get_action_set_vlan_pcp(index);
+		} break;
+		case rofl::openflow::OFPAT_STRIP_VLAN: {
+			add_action_strip_vlan(index) = actions.get_action_strip_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_SRC: {
+			add_action_set_dl_src(index) = actions.get_action_set_dl_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_DST: {
+			add_action_set_dl_dst(index) = actions.get_action_set_dl_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_SRC: {
+			add_action_set_nw_src(index) = actions.get_action_set_nw_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_DST: {
+			add_action_set_nw_dst(index) = actions.get_action_set_nw_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TOS: {
+			add_action_set_nw_tos(index) = actions.get_action_set_nw_tos(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_SRC: {
+			add_action_set_tp_src(index) = actions.get_action_set_tp_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_DST: {
+			add_action_set_tp_dst(index) = actions.get_action_set_tp_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
+			add_action_copy_ttl_out(index) = actions.get_action_copy_ttl_out(index);
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_IN: {
+			add_action_copy_ttl_in(index) = actions.get_action_copy_ttl_in(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_MPLS_TTL: {
+			add_action_set_mpls_ttl(index) = actions.get_action_set_mpls_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_DEC_MPLS_TTL: {
+			add_action_dec_mpls_ttl(index) = actions.get_action_dec_mpls_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_VLAN: {
+			add_action_push_vlan(index) = actions.get_action_push_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_VLAN: {
+			add_action_pop_vlan(index) = actions.get_action_pop_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_MPLS: {
+			add_action_push_mpls(index) = actions.get_action_push_mpls(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_MPLS: {
+			add_action_pop_mpls(index) = actions.get_action_pop_mpls(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_QUEUE: {
+			add_action_set_queue(index) = actions.get_action_set_queue(index);
+		} break;
+		case rofl::openflow::OFPAT_GROUP: {
+			add_action_group(index) = actions.get_action_group(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TTL: {
+			add_action_set_nw_ttl(index) = actions.get_action_set_nw_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_DEC_NW_TTL: {
+			add_action_dec_nw_ttl(index) = actions.get_action_dec_nw_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_FIELD: {
+			add_action_set_field(index) = actions.get_action_set_field(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_PBB: {
+			add_action_push_pbb(index) = actions.get_action_push_pbb(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_PBB: {
+			add_action_pop_pbb(index) = actions.get_action_pop_pbb(index);
+		} break;
+		case rofl::openflow::OFPAT_EXPERIMENTER: {
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_vendor(index) = actions.get_action_vendor(index);
+			} break;
+			default: {
+				add_action_experimenter(index) = actions.get_action_experimenter(index);
+			}
+			}
+		} break;
+		default: {
+			rofl::logging::warn << "[rofl][cofactions][unpack] unknown action type:" << (unsigned int)type << std::endl;
+		}
+		}
 	}
 
 	return *this;

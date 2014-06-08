@@ -685,7 +685,7 @@ public:
 				" #actions:" << (int)actions.get_actions().size() << " >" << std::endl;
 		rofl::indent i(2);
 		for (std::map<unsigned int, cofaction*>::const_iterator
-				it = actions.begin(); it != actions.end(); ++it) {
+				it = actions.actions.begin(); it != actions.actions.end(); ++it) {
 			cofaction::dump(os, *(it->second));
 		}
 		return os;
@@ -696,23 +696,6 @@ private:
 	uint8_t 								ofp_version;
 	std::map<unsigned int, cofaction*>		actions;
 	std::map<unsigned int, unsigned int>	actions_index;
-
-public:
-
-    typedef typename std::map<unsigned int, cofaction*>::iterator iterator;
-    typedef typename std::map<unsigned int, cofaction*>::const_iterator const_iterator;
-    typedef typename std::map<unsigned int, cofaction*>::reverse_iterator reverse_iterator;
-    typedef typename std::map<unsigned int, cofaction*>::const_reverse_iterator const_reverse_iterator;
-
-    iterator begin() 						{ return actions.begin(); }
-    iterator end() 							{ return actions.end(); }
-    const_iterator begin() 	const 			{ return actions.begin(); }
-    const_iterator end() 	const 			{ return actions.end(); }
-
-    reverse_iterator rbegin() 				{ return actions.rbegin(); }
-    reverse_iterator rend() 				{ return actions.rend(); }
-    const_reverse_iterator rbegin() const  	{ return actions.rbegin(); }
-    const_reverse_iterator rend() 	const  	{ return actions.rend(); }
 
 };
 
