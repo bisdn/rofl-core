@@ -51,12 +51,10 @@ public:
 	 */
 	cofaction(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			uint16_t type = 0,
-			const rofl::cmemory& body = rofl::cmemory((size_t)0)) :
+			uint16_t type = 0) :
 				ofp_version(ofp_version),
 				type(type),
-				len(sizeof(struct rofl::openflow::ofp_action) + body.length()),
-				body(body) {};
+				len(sizeof(struct rofl::openflow::ofp_action)) {};
 
 	/**
 	 *
@@ -81,7 +79,6 @@ public:
 		ofp_version 	= action.ofp_version;
 		type			= action.type;
 		len				= action.len;
-		body			= action.body;
 		return *this;
 	};
 
@@ -129,18 +126,6 @@ public:
 	void
 	set_length(uint16_t len) { this->len = len; };
 
-	/**
-	 *
-	 */
-	rofl::cmemory&
-	set_body() { return body; };
-
-	/**
-	 *
-	 */
-	const rofl::cmemory&
-	get_body() const { return body; };
-
 public:
 
 	/**
@@ -172,9 +157,6 @@ public:
 			os << "type:" << (int)action.get_type() << " ";
 			os << "length:" << (int)action.get_length() << " ";
 		os << " >" << std::endl;
-		if (action.get_body().length() > 0) {
-			rofl::indent i(2); os << action.get_body();
-		}
 		return os;
 	}
 
@@ -189,6 +171,9 @@ public:
 		bool operator() (const cofaction* action) {
 			return (action->get_type() == type);
 		};
+		bool operator() (const std::pair<unsigned int, cofaction*>& p) {
+			return (p.second->get_type() == type);
+		};
 	};
 
 private:
@@ -196,7 +181,6 @@ private:
 	uint8_t 		ofp_version;
 	uint16_t 		type;
 	uint16_t 		len;
-	rofl::cmemory	body;
 };
 
 
@@ -1420,18 +1404,6 @@ public:
 	rofl::cmemory&
 	set_exp_body() { return exp_body; };
 
-	/**
-	 * @brief 	Shadow intentionally cofaction::get_body()
-	 */
-	const rofl::cmemory&
-	get_body() const { return exp_body; };
-
-	/**
-	 * @brief 	Shadow intentionally cofaction::set_body()
-	 */
-	rofl::cmemory&
-	set_body() { return exp_body; };
-
 public:
 
 	/**
@@ -2608,18 +2580,6 @@ public:
 	 */
 	const rofl::cmemory&
 	get_exp_body() const { return exp_body; };
-
-	/**
-	 *
-	 */
-	rofl::cmemory&
-	set_body() { return exp_body; };
-
-	/**
-	 *
-	 */
-	const rofl::cmemory&
-	get_body() const { return exp_body; };
 
 public:
 

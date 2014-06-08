@@ -131,6 +131,12 @@ public:
 	/**
 	 *
 	 */
+	const std::map<unsigned int, unsigned int>&
+	get_actions_index() const { return actions_index; };
+
+	/**
+	 *
+	 */
 	std::map<unsigned int, cofaction*>&
 	set_actions() { return actions; };
 
@@ -247,6 +253,25 @@ public:
 
 
 
+
+	// ActionSetField
+
+	cofaction_set_field&
+	add_action_set_field(unsigned int index = 0);
+
+	cofaction_set_field&
+	set_action_set_field(unsigned int index = 0);
+
+	const cofaction_set_field&
+	get_action_set_field(unsigned int index = 0) const;
+
+	void
+	drop_action_set_field(unsigned int index = 0);
+
+	bool
+	has_action_set_field(unsigned int index = 0) const;
+
+
 public:
 
 #if 0
@@ -351,8 +376,9 @@ public:
 
 private:
 
-	uint8_t 							ofp_version;
-	std::map<unsigned int, cofaction*>	actions;
+	uint8_t 								ofp_version;
+	std::map<unsigned int, cofaction*>		actions;
+	std::map<unsigned int, unsigned int>	actions_index;
 
 public:
 

@@ -177,35 +177,35 @@ cofactions::add_action_set_vlan_vid(unsigned int index)
 		delete actions[index];
 	}
 	actions[index] = new cofaction_set_vlan_vid(ofp_version);
-	return *(actions[index]);
+	return dynamic_cast<cofaction_set_vlan_vid&>( *(actions[index]) );
 }
 
 
 
-cofaction_set_vlan_pcp&
-cofactions::set_action_set_vlan_pcp(unsigned int index)
+cofaction_set_vlan_vid&
+cofactions::set_action_set_vlan_vid(unsigned int index)
 {
 	if (actions.find(index) == actions.end()) {
-		actions[index] = new cofaction_set_vlan_pcp(ofp_version);
+		actions[index] = new cofaction_set_vlan_vid(ofp_version);
 	}
-	return *(actions[index]);
+	return dynamic_cast<cofaction_set_vlan_vid&>( *(actions[index]) );
 }
 
 
 
-const cofaction_set_vlan_pcp&
-cofactions::get_action_set_vlan_pcp(unsigned int index) const
+const cofaction_set_vlan_vid&
+cofactions::get_action_set_vlan_vid(unsigned int index) const
 {
 	if (actions.find(index) == actions.end()) {
 		throw eActionNotFound();
 	}
-	return *(actions.at(index));
+	return dynamic_cast<const cofaction_set_vlan_vid&>( *(actions.at(index)) );
 }
 
 
 
 void
-cofactions::drop_action_set_vlan_pcp(unsigned int index)
+cofactions::drop_action_set_vlan_vid(unsigned int index)
 {
 	if (rofl::openflow::OFPAT_SET_VLAN_VID != actions[index]->get_type()) {
 		throw eActionInvalType();
@@ -216,7 +216,7 @@ cofactions::drop_action_set_vlan_pcp(unsigned int index)
 
 
 bool
-cofactions::has_action_set_vlan_pcp(unsigned int index) const
+cofactions::has_action_set_vlan_vid(unsigned int index) const
 {
 	return ((not (actions.find(index) == actions.end())) &&
 			(rofl::openflow::OFPAT_SET_VLAN_VID == actions.at(index)->get_type()));
@@ -235,7 +235,7 @@ cofactions::add_action_set_vlan_pcp(unsigned int index)
 		delete actions[index];
 	}
 	actions[index] = new cofaction_set_vlan_pcp(ofp_version);
-	return *(actions[index]);
+	return dynamic_cast<cofaction_set_vlan_pcp&>( *(actions[index]) );
 }
 
 
@@ -246,7 +246,7 @@ cofactions::set_action_set_vlan_pcp(unsigned int index)
 	if (actions.find(index) == actions.end()) {
 		actions[index] = new cofaction_set_vlan_pcp(ofp_version);
 	}
-	return *(actions[index]);
+	return dynamic_cast<cofaction_set_vlan_pcp&>( *(actions[index]) );
 }
 
 
@@ -257,7 +257,7 @@ cofactions::get_action_set_vlan_pcp(unsigned int index) const
 	if (actions.find(index) == actions.end()) {
 		throw eActionNotFound();
 	}
-	return *(actions.at(index));
+	return dynamic_cast<const cofaction_set_vlan_pcp&>( *(actions.at(index)) );
 }
 
 
@@ -403,7 +403,7 @@ int
 cofactions::count_action_type(
 		uint16_t type)
 {
-	return count_if(actions.begin(), actions.end(), cofaction_find_type(type));
+	return count_if(actions.begin(), actions.end(), cofaction::cofaction_find_by_type(type));
 }
 
 

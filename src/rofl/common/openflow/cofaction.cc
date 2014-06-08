@@ -117,7 +117,7 @@ cofaction::length() const
 	case rofl::openflow10::OFP_VERSION:
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow::ofp_action) + body.memlen());
+		return (sizeof(struct rofl::openflow::ofp_action));
 	} break;
 	default:
 		throw eBadVersion("cofaction::length() invalid version");
@@ -148,10 +148,6 @@ cofaction::pack(
 		hdr->type	= htobe16(type);
 		hdr->len	= htobe16(len);
 
-		if (body.length() > 0) {
-			body.pack(hdr->body, body.length());
-		}
-
 	} break;
 	default:
 		throw eBadVersion("cofaction::pack() invalid version");
@@ -167,8 +163,6 @@ cofaction::unpack(
 	if ((0 == buf) || (0 == buflen))
 		return;
 
-	body.resize(0);
-
 	if (buflen < cofaction::length())
 		throw eInval("cofaction::unpack() buflen too short");
 
@@ -183,11 +177,7 @@ cofaction::unpack(
 		len		= be16toh(hdr->len);
 
 		if (len < sizeof(struct rofl::openflow::ofp_action))
-			throw eBadActionBadLen();
-
-		if (len > sizeof(struct rofl::openflow::ofp_action)) {
-			body.unpack(hdr->body, len - sizeof(struct rofl::openflow::ofp_action));
-		}
+			throw eBadActionBadLen("cofaction::unpack()");
 
 	} break;
 	default:
@@ -203,13 +193,13 @@ cofaction_output::check_prerequisites() const
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
 		if (0 == port_no) {
-			throw eBadActionBadOutPort();
+			throw eBadActionBadOutPort("cofaction_output::check_prerequisites()");
 		}
 	} break;
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
 		if ((rofl::openflow13::OFPP_ANY == port_no) || (0 == port_no)) {
-			throw eBadActionBadOutPort();
+			throw eBadActionBadOutPort("cofaction_output::check_prerequisites()");
 		}
 	} break;
 	}
@@ -1989,7 +1979,7 @@ cofaction_set_field::unpack(
 		struct rofl::openflow13::ofp_action_set_field* hdr = (struct rofl::openflow13::ofp_action_set_field*)buf;
 
 		if (get_length() > buflen)
-			throw eBadActionBadLen();
+			throw eBadActionBadLen("cofaction_set_field::unpack()");
 
 		//struct rofl::openflow::ofp_oxm_hdr* oxm_hdr = (struct rofl::openflow::ofp_oxm_hdr*)hdr->field;
 		size_t oxm_len = get_length() - sizeof(struct rofl::openflow13::ofp_action_header); // without action header
@@ -2073,7 +2063,7 @@ cofaction_experimenter::unpack(
 		exp_id = be32toh(hdr->experimenter);
 
 		if (get_length() > buflen)
-			throw eBadActionBadLen();
+			throw eBadActionBadLen("cofaction::experimenter()");
 
 		if (get_length() > sizeof(struct rofl::openflow13::ofp_action_experimenter_header)) {
 			exp_body.unpack(hdr->data, get_length() - sizeof(struct rofl::openflow13::ofp_action_experimenter_header));

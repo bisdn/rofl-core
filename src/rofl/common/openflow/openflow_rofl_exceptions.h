@@ -41,12 +41,32 @@ class eBadRequestBadPacket			: public eBadRequestBase {};	// OFPBRC_BAD_PACKET
 class eBadRequestMultipartBufferOverflow : public eBadRequestBase {}; // OFPBRC_MULTIPART_BUFFER_OVERFLOW
 
 /* exceptions for action-containing requests according to OpenFlow */
-class eBadActionBase				: public eOpenFlowBase {};
-class eBadActionBadType				: public eBadActionBase {};		// OFPBAC_BAD_TYPE
-class eBadActionBadLen				: public eBadActionBase {};		// OFPBAC_BAD_LEN
+class eBadActionBase				: public eOpenFlowBase {
+public:
+	eBadActionBase(const std::string& __arg) : eOpenFlowBase(__arg) {};
+};
+
+// OFPBAC_BAD_TYPE
+class eBadActionBadType				: public eBadActionBase {
+public:
+	eBadActionBadType(const std::string& __arg) : eBadActionBase(__arg) {};
+};
+
+// OFPBAC_BAD_LEN
+class eBadActionBadLen				: public eBadActionBase {
+public:
+	eBadActionBadLen(const std::string& __arg) : eBadActionBase(__arg) {};
+};
+
 class eBadActionBadExperimenter		: public eBadActionBase {};		// OFPBAC_BAD_EXPERIMENTER
 class eBadActionBadExperimenterType	: public eBadActionBase {};		// OFPBAC_BAD_EXPERIMENTER_TYPE
-class eBadActionBadOutPort			: public eBadActionBase {};		// OFPBAC_BAD_OUT_PORT
+
+// OFPBAC_BAD_OUT_PORT
+class eBadActionBadOutPort			: public eBadActionBase {
+public:
+	eBadActionBadOutPort(const std::string& __arg) : eBadActionBase(__arg) {};
+};
+
 class eBadActionBadArgument			: public eBadActionBase {};		// OFPBAC_BAD_ARGUMENT
 class eBadActionEperm				: public eBadActionBase {};		// OFPBAC_EPERM
 class eBadActionTooMany				: public eBadActionBase {};		// OFPBAC_TOO_MANY
