@@ -9,6 +9,7 @@
 #include <string>
 #include <algorithm>
 #include <endian.h>
+#include <stdexcept>
 #ifndef htobe16
 	#include "../endian_conversion.h"
 #endif
@@ -30,7 +31,7 @@ namespace openflow {
 class eActionBase 			: public RoflException {};
 class eActionInval 			: public eActionBase {}; // invalid parameter
 class eActionInvalType 		: public eActionBase {}; // invalid action type
-
+class eActionNotFound		: public eActionBase {};
 
 
 class cofaction {
@@ -39,8 +40,17 @@ public:
 	/**
 	 *
 	 */
+	static std::ostream&
+	dump(
+			std::ostream& os, const cofaction& action);
+
+public:
+
+	/**
+	 *
+	 */
 	cofaction(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t type = 0,
 			const rofl::cmemory& body = rofl::cmemory((size_t)0)) :
 				ofp_version(ofp_version),
@@ -199,7 +209,7 @@ public:
 	 *
 	 */
 	cofaction_output(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t port_no = 0,
 			uint16_t max_len = 128) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_OUTPUT),
@@ -322,7 +332,7 @@ public:
 	 *
 	 */
 	cofaction_set_vlan_vid(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t vlan_vid = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_VLAN_VID),
 				vlan_vid(vlan_vid) {};
@@ -417,7 +427,7 @@ public:
 	 *
 	 */
 	cofaction_set_vlan_pcp(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t vlan_pcp = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_VLAN_PCP),
 				vlan_pcp(vlan_pcp) {};
@@ -510,7 +520,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_strip_vlan(uint8_t ofp_version = 0) :
+	cofaction_strip_vlan(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 		cofaction(ofp_version, rofl::openflow::OFPAT_STRIP_VLAN) {};
 
 	/**
@@ -579,7 +589,7 @@ public:
 	 *
 	 */
 	cofaction_set_dl_src(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::cmacaddr& macaddr = rofl::cmacaddr("00:00:00:00:00:00")) :
 					cofaction(ofp_version, rofl::openflow::OFPAT_SET_DL_SRC),
 					macaddr(macaddr) {};
@@ -676,7 +686,7 @@ public:
 	 *
 	 */
 	cofaction_set_dl_dst(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::cmacaddr& macaddr = rofl::cmacaddr("00:00:00:00:00:00")) :
 					cofaction(ofp_version, rofl::openflow::OFPAT_SET_DL_DST),
 					macaddr(macaddr) {};
@@ -773,7 +783,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_src(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0")) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_SRC),
 				addr(addr) {};
@@ -871,7 +881,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_dst(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0")) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_DST),
 				addr(addr) {};
@@ -970,7 +980,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_tos(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t nw_tos = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_TOS),
 				nw_tos(nw_tos) {};
@@ -1061,7 +1071,7 @@ public:
 	 *
 	 */
 	cofaction_set_tp_src(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t tp_src = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_TP_SRC),
 				tp_src(tp_src) {};
@@ -1152,7 +1162,7 @@ public:
 	 *
 	 */
 	cofaction_set_tp_dst(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t tp_dst = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_TP_DST),
 				tp_dst(tp_dst) {};
@@ -1243,7 +1253,7 @@ public:
 	 *
 	 */
 	cofaction_enqueue(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t port_no = 0,
 			uint32_t queue_id = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_QUEUE),
@@ -1351,7 +1361,7 @@ public:
 	 *
 	 */
 	cofaction_vendor(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t exp_id = 0,
 			const rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_EXPERIMENTER),
@@ -1471,7 +1481,7 @@ public:
 	 *
 	 */
 	cofaction_set_mpls_ttl(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t mpls_ttl = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_MPLS_TTL),
 				mpls_ttl(mpls_ttl) {};
@@ -1562,7 +1572,7 @@ public:
 	 *
 	 */
 	cofaction_dec_mpls_ttl(
-			uint8_t ofp_version = 0) :
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_DEC_MPLS_TTL) {};
 
 	/**
@@ -1631,7 +1641,7 @@ public:
 	 *
 	 */
 	cofaction_push_vlan(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
 				eth_type(eth_type) {};
@@ -1721,7 +1731,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_pop_vlan(uint8_t ofp_version = 0) :
+	cofaction_pop_vlan(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_POP_VLAN) {};
 
 	/**
@@ -1790,7 +1800,7 @@ public:
 	 *
 	 */
 	cofaction_push_mpls(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
 				eth_type(eth_type) {};
@@ -1881,7 +1891,7 @@ public:
 	 *
 	 */
 	cofaction_pop_mpls(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
 				eth_type(eth_type) {};
@@ -1972,7 +1982,7 @@ public:
 	 *
 	 */
 	cofaction_group(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t group_id = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_GROUP),
 				group_id(group_id) {};
@@ -2062,7 +2072,7 @@ public:
 	 *
 	 */
 	cofaction_set_nw_ttl(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint8_t nw_ttl = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_TTL),
 				nw_ttl(nw_ttl) {};
@@ -2152,7 +2162,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_dec_nw_ttl(uint8_t ofp_version = 0) :
+	cofaction_dec_nw_ttl(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_DEC_NW_TTL) {};
 
 	/**
@@ -2220,7 +2230,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_copy_ttl_out(uint8_t ofp_version = 0) :
+	cofaction_copy_ttl_out(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
 
 	/**
@@ -2288,7 +2298,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_copy_ttl_in(uint8_t ofp_version = 0) :
+	cofaction_copy_ttl_in(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
 
 	/**
@@ -2357,7 +2367,7 @@ public:
 	 *
 	 */
 	cofaction_set_queue(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t queue_id = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_QUEUE),
 				queue_id(queue_id) {};
@@ -2448,7 +2458,7 @@ public:
 	 *
 	 */
 	cofaction_set_field(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			const rofl::openflow::coxmatch& oxm = rofl::openflow::coxmatch()) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_FIELD),
 				oxm(oxm) {};
@@ -2540,7 +2550,7 @@ public:
 	 *
 	 */
 	cofaction_experimenter(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t exp_id = 0,
 			const rofl::cmemory& exp_body = rofl::cmemory((size_t)0)) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_EXPERIMENTER),
@@ -2663,7 +2673,7 @@ public:
 	 *
 	 */
 	cofaction_push_pbb(
-			uint8_t ofp_version = 0,
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_PBB),
 				eth_type(eth_type) {};
@@ -2753,7 +2763,7 @@ public:
 	/**
 	 *
 	 */
-	cofaction_pop_pbb(uint8_t ofp_version = 0) :
+	cofaction_pop_pbb(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_POP_PBB) {};
 
 	/**

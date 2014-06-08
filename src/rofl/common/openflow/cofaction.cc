@@ -8,6 +8,108 @@
 using namespace rofl::openflow;
 
 
+
+/*static*/
+std::ostream&
+cofaction::dump(
+		std::ostream& os, const cofaction& action)
+{
+	try {
+		switch (action.get_type()) {
+		case rofl::openflow::OFPAT_OUTPUT: {
+			os << dynamic_cast<const cofaction_output&> ( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_VID: {
+			os << dynamic_cast<const cofaction_set_vlan_vid&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_PCP: {
+			os << dynamic_cast<const cofaction_set_vlan_pcp&>( action );
+		} break;
+		case rofl::openflow::OFPAT_STRIP_VLAN: {
+			os << dynamic_cast<const cofaction_strip_vlan&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_SRC: {
+			os << dynamic_cast<const cofaction_set_dl_src&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_DST: {
+			os << dynamic_cast<const cofaction_set_dl_dst&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_SRC: {
+			os << dynamic_cast<const cofaction_set_nw_src&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_DST: {
+			os << dynamic_cast<const cofaction_set_nw_dst&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TOS: {
+			os << dynamic_cast<const cofaction_set_nw_tos&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_SRC: {
+			os << dynamic_cast<const cofaction_set_tp_src&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_DST: {
+			os << dynamic_cast<const cofaction_set_tp_dst&>( action );
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
+			os << dynamic_cast<const cofaction_copy_ttl_out&>( action );
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_IN: {
+			os << dynamic_cast<const cofaction_copy_ttl_in&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_MPLS_TTL: {
+			os << dynamic_cast<const cofaction_set_mpls_ttl&>( action );
+		} break;
+		case rofl::openflow::OFPAT_DEC_MPLS_TTL: {
+			os << dynamic_cast<const cofaction_dec_mpls_ttl&>( action );
+		} break;
+		case rofl::openflow::OFPAT_PUSH_VLAN: {
+			os << dynamic_cast<const cofaction_push_vlan&>( action );
+		} break;
+		case rofl::openflow::OFPAT_POP_VLAN: {
+			os << dynamic_cast<const cofaction_pop_vlan&>( action );
+		} break;
+		case rofl::openflow::OFPAT_PUSH_MPLS: {
+			os << dynamic_cast<const cofaction_push_mpls&>( action );
+		} break;
+		case rofl::openflow::OFPAT_POP_MPLS: {
+			os << dynamic_cast<const cofaction_pop_mpls&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_QUEUE: {
+			os << dynamic_cast<const cofaction_set_queue&>( action );
+		} break;
+		case rofl::openflow::OFPAT_GROUP: {
+			os << dynamic_cast<const cofaction_group&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TTL: {
+			os << dynamic_cast<const cofaction_set_nw_ttl&>( action );
+		} break;
+		case rofl::openflow::OFPAT_DEC_NW_TTL: {
+			os << dynamic_cast<const cofaction_dec_nw_ttl&>( action );
+		} break;
+		case rofl::openflow::OFPAT_SET_FIELD: {
+			os << dynamic_cast<const cofaction_set_field&>( action );
+		} break;
+		case rofl::openflow::OFPAT_PUSH_PBB: {
+			os << dynamic_cast<const cofaction_push_pbb&>( action );
+		} break;
+		case rofl::openflow::OFPAT_POP_PBB: {
+			os << dynamic_cast<const cofaction_pop_pbb&>( action );
+		} break;
+		case rofl::openflow::OFPAT_EXPERIMENTER: {
+			os << dynamic_cast<const cofaction_experimenter&>( action );
+		} break;
+		default: {
+			os << action;
+		}
+		};
+
+	} catch (...) {
+		os << action;
+	}
+	return os;
+}
+
+
+
 size_t
 cofaction::length() const
 {

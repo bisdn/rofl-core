@@ -6,7 +6,7 @@
 #define COFACTIONS_H 1
 
 #include <inttypes.h>
-#include <vector>
+#include <map>
 #include <algorithm>
 
 #include "rofl/common/croflexception.h"
@@ -16,114 +16,70 @@
 namespace rofl {
 namespace openflow {
 
-class eActionsBase 			: public RoflException {}; 		// base error class for cofactions
-class eActionsInval 		: public eActionsBase {}; 	// parameter is invalid
-class eActionsNotFound 		: public eActionsBase {}; 	// element not found
-class eActionsOutOfRange 	: public eActionsBase {}; 	// index out of range in operator[]
-
-
-class cofactions : public std::list<cofaction*>
-{
-public: // iterators
-
-	typedef std::list<cofaction*>::iterator iterator;
-	typedef std::list<cofaction*>::const_iterator const_iterator;
-
-	typedef std::list<cofaction*>::reverse_iterator reverse_iterator;
-	typedef std::list<cofaction*>::const_reverse_iterator const_reverse_iterator;
-
+class cofactions {
 public:
 
-	uint8_t 		ofp_version;
-
-	/** constructor
+	/**
+	 *
 	 */
 	cofactions(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN);
 
-
-	/** constructor
-	 */
-	cofactions(
-			uint8_t ofp_version, uint8_t *achdr, size_t aclen);
-
-
 	/**
-	 */
-	cofactions(
-			cofactions const& aclist);
-
-
-	/**
-	 */
-	cofactions&
-	operator= (
-			cofactions const& aclist);
-
-
-	/**
-	 */
-	bool
-	operator== (
-			cofactions const& aclist);
-
-
-	/** destructor
+	 *
 	 */
 	virtual
 	~cofactions();
 
+	/**
+	 *
+	 */
+	cofactions(
+			const cofactions& actions);
+
+	/**
+	 *
+	 */
+	cofactions&
+	operator= (
+			const cofactions& actions);
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const cofactions& actions);
+
+public:
+
+	/**
+	 *
+	 */
+	size_t
+	length() const;
 
 	/**
 	 *
 	 */
 	void
-	pop_front();
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 	/**
 	 *
 	 */
 	void
-	pop_back();
+	pack(
+			uint8_t* buf, size_t buflen);
 
-	/**
-	 *
-	 */
-	cofaction&
-	front();
-
-	/**
-	 *
-	 */
-	cofaction&
-	back();
+public:
 
 	/**
 	 *
 	 */
 	void
 	clear();
-
-	/** create a std::list<cofaction*> from a struct ofp_flow_mod
-	 */
-	void
-	unpack(uint8_t *buf, size_t buflen);
-
-
-
-	/** builds an array of struct ofp_instructions
-	 * from a std::vector<cofinst*>
-	 */
-	uint8_t*
-	pack(uint8_t* buf, size_t buflen);
-
-
-
-	/** returns required length for array of struct ofp_action_headers
-	 * for all actions defined in std::vector<cofaction*>
-	 */
-	size_t
-	length() const;
 
 	/** counts number of actions of specific type in ActionList acvec of this instruction
 	 */
@@ -152,11 +108,19 @@ public:
 	void
 	check_prerequisites() const;
 
+public:
+
 	/**
 	 *
 	 */
 	void
-	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+	set_version(uint8_t ofp_version) {
+		this->ofp_version = ofp_version;
+		for (std::map<unsigned int, cofaction*>::iterator
+				it = actions.begin(); it != actions.end(); ++it) {
+			it->second->set_version(ofp_version);
+		}
+	};
 
 	/**
 	 *
@@ -164,15 +128,128 @@ public:
 	uint8_t
 	get_version() const { return ofp_version; };
 
-private:
+	/**
+	 *
+	 */
+	std::map<unsigned int, cofaction*>&
+	set_actions() { return actions; };
 
+	/**
+	 *
+	 */
+	const std::map<unsigned int, cofaction*>&
+	get_actions() const { return actions; };
+
+public:
+
+	cofaction&
+	add_action(unsigned int index);
+
+	cofaction&
+	set_action(unsigned int index);
+
+	const cofaction&
+	get_action(unsigned int index) const;
 
 	void
-	map_and_insert(cofaction const& action);
+	drop_action(unsigned int index);
+
+	bool
+	has_action(unsigned int index) const;
+
+
+	// ActionOutput
+
+	cofaction_output&
+	add_action_output(unsigned int index = 0);
+
+	cofaction_output&
+	set_action_output(unsigned int index = 0);
+
+	const cofaction_output&
+	get_action_output(unsigned int index = 0) const;
+
+	void
+	drop_action_output(unsigned int index = 0);
+
+	bool
+	has_action_output(unsigned int index = 0) const;
+
+
+	// ActionSetVlanVid
+
+	cofaction_set_vlan_vid&
+	add_action_set_vlan_vid(unsigned int index = 0);
+
+	cofaction_set_vlan_vid&
+	set_action_set_vlan_vid(unsigned int index = 0);
+
+	const cofaction_set_vlan_vid&
+	get_action_set_vlan_vid(unsigned int index = 0) const;
+
+	void
+	drop_action_set_vlan_vid(unsigned int index = 0);
+
+	bool
+	has_action_set_vlan_vid(unsigned int index = 0) const;
+
+	// ActionSetVlanPcp
+
+	cofaction_set_vlan_pcp&
+	add_action_set_vlan_pcp(unsigned int index = 0);
+
+	cofaction_set_vlan_pcp&
+	set_action_set_vlan_pcp(unsigned int index = 0);
+
+	const cofaction_set_vlan_pcp&
+	get_action_set_vlan_pcp(unsigned int index = 0) const;
+
+	void
+	drop_action_set_vlan_pcp(unsigned int index = 0);
+
+	bool
+	has_action_set_vlan_pcp(unsigned int index = 0) const;
+
+	// ActionSetDlSrc
+
+	cofaction_set_dl_src&
+	add_action_set_dl_src(unsigned int index = 0);
+
+	cofaction_set_dl_src&
+	set_action_set_dl_src(unsigned int index = 0);
+
+	const cofaction_set_dl_src&
+	get_action_set_dl_src(unsigned int index = 0) const;
+
+	void
+	drop_action_set_dl_src(unsigned int index = 0);
+
+	bool
+	has_action_set_dl_src(unsigned int index = 0) const;
+
+	// ActionSetDlDst
+
+	cofaction_set_dl_dst&
+	add_action_set_dl_dst(unsigned int index = 0);
+
+	cofaction_set_dl_dst&
+	set_action_set_dl_dst(unsigned int index = 0);
+
+	const cofaction_set_dl_dst&
+	get_action_set_dl_dst(unsigned int index = 0) const;
+
+	void
+	drop_action_set_dl_dst(unsigned int index = 0);
+
+	bool
+	has_action_set_dl_dst(unsigned int index = 0) const;
+
+
 
 
 public:
 
+#if 0
 	cofaction&
 	append_action(cofaction const action);
 
@@ -256,85 +333,44 @@ public:
 
 	cofaction_vendor&
 	append_action_vendor(cofaction const& action);
-
+#endif
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofactions const& actions) {
-		os << indent(0) << "<cofactions ofp-version:" << (int)actions.ofp_version <<
-				" #actions:" << (int)actions.size() << " >" << std::endl;
-		indent i(2);
-		for (std::list<cofaction*>::const_iterator
+		os << rofl::indent(0) << "<cofactions ofp-version:" << (int)actions.get_version() <<
+				" #actions:" << (int)actions.get_actions().size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::map<unsigned int, cofaction*>::const_iterator
 				it = actions.begin(); it != actions.end(); ++it) {
-			cofaction const& action = *(*it);
-			switch (action.get_type()) {
-			case openflow::OFPAT_OUTPUT:
-				os << dynamic_cast<cofaction_output const&>( action ); break;
-			case openflow::OFPAT_SET_VLAN_VID:
-				os << dynamic_cast<cofaction_set_vlan_vid const&>( action ); break;
-			case openflow::OFPAT_SET_VLAN_PCP:
-				os << dynamic_cast<cofaction_set_vlan_pcp const&>( action ); break;
-			case openflow::OFPAT_STRIP_VLAN:
-				os << dynamic_cast<cofaction_strip_vlan const&>( action ); break;
-			case openflow::OFPAT_SET_DL_SRC:
-				os << dynamic_cast<cofaction_set_dl_src const&>( action ); break;
-			case openflow::OFPAT_SET_DL_DST:
-				os << dynamic_cast<cofaction_set_dl_dst const&>( action ); break;
-			case openflow::OFPAT_SET_NW_SRC:
-				os << dynamic_cast<cofaction_set_nw_src const&>( action ); break;
-			case openflow::OFPAT_SET_NW_DST:
-				os << dynamic_cast<cofaction_set_nw_dst const&>( action ); break;
-			case openflow::OFPAT_SET_NW_TOS:
-				os << dynamic_cast<cofaction_set_nw_tos const&>( action ); break;
-			case openflow::OFPAT_SET_TP_SRC:
-				os << dynamic_cast<cofaction_set_tp_src const&>( action ); break;
-			case openflow::OFPAT_SET_TP_DST:
-				os << dynamic_cast<cofaction_set_tp_dst const&>( action ); break;
-			case openflow::OFPAT_COPY_TTL_OUT: // = openflow10::OFPAT_ENQUEUE
-				switch (actions.ofp_version) {
-				case openflow10::OFP_VERSION:
-					os << dynamic_cast<cofaction_enqueue const&>( action ); break;
-				default:
-					os << dynamic_cast<cofaction_copy_ttl_out const&>( action ); break;
-				} break;
-			case openflow::OFPAT_COPY_TTL_IN:
-				os << dynamic_cast<cofaction_copy_ttl_in const&>( action ); break;
-			case openflow::OFPAT_SET_MPLS_TTL:
-				os << dynamic_cast<cofaction_set_mpls_ttl const&>( action ); break;
-			case openflow::OFPAT_DEC_MPLS_TTL:
-				os << dynamic_cast<cofaction_dec_mpls_ttl const&>( action ); break;
-			case openflow::OFPAT_PUSH_VLAN:
-				os << dynamic_cast<cofaction_push_vlan const&>( action ); break;
-			case openflow::OFPAT_POP_VLAN:
-				os << dynamic_cast<cofaction_pop_vlan const&>( action ); break;
-			case openflow::OFPAT_PUSH_MPLS:
-				os << dynamic_cast<cofaction_push_mpls const&>( action ); break;
-			case openflow::OFPAT_POP_MPLS:
-				os << dynamic_cast<cofaction_pop_mpls const&>( action ); break;
-			case openflow::OFPAT_SET_QUEUE:
-				os << dynamic_cast<cofaction_set_queue const&>( action ); break;
-			case openflow::OFPAT_GROUP:
-				os << dynamic_cast<cofaction_group const&>( action ); break;
-			case openflow::OFPAT_SET_NW_TTL:
-				os << dynamic_cast<cofaction_set_nw_ttl const&>( action ); break;
-			case openflow::OFPAT_DEC_NW_TTL:
-				os << dynamic_cast<cofaction_dec_nw_ttl const&>( action ); break;
-			case openflow::OFPAT_SET_FIELD:
-				os << dynamic_cast<cofaction_set_field const&>( action ); break;
-			case openflow::OFPAT_EXPERIMENTER:
-				switch (actions.ofp_version) {
-				case openflow10::OFP_VERSION:
-					os << dynamic_cast<cofaction_vendor const&>( action ); break;
-				default:
-					os << dynamic_cast<cofaction_experimenter const&>( action ); break;
-				} break;
-			default:
-				os << action; break;
-			}
+			cofaction::dump(os, *(it->second));
 		}
 		return os;
 	};
+
+private:
+
+	uint8_t 							ofp_version;
+	std::map<unsigned int, cofaction*>	actions;
+
+public:
+
+    typedef typename std::map<unsigned int, cofaction*>::iterator iterator;
+    typedef typename std::map<unsigned int, cofaction*>::const_iterator const_iterator;
+    typedef typename std::map<unsigned int, cofaction*>::reverse_iterator reverse_iterator;
+    typedef typename std::map<unsigned int, cofaction*>::const_reverse_iterator const_reverse_iterator;
+
+    iterator begin() 						{ return actions.begin(); }
+    iterator end() 							{ return actions.end(); }
+    const_iterator begin() 	const 			{ return actions.begin(); }
+    const_iterator end() 	const 			{ return actions.end(); }
+
+    reverse_iterator rbegin() 				{ return actions.rbegin(); }
+    reverse_iterator rend() 				{ return actions.rend(); }
+    const_reverse_iterator rbegin() const  	{ return actions.rbegin(); }
+    const_reverse_iterator rend() 	const  	{ return actions.rend(); }
+
 };
 
 }; // end of namespace openflow
