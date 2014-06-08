@@ -1282,7 +1282,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_port() const { return port_no; };
+	get_port_no() const { return port_no; };
 
 	/**
 	 *
@@ -1323,7 +1323,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_enqueue& action) {
 		os << rofl::indent(0) << "<cofaction_enqueue ";
-		os << "port-no: " << (unsigned int)action.get_port() << " ";
+		os << "port-no: " << (unsigned int)action.get_port_no() << " ";
 		os << "queue-id: " << (unsigned int)action.get_queue_id() << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
