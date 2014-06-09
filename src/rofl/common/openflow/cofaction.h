@@ -154,7 +154,7 @@ public:
 	operator<< (std::ostream& os, cofaction const& action) {
 		os << rofl::indent(0) << "<cofaction ";
 			os << "ofp-version:" << (int)action.get_version() << " ";
-			os << "type:" << (int)action.get_type() << " ";
+			os << "type:0x" << std::hex << (int)action.get_type() << std::dec << " ";
 			os << "length:" << (int)action.get_length() << " ";
 		os << " >" << std::endl;
 		return os;
@@ -387,8 +387,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_vlan_vid const& action) {
-		os << rofl::indent(2) << "<cofaction_set_vlan_vid ";
-		os << "vid:" << (unsigned int)action.get_vlan_vid() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofaction_set_vlan_vid ";
+		os << "vid:0x" << std::hex << (unsigned int)action.get_vlan_vid() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
@@ -481,8 +481,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_vlan_pcp const& action) {
-		os << rofl::indent(2) << "<cofaction_set_vlan_pcp ";
-		os << "pcp:" << (unsigned int)action.get_vlan_pcp() << " >" << std::endl;
+		os << rofl::indent(0) << "<cofaction_set_vlan_pcp ";
+		os << "pcp:ox" << std::hex << (unsigned int)action.get_vlan_pcp() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
@@ -1035,7 +1035,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_tos const& action) {
 		os << rofl::indent(0) << "<cofaction_set_nw_tos ";
-		os << "nw-tos:" << (unsigned int)action.get_nw_tos() << " >" << std::endl;
+		os << "nw-tos:0x" << std::hex << (unsigned int)action.get_nw_tos() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
@@ -1240,7 +1240,7 @@ public:
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t port_no = 0,
 			uint32_t queue_id = 0) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_SET_QUEUE),
+				cofaction(ofp_version, rofl::openflow10::OFPAT_ENQUEUE),
 				port_no(port_no),
 				queue_id(queue_id) {};
 
@@ -1323,8 +1323,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_enqueue& action) {
 		os << rofl::indent(0) << "<cofaction_enqueue ";
-		os << "port-no: " << (unsigned int)action.get_port_no() << " ";
-		os << "queue-id: " << (unsigned int)action.get_queue_id() << " >" << std::endl;
+		os << std::hex;
+		os << "port-no:0x" << (unsigned int)action.get_port_no() << " ";
+		os << "queue-id:0x" << (unsigned int)action.get_queue_id() << " >" << std::endl;
+		os << std::dec;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
@@ -1431,10 +1433,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_vendor& action) {
 		os << rofl::indent(0) << "<cofaction_vendor ";
-		os << "exp-id:" << (unsigned int)action.get_exp_id() << " >" << std::endl;
+		os << "exp-id:0x" << std::hex << (unsigned int)action.get_exp_id() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
-		os << action.get_exp_body();
 		os << dynamic_cast<cofaction const&>( action );
+		os << action.get_exp_body();
 		return os;
 	};
 

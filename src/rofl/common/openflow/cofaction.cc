@@ -287,7 +287,7 @@ cofaction_output::unpack(
 		struct rofl::openflow13::ofp_action_output* hdr = (struct rofl::openflow13::ofp_action_output*)buf;
 
 		port_no		= be32toh(hdr->port);
-		max_len		= be32toh(hdr->max_len);
+		max_len		= be16toh(hdr->max_len);
 
 	} break;
 	default:
@@ -1038,8 +1038,17 @@ size_t
 cofaction_vendor::length() const
 {
 	switch (get_version()) {
-	case rofl::openflow10::OFP_VERSION:
-		return sizeof(struct rofl::openflow10::ofp_action_vendor_header) + exp_body.length();
+	case rofl::openflow10::OFP_VERSION: {
+		size_t total_length = sizeof(struct rofl::openflow10::ofp_action_vendor_header) + exp_body.length();
+
+		size_t pad = (0x7 & total_length);
+
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		return total_length;
+	} break;
 	default:
 		throw eBadVersion("cofaction_vendor::length() invalid version");
 	}
@@ -1098,7 +1107,7 @@ cofaction_vendor::unpack(
 		exp_id		= be32toh(hdr->vendor);
 
 		if (get_length() > sizeof(struct rofl::openflow10::ofp_action_vendor_header)) {
-			exp_body.unpack(hdr->data, get_length() > sizeof(struct rofl::openflow10::ofp_action_vendor_header));
+			exp_body.unpack(hdr->data, get_length() - sizeof(struct rofl::openflow10::ofp_action_vendor_header));
 		}
 
 	} break;

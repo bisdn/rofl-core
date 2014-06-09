@@ -83,7 +83,7 @@ public:
 	eBadVersion(const std::string& __arg = std::string("")) : RoflException(__arg) {
 #ifndef NDEBUG
 		std::cerr << "BAD-WOLF" << std::endl;
-		assert(0 == 1);
+//		assert(0 == 1);
 #endif
 	};
 };

@@ -40,18 +40,18 @@ cofactions_test::testActions()
 	actions.add_action_set_field(index++).set_oxm(rofl::openflow::coxmatch_ofb_eth_src("b0:b1:b2:b3:b4:b5:b6"));
 	actions.add_action_set_field(index++).set_oxm(rofl::openflow::coxmatch_ofb_eth_type(0xc1c2));
 
-	std::cerr << "actions:" << std::endl << actions;
+	//std::cerr << "actions:" << std::endl << actions;
 
 	rofl::cmemory packed(actions.length());
 	actions.pack(packed.somem(), packed.memlen());
 
-	std::cerr << "packed:" << std::endl << packed;
+	//std::cerr << "packed:" << std::endl << packed;
 
 	rofl::openflow::cofactions clone(rofl::openflow13::OFP_VERSION);
 
 	clone.unpack(packed.somem(), packed.memlen());
 
-	std::cerr << "clone:" << std::endl << clone;
+	//std::cerr << "clone:" << std::endl << clone;
 }
 
 
