@@ -1523,7 +1523,7 @@ public:
 	 *
 	 */
 	cofaction_copy_ttl_in(uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_OUT) {};
+				cofaction(ofp_version, rofl::openflow::OFPAT_COPY_TTL_IN) {};
 
 	/**
 	 *
@@ -1662,7 +1662,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_set_mpls_ttl& action) {
 		os << rofl::indent(0) << "<cofaction_set_mpls_ttl ";
-		os << "mpls-ttl:" << (unsigned int)action.get_mpls_ttl() << " >" << std::endl;
+		os << "mpls-ttl:0x" << std::hex << (unsigned int)action.get_mpls_ttl() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
@@ -1912,7 +1912,7 @@ public:
 	cofaction_push_mpls(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
+				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_MPLS),
 				eth_type(eth_type) {};
 
 	/**
@@ -2003,7 +2003,7 @@ public:
 	cofaction_pop_mpls(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t eth_type = 0) :
-				cofaction(ofp_version, rofl::openflow::OFPAT_PUSH_VLAN),
+				cofaction(ofp_version, rofl::openflow::OFPAT_POP_MPLS),
 				eth_type(eth_type) {};
 
 	/**
@@ -2162,7 +2162,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const cofaction_group& action) {
 		os << rofl::indent(0) << "<cofaction_group ";
-		os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
+		os << "group-id:0x" << std::hex << (int)action.get_group_id() << std::dec << " >" << std::endl;
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;

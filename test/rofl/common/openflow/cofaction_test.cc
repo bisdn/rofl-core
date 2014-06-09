@@ -674,3 +674,590 @@ cofaction_test::testActionVendor()
 
 
 
+void
+cofaction_test::testActionCopyTtlOut()
+{
+	rofl::openflow::cofaction_copy_ttl_out action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() == rofl::openflow::OFPAT_COPY_TTL_OUT);
+	CPPUNIT_ASSERT(action.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_copy_ttl_out clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() == rofl::openflow::OFPAT_COPY_TTL_OUT);
+	CPPUNIT_ASSERT(clone.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+
+
+void
+cofaction_test::testActionCopyTtlIn()
+{
+	rofl::openflow::cofaction_copy_ttl_in action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() == rofl::openflow::OFPAT_COPY_TTL_IN);
+	CPPUNIT_ASSERT(action.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_copy_ttl_in clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() == rofl::openflow::OFPAT_COPY_TTL_IN);
+	CPPUNIT_ASSERT(clone.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+
+void
+cofaction_test::testActionSetMplsTtl()
+{
+	uint8_t mpls_ttl = 0xa1;
+
+	rofl::openflow::cofaction_set_mpls_ttl action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_mpls_ttl(mpls_ttl);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() == rofl::openflow::OFPAT_SET_MPLS_TTL);
+	CPPUNIT_ASSERT(action.get_length() == sizeof(struct rofl::openflow13::ofp_action_mpls_ttl));
+	CPPUNIT_ASSERT(action.length() == sizeof(struct rofl::openflow13::ofp_action_mpls_ttl));
+	CPPUNIT_ASSERT(action.get_mpls_ttl() == mpls_ttl);
+
+	rofl::openflow::cofaction_set_mpls_ttl clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() == rofl::openflow::OFPAT_SET_MPLS_TTL);
+	CPPUNIT_ASSERT(clone.get_length() == sizeof(struct rofl::openflow13::ofp_action_mpls_ttl));
+	CPPUNIT_ASSERT(clone.length() == sizeof(struct rofl::openflow13::ofp_action_mpls_ttl));
+	CPPUNIT_ASSERT(clone.get_mpls_ttl() == mpls_ttl);
+}
+
+
+
+void
+cofaction_test::testActionDecMplsTtl()
+{
+	rofl::openflow::cofaction_dec_mpls_ttl action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() == rofl::openflow::OFPAT_DEC_MPLS_TTL);
+	CPPUNIT_ASSERT(action.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_dec_mpls_ttl clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() == rofl::openflow::OFPAT_DEC_MPLS_TTL);
+	CPPUNIT_ASSERT(clone.get_length() == sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() == sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+
+void
+cofaction_test::testActionPushVlan()
+{
+	uint16_t eth_type = 0xa1a2;
+
+	rofl::openflow::cofaction_push_vlan action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_eth_type(eth_type);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_PUSH_VLAN);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.get_eth_type()== eth_type);
+
+	rofl::openflow::cofaction_push_vlan clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_PUSH_VLAN);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.get_eth_type() == eth_type);
+}
+
+
+
+void
+cofaction_test::testActionPopVlan()
+{
+	rofl::openflow::cofaction_pop_vlan action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_POP_VLAN);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_pop_vlan clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_POP_VLAN);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+
+void
+cofaction_test::testActionPushMpls()
+{
+	uint16_t eth_type = 0xa1a2;
+
+	rofl::openflow::cofaction_push_mpls action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_eth_type(eth_type);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_PUSH_MPLS);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.get_eth_type()== eth_type);
+
+	rofl::openflow::cofaction_push_mpls clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_PUSH_MPLS);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.get_eth_type() == eth_type);
+}
+
+
+
+void
+cofaction_test::testActionPopMpls()
+{
+	uint16_t eth_type = 0xa1a2;
+
+	rofl::openflow::cofaction_pop_mpls action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_eth_type(eth_type);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_POP_MPLS);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_pop_mpls));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_pop_mpls));
+	CPPUNIT_ASSERT(action.get_eth_type()== eth_type);
+
+	rofl::openflow::cofaction_pop_mpls clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_POP_MPLS);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_pop_mpls));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_pop_mpls));
+	CPPUNIT_ASSERT(clone.get_eth_type() == eth_type);
+}
+
+
+
+void
+cofaction_test::testActionGroup()
+{
+	uint32_t group_id = 0xa1a2a3a4;
+
+	rofl::openflow::cofaction_group action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_group_id(group_id);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_GROUP);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_group));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_group));
+	CPPUNIT_ASSERT(action.get_group_id()== group_id);
+
+	rofl::openflow::cofaction_group clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_GROUP);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_group));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_group));
+	CPPUNIT_ASSERT(clone.get_group_id()	== group_id);
+}
+
+
+
+void
+cofaction_test::testActionSetNwTtl()
+{
+	uint8_t nw_ttl = 0xa1;
+
+	rofl::openflow::cofaction_set_nw_ttl action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_nw_ttl(nw_ttl);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_SET_NW_TTL);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_nw_ttl));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_nw_ttl));
+	CPPUNIT_ASSERT(action.get_nw_ttl()	== nw_ttl);
+
+	rofl::openflow::cofaction_set_nw_ttl clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_SET_NW_TTL);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_nw_ttl));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_nw_ttl));
+	CPPUNIT_ASSERT(clone.get_nw_ttl()	== nw_ttl);
+}
+
+
+
+void
+cofaction_test::testActionDecNwTtl()
+{
+	rofl::openflow::cofaction_dec_nw_ttl action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_DEC_NW_TTL);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_dec_nw_ttl clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_DEC_NW_TTL);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+
+void
+cofaction_test::testActionSetQueue()
+{
+	uint32_t queue_id = 0xa1a2a3a4;
+
+	rofl::openflow::cofaction_set_queue action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_queue_id(queue_id);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_SET_QUEUE);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_set_queue));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_set_queue));
+	CPPUNIT_ASSERT(action.get_queue_id()== queue_id);
+
+	rofl::openflow::cofaction_set_queue clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_SET_QUEUE);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_set_queue));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_set_queue));
+	CPPUNIT_ASSERT(clone.get_queue_id() == queue_id);
+}
+
+
+
+void
+cofaction_test::testActionSetField()
+{
+	rofl::openflow::coxmatch_ofb_eth_src oxm("a1:a2:a3:a4:a5:a6");
+
+	size_t total_length = sizeof(struct rofl::openflow13::ofp_action_set_field) - 4*sizeof(uint8_t) + oxm.length();
+	size_t pad = (0x7 & total_length);
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+
+	rofl::openflow::cofaction_set_field action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_oxm(oxm);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_SET_FIELD);
+	CPPUNIT_ASSERT(action.get_length() 	== total_length);
+	CPPUNIT_ASSERT(action.length() 		== total_length);
+	CPPUNIT_ASSERT(action.get_oxm()		== oxm);
+
+	rofl::openflow::cofaction_set_field clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_SET_FIELD);
+	CPPUNIT_ASSERT(clone.get_length() 	== total_length);
+	CPPUNIT_ASSERT(clone.length() 		== total_length);
+	CPPUNIT_ASSERT(clone.get_oxm() 		== oxm);
+}
+
+
+
+void
+cofaction_test::testActionExperimenter()
+{
+	uint32_t exp_id = 0xa1a2a3a4;
+	unsigned int exp_body_len = 12;
+	rofl::cmemory exp_body(exp_body_len);
+	for (unsigned int i = 0; i < exp_body_len; i++) {
+		exp_body[i] = 0xb0 + i;
+	}
+
+	size_t total_length = sizeof(struct rofl::openflow13::ofp_action_experimenter_header) + exp_body_len;
+	size_t pad = (0x7 & total_length);
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+
+	rofl::openflow::cofaction_experimenter action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_exp_id(exp_id);
+	action.set_exp_body() = exp_body;
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow13::OFPAT_EXPERIMENTER);
+	CPPUNIT_ASSERT(action.get_length() 	== total_length);
+	CPPUNIT_ASSERT(action.length() 		== total_length);
+	CPPUNIT_ASSERT(action.get_exp_id() 	== exp_id);
+	CPPUNIT_ASSERT(action.get_exp_body()== exp_body);
+
+	rofl::openflow::cofaction_experimenter clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow13::OFPAT_EXPERIMENTER);
+	CPPUNIT_ASSERT(clone.get_length() 	== total_length);
+	CPPUNIT_ASSERT(clone.length() 		== total_length);
+	CPPUNIT_ASSERT(clone.get_exp_id() 	== exp_id);
+	for (unsigned int i = 0; i < exp_body_len; i++) {
+		clone.get_exp_body()[i] = 0xb0 + i;
+	}
+}
+
+
+
+void
+cofaction_test::testActionPushPbb()
+{
+	uint16_t eth_type = 0xa1a2;
+
+	rofl::openflow::cofaction_push_pbb action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+	action.set_eth_type(eth_type);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_PUSH_PBB);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(action.get_eth_type()== eth_type);
+
+	rofl::openflow::cofaction_push_pbb clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_PUSH_PBB);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_push));
+	CPPUNIT_ASSERT(clone.get_eth_type() == eth_type);
+}
+
+
+
+void
+cofaction_test::testActionPopPbb()
+{
+	rofl::openflow::cofaction_pop_pbb action;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
+
+	action.set_version(rofl::openflow13::OFP_VERSION);
+
+	rofl::cmemory packed(action.length());
+	action.pack(packed.somem(), packed.length());
+
+	std::cerr << "action:" << std::endl << action;
+
+	std::cerr << "packed:" << std::endl << packed;
+
+	CPPUNIT_ASSERT(action.get_type() 	== rofl::openflow::OFPAT_POP_PBB);
+	CPPUNIT_ASSERT(action.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(action.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+
+	rofl::openflow::cofaction_pop_pbb clone(rofl::openflow13::OFP_VERSION);
+
+	clone.unpack(packed.somem(), packed.length());
+
+	std::cerr << "clone:" << std::endl << clone;
+
+	CPPUNIT_ASSERT(clone.get_type() 	== rofl::openflow::OFPAT_POP_PBB);
+	CPPUNIT_ASSERT(clone.get_length() 	== sizeof(struct rofl::openflow13::ofp_action_header));
+	CPPUNIT_ASSERT(clone.length() 		== sizeof(struct rofl::openflow13::ofp_action_header));
+}
+
+
+

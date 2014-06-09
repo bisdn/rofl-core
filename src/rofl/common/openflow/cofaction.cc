@@ -1924,7 +1924,8 @@ cofaction_set_field::length() const
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
 	case rofl::openflow13::OFP_VERSION: {
-		size_t total_length = sizeof(struct rofl::openflow13::ofp_action_header) + oxm.length();
+		size_t total_length = sizeof(struct rofl::openflow::ofp_action_header)
+				- 4*sizeof(uint8_t) + oxm.length();
 
 		size_t pad = (0x7 & total_length);
 
@@ -1990,8 +1991,12 @@ cofaction_set_field::unpack(
 		if (get_length() > buflen)
 			throw eBadActionBadLen("cofaction_set_field::unpack()");
 
-		//struct rofl::openflow::ofp_oxm_hdr* oxm_hdr = (struct rofl::openflow::ofp_oxm_hdr*)hdr->field;
-		size_t oxm_len = get_length() - sizeof(struct rofl::openflow13::ofp_action_header); // without action header
+		struct rofl::openflow::ofp_oxm_hdr* oxm_hdr = (struct rofl::openflow::ofp_oxm_hdr*)hdr->field;
+
+		size_t oxm_len = sizeof(struct rofl::openflow::ofp_oxm_hdr) + oxm_hdr->oxm_length;
+
+		if (oxm_len > (get_length() - sizeof(struct rofl::openflow13::ofp_action_header) + 4*sizeof(uint8_t)))
+			throw eBadActionBadLen("cofaction_set_field::unpack()");
 
 		oxm.unpack(hdr->field, oxm_len);
 
@@ -2008,8 +2013,17 @@ cofaction_experimenter::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION:
-		return sizeof(struct rofl::openflow13::ofp_action_experimenter_header) + exp_body.length();
+	case rofl::openflow13::OFP_VERSION: {
+		size_t total_length = sizeof(struct rofl::openflow13::ofp_action_experimenter_header) + exp_body.length();
+
+		size_t pad = (0x7 & total_length);
+
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		return total_length;
+	} break;
 	default:
 		throw eBadVersion("cofaction_experimenter::length() invalid version");
 	}

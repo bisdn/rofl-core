@@ -22,6 +22,22 @@ class cofaction_test : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testActionSetTpDst );
 	CPPUNIT_TEST( testActionEnqueue );
 	CPPUNIT_TEST( testActionVendor );
+	CPPUNIT_TEST( testActionCopyTtlOut );
+	CPPUNIT_TEST( testActionCopyTtlIn );
+	CPPUNIT_TEST( testActionSetMplsTtl );
+	CPPUNIT_TEST( testActionDecMplsTtl );
+	CPPUNIT_TEST( testActionPushVlan );
+	CPPUNIT_TEST( testActionPopVlan );
+	CPPUNIT_TEST( testActionPushMpls );
+	CPPUNIT_TEST( testActionPopMpls );
+	CPPUNIT_TEST( testActionGroup );
+	CPPUNIT_TEST( testActionSetNwTtl );
+	CPPUNIT_TEST( testActionDecNwTtl );
+	CPPUNIT_TEST( testActionSetQueue );
+	CPPUNIT_TEST( testActionSetField );
+	CPPUNIT_TEST( testActionExperimenter );
+	CPPUNIT_TEST( testActionPushPbb );
+	CPPUNIT_TEST( testActionPopPbb );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -46,5 +62,22 @@ public:
 	void testActionSetTpDst();
 	void testActionEnqueue();
 	void testActionVendor();
+	void testActionCopyTtlOut();
+	void testActionCopyTtlIn();
+	void testActionSetMplsTtl();
+	void testActionDecMplsTtl();
+	void testActionPushVlan();
+	void testActionPopVlan();
+	void testActionPushMpls();
+	void testActionPopMpls();
+	void testActionGroup();
+	void testActionSetNwTtl();
+	void testActionDecNwTtl();
+	void testActionSetQueue();
+	void testActionSetField();
+	void testActionExperimenter();
+	void testActionPushPbb();
+	void testActionPopPbb();
+
 };
 
