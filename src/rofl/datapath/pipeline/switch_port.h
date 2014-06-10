@@ -108,7 +108,8 @@ typedef enum port_type{
 	PORT_TYPE_PHYSICAL 		= 1,
 	PORT_TYPE_VIRTUAL 		= 2,
 	PORT_TYPE_TUNNEL 		= 3,
-	PORT_TYPE_PEX			= 8,
+	PORT_TYPE_PEX_DPDK		= 8,
+	PORT_TYPE_PEX_KNI		= 9,
 
 	//Special META(fake) ports
 	//PORT_TYPE_META		= 4, 

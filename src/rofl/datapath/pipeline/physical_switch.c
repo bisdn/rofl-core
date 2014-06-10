@@ -241,7 +241,8 @@ rofl_result_t physical_switch_add_port(switch_port_t* port){
 			array = psw->tunnel_ports; 
 			break;
 			
-		case PORT_TYPE_PEX:
+		case PORT_TYPE_PEX_DPDK:
+		case PORT_TYPE_PEX_KNI:
 			//IVANO - FIXME: I'm not sure about this
 			max = PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;
 			array = psw->physical_ports; 

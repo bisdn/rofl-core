@@ -26,7 +26,7 @@ HAL_BEGIN_DECLS
 *
 *	@brief:	INTERNAL			PEX and xDPD are the same process
 *	@brief: DPDK				PEX is a DPDK secondary process
-*	@brief: EXTERNAL			PEX is something external, e.g., a VM
+*	@brief: EXTERNAL			PEX is something external, e.g., a Docker container
 */
 enum PexType {INTERNAL,DPDK,EXTERNAL};
 
