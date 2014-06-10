@@ -270,11 +270,6 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 		// set to 0.
 
 		if (dl_type == 0x0806 /* ARP */ || dl_type == 0x0800 /* IPv4 */) {
-			// nw_tos
-			if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
-				matches.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
-			}
-
 			// nw_src
 			{
 				uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
@@ -305,20 +300,27 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 				}
 			}
 
-			// nw_proto
-			if (dl_type != 0x0806 /* ARP */ && !(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
-				const uint8_t nw_proto = m->nw_proto;
-				matches.add_match(coxmatch_ofx_nw_proto(nw_proto));
+			if (dl_type != 0x0806 /* ARP */) {
+				// nw_tos
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
+					matches.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
+				}
 
-				if (nw_proto == 6 /* TCP */ || nw_proto == 17 /* UDP*/ || nw_proto == 1 /* ICMP */) {
-					// tp_src
-					if (!(wildcards & rofl::openflow10::OFPFW_TP_SRC)) {
-						matches.add_match(coxmatch_ofx_tp_src(be16toh(m->tp_src)));
-					}
+				// nw_proto
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
+					const uint8_t nw_proto = m->nw_proto;
+					matches.add_match(coxmatch_ofx_nw_proto(nw_proto));
 
-					// tp_dst
-					if (!(wildcards & rofl::openflow10::OFPFW_TP_DST)) {
-						matches.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
+					if (nw_proto == 6 /* TCP */ || nw_proto == 17 /* UDP */ || nw_proto == 1 /* ICMP */) {
+						// tp_src
+						if (!(wildcards & rofl::openflow10::OFPFW_TP_SRC)) {
+							matches.add_match(coxmatch_ofx_tp_src(be16toh(m->tp_src)));
+						}
+
+						// tp_dst
+						if (!(wildcards & rofl::openflow10::OFPFW_TP_DST)) {
+							matches.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
+						}
 					}
 				}
 			}
