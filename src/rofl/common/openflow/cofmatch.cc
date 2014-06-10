@@ -306,7 +306,7 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 			}
 
 			// nw_proto
-			if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
+			if (dl_type != 0x0806 /* ARP */ && !(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
 				const uint8_t nw_proto = m->nw_proto;
 				matches.add_match(coxmatch_ofx_nw_proto(nw_proto));
 
