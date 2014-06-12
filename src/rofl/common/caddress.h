@@ -108,7 +108,7 @@ private:
 	 * @brief	Shadow rofl::cmemory::resize()
 	 */
 	virtual uint8_t*
-	resize(size_t size);
+	resize(size_t size) { return cmemory::resize(size); };
 
 public:
 

@@ -24,22 +24,22 @@ main(int argc, char** argv)
 		usage();
 	}
 
-	rofl::caddress local(AF_INET, "0.0.0.0", 5001);
+	rofl::csockaddr local(AF_INET, "0.0.0.0", 5001);
 	if (getopt.has_opt("local")) {
 		std::string s_addr = getopt.get_opt("local").substr(0, getopt.get_opt("local").find_first_of(":"));
 		std::string s_port = getopt.get_opt("local").substr(getopt.get_opt("local").find_first_of(":")+1);
-		local = rofl::caddress(AF_INET, s_addr.c_str(), atoi(s_port.c_str()));
+		local = rofl::csockaddr(AF_INET, s_addr.c_str(), atoi(s_port.c_str()));
 	}
 
-	rofl::caddress remote(AF_INET, "0.0.0.0", 6001);
+	rofl::csockaddr remote(AF_INET, "0.0.0.0", 6001);
 	if (getopt.has_opt("remote")) {
 		std::string s_addr = getopt.get_opt("remote").substr(0, getopt.get_opt("remote").find_first_of(":"));
 		std::string s_port = getopt.get_opt("remote").substr(getopt.get_opt("remote").find_first_of(":")+1);
-		remote = rofl::caddress(AF_INET, s_addr.c_str(), atoi(s_port.c_str()));
+		remote = rofl::csockaddr(AF_INET, s_addr.c_str(), atoi(s_port.c_str()));
 	}
 
-	std::cerr << "local: " << local.c_str() << std::endl;
-	std::cerr << "remote: " << remote.c_str() << std::endl;
+	std::cerr << "local: " << local << std::endl;
+	std::cerr << "remote: " << remote << std::endl;
 
 	int duration = 30;
 	if (getopt.has_opt("duration")) {

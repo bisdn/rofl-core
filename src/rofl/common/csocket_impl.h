@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
+#include <net/if.h>
 
 #include "rofl/common/csocket.h"
 #include "rofl/common/ctimerid.h"
@@ -271,7 +272,7 @@ protected:
 	 */
 	virtual void
 	listen(
-		caddress la,
+		const csockaddr& la,
 		int domain = PF_INET,
 		int type = SOCK_STREAM,
 		int protocol = 0,

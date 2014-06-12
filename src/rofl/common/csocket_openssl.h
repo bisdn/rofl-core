@@ -231,7 +231,7 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+	send(cmemory *mem, csockaddr const& dest = csockaddr());
 
 
 	/**
