@@ -375,8 +375,8 @@ coxmatches_test::testStrictMatching()
 	left.set_match(rofl::openflow::OXM_TLV_BASIC_VLAN_VID).set_u16value(0x3132);
 	left.set_match(rofl::openflow::OXM_TLV_BASIC_VLAN_PCP).set_u8value(0x3);
 	left.set_match(rofl::openflow::OXM_TLV_BASIC_ETH_TYPE).set_u16value(0x0800);
-	left.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32value(rofl::caddress(AF_INET, "10.1.1.0"));
-	left.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32mask(rofl::caddress(AF_INET, "255.255.255.0"));
+	left.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32value(rofl::caddress_in4("10.1.1.0"));
+	left.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32mask(rofl::caddress_in4("255.255.255.0"));
 	left.set_match(rofl::openflow::OXM_TLV_BASIC_IP_PROTO).set_u8value(17);
 	left.set_match(rofl::openflow::OXM_TLV_BASIC_UDP_DST).set_u16value(80);
 
@@ -416,8 +416,8 @@ coxmatches_test::testStrictMatching()
 	CPPUNIT_ASSERT(not left.contains(right, true));
 	CPPUNIT_ASSERT(right.contains(left, true));
 
-	right.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32value(rofl::caddress(AF_INET, "10.1.1.0"));
-	right.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32mask(rofl::caddress(AF_INET, "255.255.255.0"));
+	right.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32value(rofl::caddress_in4("10.1.1.0"));
+	right.set_match(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK).set_u32mask(rofl::caddress_in4("255.255.255.0"));
 	CPPUNIT_ASSERT(not left.contains(right, true));
 	CPPUNIT_ASSERT(right.contains(left, true));
 

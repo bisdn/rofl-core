@@ -355,7 +355,7 @@ cofaction_test::testActionSetDlDst()
 void
 cofaction_test::testActionSetNwSrc()
 {
-	rofl::caddress addr(AF_INET, "161.162.163.164");
+	rofl::caddress_in4 addr("161.162.163.164");
 
 	rofl::openflow::cofaction_set_nw_src action;
 	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
@@ -398,7 +398,7 @@ cofaction_test::testActionSetNwSrc()
 void
 cofaction_test::testActionSetNwDst()
 {
-	rofl::caddress addr(AF_INET, "161.162.163.164");
+	rofl::caddress_in4 addr("161.162.163.164");
 
 	rofl::openflow::cofaction_set_nw_dst action;
 	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == action.get_version());
@@ -1097,7 +1097,7 @@ cofaction_test::testActionSetQueue()
 void
 cofaction_test::testActionSetField()
 {
-	rofl::openflow::coxmatch_ofb_eth_src oxm("a1:a2:a3:a4:a5:a6");
+	rofl::openflow::coxmatch_ofb_eth_src oxm(rofl::caddress_ll("a1:a2:a3:a4:a5:a6"));
 
 	size_t total_length = sizeof(struct rofl::openflow13::ofp_action_set_field) - 4*sizeof(uint8_t) + oxm.length();
 	size_t pad = (0x7 & total_length);

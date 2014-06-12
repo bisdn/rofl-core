@@ -83,7 +83,7 @@ caddress_ll::is_multicast() const
 bool
 caddress_ll::is_broadcast() const
 {
-	if (*this == cmacaddr("ff:ff:ff:ff:ff:ff"))
+	if (*this == caddress_ll("ff:ff:ff:ff:ff:ff"))
 		return true;
 	return false;
 }
@@ -93,7 +93,7 @@ caddress_ll::is_broadcast() const
 bool
 caddress_ll::is_null() const
 {
-	if (*this == cmacaddr("00:00:00:00:00:00"))
+	if (*this == caddress_ll("00:00:00:00:00:00"))
 		return true;
 	return false;
 }

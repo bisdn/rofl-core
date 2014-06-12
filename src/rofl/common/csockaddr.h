@@ -76,7 +76,9 @@ public:
 	 */
 	csockaddr() :
 			rofl::cmemory(sizeof(struct sockaddr_in6)),
-			salen(0) {};
+			salen(0) {
+		ca_mem = cmemory::somem();
+	};
 
 	/**
 	 *
@@ -99,6 +101,8 @@ public:
 		if (this == &sockaddr)
 			return *this;
 		cmemory::operator= (sockaddr);
+		ca_mem = cmemory::somem();
+		salen = sockaddr.salen;
 		return *this;
 	};
 

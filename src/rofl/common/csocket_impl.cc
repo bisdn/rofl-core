@@ -342,8 +342,9 @@ csocket_impl::listen(
 		binding_port = 0;
 	}
 
-
-	listen(csockaddr(domain, binding_addr, binding_port), domain, type, protocol);
+	csockaddr laddr(domain, binding_addr, binding_port);
+	std::cerr << "ZZZZZZZZZZZZZZZZZZ: laddr" << std::endl << laddr;
+	listen(laddr, domain, type, protocol);
 }
 
 
@@ -639,7 +640,9 @@ csocket_impl::connect(
 
 
 		csockaddr laddr(domain, local_addr, local_port);
+		std::cerr << "XXXXXXXXXXXXXXXXX: laddr" << std::endl << laddr;
 		csockaddr raddr(domain, remote_addr, remote_port);
+		std::cerr << "YYYYYYYYYYYYYYYYY: raddr" << std::endl << raddr;
 		bool do_reconnect = params.get_param(csocket::PARAM_KEY_DO_RECONNECT).get_bool();
 
 		connect(raddr, laddr, domain, type, protocol, do_reconnect);
@@ -711,6 +714,10 @@ csocket_impl::connect(
 			throw eSysCall("setsockopt(IPPROTO_TCP, TCP_NODELAY)");
 		}
 	}
+
+
+	std::cerr << "XXXXXXXXXXXXXXXXX [2]: laddr" << std::endl << laddr;
+	std::cerr << "YYYYYYYYYYYYYYYYY [2]: raddr" << std::endl << raddr;
 
 	// bind to local address
 	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {
