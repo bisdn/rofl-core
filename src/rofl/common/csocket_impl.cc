@@ -152,13 +152,18 @@ csocket_impl::handle_revent(int fd)
 		int new_sd;
 		caddress ra(domain);
 
-		if ((new_sd = ::accept(sd, (struct sockaddr*)(ra.ca_saddr), &(ra.salen))) < 0) {
-			switch (errno) {
-			case EAGAIN:
-				// do nothing, just wait for the next event
-				return;
-			default:
-				throw eSysCall("accept");
+		switch (domain) {
+		case AF_INET: {
+			csockaddr_in4 ra;
+
+			if ((new_sd = ::accept(sd, (struct sockaddr*)(ra.somem()), &(ra.salen))) < 0) {
+				switch (errno) {
+				case EAGAIN:
+					// do nothing, just wait for the next event
+					return;
+				default:
+					throw eSysCall("accept");
+				}
 			}
 		}
 
@@ -646,8 +651,8 @@ csocket_impl::connect(
 
 void
 csocket_impl::connect(
-	caddress ra,
-	caddress la,
+	csockaddr ra,
+	csockaddr la,
 	int domain, 
 	int type, 
 	int protocol,
@@ -865,7 +870,7 @@ csocket_impl::recv(void *buf, size_t count)
 
 
 void
-csocket_impl::send(cmemory* mem, caddress const& dest)
+csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
 {
 	if (not sockflags.test(FLAG_CONNECTED) && not sockflags.test(FLAG_RAW_SOCKET)) {
 		rofl::logging::warn << "[rofl][csocket][impl] socket not connected, dropping packet " << std::endl << *mem;

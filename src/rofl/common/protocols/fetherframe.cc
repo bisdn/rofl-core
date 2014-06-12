@@ -162,7 +162,7 @@ fetherframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 void
 fetherframe::set_dl_src(cmacaddr const& dl_src) throw (eFrameInval)
 {
-	if (dl_src.memlen() < OFP_ETH_ALEN)
+	if (dl_src.memlen() < ETH_ADDR_LEN)
 	{
 		throw eFrameInval();
 	}
@@ -174,14 +174,14 @@ fetherframe::set_dl_src(cmacaddr const& dl_src) throw (eFrameInval)
 		throw eFrameInval();
 	}
 
-	memcpy(eth_hdr->dl_src, dl_src.somem(), OFP_ETH_ALEN);
+	memcpy(eth_hdr->dl_src, dl_src.somem(), ETH_ADDR_LEN);
 }
 
 
 cmacaddr
 fetherframe::get_dl_src() const
 {
-	cmacaddr ma(eth_hdr->dl_src, OFP_ETH_ALEN);
+	cmacaddr ma(eth_hdr->dl_src, ETH_ADDR_LEN);
 	return ma;
 }
 
@@ -189,7 +189,7 @@ fetherframe::get_dl_src() const
 void
 fetherframe::set_dl_dst(cmacaddr const& dl_dst) throw (eFrameInval)
 {
-	if (dl_dst.memlen() < OFP_ETH_ALEN)
+	if (dl_dst.memlen() < ETH_ADDR_LEN)
 	{
 		throw eFrameInval();
 	}
@@ -201,14 +201,14 @@ fetherframe::set_dl_dst(cmacaddr const& dl_dst) throw (eFrameInval)
 		throw eFrameInval();
 	}
 
-	memcpy(eth_hdr->dl_dst, dl_dst.somem(), OFP_ETH_ALEN);
+	memcpy(eth_hdr->dl_dst, dl_dst.somem(), ETH_ADDR_LEN);
 }
 
 
 cmacaddr
 fetherframe::get_dl_dst() const
 {
-	cmacaddr ma(eth_hdr->dl_dst, OFP_ETH_ALEN);
+	cmacaddr ma(eth_hdr->dl_dst, ETH_ADDR_LEN);
 	return ma;
 }
 

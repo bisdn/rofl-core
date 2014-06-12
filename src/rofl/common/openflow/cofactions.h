@@ -7,6 +7,7 @@
 
 #include <inttypes.h>
 #include <map>
+#include <list>
 #include <algorithm>
 
 #include "rofl/common/croflexception.h"

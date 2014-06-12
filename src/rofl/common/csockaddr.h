@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include "rofl/common/caddress.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
 
@@ -35,7 +36,7 @@ public:
 	/**
 	 *
 	 */
-	csockaddr(unsigned short int sa_family) :
+	csockaddr(unsigned short int sa_family = 0) :
 			sa_family(sa_family) {
 	};
 
@@ -124,30 +125,15 @@ public:
 	 *
 	 */
 	csockaddr_in4(
-			uint32_t addr_nbo = 0, uint16_t portno = 0) :
-					csockaddr(AF_INET), saddr(4), portno(portno) {
-		set_addr_nbo(addr_nbo);
-	};
-
-	/**
-	 *
-	 */
-	csockaddr_in4(
-			uint8_t* buf, size_t buflen, uint16_t portno = 0) :
-					csockaddr(AF_INET), saddr(4), portno(portno) {
-		if (buflen < saddr.length())
-			throw eSockAddrInval("csockaddr_in4() buflen too short");
-		saddr.assign(buf, buflen);
-	};
+			rofl::caddress_in4 saddr = rofl::caddress_in4(), uint16_t portno = 0) :
+					csockaddr(AF_INET), saddr(saddr), portno(portno) {};
 
 	/**
 	 *
 	 */
 	csockaddr_in4(
 			const std::string& addr, uint16_t portno = 0) :
-					csockaddr(AF_INET), saddr(4), portno(portno) {
-		set_addr_nbo(str2addr_nbo(addr)),
-	};
+					csockaddr(AF_INET), saddr(addr), portno(portno) {};
 
 	/**
 	 *
@@ -168,7 +154,7 @@ public:
 	operator=(const csockaddr_in4& sockaddr) {
 		if (this == &sockaddr)
 			return *this;
-		csockaddr::operator=(sockaddr);
+		csockaddr::operator= (sockaddr);
 		saddr 	= sockaddr.saddr;
 		portno 	= sockaddr.portno;
 		return *this;
@@ -179,38 +165,20 @@ public:
 	/**
 	 *
 	 */
-	const rofl::cmemory&
+	const rofl::caddress_in4&
 	get_addr() const { return saddr; };
 
 	/**
 	 *
 	 */
-	rofl::cmemory&
+	rofl::caddress_in4&
 	set_addr() { return saddr; };
 
 	/**
 	 *
 	 */
 	void
-	set_addr(const rofl::cmemory& saddr) { this->saddr = saddr; };
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_addr_nbo() const {
-		uint32_t addr;
-		memcpy((uint8_t*)&addr, saddr.somem(), saddr.length());
-		return addr;
-	};
-
-	/**
-	 *
-	 */
-	void
-	set_addr_nbo(uint32_t addr) {
-		memcpy(saddr.somem(), (uint8_t*)&addr, saddr.length());
-	}
+	set_addr(const rofl::caddress_in4& saddr) { this->saddr = saddr; };
 
 	/**
 	 *
@@ -237,14 +205,14 @@ public:
 	 */
 	virtual void
 	pack(
-			struct sockaddr* sa, size_t salen);
+			struct sockaddr_in* sa, size_t salen);
 
 	/**
 	 *
 	 */
 	virtual void
 	unpack(
-			struct sockaddr* sa, size_t salen);
+			struct sockaddr_in* sa, size_t salen);
 
 public:
 
@@ -260,23 +228,10 @@ public:
 
 private:
 
-	/**
-	 * @brief	Maps a uint32_t in network byte order to an IP address string ddd.ddd.ddd.ddd
-	 */
-	std::string
-	addr2str_nbo(uint32_t addr) const;
-
-	/**
-	 * @brief	Maps an IP address string ddd.ddd.ddd.ddd to a uint32-t in network byte order
-	 */
-	uint32_t
-	str2addr_nbo(const std::string& addr) const;
-
-private:
-
-	rofl::cmemory	saddr; 		// network byte order
+	caddress_in4	saddr;
 	uint16_t 		portno; 	// host byte order
 };
+
 
 
 
@@ -287,21 +242,15 @@ public:
 	 *
 	 */
 	csockaddr_in6(
-			uint8_t* buf, size_t buflen, uint16_t portno = 0) :
-					csockaddr(AF_INET6), saddr(16), portno(portno) {
-		if (buflen < saddr.length())
-			throw eSockAddrInval("csockaddr_in6() buflen too short");
-		saddr.assign(buf, buflen);
-	};
+			rofl::caddress_in6 saddr = rofl::caddress_in6(), uint16_t portno = 0) :
+					csockaddr(AF_INET6), saddr(saddr), portno(portno) {};
 
 	/**
 	 *
 	 */
 	csockaddr_in6(
 			const std::string& addr, uint16_t portno = 0) :
-					csockaddr(AF_INET6), saddr(16), portno(portno) {
-		saddr = str2addr_nbo(addr);
-	};
+					csockaddr(AF_INET6), saddr(addr), portno(portno) {};
 
 	/**
 	 *
@@ -322,7 +271,7 @@ public:
 	operator=(const csockaddr_in6& sockaddr) {
 		if (this == &sockaddr)
 			return *this;
-		csockaddr::operator=(sockaddr);
+		csockaddr::operator= (sockaddr);
 		saddr 	= sockaddr.saddr;
 		portno 	= sockaddr.portno;
 		return *this;
@@ -333,20 +282,20 @@ public:
 	/**
 	 *
 	 */
-	const rofl::cmemory&
+	const rofl::caddress_in6&
 	get_addr() const { return saddr; };
 
 	/**
 	 *
 	 */
-	rofl::cmemory&
+	rofl::caddress_in6&
 	set_addr() { return saddr; };
 
 	/**
 	 *
 	 */
 	void
-	set_addr(const rofl::cmemory& saddr) { this->saddr = saddr; };
+	set_addr(const rofl::caddress_in6& saddr) { this->saddr = saddr; };
 
 	/**
 	 *
@@ -373,14 +322,14 @@ public:
 	 */
 	virtual void
 	pack(
-			struct sockaddr* sa, size_t salen);
+			struct sockaddr_in6* sa, size_t salen);
 
 	/**
 	 *
 	 */
 	virtual void
 	unpack(
-			struct sockaddr* sa, size_t salen);
+			struct sockaddr_in6* sa, size_t salen);
 
 public:
 
@@ -396,23 +345,12 @@ public:
 
 private:
 
-	/**
-	 *
-	 */
-	std::string
-	addr2str_nbo(const rofl::cmemory& addr) const;
-
-	/**
-	 *
-	 */
-	rofl::cmemory
-	str2addr_nbo(const std::string& addr) const;
-
-private:
-
-	rofl::cmemory	saddr; 		// network byte order
+	caddress_in6	saddr;
 	uint16_t 		portno; 	// host byte order
 };
+
+
+
 
 }; // end of namespace rofl
 

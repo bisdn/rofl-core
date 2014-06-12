@@ -17,7 +17,6 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatch.h"
@@ -768,7 +767,7 @@ public:
 	 */
 	cofaction_set_nw_src(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0")) :
+			const rofl::caddress_in4& addr = rofl::caddress_in4("0.0.0.0")) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_SRC),
 				addr(addr) {};
 
@@ -803,20 +802,20 @@ public:
 	/**
 	 *
 	 */
-	const caddress&
+	const caddress_in4&
 	get_nw_src() const { return addr; };
 
 	/**
 	 *
 	 */
-	caddress&
+	caddress_in4&
 	set_nw_src() { return addr; };
 
 	/**
 	 *
 	 */
 	void
-	set_nw_src(const caddress& addr) { this->addr = addr; };
+	set_nw_src(const caddress_in4& addr) { this->addr = addr; };
 
 public:
 
@@ -853,7 +852,7 @@ public:
 
 private:
 
-	rofl::caddress		addr;
+	rofl::caddress_in4		addr;
 };
 
 
@@ -866,7 +865,7 @@ public:
 	 */
 	cofaction_set_nw_dst(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			const rofl::caddress& addr = rofl::caddress(AF_INET, "0.0.0.0")) :
+			const rofl::caddress_in4& addr = rofl::caddress_in4("0.0.0.0")) :
 				cofaction(ofp_version, rofl::openflow::OFPAT_SET_NW_DST),
 				addr(addr) {};
 
@@ -901,20 +900,20 @@ public:
 	/**
 	 *
 	 */
-	const caddress&
+	const caddress_in4&
 	get_nw_dst() const { return addr; };
 
 	/**
 	 *
 	 */
-	caddress&
+	caddress_in4&
 	set_nw_dst() { return addr; };
 
 	/**
 	 *
 	 */
 	void
-	set_nw_dst(const caddress& addr) { this->addr = addr; };
+	set_nw_dst(const caddress_in4& addr) { this->addr = addr; };
 
 public:
 
@@ -951,7 +950,7 @@ public:
 
 private:
 
-	rofl::caddress		addr;
+	rofl::caddress_in4		addr;
 };
 
 

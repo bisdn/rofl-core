@@ -13,7 +13,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cmacaddr.h"
 
 namespace rofl
 {
@@ -545,14 +544,14 @@ public:
 	/**
 	 *
 	 */
-	caddress
+	caddress_in6
 	get_icmpv6_neighbor_taddr() const;
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_neighbor_taddr(caddress const& addr);
+	set_icmpv6_neighbor_taddr(caddress_in6 const& addr);
 
 
 

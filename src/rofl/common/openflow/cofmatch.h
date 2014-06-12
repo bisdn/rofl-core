@@ -18,7 +18,7 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
 #include "rofl/common/cvastring.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatches.h"
@@ -481,16 +481,16 @@ public:
 	void set_nw_tos(uint8_t tos) {
 		matches.add_match(coxmatch_ofx_nw_tos(tos));
 	};
-	void set_nw_src(caddress const& src) {
+	void set_nw_src(caddress_in4 const& src) {
 		matches.add_match(coxmatch_ofx_nw_src(src));
 	};
-	void set_nw_src(caddress const& src, caddress const& mask) {
+	void set_nw_src(caddress_in4 const& src, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofx_nw_src(src, mask));
 	};
-	void set_nw_dst(caddress const& dst) {
+	void set_nw_dst(caddress_in4 const& dst) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst));
 	};
-	void set_nw_dst(caddress const& dst, caddress const& mask) {
+	void set_nw_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst, mask));
 	};
 	void set_tp_src(uint16_t src_port) {
@@ -552,16 +552,16 @@ public:
 	void set_ip_proto(uint8_t proto) {
 		matches.add_match(coxmatch_ofb_ip_proto(proto));
 	};
-	void set_ipv4_src(caddress const& src) {
+	void set_ipv4_src(caddress_in4 const& src) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src));
 	};
-	void set_ipv4_src(caddress const& src, caddress const& mask) {
+	void set_ipv4_src(caddress_in4 const& src, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src, mask));
 	};
-	void set_ipv4_dst(caddress const& dst) {
+	void set_ipv4_dst(caddress_in4 const& dst) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst));
 	};
-	void set_ipv4_dst(caddress const& dst, caddress const& mask) {
+	void set_ipv4_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst, mask));
 	};
 	void set_tcp_src(uint16_t src_port) {
@@ -591,16 +591,16 @@ public:
 	void set_arp_opcode(uint16_t opcode) {
 		matches.add_match(coxmatch_ofb_arp_opcode(opcode));
 	};
-	void set_arp_spa(caddress const& spa) {
+	void set_arp_spa(caddress_in4 const& spa) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa));
 	};
-	void set_arp_spa(caddress const& spa, caddress const& mask) {
+	void set_arp_spa(caddress_in4 const& spa, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa, mask));
 	};
-	void set_arp_tpa(caddress const& tpa) {
+	void set_arp_tpa(caddress_in4 const& tpa) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa));
 	};
-	void set_arp_tpa(caddress const& tpa, caddress const& mask) {
+	void set_arp_tpa(caddress_in4 const& tpa, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa, mask));
 	};
 	void set_arp_sha(cmacaddr const& sha) {
@@ -615,16 +615,16 @@ public:
 	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_arp_tha(tha, mmask));
 	};
-	void set_ipv6_src(caddress const& addr) {
+	void set_ipv6_src(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr));
 	};
-	void set_ipv6_src(caddress const& addr, caddress const& mask) {
+	void set_ipv6_src(caddress_in6 const& addr, caddress_in6 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr, mask));
 	};
-	void set_ipv6_dst(caddress const& addr) {
+	void set_ipv6_dst(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr));
 	};
-	void set_ipv6_dst(caddress const& addr, caddress const& mask) {
+	void set_ipv6_dst(caddress_in6 const& addr, caddress_in6 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr, mask));
 	};
 	void set_ipv6_flabel(uint32_t flabel) {
@@ -636,7 +636,7 @@ public:
 	void set_icmpv6_code(uint8_t code) {
 		matches.add_match(coxmatch_ofb_icmpv6_code(code));
 	};
-	void set_ipv6_nd_target(caddress const& addr) {
+	void set_ipv6_nd_target(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_nd_target(addr));
 	};
 	void set_ipv6_nd_sll(cmacaddr const& maddr) {

@@ -230,11 +230,11 @@ public:
 	/**
 	 */
 	void
-	set_ipv4_src(caddress const& src) throw (eIPv4FrameInval);
+	set_ipv4_src(caddress_in4 const& src);
 
 	/**
 	 */
-	caddress
+	caddress_in4
 	get_ipv4_src() const;
 
 	/** dst in network-byte-order
@@ -245,11 +245,11 @@ public:
 	/**
 	 */
 	void
-	set_ipv4_dst(caddress const& dst) throw (eIPv4FrameInval);
+	set_ipv4_dst(caddress_in4 const& dst);
 
 	/**
 	 */
-	caddress
+	caddress_in4
 	get_ipv4_dst() const;
 
 	/**

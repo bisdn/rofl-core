@@ -57,74 +57,36 @@ csockaddr_in4::length() const
 
 void
 csockaddr_in4::pack(
-		struct sockaddr* sa, size_t salen)
+		struct sockaddr_in* sin, size_t sinlen)
 {
-	if ((0 == sa) || (0 == salen))
+	if ((0 == sin) || (0 == sinlen))
 		return;
 
-	if (salen < csockaddr_in4::length())
-		throw eInval("csockaddr_in4::pack() salen too short");
+	if (sinlen < csockaddr_in4::length())
+		throw eInval("csockaddr_in4::pack() sinlen too short");
 
-	csockaddr::pack(sa, salen);
+	csockaddr::pack((struct sockaddr*)sin, sinlen);
 
-	struct sockaddr_in* sin = (struct sockaddr_in*)sa;
-
-	memcpy((uint8_t*)&(sin->sin_addr.s_addr), saddr.somem(), saddr.length());
-	sin->sin_port 			= htobe16(portno);
+	sin->sin_addr.s_addr = saddr.get_addr_nbo();
+	sin->sin_port = htobe16(portno);
 }
 
 
 
 void
 csockaddr_in4::unpack(
-		struct sockaddr* sa, size_t salen)
+		struct sockaddr_in* sin, size_t sinlen)
 {
-	if ((0 == sa) || (0 == salen))
+	if ((0 == sin) || (0 == sinlen))
 		return;
 
-	if (salen < csockaddr_in4::length())
-		throw eInval("csockaddr::unpack() salen too short");
+	if (sinlen < csockaddr_in4::length())
+		throw eInval("csockaddr_in6::unpack() sinlen too short");
 
-	struct sockaddr_in* sin = (struct sockaddr_in*)sa;
+	csockaddr::unpack((struct sockaddr*)sin, sinlen);
 
+	saddr.set_addr_nbo(sin->sin_addr.s_addr);
 	portno = be16toh(sin->sin_port);
-	memcpy(saddr.somem(), (uint8_t*)&(sin->sin_addr.s_addr), saddr.length());
-}
-
-
-
-std::string
-csockaddr_in4::addr2str_nbo(uint32_t addr) const
-{
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = addr;
-	rofl::cmemory mem(16);
-	char* ptr = inet_ntop(AF_INET, &sin, (char*)mem.somem(), mem.length());
-	if (NULL == ptr) {
-		throw eSysCall("inet_ntop()");
-	}
-	return std::string(mem.somem(), strnlen((char*)mem.somem(), mem.length()));
-}
-
-
-
-uint32_t
-csockaddr_in4::str2addr_nbo(const std::string& addr) const
-{
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	int rc = inet_pton(AF_INET, addr.c_str(), &sin);
-
-	if (rc == 1) { /* success */
-		// yippieh
-	} else
-	if (rc <= 0) {
-		throw eSysCall("inet_pton());
-	}
-	return sin.sin_addr.s_addr;
 }
 
 
@@ -139,19 +101,17 @@ csockaddr_in6::length() const
 
 void
 csockaddr_in6::pack(
-		struct sockaddr* sa, size_t salen)
+		struct sockaddr_in6* sin6, size_t sin6len)
 {
-	if ((0 == sa) || (0 == salen))
+	if ((0 == sin6) || (0 == sin6len))
 		return;
 
-	if (salen < csockaddr_in6::length())
-		throw eInval("csockaddr_in6::pack() salen too short");
+	if (sin6len < csockaddr_in6::length())
+		throw eInval("csockaddr_in6::pack() sin6len too short");
 
-	csockaddr::pack(sa, salen);
+	csockaddr::pack((struct sockaddr*)sin6, sin6len);
 
-	struct sockaddr_in6* sin6 = (struct sockaddr_in6*)sa;
-
-	memcpy((uint8_t*)&(sin6->sin6_addr.s6_addr), saddr.somem(), saddr.length());
+	saddr.pack((uint8_t*)&(sin6->sin6_addr.s6_addr), 16);
 	sin6->sin6_port = htobe16(portno);
 }
 
@@ -159,57 +119,18 @@ csockaddr_in6::pack(
 
 void
 csockaddr_in6::unpack(
-		struct sockaddr* sa, size_t salen)
+		struct sockaddr_in6* sin6, size_t sin6len)
 {
-	if ((0 == sa) || (0 == salen))
+	if ((0 == sin6) || (0 == sin6len))
 		return;
 
-	if (salen < csockaddr_in6::length())
-		throw eInval("csockaddr::unpack() salen too short");
+	if (sin6len < csockaddr_in6::length())
+		throw eInval("csockaddr_in6::unpack() sin6len too short");
 
-	struct sockaddr_in6* sin6 = (struct sockaddr_in6*)sa;
+	csockaddr::unpack((struct sockaddr*)sin6, sin6len);
 
 	portno = be16toh(sin6->sin6_port);
-	memcpy(saddr.somem(), (uint8_t*)&(sin6->sin6_addr.s6_addr), saddr.length());
-}
-
-
-
-std::string
-csockaddr_in6::addr2str_nbo(const rofl::cmemory& addr) const
-{
-	if (addr.length() < 16)
-		throw eSockAddrInval("csockaddr_in6::addr2str_nbo() addr to short");
-
-	struct sockaddr_in6 sin6;
-	memset(&sin6, 0, sizeof(sin6));
-	sin6.sin6_family = AF_INET6;
-	memcpy(sin6.sin6_addr.s6_addr, addr.somem(), 16);
-	rofl::cmemory mem(40);
-	char* ptr = inet_ntop(AF_INET6, &sin6, (char*)mem.somem(), mem.length());
-	if (NULL == ptr) {
-		throw eSysCall("inet_ntop()");
-	}
-	return std::string(mem.somem(), strnlen((char*)mem.somem(), mem.length()));
-}
-
-
-
-rofl::cmemory
-csockaddr_in6::str2addr_nbo(const std::string& addr) const
-{
-	struct sockaddr_in6 sin6;
-	memset(&sin6, 0, sizeof(sin6));
-	sin6.sin6_family = AF_INET6;
-	int rc = inet_pton(AF_INET6, addr.c_str(), &sin6);
-
-	if (rc == 1) { /* success */
-		// yippieh
-	} else
-	if (rc <= 0) {
-		throw eSysCall("inet_pton());
-	}
-	return rofl::cmemory(sin6.sin6_addr.s6_addr, 16);
+	saddr.unpack((uint8_t*)&(sin6->sin6_addr.s6_addr), 16);
 }
 
 

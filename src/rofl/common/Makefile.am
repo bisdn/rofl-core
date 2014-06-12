@@ -11,8 +11,6 @@ librofl_common_la_SOURCES = \
 		thread_helper.h \
 		caddress.h \
 		caddress.cc \
-		cmacaddr.h \
-		cmacaddr.cc \
 		cpacket.h \
 		cpacket.cc \
 		croflexp.h \
@@ -98,7 +96,6 @@ librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils
 library_includedir=$(includedir)/rofl/common
 library_include_HEADERS= \
 		caddress.h \
-		cmacaddr.h \
 		cpacket.h \
 		croflexp.h \
 		crandom.h \
