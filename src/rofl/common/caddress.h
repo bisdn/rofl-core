@@ -179,6 +179,15 @@ public:
 	/**
 	 *
 	 */
+	caddress_ll(
+			uint64_t mac) :
+					caddress(ETH_ADDR_LEN) {
+		set_mac(mac);
+	};
+
+	/**
+	 *
+	 */
 	virtual
 	~caddress_ll() {};
 
@@ -277,6 +286,12 @@ public:
 	 */
 	uint64_t
 	get_mac() const;
+
+	/**
+	 *
+	 */
+	void
+	set_mac(uint64_t mac);
 
 	/**
 	 *
