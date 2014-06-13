@@ -183,7 +183,7 @@ cofmsg_flow_mod::length() const
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
-		return (OFP10_FLOW_MOD_STATIC_HDR_LEN + match.length() + actions.length());
+		return (OFP10_FLOW_MOD_STATIC_HDR_LEN + actions.length());
 	} break;
 	case OFP12_VERSION: {
 		return (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());

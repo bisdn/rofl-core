@@ -241,8 +241,9 @@ public:
 			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
 			os << "total-len:" << (int)msg.get_total_len() << " ";
 			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "table-id:" << (int)msg.get_table_id() << " ";
-			os << "match:" << msg.get_match_const() << " ";
+			// Causes failure with OF 1.0			
+			//os << "table-id:" << (int)msg.get_table_id() << " ";
+			//os << "match:" << msg.get_match_const() << " ";
 			os << "packet:" << msg.get_packet_const() << " ";
 
 		} break;

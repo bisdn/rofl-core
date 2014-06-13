@@ -445,7 +445,57 @@ cofaction::__make_info()
 					 be16toh(oac_10output->port),
 					 be16toh(oac_10output->max_len)));
 		} break;
-		// TODO: remaining OF1.0 actions
+        case OFP10AT_SET_VLAN_VID: { /* Set the 802.1q VLAN id. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_VLAN_VID length[%zu] vlan[0x%x] len[%d]",
+            this,length(),be32toh(oac_10vlanvid->vlan_vid), 
+            be16toh(oac_10vlanvid->len)));
+        } break; 
+        case OFP10AT_SET_VLAN_PCP: {    /* Set the 802.1q priority. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_VLAN_PCP length[%zu] vlan[0x%x] len[%d]",
+            this,length(),be32toh(oac_10vlanpcp->vlan_pcp), 
+            be16toh(oac_10vlanpcp->len)));
+        } break; 
+        case OFP10AT_STRIP_VLAN: {       /* Strip the 802.1q header. */
+            info.assign(vas("cofaction(%p) OFP10AT_STRIP_VLAN length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_DL_SRC: {      /* Ethernet source address. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_DL_SRC length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_DL_DST: {      /* Ethernet destination address. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_DL_DST length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_NW_SRC: {      /* IP source address. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_NW_SRC length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_NW_DST: {      /* IP destination address. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_NW_DST length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_NW_TOS: {      /* IP ToS (DSCP field, 6 bits). */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_NW_TOS length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_TP_SRC: {      /* TCP/UDP source port. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_TP_SRC length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_SET_TP_DST: {      /* TCP/UDP destination port. */
+            info.assign(vas("cofaction(%p) OFP10AT_SET_TP_DST length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_ENQUEUE: {       /* Output to queue.  */
+            info.assign(vas("cofaction(%p) OFP10AT_ENQUEUE length[%zu]",
+            this,length()));
+        } break; 
+        case OFP10AT_VENDOR: {
+            info.assign(vas("cofaction(%p) OFP10AT_VENDOR length[%zu]",
+            this,length()));
+        } break; 
+		
 		default: {
 			info.assign(vas("cofaction(%p) unknown action ", this));
 		} break;
