@@ -278,6 +278,12 @@ public:
 	uint64_t
 	get_mac() const;
 
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
+
 private:
 
 	/**
@@ -499,6 +505,12 @@ public:
 		(*this)[3] = ((uint8_t*)&addr)[3];
 	};
 
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
+
 private:
 
 	/**
@@ -615,6 +627,12 @@ public:
 	bool
 	operator!= (
 			 const caddress_in6& addr) const { return caddress_in::operator!= (addr); };
+
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
 
 private:
 

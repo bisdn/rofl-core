@@ -44,7 +44,12 @@ caddrinfos_test::testAddrInfos()
 
 	std::cerr << "addrinfos:" << std::endl << ai;
 
-	exit(0);
+	ai.set_node("127.0.0.1");
+	ai.set_ai_hints().set_ai_family(AF_INET);
+	ai.set_ai_hints().set_ai_socktype(SOCK_STREAM);
+	ai.resolve();
+
+	std::cerr << "addrinfos:" << std::endl << ai;
 }
 
 

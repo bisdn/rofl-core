@@ -23,6 +23,7 @@
 
 #include "rofl/common/csocket.h"
 #include "rofl/common/ctimerid.h"
+#include "rofl/common/caddrinfos.h"
 
 namespace rofl {
 

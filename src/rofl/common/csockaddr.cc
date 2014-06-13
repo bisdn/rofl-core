@@ -110,6 +110,7 @@ csockaddr::unpack(
 		throw eInval("csockaddr::unpack() salen too short");
 
 	cmemory::unpack((uint8_t*)sa, salen);
+	ca_mem = cmemory::somem();
 }
 
 
