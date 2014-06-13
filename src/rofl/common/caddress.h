@@ -505,6 +505,31 @@ public:
 		(*this)[3] = ((uint8_t*)&addr)[3];
 	};
 
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_addr_hbo() const {
+		uint32_t addr;
+		((uint8_t*)&addr)[3] = (*this)[0];
+		((uint8_t*)&addr)[2] = (*this)[1];
+		((uint8_t*)&addr)[1] = (*this)[2];
+		((uint8_t*)&addr)[0] = (*this)[3];
+		return addr;
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_addr_hbo(uint32_t addr) {
+		(*this)[0] = ((uint8_t*)&addr)[3];
+		(*this)[1] = ((uint8_t*)&addr)[2];
+		(*this)[2] = ((uint8_t*)&addr)[1];
+		(*this)[3] = ((uint8_t*)&addr)[0];
+	};
+
 	/**
 	 *
 	 */
