@@ -235,22 +235,22 @@ public:
 	uint8_t  get_nw_tos() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_TOS).get_u8value();
 	};
-	caddress get_nw_src() const {
+	caddress_in4 get_nw_src() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32masked_value_as_addr();
 	};
-	caddress get_nw_src_value() const {
+	caddress_in4 get_nw_src_value() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32value_as_addr();
 	};
-	caddress get_nw_src_mask() const {
+	caddress_in4 get_nw_src_mask() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32mask_as_addr();
 	};
-	caddress get_nw_dst() const {
+	caddress_in4 get_nw_dst() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32masked_value_as_addr();
 	};
-	caddress get_nw_dst_value() const {
+	caddress_in4 get_nw_dst_value() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32value_as_addr();
 	};
-	caddress get_nw_dst_mask() const {
+	caddress_in4 get_nw_dst_mask() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32mask_as_addr();
 	};
 	uint16_t get_tp_src() const {
@@ -315,22 +315,22 @@ public:
 	uint8_t  get_mpls_tc() const {
 	 return matches.get_match(OXM_TLV_BASIC_MPLS_TC).get_u8value();
 	};
-	caddress get_ipv4_src() const {
+	caddress_in4 get_ipv4_src() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32masked_value_as_addr();
 	};
-	caddress get_ipv4_src_value() const {
+	caddress_in4 get_ipv4_src_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32value_as_addr();
 	};
-	caddress get_ipv4_src_mask() const {
+	caddress_in4 get_ipv4_src_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32mask_as_addr();
 	};
-	caddress get_ipv4_dst() const {
+	caddress_in4 get_ipv4_dst() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32masked_value_as_addr();
 	};
-	caddress get_ipv4_dst_value() const {
+	caddress_in4 get_ipv4_dst_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32value_as_addr();
 	};
-	caddress get_ipv4_dst_mask() const {
+	caddress_in4 get_ipv4_dst_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32mask_as_addr();
 	};
 	uint16_t get_arp_opcode() const {
@@ -354,40 +354,40 @@ public:
 	cmacaddr get_arp_tha_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48mask();
 	};
-	caddress get_arp_spa() const {
+	caddress_in4 get_arp_spa() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32masked_value_as_addr();
 	};
-	caddress get_arp_spa_value() const {
+	caddress_in4 get_arp_spa_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32value_as_addr();
 	};
-	caddress get_arp_spa_mask() const {
+	caddress_in4 get_arp_spa_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32mask_as_addr();
 	};
-	caddress get_arp_tpa() const {
+	caddress_in4 get_arp_tpa() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32masked_value_as_addr();
 	};
-	caddress get_arp_tpa_value() const {
+	caddress_in4 get_arp_tpa_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32value_as_addr();
 	};
-	caddress get_arp_tpa_mask() const {
+	caddress_in4 get_arp_tpa_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32mask_as_addr();
 	};
-	caddress get_ipv6_src() const {
+	caddress_in6 get_ipv6_src() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128masked_value();
 	};
-	caddress get_ipv6_src_value() const {
+	caddress_in6 get_ipv6_src_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128value();
 	};
-	caddress get_ipv6_src_mask() const {
+	caddress_in6 get_ipv6_src_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128mask();
 	};
-	caddress get_ipv6_dst() const {
+	caddress_in6 get_ipv6_dst() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128masked_value();
 	};
-	caddress get_ipv6_dst_value() const {
+	caddress_in6 get_ipv6_dst_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128value();
 	};
-	caddress get_ipv6_dst_mask() const {
+	caddress_in6 get_ipv6_dst_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128mask();
 	};
 	uint8_t  get_ip_proto() const {
@@ -420,7 +420,7 @@ public:
 	cmacaddr get_ipv6_nd_tll() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TLL).get_u48masked_value();
 	};
-	caddress get_ipv6_nd_target() const {
+	caddress_in6 get_ipv6_nd_target() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TARGET).get_u128masked_value();
 	};
 	uint16_t get_udp_src() const {
