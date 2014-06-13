@@ -47,7 +47,6 @@ caddrinfos::resolve()
 			throw eSysCall("getaddrinfo() "+std::string(gai_strerror(rc)));
 	}
 
-	// for now: we take the first entry returned from getaddrinfo
 
 	clear();
 
@@ -76,7 +75,7 @@ caddrinfos::add_addr_info(unsigned int index)
 caddrinfo&
 caddrinfos::set_addr_info(unsigned int index)
 {
-	if (ais.find(index) != ais.end()) {
+	if (ais.find(index) == ais.end()) {
 		(void)ais[index];
 	}
 	return ais[index];

@@ -143,8 +143,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const caddrinfos& dns) {
-		os << rofl::indent(0) << "<caddrinfos node:" << dns.get_node()
-				<< " service:" << dns.get_service() << " >" << std::endl;
+		os << rofl::indent(0) << "<caddrinfos "
+				<< "node:" << dns.get_node() << " "
+				<< "service:" << dns.get_service() << " "
+				<< "#infos:" << dns.size() << " "
+				<< ">" << std::endl;
 		rofl::indent i(2);
 		for (std::map<unsigned int, caddrinfo>::const_iterator
 				it = dns.get_addr_infos().begin(); it != dns.get_addr_infos().end(); ++it) {

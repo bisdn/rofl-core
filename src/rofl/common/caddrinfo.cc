@@ -76,6 +76,7 @@ caddrinfo::unpack(struct addrinfo* buf, size_t buflen)
 	ai_family = ai->ai_family;
 	ai_socktype = ai->ai_socktype;
 	ai_protocol = ai->ai_protocol;
+	ai_addr.ca_saddr->sa_family = ai_family;
 	ai_addr.unpack(ai->ai_addr, ai->ai_addrlen);
 }
 
