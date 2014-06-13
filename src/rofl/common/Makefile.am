@@ -21,8 +21,6 @@ librofl_common_la_SOURCES = \
 		cpipe.cc \
 		cclock.h \
 		cclock.cc \
-		cfsm.h \
-		cfsm.cc \
 		ctimespec.h \
 		ctimespec.cc \
 		ctimer.h \
@@ -84,8 +82,10 @@ librofl_common_la_SOURCES = \
 		cdptid.h \
 		csockaddr.h \
 		csockaddr.cc \
-		caddressinfo.h \
-		caddressinfo.cc
+		caddrinfo.h \
+		caddrinfo.cc \
+		caddrinfos.h \
+		caddrinfos.cc
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -115,7 +115,6 @@ library_include_HEADERS= \
 		crofshim.h \
 		cclock.h \
 		croflexception.h \
-		cfsm.h \
 		ctimespec.h \
 		ctimer.h \
 		ctimers.h \
@@ -141,7 +140,8 @@ library_include_HEADERS= \
 		cctlid.h \
 		cdptid.h \
 		csockaddr.h \
-		caddressinfo.h
+		caddrinfo.h \
+		caddrinfos.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \
