@@ -298,8 +298,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const caddress_ll& addr) {
 		os << rofl::indent(0) << "<caddress_ll " << addr.addr2str() << " >" << std::endl;
+#if 0
 		rofl::indent i(2);
 		os << dynamic_cast<const caddress&>( addr );
+#endif
 		return os;
 	};
 
@@ -517,8 +519,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const caddress_in4& addr) {
 		os << rofl::indent(0) << "<caddress_in4 " << addr.addr2str() << " >" << std::endl;
+#if 0
 		rofl::indent i(2);
 		os << dynamic_cast<const caddress&>( addr );
+#endif
 		return os;
 	};
 
@@ -632,8 +636,10 @@ private:
 	friend std::ostream&
 	operator<< (std::ostream& os, const caddress_in6& addr) {
 		os << rofl::indent(0) << "<caddress_in6 " << addr.addr2str() << " >" << std::endl;
+#if 0
 		rofl::indent i(2);
 		os << dynamic_cast<const caddress&>( addr );
+#endif
 		return os;
 	};
 

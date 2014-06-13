@@ -83,7 +83,9 @@ librofl_common_la_SOURCES = \
 		cctlid.h \
 		cdptid.h \
 		csockaddr.h \
-		csockaddr.cc
+		csockaddr.cc \
+		caddressinfo.h \
+		caddressinfo.cc
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -138,7 +140,8 @@ library_include_HEADERS= \
 		cauxid.h \
 		cctlid.h \
 		cdptid.h \
-		csockaddr.h
+		csockaddr.h \
+		caddressinfo.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \

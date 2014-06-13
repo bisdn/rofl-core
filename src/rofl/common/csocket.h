@@ -462,10 +462,10 @@ public:
 			<< "type:" << sock.type << " "
 			<< "protocol:" << sock.protocol << " ";
 		os << ">" << std::endl;
-		os << rofl::indent(2) << "<raddr: " << sock.raddr << ":" << "TODO" << " >" << std::endl;
-		os << rofl::indent(2) << "<laddr: " << sock.laddr << ":" << "TODO" << " >" << std::endl;
-		rofl::indent i(2);
-		//os << sock.socket_params;
+		os << rofl::indent(2) << "<raddr: >" << std::endl;
+		{ rofl::indent i(4); os << sock.raddr; };
+		os << rofl::indent(2) << "<laddr: >" << std::endl;
+		{ rofl::indent i(4); os << sock.laddr; };
 		return os;
 	};
 

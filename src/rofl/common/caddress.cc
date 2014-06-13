@@ -134,7 +134,7 @@ caddress_in4::str2addr(
 std::string
 caddress_in4::addr2str() const
 {
-	char buf[16];
+	char buf[INET_ADDRSTRLEN];
 	memset(buf, 0, sizeof(buf));
 	struct in_addr in4addr;
 	memcpy((uint8_t*)&(in4addr.s_addr), cmemory::somem(), INET4_ADDR_LEN);
@@ -163,7 +163,7 @@ caddress_in6::str2addr(
 std::string
 caddress_in6::addr2str() const
 {
-	char buf[16];
+	char buf[INET6_ADDRSTRLEN];
 	memset(buf, 0, sizeof(buf));
 	struct in6_addr in6addr;
 	memcpy((uint8_t*)&(in6addr.s6_addr), cmemory::somem(), INET6_ADDR_LEN);
