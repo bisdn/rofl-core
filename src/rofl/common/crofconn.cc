@@ -366,6 +366,7 @@ crofconn::event_echo_expired()
 	switch (state) {
 	case STATE_ESTABLISHED: {
 		rofl::logging::warn << "[rofl][conn] event-echo-expired: OFP transport connection is congested or dead. Closing. " << std::endl << *this;
+		flags.set(FLAGS_CLOSED);
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
