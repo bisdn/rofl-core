@@ -150,10 +150,13 @@ fipv4frame::c_str()
 	uint32_t dst;
 #endif
 
+	std::stringstream s_dst; s_dst << get_ipv4_dst();
+	std::stringstream s_src; s_src << get_ipv4_src();
+
 	info.assign(vas("[fipv4frame(%p) dst:%s src:%s length:%d vers:%d dscp:%d ecn:%d ihl:%d proto:%d ttl:%d ]",
 			this,
-			get_ipv4_dst().addr_c_str(),
-			get_ipv4_src().addr_c_str(),
+			s_dst.str().c_str(),
+			s_src.str().c_str(),
 			be16toh(ipv4_hdr->length),
 			get_ipv4_version(),
 			get_ipv4_dscp(),
@@ -210,23 +213,17 @@ fipv4frame::set_ipv4_src(uint32_t src)
 
 
 void
-fipv4frame::set_ipv4_src(const caddress & src) throw (eIPv4FrameInval)
+fipv4frame::set_ipv4_src(const caddress_in4& src)
 {
-	if (src.ca_saddr->sa_family != AF_INET)
-		throw eIPv4FrameInval();
-
-	ipv4_hdr->src = src.ca_s4addr->sin_addr.s_addr;
+	ipv4_hdr->src = src.get_addr_nbo();
 }
 
 
-caddress
+caddress_in4
 fipv4frame::get_ipv4_src() const
 {
-	struct sockaddr_in sa;
-	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = ipv4_hdr->src;
-	sa.sin_port = htobe16(0);
-	return caddress(&sa, sizeof(sa));
+	caddress_in4 src; src.set_addr_nbo(ipv4_hdr->src);
+	return src;
 }
 
 
@@ -238,23 +235,17 @@ fipv4frame::set_ipv4_dst(uint32_t dst)
 
 
 void
-fipv4frame::set_ipv4_dst(const caddress & dst) throw (eIPv4FrameInval)
+fipv4frame::set_ipv4_dst(const caddress_in4 & dst)
 {
-	if (dst.ca_saddr->sa_family != AF_INET)
-		throw eIPv4FrameInval();
-
-	ipv4_hdr->dst = dst.ca_s4addr->sin_addr.s_addr;
+	ipv4_hdr->dst = dst.get_addr_nbo();
 }
 
 
-caddress
+caddress_in4
 fipv4frame::get_ipv4_dst() const
 {
-	struct sockaddr_in sa;
-	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = ipv4_hdr->dst;
-	sa.sin_port = htobe16(0);
-	return caddress(&sa, sizeof(sa));
+	caddress_in4 dst; dst.set_addr_nbo(ipv4_hdr->dst);
+	return dst;
 }
 
 void

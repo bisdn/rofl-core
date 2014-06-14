@@ -136,8 +136,7 @@ class crofbase :
 	public crofchan_env,
 #endif
 	public crofconn_env,
-	public ctransactions_env,
-	public cfsm
+	public ctransactions_env
 {
 protected:
 
@@ -231,27 +230,6 @@ public:
 	virtual void
 	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };
 
-#if 0
-public:
-
-	virtual void
-	handle_connected(crofchan *chan, uint8_t aux_id);
-
-	virtual void
-	handle_closed(crofchan *chan, uint8_t aux_id);
-
-	virtual void
-	recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) { delete msg; };
-
-	virtual uint32_t
-	get_async_xid(crofchan *chan) { return transactions.get_async_xid(); };
-
-	virtual uint32_t
-	get_sync_xid(crofchan *chan) { return transactions.add_ta(cclock(5, 0)); };
-
-	virtual void
-	release_sync_xid(crofchan *chan, uint32_t xid) { transactions.drop_ta(xid); };
-#endif
 
 public:
 

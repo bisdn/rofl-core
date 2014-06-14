@@ -17,6 +17,8 @@
 #include "../fframe.h"
 #include "../caddress.h"
 #include "../cvastring.h"
+#include "rofl/datapath/pipeline/common/large_types.h"
+
 
 namespace rofl
 {
@@ -331,11 +333,11 @@ public:
 	/**
 	 */
 	void
-	set_ipv6_src(caddress const& src) throw (eIPv6FrameInval);
+	set_ipv6_src(caddress_in6 const& src);
 
 	/**
 	 */
-	caddress
+	caddress_in6
 	get_ipv6_src() const;
 
 	/** dst in network-byte-order
@@ -351,11 +353,11 @@ public:
 	/**
 	 */
 	void
-	set_ipv6_dst(caddress const& dst) throw (eIPv6FrameInval);
+	set_ipv6_dst(caddress_in6 const& dst);
 
 	/**
 	 */
-	caddress
+	caddress_in6
 	get_ipv6_dst() const;
 
 

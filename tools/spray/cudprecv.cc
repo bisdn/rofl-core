@@ -10,11 +10,11 @@
 using namespace spray;
 
 
-std::map<rofl::caddress, cudprecv*> cudprecv::udpreceivers;
+std::map<rofl::csockaddr, cudprecv*> cudprecv::udpreceivers;
 
 
 cudprecv&
-cudprecv::get_udprecv(rofl::caddress const& remote)
+cudprecv::get_udprecv(rofl::csockaddr const& remote)
 {
 	if (cudprecv::udpreceivers.find(remote) == cudprecv::udpreceivers.end()) {
 		throw eUdpRecvNotFound();
@@ -25,8 +25,8 @@ cudprecv::get_udprecv(rofl::caddress const& remote)
 
 
 cudprecv::cudprecv(
-		rofl::caddress const& remote,
-		rofl::caddress const& local) :
+		rofl::csockaddr const& remote,
+		rofl::csockaddr const& local) :
 				keep_going(false),
 				tid(0),
 				remote(remote),
@@ -135,13 +135,13 @@ cudprecv::recv_udp_msgs()
 	}
 
 	if ((rc = bind(sd, local.ca_saddr, local.salen)) < 0) {
-		std::cerr << "local: " << local.addr_c_str() << std::endl;
+		std::cerr << "local: " << local << std::endl;
 		fprintf(stderr, "error on bind() call: %d (%s)\n", errno, strerror(errno));
 		return;
 	}
 
 	if ((rc = connect(sd, remote.ca_saddr, remote.salen)) < 0) {
-		std::cerr << "remote: " << remote.addr_c_str() << std::endl;
+		std::cerr << "remote: " << remote << std::endl;
 		fprintf(stderr, "error on connect() call: %d (%s)\n", errno, strerror(errno));
 		return;
 	}

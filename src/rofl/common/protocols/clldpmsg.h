@@ -10,7 +10,7 @@
 
 #include "rofl/common/cmemory.h"
 #include "rofl/common/logging.h"
-#include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/protocols/clldpattr.h"
 #include "rofl/common/protocols/clldpattrs.h"

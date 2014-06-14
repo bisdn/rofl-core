@@ -447,7 +447,7 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 
 
 void
-csocket_openssl::send(cmemory *mem, caddress const& dest)
+csocket_openssl::send(cmemory *mem, csockaddr const& dest)
 {
 	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
 

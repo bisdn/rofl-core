@@ -656,7 +656,7 @@ cofaction_set_nw_src::pack(
 
 		struct rofl::openflow10::ofp_action_nw_addr* hdr = (struct rofl::openflow10::ofp_action_nw_addr*)buf;
 
-		hdr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+		addr.pack((uint8_t*)&(hdr->nw_addr), sizeof(hdr->nw_addr));
 
 	} break;
 	default:
@@ -683,9 +683,7 @@ cofaction_set_nw_src::unpack(
 
 		struct rofl::openflow10::ofp_action_nw_addr* hdr = (struct rofl::openflow10::ofp_action_nw_addr*)buf;
 
-		addr.resize(sizeof(struct sockaddr_in));
-		addr.ca_s4addr->sin_family = AF_INET;
-		addr.ca_s4addr->sin_addr.s_addr = hdr->nw_addr;
+		addr.unpack((uint8_t*)&(hdr->nw_addr), sizeof(hdr->nw_addr));
 
 	} break;
 	default:
@@ -725,7 +723,7 @@ cofaction_set_nw_dst::pack(
 
 		struct rofl::openflow10::ofp_action_nw_addr* hdr = (struct rofl::openflow10::ofp_action_nw_addr*)buf;
 
-		hdr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+		addr.pack((uint8_t*)&(hdr->nw_addr), sizeof(hdr->nw_addr));
 
 	} break;
 	default:
@@ -752,9 +750,7 @@ cofaction_set_nw_dst::unpack(
 
 		struct rofl::openflow10::ofp_action_nw_addr* hdr = (struct rofl::openflow10::ofp_action_nw_addr*)buf;
 
-		addr.resize(sizeof(struct sockaddr_in));
-		addr.ca_s4addr->sin_family = AF_INET;
-		addr.ca_s4addr->sin_addr.s_addr = hdr->nw_addr;
+		addr.unpack((uint8_t*)&(hdr->nw_addr), sizeof(hdr->nw_addr));
 
 	} break;
 	default:

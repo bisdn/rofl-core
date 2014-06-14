@@ -19,9 +19,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
+#include <net/if.h>
 
 #include "rofl/common/csocket.h"
 #include "rofl/common/ctimerid.h"
+#include "rofl/common/caddrinfos.h"
 
 namespace rofl {
 
@@ -52,12 +54,12 @@ protected:
 
 	struct pout_entry_t {
 		cmemory *mem;
-		caddress dest;
+		csockaddr dest;
 		size_t msg_bytes_sent;
-		pout_entry_t(cmemory *mem = 0, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) :
+		pout_entry_t(cmemory *mem = 0, csockaddr const& dest = csockaddr()) :
 			mem(mem), dest(dest), msg_bytes_sent(0) {};
 		pout_entry_t(pout_entry_t const& e) :
-			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)), msg_bytes_sent(0) {
+			mem(0), msg_bytes_sent(0) {
 			*this = e;
 		};
 		struct pout_entry_t&
@@ -229,7 +231,7 @@ public:
 	 */
 	virtual void
 	send(
-			cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+			cmemory *mem, rofl::csockaddr const& dest = rofl::csockaddr());
 
 
 	/**
@@ -271,7 +273,7 @@ protected:
 	 */
 	virtual void
 	listen(
-		caddress la,
+		const csockaddr& la,
 		int domain = PF_INET,
 		int type = SOCK_STREAM,
 		int protocol = 0,
@@ -295,8 +297,8 @@ protected:
 	 */
 	virtual void
 	connect(
-		caddress ra,
-		caddress la = caddress(AF_INET, "0.0.0.0", 0),
+		csockaddr ra,
+		csockaddr la = csockaddr(),
 		int domain = PF_INET,
 		int type = SOCK_STREAM,
 		int protocol = 0,

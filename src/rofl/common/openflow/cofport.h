@@ -19,7 +19,7 @@
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/cofportstats.h"
 
@@ -423,7 +423,8 @@ public:
 		case openflow10::OFP_VERSION: {
 			os << indent(0) << "<cofport >" << std::endl;
 			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
-			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
+			os << indent(2) << "<hwaddr: >"		 	<< std::endl;
+				{ rofl::indent i(4); os << port.get_hwaddr(); }
 			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
 			os << indent(2) << "<config:"		 	<< (int)port.get_config() 				<< " >" << std::endl;
 			os << indent(2) << "<state:"		 	<< (int)port.get_state() 				<< " >" << std::endl;
@@ -435,7 +436,8 @@ public:
 		case openflow12::OFP_VERSION: {
 			os << indent(0) << "<cofport >" << std::endl;
 			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
-			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
+			os << indent(2) << "<hwaddr: >"		 	<< std::endl;
+				{ rofl::indent i(4); os << port.get_hwaddr(); }
 			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
 			os << indent(2) << "<config:"		 	<< (int)port.get_config() 				<< " >" << std::endl;
 			os << indent(2) << "<state:"		 	<< (int)port.get_state() 				<< " >" << std::endl;
@@ -453,7 +455,8 @@ public:
 		case openflow13::OFP_VERSION: {
 			os << indent(0) << "<cofport >" << std::endl;
 			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
-			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
+			os << indent(2) << "<hwaddr: >"		 	<< std::endl;
+				{ rofl::indent i(4); os << port.get_hwaddr(); }
 			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
 			os << indent(2) << "<config:"		 	<< (int)port.get_config() 				<< " >" << std::endl;
 			os << indent(2) << "<state:"		 	<< (int)port.get_state() 				<< " >" << std::endl;

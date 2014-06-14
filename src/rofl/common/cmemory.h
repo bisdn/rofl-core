@@ -162,6 +162,16 @@ public:
 			cmemory const& m) const;
 
 
+	/**
+	 * @brief	Less than operator.
+	 *
+	 * @param m cmemory instance for operation
+	 */
+	bool
+	operator> (
+			cmemory const& m) const;
+
+
 
 	/**
 	 * @brief	AND operator

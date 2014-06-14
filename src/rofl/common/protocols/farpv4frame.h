@@ -13,7 +13,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cmacaddr.h"
 #include "../cvastring.h"
 
 namespace rofl
@@ -24,6 +23,8 @@ class eARPv4FrameTooShort		: public eARPv4FrameBase, public eFrameInvalidSyntax 
 
 
 class farpv4frame : public fframe {
+	static const unsigned int ETH_ADDR_LEN = 6;
+
 public: // static
 
 	/* ARPv4 constants and definitions */
@@ -42,9 +43,9 @@ public: // static
 		uint8_t ar_hln;             	// hardware address length
 		uint8_t ar_pln;             	// protocol address length
 		uint16_t ar_op;             	// ARP opcode
-		uint8_t dl_src[OFP_ETH_ALEN]; 	// source MAC address
+		uint8_t dl_src[ETH_ADDR_LEN]; 	// source MAC address
 		uint32_t ip_src;            	// source IP address
-		uint8_t dl_dst[OFP_ETH_ALEN]; 	// destination MAC address
+		uint8_t dl_dst[ETH_ADDR_LEN]; 	// destination MAC address
 		uint32_t ip_dst;            	// destination IP address
 	} __attribute__((packed));
 	/* ARPv4 definitions */
@@ -178,12 +179,12 @@ public:
 	 */
 	void
 	set_nw_src(
-			caddress const& addr);
+			caddress_in4 const& addr);
 
 	/**
 	 *
 	 */
-	caddress
+	caddress_in4
 	get_nw_src() const;
 
 	/** dst in network-byte-order
@@ -198,12 +199,12 @@ public:
 	 */
 	void
 	set_nw_dst(
-			caddress const& addr);
+			caddress_in4 const& addr);
 
 	/**
 	 *
 	 */
-	caddress
+	caddress_in4
 	get_nw_dst() const;
 
 
