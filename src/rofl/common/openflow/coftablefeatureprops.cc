@@ -276,13 +276,13 @@ coftable_feature_props::set_tfp(unsigned int type)
 
 
 
-coftable_feature_prop&
-coftable_feature_props::get_tfp(unsigned int type)
+const coftable_feature_prop&
+coftable_feature_props::get_tfp(unsigned int type) const
 {
 	if (tfprops.find(type) == tfprops.end()) {
 		throw eOFTableFeaturePropsNotFound();
 	}
-	return *(tfprops[type]);
+	return dynamic_cast<const coftable_feature_prop&>(*(tfprops.at(type)));
 }
 
 
@@ -299,7 +299,7 @@ coftable_feature_props::drop_tfp(unsigned int type)
 
 
 bool
-coftable_feature_props::has_tfp(unsigned int type)
+coftable_feature_props::has_tfp(unsigned int type) const
 {
 	return not (tfprops.find(type) == tfprops.end());
 }

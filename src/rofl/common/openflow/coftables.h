@@ -180,7 +180,7 @@ public:
 	 */
 	static void
 	map_prop_oxm_to_match(
-			rofl::openflow::coftable_feature_prop_oxm& prop_oxm, uint64_t& match);
+			const rofl::openflow::coftable_feature_prop_oxm& prop_oxm, uint64_t& match);
 
 	/**
 	 *
@@ -194,7 +194,7 @@ public:
 	 */
 	static void
 	map_prop_actions_to_actions(
-		rofl::openflow::coftable_feature_prop_actions& prop_actions, uint32_t& actions);
+		const rofl::openflow::coftable_feature_prop_actions& prop_actions, uint32_t& actions);
 
 	/**
 	 *
@@ -208,7 +208,7 @@ public:
 	 */
 	static void
 	map_prop_instructions_to_instructions(
-			rofl::openflow::coftable_feature_prop_instructions& prop_instructions, uint32_t& instructions);
+			const rofl::openflow::coftable_feature_prop_instructions& prop_instructions, uint32_t& instructions);
 
 public:
 
