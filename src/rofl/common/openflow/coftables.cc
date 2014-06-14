@@ -288,19 +288,19 @@ coftables::map_tables_to_tablestatsarray(
 
 
 		// set supported matches
-		map_prop_oxm_to_match(table_features.set_properties().get_tfp_match(), match);
+		map_prop_oxm_to_match(table_features.get_properties().get_tfp_match(), match);
 		table.set_match(match);
 
 		// set supported wildcards
-		map_prop_oxm_to_match(table_features.set_properties().get_tfp_wildcards(), match);
+		map_prop_oxm_to_match(table_features.set_properties().set_tfp_wildcards(), match);
 		table.set_wildcards(match);
 
 		// set supported write-actions
-		map_prop_actions_to_actions(table_features.set_properties().get_tfp_write_actions(), actions);
+		map_prop_actions_to_actions(table_features.get_properties().get_tfp_write_actions(), actions);
 		table.set_write_actions(actions);
 
 		// set supported apply-actions
-		map_prop_actions_to_actions(table_features.set_properties().get_tfp_apply_actions(), actions);
+		map_prop_actions_to_actions(table_features.get_properties().get_tfp_apply_actions(), actions);
 		table.set_apply_actions(actions);
 
 		// set supported write-setfields
@@ -312,7 +312,7 @@ coftables::map_tables_to_tablestatsarray(
 		table.set_apply_setfields(match);
 
 		// set supported instructions
-		map_prop_instructions_to_instructions(table_features.set_properties().get_tfp_instructions(), instructions);
+		map_prop_instructions_to_instructions(table_features.get_properties().get_tfp_instructions(), instructions);
 		table.set_instructions(instructions);
 	}
 }
@@ -442,7 +442,7 @@ coftables::map_match_to_prop_oxm(
 
 /*static*/void
 coftables::map_prop_oxm_to_match(
-		rofl::openflow::coftable_feature_prop_oxm& prop_oxm, uint64_t& match)
+		const rofl::openflow::coftable_feature_prop_oxm& prop_oxm, uint64_t& match)
 {
 	match = 0;
 
@@ -631,11 +631,11 @@ coftables::map_actions_to_prop_actions(
 
 /*static*/void
 coftables::map_prop_actions_to_actions(
-	rofl::openflow::coftable_feature_prop_actions& prop_actions, uint32_t& actions)
+	const rofl::openflow::coftable_feature_prop_actions& prop_actions, uint32_t& actions)
 {
 	actions = 0;
 
-	for (std::vector<struct rofl::openflow::ofp_action>::iterator
+	for (std::vector<struct rofl::openflow::ofp_action>::const_iterator
 			it = prop_actions.get_action_ids().begin(); it != prop_actions.get_action_ids().end(); ++it) {
 		switch (it->type) {
 		case rofl::openflow::OFPAT_OUTPUT: {
@@ -714,11 +714,11 @@ coftables::map_instructions_to_prop_instructions(
 
 /*static*/void
 coftables::map_prop_instructions_to_instructions(
-		rofl::openflow::coftable_feature_prop_instructions& prop_instructions, uint32_t& instructions)
+		const rofl::openflow::coftable_feature_prop_instructions& prop_instructions, uint32_t& instructions)
 {
 	instructions = 0;
 
-	for (std::vector<struct rofl::openflow::ofp_instruction>::iterator
+	for (std::vector<struct rofl::openflow::ofp_instruction>::const_iterator
 			it = prop_instructions.get_instruction_ids().begin(); it != prop_instructions.get_instruction_ids().end(); ++it) {
 		switch (it->type) {
 		case rofl::openflow::OFPIT_GOTO_TABLE: {

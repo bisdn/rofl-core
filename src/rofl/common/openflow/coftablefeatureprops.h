@@ -110,9 +110,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_instructions&>( set_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS) );
 	};
 
-	coftable_feature_prop_instructions&
-	get_tfp_instructions() {
-		return dynamic_cast<coftable_feature_prop_instructions&>( get_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS) );
+	const coftable_feature_prop_instructions&
+	get_tfp_instructions() const {
+		return dynamic_cast<const coftable_feature_prop_instructions&>( get_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS) );
 	};
 
 	void
@@ -121,7 +121,7 @@ public:
 	};
 
 	bool
-	has_tfp_instructions() {
+	has_tfp_instructions() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS);
 	};
 
@@ -138,9 +138,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_instructions&>( set_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS) );
 	};
 
-	coftable_feature_prop_instructions&
-	get_tfp_instructions_miss() {
-		return dynamic_cast<coftable_feature_prop_instructions&>( get_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS) );
+	const coftable_feature_prop_instructions&
+	get_tfp_instructions_miss() const {
+		return dynamic_cast<const coftable_feature_prop_instructions&>( get_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS) );
 	};
 
 	void
@@ -149,7 +149,7 @@ public:
 	};
 
 	bool
-	has_tfp_instructions_miss() {
+	has_tfp_instructions_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS);
 	};
 
@@ -168,9 +168,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_next_tables&>( set_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES) );
 	};
 
-	coftable_feature_prop_next_tables&
-	get_tfp_next_tables() {
-		return dynamic_cast<coftable_feature_prop_next_tables&>( get_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES) );
+	const coftable_feature_prop_next_tables&
+	get_tfp_next_tables() const {
+		return dynamic_cast<const coftable_feature_prop_next_tables&>( get_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES) );
 	};
 
 	void
@@ -179,7 +179,7 @@ public:
 	};
 
 	bool
-	has_tfp_next_tables() {
+	has_tfp_next_tables() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES);
 	};
 
@@ -196,9 +196,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_next_tables&>( set_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS) );
 	};
 
-	coftable_feature_prop_next_tables&
-	get_tfp_next_tables_miss() {
-		return dynamic_cast<coftable_feature_prop_next_tables&>( get_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS) );
+	const coftable_feature_prop_next_tables&
+	get_tfp_next_tables_miss() const {
+		return dynamic_cast<const coftable_feature_prop_next_tables&>( get_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS) );
 	};
 
 	void
@@ -207,7 +207,7 @@ public:
 	};
 
 	bool
-	has_tfp_next_tables_miss() {
+	has_tfp_next_tables_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS);
 	};
 
@@ -227,9 +227,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_actions&>( set_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS) );
 	};
 
-	coftable_feature_prop_actions&
-	get_tfp_write_actions() {
-		return dynamic_cast<coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS) );
+	const coftable_feature_prop_actions&
+	get_tfp_write_actions() const {
+		return dynamic_cast<const coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS) );
 	};
 
 	void
@@ -238,7 +238,7 @@ public:
 	};
 
 	bool
-	has_tfp_write_actions() {
+	has_tfp_write_actions() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS);
 	};
 
@@ -255,9 +255,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_actions&>( set_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS) );
 	};
 
-	coftable_feature_prop_actions&
-	get_tfp_write_actions_miss() {
-		return dynamic_cast<coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS) );
+	const coftable_feature_prop_actions&
+	get_tfp_write_actions_miss() const {
+		return dynamic_cast<const coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS) );
 	};
 
 	void
@@ -266,7 +266,7 @@ public:
 	};
 
 	bool
-	has_tfp_write_actions_miss() {
+	has_tfp_write_actions_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS);
 	};
 
@@ -287,9 +287,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_actions&>( set_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS) );
 	};
 
-	coftable_feature_prop_actions&
-	get_tfp_apply_actions() {
-		return dynamic_cast<coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS) );
+	const coftable_feature_prop_actions&
+	get_tfp_apply_actions() const {
+		return dynamic_cast<const coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS) );
 	};
 
 	void
@@ -298,7 +298,7 @@ public:
 	};
 
 	bool
-	has_tfp_apply_actions() {
+	has_tfp_apply_actions() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS);
 	};
 
@@ -315,9 +315,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_actions&>( set_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS) );
 	};
 
-	coftable_feature_prop_actions&
-	get_tfp_apply_actions_miss() {
-		return dynamic_cast<coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS) );
+	const coftable_feature_prop_actions&
+	get_tfp_apply_actions_miss() const {
+		return dynamic_cast<const coftable_feature_prop_actions&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS) );
 	};
 
 	void
@@ -326,7 +326,7 @@ public:
 	};
 
 	bool
-	has_tfp_apply_actions_miss() {
+	has_tfp_apply_actions_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS);
 	};
 
@@ -347,9 +347,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_MATCH) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_match() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_MATCH) );
+	const coftable_feature_prop_oxm&
+	get_tfp_match() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_MATCH) );
 	};
 
 	void
@@ -358,7 +358,7 @@ public:
 	};
 
 	bool
-	has_tfp_match() {
+	has_tfp_match() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_MATCH);
 	};
 
@@ -378,9 +378,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_WILDCARDS) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_wildcards() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WILDCARDS) );
+	const coftable_feature_prop_oxm&
+	get_tfp_wildcards() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WILDCARDS) );
 	};
 
 	void
@@ -389,7 +389,7 @@ public:
 	};
 
 	bool
-	has_tfp_wildcards() {
+	has_tfp_wildcards() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_WILDCARDS);
 	};
 
@@ -409,9 +409,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_write_setfield() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD) );
+	const coftable_feature_prop_oxm&
+	get_tfp_write_setfield() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD) );
 	};
 
 	void
@@ -420,7 +420,7 @@ public:
 	};
 
 	bool
-	has_tfp_write_setfield() {
+	has_tfp_write_setfield() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD);
 	};
 
@@ -437,9 +437,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_write_setfield_miss() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS) );
+	const coftable_feature_prop_oxm&
+	get_tfp_write_setfield_miss() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS) );
 	};
 
 	void
@@ -448,7 +448,7 @@ public:
 	};
 
 	bool
-	has_tfp_write_setfield_miss() {
+	has_tfp_write_setfield_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS);
 	};
 
@@ -469,9 +469,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_apply_setfield() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD) );
+	const coftable_feature_prop_oxm&
+	get_tfp_apply_setfield() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD) );
 	};
 
 	void
@@ -480,7 +480,7 @@ public:
 	};
 
 	bool
-	has_tfp_apply_setfield() {
+	has_tfp_apply_setfield() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD);
 	};
 
@@ -497,9 +497,9 @@ public:
 		return dynamic_cast<coftable_feature_prop_oxm&>( set_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS) );
 	};
 
-	coftable_feature_prop_oxm&
-	get_tfp_apply_setfield_miss() {
-		return dynamic_cast<coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS) );
+	const coftable_feature_prop_oxm&
+	get_tfp_apply_setfield_miss() const {
+		return dynamic_cast<const coftable_feature_prop_oxm&>( get_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS) );
 	};
 
 	void
@@ -508,7 +508,7 @@ public:
 	};
 
 	bool
-	has_tfp_apply_setfield_miss() {
+	has_tfp_apply_setfield_miss() const {
 		return has_tfp(rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS);
 	};
 
@@ -529,14 +529,14 @@ private:
 	coftable_feature_prop&
 	set_tfp(unsigned int type);
 
-	coftable_feature_prop&
-	get_tfp(unsigned int type);
+	const coftable_feature_prop&
+	get_tfp(unsigned int type) const;
 
 	void
 	drop_tfp(unsigned int type);
 
 	bool
-	has_tfp(unsigned int type);
+	has_tfp(unsigned int type) const;
 
 public:
 
