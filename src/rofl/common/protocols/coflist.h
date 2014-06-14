@@ -9,9 +9,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "cvastring.h"
-#include "croflexception.h"
-#include "logging.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/logging.h"
 
 namespace rofl {
 namespace openflow {
