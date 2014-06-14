@@ -787,7 +787,8 @@ public:
 		rofl::indent i(2);
 		os << rofl::indent(0) << "<ipv6-src: >" << std::endl;
 		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << "/" << oxm.get_u128mask() << " >" << std::endl;
+		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
+		os << rofl::indent(2) << "<mask: > " << oxm.get_u128mask();
 		return os;
 	};
 };
@@ -815,7 +816,8 @@ public:
 		rofl::indent i(2);
 		os << rofl::indent(0) << "<ipv6-dst: >" << std::endl;
 		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << "/" << oxm.get_u128mask() << " >" << std::endl;
+		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
+		os << rofl::indent(2) << "<mask: > " << oxm.get_u128mask();
 		return os;
 	};
 };
@@ -840,7 +842,7 @@ public:
 		rofl::indent i(2);
 		os << rofl::indent(0) << "<ipv6-nd-target: >" << std::endl;
 		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << " >" << std::endl;
+		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
 		return os;
 	};
 };

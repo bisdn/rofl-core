@@ -850,9 +850,6 @@ csocket_impl::connect(
 	}
 
 
-	std::cerr << "XXXXXXXXXXXXXXXXX [2]: laddr" << std::endl << laddr;
-	std::cerr << "YYYYYYYYYYYYYYYYY [2]: raddr" << std::endl << raddr;
-
 	// bind to local address
 	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {
 		throw eSysCall("bind");
