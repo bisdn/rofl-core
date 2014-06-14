@@ -114,7 +114,15 @@ csegmsg::clone(rofl::openflow::cofmsg_stats const& msg_stats)
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
 			msg = new rofl::openflow::cofmsg_group_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>(msg_stats));
 		} break;
-		// TODO: meters
+		case rofl::openflow13::OFPMP_METER: {
+			msg = new rofl::openflow::cofmsg_meter_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_stats_request const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_CONFIG: {
+			msg = new rofl::openflow::cofmsg_meter_config_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_FEATURES: {
+			msg = new rofl::openflow::cofmsg_meter_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request const&>(msg_stats));
+		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			msg = new rofl::openflow::cofmsg_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>(msg_stats));
 		} break;
@@ -160,7 +168,15 @@ csegmsg::clone(rofl::openflow::cofmsg_stats const& msg_stats)
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
 			msg = new rofl::openflow::cofmsg_group_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>(msg_stats));
 		} break;
-		// TODO: meters
+		case rofl::openflow13::OFPMP_METER: {
+			msg = new rofl::openflow::cofmsg_meter_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_CONFIG: {
+			msg = new rofl::openflow::cofmsg_meter_config_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_FEATURES: {
+			msg = new rofl::openflow::cofmsg_meter_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply const&>(msg_stats));
+		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			msg = new rofl::openflow::cofmsg_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>(msg_stats));
 		} break;
