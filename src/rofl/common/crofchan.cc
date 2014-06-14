@@ -403,11 +403,11 @@ restart:
 				it->second->close();
 			}
 
+			run_engine(EVENT_DISCONNECTED);
+
 			// try reconnecting main connection
 			conn->reconnect(true);
 		}
-
-		run_engine(EVENT_DISCONNECTED);
 
 		return;
 
