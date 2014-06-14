@@ -15,12 +15,13 @@ void
 caddrinfos::resolve()
 {
 	struct addrinfo ai_hints;
-	memset(&hints, 0, sizeof(struct addrinfo));
+	memset(&ai_hints, 0, sizeof(struct addrinfo));
 	ai_hints.ai_family 		= hints.get_ai_family();
 	ai_hints.ai_socktype 	= hints.get_ai_socktype();
 	ai_hints.ai_flags 		= hints.get_ai_flags();
 	ai_hints.ai_protocol	= hints.get_ai_protocol();
 	ai_hints.ai_addr 		= NULL;
+	ai_hints.ai_addrlen		= 0;
 
 	struct addrinfo *result, *rp = (struct addrinfo*)0;
 
@@ -75,9 +76,6 @@ caddrinfos::add_addr_info(unsigned int index)
 caddrinfo&
 caddrinfos::set_addr_info(unsigned int index)
 {
-	if (ais.find(index) == ais.end()) {
-		(void)ais[index];
-	}
 	return ais[index];
 }
 
