@@ -316,8 +316,19 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, caddress const& addr)
 	{
+		uint16_t port = 0;
+
+		switch (addr.ca_saddr->sa_family) {
+		case AF_INET: {
+			port = be16toh(addr.ca_s4addr->sin_port);
+		} break;
+		case AF_INET6: {
+			port = be16toh(addr.ca_s6addr->sin6_port);
+		} break;
+		}
+
 		caddress t_addr(addr);
-		os << std::string(t_addr.addr_c_str());
+		os << std::string(t_addr.addr_c_str()) << " port:" << (unsigned int)port << " ";
 #if 0
 		caddress t_addr(addr);
 		os << "caddress{"
