@@ -146,6 +146,17 @@ public:
 	send_message(
 			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
 
+	/**
+	 *
+	 */
+	cauxid
+	get_next_auxid();
+
+	/**
+	 *
+	 */
+	std::list<cauxid>
+	get_conn_index() const;
 
 	/**
 	 * @brief	Add a new connection while creating a new crofconn instance and do a socket connect.

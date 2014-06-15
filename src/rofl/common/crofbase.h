@@ -132,12 +132,11 @@ class ssl_context;
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
-#if 0
-	public crofchan_env,
-#endif
 	public crofconn_env,
 	public ctransactions_env
 {
+	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
+
 protected:
 
 	rofl::openflow::cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
@@ -147,14 +146,7 @@ protected:
 	ctransactions								transactions;
 	bool										generation_is_defined;		// generation_id used for roles initially defined?
 	uint64_t									cached_generation_id;
-
-	rofl::openflow::cofasync_config		async_config_role_default_template;
-
-
-public:
-
-	//friend class cport;
-	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
+	rofl::openflow::cofasync_config				async_config_role_default_template;
 
 public:
 

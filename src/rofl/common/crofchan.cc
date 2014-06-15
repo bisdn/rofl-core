@@ -125,6 +125,34 @@ crofchan::close()
 
 
 
+cauxid
+crofchan::get_next_auxid()
+{
+	uint8_t aux_id = 0;
+	while (conns.find(aux_id) != conns.end()) {
+		aux_id++;
+		if (aux_id == 255) {
+			throw eAuxIdNotFound("crofchan::get_next_cauxid() auxid namespace exhausted");
+		}
+	}
+	return cauxid(aux_id);
+}
+
+
+
+std::list<cauxid>
+crofchan::get_conn_index() const
+{
+	std::list<cauxid> connections;
+	for (std::map<cauxid, crofconn*>::const_iterator
+			it = conns.begin(); it != conns.end(); ++it) {
+		connections.push_back(it->first);
+	}
+	return connections;
+}
+
+
+
 crofconn&
 crofchan::add_conn(
 		const cauxid& aux_id,

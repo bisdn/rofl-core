@@ -139,6 +139,64 @@ public:
 	virtual
 	~crofdpt_impl();
 
+public:
+
+	/**
+	 *
+	 */
+	virtual std::list<rofl::cauxid>
+	get_conn_index() const {
+		return rofchan.get_conn_index();
+	};
+
+	/**
+	 *
+	 */
+	virtual rofl::cauxid
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) {
+		rofchan.close();
+		transactions.clear();
+		tables.clear();
+		ports.clear();
+		state = STATE_DISCONNECTED;
+		/* establish main connection */
+		return rofchan.add_conn(rofchan.get_next_auxid(), socket_type, socket_params).get_aux_id();
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect(
+			const rofl::cauxid& auxid = 0) {
+		rofchan.drop_conn(auxid);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	reconnect(
+			const rofl::cauxid& auxid = 0) {
+		rofchan.set_conn(auxid).close();
+		rofchan.set_conn(auxid).reconnect(true);
+	};
+
+public:
+
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	virtual crofchan&
+	set_channel() { return rofchan; };
+
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	virtual crofchan const&
+	get_channel() const { return rofchan; };
 
 public:
 
@@ -153,18 +211,6 @@ public:
 	 */
 	virtual rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() { return rofchan.get_versionbitmap(); };
-
-	/**
-	 * @brief	Returns a reference to the associated crofchan instance
-	 */
-	virtual crofchan&
-	set_channel() { return rofchan; };
-
-	/**
-	 * @brief	Returns a reference to the associated crofchan instance
-	 */
-	virtual crofchan const&
-	get_channel() const { return rofchan; };
 
 	/**
 	 * @brief	Returns true, when the OFP control channel is up
@@ -320,36 +366,6 @@ public:
 
 
 	/**@}*/
-
-public:
-
-
-	/**
-	 *
-	 */
-	virtual void
-	connect(
-			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& socket_params) {
-		rofchan.close();
-		transactions.clear();
-		tables.clear();
-		ports.clear();
-		state = STATE_DISCONNECTED;
-		/* establish main connection */
-		rofchan.add_conn(cauxid(0), socket_type, socket_params);
-	};
-
-
-
-	/**
-	 *
-	 */
-	virtual void
-	disconnect() {
-		/* terminate main connection */
-		rofchan.drop_conn(cauxid(0));
-	};
 
 
 public:

@@ -12,8 +12,20 @@
 #include <iostream>
 
 #include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
 
 namespace rofl {
+
+class eAuxIdBase 		: public RoflException {
+public:
+	eAuxIdBase(const std::string __arg) : RoflException(__arg) {};
+};
+
+class eAuxIdNotFound 	: public eAuxIdBase {
+public:
+	eAuxIdNotFound(const std::string __arg) : eAuxIdBase(__arg) {};
+};
+
 
 class cauxid {
 

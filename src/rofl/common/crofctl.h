@@ -91,11 +91,16 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	virtual std::list<rofl::cauxid>
+	get_conn_index() const = 0;
 
 	/**
 	 *
 	 */
-	virtual void
+	virtual rofl::cauxid
 	connect(
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) = 0;
@@ -104,11 +109,17 @@ public:
 	 *
 	 */
 	virtual void
-	disconnect() = 0;
+	disconnect(
+			const rofl::cauxid& auxid = 0) = 0;
 
+	/**
+	 *
+	 */
+	virtual void
+	reconnect(
+			const rofl::cauxid& auxid = 0) = 0;
 
 public:
-
 
 	/**
 	 *
@@ -124,7 +135,6 @@ public:
 	 */
 	virtual crofchan const&
 	get_channel() const = 0;
-
 
 public:
 
