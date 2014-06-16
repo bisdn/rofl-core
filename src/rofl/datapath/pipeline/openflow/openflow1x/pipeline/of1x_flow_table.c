@@ -287,7 +287,19 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 	//Adding OF1.3 only matches
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS); 
 
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PBB);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PBB);
+
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PBB_ISID);
+
+	//Write actions
+	table->config.write_actions = table->config.apply_actions;
+
 	//TODO: add METER instruction when implemented
+
+
+	//Instructions
+	table->config.instructions |= (1 << OF1X_IT_METER);
 	
 	table->config.table_miss_config = 0x0;
 }
