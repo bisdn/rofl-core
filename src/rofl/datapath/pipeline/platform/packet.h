@@ -311,7 +311,7 @@ void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid);
 * Pop outer-most PBB header
 * @warning ether_type must be in normal NBO
 */
-void platform_packet_pop_pbb(datapacket_t* pkt, uint16_t ether_type);
+void platform_packet_pop_pbb(datapacket_t* pkt);
 /**
 * @ingroup platform_packet
 * Push PBB header (outer-most)
