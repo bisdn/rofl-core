@@ -485,9 +485,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<eth-dst: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<eth-dst value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<eth-dst mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -511,9 +512,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<eth-src: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<eth-src value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<eth-src mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1151,9 +1153,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_sha const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-sha: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-sha value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<arp-sha mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1179,9 +1182,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tha const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-tha: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-tha value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<arp-tha mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
+
 		return os;
 	};
 };
@@ -1281,9 +1286,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_sll const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-nd-sll: "
-						<< oxm.get_u48value()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-nd-sll value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<ipv6-nd-sll mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1305,9 +1311,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_tll const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-nd-tll: "
-						<< oxm.get_u48value()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-nd-tll value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<ipv6-nd-tll mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
