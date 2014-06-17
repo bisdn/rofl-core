@@ -137,8 +137,8 @@ public:
 	/**
 	 *
 	 */
-	coftable_features&
-	get_table(uint8_t table_id);
+	const coftable_features&
+	get_table(uint8_t table_id) const;
 
 	/**
 	 *
@@ -150,7 +150,7 @@ public:
 	 *
 	 */
 	bool
-	has_table(uint8_t table_id);
+	has_table(uint8_t table_id) const;
 
 public:
 
