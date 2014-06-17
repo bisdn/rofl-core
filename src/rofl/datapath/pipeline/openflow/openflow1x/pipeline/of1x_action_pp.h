@@ -493,7 +493,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_POP_PBB: 
 			//Call platform
-			platform_packet_pop_pbb(pkt, action->__field.u16);
+			platform_packet_pop_pbb(pkt);
 			break;
 		case OF1X_AT_PUSH_PBB: 
 			//Call platform
