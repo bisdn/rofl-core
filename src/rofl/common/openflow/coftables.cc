@@ -163,13 +163,13 @@ coftables::drop_table(uint8_t table_id)
 
 
 
-coftable_features&
-coftables::get_table(uint8_t table_id)
+const coftable_features&
+coftables::get_table(uint8_t table_id) const
 {
 	if (tables.find(table_id) == tables.end()) {
 		throw eOFTablesNotFound();
 	}
-	return tables[table_id];
+	return tables.at(table_id);
 }
 
 
@@ -187,7 +187,7 @@ coftables::set_table(uint8_t table_id)
 
 
 bool
-coftables::has_table(uint8_t table_id)
+coftables::has_table(uint8_t table_id) const
 {
 	return (tables.find(table_id) != tables.end());
 }
