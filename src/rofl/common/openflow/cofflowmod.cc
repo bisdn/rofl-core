@@ -199,7 +199,7 @@ cofflowmod::unpack(
 		match.unpack((uint8_t*)&(hdr->match), sizeof(hdr->match));
 
 		cookie			= be64toh(hdr->cookie);
-		command			= (uint8_t)(be16toh(hdr->command) && 0x00ff);
+		command			= (uint8_t)(be16toh(hdr->command) & 0x00ff);
 		idle_timeout	= be16toh(hdr->idle_timeout);
 		hard_timeout	= be16toh(hdr->hard_timeout);
 		priority		= be16toh(hdr->priority);
