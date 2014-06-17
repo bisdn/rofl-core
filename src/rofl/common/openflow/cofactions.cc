@@ -68,7 +68,7 @@ cofactions::operator= (
 			add_action_set_dl_dst(index) = actions.get_action_set_dl_dst(index);
 		} break;
 		case rofl::openflow::OFPAT_SET_NW_SRC: {
-			add_action_set_nw_src(index) = actions.get_action_set_nw_src(index);
+			add_action_set_nw_src(index) = actions.get_action_setgd68sdr8QLt_nw_src(index);
 		} break;
 		case rofl::openflow::OFPAT_SET_NW_DST: {
 			add_action_set_nw_dst(index) = actions.get_action_set_nw_dst(index);
@@ -286,7 +286,13 @@ cofactions::unpack(uint8_t* buf, size_t buflen)
 			add_action_set_tp_dst(index++).unpack(buf, len);
 		} break;
 		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
-			add_action_copy_ttl_out(index++).unpack(buf, len);
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_enqueue(index++).unpack(buf, len);
+			} break;
+			default: {
+				add_action_copy_ttl_out(index++).unpack(buf, len);			}
+			}
 		} break;
 		case rofl::openflow::OFPAT_COPY_TTL_IN: {
 			add_action_copy_ttl_in(index++).unpack(buf, len);
