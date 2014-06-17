@@ -68,7 +68,7 @@ cofactions::operator= (
 			add_action_set_dl_dst(index) = actions.get_action_set_dl_dst(index);
 		} break;
 		case rofl::openflow::OFPAT_SET_NW_SRC: {
-			add_action_set_nw_src(index) = actions.get_action_setgd68sdr8QLt_nw_src(index);
+			add_action_set_nw_src(index) = actions.get_action_set_nw_src(index);
 		} break;
 		case rofl::openflow::OFPAT_SET_NW_DST: {
 			add_action_set_nw_dst(index) = actions.get_action_set_nw_dst(index);
