@@ -150,9 +150,9 @@ csocket_impl::handle_revent(int fd)
 	// handle socket when in listening state
 	if (sockflags[FLAG_LISTENING]) {
 		int new_sd;
-		caddress ra(domain);
+		csockaddr ra;
 
-		if ((new_sd = ::accept(sd, (struct sockaddr*)(ra.ca_saddr), &(ra.salen))) < 0) {
+		if ((new_sd = ::accept(sd, (struct sockaddr*)(ra.somem()), &(ra.salen))) < 0) {
 			switch (errno) {
 			case EAGAIN:
 				// do nothing, just wait for the next event
@@ -321,7 +321,51 @@ csocket_impl::listen(
 	std::string binding_addr;
 
 	if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
-		binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
+
+		caddrinfos addrinfos;
+		addrinfos.set_ai_hints().set_ai_family(domain);
+		addrinfos.set_node(params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string());
+		addrinfos.resolve();
+
+		if (addrinfos.size() == 0) {
+			throw eInval("csocket_impl::listen() unable to resolve hostname");
+		}
+
+		// we take simply the first result returned
+		switch (domain) {
+		case PF_INET: {
+			caddress_in4 addr;
+			addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+			binding_addr = addr.str();
+		} break;
+		case PF_INET6: {
+			caddress_in6 addr;
+			addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+			binding_addr = addr.str();
+		} break;
+		default: {
+			// use the first entry and its domain
+			switch (addrinfos.get_addr_info(0).get_ai_family()) {
+			case PF_INET: {
+				domain = PF_INET;
+				caddress_in4 addr;
+				addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+				binding_addr = addr.str();
+			} break;
+			case PF_INET6: {
+				domain = PF_INET6;
+				caddress_in6 addr;
+				addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+				binding_addr = addr.str();
+			} break;
+			default:
+				throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+			}
+		};
+		}
+
+		//binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
+
 	} else {
 		switch (domain) {
 		case PF_INET: {
@@ -334,30 +378,24 @@ csocket_impl::listen(
 		}
 	}
 
-	std::string binding_port;
+	uint16_t binding_port;
 
 	if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
-		binding_port = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+		binding_port = atoi(params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().c_str());
 	} else {
-		binding_port = std::string("0");
+		binding_port = 0;
 	}
 
-	caddress laddr(
-				binding_addr,
-				binding_port,
-				/*flags=*/0,
-				/*preferred-family=*/domain,
-				/*preferred-socktype=*/type,
-				/*preferred-protocol=*/protocol);
+	csockaddr laddr(domain, binding_addr, binding_port);
 
-	listen(laddr, laddr.get_domain(), laddr.get_sock_type(), laddr.get_protocol());
+	listen(laddr, domain, type, protocol);
 }
 
 
 
 void
 csocket_impl::listen(
-	caddress la,
+	const csockaddr& la,
 	int domain, 
 	int type, 
 	int protocol, 
@@ -485,6 +523,9 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 
 	this->sd = sd;
 
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+
 	sockflags.reset(FLAG_ACTIVE_SOCKET);
 
 
@@ -589,50 +630,157 @@ csocket_impl::connect(
 		}
 
 
-		caddress raddr(
-				params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string(),
-				params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_string(),
-				/*flags=*/0,
-				/*preferred-family=*/domain,
-				/*preferred-socktype=*/type,
-				/*preferred-protocol=*/protocol);
 
+		std::string remote_addr;
 
-		std::string binding_addr;
+		if (not params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string().empty()) {
 
-		if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
-			binding_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
-		} else {
-			switch (raddr.get_domain()) {
+			caddrinfos addrinfos;
+			addrinfos.set_ai_hints().set_ai_family(domain);
+			addrinfos.set_node(params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string());
+			addrinfos.resolve();
+
+			if (addrinfos.size() == 0) {
+				throw eInval("csocket_impl::connect() unable to resolve hostname");
+			}
+
+			// we take simply the first result returned
+			switch (domain) {
 			case PF_INET: {
-				binding_addr = std::string("0.0.0.0");
+				caddress_in4 addr;
+				addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+				remote_addr = addr.str();
 			} break;
 			case PF_INET6: {
-				binding_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+				caddress_in6 addr;
+				addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+				remote_addr = addr.str();
+			} break;
+			default: {
+				// use the first entry and its domain
+				switch (addrinfos.get_addr_info(0).get_ai_family()) {
+				case PF_INET: {
+					domain = PF_INET;
+					caddress_in4 addr;
+					addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+					remote_addr = addr.str();
+				} break;
+				case PF_INET6: {
+					domain = PF_INET6;
+					caddress_in6 addr;
+					addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+					remote_addr = addr.str();
+				} break;
+				default:
+					throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+				}
+			};
+			}
+
+			//remote_addr = params.get_param(csocket::PARAM_KEY_REMOTE_HOSTNAME).get_string();
+
+		} else {
+			switch (domain) {
+			case PF_INET: {
+				remote_addr = std::string("0.0.0.0");
+			} break;
+			case PF_INET6: {
+				remote_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
 			} break;
 			}
 		}
 
-		std::string binding_port;
+		uint16_t remote_port = 0;
 
-		if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
-			binding_port = params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string();
+		if (not params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_string().empty()) {
+			remote_port = atoi(params.get_param(csocket::PARAM_KEY_REMOTE_PORT).get_string().c_str());
 		} else {
-			binding_port = std::string("0");
+			remote_port = 0;
 		}
 
-		caddress laddr(
-					binding_addr,
-					binding_port,
-					/*flags=*/0,
-					/*preferred-family=*/domain,
-					/*preferred-socktype=*/type,
-					/*preferred-protocol=*/protocol);
 
+
+		std::string local_addr;
+
+		if (not params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string().empty()) {
+
+			caddrinfos addrinfos;
+			addrinfos.set_ai_hints().set_ai_family(domain);
+			addrinfos.set_node(params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string());
+			addrinfos.resolve();
+
+			if (addrinfos.size() == 0) {
+				throw eInval("csocket_impl::connect() unable to resolve hostname");
+			}
+
+			// we take simply the first result returned
+			switch (domain) {
+			case PF_INET: {
+				caddress_in4 addr;
+				addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+				local_addr = addr.str();
+			} break;
+			case PF_INET6: {
+				caddress_in6 addr;
+				addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+				local_addr = addr.str();
+			} break;
+			default: {
+				// use the first entry and its domain
+				switch (addrinfos.get_addr_info(0).get_ai_family()) {
+				case PF_INET: {
+					if (domain != PF_INET)
+						throw eInval("csocket_impl::connect() unable to resolve local hostname in domain PF_INET");
+					caddress_in4 addr;
+					addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
+					local_addr = addr.str();
+				} break;
+				case PF_INET6: {
+					if (domain != PF_INET6)
+						throw eInval("csocket_impl::connect() unable to resolve local hostname in domain PF_INET6");
+					caddress_in6 addr;
+					addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
+					local_addr = addr.str();
+				} break;
+				default:
+					throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+				}
+			};
+			}
+
+			//local_addr = params.get_param(csocket::PARAM_KEY_LOCAL_HOSTNAME).get_string();
+
+		} else {
+			switch (domain) {
+			case PF_INET: {
+				local_addr = std::string("0.0.0.0");
+			} break;
+			case PF_INET6: {
+				local_addr = std::string("0000:0000:0000:0000:0000:0000:0000:0000");
+			} break;
+			}
+		}
+
+		uint16_t local_port;
+
+		if (not params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().empty()) {
+			local_port = atoi(params.get_param(csocket::PARAM_KEY_LOCAL_PORT).get_string().c_str());
+		} else {
+			local_port = 0;
+		}
+
+
+
+
+
+		csockaddr laddr(domain, local_addr, local_port);
+
+		csockaddr raddr(domain, remote_addr, remote_port);
 
 		bool do_reconnect = params.get_param(csocket::PARAM_KEY_DO_RECONNECT).get_bool();
 
-		connect(raddr, laddr, raddr.get_domain(), raddr.get_sock_type(), raddr.get_protocol(), do_reconnect);
+		connect(raddr, laddr, domain, type, protocol, do_reconnect);
+
 	} catch (eSysCall& e) {
 		rofl::logging::crit << "[rofl][csocket][impl] connect failed" << e << std::endl << *this;
 		handle_conn_refused();
@@ -643,8 +791,8 @@ csocket_impl::connect(
 
 void
 csocket_impl::connect(
-	caddress ra,
-	caddress la,
+	csockaddr ra,
+	csockaddr la,
 	int domain, 
 	int type, 
 	int protocol,
@@ -661,6 +809,9 @@ csocket_impl::connect(
 
 	if (sd >= 0)
 		close();
+
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 
 	sockflags.set(FLAG_ACTIVE_SOCKET);
 
@@ -697,6 +848,7 @@ csocket_impl::connect(
 			throw eSysCall("setsockopt(IPPROTO_TCP, TCP_NODELAY)");
 		}
 	}
+
 
 	// bind to local address
 	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {
@@ -757,6 +909,10 @@ csocket_impl::reconnect()
 		throw eInval();
 	}
 	close();
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+	sockflags.reset(FLAG_CLOSING);
+	sockflags.reset(FLAG_CONNECTING);
 	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));
 }
 
@@ -855,7 +1011,7 @@ csocket_impl::recv(void *buf, size_t count)
 
 
 void
-csocket_impl::send(cmemory* mem, caddress const& dest)
+csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
 {
 	if (not sockflags.test(FLAG_CONNECTED) && not sockflags.test(FLAG_RAW_SOCKET)) {
 		rofl::logging::warn << "[rofl][csocket][impl] socket not connected, dropping packet " << std::endl << *mem;

@@ -86,6 +86,46 @@ public: // methods
 public:
 
 	/**
+	 *
+	 */
+	virtual std::list<rofl::cauxid>
+	get_conn_index() const {
+		return rofchan.get_conn_index();
+	};
+
+	/**
+	 *
+	 */
+	virtual rofl::cauxid
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) {
+		return rofchan.add_conn(rofchan.get_next_auxid(), socket_type, socket_params).get_aux_id();
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect(
+			const rofl::cauxid& auxid = 0) {
+		rofchan.drop_conn(auxid);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	reconnect(
+			const rofl::cauxid& auxid = 0) {
+		rofchan.set_conn(auxid).close();
+		rofchan.set_conn(auxid).reconnect(true);
+	};
+
+
+public:
+
+	/**
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	virtual uint8_t
@@ -167,29 +207,6 @@ public:
 	release_sync_xid(
 			rofl::crofchan *chan,
 			uint32_t xid);
-
-public:
-
-
-	/**
-	 *
-	 */
-	virtual void
-	connect(
-			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& socket_params) {
-		rofchan.add_conn(cauxid(0), socket_type, socket_params);
-	};
-
-
-	/**
-	 *
-	 */
-	virtual void
-	disconnect() {
-		rofchan.drop_conn(cauxid(0));
-	};
-
 
 public:
 

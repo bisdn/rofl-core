@@ -19,7 +19,6 @@
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cfsm.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/thread_helper.h"

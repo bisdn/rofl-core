@@ -95,7 +95,7 @@ namespace rofl
 /* error classes */
 class eRofBase						: public RoflException {};   // base error class crofbase
 class eRofBaseIsBusy 				: public eRofBase {}; // this FwdElem is already controlled
-class eRofBaseNotConnected			: public eRofBase, public eNotConnected {}; // this instance is not connected to the specified cofdpt/cofctl instance
+class eRofBaseNotConnected			: public eRofBase {}; // this instance is not connected to the specified cofdpt/cofctl instance
 class eRofBaseNotImpl 				: public eRofBase {}; // this FwdElem's method is not implemented
 class eRofBaseNoCtrl 				: public eRofBase {}; // no controlling entity attached to this FwdElem
 class eRofBaseNotFound 				: public eRofBase {}; // internal entity not found
@@ -132,13 +132,11 @@ class ssl_context;
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
-#if 0
-	public crofchan_env,
-#endif
 	public crofconn_env,
-	public ctransactions_env,
-	public cfsm
+	public ctransactions_env
 {
+	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
+
 protected:
 
 	rofl::openflow::cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
@@ -148,14 +146,7 @@ protected:
 	ctransactions								transactions;
 	bool										generation_is_defined;		// generation_id used for roles initially defined?
 	uint64_t									cached_generation_id;
-
-	rofl::openflow::cofasync_config		async_config_role_default_template;
-
-
-public:
-
-	//friend class cport;
-	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
+	rofl::openflow::cofasync_config				async_config_role_default_template;
 
 public:
 
@@ -231,27 +222,6 @@ public:
 	virtual void
 	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };
 
-#if 0
-public:
-
-	virtual void
-	handle_connected(crofchan *chan, uint8_t aux_id);
-
-	virtual void
-	handle_closed(crofchan *chan, uint8_t aux_id);
-
-	virtual void
-	recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) { delete msg; };
-
-	virtual uint32_t
-	get_async_xid(crofchan *chan) { return transactions.get_async_xid(); };
-
-	virtual uint32_t
-	get_sync_xid(crofchan *chan) { return transactions.add_ta(cclock(5, 0)); };
-
-	virtual void
-	release_sync_xid(crofchan *chan, uint32_t xid) { transactions.drop_ta(xid); };
-#endif
 
 public:
 

@@ -210,6 +210,13 @@ public:
 	void
 	set_env(crofconn_env* env) { this->env = env; };
 
+	/**
+	 *
+	 */
+	void
+	set_max_backoff(
+			const ctimespec& timespec);
+
 private:
 
 	virtual void
@@ -461,7 +468,7 @@ private:
 	 */
 	void
 	timer_start(
-			crofconn_timer_t type, time_t time);
+			crofconn_timer_t type, const ctimespec& timespec);
 
 	/**
 	 *
@@ -475,7 +482,7 @@ private:
 	 */
 	void
 	timer_start_next_reconnect() {
-		timer_start(TIMER_NEXT_RECONNECT, reconnect_in_seconds);
+		timer_start(TIMER_NEXT_RECONNECT, reconnect_timespec);
 	};
 
 	/**
@@ -570,11 +577,14 @@ public:
 		else if (conn.state == STATE_ESTABLISHED) {
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
 		}
-
+		{ os << rofl::indent(2) << "<current-backoff: >" << std::endl; rofl::indent i(4); os << conn.reconnect_timespec; };
+		{ os << rofl::indent(2) << "<max-backoff: >" << std::endl; rofl::indent i(4); os << conn.max_backoff; };
+#if 0
 		os << indent(2) << "<versionbitmap-local: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap; }
 		os << indent(2) << "<versionbitmap-remote: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap_peer; }
+#endif
 		return os;
 	};
 
@@ -594,13 +604,14 @@ private:
 	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
 	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
 
-	int								reconnect_start_timeout;
-	int 							reconnect_in_seconds; 	// reconnect in x seconds
-	int								reconnect_variance;
+	ctimespec						max_backoff;
+	ctimespec						reconnect_start_timeout;
+	ctimespec						reconnect_timespec; 	// reconnect in x seconds
+	ctimespec						reconnect_variance;
 	int 							reconnect_counter;
 
-	static int const CROFCONN_RECONNECT_START_TIMEOUT = 1;				// start reconnect timeout (default 1s)
-	static int const CROFCONN_RECONNECT_VARIANCE_IN_SECS = 2;
+	static int const CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS 	= 10000000;	// start reconnect timeout (default 10ms)
+	static int const CROFCONN_RECONNECT_VARIANCE_IN_NSECS 		= 10000000; // reconnect variance (default 10ms)
 
 	enum crofconn_flavour_t			flavour;
 	std::deque<enum crofconn_event_t> 		events;

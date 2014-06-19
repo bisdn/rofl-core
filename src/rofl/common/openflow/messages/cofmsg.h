@@ -101,6 +101,12 @@ protected: // data structures
 
 public:
 
+	/**
+	 *
+	 */
+	cofmsg(
+			uint8_t ofp_version, uint32_t xid, uint8_t type);
+
 	/** constructor
 	 *
 	 */
@@ -220,8 +226,8 @@ public:
 	/**
 	 *
 	 */
-	void
-	set_version(uint8_t versiob);
+	virtual void
+	set_version(uint8_t ofp_version);
 
 
 	/**

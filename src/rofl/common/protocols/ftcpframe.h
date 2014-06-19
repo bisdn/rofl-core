@@ -99,8 +99,8 @@ public:
 	 */
 	void
 	tcp_calc_checksum(
-			caddress const& ip_src,
-			caddress const& ip_dst,
+			caddress_in4 const& ip_src,
+			caddress_in4 const& ip_dst,
 			uint8_t ip_proto,
 			uint16_t length);
 

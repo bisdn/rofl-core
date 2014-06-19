@@ -135,6 +135,53 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	virtual std::list<rofl::cauxid>
+	get_conn_index() const = 0;
+
+	/**
+	 *
+	 */
+	virtual rofl::cauxid
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	disconnect(
+			const rofl::cauxid& auxid = 0) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	reconnect(
+			const rofl::cauxid& auxid = 0) = 0;
+
+public:
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan&
+	set_channel() = 0;
+
+
+	/**
+	 *
+	 * @return
+	 */
+	virtual crofchan const&
+	get_channel() const = 0;
+
+public:
+
 
 	/**
 	 * @brief 	Returns the OpenFlow protocol version used for this control connection.
@@ -160,22 +207,6 @@ public:
 	 */
 	virtual rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() = 0;
-
-
-	/**
-	 *
-	 * @return
-	 */
-	virtual crofchan&
-	set_channel() = 0;
-
-
-	/**
-	 *
-	 * @return
-	 */
-	virtual crofchan const&
-	get_channel() const = 0;
 
 
 public:
@@ -289,24 +320,6 @@ public:
 
 
 	/**@}*/
-
-public:
-
-	/**
-	 *
-	 */
-	virtual void
-	connect(
-			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& socket_params) = 0;
-
-
-	/**
-	 *
-	 */
-	virtual void
-	disconnect() = 0;
-
 
 public:
 

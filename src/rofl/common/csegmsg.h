@@ -25,6 +25,9 @@
 #include "rofl/common/openflow/messages/cofmsg_group_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_group_desc_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_group_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_config_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_features_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_port_desc_stats.h"
 

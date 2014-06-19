@@ -162,6 +162,16 @@ public:
 			cmemory const& m) const;
 
 
+	/**
+	 * @brief	Less than operator.
+	 *
+	 * @param m cmemory instance for operation
+	 */
+	bool
+	operator> (
+			cmemory const& m) const;
+
+
 
 	/**
 	 * @brief	AND operator
@@ -225,6 +235,14 @@ public:
 	assign(
 			uint8_t *buf,
 			size_t buflen);
+
+
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const { return data.second; };
 
 
 

@@ -619,7 +619,7 @@ cofflow_stats_reply::length() const
 void
 cofflow_stats_reply::set_version(uint8_t of_version)
 {
-	this->actions.ofp_version = of_version;
+	this->actions.set_version(of_version);
 	this->instructions.set_version(of_version);
 	this->match.set_version(of_version);
 	this->of_version = of_version;

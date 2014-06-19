@@ -293,6 +293,9 @@ csocket_openssl::connect(
 
 	socket_flags.set(FLAG_ACTIVE_SOCKET);
 
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+
 	socket.connect(socket_params);
 }
 
@@ -444,7 +447,7 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 
 
 void
-csocket_openssl::send(cmemory *mem, caddress const& dest)
+csocket_openssl::send(cmemory *mem, csockaddr const& dest)
 {
 	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
 
@@ -516,6 +519,8 @@ csocket_openssl::reconnect()
 		throw eInval();
 	}
 	close();
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 	connect(socket_params);
 }
 

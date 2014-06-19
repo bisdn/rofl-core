@@ -128,8 +128,8 @@ fudpframe::validate(uint16_t total_len) throw (eUdpFrameTooShort)
 
 void
 fudpframe::udp_calc_checksum(
-		caddress const& ip_src,
-		caddress const& ip_dst,
+		caddress_in4 const& ip_src,
+		caddress_in4 const& ip_dst,
 		uint8_t ip_proto,
 		uint16_t length)
 {
@@ -144,11 +144,11 @@ fudpframe::udp_calc_checksum(
 	* part -I- (IPv4 pseudo header)
 	*/
 	
-	word16 = (uint16_t*)(void*)&ip_src.ca_s4addr->sin_addr.s_addr;
+	word16 = (uint16_t*)(void*)ip_src.somem();
 	sum += *(word16+1);
 	sum += *(word16);
 
-	word16 = (uint16_t*)(void*)&ip_dst.ca_s4addr->sin_addr.s_addr;
+	word16 = (uint16_t*)(void*)ip_dst.somem();
 	sum += *(word16+1);
 	sum += *(word16);
 	sum += htons(ip_proto);

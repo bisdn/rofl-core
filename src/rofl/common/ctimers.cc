@@ -61,7 +61,7 @@ ctimers::get_next_timer()
 }
 
 
-ctimerid const&
+const ctimerid&
 ctimers::add_timer(ctimer const& t)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
@@ -70,20 +70,17 @@ ctimers::add_timer(ctimer const& t)
 }
 
 
-ctimerid const&
-ctimers::reset(ctimerid const& timer_id, time_t t)
+const ctimerid&
+ctimers::reset(const ctimerid& timer_id, const ctimespec& timespec)
 {
-	ctimer timer;
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		throw eTimersNotFound();
 	}
-	timer = (*it);
+	const ctimerid& timerid = timers.insert(ctimer(it->get_ptrciosrv(), it->get_opaque(), timespec))->get_timer_id();
 	timers.erase(it);
-	timer.get_ts().tv_sec = t;
-	timers.insert(timer);
-	return timer_id;
+	return timerid;
 }
 
 
@@ -96,7 +93,7 @@ ctimers::get_expired_timer()
 	}
 	ctimer now = ctimer::now();
 
-	std::set<ctimer>::iterator it = timers.begin();
+	std::multiset<ctimer>::iterator it = timers.begin();
 
 	ctimer timer = *(it);
 
@@ -111,10 +108,10 @@ ctimers::get_expired_timer()
 
 
 bool
-ctimers::pending(ctimerid const& timer_id)
+ctimers::pending(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_READ);
-	std::set<ctimer>::iterator it;
+	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		return false;
 	}
@@ -123,12 +120,12 @@ ctimers::pending(ctimerid const& timer_id)
 
 
 void
-ctimers::cancel(ctimerid const& timer_id)
+ctimers::cancel(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	//rofl::logging::debug << "[rofl][ctimers][0] cancel: " << std::endl << timer_id;
 	//rofl::logging::debug << "[rofl][ctimers][1] cancel: " << std::endl << *this;
-	std::set<ctimer>::iterator it;
+	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		return;
 	}

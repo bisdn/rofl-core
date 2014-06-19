@@ -101,26 +101,30 @@ cfibentry::flow_mod_add()
 
 	if (flood_port != out_port_no) {
 		rofl::openflow::cofflowmod fe(dpt->get_version());
+		unsigned int index = 0;
 
 		fe.set_command(command);
 		fe.set_table_id(0);
 		fe.set_hard_timeout(entry_timeout);
-		fe.match.set_eth_dst(dst);
+		fe.set_match().set_eth_dst(dst);
 
-		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
+		fe.set_instructions().set_inst_apply_actions().set_actions().
+				add_action_output(index++).set_port_no(out_port_no);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
 	} else {
 
 		rofl::openflow::cofflowmod fe(dpt->get_version());
+		unsigned int index = 0;
 
 		fe.set_command(command);
 		fe.set_table_id(0);
 		fe.set_hard_timeout(entry_timeout);
-		fe.match.set_eth_src(dst);
+		fe.set_match().set_eth_src(dst);
 
-		fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port);
+		fe.set_instructions().set_inst_apply_actions().set_actions().
+				add_action_output(index++).set_port_no(out_port);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
@@ -133,6 +137,7 @@ void
 cfibentry::flow_mod_modify()
 {
 	rofl::openflow::cofflowmod fe(dpt->get_version());
+	unsigned int index = 0;
 
 	uint8_t command = 0;
 	switch (dpt->get_version()) {
@@ -146,9 +151,10 @@ cfibentry::flow_mod_modify()
 	fe.set_command(command);
 	fe.set_table_id(0);
 	fe.set_hard_timeout(entry_timeout);
-	fe.match.set_eth_dst(dst);
+	fe.set_match().set_eth_dst(dst);
 
-	fe.instructions.set_inst_apply_actions().set_actions().append_action_output(out_port_no);
+	fe.set_instructions().set_inst_apply_actions().set_actions().
+			add_action_output(index++).set_port_no(out_port_no);
 
 	dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 }
@@ -182,7 +188,7 @@ cfibentry::flow_mod_delete()
 
 		fe.set_command(command);
 		fe.set_table_id(0);
-		fe.match.set_eth_dst(dst);
+		fe.set_match().set_eth_dst(dst);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 
@@ -192,7 +198,7 @@ cfibentry::flow_mod_delete()
 
 		fe.set_command(command);
 		fe.set_table_id(0);
-		fe.match.set_eth_src(dst);
+		fe.set_match().set_eth_src(dst);
 
 		dpt->send_flow_mod_message(rofl::cauxid(0), fe);
 

@@ -15,37 +15,132 @@ cofactions::cofactions(
 }
 
 
-cofactions::cofactions(
-		uint8_t ofp_version, uint8_t *achdr, size_t aclen) :
-				ofp_version(ofp_version)
+
+cofactions::~cofactions()
 {
-	unpack(achdr, aclen);
+	clear();
 }
 
 
 
 cofactions::cofactions(
-		cofactions const& aclist)
+		const cofactions& actions)
 {
-	*this = aclist;
+	*this = actions;
 }
 
 
 
 cofactions&
 cofactions::operator= (
-		cofactions const& actions)
+		const cofactions& actions)
 {
 	if (this == &actions)
 		return *this;
 
-	this->ofp_version = actions.ofp_version;
+	ofp_version = actions.ofp_version;
 
 	clear();
 
-	for (std::list<cofaction*>::const_iterator
-			it = actions.begin(); it != actions.end(); ++it) {
-		map_and_insert(*(*it));
+	for (std::map<unsigned int, unsigned int>::const_iterator
+			it = actions.actions_index.begin(); it != actions.actions_index.end(); ++it) {
+
+		const unsigned int& index 	= it->first;
+		const unsigned int& type 	= it->second;
+
+		switch (type) {
+		case rofl::openflow::OFPAT_OUTPUT: {
+			add_action_output(index) = actions.get_action_output(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_VID: {
+			add_action_set_vlan_vid(index) = actions.get_action_set_vlan_vid(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_PCP: {
+			add_action_set_vlan_pcp(index) = actions.get_action_set_vlan_pcp(index);
+		} break;
+		case rofl::openflow::OFPAT_STRIP_VLAN: {
+			add_action_strip_vlan(index) = actions.get_action_strip_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_SRC: {
+			add_action_set_dl_src(index) = actions.get_action_set_dl_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_DST: {
+			add_action_set_dl_dst(index) = actions.get_action_set_dl_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_SRC: {
+			add_action_set_nw_src(index) = actions.get_action_set_nw_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_DST: {
+			add_action_set_nw_dst(index) = actions.get_action_set_nw_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TOS: {
+			add_action_set_nw_tos(index) = actions.get_action_set_nw_tos(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_SRC: {
+			add_action_set_tp_src(index) = actions.get_action_set_tp_src(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_DST: {
+			add_action_set_tp_dst(index) = actions.get_action_set_tp_dst(index);
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
+			add_action_copy_ttl_out(index) = actions.get_action_copy_ttl_out(index);
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_IN: {
+			add_action_copy_ttl_in(index) = actions.get_action_copy_ttl_in(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_MPLS_TTL: {
+			add_action_set_mpls_ttl(index) = actions.get_action_set_mpls_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_DEC_MPLS_TTL: {
+			add_action_dec_mpls_ttl(index) = actions.get_action_dec_mpls_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_VLAN: {
+			add_action_push_vlan(index) = actions.get_action_push_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_VLAN: {
+			add_action_pop_vlan(index) = actions.get_action_pop_vlan(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_MPLS: {
+			add_action_push_mpls(index) = actions.get_action_push_mpls(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_MPLS: {
+			add_action_pop_mpls(index) = actions.get_action_pop_mpls(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_QUEUE: {
+			add_action_set_queue(index) = actions.get_action_set_queue(index);
+		} break;
+		case rofl::openflow::OFPAT_GROUP: {
+			add_action_group(index) = actions.get_action_group(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TTL: {
+			add_action_set_nw_ttl(index) = actions.get_action_set_nw_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_DEC_NW_TTL: {
+			add_action_dec_nw_ttl(index) = actions.get_action_dec_nw_ttl(index);
+		} break;
+		case rofl::openflow::OFPAT_SET_FIELD: {
+			add_action_set_field(index) = actions.get_action_set_field(index);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_PBB: {
+			add_action_push_pbb(index) = actions.get_action_push_pbb(index);
+		} break;
+		case rofl::openflow::OFPAT_POP_PBB: {
+			add_action_pop_pbb(index) = actions.get_action_pop_pbb(index);
+		} break;
+		case rofl::openflow::OFPAT_EXPERIMENTER: {
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_vendor(index) = actions.get_action_vendor(index);
+			} break;
+			default: {
+				add_action_experimenter(index) = actions.get_action_experimenter(index);
+			}
+			}
+		} break;
+		default: {
+			rofl::logging::warn << "[rofl][cofactions][unpack] unknown action type:" << (unsigned int)type << std::endl;
+		}
+		}
 	}
 
 	return *this;
@@ -57,6 +152,7 @@ bool
 cofactions::operator== (
 		cofactions const& actions)
 {
+#if 0
 	if (ofp_version != actions.ofp_version) {
 		//FIXME: std::cerr << "PUNKT 1" << std::endl;
 		return false;
@@ -78,56 +174,8 @@ cofactions::operator== (
 	}
 
 	//FIXME: std::cerr << "PUNKT 4" << std::endl;
+#endif
 	return true;
-}
-
-
-
-cofactions::~cofactions()
-{
-	clear();
-}
-
-
-
-void
-cofactions::pop_front()
-{
-	if (empty())
-		return;
-	delete std::list<cofaction*>::front();
-	std::list<cofaction*>::pop_front();
-}
-
-
-
-void
-cofactions::pop_back()
-{
-	if (empty())
-		return;
-	delete std::list<cofaction*>::back();
-	std::list<cofaction*>::pop_back();
-}
-
-
-
-cofaction&
-cofactions::front()
-{
-	if (empty())
-		throw eActionsOutOfRange();
-	return *(std::list<cofaction*>::front());
-}
-
-
-
-cofaction&
-cofactions::back()
-{
-	if (empty())
-		throw eActionsOutOfRange();
-	return *(std::list<cofaction*>::back());
 }
 
 
@@ -135,66 +183,12 @@ cofactions::back()
 void
 cofactions::clear()
 {
-	for (cofactions::iterator it = begin(); it != end(); ++it) {
-		delete (*it);
+	for (std::map<unsigned int, cofaction*>::iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		delete (it->second);
 	}
-	std::list<cofaction*>::clear();
-}
-
-
-
-void
-cofactions::unpack(uint8_t* buf, size_t buflen)
-{
-	struct openflow::ofp_action_header *achdr = (struct openflow::ofp_action_header*)buf;
-
-	clear();
-
-	if (buflen < (int)sizeof(struct openflow::ofp_action_header))
-		return;
-
-	while (buflen > 0) {
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct openflow10::ofp_action_header))
-				throw eBadActionBadLen();
-		} break;
-		case openflow12::OFP_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct openflow12::ofp_action_header))
-				throw eBadActionBadLen();
-		} break;
-		case openflow13::OFP_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct openflow13::ofp_action_header))
-				throw eBadActionBadLen();
-		} break;
-		default:
-			logging::warn << "[rofl][cofactions] method unpack() failed, bad ofp version" << std::endl;
-			throw eBadVersion();
-		}
-
-		cofaction action(ofp_version, achdr, be16toh(achdr->len));
-
-		map_and_insert(action);
-
-		buflen -= be16toh(achdr->len);
-		achdr = (struct openflow::ofp_action_header*)(((uint8_t*)achdr) + be16toh(achdr->len));
-	}
-}
-
-
-
-uint8_t*
-cofactions::pack(uint8_t* achdr, size_t aclen)
-{
-	if (aclen < length())
-		throw eActionsInval();
-
-	cofactions::iterator it;
-	for (std::list<cofaction*>::iterator it = begin(); it != end(); ++it) {
-		cofaction& action = *(*it);
-		achdr = ((uint8_t*)(action.pack((uint8_t*)achdr, action.length())) + action.length());
-	}
-	return achdr;
+	actions.clear();
+	actions_index.clear();
 }
 
 
@@ -203,9 +197,9 @@ size_t
 cofactions::length() const
 {
 	size_t len = 0;
-	for (std::list<cofaction*>::const_iterator it = begin(); it != end(); ++it) {
-		cofaction const& action = *(*it);
-		len += action.length();
+	for (std::map<unsigned int, cofaction*>::const_iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		len += it->second->length();
 	}
 	return len;
 }
@@ -213,74 +207,154 @@ cofactions::length() const
 
 
 void
-cofactions::map_and_insert(cofaction const& action)
+cofactions::pack(uint8_t* buf, size_t buflen)
 {
-	switch (action.get_type()) {
-	case openflow::OFPAT_OUTPUT:
-		push_back(new cofaction_output(action)); break;
-	case openflow::OFPAT_SET_VLAN_VID:
-		push_back(new cofaction_set_vlan_vid(action)); break;
-	case openflow::OFPAT_SET_VLAN_PCP:
-		push_back(new cofaction_set_vlan_pcp(action)); break;
-	case openflow::OFPAT_STRIP_VLAN:
-		push_back(new cofaction_strip_vlan(action)); break;
-	case openflow::OFPAT_SET_DL_SRC:
-		push_back(new cofaction_set_dl_src(action)); break;
-	case openflow::OFPAT_SET_DL_DST:
-		push_back(new cofaction_set_dl_dst(action)); break;
-	case openflow::OFPAT_SET_NW_SRC:
-		push_back(new cofaction_set_nw_src(action)); break;
-	case openflow::OFPAT_SET_NW_DST:
-		push_back(new cofaction_set_nw_dst(action)); break;
-	case openflow::OFPAT_SET_NW_TOS:
-		push_back(new cofaction_set_nw_tos(action)); break;
-	case openflow::OFPAT_SET_TP_SRC:
-		push_back(new cofaction_set_tp_src(action)); break;
-	case openflow::OFPAT_SET_TP_DST:
-		push_back(new cofaction_set_tp_dst(action)); break;
-	case openflow::OFPAT_COPY_TTL_OUT: // = openflow10::OFPAT_ENQUEUE
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION:
-			push_back(new cofaction_enqueue(action)); break;
-		default:
-			push_back(new cofaction_copy_ttl_out(action)); break;
-		} break;
-	case openflow::OFPAT_COPY_TTL_IN:
-		push_back(new cofaction_copy_ttl_in(action)); break;
-	case openflow::OFPAT_SET_MPLS_TTL:
-		push_back(new cofaction_set_mpls_ttl(action)); break;
-	case openflow::OFPAT_DEC_MPLS_TTL:
-		push_back(new cofaction_dec_mpls_ttl(action)); break;
-	case openflow::OFPAT_PUSH_VLAN:
-		push_back(new cofaction_push_vlan(action)); break;
-	case openflow::OFPAT_POP_VLAN:
-		push_back(new cofaction_pop_vlan(action)); break;
-	case openflow::OFPAT_PUSH_MPLS:
-		push_back(new cofaction_push_mpls(action)); break;
-	case openflow::OFPAT_POP_MPLS:
-		push_back(new cofaction_pop_mpls(action)); break;
-	case openflow::OFPAT_SET_QUEUE:
-		push_back(new cofaction_set_queue(action)); break;
-	case openflow::OFPAT_GROUP:
-		push_back(new cofaction_group(action)); break;
-	case openflow::OFPAT_SET_NW_TTL:
-		push_back(new cofaction_set_nw_ttl(action)); break;
-	case openflow::OFPAT_DEC_NW_TTL:
-		push_back(new cofaction_dec_nw_ttl(action)); break;
-	case openflow::OFPAT_SET_FIELD:
-		push_back(new cofaction_set_field(action)); break;
-	case openflow::OFPAT_EXPERIMENTER:
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION:
-			push_back(new cofaction_vendor(action)); break;
-		default:
-			push_back(new cofaction_experimenter(action)); break;
-		} break;
-	default:
-		push_back(new cofaction(action)); break;
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < length())
+		throw eInval("cofactions::pack() buflen too short");
+
+	for (std::map<unsigned int, cofaction*>::iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		cofaction& action = *(it->second);
+
+		action.pack(buf, action.length());
+		buf += action.length();
+		buflen -= action.length();
 	}
 }
 
+
+
+void
+cofactions::unpack(uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	cofactions::clear();
+
+	if (buflen < sizeof(struct rofl::openflow::ofp_action_header))
+		throw eInval("cofactions::unpack() buflen too short");
+
+	unsigned int index = 0;
+
+	while (buflen >= sizeof(struct rofl::openflow::ofp_action_header)) {
+
+		struct rofl::openflow::ofp_action_header* hdr =
+				(struct rofl::openflow::ofp_action_header*)buf;
+
+		uint16_t type = be16toh(hdr->type);
+		uint16_t len  = be16toh(hdr->len);
+
+		if (len > buflen)
+			throw eBadActionBadLen("cofactions::unpack() invalid length field in action");
+
+		switch (type) {
+		case rofl::openflow::OFPAT_OUTPUT: {
+			add_action_output(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_VID: {
+			add_action_set_vlan_vid(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_VLAN_PCP: {
+			add_action_set_vlan_pcp(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_STRIP_VLAN: {
+			add_action_strip_vlan(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_SRC: {
+			add_action_set_dl_src(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_DL_DST: {
+			add_action_set_dl_dst(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_SRC: {
+			add_action_set_nw_src(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_DST: {
+			add_action_set_nw_dst(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TOS: {
+			add_action_set_nw_tos(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_SRC: {
+			add_action_set_tp_src(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_TP_DST: {
+			add_action_set_tp_dst(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_enqueue(index++).unpack(buf, len);
+			} break;
+			default: {
+				add_action_copy_ttl_out(index++).unpack(buf, len);			}
+			}
+		} break;
+		case rofl::openflow::OFPAT_COPY_TTL_IN: {
+			add_action_copy_ttl_in(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_MPLS_TTL: {
+			add_action_set_mpls_ttl(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_DEC_MPLS_TTL: {
+			add_action_dec_mpls_ttl(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_VLAN: {
+			add_action_push_vlan(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_POP_VLAN: {
+			add_action_pop_vlan(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_MPLS: {
+			add_action_push_mpls(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_POP_MPLS: {
+			add_action_pop_mpls(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_QUEUE: {
+			add_action_set_queue(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_GROUP: {
+			add_action_group(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_NW_TTL: {
+			add_action_set_nw_ttl(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_DEC_NW_TTL: {
+			add_action_dec_nw_ttl(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_SET_FIELD: {
+			add_action_set_field(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_PUSH_PBB: {
+			add_action_push_pbb(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_POP_PBB: {
+			add_action_pop_pbb(index++).unpack(buf, len);
+		} break;
+		case rofl::openflow::OFPAT_EXPERIMENTER: {
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_vendor(index++).unpack(buf, len);
+			} break;
+			default: {
+				add_action_experimenter(index++).unpack(buf, len);
+			}
+			}
+		} break;
+		default: {
+			rofl::logging::warn << "[rofl][cofactions][unpack] unknown action type:" << (unsigned int)type << std::endl;
+		}
+		}
+
+		buf += len;
+		buflen -= len;
+	}
+}
 
 
 
@@ -288,8 +362,9 @@ int
 cofactions::count_action_type(
 		uint16_t type)
 {
-	return count_if(begin(), end(), cofaction_find_type(type));
+	return count_if(actions.begin(), actions.end(), cofaction::cofaction_find_by_type(type));
 }
+
 
 
 int
@@ -297,34 +372,23 @@ cofactions::count_action_output(
 		uint32_t port_no) const
 {
 	int action_cnt = 0;
+	for (std::map<unsigned int, cofaction*>::const_iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		const cofaction& action = *(it->second);
 
-	for (cofactions::const_iterator it = begin(); it != end(); ++it) {
-		cofaction action(*(*it));
-		uint32_t out_port = 0;
+		if (rofl::openflow::OFPAT_OUTPUT != action.get_type())
+			continue;
 
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			if (openflow10::OFPAT_OUTPUT != action.get_type()) {
-				continue;
+		try {
+			const cofaction_output& aoutput = dynamic_cast<const cofaction_output&>( action );
+			if ((0 == port_no) || (aoutput.get_port_no() == port_no)) {
+				action_cnt++;
 			}
-			out_port = be16toh(action.oac_10output->port);
-		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			if (openflow12::OFPAT_OUTPUT != action.get_type()) {
-				continue;
-			}
-			out_port = be32toh(action.oac_12output->port);
-		} break;
-		default:
-			throw eBadVersion();
-		}
-		if ((0 == port_no) || (out_port == port_no)) {
-			action_cnt++;
-		}
+		} catch (...) {}
 	}
 	return action_cnt;
 }
+
 
 
 std::list<uint32_t>
@@ -332,483 +396,1876 @@ cofactions::actions_output_ports()
 {
 	std::list<uint32_t> outports;
 
-	for (cofactions::iterator it = begin(); it != end(); ++it) {
-		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-			if ((*it)->get_type() != openflow10::OFPAT_OUTPUT) {
-				continue;
-			}
-			outports.push_back(be16toh((*it)->oac_10output->port));
-		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			if ((*it)->get_type() != openflow12::OFPAT_OUTPUT) {
-				continue;
-			}
-			outports.push_back(be32toh((*it)->oac_12output->port));
-		} break;
-		default:
-			throw eBadVersion();
-		}
+	for (std::map<unsigned int, cofaction*>::iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		const cofaction& action = *(it->second);
+
+		if (rofl::openflow::OFPAT_OUTPUT != action.get_type())
+			continue;
+
+		try {
+			const cofaction_output& aoutput = dynamic_cast<const cofaction_output&>( action );
+			outports.push_back(aoutput.get_port_no());
+		} catch (...) {}
 	}
 	return outports;
 }
 
 
+
 void
 cofactions::check_prerequisites() const
 {
-	for (cofactions::const_iterator it = begin(); it != end(); ++it) {
-		(*it)->check_prerequisites();
+	for (std::map<unsigned int, cofaction*>::const_iterator
+			it = actions.begin(); it != actions.end(); ++it) {
+		it->second->check_prerequisites();
 	}
 }
 
 
-cofaction&
-cofactions::append_action(cofaction const action)
+
+void
+cofactions::drop_action(unsigned int index)
 {
-	cofaction *n_action = new cofaction(action);
+	if (actions_index.find(index) == actions_index.end()) {
+		return;
+	}
+	delete actions[index];
+	actions.erase(index);
+}
 
-	push_back(n_action);
 
-	return *n_action;
+
+bool
+cofactions::has_action(unsigned int index) const
+{
+	return (not (actions_index.find(index) == actions_index.end()));
 }
 
 
 
 cofaction_output&
-cofactions::append_action_output(uint32_t port_no, uint16_t max_len)
+cofactions::add_action_output(unsigned int index)
 {
-	if (openflow10::OFP_VERSION == ofp_version) {
-		if ((port_no & 0x0000ffff) != port_no)
-			throw eActionsInval();
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
 	}
+	actions[index] = new cofaction_output(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_OUTPUT;
+	return dynamic_cast<cofaction_output&>(*(actions[index]));
+}
 
-	cofaction_output* output = new cofaction_output(ofp_version, port_no, max_len);
 
-	push_back(output);
 
-	return *output;
+cofaction_output&
+cofactions::set_action_output(unsigned int index)
+{
+	if ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_OUTPUT != actions[index]->get_type())) {
+		throw eInval("cofactions::set_action_output() invalid action type");
+	}
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_output(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_OUTPUT;
+	}
+	return dynamic_cast<cofaction_output&>(*(actions[index]));
+}
+
+
+
+const cofaction_output&
+cofactions::get_action_output(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_OUTPUT != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_output&>(*(actions.at(index)));
+}
+
+
+
+void
+cofactions::drop_action_output(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_OUTPUT != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_output(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_OUTPUT == actions_index.at(index)));
 }
 
 
 
 cofaction_set_vlan_vid&
-cofactions::append_action_set_vlan_vid(uint16_t vid)
+cofactions::add_action_set_vlan_vid(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_vlan_vid() invalid version");
 
-	cofaction_set_vlan_vid* set_vlan_vid = new cofaction_set_vlan_vid(ofp_version, vid);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_vlan_vid(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_VLAN_VID;
+	return dynamic_cast<cofaction_set_vlan_vid&>( *(actions[index]) );
+}
 
-	push_back(set_vlan_vid);
 
-	return *set_vlan_vid;
+
+cofaction_set_vlan_vid&
+cofactions::set_action_set_vlan_vid(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_vlan_vid() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_vlan_vid(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_VLAN_VID;
+	}
+	return dynamic_cast<cofaction_set_vlan_vid&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_vlan_vid&
+cofactions::get_action_set_vlan_vid(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_VLAN_VID != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_vlan_vid&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_vlan_vid(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_VLAN_VID != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_vlan_vid(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_VLAN_VID == actions_index.at(index)));
 }
 
 
 
 cofaction_set_vlan_pcp&
-cofactions::append_action_set_vlan_pcp(uint8_t pcp)
+cofactions::add_action_set_vlan_pcp(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_vlan_pcp() invalid version");
 
-	cofaction_set_vlan_pcp* set_vlan_pcp = new cofaction_set_vlan_pcp(ofp_version, pcp);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_vlan_pcp(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_VLAN_PCP;
+	return dynamic_cast<cofaction_set_vlan_pcp&>( *(actions[index]) );
+}
 
-	push_back(set_vlan_pcp);
 
-	return *set_vlan_pcp;
+
+cofaction_set_vlan_pcp&
+cofactions::set_action_set_vlan_pcp(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_vlan_pcp() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_vlan_pcp(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_VLAN_PCP;
+	}
+	return dynamic_cast<cofaction_set_vlan_pcp&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_vlan_pcp&
+cofactions::get_action_set_vlan_pcp(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_VLAN_PCP != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_vlan_pcp&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_vlan_pcp(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_VLAN_PCP != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_vlan_pcp(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_VLAN_PCP == actions_index.at(index)));
 }
 
 
 
 cofaction_strip_vlan&
-cofactions::append_action_strip_vlan()
+cofactions::add_action_strip_vlan(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_strip_vlan() invalid version");
 
-	cofaction_strip_vlan* strip_vlan = new cofaction_strip_vlan(ofp_version);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_strip_vlan(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_STRIP_VLAN;
+	return dynamic_cast<cofaction_strip_vlan&>( *(actions[index]) );
+}
 
-	push_back(strip_vlan);
 
-	return *strip_vlan;
+
+cofaction_strip_vlan&
+cofactions::set_action_strip_vlan(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_strip_vlan() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_strip_vlan(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_STRIP_VLAN;
+	}
+	return dynamic_cast<cofaction_strip_vlan&>( *(actions[index]) );
+}
+
+
+
+const cofaction_strip_vlan&
+cofactions::get_action_strip_vlan(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_STRIP_VLAN != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_strip_vlan&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_strip_vlan(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_STRIP_VLAN != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_strip_vlan(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_STRIP_VLAN == actions_index.at(index)));
 }
 
 
 
 cofaction_set_dl_src&
-cofactions::append_action_set_dl_src(cmacaddr const& maddr)
+cofactions::add_action_set_dl_src(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_dl_src() invalid version");
 
-	cofaction_set_dl_src* set_dl_src = new cofaction_set_dl_src(ofp_version, maddr);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_dl_src(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_DL_SRC;
+	return dynamic_cast<cofaction_set_dl_src&>( *(actions[index]) );
+}
 
-	push_back(set_dl_src);
 
-	return *set_dl_src;
+
+cofaction_set_dl_src&
+cofactions::set_action_set_dl_src(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_dl_src() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_dl_src(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_DL_SRC;
+	}
+	return dynamic_cast<cofaction_set_dl_src&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_dl_src&
+cofactions::get_action_set_dl_src(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_DL_SRC != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_dl_src&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_dl_src(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_DL_SRC != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_dl_src(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_DL_SRC == actions_index.at(index)));
 }
 
 
 
 cofaction_set_dl_dst&
-cofactions::append_action_set_dl_dst(cmacaddr const& maddr)
+cofactions::add_action_set_dl_dst(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_dl_dst() invalid version");
 
-	cofaction_set_dl_dst* set_dl_dst = new cofaction_set_dl_dst(ofp_version, maddr);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_dl_dst(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_DL_DST;
+	return dynamic_cast<cofaction_set_dl_dst&>( *(actions[index]) );
+}
 
-	push_back(set_dl_dst);
 
-	return *set_dl_dst;
+
+cofaction_set_dl_dst&
+cofactions::set_action_set_dl_dst(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_dl_dst() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_dl_dst(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_DL_DST;
+	}
+	return dynamic_cast<cofaction_set_dl_dst&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_dl_dst&
+cofactions::get_action_set_dl_dst(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_DL_DST != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_dl_dst&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_dl_dst(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_DL_DST != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_dl_dst(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_DL_DST == actions_index.at(index)));
 }
 
 
 
 cofaction_set_nw_src&
-cofactions::append_action_set_nw_src(caddress const& addr)
+cofactions::add_action_set_nw_src(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_nw_src() invalid version");
 
-	cofaction_set_nw_src* set_nw_src = new cofaction_set_nw_src(ofp_version, addr);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_nw_src(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_NW_SRC;
+	return dynamic_cast<cofaction_set_nw_src&>( *(actions[index]) );
+}
 
-	push_back(set_nw_src);
 
-	return *set_nw_src;
+
+cofaction_set_nw_src&
+cofactions::set_action_set_nw_src(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_nw_src() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_nw_src(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_NW_SRC;
+	}
+	return dynamic_cast<cofaction_set_nw_src&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_nw_src&
+cofactions::get_action_set_nw_src(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_NW_SRC != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_nw_src&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_nw_src(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_NW_SRC != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_nw_src(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_NW_SRC == actions_index.at(index)));
 }
 
 
 
 cofaction_set_nw_dst&
-cofactions::append_action_set_nw_dst(caddress const& addr)
+cofactions::add_action_set_nw_dst(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_nw_dst() invalid version");
 
-	cofaction_set_nw_dst* set_nw_dst = new cofaction_set_nw_dst(ofp_version, addr);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_nw_dst(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_NW_DST;
+	return dynamic_cast<cofaction_set_nw_dst&>( *(actions[index]) );
+}
 
-	push_back(set_nw_dst);
 
-	return *set_nw_dst;
+
+cofaction_set_nw_dst&
+cofactions::set_action_set_nw_dst(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_nw_dst() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_nw_dst(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_NW_DST;
+	}
+	return dynamic_cast<cofaction_set_nw_dst&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_nw_dst&
+cofactions::get_action_set_nw_dst(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_NW_DST != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_nw_dst&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_nw_dst(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_NW_DST != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_nw_dst(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_NW_DST == actions_index.at(index)));
 }
 
 
 
 cofaction_set_nw_tos&
-cofactions::append_action_set_nw_tos(uint8_t tos)
+cofactions::add_action_set_nw_tos(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_nw_tos() invalid version");
 
-	cofaction_set_nw_tos* set_nw_tos = new cofaction_set_nw_tos(ofp_version, tos);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_nw_tos(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_NW_TOS;
+	return dynamic_cast<cofaction_set_nw_tos&>( *(actions[index]) );
+}
 
-	push_back(set_nw_tos);
 
-	return *set_nw_tos;
+
+cofaction_set_nw_tos&
+cofactions::set_action_set_nw_tos(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_nw_tos() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_nw_tos(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_NW_TOS;
+	}
+	return dynamic_cast<cofaction_set_nw_tos&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_nw_tos&
+cofactions::get_action_set_nw_tos(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_NW_TOS != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_nw_tos&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_nw_tos(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_NW_TOS != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_nw_tos(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_NW_TOS == actions_index.at(index)));
 }
 
 
 
 cofaction_set_tp_src&
-cofactions::append_action_set_tp_src(uint16_t tp_src)
+cofactions::add_action_set_tp_src(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_tp_src() invalid version");
 
-	cofaction_set_tp_src* set_tp_src = new cofaction_set_tp_src(ofp_version, tp_src);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_tp_src(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_TP_SRC;
+	return dynamic_cast<cofaction_set_tp_src&>( *(actions[index]) );
+}
 
-	push_back(set_tp_src);
 
-	return *set_tp_src;
+
+cofaction_set_tp_src&
+cofactions::set_action_set_tp_src(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_tp_src() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_tp_src(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_TP_SRC;
+	}
+	return dynamic_cast<cofaction_set_tp_src&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_tp_src&
+cofactions::get_action_set_tp_src(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_TP_SRC != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_tp_src&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_tp_src(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_TP_SRC != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_tp_src(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_TP_SRC == actions_index.at(index)));
 }
 
 
 
 cofaction_set_tp_dst&
-cofactions::append_action_set_tp_dst(uint16_t tp_dst)
+cofactions::add_action_set_tp_dst(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_tp_dst() invalid version");
 
-	cofaction_set_tp_dst* set_tp_dst = new cofaction_set_tp_dst(ofp_version, tp_dst);
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_tp_dst(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_TP_DST;
+	return dynamic_cast<cofaction_set_tp_dst&>( *(actions[index]) );
+}
 
-	push_back(set_tp_dst);
 
-	return *set_tp_dst;
+
+cofaction_set_tp_dst&
+cofactions::set_action_set_tp_dst(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_tp_dst() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_tp_dst(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_TP_DST;
+	}
+	return dynamic_cast<cofaction_set_tp_dst&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_tp_dst&
+cofactions::get_action_set_tp_dst(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_TP_DST != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_tp_dst&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_tp_dst(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_TP_DST != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_tp_dst(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_TP_DST == actions_index.at(index)));
 }
 
 
 
 cofaction_enqueue&
-cofactions::append_action_enqueue(uint16_t port_no, uint32_t queue_id)
+cofactions::add_action_enqueue(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_enqueue() invalid version");
 
-	cofaction_enqueue* enqueue = new cofaction_enqueue(ofp_version, port_no, queue_id);
-
-	push_back(enqueue);
-
-	return *enqueue;
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_enqueue(ofp_version);
+	actions_index[index] = rofl::openflow10::OFPAT_ENQUEUE;
+	return dynamic_cast<cofaction_enqueue&>( *(actions[index]) );
 }
 
 
 
-cofaction_copy_ttl_out&
-cofactions::append_action_copy_ttl_out()
+cofaction_enqueue&
+cofactions::set_action_enqueue(unsigned int index)
 {
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_enqueue() invalid version");
 
-	cofaction_copy_ttl_out* copy_ttl_out = new cofaction_copy_ttl_out(ofp_version);
-
-	push_back(copy_ttl_out);
-
-	return *copy_ttl_out;
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_enqueue(ofp_version);
+		actions_index[index] = rofl::openflow10::OFPAT_ENQUEUE;
+	}
+	return dynamic_cast<cofaction_enqueue&>( *(actions[index]) );
 }
 
 
 
-cofaction_copy_ttl_in&
-cofactions::append_action_copy_ttl_in()
+const cofaction_enqueue&
+cofactions::get_action_enqueue(unsigned int index) const
 {
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_copy_ttl_in* copy_ttl_in = new cofaction_copy_ttl_in(ofp_version);
-
-	push_back(copy_ttl_in);
-
-	return *copy_ttl_in;
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow10::OFPAT_ENQUEUE != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_enqueue&>( *(actions.at(index)) );
 }
 
 
 
-cofaction_set_mpls_ttl&
-cofactions::append_action_set_mpls_ttl(uint8_t ttl)
+void
+cofactions::drop_action_enqueue(unsigned int index)
 {
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_set_mpls_ttl* set_mpls_ttl = new cofaction_set_mpls_ttl(ofp_version, ttl);
-
-	push_back(set_mpls_ttl);
-
-	return *set_mpls_ttl;
+	if (rofl::openflow10::OFPAT_ENQUEUE != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
 }
 
 
 
-cofaction_dec_mpls_ttl&
-cofactions::append_action_dec_mpls_ttl()
+bool
+cofactions::has_action_enqueue(unsigned int index) const
 {
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_dec_mpls_ttl* dec_mpls_ttl = new cofaction_dec_mpls_ttl(ofp_version);
-
-	push_back(dec_mpls_ttl);
-
-	return *dec_mpls_ttl;
-}
-
-
-
-cofaction_push_vlan&
-cofactions::append_action_push_vlan(uint16_t eth_type)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_push_vlan* push_vlan = new cofaction_push_vlan(ofp_version, eth_type);
-
-	push_back(push_vlan);
-
-	return *push_vlan;
-}
-
-
-
-cofaction_pop_vlan&
-cofactions::append_action_pop_vlan()
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_pop_vlan* pop_vlan = new cofaction_pop_vlan(ofp_version);
-
-	push_back(pop_vlan);
-
-	return *pop_vlan;
-}
-
-
-
-cofaction_push_mpls&
-cofactions::append_action_push_mpls(uint16_t eth_type)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_push_mpls* push_mpls = new cofaction_push_mpls(ofp_version, eth_type);
-
-	push_back(push_mpls);
-
-	return *push_mpls;
-}
-
-
-
-cofaction_pop_mpls&
-cofactions::append_action_pop_mpls(uint16_t eth_type)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_pop_mpls* pop_mpls = new cofaction_pop_mpls(ofp_version, eth_type);
-
-	push_back(pop_mpls);
-
-	return *pop_mpls;
-}
-
-
-
-cofaction_set_queue&
-cofactions::append_action_set_queue(uint32_t queue_id)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_set_queue* set_queue = new cofaction_set_queue(ofp_version, queue_id);
-
-	push_back(set_queue);
-
-	return *set_queue;
-}
-
-
-
-cofaction_group&
-cofactions::append_action_group(uint32_t group_id)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_group* group = new cofaction_group(ofp_version, group_id);
-
-	push_back(group);
-
-	return *group;
-}
-
-
-
-cofaction_set_nw_ttl&
-cofactions::append_action_set_nw_ttl(uint8_t ttl)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_set_nw_ttl* set_nw_ttl = new cofaction_set_nw_ttl(ofp_version, ttl);
-
-	push_back(set_nw_ttl);
-
-	return *set_nw_ttl;
-}
-
-
-
-cofaction_dec_nw_ttl&
-cofactions::append_action_dec_nw_ttl()
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_dec_nw_ttl* dec_nw_ttl = new cofaction_dec_nw_ttl(ofp_version);
-
-	push_back(dec_nw_ttl);
-
-	return *dec_nw_ttl;
-}
-
-
-
-cofaction_set_field&
-cofactions::append_action_set_field(coxmatch const& oxm)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_set_field* set_field = new cofaction_set_field(ofp_version, oxm);
-
-	push_back(set_field);
-
-	return *set_field;
-}
-
-
-
-cofaction_experimenter&
-cofactions::append_action_experimenter(cofaction const& action)
-{
-	// OpenFlow 1.2 and beyond
-	if (openflow12::OFP_VERSION > ofp_version)
-		throw eBadVersion();
-
-	cofaction_experimenter* set_experimenter = new cofaction_experimenter(action);
-
-	push_back(set_experimenter);
-
-	return *set_experimenter;
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow10::OFPAT_ENQUEUE == actions_index.at(index)));
 }
 
 
 
 cofaction_vendor&
-cofactions::append_action_vendor(cofaction const& action)
+cofactions::add_action_vendor(unsigned int index)
 {
-	// OpenFlow 1.0 only
-	if (openflow10::OFP_VERSION != ofp_version)
-		throw eBadVersion();
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_vendor() invalid version");
 
-	cofaction_vendor* set_vendor = new cofaction_vendor(action);
-
-	push_back(set_vendor);
-
-	return *set_vendor;
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_vendor(ofp_version);
+	actions_index[index] = rofl::openflow10::OFPAT_VENDOR;
+	return dynamic_cast<cofaction_vendor&>( *(actions[index]) );
 }
 
 
 
+cofaction_vendor&
+cofactions::set_action_vendor(unsigned int index)
+{
+	if (get_version() != rofl::openflow10::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_vendor() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_vendor(ofp_version);
+		actions_index[index] = rofl::openflow10::OFPAT_VENDOR;
+	}
+	return dynamic_cast<cofaction_vendor&>( *(actions[index]) );
+}
+
+
+
+const cofaction_vendor&
+cofactions::get_action_vendor(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow10::OFPAT_VENDOR != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_vendor&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_vendor(unsigned int index)
+{
+	if (rofl::openflow10::OFPAT_VENDOR != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_vendor(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow10::OFPAT_VENDOR == actions_index.at(index)));
+}
+
+
+
+cofaction_copy_ttl_out&
+cofactions::add_action_copy_ttl_out(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_copy_ttl_out() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_copy_ttl_out(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_COPY_TTL_OUT;
+	return dynamic_cast<cofaction_copy_ttl_out&>( *(actions[index]) );
+}
+
+
+
+cofaction_copy_ttl_out&
+cofactions::set_action_copy_ttl_out(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_copy_ttl_out() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_copy_ttl_out(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_COPY_TTL_OUT;
+	}
+	return dynamic_cast<cofaction_copy_ttl_out&>( *(actions[index]) );
+}
+
+
+
+const cofaction_copy_ttl_out&
+cofactions::get_action_copy_ttl_out(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_COPY_TTL_OUT != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_copy_ttl_out&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_copy_ttl_out(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_COPY_TTL_OUT != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_copy_ttl_out(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_COPY_TTL_OUT == actions_index.at(index)));
+}
+
+
+
+cofaction_copy_ttl_in&
+cofactions::add_action_copy_ttl_in(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_copy_ttl_in() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_copy_ttl_in(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_COPY_TTL_IN;
+	return dynamic_cast<cofaction_copy_ttl_in&>( *(actions[index]) );
+}
+
+
+
+cofaction_copy_ttl_in&
+cofactions::set_action_copy_ttl_in(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_copy_ttl_in() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_copy_ttl_in(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_COPY_TTL_IN;
+	}
+	return dynamic_cast<cofaction_copy_ttl_in&>( *(actions[index]) );
+}
+
+
+
+const cofaction_copy_ttl_in&
+cofactions::get_action_copy_ttl_in(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_COPY_TTL_IN != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_copy_ttl_in&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_copy_ttl_in(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_COPY_TTL_IN != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_copy_ttl_in(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_COPY_TTL_IN == actions_index.at(index)));
+}
+
+
+
+cofaction_set_mpls_ttl&
+cofactions::add_action_set_mpls_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_mpls_ttl() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_mpls_ttl(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_MPLS_TTL;
+	return dynamic_cast<cofaction_set_mpls_ttl&>( *(actions[index]) );
+}
+
+
+
+cofaction_set_mpls_ttl&
+cofactions::set_action_set_mpls_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_mpls_ttl() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_mpls_ttl(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_MPLS_TTL;
+	}
+	return dynamic_cast<cofaction_set_mpls_ttl&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_mpls_ttl&
+cofactions::get_action_set_mpls_ttl(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_MPLS_TTL != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_mpls_ttl&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_mpls_ttl(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_MPLS_TTL != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_mpls_ttl(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_MPLS_TTL == actions_index.at(index)));
+}
+
+
+
+cofaction_dec_mpls_ttl&
+cofactions::add_action_dec_mpls_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_dec_mpls_ttl() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_dec_mpls_ttl(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_DEC_MPLS_TTL;
+	return dynamic_cast<cofaction_dec_mpls_ttl&>( *(actions[index]) );
+}
+
+
+
+cofaction_dec_mpls_ttl&
+cofactions::set_action_dec_mpls_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_dec_mpls_ttl() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_dec_mpls_ttl(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_DEC_MPLS_TTL;
+	}
+	return dynamic_cast<cofaction_dec_mpls_ttl&>( *(actions[index]) );
+}
+
+
+
+const cofaction_dec_mpls_ttl&
+cofactions::get_action_dec_mpls_ttl(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_DEC_MPLS_TTL != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_dec_mpls_ttl&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_dec_mpls_ttl(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_DEC_MPLS_TTL != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_dec_mpls_ttl(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_DEC_MPLS_TTL == actions_index.at(index)));
+}
+
+
+
+cofaction_push_vlan&
+cofactions::add_action_push_vlan(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_push_vlan() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_push_vlan(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_PUSH_VLAN;
+	return dynamic_cast<cofaction_push_vlan&>( *(actions[index]) );
+}
+
+
+
+cofaction_push_vlan&
+cofactions::set_action_push_vlan(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_push_vlan() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_push_vlan(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_PUSH_VLAN;
+	}
+	return dynamic_cast<cofaction_push_vlan&>( *(actions[index]) );
+}
+
+
+
+const cofaction_push_vlan&
+cofactions::get_action_push_vlan(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_PUSH_VLAN != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_push_vlan&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_push_vlan(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_PUSH_VLAN != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_push_vlan(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_PUSH_VLAN == actions_index.at(index)));
+}
+
+
+
+cofaction_pop_vlan&
+cofactions::add_action_pop_vlan(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_pop_vlan() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_pop_vlan(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_POP_VLAN;
+	return dynamic_cast<cofaction_pop_vlan&>( *(actions[index]) );
+}
+
+
+
+cofaction_pop_vlan&
+cofactions::set_action_pop_vlan(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_pop_vlan() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_pop_vlan(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_POP_VLAN;
+	}
+	return dynamic_cast<cofaction_pop_vlan&>( *(actions[index]) );
+}
+
+
+
+const cofaction_pop_vlan&
+cofactions::get_action_pop_vlan(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_POP_VLAN != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_pop_vlan&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_pop_vlan(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_POP_VLAN != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_pop_vlan(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_POP_VLAN == actions_index.at(index)));
+}
+
+
+
+cofaction_push_mpls&
+cofactions::add_action_push_mpls(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_push_mpls() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_push_mpls(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_PUSH_MPLS;
+	return dynamic_cast<cofaction_push_mpls&>( *(actions[index]) );
+}
+
+
+
+cofaction_push_mpls&
+cofactions::set_action_push_mpls(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_push_mpls() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_push_mpls(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_PUSH_MPLS;
+	}
+	return dynamic_cast<cofaction_push_mpls&>( *(actions[index]) );
+}
+
+
+
+const cofaction_push_mpls&
+cofactions::get_action_push_mpls(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_PUSH_MPLS != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_push_mpls&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_push_mpls(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_PUSH_MPLS != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_push_mpls(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_PUSH_MPLS == actions_index.at(index)));
+}
+
+
+
+cofaction_pop_mpls&
+cofactions::add_action_pop_mpls(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_pop_mpls() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_pop_mpls(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_POP_MPLS;
+	return dynamic_cast<cofaction_pop_mpls&>( *(actions[index]) );
+}
+
+
+
+cofaction_pop_mpls&
+cofactions::set_action_pop_mpls(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_pop_mpls() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_pop_mpls(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_POP_MPLS;
+	}
+	return dynamic_cast<cofaction_pop_mpls&>( *(actions[index]) );
+}
+
+
+
+const cofaction_pop_mpls&
+cofactions::get_action_pop_mpls(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_POP_MPLS != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_pop_mpls&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_pop_mpls(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_POP_MPLS != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_pop_mpls(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_POP_MPLS == actions_index.at(index)));
+}
+
+
+
+cofaction_group&
+cofactions::add_action_group(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_group() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_group(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_GROUP;
+	return dynamic_cast<cofaction_group&>( *(actions[index]) );
+}
+
+
+
+cofaction_group&
+cofactions::set_action_group(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_group() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_group(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_GROUP;
+	}
+	return dynamic_cast<cofaction_group&>( *(actions[index]) );
+}
+
+
+
+const cofaction_group&
+cofactions::get_action_group(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_GROUP != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_group&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_group(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_GROUP != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_group(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_GROUP == actions_index.at(index)));
+}
+
+
+
+cofaction_set_nw_ttl&
+cofactions::add_action_set_nw_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_nw_ttl() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_nw_ttl(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_NW_TTL;
+	return dynamic_cast<cofaction_set_nw_ttl&>( *(actions[index]) );
+}
+
+
+
+cofaction_set_nw_ttl&
+cofactions::set_action_set_nw_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_nw_ttl() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_nw_ttl(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_NW_TTL;
+	}
+	return dynamic_cast<cofaction_set_nw_ttl&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_nw_ttl&
+cofactions::get_action_set_nw_ttl(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_NW_TTL != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_nw_ttl&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_nw_ttl(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_NW_TTL != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_nw_ttl(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_NW_TTL == actions_index.at(index)));
+}
+
+
+
+cofaction_dec_nw_ttl&
+cofactions::add_action_dec_nw_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_dec_nw_ttl() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_dec_nw_ttl(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_DEC_NW_TTL;
+	return dynamic_cast<cofaction_dec_nw_ttl&>( *(actions[index]) );
+}
+
+
+
+cofaction_dec_nw_ttl&
+cofactions::set_action_dec_nw_ttl(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_dec_nw_ttl() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_dec_nw_ttl(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_DEC_NW_TTL;
+	}
+	return dynamic_cast<cofaction_dec_nw_ttl&>( *(actions[index]) );
+}
+
+
+
+const cofaction_dec_nw_ttl&
+cofactions::get_action_dec_nw_ttl(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_DEC_NW_TTL != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_dec_nw_ttl&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_dec_nw_ttl(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_DEC_NW_TTL != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_dec_nw_ttl(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_DEC_NW_TTL == actions_index.at(index)));
+}
+
+
+
+cofaction_set_queue&
+cofactions::add_action_set_queue(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_queue() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_queue(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_QUEUE;
+	return dynamic_cast<cofaction_set_queue&>( *(actions[index]) );
+}
+
+
+
+cofaction_set_queue&
+cofactions::set_action_set_queue(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_queue() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_queue(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_QUEUE;
+	}
+	return dynamic_cast<cofaction_set_queue&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_queue&
+cofactions::get_action_set_queue(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_QUEUE != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_queue&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_queue(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_QUEUE != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_queue(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_QUEUE == actions_index.at(index)));
+}
+
+
+
+cofaction_set_field&
+cofactions::add_action_set_field(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_set_field() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_set_field(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_SET_FIELD;
+	return dynamic_cast<cofaction_set_field&>( *(actions[index]) );
+}
+
+
+
+cofaction_set_field&
+cofactions::set_action_set_field(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_set_field() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_set_field(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_SET_FIELD;
+	}
+	return dynamic_cast<cofaction_set_field&>( *(actions[index]) );
+}
+
+
+
+const cofaction_set_field&
+cofactions::get_action_set_field(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_SET_FIELD != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_set_field&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_set_field(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_SET_FIELD != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_set_field(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_SET_FIELD == actions_index.at(index)));
+}
+
+
+
+cofaction_experimenter&
+cofactions::add_action_experimenter(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_experimenter() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_experimenter(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_EXPERIMENTER;
+	return dynamic_cast<cofaction_experimenter&>( *(actions[index]) );
+}
+
+
+
+cofaction_experimenter&
+cofactions::set_action_experimenter(unsigned int index)
+{
+	if (get_version() < rofl::openflow12::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_experimenter() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_experimenter(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_EXPERIMENTER;
+	}
+	return dynamic_cast<cofaction_experimenter&>( *(actions[index]) );
+}
+
+
+
+const cofaction_experimenter&
+cofactions::get_action_experimenter(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_EXPERIMENTER != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_experimenter&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_experimenter(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_EXPERIMENTER != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_experimenter(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_EXPERIMENTER == actions_index.at(index)));
+}
+
+
+
+cofaction_push_pbb&
+cofactions::add_action_push_pbb(unsigned int index)
+{
+	if (get_version() < rofl::openflow13::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_push_pbb() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_push_pbb(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_PUSH_PBB;
+	return dynamic_cast<cofaction_push_pbb&>( *(actions[index]) );
+}
+
+
+
+cofaction_push_pbb&
+cofactions::set_action_push_pbb(unsigned int index)
+{
+	if (get_version() < rofl::openflow13::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_push_pbb() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_push_pbb(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_PUSH_PBB;
+	}
+	return dynamic_cast<cofaction_push_pbb&>( *(actions[index]) );
+}
+
+
+
+const cofaction_push_pbb&
+cofactions::get_action_push_pbb(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_PUSH_PBB != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_push_pbb&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_push_pbb(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_PUSH_PBB != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_push_pbb(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_PUSH_PBB == actions_index.at(index)));
+}
+
+
+
+cofaction_pop_pbb&
+cofactions::add_action_pop_pbb(unsigned int index)
+{
+	if (get_version() < rofl::openflow13::OFP_VERSION)
+		throw eBadVersion("cofactions::add_action_pop_pbb() invalid version");
+
+	if (actions_index.find(index) != actions_index.end()) {
+		delete actions[index];
+	}
+	actions[index] = new cofaction_pop_pbb(ofp_version);
+	actions_index[index] = rofl::openflow::OFPAT_POP_PBB;
+	return dynamic_cast<cofaction_pop_pbb&>( *(actions[index]) );
+}
+
+
+
+cofaction_pop_pbb&
+cofactions::set_action_pop_pbb(unsigned int index)
+{
+	if (get_version() < rofl::openflow13::OFP_VERSION)
+		throw eBadVersion("cofactions::set_action_pop_pbb() invalid version");
+
+	if (actions_index.find(index) == actions_index.end()) {
+		actions[index] = new cofaction_pop_pbb(ofp_version);
+		actions_index[index] = rofl::openflow::OFPAT_POP_PBB;
+	}
+	return dynamic_cast<cofaction_pop_pbb&>( *(actions[index]) );
+}
+
+
+
+const cofaction_pop_pbb&
+cofactions::get_action_pop_pbb(unsigned int index) const
+{
+	if ((actions_index.find(index) == actions_index.end()) ||
+			(rofl::openflow::OFPAT_POP_PBB != actions_index.at(index))) {
+		throw eActionNotFound();
+	}
+	return dynamic_cast<const cofaction_pop_pbb&>( *(actions.at(index)) );
+}
+
+
+
+void
+cofactions::drop_action_pop_pbb(unsigned int index)
+{
+	if (rofl::openflow::OFPAT_POP_PBB != actions_index[index]) {
+		throw eActionInvalType();
+	}
+	drop_action(index);
+}
+
+
+
+bool
+cofactions::has_action_pop_pbb(unsigned int index) const
+{
+	return ((actions_index.find(index) != actions_index.end()) &&
+			(rofl::openflow::OFPAT_POP_PBB == actions_index.at(index)));
+}
 
 
 

@@ -21,7 +21,7 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/ciosrv.h"
-#include "rofl/common/caddress.h"
+#include "rofl/common/csockaddr.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/cparams.h"
 
@@ -182,8 +182,8 @@ protected:
 	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
 	enum socket_type_t			socket_type;
 	int 						sd; 				/**< the socket descriptor */
-	caddress 					laddr; 				/**< local address socket is bound to */
-	caddress 					raddr; 				/**< remote address of peer entity */
+	csockaddr 					laddr; 				/**< local address socket is bound to */
+	csockaddr 					raddr; 				/**< remote address of peer entity */
 	int 						domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
 	int 						type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
 	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
@@ -321,7 +321,7 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) = 0;
+	send(cmemory *mem, rofl::csockaddr const& dest = rofl::csockaddr()) = 0;
 
 
 	/**
@@ -359,25 +359,25 @@ public:
 	/**
 	 *
 	 */
-	rofl::caddress&
+	rofl::csockaddr&
 	set_laddr() { return laddr; };
 
 	/**
 	 *
 	 */
-	rofl::caddress const&
+	rofl::csockaddr const&
 	get_laddr() const { return laddr; };
 
 	/**
 	 *
 	 */
-	rofl::caddress&
+	rofl::csockaddr&
 	set_raddr() { return raddr; };
 
 	/**
 	 *
 	 */
-	rofl::caddress const&
+	rofl::csockaddr const&
 	get_raddr() const { return raddr; };
 
 	/**
@@ -462,10 +462,10 @@ public:
 			<< "type:" << sock.type << " "
 			<< "protocol:" << sock.protocol << " ";
 		os << ">" << std::endl;
-		os << rofl::indent(2) << "<raddr: " << sock.raddr << ":" << "TODO" << " >" << std::endl;
-		os << rofl::indent(2) << "<laddr: " << sock.laddr << ":" << "TODO" << " >" << std::endl;
-		rofl::indent i(2);
-		//os << sock.socket_params;
+		os << rofl::indent(2) << "<raddr: >" << std::endl;
+		{ rofl::indent i(4); os << sock.raddr; };
+		os << rofl::indent(2) << "<laddr: >" << std::endl;
+		{ rofl::indent i(4); os << sock.laddr; };
 		return os;
 	};
 

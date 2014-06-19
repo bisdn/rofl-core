@@ -1,106 +1,135 @@
 #include "rofl/common/openflow/experimental/actions/pppoe_actions.h"
 
-using namespace rofl::openflow;
+using namespace rofl::openflow::experimental::pppoe;
 
-cofaction_push_pppoe::cofaction_push_pppoe(
-		uint8_t ofp_version,
-		uint16_t ethertype) :
-				cofaction_experimenter(ofp_version, ROFL_EXPERIMENTER_ID, OFXAT_PUSH_PPPOE, sizeof(struct openflow12::ofp_action_push))
+size_t
+cofaction_push_pppoe::length() const
 {
-	switch (ofp_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		eoac_header = cofaction_experimenter::soaction();
-
-		eoac_push_pppoe->expbody.type		= htobe16(OFXAT_PUSH_PPPOE);
-		eoac_push_pppoe->expbody.len		= htobe16(sizeof(struct openflow12::ofp_action_push));
-		eoac_push_pppoe->expbody.ethertype 	= htobe16(ethertype);
-	} break;
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
+		return sizeof(struct rofl::openflow13::ofp_action_push);
+	default:
+		throw eBadVersion("cofaction_push_pppoe::length() invalid version");
 	}
 }
 
 
 
-cofaction_push_pppoe::cofaction_push_pppoe(cofaction const& action) :
-		cofaction_experimenter(action)
+void
+cofaction_push_pppoe::pack(
+		uint8_t* buf, size_t buflen)
 {
-	if ((sizeof(struct openflow12::ofp_action_experimenter_header) + sizeof(struct openflow12::ofp_action_push)) <
-			be16toh(action.oac_header->len))
-		throw eBadActionBadLen();
+	if ((0 == buf) || (0 == buflen))
+		return;
 
-	cofaction::operator= (action);
+	if (buflen < cofaction_push_pppoe::length())
+		throw eInval("cofaction_push_pppoe::pack() buflen too short");
 
-	eoac_header = soaction();
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
-	if (OFXAT_PUSH_PPPOE != be32toh(eoac_push_pppoe->exphdr.exp_type))
-		throw eBadActionBadExperimenterType();
-}
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 
+		struct rofl::openflow13::ofp_action_push* hdr = (struct rofl::openflow13::ofp_action_push*)buf;
 
+		hdr->ethertype = htobe16(eth_type);
 
-cofaction_push_pppoe::~cofaction_push_pppoe()
-{
-
-}
-
-
-
-uint16_t
-cofaction_push_pppoe::get_ethertype() const
-{
-	return be16toh(eoac_push_pppoe->expbody.ethertype);
-}
-
-
-
-cofaction_pop_pppoe::cofaction_pop_pppoe(
-		uint8_t ofp_version,
-		uint16_t ethertype) :
-			cofaction_experimenter(ofp_version, ROFL_EXPERIMENTER_ID, OFXAT_POP_PPPOE, sizeof(struct ofx_action_pop_pppoe))
-{
-	switch (ofp_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		eoac_header = cofaction_experimenter::soaction();
-
-		eoac_pop_pppoe->expbody.type		= htobe16(OFXAT_POP_PPPOE);
-		eoac_pop_pppoe->expbody.len			= htobe16(sizeof(struct ofx_action_pop_pppoe_header));
-		eoac_pop_pppoe->expbody.ethertype 	= htobe16(ethertype);
 	} break;
+	default:
+		throw eBadVersion("cofaction_push_pppoe::pack() invalid version");
 	}
 }
 
 
 
-
-cofaction_pop_pppoe::cofaction_pop_pppoe(cofaction const& action) :
-	cofaction_experimenter(action)
+void
+cofaction_push_pppoe::unpack(
+		uint8_t* buf, size_t buflen)
 {
-	if ((sizeof(struct openflow12::ofp_action_experimenter_header) + sizeof(struct ofx_action_pop_pppoe)) <
-			be16toh(action.oac_header->len))
-		throw eBadActionBadLen();
+	if ((0 == buf) || (0 == buflen))
+		return;
 
-	cofaction::operator= (action);
+	if (buflen < cofaction_push_pppoe::length())
+		throw eInval("cofaction_push_pppoe::unpack() buflen too short");
 
-	eoac_header = soaction();
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
 
-	if (OFXAT_POP_PPPOE != be32toh(eoac_pop_pppoe->exphdr.exp_type))
-		throw eBadActionBadExperimenterType();
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+		struct rofl::openflow13::ofp_action_push* hdr = (struct rofl::openflow13::ofp_action_push*)buf;
+
+		eth_type = be16toh(hdr->ethertype);
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_push_pppoe::unpack() invalid version");
+	}
 }
 
 
 
-cofaction_pop_pppoe::~cofaction_pop_pppoe()
+size_t
+cofaction_pop_pppoe::length() const
 {
-
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION:
+		return sizeof(struct rofl::openflow13::ofp_action_header);
+	default:
+		throw eBadVersion("cofaction_pop_pppoe::length() invalid version");
+	}
 }
 
 
 
-uint16_t
-cofaction_pop_pppoe::get_ethertype() const
+void
+cofaction_pop_pppoe::pack(
+		uint8_t* buf, size_t buflen)
 {
-	return be16toh(eoac_pop_pppoe->expbody.ethertype);
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_pop_pppoe::length())
+		throw eInval("cofaction_pop_pppoe::pack() buflen too short");
+
+	cofaction::pack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_pop_pppoe::pack() invalid version");
+	}
+}
+
+
+
+void
+cofaction_pop_pppoe::unpack(
+		uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_pop_pppoe::length())
+		throw eInval("cofaction_pop_pppoe::unpack() buflen too short");
+
+	cofaction::unpack(buf, sizeof(struct rofl::openflow::ofp_action_header));
+
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion("cofaction_pop_pppoe::unpack() invalid version");
+	}
 }
 
 

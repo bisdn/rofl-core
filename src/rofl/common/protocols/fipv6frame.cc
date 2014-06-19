@@ -362,24 +362,18 @@ fipv6frame::set_ipv6_src(cmemory const& src) throw (eIPv6FrameInval)
 
 
 void
-fipv6frame::set_ipv6_src(caddress const& src) throw (eIPv6FrameInval)
+fipv6frame::set_ipv6_src(caddress_in6 const& src)
 {
-	if (not src.is_af_inet6()) {
-		throw eIPv6FrameInval();
-	}
-	memcpy(ipv6_hdr->src, src.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+	memcpy(ipv6_hdr->src, src.somem(), IPV6_ADDR_LEN);
 }
 
 
 
-caddress
+caddress_in6
 fipv6frame::get_ipv6_src() const
 {
-	caddress src(AF_INET6);
-	src.ca_s6addr->sin6_family = AF_INET6;
-	src.ca_s6addr->sin6_port = 0;
-	src.ca_s6addr->sin6_flowinfo = 0;
-	memcpy(src.ca_s6addr->sin6_addr.s6_addr, ipv6_hdr->src, IPV6_ADDR_LEN);
+	caddress_in6 src;
+	memcpy(src.somem(), ipv6_hdr->src, IPV6_ADDR_LEN);
 	return src;
 }
 
@@ -412,24 +406,18 @@ fipv6frame::set_ipv6_dst(cmemory const& dst) throw (eIPv6FrameInval)
 
 
 void
-fipv6frame::set_ipv6_dst(caddress const& dst) throw (eIPv6FrameInval)
+fipv6frame::set_ipv6_dst(caddress_in6 const& dst)
 {
-	if (not dst.is_af_inet6()) {
-		throw eIPv6FrameInval();
-	}
-	memcpy(ipv6_hdr->dst, dst.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+	memcpy(ipv6_hdr->dst, dst.somem(), IPV6_ADDR_LEN);
 }
 
 
 
-caddress
+caddress_in6
 fipv6frame::get_ipv6_dst() const
 {
-	caddress dst(AF_INET6);
-	dst.ca_s6addr->sin6_family = AF_INET6;
-	dst.ca_s6addr->sin6_port = 0;
-	dst.ca_s6addr->sin6_flowinfo = 0;
-	memcpy(dst.ca_s6addr->sin6_addr.s6_addr, ipv6_hdr->dst, IPV6_ADDR_LEN);
+	caddress_in6 dst;
+	memcpy(dst.somem(), ipv6_hdr->dst, IPV6_ADDR_LEN);
 	return dst;
 }
 

@@ -11,8 +11,6 @@ librofl_common_la_SOURCES = \
 		thread_helper.h \
 		caddress.h \
 		caddress.cc \
-		cmacaddr.h \
-		cmacaddr.cc \
 		cpacket.h \
 		cpacket.cc \
 		croflexp.h \
@@ -23,8 +21,8 @@ librofl_common_la_SOURCES = \
 		cpipe.cc \
 		cclock.h \
 		cclock.cc \
-		cfsm.h \
-		cfsm.cc \
+		ctimespec.h \
+		ctimespec.cc \
 		ctimer.h \
 		ctimer.cc \
 		ctimers.h \
@@ -36,8 +34,6 @@ librofl_common_la_SOURCES = \
 		ciosrv.cc \
 		cmemory.h \
 		cmemory.cc \
-		coflist.h \
-		coflist.cc \
 		csocket.h \
 		csocket.cc \
 		csocket_impl.h \
@@ -81,7 +77,13 @@ librofl_common_la_SOURCES = \
 		ctimerid.cc \
 		cauxid.h \
 		cctlid.h \
-		cdptid.h
+		cdptid.h \
+		csockaddr.h \
+		csockaddr.cc \
+		caddrinfo.h \
+		caddrinfo.cc \
+		caddrinfos.h \
+		caddrinfos.cc
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -94,7 +96,6 @@ librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils
 library_includedir=$(includedir)/rofl/common
 library_include_HEADERS= \
 		caddress.h \
-		cmacaddr.h \
 		cpacket.h \
 		croflexp.h \
 		crandom.h \
@@ -112,14 +113,13 @@ library_include_HEADERS= \
 		crofshim.h \
 		cclock.h \
 		croflexception.h \
-		cfsm.h \
+		ctimespec.h \
 		ctimer.h \
 		ctimers.h \
 		cevent.h \
 		cevents.h \
 		ciosrv.h \
 		cmemory.h \
-		coflist.h \
 		csocket.h \
 		csocket_impl.h \
 		cvastring.h \
@@ -135,7 +135,10 @@ library_include_HEADERS= \
 		ctimerid.h \
 		cauxid.h \
 		cctlid.h \
-		cdptid.h
+		cdptid.h \
+		csockaddr.h \
+		caddrinfo.h \
+		caddrinfos.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \

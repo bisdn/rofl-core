@@ -47,7 +47,7 @@ ctransactions::clear()
 	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 	std::list<ctransaction>::clear();
 	//cancel_timer(ta_queue_timer_id);
-	cancel_all_timer();
+	cancel_all_timers();
 }
 
 
@@ -87,7 +87,7 @@ ctransactions::work_on_ta_queue()
 	RwLock lock(queuelock, RwLock::RWLOCK_READ);
 	if (not (*this).empty()) {
 		//std::cerr << "PUNKT 4" << std::endl;
-		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
+		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, ctimespec(work_interval));
 	}
 }
 
@@ -112,7 +112,7 @@ ctransactions::add_ta(
 	(*this).insert(it, ctransaction(nxid, delta, msg_type, msg_sub_type));
 
 	if (not pending_timer(ta_queue_timer_id)) {
-		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
+		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, ctimespec(work_interval));
 	}
 
 	return nxid;
