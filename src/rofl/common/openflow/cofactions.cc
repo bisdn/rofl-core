@@ -83,7 +83,14 @@ cofactions::operator= (
 			add_action_set_tp_dst(index) = actions.get_action_set_tp_dst(index);
 		} break;
 		case rofl::openflow::OFPAT_COPY_TTL_OUT: {
-			add_action_copy_ttl_out(index) = actions.get_action_copy_ttl_out(index);
+			switch (get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				add_action_enqueue(index) = actions.get_action_enqueue(index);
+			} break;
+			default: {
+				add_action_copy_ttl_out(index) = actions.get_action_copy_ttl_out(index);
+			}
+			}
 		} break;
 		case rofl::openflow::OFPAT_COPY_TTL_IN: {
 			add_action_copy_ttl_in(index) = actions.get_action_copy_ttl_in(index);
@@ -392,11 +399,11 @@ cofactions::count_action_output(
 
 
 std::list<uint32_t>
-cofactions::actions_output_ports()
+cofactions::actions_output_ports() const
 {
 	std::list<uint32_t> outports;
 
-	for (std::map<unsigned int, cofaction*>::iterator
+	for (std::map<unsigned int, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		const cofaction& action = *(it->second);
 

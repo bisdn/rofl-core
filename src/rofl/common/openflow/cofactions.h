@@ -101,7 +101,7 @@ public:
 	 *
 	 */
 	std::list<uint32_t>
-	actions_output_ports();
+	actions_output_ports() const;
 
 	/**
 	 *
@@ -146,6 +146,18 @@ public:
 	 */
 	const std::map<unsigned int, cofaction*>&
 	get_actions() const { return actions; };
+
+	/**
+	 *
+	 */
+	size_t
+	size() const { return actions.size(); };
+
+	/**
+	 *
+	 */
+	bool
+	empty() const { return actions.empty(); };
 
 public:
 

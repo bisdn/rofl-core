@@ -248,12 +248,13 @@ private: // data structures
 	uint16_t	priority;
 	uint16_t 	idle_timeout;
 	uint16_t	hard_timeout;
+	uint16_t	flags; 				// since OF1.3
 	uint64_t	cookie;
 	uint64_t 	packet_count;
 	uint64_t	byte_count;
 	cofmatch 	match;
-	cofactions	actions;		// for OF1.0
-	cofinstructions	instructions;	// for OF1.2
+	cofactions	actions;			// for OF1.0
+	cofinstructions	instructions;	// since OF1.2
 
 #define OFP12_FLOW_STATS_REPLY_STATIC_HDR_LEN 		48 // bytes
 
@@ -410,6 +411,12 @@ public:
 	/**
 	 *
 	 */
+	uint16_t
+	get_flags() const;
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_cookie() const;
 
@@ -466,6 +473,12 @@ public:
 	 */
 	void
 	set_hard_timeout(uint16_t hard_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_flags(uint16_t flags);
 
 	/**
 	 *

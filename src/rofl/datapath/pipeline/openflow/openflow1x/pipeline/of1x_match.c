@@ -1519,7 +1519,7 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(value),UINT128__T_HI(mask),UINT128__T_LO(mask));
 				}
 				break;
-			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
+			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",__of1x_get_match_val32(it, false, raw_nbo));
 				break; 
 			case OF1X_MATCH_IPV6_ND_TARGET: {
 					uint128__t value = __of1x_get_match_val128(it, false, raw_nbo);	
@@ -1530,9 +1530,9 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(mask));
 				}
 				break;
-			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_SLL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
+			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_SLL:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break; 
-			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TLL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
+			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_ND_TLL:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break; 
 			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",__of1x_get_match_val16(it, false, raw_nbo),__of1x_get_match_val16(it, true, raw_nbo));
 				break; 
