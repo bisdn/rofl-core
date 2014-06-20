@@ -233,7 +233,10 @@ cofmsg_flow_removed::validate()
 		if (get_length() < frgenlen)
 			throw eBadSyntaxTooShort();
 
-		size_t matchlen = be16toh(ofh12_flow_removed->header.length);
+		size_t matchlen = be16toh(ofh12_flow_removed->header.length) - frgenlen;
+
+		if (matchlen < 2*sizeof(uint16_t))
+			throw eBadSyntaxTooShort();
 
 		try  {
 			match.unpack((uint8_t*)&(ofh12_flow_removed->match), matchlen);
@@ -248,7 +251,10 @@ cofmsg_flow_removed::validate()
 		if (get_length() < frgenlen)
 			throw eBadSyntaxTooShort();
 
-		size_t matchlen = be16toh(ofh13_flow_removed->header.length);
+		size_t matchlen = be16toh(ofh12_flow_removed->header.length) - frgenlen;
+
+		if (matchlen < 2*sizeof(uint16_t))
+			throw eBadSyntaxTooShort();
 
 		try  {
 			match.unpack((uint8_t*)&(ofh13_flow_removed->match), matchlen);
