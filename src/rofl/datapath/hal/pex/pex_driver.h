@@ -21,29 +21,14 @@
 HAL_BEGIN_DECLS
 
 /**
-*	According to the PEX type, the xDPD behaves differently when PEX commands
+*	According to the PEX type, the driver behaves differently when PEX commands
 *	are called through the CMM.
 *
-*	@brief:	INTERNAL			PEX and xDPD are the same process
-*	@brief: DPDK				PEX is a DPDK secondary process
-*	@brief: EXTERNAL			PEX is something external, e.g., a Docker container
+*	@brief:	DPDK_PRIMARY			PEX and xDPD are the same process
+*	@brief: DPDK_SECONDARY			PEX is a DPDK (secondary) process
+*	@brief: DPDK_KNI				PEX is a Docker container
 */
-enum PexType {INTERNAL,DPDK,EXTERNAL};
-
-/**
- * @name hal_driver_pex_exists
- * @brief Checks if a PEX port with the specified name exists
- *
- * @param pex_port_name	Name of the PEX port to be checked
- */
-bool hal_driver_pex_port_exists(const char *pex_port_name);
-
-/**
-* @brief   Retrieve the list of names of the available PEX ports of the platform 
-* @ingroup pex_port_management
-* @retval  List of available PEX port names, which MUST be deleted using pex_port_name_list_destroy().
-*/
-pex_port_name_list_t* hal_driver_get_all_pex_port_names();
+enum PexType {DPDK_PRIMARY,DPDK_SECONDARY,DPDK_KNI};
 
 /**
  * @name    hal_result_t hal_driver_pex_create_pex_port
@@ -68,17 +53,19 @@ hal_result_t hal_driver_pex_destroy_pex_port(const char *pex_port_name);
  * @name    hal_result_t hal_driver_pex_start_pex_port
  * @brief   Instructs driver to start a PEX port
  *
- * @param pex_port_id		Identifier of the PEX port to be started
+ * @param pex_port_name		Name of the PEX port to be started
+ * @param pex_port_type		Type of the PEX port to be started
  */
-hal_result_t hal_driver_pex_start_pex_port(uint32_t pex_port_id);
+hal_result_t hal_driver_pex_start_pex_port(const char *pex_port_name, port_type_t pex_port_type);
 
 /**
  * @name    hal_result_t hal_driver_pex_stop_pex_port
  * @brief   Instructs driver to stop a PEX port
  *
- * @param pex_port_id		Identifier of the PEX port to be stopped
+ * @param pex_port_name		Name of the PEX port to be stopped
+ * @param pex_port_type		Type of the PEX port to be stopped
  */
-hal_result_t hal_driver_pex_stop_pex_port(uint32_t pex_port_id);
+hal_result_t hal_driver_pex_stop_pex_port(const char *pex_port_name, port_type_t pex_port_type);
 
 
 // [+] Add more here..
