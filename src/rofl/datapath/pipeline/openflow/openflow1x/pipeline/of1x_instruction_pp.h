@@ -47,7 +47,8 @@ static inline unsigned int __of1x_process_instructions(const struct of1x_switch*
 					break;
     			case OF1X_IT_WRITE_METADATA:
 				{
-					pkt->__metadata = 	(pkt->__metadata & ~instructions->instructions[i].write_metadata.metadata_mask) |
+					packet_matches_t* matches = &pkt->matches;
+					matches->__metadata = 	(matches->__metadata & ~instructions->instructions[i].write_metadata.metadata_mask) |
 								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
 				}
 					break;
