@@ -1519,7 +1519,7 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 					ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(value),UINT128__T_LO(value),UINT128__T_HI(mask),UINT128__T_LO(mask));
 				}
 				break;
-			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",__of1x_get_match_val64(it, false, raw_nbo));
+			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_INFO_NO_PREFIX("[IPV6_FLABEL:%lu], ",__of1x_get_match_val32(it, false, raw_nbo));
 				break; 
 			case OF1X_MATCH_IPV6_ND_TARGET: {
 					uint128__t value = __of1x_get_match_val128(it, false, raw_nbo);	
