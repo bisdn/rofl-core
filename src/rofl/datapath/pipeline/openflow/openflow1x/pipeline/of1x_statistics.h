@@ -62,6 +62,8 @@ typedef struct of1x_stats_single_flow_msg{
 	uint16_t idle_timeout;
 	uint16_t hard_timeout;
 	
+	uint16_t flags;
+
 	uint64_t packet_count;
 	uint64_t byte_count;
 	
