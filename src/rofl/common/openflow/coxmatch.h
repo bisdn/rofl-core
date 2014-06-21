@@ -1174,10 +1174,10 @@ class coxmatch_ofb_arp_tha : public coxmatch {
 public:
 	coxmatch_ofb_arp_tha(
 			cmacaddr const& maddr) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_THA, maddr) {};
 	coxmatch_ofb_arp_tha(
 			cmacaddr const& maddr, cmacaddr const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA_MASK, maddr, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_THA_MASK, maddr, mask) {};
 	coxmatch_ofb_arp_tha(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
