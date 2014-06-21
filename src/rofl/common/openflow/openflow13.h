@@ -1201,7 +1201,8 @@ namespace openflow13 {
 									 when this is not an exact-match entry. */
 		uint16_t idle_timeout;    /* Number of seconds idle before expiration. */
 		uint16_t hard_timeout;    /* Number of seconds before expiration. */
-		uint8_t pad2[6];          /* Align to 64-bits. */
+		uint16_t flags;			  /* OFPFF_... */
+		uint8_t pad2[4];          /* Align to 64-bits. */
 		uint64_t cookie;          /* Opaque controller-issued identifier. */
 		uint64_t packet_count;    /* Number of packets in flow. */
 		uint64_t byte_count;      /* Number of bytes in flow. */
