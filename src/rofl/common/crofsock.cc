@@ -390,6 +390,12 @@ crofsock::send_from_queue()
 				mem = new cmemory(msg->length());
 				msg->pack(mem->somem(), mem->memlen());
 
+				rofl::logging::debug << "[rofl][sock][send-from-queue] msg:"
+						<< std::endl << *msg;
+
+				rofl::logging::debug << "[rofl][sock][send-from-queue] mem:"
+						<< std::endl << *mem;
+
 				socket->send(mem); // may throw exception
 
 				outqueues[queue_id].pop();
