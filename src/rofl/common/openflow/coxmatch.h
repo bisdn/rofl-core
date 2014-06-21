@@ -1063,13 +1063,13 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa) {};
 	coxmatch_ofb_arp_spa(
 			uint32_t spa, uint32_t mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA_MASK, spa, mask) {};
 	coxmatch_ofb_arp_spa(
 			caddress const& spa) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa) {};
 	coxmatch_ofb_arp_spa(
 			caddress const& spa, caddress const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA_MASK, spa, mask) {};
 	coxmatch_ofb_arp_spa(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1097,13 +1097,13 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa) {};
 	coxmatch_ofb_arp_tpa(
 			uint32_t tpa, uint32_t mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA_MASK, tpa, mask) {};
 	coxmatch_ofb_arp_tpa(
 			caddress const& tpa) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa) {};
 	coxmatch_ofb_arp_tpa(
 			caddress const& tpa, caddress const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA_MASK, tpa, mask) {};
 	coxmatch_ofb_arp_tpa(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1130,7 +1130,7 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr) {};
 	coxmatch_ofb_arp_sha(
 			cmacaddr const& maddr, cmacaddr const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA_MASK, maddr, mask) {};
 	coxmatch_ofb_arp_sha(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1158,7 +1158,7 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr) {};
 	coxmatch_ofb_arp_tha(
 			cmacaddr const& maddr, cmacaddr const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA_MASK, maddr, mask) {};
 	coxmatch_ofb_arp_tha(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
