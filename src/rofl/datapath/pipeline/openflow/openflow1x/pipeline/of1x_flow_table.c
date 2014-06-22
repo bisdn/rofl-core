@@ -241,8 +241,8 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_DST);  		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_SRC);  		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_DST);  		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_SRC);  		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_DST);  		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_DST);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);	
