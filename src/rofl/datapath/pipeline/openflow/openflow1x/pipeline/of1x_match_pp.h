@@ -211,12 +211,12 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    		case OF1X_MATCH_SCTP_SRC:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
 					if( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->__tern, platform_packet_get_tcp_src(pkt));
+					return __utern_compare16(it->__tern, platform_packet_get_sctp_src(pkt));
 		}
    		case OF1X_MATCH_SCTP_DST:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
 					if( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->__tern, platform_packet_get_tcp_dst(pkt));
+					return __utern_compare16(it->__tern, platform_packet_get_sctp_dst(pkt));
 		}
 	
 		//TP (OF1.0 only)
