@@ -777,7 +777,7 @@ public:
 		rofl::indent i(2);
 		os << rofl::indent(0) << "<ipv6-src value: > " << std::endl;
 		{ rofl::indent i(2); os << oxm.get_u128value(); }
-		os << rofl::indent(2) << "<ipv6-src mask: > " << std::endl;
+		os << rofl::indent(0) << "<ipv6-src mask: > " << std::endl;
 		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
