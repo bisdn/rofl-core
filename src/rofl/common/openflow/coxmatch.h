@@ -789,10 +789,10 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-src: >" << std::endl;
-		rofl::indent j(2);
-		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
-		os << rofl::indent(2) << "<mask: > " << oxm.get_u128mask();
+		os << rofl::indent(0) << "<ipv6-src value: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
+		os << rofl::indent(2) << "<ipv6-src mask: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
 };
@@ -818,10 +818,10 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-dst: >" << std::endl;
-		rofl::indent j(2);
-		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
-		os << rofl::indent(2) << "<mask: > " << oxm.get_u128mask();
+		os << rofl::indent(0) << "<ipv6-dst value: >" << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
+		os << rofl::indent(0) << "<ipv6-dst mask: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
 };
@@ -844,9 +844,8 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_target const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-nd-target: >" << std::endl;
-		rofl::indent j(2);
-		os << rofl::indent(2) << "<value: > " << oxm.get_u128value();
+		os << rofl::indent(0) << "<ipv6-nd-target value: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
 		return os;
 	};
 };
@@ -1217,9 +1216,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_flabel const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-flabel: "
-						<< (int)oxm.get_u32value() << "/" << (int)oxm.get_u32mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-flabel: 0x" << std::hex
+						<< (int)oxm.get_u32value() << "/0x" << (int)oxm.get_u32mask()
+						<< std::dec << " >" << std::endl;
 		return os;
 	};
 };
