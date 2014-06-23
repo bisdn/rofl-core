@@ -399,11 +399,11 @@ cofactions::count_action_output(
 
 
 std::list<uint32_t>
-cofactions::actions_output_ports()
+cofactions::actions_output_ports() const
 {
 	std::list<uint32_t> outports;
 
-	for (std::map<unsigned int, cofaction*>::iterator
+	for (std::map<unsigned int, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		const cofaction& action = *(it->second);
 

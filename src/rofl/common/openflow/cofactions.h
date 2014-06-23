@@ -101,7 +101,7 @@ public:
 	 *
 	 */
 	std::list<uint32_t>
-	actions_output_ports();
+	actions_output_ports() const;
 
 	/**
 	 *
