@@ -147,6 +147,18 @@ public:
 	const std::map<unsigned int, cofaction*>&
 	get_actions() const { return actions; };
 
+	/**
+	 *
+	 */
+	size_t
+	size() const { return actions.size(); };
+
+	/**
+	 *
+	 */
+	bool
+	empty() const { return actions.empty(); };
+
 public:
 
 	void
