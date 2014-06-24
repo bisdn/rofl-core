@@ -480,7 +480,7 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask);
  * @ingroup core_of1x
  * @warning parameter value must be in Host Byte Order
  */
-of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value);
+of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value, uint32_t mask);
 /**
  * @brief Create an IP6_ND_TARGET match
  * @ingroup core_of1x
