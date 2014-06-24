@@ -118,6 +118,9 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 		__of1x_reset_last_packet_count_idle_timeout(&entry_to_update->timer_info);
 	}
 
+	//Update flags from the new modification flowmod
+	entry_to_update->flags = mod->flags;
+
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 

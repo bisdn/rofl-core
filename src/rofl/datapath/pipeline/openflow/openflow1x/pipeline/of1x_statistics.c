@@ -98,7 +98,7 @@ of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_
 	msg->cookie = entry->cookie;
 	msg->idle_timeout = entry->timer_info.idle_timeout;
 	msg->hard_timeout = entry->timer_info.hard_timeout;
-	msg->flags = 0; // TODO: entry->flags
+	msg->flags = entry->flags;
 	msg->byte_count = entry->stats.byte_count;
 	msg->packet_count = entry->stats.packet_count;
 
