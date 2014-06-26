@@ -82,8 +82,9 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 		}
    		case OF1X_MATCH_MPLS_BOS:{
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
-					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_MPLS_UNICAST || *ptr_ether_type == ETH_TYPE_MPLS_MULTICAST )) return false; 
-					return __utern_compare8(it->__tern, (uint8_t*)platform_packet_get_mpls_bos(pkt));
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_MPLS_UNICAST || *ptr_ether_type == ETH_TYPE_MPLS_MULTICAST )) return false;
+					uint8_t bos = platform_packet_get_mpls_bos(pkt);
+					return __utern_compare8(it->__tern, &bos);
 		}
 	
 		//ARP
