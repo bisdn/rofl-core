@@ -676,10 +676,10 @@ uint32_t __of1x_get_match_val32(const of1x_match_t* match, bool get_mask, bool r
 		case OF1X_MATCH_IPV4_SRC:
 		case OF1X_MATCH_IPV4_DST:
 		case OF1X_MATCH_GTP_TEID:
+		case OF1X_MATCH_PBB_ISID:
 			return NTOHB32(wrap->u32);
 		case OF1X_MATCH_IPV6_FLABEL:
 			return OF1X_IP6_FLABEL_VALUE(NTOHB32(wrap->u32));
-		case OF1X_MATCH_PBB_ISID:
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);
