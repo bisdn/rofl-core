@@ -210,7 +210,7 @@ void ipv6_install_flow_mod_complete(void){
 	//add IPv6 match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value128,mask128)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64, mask64)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(value128)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(value64)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(value64)) == ROFL_SUCCESS);
@@ -229,7 +229,7 @@ void ipv6_install_flow_mod_complete(void){
 	//add IPv6 match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(value128,mask128)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_dst_match(value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_flabel_match(value64,mask64)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_target_match(value128)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_sll_match(value64)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_nd_tll_match(value64)) == ROFL_SUCCESS);

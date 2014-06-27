@@ -645,7 +645,7 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask){
 
 	return match;
 }
-of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value){
+of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 
 	if(unlikely(match == NULL))
@@ -653,9 +653,10 @@ of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value){
 	
 	// Align to pipeline convention (NBO, lower memory address)
 	value = HTONB32(OF1X_IP6_FLABEL_ALIGN(value));
+	mask = HTONB32(OF1X_IP6_FLABEL_ALIGN(mask));
 
 	match->type = OF1X_MATCH_IPV6_FLABEL;
-	match->__tern = __init_utern32(value&OF1X_20_BITS_IPV6_FLABEL_MASK,OF1X_20_BITS_IPV6_FLABEL_MASK); // ensure 20 bits. No wildcard
+	match->__tern = __init_utern32(value&OF1X_20_BITS_IPV6_FLABEL_MASK,mask&OF1X_20_BITS_IPV6_FLABEL_MASK); // ensure 20 bits. 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
