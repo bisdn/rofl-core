@@ -636,6 +636,9 @@ public:
 	void set_ipv6_flabel(uint32_t flabel) {
 		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel));
 	};
+	void set_ipv6_flabel(uint32_t flabel, uint32_t mask) {
+		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel, mask));
+	};
 	void set_icmpv6_type(uint8_t type) {
 		matches.add_match(coxmatch_ofb_icmpv6_type(type));
 	};
