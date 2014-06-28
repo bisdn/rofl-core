@@ -845,6 +845,60 @@ void platform_packet_pop_gtp(datapacket_t* pkt);
 void platform_packet_push_gtp(datapacket_t* pkt);
 
 
+
+/////////////
+// CAPWAP //
+///////////
+/**
+* @ingroup platform_packet
+* Get the CAPWAP wbid
+* @return value if existing, 0x0 otherwise.
+*/
+uint8_t* platform_packet_get_capwap_wbid(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the CAPWAP rid
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_capwap_rid(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the CAPWAP flags
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint16_t* platform_packet_get_capwap_flags(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP wbid
+*/
+void platform_packet_set_capwap_wbid(datapacket_t* pkt, uint8_t wbid);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP rid
+*/
+void platform_packet_set_capwap_rid(datapacket_t* pkt, uint8_t rid);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP flags
+* @warning flags must be in normal NBO endianness
+*/
+void platform_packet_set_capwap_flags(datapacket_t* pkt, uint16_t flags);
+
+/**
+* @ingroup platform_packet
+* Pop the CAPWAP frame
+*/
+void platform_packet_pop_capwap(datapacket_t* pkt);
+/**
+* Push a new CAPWAP frame
+*/
+void platform_packet_push_capwap(datapacket_t* pkt);
+
+
+
 //C++ extern C
 ROFL_END_DECLS
 

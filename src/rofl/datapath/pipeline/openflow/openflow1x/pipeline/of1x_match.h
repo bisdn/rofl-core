@@ -119,6 +119,11 @@ typedef enum{
 	OF1X_MATCH_GTP_MSG_TYPE,	/* GTP message type */
 	OF1X_MATCH_GTP_TEID,		/* GTP teid */
 
+	/* CAPWAP related extensions */
+	OF1X_MATCH_CAPWAP_WBID,		/* CAPWAP WBID */
+	OF1X_MATCH_CAPWAP_RID,		/* CAPWAP RID */
+	OF1X_MATCH_CAPWAP_FLAGS,	/* CAPWAP FLAGS */
+
 	/* max value */
 	OF1X_MATCH_MAX,
 }of1x_match_type_t;
@@ -336,6 +341,26 @@ of1x_match_t* of1x_init_gtp_msg_type_match(uint8_t value);
 * @warning parameters value and mask be in Host Byte Order
 */
 of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask);
+
+//CAPWAP
+/**
+* @brief Create a CAPWAP_WBID match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_wbid_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a CAPWAP_RID match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_rid_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a CAPWAP_FLAGS match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_flags_match(uint16_t value, uint16_t mask);
 
 //NW
 /**

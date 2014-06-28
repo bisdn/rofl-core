@@ -1209,6 +1209,77 @@ of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask){
 
 	return match;
 }
+//CAPWAP
+of1x_match_t* of1x_init_capwap_wbid_match(uint8_t value, uint8_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_CAPWAP_WBID;
+	match->__tern = __init_utern8(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_1_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_capwap_rid_match(uint8_t value, uint8_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_CAPWAP_RID;
+	match->__tern = __init_utern8(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_1_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_capwap_flags_match(uint16_t value, uint16_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
+	mask = HTONB16(mask);
+
+	match->type = OF1X_MATCH_CAPWAP_FLAGS;
+	match->__tern = __init_utern16(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_2_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
 
 //Add more here...
 
@@ -1565,6 +1636,14 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 			case OF1X_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_MSG_TYPE:%u], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break;
 			case OF1X_MATCH_GTP_TEID:  ROFL_PIPELINE_INFO_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",__of1x_get_match_val32(it, false, raw_nbo),__of1x_get_match_val32(it, true, raw_nbo));
+				break;
+
+			/* CAPWAP related extensions */
+			case OF1X_MATCH_CAPWAP_WBID:  ROFL_PIPELINE_INFO_NO_PREFIX("[CAPWAP_WBID:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_CAPWAP_RID:  ROFL_PIPELINE_INFO_NO_PREFIX("[CAPWAP_RID:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_CAPWAP_FLAGS:  ROFL_PIPELINE_INFO_NO_PREFIX("[CAPWAP_FLAGS:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break;
 
 			case OF1X_MATCH_MAX: assert(0);

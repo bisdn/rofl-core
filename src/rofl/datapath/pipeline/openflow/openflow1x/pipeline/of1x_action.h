@@ -195,7 +195,11 @@ typedef enum{
 	OF1X_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
     
 	OF1X_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
-	OF1X_AT_SET_FIELD_GTP_TEID,		/* GTP TEID */
+	OF1X_AT_SET_FIELD_GTP_TEID,			/* GTP TEID */
+
+	OF1X_AT_SET_FIELD_CAPWAP_WBID,		/* CAPWAP WBID */
+	OF1X_AT_SET_FIELD_CAPWAP_RID,		/* CAPWAP RID */
+	OF1X_AT_SET_FIELD_CAPWAP_FLAGS,		/* CAPWAP FLAGS */
 
 	/* Add more set fields here... */
 

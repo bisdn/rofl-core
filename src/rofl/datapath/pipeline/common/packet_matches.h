@@ -124,6 +124,11 @@ typedef struct packet_matches{
 	uint8_t __gtp_msg_type;		/* GTP message type */
 	uint32_t __gtp_teid;		/* GTP teid */
 
+	//CAPWAP related extensions
+	uint8_t __capwap_wbid;		/* CAPWAP WBID */
+	uint8_t __capwap_rid;		/* CAPWAP RID */
+	uint16_t __capwap_flags;	/* CAPWAP FLAGS */
+
 }packet_matches_t;
 
 
@@ -572,6 +577,32 @@ uint8_t packet_matches_get_gtp_msg_type_value(packet_matches_t *const pkt_matche
 static inline
 uint32_t packet_matches_get_gtp_teid_value(packet_matches_t *const pkt_matches){
 	return NTOHB32(pkt_matches->__gtp_teid);
+};
+
+//CAPWAP
+/**
+* @brief Get the packet match CAPWAP_WBID value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint8_t packet_matches_get_capwap_wbid_value(packet_matches_t *const pkt_matches){
+	return pkt_matches->__capwap_wbid;
+};
+/**
+* @brief Get the packet match CAPWAP_RID value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint8_t packet_matches_get_capwap_rid_value(packet_matches_t *const pkt_matches){
+	return pkt_matches->__capwap_rid;
+};
+/**
+* @brief Get the packet match CAPWAP_FLAGS value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint16_t packet_matches_get_capwap_flags_value(packet_matches_t *const pkt_matches){
+	return NTOHB16(pkt_matches->__capwap_flags);
 };
 
 //C++ extern C

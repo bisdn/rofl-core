@@ -206,6 +206,11 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
 		case OF1X_AT_POP_MPLS:
 			field.u16 = HTONB16(field.u16);
@@ -275,6 +280,8 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
 			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
@@ -809,6 +816,13 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_POP_GTP:ROFL_PIPELINE_INFO_NO_PREFIX("POP_GTP");
 			break;
 		case OF1X_AT_PUSH_GTP:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_GTP");
+			break;
+
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_CAPWAP_WBID: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_CAPWAP_RID: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:ROFL_PIPELINE_INFO_NO_PREFIX("SET_CAPWAP_FLAGS: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
 
 		case OF1X_AT_GROUP:ROFL_PIPELINE_INFO_NO_PREFIX("GROUP:%u", __of1x_get_packet_action_field32(action, raw_nbo));

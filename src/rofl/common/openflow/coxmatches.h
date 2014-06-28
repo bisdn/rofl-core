@@ -26,6 +26,8 @@
 #include "rofl/common/openflow/coxmatch.h"
 #include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 #include "rofl/common/openflow/experimental/matches/gtp_matches.h"
+#include "rofl/common/openflow/experimental/matches/capwap_matches.h"
+#include "rofl/common/openflow/experimental/matches/ieee80211_matches.h"
 
 namespace rofl {
 namespace openflow {
