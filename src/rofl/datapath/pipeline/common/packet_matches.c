@@ -114,7 +114,10 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__gtp_msg_type = ( (ptr8=platform_packet_get_gtp_msg_type(pkt))==NULL ? 0 : *ptr8);
 	m->__gtp_teid = ( (ptr32=platform_packet_get_gtp_teid(pkt))==NULL ? 0 : *ptr32);
 
-
+	//CAPWAP related extensions
+	m->__capwap_wbid = ( (ptr8=platform_packet_get_capwap_wbid(pkt))==NULL ? 0 : *ptr8);
+	m->__capwap_rid = ( (ptr8=platform_packet_get_capwap_rid(pkt))==NULL ? 0 : *ptr8);
+	m->__capwap_flags = ( (ptr16=platform_packet_get_capwap_flags(pkt))==NULL ? 0 : *ptr16);
 }
 
 
