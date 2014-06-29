@@ -9,10 +9,61 @@
 
 using namespace rofl::openflow::experimental::gtp;
 
+
+
+
+size_t
+cofaction_experimenter_gtp::length() const
+{
+	return sizeof(struct ofp_action_exp_gtp_hdr);
+}
+
+
+
+void
+cofaction_experimenter_gtp::pack(uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_experimenter_gtp::length())
+		throw eInval();
+
+	struct ofp_action_exp_gtp_hdr* hdr = (struct ofp_action_exp_gtp_hdr*)buf;
+
+	hdr->exptype = htobe16(exptype);
+	hdr->explen  = htobe16(length());
+}
+
+
+
+void
+cofaction_experimenter_gtp::unpack(uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < cofaction_experimenter_gtp::length())
+		throw eInval();
+
+	struct ofp_action_exp_gtp_hdr* hdr = (struct ofp_action_exp_gtp_hdr*)buf;
+
+	uint16_t explen = be16toh(hdr->explen);
+
+	if (explen < cofaction_experimenter_gtp::length())
+		throw eInval();
+
+	exptype	= be16toh(hdr->exptype);
+}
+
+
+
+
+
 size_t
 cofaction_push_gtp::length() const
 {
-	return sizeof(struct ofp_action_push_gtp_body);
+	return sizeof(struct ofp_action_exp_gtp_push_gtp);
 }
 
 
@@ -26,10 +77,10 @@ cofaction_push_gtp::pack(uint8_t* buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
-	struct ofp_action_push_gtp_body* hdr = (struct ofp_action_push_gtp_body*)buf;
+	cofaction_experimenter_gtp::pack(buf, buflen);
 
-	hdr->exptype 	= htobe16(exptype);
-	hdr->explen 	= htobe16(length());
+	struct ofp_action_exp_gtp_push_gtp* hdr = (struct ofp_action_exp_gtp_push_gtp*)buf;
+
 	hdr->ethertype 	= htobe16(ethertype);
 }
 
@@ -44,23 +95,25 @@ cofaction_push_gtp::unpack(uint8_t* buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
-	struct ofp_action_push_gtp_body* hdr = (struct ofp_action_push_gtp_body*)buf;
+	struct ofp_action_exp_gtp_push_gtp* hdr = (struct ofp_action_exp_gtp_push_gtp*)buf;
+
+	cofaction_experimenter_gtp::unpack(buf, buflen);
 
 	uint16_t explen = be16toh(hdr->explen);
 
 	if (explen < length())
 		throw eInval();
 
-	exptype		= be16toh(hdr->exptype);
 	ethertype	= be16toh(hdr->ethertype);
 }
+
 
 
 
 size_t
 cofaction_pop_gtp::length() const
 {
-	return sizeof(struct ofp_action_pop_gtp_body);
+	return sizeof(struct ofp_action_exp_gtp_pop_gtp);
 }
 
 
@@ -74,10 +127,10 @@ cofaction_pop_gtp::pack(uint8_t* buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
-	struct ofp_action_pop_gtp_body* hdr = (struct ofp_action_pop_gtp_body*)buf;
+	cofaction_experimenter_gtp::pack(buf, buflen);
 
-	hdr->exptype 	= htobe16(exptype);
-	hdr->explen 	= htobe16(length());
+	struct ofp_action_exp_gtp_pop_gtp* hdr = (struct ofp_action_exp_gtp_pop_gtp*)buf;
+
 	hdr->ethertype 	= htobe16(ethertype);
 }
 
@@ -92,13 +145,16 @@ cofaction_pop_gtp::unpack(uint8_t* buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
-	struct ofp_action_pop_gtp_body* hdr = (struct ofp_action_pop_gtp_body*)buf;
+	struct ofp_action_exp_gtp_pop_gtp* hdr = (struct ofp_action_exp_gtp_pop_gtp*)buf;
+
+	cofaction_experimenter_gtp::unpack(buf, buflen);
 
 	uint16_t explen = be16toh(hdr->explen);
 
 	if (explen < length())
 		throw eInval();
 
-	exptype		= be16toh(hdr->exptype);
 	ethertype	= be16toh(hdr->ethertype);
 }
+
+
