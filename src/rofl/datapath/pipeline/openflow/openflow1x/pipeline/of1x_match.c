@@ -1280,6 +1280,177 @@ of1x_match_t* of1x_init_capwap_flags_match(uint16_t value, uint16_t mask){
 
 	return match;
 }
+//WLAN
+of1x_match_t* of1x_init_wlan_fc_match(uint16_t value, uint16_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB16(value);
+	mask = HTONB16(mask);
+
+	match->type = OF1X_MATCH_WLAN_FC;
+	match->__tern = __init_utern16(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_2_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_type_match(uint8_t value, uint8_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_WLAN_TYPE;
+	match->__tern = __init_utern8(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_1_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_subtype_match(uint8_t value, uint8_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_WLAN_SUBTYPE;
+	match->__tern = __init_utern8(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_1_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_direction_match(uint8_t value, uint8_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_WLAN_DIRECTION;
+	match->__tern = __init_utern8(value, mask);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_1_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_address_1_match(uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
+
+	match->type = OF1X_MATCH_WLAN_ADDRESS_1;
+	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_address_2_match(uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
+
+	match->type = OF1X_MATCH_WLAN_ADDRESS_2;
+	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_wlan_address_3_match(uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB64(OF1X_MAC_ALIGN(value));
+	mask = HTONB64(OF1X_MAC_ALIGN(mask));
+
+	match->type = OF1X_MATCH_WLAN_ADDRESS_3;
+	match->__tern = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
 
 //Add more here...
 
@@ -1644,6 +1815,22 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 			case OF1X_MATCH_CAPWAP_RID:  ROFL_PIPELINE_INFO_NO_PREFIX("[CAPWAP_RID:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
 				break;
 			case OF1X_MATCH_CAPWAP_FLAGS:  ROFL_PIPELINE_INFO_NO_PREFIX("[CAPWAP_FLAGS:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break;
+
+			/* WLAN related extensions */
+			case OF1X_MATCH_WLAN_FC:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_FC:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_TYPE:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_SUBTYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_SUBTYPE:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_DIRECTION:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_DIRECTION:0x%x], ",__of1x_get_match_val8(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_ADDRESS_1:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_ADDRESS_1:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_ADDRESS_2:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_ADDRESS_2:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_WLAN_ADDRESS_3:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_ADDRESS_3:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break;
 
 			case OF1X_MATCH_MAX: assert(0);

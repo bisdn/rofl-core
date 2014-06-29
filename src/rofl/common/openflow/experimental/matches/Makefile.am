@@ -8,8 +8,8 @@ libopenflow_experimental_matches_la_SOURCES = \
 	pppoe_matches.cc \
 	capwap_matches.h \
 	capwap_matches.cc \
-	ieee80211_matches.h \
-	ieee80211_matches.cc
+	wlan_matches.h \
+	wlan_matches.cc
 
 
 library_includedir=$(includedir)/rofl/common/openflow/experimental/matches
@@ -17,4 +17,4 @@ library_include_HEADERS = \
 	gtp_matches.h \
 	pppoe_matches.h \
 	capwap_matches.h \
-	ieee80211_matches.h
+	wlan_matches.h

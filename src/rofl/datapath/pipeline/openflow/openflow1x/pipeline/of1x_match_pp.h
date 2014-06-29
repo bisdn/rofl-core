@@ -376,6 +376,35 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_CAPWAPC))) return false;
 				return __utern_compare16(it->__tern, platform_packet_get_capwap_flags(pkt));
    		}
+   		//WLAN
+   		case OF1X_MATCH_WLAN_FC:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare16(it->__tern, platform_packet_get_wlan_fc(pkt));
+		}
+   		case OF1X_MATCH_WLAN_TYPE:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_type(pkt));
+		}
+   		case OF1X_MATCH_WLAN_SUBTYPE:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_subtype(pkt));
+		}
+   		case OF1X_MATCH_WLAN_DIRECTION:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_direction(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_1:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_1(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_2:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_2(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_3:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
+		}
    		case OF1X_MATCH_MAX:
 				break;
 		//Add more here ...

@@ -129,6 +129,15 @@ typedef struct packet_matches{
 	uint8_t __capwap_rid;		/* CAPWAP RID */
 	uint16_t __capwap_flags;	/* CAPWAP FLAGS */
 
+	//WLAN related extensions
+	uint16_t __wlan_fc;			/* WLAN fc */
+	uint8_t __wlan_type;		/* WLAN type */
+	uint8_t __wlan_subtype;		/* WLAN subtype */
+	uint8_t __wlan_direction;	/* WLAN direction */
+	uint64_t __wlan_address_1;	/* WLAN address 1 */
+	uint64_t __wlan_address_2;	/* WLAN address 2 */
+	uint64_t __wlan_address_3;	/* WLAN address 3 */
+
 }packet_matches_t;
 
 
@@ -603,6 +612,64 @@ uint8_t packet_matches_get_capwap_rid_value(packet_matches_t *const pkt_matches)
 static inline
 uint16_t packet_matches_get_capwap_flags_value(packet_matches_t *const pkt_matches){
 	return NTOHB16(pkt_matches->__capwap_flags);
+};
+
+//WLAN
+/**
+* @brief Get the packet match WLAN_FC value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint16_t packet_matches_get_wlan_fc_value(packet_matches_t *const pkt_matches){
+	return NTOHB16(pkt_matches->__wlan_fc);
+};
+/**
+* @brief Get the packet match WLAN_TYPE value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint8_t packet_matches_get_wlan_type_value(packet_matches_t *const pkt_matches){
+	return pkt_matches->__wlan_type;
+};
+/**
+* @brief Get the packet match WLAN_SUBTYPE value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint8_t packet_matches_get_wlan_subtype_value(packet_matches_t *const pkt_matches){
+	return pkt_matches->__wlan_subtype;
+};
+/**
+* @brief Get the packet match WLAN_DIRECTION value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint8_t packet_matches_get_wlan_direction_value(packet_matches_t *const pkt_matches){
+	return pkt_matches->__wlan_direction;
+};
+/**
+ * @brief Get the packet match WLAN_ADDRESS_1 value in HOST BYTE ORDER
+ * @ingroup core_of1x
+ */
+static inline
+uint64_t packet_matches_get_wlan_address_1_value(packet_matches_t *const pkt_matches){
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__wlan_address_1));
+};
+/**
+ * @brief Get the packet match WLAN_ADDRESS_2 value in HOST BYTE ORDER
+ * @ingroup core_of1x
+ */
+static inline
+uint64_t packet_matches_get_wlan_address_2_value(packet_matches_t *const pkt_matches){
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__wlan_address_2));
+};
+/**
+ * @brief Get the packet match WLAN_ADDRESS_3 value in HOST BYTE ORDER
+ * @ingroup core_of1x
+ */
+static inline
+uint64_t packet_matches_get_wlan_address_3_value(packet_matches_t *const pkt_matches){
+	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__wlan_address_3));
 };
 
 //C++ extern C

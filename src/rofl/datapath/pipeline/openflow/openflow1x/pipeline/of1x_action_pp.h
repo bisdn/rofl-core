@@ -509,6 +509,34 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		//IEEE80211 WLAN
+		case OF1X_AT_SET_FIELD_WLAN_FC:
+			//Call platform
+			platform_packet_set_wlan_fc(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:
+			//Call platform
+			platform_packet_set_wlan_type(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
+			//Call platform
+			platform_packet_set_wlan_subtype(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
+			//Call platform
+			platform_packet_set_wlan_direction(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:
+			//Call platform
+			platform_packet_set_wlan_address_1(pkt, action->__field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:
+			//Call platform
+			platform_packet_set_wlan_address_2(pkt, action->__field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
+			//Call platform
+			platform_packet_set_wlan_address_3(pkt, action->__field.u64);
+			break;
 		case OF1X_AT_POP_WLAN:
 			//Call platform
 			platform_packet_pop_wlan(pkt);

@@ -124,6 +124,15 @@ typedef enum{
 	OF1X_MATCH_CAPWAP_RID,		/* CAPWAP RID */
 	OF1X_MATCH_CAPWAP_FLAGS,	/* CAPWAP FLAGS */
 
+	/* WLAN related extensions */
+	OF1X_MATCH_WLAN_FC,			/* WLAN fc */
+	OF1X_MATCH_WLAN_TYPE,		/* WLAN type */
+	OF1X_MATCH_WLAN_SUBTYPE,	/* WLAN subtype */
+	OF1X_MATCH_WLAN_DIRECTION,	/* WLAN direction */
+	OF1X_MATCH_WLAN_ADDRESS_1,	/* WLAN address 1 */
+	OF1X_MATCH_WLAN_ADDRESS_2,	/* WLAN address 2 */
+	OF1X_MATCH_WLAN_ADDRESS_3,	/* WLAN address 3 */
+
 	/* max value */
 	OF1X_MATCH_MAX,
 }of1x_match_type_t;
@@ -361,6 +370,50 @@ of1x_match_t* of1x_init_capwap_rid_match(uint8_t value, uint8_t mask);
 * @warning parameters value and mask be in Host Byte Order
 */
 of1x_match_t* of1x_init_capwap_flags_match(uint16_t value, uint16_t mask);
+
+//WLAN
+/**
+* @brief Create a WLAN_FC match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_fc_match(uint16_t value, uint16_t mask);
+/**
+* @brief Create a WLAN_TYPE match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_type_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a WLAN_SUBTYPE match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_subtype_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a WLAN_DIRECTION match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_direction_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_1 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_1_match(uint64_t value, uint64_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_2 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_2_match(uint64_t value, uint64_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_3 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_3_match(uint64_t value, uint64_t mask);
 
 //NW
 /**

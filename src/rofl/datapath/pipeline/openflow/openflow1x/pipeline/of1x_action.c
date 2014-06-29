@@ -89,6 +89,15 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		/* Extensions */
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
+			field.u64 = HTONB64(OF1X_MAC_ALIGN(field.u64));
+			action->__field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		/* Extensions end */
 	
 		//4 byte values
 		case OF1X_AT_SET_FIELD_NW_DST:
@@ -211,6 +220,11 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		case OF1X_AT_SET_FIELD_WLAN_FC:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
 		case OF1X_AT_POP_MPLS:
 			field.u16 = HTONB16(field.u16);
@@ -310,11 +324,19 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_IP_PROTO:
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
+			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_10;
+			break;
+		/* Extensions */
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
 		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
+		/* Extensions end */
 			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 		//6 bit values
@@ -858,6 +880,20 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_PUSH_CAPWAP:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_CAPWAP");
 			break;
 
+		case OF1X_AT_SET_FIELD_WLAN_FC:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_FC: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_TYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_SUBTYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_DIRECTION: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_ADDRESS_1: 0x%x", __of1x_get_packet_action_field64(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_ADDRESS_2: 0x%x", __of1x_get_packet_action_field64(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:ROFL_PIPELINE_INFO_NO_PREFIX("SET_WLAN_ADDRESS_3: 0x%x", __of1x_get_packet_action_field64(action, raw_nbo));
+			break;
 		case OF1X_AT_POP_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("POP_WLAN");
 			break;
 		case OF1X_AT_PUSH_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_WLAN");

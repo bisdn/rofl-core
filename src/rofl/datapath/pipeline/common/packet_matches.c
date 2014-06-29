@@ -118,6 +118,15 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__capwap_wbid = ( (ptr8=platform_packet_get_capwap_wbid(pkt))==NULL ? 0 : *ptr8);
 	m->__capwap_rid = ( (ptr8=platform_packet_get_capwap_rid(pkt))==NULL ? 0 : *ptr8);
 	m->__capwap_flags = ( (ptr16=platform_packet_get_capwap_flags(pkt))==NULL ? 0 : *ptr16);
+
+	//WLAN related extensions
+	m->__wlan_fc = ( (ptr16=platform_packet_get_wlan_fc(pkt))==NULL ? 0 : *ptr16);
+	m->__wlan_type = ( (ptr8=platform_packet_get_wlan_type(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_subtype = ( (ptr8=platform_packet_get_wlan_subtype(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_direction = ( (ptr8=platform_packet_get_wlan_direction(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_address_1 = ( (ptr64=platform_packet_get_wlan_address_1(pkt))==NULL ? 0 : *ptr64);
+	m->__wlan_address_2 = ( (ptr64=platform_packet_get_wlan_address_2(pkt))==NULL ? 0 : *ptr64);
+	m->__wlan_address_3 = ( (ptr64=platform_packet_get_wlan_address_3(pkt))==NULL ? 0 : *ptr64);
 }
 
 

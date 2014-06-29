@@ -902,6 +902,95 @@ void platform_packet_push_capwap(datapacket_t* pkt);
 ///////////
 // WLAN //
 /////////
+/**
+* @ingroup platform_packet
+* Get the WLAN fc
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint16_t* platform_packet_get_wlan_fc(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN type
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_type(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN subtype
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_subtype(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN direction
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_direction(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 1 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_1(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 2 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_2(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 3 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_3(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN fc
+* @warning flags must be in normal NBO endianness
+*/
+void platform_packet_set_wlan_fc(datapacket_t* pkt, uint16_t fc);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN type
+*/
+void platform_packet_set_wlan_type(datapacket_t* pkt, uint8_t type);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN subtype
+*/
+void platform_packet_set_wlan_subtype(datapacket_t* pkt, uint8_t subtype);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN direction
+*/
+void platform_packet_set_wlan_direction(datapacket_t* pkt, uint8_t direction);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 1 header field
+* @warning address_1 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_1(datapacket_t* pkt, uint64_t address_1);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 2 header field
+* @warning address_2 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_2(datapacket_t* pkt, uint64_t address_2);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 3 header field
+* @warning address_3 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_3(datapacket_t* pkt, uint64_t address_3);
 
 /**
 * @ingroup platform_packet
