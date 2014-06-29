@@ -499,6 +499,14 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_capwap_flags(pkt, action->__field.u16);
 			break;
+		case OF1X_AT_POP_CAPWAP:
+			//Call platform
+			platform_packet_pop_capwap(pkt);
+			break;
+		case OF1X_AT_PUSH_CAPWAP:
+			//Call platform
+			platform_packet_push_capwap(pkt);
+			break;
 
 		//PBB
 		case OF1X_AT_SET_FIELD_PBB_ISID:

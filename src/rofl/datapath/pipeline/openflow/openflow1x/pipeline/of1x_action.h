@@ -99,6 +99,7 @@ typedef enum{
 	OF1X_AT_POP_VLAN,			/* Pop the outer VLAN tag */
 	OF1X_AT_POP_MPLS,			/* Pop the outer MPLS tag */
 	OF1X_AT_POP_GTP,			/* Pop the GTP header */
+	OF1X_AT_POP_CAPWAP,			/* Pop the CAPWAP header */
 	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
 	OF1X_AT_POP_PBB,			/* Pop the PBB header */
 
@@ -107,6 +108,7 @@ typedef enum{
 	*/
 	OF1X_AT_PUSH_PBB,			/* Push a new PBB header */
 	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE header */
+	OF1X_AT_PUSH_CAPWAP,		/* Push a new CAPWAP header */
 	OF1X_AT_PUSH_GTP,			/* Push a new GTP header */
 	OF1X_AT_PUSH_MPLS,			/* Push a new MPLS tag */
 	OF1X_AT_PUSH_VLAN,			/* Push a new VLAN tag */

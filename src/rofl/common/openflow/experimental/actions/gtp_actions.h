@@ -5,14 +5,14 @@
  *      Author: andreas
  */
 
+#ifndef GTP_ACTIONS_H_
+#define GTP_ACTIONS_H_
+
 #include <inttypes.h>
 #include <iostream>
 
 #include <rofl/common/logging.h>
 #include <rofl/common/openflow/cofaction.h>
-
-#ifndef GTP_ACTIONS_H_
-#define GTP_ACTIONS_H_
 
 namespace rofl {
 namespace openflow {
@@ -82,7 +82,7 @@ public:
 		if (this == &action)
 			return *this;
 		cofaction_experimenter::operator= (action);
-		exptype 	= action.exptype;
+		exptype = action.exptype;
 		return *this;
 	};
 
