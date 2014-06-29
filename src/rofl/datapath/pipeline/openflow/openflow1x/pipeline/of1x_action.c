@@ -227,7 +227,38 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
-
+		/* Extensions */
+		case OF1X_AT_POP_WLAN:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_POP_GTP:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_POP_CAPWAP:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_GTP:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_CAPWAP:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_WLAN:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		/* Extensions end */
 		case OF1X_AT_PUSH_PPPOE:
 			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
@@ -334,10 +365,6 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_COPY_TTL_OUT:
 		case OF1X_AT_DEC_NW_TTL:
 		case OF1X_AT_DEC_MPLS_TTL:
-		case OF1X_AT_POP_GTP:
-		case OF1X_AT_PUSH_GTP:
-		case OF1X_AT_POP_CAPWAP:
-		case OF1X_AT_PUSH_CAPWAP:
 		case OF1X_AT_EXPERIMENTER:
 			action->__field.u64 = 0x0;
 			action->ver_req.min_ver = OF_VERSION_12;
@@ -829,6 +856,11 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_POP_CAPWAP:ROFL_PIPELINE_INFO_NO_PREFIX("POP_CAPWAP");
 			break;
 		case OF1X_AT_PUSH_CAPWAP:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_CAPWAP");
+			break;
+
+		case OF1X_AT_POP_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("POP_WLAN");
+			break;
+		case OF1X_AT_PUSH_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_WLAN");
 			break;
 
 		case OF1X_AT_GROUP:ROFL_PIPELINE_INFO_NO_PREFIX("GROUP:%u", __of1x_get_packet_action_field32(action, raw_nbo));

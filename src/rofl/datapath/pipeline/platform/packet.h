@@ -899,6 +899,22 @@ void platform_packet_push_capwap(datapacket_t* pkt);
 
 
 
+///////////
+// WLAN //
+/////////
+
+/**
+* @ingroup platform_packet
+* Pop the WLAN frame
+*/
+void platform_packet_pop_wlan(datapacket_t* pkt);
+/**
+* Push a new WLAN frame
+*/
+void platform_packet_push_wlan(datapacket_t* pkt);
+
+
+
 //C++ extern C
 ROFL_END_DECLS
 

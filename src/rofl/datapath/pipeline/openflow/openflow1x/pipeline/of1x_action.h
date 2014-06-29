@@ -102,10 +102,12 @@ typedef enum{
 	OF1X_AT_POP_CAPWAP,			/* Pop the CAPWAP header */
 	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
 	OF1X_AT_POP_PBB,			/* Pop the PBB header */
+	OF1X_AT_POP_WLAN,			/* Pop the WLAN header */
 
 	/*
 	* Push: first PBB, PPP, PPPoE, MPLS, VLAN
 	*/
+	OF1X_AT_PUSH_WLAN,			/* Push a new WLAN header */
 	OF1X_AT_PUSH_PBB,			/* Push a new PBB header */
 	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE header */
 	OF1X_AT_PUSH_CAPWAP,		/* Push a new CAPWAP header */

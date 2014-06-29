@@ -508,6 +508,16 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_push_capwap(pkt);
 			break;
 
+		//IEEE80211 WLAN
+		case OF1X_AT_POP_WLAN:
+			//Call platform
+			platform_packet_pop_wlan(pkt);
+			break;
+		case OF1X_AT_PUSH_WLAN:
+			//Call platform
+			platform_packet_push_wlan(pkt);
+			break;
+
 		//PBB
 		case OF1X_AT_SET_FIELD_PBB_ISID:
 			//Call platform
