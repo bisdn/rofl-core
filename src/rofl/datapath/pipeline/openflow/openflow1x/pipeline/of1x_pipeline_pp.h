@@ -128,7 +128,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			}else if(table->default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
-				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
+				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. Generating a PACKET_IN event towards the controller\n",pkt);
 
 				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;
