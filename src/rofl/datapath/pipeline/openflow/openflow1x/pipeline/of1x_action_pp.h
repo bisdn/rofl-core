@@ -485,6 +485,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_push_gtp(pkt);
 			break;
+#ifdef EXPERIMENTAL
 
 		//CAPWAP
 		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
@@ -546,6 +547,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_push_wlan(pkt);
 			break;
 
+#endif
 		//PBB
 		case OF1X_AT_SET_FIELD_PBB_ISID:
 			//Call platform

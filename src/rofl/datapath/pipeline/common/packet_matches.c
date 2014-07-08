@@ -114,6 +114,7 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__gtp_msg_type = ( (ptr8=platform_packet_get_gtp_msg_type(pkt))==NULL ? 0 : *ptr8);
 	m->__gtp_teid = ( (ptr32=platform_packet_get_gtp_teid(pkt))==NULL ? 0 : *ptr32);
 
+#ifdef EXPERIMENTAL
 	//CAPWAP related extensions
 	m->__capwap_wbid = ( (ptr8=platform_packet_get_capwap_wbid(pkt))==NULL ? 0 : *ptr8);
 	m->__capwap_rid = ( (ptr8=platform_packet_get_capwap_rid(pkt))==NULL ? 0 : *ptr8);
@@ -127,6 +128,7 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__wlan_address_1 = ( (ptr64=platform_packet_get_wlan_address_1(pkt))==NULL ? 0 : *ptr64);
 	m->__wlan_address_2 = ( (ptr64=platform_packet_get_wlan_address_2(pkt))==NULL ? 0 : *ptr64);
 	m->__wlan_address_3 = ( (ptr64=platform_packet_get_wlan_address_3(pkt))==NULL ? 0 : *ptr64);
+#endif
 }
 
 

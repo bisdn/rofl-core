@@ -354,6 +354,8 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if ( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_GTPU))) return false;
    					return __utern_compare32(it->__tern, platform_packet_get_gtp_teid(pkt));
 		}
+
+#ifdef EXPERIMENTAL
    		//CAPWAP
    		case OF1X_MATCH_CAPWAP_WBID:{
 			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
@@ -405,6 +407,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    			// TODO: check prerequisites for WLAN frame
 			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
 		}
+#endif
    		case OF1X_MATCH_MAX:
 				break;
 		//Add more here ...
