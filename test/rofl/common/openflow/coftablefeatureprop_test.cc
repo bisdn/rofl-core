@@ -317,15 +317,15 @@ coftablefeaturepropTest::testOxmClass()
 {
 	rofl::openflow::coftable_feature_prop_oxm prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_MATCH);
 
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ARP_OP);
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV4_DST);
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV6_ND_SLL);
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ETH_DST_MASK);
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK);
-	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_MPLS_TC);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ARP_OP);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV4_DST);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV6_ND_SLL);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ETH_DST_MASK);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK);
+	prop.set_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_MPLS_TC);
 
-	prop.get_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000a3a4b1b2b3b4);
-	prop.get_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000c3c4d1d2d3d4);
+	prop.set_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000a3a4b1b2b3b4);
+	prop.set_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000c3c4d1d2d3d4);
 
 	rofl::cmemory mem(prop.length());
 
