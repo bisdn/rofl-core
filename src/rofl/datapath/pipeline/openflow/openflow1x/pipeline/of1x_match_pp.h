@@ -407,6 +407,19 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    			// TODO: check prerequisites for WLAN frame
 			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
 		}
+#else
+   		case OF1X_MATCH_CAPWAP_WBID:
+   		case OF1X_MATCH_CAPWAP_RID:
+   		case OF1X_MATCH_CAPWAP_FLAGS:
+   		case OF1X_MATCH_WLAN_FC:
+   		case OF1X_MATCH_WLAN_TYPE:
+   		case OF1X_MATCH_WLAN_SUBTYPE:
+   		case OF1X_MATCH_WLAN_DIRECTION:
+   		case OF1X_MATCH_WLAN_ADDRESS_1:
+   		case OF1X_MATCH_WLAN_ADDRESS_2:
+   		case OF1X_MATCH_WLAN_ADDRESS_3:
+   			break;
+
 #endif
    		case OF1X_MATCH_MAX:
 				break;

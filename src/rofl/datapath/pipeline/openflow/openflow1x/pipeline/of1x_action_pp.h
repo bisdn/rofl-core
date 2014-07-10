@@ -547,6 +547,22 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_push_wlan(pkt);
 			break;
 
+#else
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+		case OF1X_AT_POP_CAPWAP:
+		case OF1X_AT_PUSH_CAPWAP:
+		case OF1X_AT_SET_FIELD_WLAN_FC:
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
+		case OF1X_AT_POP_WLAN:
+		case OF1X_AT_PUSH_WLAN:
+			break;
 #endif
 		//PBB
 		case OF1X_AT_SET_FIELD_PBB_ISID:
