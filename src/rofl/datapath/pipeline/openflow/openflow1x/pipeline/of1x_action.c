@@ -313,7 +313,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_NW_PROTO:
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
-			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
+			action->__field.u8 = field.u8&OF1X_1_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
@@ -324,7 +324,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_IP_PROTO:
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
-			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
+			action->__field.u8 = field.u8&OF1X_1_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		/* Extensions */
@@ -335,7 +335,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
 		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
 		/* Extensions end */
-			action->__field.u8 = field.u8&OF1X_2_BYTE_MASK;
+			action->__field.u8 = field.u8&OF1X_1_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
