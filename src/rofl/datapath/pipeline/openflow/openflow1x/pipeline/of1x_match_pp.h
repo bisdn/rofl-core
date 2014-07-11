@@ -308,6 +308,16 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					return __utern_compare8(it->__tern, platform_packet_get_icmpv6_code(pkt));
 		}
 			
+		//PBB
+   		case OF1X_MATCH_PBB_ISID:{
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PBB)) return false;
+					return __utern_compare32(it->__tern, platform_packet_get_pbb_isid(pkt));
+		}
+	 	//TUNNEL id
+   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->__tern, platform_packet_get_tunnel_id(pkt));
+
+#ifdef EXPERIMENTAL
 		//PPPoE related extensions
    		case OF1X_MATCH_PPPOE_CODE:{
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
@@ -331,16 +341,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION )) return false; 
 					return __utern_compare16(it->__tern, platform_packet_get_ppp_proto(pkt));
 		}
-	
-		//PBB
-   		case OF1X_MATCH_PBB_ISID:{
-					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
-					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PBB)) return false;	
-					return __utern_compare32(it->__tern, platform_packet_get_pbb_isid(pkt));
-		}
-	 	//TUNNEL id
-   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->__tern, platform_packet_get_tunnel_id(pkt));
- 
+
 		//GTP
    		case OF1X_MATCH_GTP_MSG_TYPE:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
@@ -355,7 +356,6 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    					return __utern_compare32(it->__tern, platform_packet_get_gtp_teid(pkt));
 		}
 
-#ifdef EXPERIMENTAL
    		//CAPWAP
    		case OF1X_MATCH_CAPWAP_WBID:{
 			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
@@ -408,6 +408,12 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
 		}
 #else
+   		case OF1X_MATCH_PPPOE_CODE:
+   		case OF1X_MATCH_PPPOE_TYPE:
+   		case OF1X_MATCH_PPPOE_SID:
+   		case OF1X_MATCH_PPP_PROT:
+   		case OF1X_MATCH_GTP_MSG_TYPE:
+   		case OF1X_MATCH_GTP_TEID:
    		case OF1X_MATCH_CAPWAP_WBID:
    		case OF1X_MATCH_CAPWAP_RID:
    		case OF1X_MATCH_CAPWAP_FLAGS:

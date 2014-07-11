@@ -409,26 +409,6 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 
-		//PPPoE
-		case OF1X_AT_SET_FIELD_PPPOE_CODE:
-			//Call platform
-			platform_packet_set_pppoe_code(pkt, action->__field.u8);
-			break;
-		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
-			//Call platform
-			platform_packet_set_pppoe_type(pkt, action->__field.u8);
-			break;
-		case OF1X_AT_SET_FIELD_PPPOE_SID:
-			//Call platform
-			platform_packet_set_pppoe_sid(pkt, action->__field.u16);
-			break;
-
-		//PPP
-		case OF1X_AT_SET_FIELD_PPP_PROT:
-			//Call platform
-			platform_packet_set_ppp_proto(pkt, action->__field.u16);
-			break;
-			
 		//IPv6
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 			//Call platform
@@ -468,6 +448,29 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_icmpv6_code(pkt, action->__field.u8);
 			break;
+
+#ifdef EXPERIMENTAL
+
+		//PPPoE
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+			//Call platform
+			platform_packet_set_pppoe_code(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+			//Call platform
+			platform_packet_set_pppoe_type(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+			//Call platform
+			platform_packet_set_pppoe_sid(pkt, action->__field.u16);
+			break;
+
+		//PPP
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+			//Call platform
+			platform_packet_set_ppp_proto(pkt, action->__field.u16);
+			break;
+
 		//GTP
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 			//Call platform
@@ -485,7 +488,6 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_push_gtp(pkt);
 			break;
-#ifdef EXPERIMENTAL
 
 		//CAPWAP
 		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
@@ -548,6 +550,14 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 #else
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_FIELD_GTP_TEID:
+		case OF1X_AT_POP_GTP:
+		case OF1X_AT_PUSH_GTP:
 		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
 		case OF1X_AT_SET_FIELD_CAPWAP_RID:
 		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
