@@ -169,16 +169,8 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_pop_mpls(pkt, action->__field.u16);
 			break;
-		case OF1X_AT_POP_PPPOE: 
-			//Call platform
-			platform_packet_pop_pppoe(pkt, action->__field.u16);
-			break;
 	
 		//PUSH
-		case OF1X_AT_PUSH_PPPOE:
-			//Call platform
-			platform_packet_push_pppoe(pkt, action->__field.u16);
-			break;
 		case OF1X_AT_PUSH_MPLS:
 			//Call platform
 			platform_packet_push_mpls(pkt, action->__field.u16);
@@ -451,6 +443,15 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 #ifdef EXPERIMENTAL
 
+		case OF1X_AT_POP_PPPOE:
+			//Call platform
+			platform_packet_pop_pppoe(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_PUSH_PPPOE:
+			//Call platform
+			platform_packet_push_pppoe(pkt, action->__field.u16);
+			break;
+
 		//PPPoE
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:
 			//Call platform
@@ -550,6 +551,8 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 #else
+		case OF1X_AT_POP_PPPOE:
+		case OF1X_AT_PUSH_PPPOE:
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:
 		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
 		case OF1X_AT_SET_FIELD_PPPOE_SID:

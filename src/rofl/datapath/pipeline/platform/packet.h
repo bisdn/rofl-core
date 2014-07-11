@@ -733,7 +733,7 @@ void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint8_t icmpv6_type);
 */
 void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint8_t icmpv6_code);
 
-
+#ifdef EXPERIMENTAL
 /*******************/
 /*** Extensions ***/
 /*****************/
@@ -1002,6 +1002,9 @@ void platform_packet_pop_wlan(datapacket_t* pkt);
 */
 void platform_packet_push_wlan(datapacket_t* pkt);
 
+
+/* end of extensions */
+#endif
 
 
 //C++ extern C
