@@ -221,13 +221,21 @@ public:
 	 *
 	 */
 	uint16_t
-	get_ether_type() const { return be16toh(((struct ofp_exp_gtp_action_body_push_gtp*)rofl::cmemory::somem())->ethertype); };
+	get_ether_type() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_gtp_action_body_push_gtp))
+			throw eInval();
+		return be16toh(((struct ofp_exp_gtp_action_body_push_gtp*)rofl::cmemory::somem())->ethertype);
+	};
 
 	/**
 	 *
 	 */
 	void
-	set_ether_type(uint16_t ethertype) { ((struct ofp_exp_gtp_action_body_push_gtp*)rofl::cmemory::somem())->ethertype = htobe16(ethertype); };
+	set_ether_type(uint16_t ethertype) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_gtp_action_body_push_gtp))
+			throw eInval();
+		((struct ofp_exp_gtp_action_body_push_gtp*)rofl::cmemory::somem())->ethertype = htobe16(ethertype);
+	};
 
 public:
 
@@ -307,13 +315,21 @@ public:
 	 *
 	 */
 	uint16_t
-	get_ether_type() const { return be16toh(((struct ofp_exp_gtp_action_body_pop_gtp*)rofl::cmemory::somem())->ethertype); };
+	get_ether_type() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_gtp_action_body_pop_gtp))
+			throw eInval();
+		return be16toh(((struct ofp_exp_gtp_action_body_pop_gtp*)rofl::cmemory::somem())->ethertype);
+	};
 
 	/**
 	 *
 	 */
 	void
-	set_ether_type(uint16_t ethertype) { ((struct ofp_exp_gtp_action_body_pop_gtp*)rofl::cmemory::somem())->ethertype = htobe16(ethertype); };
+	set_ether_type(uint16_t ethertype) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_gtp_action_body_pop_gtp))
+			throw eInval();
+		((struct ofp_exp_gtp_action_body_pop_gtp*)rofl::cmemory::somem())->ethertype = htobe16(ethertype);
+	};
 
 public:
 
