@@ -2585,6 +2585,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_exp_body(const rofl::cmemory& exp_body) { this->exp_body = exp_body; };
+
+	/**
+	 *
+	 */
 	const rofl::cmemory&
 	get_exp_body() const { return exp_body; };
 
