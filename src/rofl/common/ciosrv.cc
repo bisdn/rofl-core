@@ -361,9 +361,9 @@ cioloop::run_loop()
 		}
 
 
-		logging::trace << "[rofl][cioloop] before select:" << std::endl << *this;
+		rofl::logging::trace << "[rofl][cioloop][run] before select:" << std::endl << *this;
 
-		logging::trace << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
+		rofl::logging::trace << "[rofl][cioloop][run] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask)) < 0) {
@@ -371,13 +371,13 @@ cioloop::run_loop()
 			case EINTR:
 				break;
 			default:
-				rofl::logging::error << "[rofl][cioloop] " << eSysCall("pselect()") << std::endl;
+				rofl::logging::error << "[rofl][cioloop][run] " << eSysCall("pselect()") << std::endl;
 				break;
 			}
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			rofl::logging::trace << "[rofl][ciosrv][cioloop] timeout event: " << next_timeout.first << std::endl;
+			rofl::logging::trace << "[rofl][cioloop][run] timeout event: " << next_timeout.first << std::endl;
 
 			next_timeout.first->__handle_timeout();
 
@@ -406,7 +406,7 @@ cioloop::run_loop()
 				}
 
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
-					logging::trace << "[rofl][cioloop] entering event loop:" << std::endl << *this;
+					logging::trace << "[rofl][cioloop][run] entering event loop:" << std::endl << *this;
 					pipe.recvmsg();
 
 					std::map<ciosrv*, bool> clone;
@@ -421,21 +421,9 @@ cioloop::run_loop()
 						it->first->__handle_event();
 					}
 				}
-#if 0
-			} catch (eSysCall& e) {
-				rofl::logging::debug << "[rofl][ciosrv] caught eSysCall in main loop:" << e << std::endl;
 
-			} catch (eNotConnected& e) {
-				rofl::logging::debug << "[rofl][ciosrv] caught eNotConnected in main loop:" << e << std::endl;
-
-			} catch (RoflException& e) {
-				rofl::logging::error << "[rofl][ciosrv] caught RoflException in main loop:" << e << std::endl;
-#ifndef NDEBUG
-				throw;
-#endif
-#endif
 			} catch (std::runtime_error& e) {
-				rofl::logging::error << "[rofl][ciosrv] caught exception in main loop:" << e.what() << std::endl;
+				rofl::logging::error << "[rofl][cioloop][run] caught exception in main loop:" << e.what() << std::endl;
 #ifndef NDEBUG
 				throw;
 #endif
@@ -466,7 +454,7 @@ restartE:
 			}
 		}
 
-		logging::trace << "[rofl][cioloop] after select:" << std::endl << *this;
+		logging::trace << "[rofl][cioloop][run] after select:" << std::endl << *this;
 	}
 }
 
