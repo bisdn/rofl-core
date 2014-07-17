@@ -37,12 +37,11 @@ public:
 	};
 };
 
-
-
 class eSysCall : public RoflException {
 public:
-	eSysCall(std::string const& syscall = std::string("")) :
-		RoflException(syscall), n_err(errno), s_err(strerror(errno)) {};
+	eSysCall(std::string const& syscall = std::string("unknown")) :
+		RoflException(syscall+std::string(__FILE__)+std::string(":")+std::string(__func__)),
+		n_err(errno), s_err(strerror(errno)) {};
 	virtual ~eSysCall() throw() {};
 public:
 	friend std::ostream& operator<< (std::ostream& os, eSysCall const& e) {
@@ -55,32 +54,27 @@ private:
 	std::string	s_err;
 };
 
-
-
 class eNotImplemented : public RoflException {
 public:
-	eNotImplemented(const std::string& __arg = std::string("")) :
-		RoflException(__arg) {};
+	eNotImplemented(
+			const std::string& __arg = std::string("eNotImplemented")) :
+				RoflException(__arg) {};
 	virtual ~eNotImplemented() throw() {};
 };
 
-
-
 class eInval : public RoflException {
 public:
-	eInval(const std::string& __arg = std::string("")) : RoflException(__arg) {};
+	eInval(
+			const std::string& __arg = std::string("eInval")) :
+				RoflException(__arg) {};
 	virtual ~eInval() throw() {};
 };
 
-
-
-class eTooShort				: public RoflException {};
-
-
-
 class eBadVersion : public RoflException {
 public:
-	eBadVersion(const std::string& __arg = std::string("")) : RoflException(__arg) {
+	eBadVersion(
+			const std::string& __arg = std::string("eBadVersion")) :
+				RoflException(__arg) {
 #ifndef NDEBUG
 		std::cerr << "BAD-WOLF" << std::endl;
 //		assert(0 == 1);
@@ -88,14 +82,19 @@ public:
 	};
 };
 
-class eBadSyntax					: public RoflException {};
-class eBadSyntaxTooShort			: public eBadSyntax {};
+class eBadSyntax					: public RoflException {
+public:
+	eBadSyntax(
+			const std::string& __arg = std::string("eBadSyntax")) :
+				RoflException(__arg) {};
+};
 
-
-//class eOutOFMemory 			: public RoflException {}; //< out of mem error
-//class eInternalError 		: public RoflException {}; //< some internal error occured
-//class eDebug 				: public RoflException {};
-//class eNotConnected			: public RoflException {};
+class eBadSyntaxTooShort			: public eBadSyntax {
+public:
+	eBadSyntaxTooShort(
+			const std::string& __arg = std::string("eBadSyntaxTooShort")) :
+				eBadSyntax(__arg) {};
+};
 
 }; // end of namespace
 
