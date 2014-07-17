@@ -449,6 +449,8 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 void
 csocket_openssl::send(cmemory *mem, csockaddr const& dest)
 {
+	assert(mem);
+
 	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
 
 	txqueue.push_back(mem);

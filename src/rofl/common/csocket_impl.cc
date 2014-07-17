@@ -1013,6 +1013,8 @@ csocket_impl::recv(void *buf, size_t count)
 void
 csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
 {
+	assert(mem);
+
 	if (not sockflags.test(FLAG_CONNECTED) && not sockflags.test(FLAG_RAW_SOCKET)) {
 		rofl::logging::warn << "[rofl][csocket][impl] socket not connected, dropping packet " << std::endl << *mem;
 		delete mem; return;
