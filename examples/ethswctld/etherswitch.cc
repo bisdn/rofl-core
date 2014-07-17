@@ -131,7 +131,7 @@ ethswitch::handle_dpt_open(
 
 	//register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, 30);
 
-	unsigned int index = 0;
+	cindex index;
 
 	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {
@@ -257,7 +257,7 @@ ethswitch::handle_packet_in(
 		 */
 		if ((msg.set_packet().ether()->get_dl_dst() == cmacaddr("33:33:00:00:00:02"))) {
 			rofl::openflow::cofflowmod fe(dpt.get_version());
-			unsigned int index = 0;
+			rofl::cindex index;
 
 			switch (dpt.get_version()) {
 			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
@@ -310,7 +310,7 @@ ethswitch::handle_packet_in(
 				}
 
 				rofl::openflow::cofflowmod fe(dpt.get_version());
-				unsigned int index = 0;
+				rofl::cindex index;
 
 				fe.set_command(rofl::openflow12::OFPFC_ADD);
 				fe.set_table_id(0);
@@ -349,7 +349,7 @@ ethswitch::handle_packet_in(
 
 
 		rofl::openflow::cofactions actions(dpt.get_version());
-		unsigned int index = 0;
+		rofl::cindex index;
 
 		switch (dpt.get_version()) {
 		case openflow10::OFP_VERSION:

@@ -101,7 +101,7 @@ cfibentry::flow_mod_add()
 
 	if (flood_port != out_port_no) {
 		rofl::openflow::cofflowmod fe(dpt->get_version());
-		unsigned int index = 0;
+		rofl::cindex index(0);
 
 		fe.set_command(command);
 		fe.set_table_id(0);
@@ -116,7 +116,7 @@ cfibentry::flow_mod_add()
 	} else {
 
 		rofl::openflow::cofflowmod fe(dpt->get_version());
-		unsigned int index = 0;
+		rofl::cindex index(0);
 
 		fe.set_command(command);
 		fe.set_table_id(0);
@@ -137,7 +137,7 @@ void
 cfibentry::flow_mod_modify()
 {
 	rofl::openflow::cofflowmod fe(dpt->get_version());
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	uint8_t command = 0;
 	switch (dpt->get_version()) {
