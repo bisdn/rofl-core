@@ -511,7 +511,7 @@ public:
 	void
 	set_addr_nbo(uint32_t addr) {
 		uint8_t* ptr = somem();
-		*ptr = addr;
+		*((uint32_t*)ptr) = addr;
 	};
 
 
@@ -530,7 +530,7 @@ public:
 	void
 	set_addr_hbo(uint32_t addr) {
 		uint8_t* ptr = somem();
-		*ptr = htobe32(addr);
+		*((uint32_t*)ptr) = htobe32(addr);
 	};
 
 	/**
