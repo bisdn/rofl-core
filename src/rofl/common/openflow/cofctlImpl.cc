@@ -2763,7 +2763,7 @@ cofctlImpl::try_to_connect(bool reset_timeout)
 			"reconnect in %d seconds (reconnect_counter:%d)",
 			this, reconnect_in_seconds, reconnect_counter);
 
-	int max_backoff = 16 * reconnect_start_timeout;
+	int max_backoff = 1 * reconnect_start_timeout;
 
 	if (reset_timeout) {
 		reconnect_in_seconds = reconnect_start_timeout;

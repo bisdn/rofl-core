@@ -73,9 +73,6 @@ class cofdptImpl :
 {
 
 private: // data structures
-
-
-
 		/* cofdpt timer types */
 		enum cofdpt_timer_t {
 			COFDPT_TIMER_BASE = 0xc721,
