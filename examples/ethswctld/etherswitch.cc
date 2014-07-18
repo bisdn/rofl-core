@@ -121,7 +121,7 @@ ethswitch::handle_dpt_open(
 	dpt.flow_mod_reset();
 
 	rofl::openflow::cofflowmod fe(dpt.get_version());
-
+	fe.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
 	cfib::get_fib(dpt.get_dptid()).clear();
 
 	dpt.flow_mod_reset();
