@@ -328,7 +328,7 @@ cioloop::run_loop()
 		}
 
 
-		std::pair<ciosrv*, ctimespec> next_timeout(0, ctimespec(60));
+		std::pair<ciosrv*, ctimespec> next_timeout(NULL, ctimespec(60));
 		{
 			std::map<ciosrv*, int> urgent;
 			{
@@ -377,9 +377,10 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			rofl::logging::trace << "[rofl][cioloop][run] timeout event: " << next_timeout.first << std::endl;
-
-			next_timeout.first->__handle_timeout();
+			if (NULL != next_timeout.first) {
+				rofl::logging::trace << "[rofl][cioloop][run] timeout event: " << next_timeout.first << std::endl;
+				next_timeout.first->__handle_timeout();
+			}
 
 		} else { // rc > 0
 
