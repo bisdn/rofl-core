@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "logging.h"
 
 enum rofl_pipeline_debug_levels rofl_pipeline_debug_level[PIPELINE_MAX_DEBUG_CLASS] = ROFL_PIPELINE_DBG_DEFAULT;

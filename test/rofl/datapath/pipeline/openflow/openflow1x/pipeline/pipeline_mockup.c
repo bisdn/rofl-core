@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include <rofl/pipeline/openflow/openflow1x/of1x_switch.h>
 #include <rofl/pipeline/openflow/openflow1x/pipeline/of1x_flow_table.h>
 #include <rofl/pipeline/platform/platform_hooks.h>
