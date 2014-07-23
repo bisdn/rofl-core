@@ -342,6 +342,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(0),
 				idle_timeout(0),
 				hard_timeout(0),
+				flags(0),
 				cookie(0),
 				packet_count(0),
 				byte_count(0),
@@ -376,6 +377,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(priority),
 				idle_timeout(idle_timeout),
 				hard_timeout(hard_timeout),
+				flags(0),
 				cookie(cookie),
 				packet_count(packet_count),
 				byte_count(byte_count),
@@ -393,6 +395,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 		uint16_t priority,
 		uint16_t idle_timeout,
 		uint16_t hard_timeout,
+		uint16_t flags,
 		uint64_t cookie,
 		uint64_t packet_count,
 		uint64_t byte_count,
@@ -405,6 +408,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(priority),
 				idle_timeout(idle_timeout),
 				hard_timeout(hard_timeout),
+				flags(flags),
 				cookie(cookie),
 				packet_count(packet_count),
 				byte_count(byte_count),
@@ -441,6 +445,7 @@ cofflow_stats_reply::operator= (
 	priority 		= fs.priority;
 	idle_timeout 	= fs.idle_timeout;
 	hard_timeout 	= fs.hard_timeout;
+	flags			= fs.flags;
 	cookie 			= fs.cookie;
 	packet_count 	= fs.packet_count;
 	byte_count 		= fs.byte_count;
@@ -464,6 +469,7 @@ cofflow_stats_reply::operator== (
 			(priority 		== flowstats.priority) &&
 			(idle_timeout 	== flowstats.idle_timeout) &&
 			(hard_timeout 	== flowstats.hard_timeout) &&
+			(flags			== flowstats.flags) &&
 			(cookie 		== flowstats.cookie) &&
 			(packet_count 	== flowstats.packet_count) &&
 			(byte_count 	== flowstats.byte_count) &&
@@ -668,9 +674,11 @@ cofflow_stats_reply::length() const
 	case rofl::openflow10::OFP_VERSION: {
 		return (sizeof(struct rofl::openflow10::ofp_flow_stats) + actions.length());
 	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return (sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + instructions.length());
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_flow_stats) - sizeof(struct rofl::openflow13::ofp_match) + match.length() + instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
