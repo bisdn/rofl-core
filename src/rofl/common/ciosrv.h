@@ -79,6 +79,7 @@ class cioloop;
 class ciosrv :
 		public ptrciosrv
 {
+	static PthreadRwLock 			ciolist_rwlock;
 	static std::set<ciosrv*> 		ciolist;
 
 	pthread_t						tid;

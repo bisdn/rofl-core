@@ -21,7 +21,7 @@ void sighandler(int sig)
 }
 #endif
 
-
+PthreadRwLock 					ciosrv::ciolist_rwlock;
 std::set<ciosrv*> 				ciosrv::ciolist;
 
 PthreadRwLock 					cioloop::threads_rwlock;
@@ -31,13 +31,17 @@ std::map<pthread_t, cioloop*> 	cioloop::threads;
 ciosrv::ciosrv() :
 		tid(pthread_self())
 {
+	RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
 	ciosrv::ciolist.insert(this);
 }
 
 
 ciosrv::~ciosrv()
 {
-	ciosrv::ciolist.erase(this);
+	{
+		RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
+		ciosrv::ciolist.erase(this);
+	}
 	//logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << *this;
 	//logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << cioloop::get_loop();
 
@@ -135,18 +139,24 @@ ciosrv::__handle_event()
 	try {
 
 		logging::trace << "[rofl][ciosrv][event] entering event loop:" << std::endl << *this;
-		if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-			logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
-			return;
+		{
+			RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+				logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+				return;
+			}
 		}
 
 		cevents clone = events; events.clear();
 
 		while (not clone.empty()) {
 			logging::trace << "[rofl][ciosrv][event] inside event loop:" << std::endl << clone;
-			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-				logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
-				return;
+			{
+				RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+					logging::trace << "[rofl][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+					return;
+				}
 			}
 			handle_event(clone.get_event());
 		}
@@ -377,7 +387,13 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			if (NULL != next_timeout.first) {
+			if ((NULL != next_timeout.first)) {
+				{
+					RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+					if (ciosrv::ciolist.find(next_timeout.first) == ciosrv::ciolist.end()) {
+						continue;
+					}
+				}
 				rofl::logging::trace << "[rofl][cioloop][run] timeout event: " << next_timeout.first << std::endl;
 				next_timeout.first->__handle_timeout();
 			}
