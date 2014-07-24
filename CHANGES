@@ -10,6 +10,8 @@ Change log
 
 v0.5.0
 
+[+][common] Improved OF1.3 support and other fixes
+
 [+][pipeline] Improved OF1.3 support
 [+][pipeline] Changed default behaviour for table matches/actions bitmaps; all capabilities enabled by default. 
 [+][pipeline] Added placeholders for WLAN/CAPWAP matches and actions 
