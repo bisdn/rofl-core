@@ -311,7 +311,7 @@ void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid);
 * Pop outer-most PBB header
 * @warning ether_type must be in normal NBO
 */
-void platform_packet_pop_pbb(datapacket_t* pkt, uint16_t ether_type);
+void platform_packet_pop_pbb(datapacket_t* pkt);
 /**
 * @ingroup platform_packet
 * Push PBB header (outer-most)
@@ -733,7 +733,7 @@ void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint8_t icmpv6_type);
 */
 void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint8_t icmpv6_code);
 
-
+#ifdef EXPERIMENTAL
 /*******************/
 /*** Extensions ***/
 /*****************/
@@ -843,6 +843,168 @@ void platform_packet_pop_gtp(datapacket_t* pkt);
 * Push a new GTP frame 
 */
 void platform_packet_push_gtp(datapacket_t* pkt);
+
+
+
+/////////////
+// CAPWAP //
+///////////
+/**
+* @ingroup platform_packet
+* Get the CAPWAP wbid
+* @return value if existing, 0x0 otherwise.
+*/
+uint8_t* platform_packet_get_capwap_wbid(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the CAPWAP rid
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_capwap_rid(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the CAPWAP flags
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint16_t* platform_packet_get_capwap_flags(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP wbid
+*/
+void platform_packet_set_capwap_wbid(datapacket_t* pkt, uint8_t wbid);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP rid
+*/
+void platform_packet_set_capwap_rid(datapacket_t* pkt, uint8_t rid);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP flags
+* @warning flags must be in normal NBO endianness
+*/
+void platform_packet_set_capwap_flags(datapacket_t* pkt, uint16_t flags);
+
+/**
+* @ingroup platform_packet
+* Pop the CAPWAP frame
+*/
+void platform_packet_pop_capwap(datapacket_t* pkt);
+/**
+* Push a new CAPWAP frame
+*/
+void platform_packet_push_capwap(datapacket_t* pkt);
+
+
+
+///////////
+// WLAN //
+/////////
+/**
+* @ingroup platform_packet
+* Get the WLAN fc
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint16_t* platform_packet_get_wlan_fc(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN type
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_type(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN subtype
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_subtype(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN direction
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint8_t* platform_packet_get_wlan_direction(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 1 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_1(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 2 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_2(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the WLAN address 3 value of the packet
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in aligned NBO endianness
+*/
+uint64_t* platform_packet_get_wlan_address_3(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN fc
+* @warning flags must be in normal NBO endianness
+*/
+void platform_packet_set_wlan_fc(datapacket_t* pkt, uint16_t fc);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN type
+*/
+void platform_packet_set_wlan_type(datapacket_t* pkt, uint8_t type);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN subtype
+*/
+void platform_packet_set_wlan_subtype(datapacket_t* pkt, uint8_t subtype);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN direction
+*/
+void platform_packet_set_wlan_direction(datapacket_t* pkt, uint8_t direction);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 1 header field
+* @warning address_1 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_1(datapacket_t* pkt, uint64_t address_1);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 2 header field
+* @warning address_2 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_2(datapacket_t* pkt, uint64_t address_2);
+/**
+* @ingroup platform_packet
+* Set a new value for the WLAN address 3 header field
+* @warning address_3 must be in aligned NBO endianness
+*/
+void platform_packet_set_wlan_address_3(datapacket_t* pkt, uint64_t address_3);
+
+/**
+* @ingroup platform_packet
+* Pop the WLAN frame
+*/
+void platform_packet_pop_wlan(datapacket_t* pkt);
+/**
+* Push a new WLAN frame
+*/
+void platform_packet_push_wlan(datapacket_t* pkt);
+
+
+/* end of extensions */
+#endif
 
 
 //C++ extern C

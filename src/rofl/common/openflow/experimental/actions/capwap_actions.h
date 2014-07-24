@@ -1,12 +1,12 @@
 /*
- * gtp_actions.h
+ * capwap_actions.h
  *
- *  Created on: 02.08.2013
+ *  Created on: 29.06.2014
  *      Author: andreas
  */
 
-#ifndef GTP_ACTIONS_H_
-#define GTP_ACTIONS_H_
+#ifndef CAPWAP_ACTIONS_H_
+#define CAPWAP_ACTIONS_H_
 
 #include <inttypes.h>
 #include <iostream>
@@ -17,30 +17,30 @@
 namespace rofl {
 namespace openflow {
 namespace experimental {
-namespace gtp {
+namespace capwap {
 
-enum gtp_exp_id_t {
-	GTP_EXP_ID = 0x5555a781,
+enum capwap_exp_id_t {
+	CAPWAP_EXP_ID = 0x5555a782,
 };
 
-enum gtp_action_type_t {
-	GTP_ACTION_PUSH_GTP,
-	GTP_ACTION_POP_GTP,
+enum capwap_action_type_t {
+	CAPWAP_ACTION_PUSH_CAPWAP,
+	CAPWAP_ACTION_POP_CAPWAP,
 };
 
-struct ofp_action_exp_gtp_hdr {
+struct ofp_action_exp_capwap_hdr {
 	uint16_t exptype;
 	uint16_t explen;
 	uint8_t data[0];
 } __attribute__((packed));
 
-struct ofp_action_exp_gtp_push_gtp {
+struct ofp_action_exp_capwap_push_capwap {
 	uint16_t exptype;
 	uint16_t explen;
 	uint16_t ethertype;
 } __attribute__((packed));
 
-struct ofp_action_exp_gtp_pop_gtp {
+struct ofp_action_exp_capwap_pop_capwap {
 	uint16_t exptype;
 	uint16_t explen;
 	uint16_t ethertype;
@@ -48,15 +48,15 @@ struct ofp_action_exp_gtp_pop_gtp {
 
 
 
-class cofaction_experimenter_gtp : public cofaction_experimenter {
+class cofaction_experimenter_capwap : public cofaction_experimenter {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
+	cofaction_experimenter_capwap(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			uint32_t exp_id = GTP_EXP_ID,
+			uint32_t exp_id = CAPWAP_EXP_ID,
 			uint16_t exptype = 0,
 			size_t bodylen = 0) :
 				cofaction_experimenter(ofp_version, exp_id, rofl::cmemory(bodylen)),
@@ -65,20 +65,20 @@ public:
 	/**
 	 *
 	 */
-	~cofaction_experimenter_gtp() {};
+	~cofaction_experimenter_capwap() {};
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_experimenter_capwap(
+			const cofaction_experimenter_capwap& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp&
+	cofaction_experimenter_capwap&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_capwap& action) {
 		if (this == &action)
 			return *this;
 		cofaction_experimenter::operator= (action);
@@ -89,13 +89,13 @@ public:
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
+	cofaction_experimenter_capwap(
 			const cofaction_experimenter& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp&
+	cofaction_experimenter_capwap&
 	operator= (
 			const cofaction_experimenter& action) {
 		if (this == &action)
@@ -143,8 +143,8 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_experimenter_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_experimenter_gtp exp-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_experimenter_capwap& action) {
+		os << rofl::indent(0) << "<cofaction_experimenter_capwap exp-type: 0x" <<
 				std::hex << (unsigned int)action.get_exp_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
@@ -160,40 +160,40 @@ private:
 
 
 
-class cofaction_push_gtp : public cofaction_experimenter_gtp {
+class cofaction_push_capwap : public cofaction_experimenter_capwap {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
+	cofaction_push_capwap(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t ethertype = 0) :
-				cofaction_experimenter_gtp(
-						ofp_version, GTP_EXP_ID, GTP_ACTION_PUSH_GTP,
-								sizeof(struct ofp_action_exp_gtp_push_gtp)),
+				cofaction_experimenter_capwap(
+						ofp_version, CAPWAP_EXP_ID, CAPWAP_ACTION_PUSH_CAPWAP,
+								sizeof(struct ofp_action_exp_capwap_push_capwap)),
 				ethertype(ethertype) {};
 
 	/**
 	 *
 	 */
-	~cofaction_push_gtp() {};
+	~cofaction_push_capwap() {};
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
-			const cofaction_push_gtp& action) { *this = action; };
+	cofaction_push_capwap(
+			const cofaction_push_capwap& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp&
+	cofaction_push_capwap&
 	operator= (
-			const cofaction_push_gtp& action) {
+			const cofaction_push_capwap& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_capwap::operator= (action);
 		ethertype 	= action.ethertype;
 		return *this;
 	};
@@ -201,18 +201,18 @@ public:
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_push_capwap(
+			const cofaction_experimenter_capwap& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp&
+	cofaction_push_capwap&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_capwap& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_capwap::operator= (action);
 		ethertype 	= 0;
 		unpack(get_exp_body().somem(), get_exp_body().memlen());
 		return *this;
@@ -255,12 +255,12 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_push_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_push_gtp ether-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_push_capwap& action) {
+		os << rofl::indent(0) << "<cofaction_push_capwap ether-type: 0x" <<
 				std::hex << (unsigned int)action.get_ether_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
-		os << dynamic_cast<const cofaction_experimenter_gtp&>( action );
+		os << dynamic_cast<const cofaction_experimenter_capwap&>( action );
 		return os;
 	};
 
@@ -271,40 +271,40 @@ private:
 
 
 
-class cofaction_pop_gtp : public cofaction_experimenter_gtp {
+class cofaction_pop_capwap : public cofaction_experimenter_capwap {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
+	cofaction_pop_capwap(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t ethertype = 0) :
-				cofaction_experimenter_gtp(
-						ofp_version, GTP_EXP_ID, GTP_ACTION_POP_GTP,
-							sizeof(struct ofp_action_exp_gtp_pop_gtp)),
+				cofaction_experimenter_capwap(
+						ofp_version, CAPWAP_EXP_ID, CAPWAP_ACTION_POP_CAPWAP,
+							sizeof(struct ofp_action_exp_capwap_pop_capwap)),
 				ethertype(ethertype) {};
 
 	/**
 	 *
 	 */
-	~cofaction_pop_gtp() {};
+	~cofaction_pop_capwap() {};
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
-			const cofaction_pop_gtp& action) { *this = action; };
+	cofaction_pop_capwap(
+			const cofaction_pop_capwap& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp&
+	cofaction_pop_capwap&
 	operator= (
-			const cofaction_pop_gtp& action) {
+			const cofaction_pop_capwap& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_capwap::operator= (action);
 		ethertype 	= action.ethertype;
 		return *this;
 	};
@@ -312,18 +312,18 @@ public:
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_pop_capwap(
+			const cofaction_experimenter_capwap& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp&
+	cofaction_pop_capwap&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_capwap& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_capwap::operator= (action);
 		ethertype 	= 0;
 		unpack(get_exp_body().somem(), get_exp_body().memlen());
 		return *this;
@@ -366,12 +366,12 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_pop_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_pop_gtp ether-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_pop_capwap& action) {
+		os << rofl::indent(0) << "<cofaction_pop_capwap ether-type: 0x" <<
 				std::hex << (unsigned int)action.get_ether_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
-		os << dynamic_cast<const cofaction_experimenter_gtp&>( action );
+		os << dynamic_cast<const cofaction_experimenter_capwap&>( action );
 		return os;
 	};
 
@@ -381,9 +381,9 @@ private:
 };
 
 
-}; // end of namespace gtp
+}; // end of namespace capwap
 }; // end of namespace experimental
 }; // end of namespace openflow
 }; // end of namespace rofl
 
-#endif /* GTP_ACTIONS_H_ */
+#endif /* CAPWAP_ACTIONS_H_ */

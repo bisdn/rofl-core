@@ -169,16 +169,8 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_pop_mpls(pkt, action->__field.u16);
 			break;
-		case OF1X_AT_POP_PPPOE: 
-			//Call platform
-			platform_packet_pop_pppoe(pkt, action->__field.u16);
-			break;
 	
 		//PUSH
-		case OF1X_AT_PUSH_PPPOE:
-			//Call platform
-			platform_packet_push_pppoe(pkt, action->__field.u16);
-			break;
 		case OF1X_AT_PUSH_MPLS:
 			//Call platform
 			platform_packet_push_mpls(pkt, action->__field.u16);
@@ -409,26 +401,6 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 
-		//PPPoE
-		case OF1X_AT_SET_FIELD_PPPOE_CODE:
-			//Call platform
-			platform_packet_set_pppoe_code(pkt, action->__field.u8);
-			break;
-		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
-			//Call platform
-			platform_packet_set_pppoe_type(pkt, action->__field.u8);
-			break;
-		case OF1X_AT_SET_FIELD_PPPOE_SID:
-			//Call platform
-			platform_packet_set_pppoe_sid(pkt, action->__field.u16);
-			break;
-
-		//PPP
-		case OF1X_AT_SET_FIELD_PPP_PROT:
-			//Call platform
-			platform_packet_set_ppp_proto(pkt, action->__field.u16);
-			break;
-			
 		//IPv6
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 			//Call platform
@@ -468,6 +440,38 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_icmpv6_code(pkt, action->__field.u8);
 			break;
+
+#ifdef EXPERIMENTAL
+
+		case OF1X_AT_POP_PPPOE:
+			//Call platform
+			platform_packet_pop_pppoe(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_PUSH_PPPOE:
+			//Call platform
+			platform_packet_push_pppoe(pkt, action->__field.u16);
+			break;
+
+		//PPPoE
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+			//Call platform
+			platform_packet_set_pppoe_code(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+			//Call platform
+			platform_packet_set_pppoe_type(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+			//Call platform
+			platform_packet_set_pppoe_sid(pkt, action->__field.u16);
+			break;
+
+		//PPP
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+			//Call platform
+			platform_packet_set_ppp_proto(pkt, action->__field.u16);
+			break;
+
 		//GTP
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 			//Call platform
@@ -486,6 +490,93 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_push_gtp(pkt);
 			break;
 
+		//CAPWAP
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+			//Call platform
+			platform_packet_set_capwap_wbid(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+			//Call platform
+			platform_packet_set_capwap_rid(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+			//Call platform
+			platform_packet_set_capwap_flags(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_POP_CAPWAP:
+			//Call platform
+			platform_packet_pop_capwap(pkt);
+			break;
+		case OF1X_AT_PUSH_CAPWAP:
+			//Call platform
+			platform_packet_push_capwap(pkt);
+			break;
+
+		//IEEE80211 WLAN
+		case OF1X_AT_SET_FIELD_WLAN_FC:
+			//Call platform
+			platform_packet_set_wlan_fc(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:
+			//Call platform
+			platform_packet_set_wlan_type(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
+			//Call platform
+			platform_packet_set_wlan_subtype(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
+			//Call platform
+			platform_packet_set_wlan_direction(pkt, action->__field.u8);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:
+			//Call platform
+			platform_packet_set_wlan_address_1(pkt, action->__field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:
+			//Call platform
+			platform_packet_set_wlan_address_2(pkt, action->__field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
+			//Call platform
+			platform_packet_set_wlan_address_3(pkt, action->__field.u64);
+			break;
+		case OF1X_AT_POP_WLAN:
+			//Call platform
+			platform_packet_pop_wlan(pkt);
+			break;
+		case OF1X_AT_PUSH_WLAN:
+			//Call platform
+			platform_packet_push_wlan(pkt);
+			break;
+
+#else
+		case OF1X_AT_POP_PPPOE:
+		case OF1X_AT_PUSH_PPPOE:
+		case OF1X_AT_SET_FIELD_PPPOE_CODE:
+		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_FIELD_GTP_TEID:
+		case OF1X_AT_POP_GTP:
+		case OF1X_AT_PUSH_GTP:
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+		case OF1X_AT_POP_CAPWAP:
+		case OF1X_AT_PUSH_CAPWAP:
+		case OF1X_AT_SET_FIELD_WLAN_FC:
+		case OF1X_AT_SET_FIELD_WLAN_TYPE:
+		case OF1X_AT_SET_FIELD_WLAN_SUBTYPE:
+		case OF1X_AT_SET_FIELD_WLAN_DIRECTION:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_1:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_2:
+		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
+		case OF1X_AT_POP_WLAN:
+		case OF1X_AT_PUSH_WLAN:
+			break;
+#endif
 		//PBB
 		case OF1X_AT_SET_FIELD_PBB_ISID:
 			//Call platform
@@ -493,7 +584,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_POP_PBB: 
 			//Call platform
-			platform_packet_pop_pbb(pkt, action->__field.u16);
+			platform_packet_pop_pbb(pkt);
 			break;
 		case OF1X_AT_PUSH_PBB: 
 			//Call platform

@@ -1,12 +1,12 @@
 /*
- * gtp_actions.h
+ * wlan_actions.h
  *
- *  Created on: 02.08.2013
+ *  Created on: 29.06.2014
  *      Author: andreas
  */
 
-#ifndef GTP_ACTIONS_H_
-#define GTP_ACTIONS_H_
+#ifndef WLAN_ACTIONS_H_
+#define WLAN_ACTIONS_H_
 
 #include <inttypes.h>
 #include <iostream>
@@ -17,30 +17,30 @@
 namespace rofl {
 namespace openflow {
 namespace experimental {
-namespace gtp {
+namespace wlan {
 
-enum gtp_exp_id_t {
-	GTP_EXP_ID = 0x5555a781,
+enum wlan_exp_id_t {
+	WLAN_EXP_ID = 0x5555a783,
 };
 
-enum gtp_action_type_t {
-	GTP_ACTION_PUSH_GTP,
-	GTP_ACTION_POP_GTP,
+enum wlan_action_type_t {
+	WLAN_ACTION_PUSH_WLAN,
+	WLAN_ACTION_POP_WLAN,
 };
 
-struct ofp_action_exp_gtp_hdr {
+struct ofp_action_exp_wlan_hdr {
 	uint16_t exptype;
 	uint16_t explen;
 	uint8_t data[0];
 } __attribute__((packed));
 
-struct ofp_action_exp_gtp_push_gtp {
+struct ofp_action_exp_wlan_push_wlan {
 	uint16_t exptype;
 	uint16_t explen;
 	uint16_t ethertype;
 } __attribute__((packed));
 
-struct ofp_action_exp_gtp_pop_gtp {
+struct ofp_action_exp_wlan_pop_wlan {
 	uint16_t exptype;
 	uint16_t explen;
 	uint16_t ethertype;
@@ -48,15 +48,15 @@ struct ofp_action_exp_gtp_pop_gtp {
 
 
 
-class cofaction_experimenter_gtp : public cofaction_experimenter {
+class cofaction_experimenter_wlan : public cofaction_experimenter {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
+	cofaction_experimenter_wlan(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
-			uint32_t exp_id = GTP_EXP_ID,
+			uint32_t exp_id = WLAN_EXP_ID,
 			uint16_t exptype = 0,
 			size_t bodylen = 0) :
 				cofaction_experimenter(ofp_version, exp_id, rofl::cmemory(bodylen)),
@@ -65,20 +65,20 @@ public:
 	/**
 	 *
 	 */
-	~cofaction_experimenter_gtp() {};
+	~cofaction_experimenter_wlan() {};
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_experimenter_wlan(
+			const cofaction_experimenter_wlan& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp&
+	cofaction_experimenter_wlan&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_wlan& action) {
 		if (this == &action)
 			return *this;
 		cofaction_experimenter::operator= (action);
@@ -89,13 +89,13 @@ public:
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp(
+	cofaction_experimenter_wlan(
 			const cofaction_experimenter& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_experimenter_gtp&
+	cofaction_experimenter_wlan&
 	operator= (
 			const cofaction_experimenter& action) {
 		if (this == &action)
@@ -143,8 +143,8 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_experimenter_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_experimenter_gtp exp-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_experimenter_wlan& action) {
+		os << rofl::indent(0) << "<cofaction_experimenter_wlan exp-type: 0x" <<
 				std::hex << (unsigned int)action.get_exp_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
@@ -160,40 +160,40 @@ private:
 
 
 
-class cofaction_push_gtp : public cofaction_experimenter_gtp {
+class cofaction_push_wlan : public cofaction_experimenter_wlan {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
+	cofaction_push_wlan(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t ethertype = 0) :
-				cofaction_experimenter_gtp(
-						ofp_version, GTP_EXP_ID, GTP_ACTION_PUSH_GTP,
-								sizeof(struct ofp_action_exp_gtp_push_gtp)),
+				cofaction_experimenter_wlan(
+						ofp_version, WLAN_EXP_ID, WLAN_ACTION_PUSH_WLAN,
+								sizeof(struct ofp_action_exp_wlan_push_wlan)),
 				ethertype(ethertype) {};
 
 	/**
 	 *
 	 */
-	~cofaction_push_gtp() {};
+	~cofaction_push_wlan() {};
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
-			const cofaction_push_gtp& action) { *this = action; };
+	cofaction_push_wlan(
+			const cofaction_push_wlan& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp&
+	cofaction_push_wlan&
 	operator= (
-			const cofaction_push_gtp& action) {
+			const cofaction_push_wlan& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_wlan::operator= (action);
 		ethertype 	= action.ethertype;
 		return *this;
 	};
@@ -201,18 +201,18 @@ public:
 	/**
 	 *
 	 */
-	cofaction_push_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_push_wlan(
+			const cofaction_experimenter_wlan& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_push_gtp&
+	cofaction_push_wlan&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_wlan& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_wlan::operator= (action);
 		ethertype 	= 0;
 		unpack(get_exp_body().somem(), get_exp_body().memlen());
 		return *this;
@@ -255,12 +255,12 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_push_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_push_gtp ether-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_push_wlan& action) {
+		os << rofl::indent(0) << "<cofaction_push_wlan ether-type: 0x" <<
 				std::hex << (unsigned int)action.get_ether_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
-		os << dynamic_cast<const cofaction_experimenter_gtp&>( action );
+		os << dynamic_cast<const cofaction_experimenter_wlan&>( action );
 		return os;
 	};
 
@@ -271,40 +271,40 @@ private:
 
 
 
-class cofaction_pop_gtp : public cofaction_experimenter_gtp {
+class cofaction_pop_wlan : public cofaction_experimenter_wlan {
 public:
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
+	cofaction_pop_wlan(
 			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint16_t ethertype = 0) :
-				cofaction_experimenter_gtp(
-						ofp_version, GTP_EXP_ID, GTP_ACTION_POP_GTP,
-							sizeof(struct ofp_action_exp_gtp_pop_gtp)),
+				cofaction_experimenter_wlan(
+						ofp_version, WLAN_EXP_ID, WLAN_ACTION_POP_WLAN,
+							sizeof(struct ofp_action_exp_wlan_pop_wlan)),
 				ethertype(ethertype) {};
 
 	/**
 	 *
 	 */
-	~cofaction_pop_gtp() {};
+	~cofaction_pop_wlan() {};
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
-			const cofaction_pop_gtp& action) { *this = action; };
+	cofaction_pop_wlan(
+			const cofaction_pop_wlan& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp&
+	cofaction_pop_wlan&
 	operator= (
-			const cofaction_pop_gtp& action) {
+			const cofaction_pop_wlan& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_wlan::operator= (action);
 		ethertype 	= action.ethertype;
 		return *this;
 	};
@@ -312,18 +312,18 @@ public:
 	/**
 	 *
 	 */
-	cofaction_pop_gtp(
-			const cofaction_experimenter_gtp& action) { *this = action; };
+	cofaction_pop_wlan(
+			const cofaction_experimenter_wlan& action) { *this = action; };
 
 	/**
 	 *
 	 */
-	cofaction_pop_gtp&
+	cofaction_pop_wlan&
 	operator= (
-			const cofaction_experimenter_gtp& action) {
+			const cofaction_experimenter_wlan& action) {
 		if (this == &action)
 			return *this;
-		cofaction_experimenter_gtp::operator= (action);
+		cofaction_experimenter_wlan::operator= (action);
 		ethertype 	= 0;
 		unpack(get_exp_body().somem(), get_exp_body().memlen());
 		return *this;
@@ -366,12 +366,12 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, const cofaction_pop_gtp& action) {
-		os << rofl::indent(0) << "<cofaction_pop_gtp ether-type: 0x" <<
+	operator<< (std::ostream& os, const cofaction_pop_wlan& action) {
+		os << rofl::indent(0) << "<cofaction_pop_wlan ether-type: 0x" <<
 				std::hex << (unsigned int)action.get_ether_type() << std::dec
 				<< ">" << std::endl;
 		rofl::indent i(2);
-		os << dynamic_cast<const cofaction_experimenter_gtp&>( action );
+		os << dynamic_cast<const cofaction_experimenter_wlan&>( action );
 		return os;
 	};
 
@@ -381,9 +381,9 @@ private:
 };
 
 
-}; // end of namespace gtp
+}; // end of namespace wlan
 }; // end of namespace experimental
 }; // end of namespace openflow
 }; // end of namespace rofl
 
-#endif /* GTP_ACTIONS_H_ */
+#endif /* WLAN_ACTIONS_H_ */

@@ -13,8 +13,10 @@ librofl_pipeline_common_la_HEADERS = \
 	packet_matches.h \
 	protocol_constants.h \
 	ternary_fields.h \
-	wrap_types.h 
+	wrap_types.h \
+	crc32cr.h
 
 librofl_pipeline_common_la_SOURCES = \
 	packet_matches.c \
-	ternary_fields.c 
+	ternary_fields.c \
+	crc32cr.c

@@ -116,6 +116,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 
 		//NW (OF1.0 only)
    		case OF1X_MATCH_NW_PROTO:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || *ptr_ether_type == ETH_TYPE_ARP || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && (*ptr_ppp_proto == PPP_PROTO_IP4 || *ptr_ppp_proto == PPP_PROTO_IP6) ))) return false;
@@ -125,8 +126,19 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					}
 					else 
 						return __utern_compare8(it->__tern, platform_packet_get_ip_proto(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || *ptr_ether_type == ETH_TYPE_ARP )) return false;
+					if(*ptr_ether_type == ETH_TYPE_ARP){
+						uint8_t *low_byte = ((uint8_t*)(platform_packet_get_arp_opcode(pkt)));
+						return __utern_compare8(it->__tern, ++low_byte);
+					}
+					else
+						return __utern_compare8(it->__tern, platform_packet_get_ip_proto(pkt));
+#endif
 		}
    		case OF1X_MATCH_NW_SRC:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) 
@@ -134,8 +146,17 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if(ptr_ether_type && *ptr_ether_type == ETH_TYPE_ARP)
 						return __utern_compare32(it->__tern, platform_packet_get_arp_spa(pkt)); 
 					return false;
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4))
+						return __utern_compare32(it->__tern, platform_packet_get_ipv4_src(pkt));
+					if(ptr_ether_type && *ptr_ether_type == ETH_TYPE_ARP)
+						return __utern_compare32(it->__tern, platform_packet_get_arp_spa(pkt));
+					return false;
+#endif
 		}
    		case OF1X_MATCH_NW_DST:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4 ||(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 )))  
@@ -143,16 +164,31 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if( ptr_ether_type && *ptr_ether_type == ETH_TYPE_ARP)
 						return __utern_compare32(it->__tern, platform_packet_get_arp_tpa(pkt)); 
 					return false;
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4))
+						return __utern_compare32(it->__tern, platform_packet_get_ipv4_dst(pkt));
+					if( ptr_ether_type && *ptr_ether_type == ETH_TYPE_ARP)
+						return __utern_compare32(it->__tern, platform_packet_get_arp_tpa(pkt));
+					return false;
+#endif
 		}
 		
 		//IP
    		case OF1X_MATCH_IP_PROTO:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && (*ptr_ppp_proto == PPP_PROTO_IP4 || *ptr_ppp_proto == PPP_PROTO_IP6) ))) return false; 
 					return __utern_compare8(it->__tern, platform_packet_get_ip_proto(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6)) return false;
+					return __utern_compare8(it->__tern, platform_packet_get_ip_proto(pkt));
+#endif
 		}
 		case OF1X_MATCH_IP_ECN:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
@@ -160,8 +196,17 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 						uint8_t ecn = platform_packet_get_ip_ecn(pkt);
 						return __utern_compare8(it->__tern, &ecn);
 					}
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6)) return false; //NOTE PPP_PROTO_IP6
+					{
+						uint8_t ecn = platform_packet_get_ip_ecn(pkt);
+						return __utern_compare8(it->__tern, &ecn);
+					}
+#endif
 		}
 		case OF1X_MATCH_IP_DSCP:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
@@ -169,20 +214,40 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 						uint8_t dscp = platform_packet_get_ip_dscp(pkt);
 						return __utern_compare8(it->__tern, &dscp);
 					}
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6)) return false; //NOTE PPP_PROTO_IP6
+					{
+						uint8_t dscp = platform_packet_get_ip_dscp(pkt);
+						return __utern_compare8(it->__tern, &dscp);
+					}
+#endif
 		}
 		
 		//IPv4
    		case OF1X_MATCH_IPV4_SRC:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; 
 					return __utern_compare32(it->__tern, platform_packet_get_ipv4_src(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4)) return false;
+					return __utern_compare32(it->__tern, platform_packet_get_ipv4_src(pkt));
+#endif
 		}
    		case OF1X_MATCH_IPV4_DST:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 ||(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false;  
 					return __utern_compare32(it->__tern, platform_packet_get_ipv4_dst(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4)) return false;
+					return __utern_compare32(it->__tern, platform_packet_get_ipv4_dst(pkt));
+#endif
 		}
 	
 		//TCP
@@ -212,12 +277,12 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    		case OF1X_MATCH_SCTP_SRC:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
 					if( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->__tern, platform_packet_get_tcp_src(pkt));
+					return __utern_compare16(it->__tern, platform_packet_get_sctp_src(pkt));
 		}
    		case OF1X_MATCH_SCTP_DST:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
 					if( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_SCTP)) return false; 
-					return __utern_compare16(it->__tern, platform_packet_get_tcp_dst(pkt));
+					return __utern_compare16(it->__tern, platform_packet_get_sctp_dst(pkt));
 		}
 	
 		//TP (OF1.0 only)
@@ -260,22 +325,40 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
   		
 		//IPv6
 		case OF1X_MATCH_IPV6_SRC:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare128(it->__tern, platform_packet_get_ipv6_src(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6)) return false;
+					return __utern_compare128(it->__tern, platform_packet_get_ipv6_src(pkt));
+#endif
 		}
 		case OF1X_MATCH_IPV6_DST:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare128(it->__tern, platform_packet_get_ipv6_dst(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6)) return false;
+					return __utern_compare128(it->__tern, platform_packet_get_ipv6_dst(pkt));
+#endif
 		}
 		case OF1X_MATCH_IPV6_FLABEL:{
+#ifdef EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare32(it->__tern, platform_packet_get_ipv6_flabel(pkt));
+#else
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6)) return false;
+					return __utern_compare32(it->__tern, platform_packet_get_ipv6_flabel(pkt));
+#endif
 		}
 		case OF1X_MATCH_IPV6_ND_TARGET:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
@@ -308,6 +391,16 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					return __utern_compare8(it->__tern, platform_packet_get_icmpv6_code(pkt));
 		}
 			
+		//PBB
+   		case OF1X_MATCH_PBB_ISID:{
+					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
+					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PBB)) return false;
+					return __utern_compare32(it->__tern, platform_packet_get_pbb_isid(pkt));
+		}
+	 	//TUNNEL id
+   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->__tern, platform_packet_get_tunnel_id(pkt));
+
+#ifdef EXPERIMENTAL
 		//PPPoE related extensions
    		case OF1X_MATCH_PPPOE_CODE:{
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
@@ -331,16 +424,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION )) return false; 
 					return __utern_compare16(it->__tern, platform_packet_get_ppp_proto(pkt));
 		}
-	
-		//PBB
-   		case OF1X_MATCH_PBB_ISID:{
-					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
-					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_PBB)) return false;	
-					return __utern_compare32(it->__tern, platform_packet_get_pbb_isid(pkt));
-		}
-	 	//TUNNEL id
-   		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->__tern, platform_packet_get_tunnel_id(pkt));
- 
+
 		//GTP
    		case OF1X_MATCH_GTP_MSG_TYPE:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
@@ -354,7 +438,79 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 					if ( !ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_GTPU))) return false;
    					return __utern_compare32(it->__tern, platform_packet_get_gtp_teid(pkt));
 		}
-		case OF1X_MATCH_MAX:
+
+   		//CAPWAP
+   		case OF1X_MATCH_CAPWAP_WBID:{
+			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+			uint16_t *ptr_udp_dst = platform_packet_get_udp_dst(pkt);
+			// TODO: for CAPWAP-control or CAPWAP-data or both?
+			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_CAPWAPC))) return false;
+				return __utern_compare8(it->__tern, platform_packet_get_capwap_wbid(pkt));
+		}
+   		case OF1X_MATCH_CAPWAP_RID:{
+			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+			uint16_t *ptr_udp_dst = platform_packet_get_udp_dst(pkt);
+			// TODO: for CAPWAP-control or CAPWAP-data or both?
+			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_CAPWAPC))) return false;
+				return __utern_compare8(it->__tern, platform_packet_get_capwap_rid(pkt));
+		}
+   		case OF1X_MATCH_CAPWAP_FLAGS:{
+			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+			uint16_t *ptr_udp_dst = platform_packet_get_udp_dst(pkt);
+			// TODO: for CAPWAP-control or CAPWAP-data or both?
+			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_UDP || (ptr_udp_dst && *ptr_udp_dst == UDP_DST_PORT_CAPWAPC))) return false;
+				return __utern_compare16(it->__tern, platform_packet_get_capwap_flags(pkt));
+   		}
+   		//WLAN
+   		case OF1X_MATCH_WLAN_FC:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare16(it->__tern, platform_packet_get_wlan_fc(pkt));
+		}
+   		case OF1X_MATCH_WLAN_TYPE:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_type(pkt));
+		}
+   		case OF1X_MATCH_WLAN_SUBTYPE:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_subtype(pkt));
+		}
+   		case OF1X_MATCH_WLAN_DIRECTION:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare8(it->__tern, platform_packet_get_wlan_direction(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_1:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_1(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_2:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_2(pkt));
+		}
+   		case OF1X_MATCH_WLAN_ADDRESS_3:{
+   			// TODO: check prerequisites for WLAN frame
+			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
+		}
+#else
+   		case OF1X_MATCH_PPPOE_CODE:
+   		case OF1X_MATCH_PPPOE_TYPE:
+   		case OF1X_MATCH_PPPOE_SID:
+   		case OF1X_MATCH_PPP_PROT:
+   		case OF1X_MATCH_GTP_MSG_TYPE:
+   		case OF1X_MATCH_GTP_TEID:
+   		case OF1X_MATCH_CAPWAP_WBID:
+   		case OF1X_MATCH_CAPWAP_RID:
+   		case OF1X_MATCH_CAPWAP_FLAGS:
+   		case OF1X_MATCH_WLAN_FC:
+   		case OF1X_MATCH_WLAN_TYPE:
+   		case OF1X_MATCH_WLAN_SUBTYPE:
+   		case OF1X_MATCH_WLAN_DIRECTION:
+   		case OF1X_MATCH_WLAN_ADDRESS_1:
+   		case OF1X_MATCH_WLAN_ADDRESS_2:
+   		case OF1X_MATCH_WLAN_ADDRESS_3:
+   			break;
+
+#endif
+   		case OF1X_MATCH_MAX:
 				break;
 		//Add more here ...
 		//Warning: NEVER add a default clause

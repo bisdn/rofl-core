@@ -119,6 +119,20 @@ typedef enum{
 	OF1X_MATCH_GTP_MSG_TYPE,	/* GTP message type */
 	OF1X_MATCH_GTP_TEID,		/* GTP teid */
 
+	/* CAPWAP related extensions */
+	OF1X_MATCH_CAPWAP_WBID,		/* CAPWAP WBID */
+	OF1X_MATCH_CAPWAP_RID,		/* CAPWAP RID */
+	OF1X_MATCH_CAPWAP_FLAGS,	/* CAPWAP FLAGS */
+
+	/* WLAN related extensions */
+	OF1X_MATCH_WLAN_FC,			/* WLAN fc */
+	OF1X_MATCH_WLAN_TYPE,		/* WLAN type */
+	OF1X_MATCH_WLAN_SUBTYPE,	/* WLAN subtype */
+	OF1X_MATCH_WLAN_DIRECTION,	/* WLAN direction */
+	OF1X_MATCH_WLAN_ADDRESS_1,	/* WLAN address 1 */
+	OF1X_MATCH_WLAN_ADDRESS_2,	/* WLAN address 2 */
+	OF1X_MATCH_WLAN_ADDRESS_3,	/* WLAN address 3 */
+
 	/* max value */
 	OF1X_MATCH_MAX,
 }of1x_match_type_t;
@@ -337,6 +351,70 @@ of1x_match_t* of1x_init_gtp_msg_type_match(uint8_t value);
 */
 of1x_match_t* of1x_init_gtp_teid_match(uint32_t value, uint32_t mask);
 
+//CAPWAP
+/**
+* @brief Create a CAPWAP_WBID match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_wbid_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a CAPWAP_RID match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_rid_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a CAPWAP_FLAGS match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_capwap_flags_match(uint16_t value, uint16_t mask);
+
+//WLAN
+/**
+* @brief Create a WLAN_FC match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_fc_match(uint16_t value, uint16_t mask);
+/**
+* @brief Create a WLAN_TYPE match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_type_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a WLAN_SUBTYPE match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_subtype_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create a WLAN_DIRECTION match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_direction_match(uint8_t value, uint8_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_1 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_1_match(uint64_t value, uint64_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_2 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_2_match(uint64_t value, uint64_t mask);
+/**
+* @brief Create an WLAN_ADDRESS_3 match
+* @ingroup core_of1x
+* @warning parameters value and mask must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_wlan_address_3_match(uint64_t value, uint64_t mask);
+
 //NW
 /**
 * @brief Create an NW_PROTO match, OF1.0 ONLY!  
@@ -480,7 +558,7 @@ of1x_match_t* of1x_init_ip6_dst_match(uint128__t value, uint128__t mask);
  * @ingroup core_of1x
  * @warning parameter value must be in Host Byte Order
  */
-of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value);
+of1x_match_t* of1x_init_ip6_flabel_match(uint32_t value, uint32_t mask);
 /**
  * @brief Create an IP6_ND_TARGET match
  * @ingroup core_of1x
@@ -676,10 +754,10 @@ uint32_t __of1x_get_match_val32(const of1x_match_t* match, bool get_mask, bool r
 		case OF1X_MATCH_IPV4_SRC:
 		case OF1X_MATCH_IPV4_DST:
 		case OF1X_MATCH_GTP_TEID:
+		case OF1X_MATCH_PBB_ISID:
 			return NTOHB32(wrap->u32);
 		case OF1X_MATCH_IPV6_FLABEL:
 			return OF1X_IP6_FLABEL_VALUE(NTOHB32(wrap->u32));
-		case OF1X_MATCH_PBB_ISID:
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);
