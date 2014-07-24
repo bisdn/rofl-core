@@ -501,12 +501,8 @@ public:
 	 */
 	uint32_t
 	get_addr_nbo() const {
-		uint32_t addr;
-		((uint8_t*)&addr)[0] = (*this)[0];
-		((uint8_t*)&addr)[1] = (*this)[1];
-		((uint8_t*)&addr)[2] = (*this)[2];
-		((uint8_t*)&addr)[3] = (*this)[3];
-		return addr;
+		uint8_t* ptr = somem();
+		return *((uint32_t*)ptr);
 	};
 
 	/**
@@ -514,10 +510,8 @@ public:
 	 */
 	void
 	set_addr_nbo(uint32_t addr) {
-		(*this)[0] = ((uint8_t*)&addr)[0];
-		(*this)[1] = ((uint8_t*)&addr)[1];
-		(*this)[2] = ((uint8_t*)&addr)[2];
-		(*this)[3] = ((uint8_t*)&addr)[3];
+		uint8_t* ptr = somem();
+		*((uint32_t*)ptr) = addr;
 	};
 
 
@@ -526,12 +520,8 @@ public:
 	 */
 	uint32_t
 	get_addr_hbo() const {
-		uint32_t addr;
-		((uint8_t*)&addr)[3] = (*this)[0];
-		((uint8_t*)&addr)[2] = (*this)[1];
-		((uint8_t*)&addr)[1] = (*this)[2];
-		((uint8_t*)&addr)[0] = (*this)[3];
-		return addr;
+		uint8_t* ptr = somem();
+		return be32toh(*((uint32_t*)ptr));
 	};
 
 	/**
@@ -539,10 +529,8 @@ public:
 	 */
 	void
 	set_addr_hbo(uint32_t addr) {
-		(*this)[0] = ((uint8_t*)&addr)[3];
-		(*this)[1] = ((uint8_t*)&addr)[2];
-		(*this)[2] = ((uint8_t*)&addr)[1];
-		(*this)[3] = ((uint8_t*)&addr)[0];
+		uint8_t* ptr = somem();
+		*((uint32_t*)ptr) = htobe32(addr);
 	};
 
 	/**

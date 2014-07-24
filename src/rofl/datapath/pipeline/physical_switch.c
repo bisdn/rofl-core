@@ -84,7 +84,13 @@ physical_switch_t* get_physical_switch(){
 }
 //Only used in multi-process deployments (with shared memory)
 void __set_physical_switch(physical_switch_t* sw){
+	//Set the physical switch pointer
 	psw = sw;
+	
+	//Reassign meta-ports in HEAP
+	flood_meta_port = &psw->meta_ports[META_PORT_FLOOD_INDEX];
+	in_port_meta_port = &psw->meta_ports[META_PORT_IN_PORT_INDEX];
+	all_meta_port = &psw->meta_ports[META_PORT_ALL_INDEX];
 }
 
 //Destroy

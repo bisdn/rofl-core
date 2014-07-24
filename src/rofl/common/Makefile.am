@@ -83,7 +83,8 @@ librofl_common_la_SOURCES = \
 		caddrinfo.h \
 		caddrinfo.cc \
 		caddrinfos.h \
-		caddrinfos.cc
+		caddrinfos.cc \
+		cindex.h
 		
 if ROFL_HAVE_OPENSSL
 librofl_common_la_SOURCES += \
@@ -138,7 +139,8 @@ library_include_HEADERS= \
 		cdptid.h \
 		csockaddr.h \
 		caddrinfo.h \
-		caddrinfos.h
+		caddrinfos.h \
+		cindex.h
 
 if ROFL_HAVE_OPENSSL
 library_include_HEADERS += \

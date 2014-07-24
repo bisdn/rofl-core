@@ -38,7 +38,7 @@ cofgroupdescstatsarray_test::testDefaultConstructor()
 void
 cofgroupdescstatsarray_test::testCopyConstructor()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	rofl::openflow::cofgroupdescstatsarray array(rofl::openflow13::OFP_VERSION);
 
@@ -102,7 +102,7 @@ cofgroupdescstatsarray_test::testCopyConstructor()
 void
 cofgroupdescstatsarray_test::testOperatorPlus()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	std::vector<rofl::openflow::cofgroupdescstatsarray> array;
 	array.push_back(rofl::openflow::cofgroupdescstatsarray(rofl::openflow13::OFP_VERSION));
@@ -127,7 +127,7 @@ cofgroupdescstatsarray_test::testOperatorPlus()
 	array[0].set_group_desc_stats(0).set_buckets().set_bucket(2).
 			set_actions().add_action_set_field(index++).set_oxm(rofl::openflow::coxmatch_ofb_eth_src(rofl::cmacaddr("22:22:22:22:22:22")));
 
-	index = 0;
+	index = rofl::cindex(0);
 
 	array[0].set_group_desc_stats(1).set_group_id(1);
 	array[0].set_group_desc_stats(1).set_group_type(rofl::openflow13::OFPGT_ALL);
@@ -185,7 +185,7 @@ cofgroupdescstatsarray_test::testOperatorPlus()
 void
 cofgroupdescstatsarray_test::testPackUnpack()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	/*
 	 * test memory

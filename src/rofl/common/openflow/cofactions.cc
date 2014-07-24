@@ -42,10 +42,10 @@ cofactions::operator= (
 
 	clear();
 
-	for (std::map<unsigned int, unsigned int>::const_iterator
+	for (std::map<cindex, unsigned int>::const_iterator
 			it = actions.actions_index.begin(); it != actions.actions_index.end(); ++it) {
 
-		const unsigned int& index 	= it->first;
+		const cindex& index 		= it->first;
 		const unsigned int& type 	= it->second;
 
 		switch (type) {
@@ -190,7 +190,7 @@ cofactions::operator== (
 void
 cofactions::clear()
 {
-	for (std::map<unsigned int, cofaction*>::iterator
+	for (std::map<cindex, cofaction*>::iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		delete (it->second);
 	}
@@ -204,7 +204,7 @@ size_t
 cofactions::length() const
 {
 	size_t len = 0;
-	for (std::map<unsigned int, cofaction*>::const_iterator
+	for (std::map<cindex, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		len += it->second->length();
 	}
@@ -222,7 +222,7 @@ cofactions::pack(uint8_t* buf, size_t buflen)
 	if (buflen < length())
 		throw eInval("cofactions::pack() buflen too short");
 
-	for (std::map<unsigned int, cofaction*>::iterator
+	for (std::map<cindex, cofaction*>::iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		cofaction& action = *(it->second);
 
@@ -245,7 +245,7 @@ cofactions::unpack(uint8_t* buf, size_t buflen)
 	if (buflen < sizeof(struct rofl::openflow::ofp_action_header))
 		throw eInval("cofactions::unpack() buflen too short");
 
-	unsigned int index = 0;
+	cindex index;
 
 	while (buflen >= sizeof(struct rofl::openflow::ofp_action_header)) {
 
@@ -379,7 +379,7 @@ cofactions::count_action_output(
 		uint32_t port_no) const
 {
 	int action_cnt = 0;
-	for (std::map<unsigned int, cofaction*>::const_iterator
+	for (std::map<cindex, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		const cofaction& action = *(it->second);
 
@@ -403,7 +403,7 @@ cofactions::actions_output_ports() const
 {
 	std::list<uint32_t> outports;
 
-	for (std::map<unsigned int, cofaction*>::const_iterator
+	for (std::map<cindex, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		const cofaction& action = *(it->second);
 
@@ -423,7 +423,7 @@ cofactions::actions_output_ports() const
 void
 cofactions::check_prerequisites() const
 {
-	for (std::map<unsigned int, cofaction*>::const_iterator
+	for (std::map<cindex, cofaction*>::const_iterator
 			it = actions.begin(); it != actions.end(); ++it) {
 		it->second->check_prerequisites();
 	}
@@ -432,7 +432,7 @@ cofactions::check_prerequisites() const
 
 
 void
-cofactions::drop_action(unsigned int index)
+cofactions::drop_action(const cindex& index)
 {
 	if (actions_index.find(index) == actions_index.end()) {
 		return;
@@ -444,7 +444,7 @@ cofactions::drop_action(unsigned int index)
 
 
 bool
-cofactions::has_action(unsigned int index) const
+cofactions::has_action(const cindex& index) const
 {
 	return (not (actions_index.find(index) == actions_index.end()));
 }
@@ -452,7 +452,7 @@ cofactions::has_action(unsigned int index) const
 
 
 cofaction_output&
-cofactions::add_action_output(unsigned int index)
+cofactions::add_action_output(const cindex& index)
 {
 	if (actions_index.find(index) != actions_index.end()) {
 		delete actions[index];
@@ -465,7 +465,7 @@ cofactions::add_action_output(unsigned int index)
 
 
 cofaction_output&
-cofactions::set_action_output(unsigned int index)
+cofactions::set_action_output(const cindex& index)
 {
 	if ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_OUTPUT != actions[index]->get_type())) {
@@ -481,7 +481,7 @@ cofactions::set_action_output(unsigned int index)
 
 
 const cofaction_output&
-cofactions::get_action_output(unsigned int index) const
+cofactions::get_action_output(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_OUTPUT != actions_index.at(index))) {
@@ -493,7 +493,7 @@ cofactions::get_action_output(unsigned int index) const
 
 
 void
-cofactions::drop_action_output(unsigned int index)
+cofactions::drop_action_output(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_OUTPUT != actions_index[index]) {
 		throw eActionInvalType();
@@ -504,7 +504,7 @@ cofactions::drop_action_output(unsigned int index)
 
 
 bool
-cofactions::has_action_output(unsigned int index) const
+cofactions::has_action_output(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_OUTPUT == actions_index.at(index)));
@@ -513,7 +513,7 @@ cofactions::has_action_output(unsigned int index) const
 
 
 cofaction_set_vlan_vid&
-cofactions::add_action_set_vlan_vid(unsigned int index)
+cofactions::add_action_set_vlan_vid(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_vlan_vid() invalid version");
@@ -529,7 +529,7 @@ cofactions::add_action_set_vlan_vid(unsigned int index)
 
 
 cofaction_set_vlan_vid&
-cofactions::set_action_set_vlan_vid(unsigned int index)
+cofactions::set_action_set_vlan_vid(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_vlan_vid() invalid version");
@@ -544,7 +544,7 @@ cofactions::set_action_set_vlan_vid(unsigned int index)
 
 
 const cofaction_set_vlan_vid&
-cofactions::get_action_set_vlan_vid(unsigned int index) const
+cofactions::get_action_set_vlan_vid(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_VLAN_VID != actions_index.at(index))) {
@@ -556,7 +556,7 @@ cofactions::get_action_set_vlan_vid(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_vlan_vid(unsigned int index)
+cofactions::drop_action_set_vlan_vid(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_VLAN_VID != actions_index[index]) {
 		throw eActionInvalType();
@@ -567,7 +567,7 @@ cofactions::drop_action_set_vlan_vid(unsigned int index)
 
 
 bool
-cofactions::has_action_set_vlan_vid(unsigned int index) const
+cofactions::has_action_set_vlan_vid(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_VLAN_VID == actions_index.at(index)));
@@ -576,7 +576,7 @@ cofactions::has_action_set_vlan_vid(unsigned int index) const
 
 
 cofaction_set_vlan_pcp&
-cofactions::add_action_set_vlan_pcp(unsigned int index)
+cofactions::add_action_set_vlan_pcp(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_vlan_pcp() invalid version");
@@ -592,7 +592,7 @@ cofactions::add_action_set_vlan_pcp(unsigned int index)
 
 
 cofaction_set_vlan_pcp&
-cofactions::set_action_set_vlan_pcp(unsigned int index)
+cofactions::set_action_set_vlan_pcp(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_vlan_pcp() invalid version");
@@ -607,7 +607,7 @@ cofactions::set_action_set_vlan_pcp(unsigned int index)
 
 
 const cofaction_set_vlan_pcp&
-cofactions::get_action_set_vlan_pcp(unsigned int index) const
+cofactions::get_action_set_vlan_pcp(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_VLAN_PCP != actions_index.at(index))) {
@@ -619,7 +619,7 @@ cofactions::get_action_set_vlan_pcp(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_vlan_pcp(unsigned int index)
+cofactions::drop_action_set_vlan_pcp(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_VLAN_PCP != actions_index[index]) {
 		throw eActionInvalType();
@@ -630,7 +630,7 @@ cofactions::drop_action_set_vlan_pcp(unsigned int index)
 
 
 bool
-cofactions::has_action_set_vlan_pcp(unsigned int index) const
+cofactions::has_action_set_vlan_pcp(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_VLAN_PCP == actions_index.at(index)));
@@ -639,7 +639,7 @@ cofactions::has_action_set_vlan_pcp(unsigned int index) const
 
 
 cofaction_strip_vlan&
-cofactions::add_action_strip_vlan(unsigned int index)
+cofactions::add_action_strip_vlan(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_strip_vlan() invalid version");
@@ -655,7 +655,7 @@ cofactions::add_action_strip_vlan(unsigned int index)
 
 
 cofaction_strip_vlan&
-cofactions::set_action_strip_vlan(unsigned int index)
+cofactions::set_action_strip_vlan(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_strip_vlan() invalid version");
@@ -670,7 +670,7 @@ cofactions::set_action_strip_vlan(unsigned int index)
 
 
 const cofaction_strip_vlan&
-cofactions::get_action_strip_vlan(unsigned int index) const
+cofactions::get_action_strip_vlan(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_STRIP_VLAN != actions_index.at(index))) {
@@ -682,7 +682,7 @@ cofactions::get_action_strip_vlan(unsigned int index) const
 
 
 void
-cofactions::drop_action_strip_vlan(unsigned int index)
+cofactions::drop_action_strip_vlan(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_STRIP_VLAN != actions_index[index]) {
 		throw eActionInvalType();
@@ -693,7 +693,7 @@ cofactions::drop_action_strip_vlan(unsigned int index)
 
 
 bool
-cofactions::has_action_strip_vlan(unsigned int index) const
+cofactions::has_action_strip_vlan(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_STRIP_VLAN == actions_index.at(index)));
@@ -702,7 +702,7 @@ cofactions::has_action_strip_vlan(unsigned int index) const
 
 
 cofaction_set_dl_src&
-cofactions::add_action_set_dl_src(unsigned int index)
+cofactions::add_action_set_dl_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_dl_src() invalid version");
@@ -718,7 +718,7 @@ cofactions::add_action_set_dl_src(unsigned int index)
 
 
 cofaction_set_dl_src&
-cofactions::set_action_set_dl_src(unsigned int index)
+cofactions::set_action_set_dl_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_dl_src() invalid version");
@@ -733,7 +733,7 @@ cofactions::set_action_set_dl_src(unsigned int index)
 
 
 const cofaction_set_dl_src&
-cofactions::get_action_set_dl_src(unsigned int index) const
+cofactions::get_action_set_dl_src(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_DL_SRC != actions_index.at(index))) {
@@ -745,7 +745,7 @@ cofactions::get_action_set_dl_src(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_dl_src(unsigned int index)
+cofactions::drop_action_set_dl_src(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_DL_SRC != actions_index[index]) {
 		throw eActionInvalType();
@@ -756,7 +756,7 @@ cofactions::drop_action_set_dl_src(unsigned int index)
 
 
 bool
-cofactions::has_action_set_dl_src(unsigned int index) const
+cofactions::has_action_set_dl_src(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_DL_SRC == actions_index.at(index)));
@@ -765,7 +765,7 @@ cofactions::has_action_set_dl_src(unsigned int index) const
 
 
 cofaction_set_dl_dst&
-cofactions::add_action_set_dl_dst(unsigned int index)
+cofactions::add_action_set_dl_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_dl_dst() invalid version");
@@ -781,7 +781,7 @@ cofactions::add_action_set_dl_dst(unsigned int index)
 
 
 cofaction_set_dl_dst&
-cofactions::set_action_set_dl_dst(unsigned int index)
+cofactions::set_action_set_dl_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_dl_dst() invalid version");
@@ -796,7 +796,7 @@ cofactions::set_action_set_dl_dst(unsigned int index)
 
 
 const cofaction_set_dl_dst&
-cofactions::get_action_set_dl_dst(unsigned int index) const
+cofactions::get_action_set_dl_dst(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_DL_DST != actions_index.at(index))) {
@@ -808,7 +808,7 @@ cofactions::get_action_set_dl_dst(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_dl_dst(unsigned int index)
+cofactions::drop_action_set_dl_dst(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_DL_DST != actions_index[index]) {
 		throw eActionInvalType();
@@ -819,7 +819,7 @@ cofactions::drop_action_set_dl_dst(unsigned int index)
 
 
 bool
-cofactions::has_action_set_dl_dst(unsigned int index) const
+cofactions::has_action_set_dl_dst(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_DL_DST == actions_index.at(index)));
@@ -828,7 +828,7 @@ cofactions::has_action_set_dl_dst(unsigned int index) const
 
 
 cofaction_set_nw_src&
-cofactions::add_action_set_nw_src(unsigned int index)
+cofactions::add_action_set_nw_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_nw_src() invalid version");
@@ -844,7 +844,7 @@ cofactions::add_action_set_nw_src(unsigned int index)
 
 
 cofaction_set_nw_src&
-cofactions::set_action_set_nw_src(unsigned int index)
+cofactions::set_action_set_nw_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_nw_src() invalid version");
@@ -859,7 +859,7 @@ cofactions::set_action_set_nw_src(unsigned int index)
 
 
 const cofaction_set_nw_src&
-cofactions::get_action_set_nw_src(unsigned int index) const
+cofactions::get_action_set_nw_src(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_NW_SRC != actions_index.at(index))) {
@@ -871,7 +871,7 @@ cofactions::get_action_set_nw_src(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_nw_src(unsigned int index)
+cofactions::drop_action_set_nw_src(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_NW_SRC != actions_index[index]) {
 		throw eActionInvalType();
@@ -882,7 +882,7 @@ cofactions::drop_action_set_nw_src(unsigned int index)
 
 
 bool
-cofactions::has_action_set_nw_src(unsigned int index) const
+cofactions::has_action_set_nw_src(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_NW_SRC == actions_index.at(index)));
@@ -891,7 +891,7 @@ cofactions::has_action_set_nw_src(unsigned int index) const
 
 
 cofaction_set_nw_dst&
-cofactions::add_action_set_nw_dst(unsigned int index)
+cofactions::add_action_set_nw_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_nw_dst() invalid version");
@@ -907,7 +907,7 @@ cofactions::add_action_set_nw_dst(unsigned int index)
 
 
 cofaction_set_nw_dst&
-cofactions::set_action_set_nw_dst(unsigned int index)
+cofactions::set_action_set_nw_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_nw_dst() invalid version");
@@ -922,7 +922,7 @@ cofactions::set_action_set_nw_dst(unsigned int index)
 
 
 const cofaction_set_nw_dst&
-cofactions::get_action_set_nw_dst(unsigned int index) const
+cofactions::get_action_set_nw_dst(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_NW_DST != actions_index.at(index))) {
@@ -934,7 +934,7 @@ cofactions::get_action_set_nw_dst(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_nw_dst(unsigned int index)
+cofactions::drop_action_set_nw_dst(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_NW_DST != actions_index[index]) {
 		throw eActionInvalType();
@@ -945,7 +945,7 @@ cofactions::drop_action_set_nw_dst(unsigned int index)
 
 
 bool
-cofactions::has_action_set_nw_dst(unsigned int index) const
+cofactions::has_action_set_nw_dst(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_NW_DST == actions_index.at(index)));
@@ -954,7 +954,7 @@ cofactions::has_action_set_nw_dst(unsigned int index) const
 
 
 cofaction_set_nw_tos&
-cofactions::add_action_set_nw_tos(unsigned int index)
+cofactions::add_action_set_nw_tos(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_nw_tos() invalid version");
@@ -970,7 +970,7 @@ cofactions::add_action_set_nw_tos(unsigned int index)
 
 
 cofaction_set_nw_tos&
-cofactions::set_action_set_nw_tos(unsigned int index)
+cofactions::set_action_set_nw_tos(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_nw_tos() invalid version");
@@ -985,7 +985,7 @@ cofactions::set_action_set_nw_tos(unsigned int index)
 
 
 const cofaction_set_nw_tos&
-cofactions::get_action_set_nw_tos(unsigned int index) const
+cofactions::get_action_set_nw_tos(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_NW_TOS != actions_index.at(index))) {
@@ -997,7 +997,7 @@ cofactions::get_action_set_nw_tos(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_nw_tos(unsigned int index)
+cofactions::drop_action_set_nw_tos(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_NW_TOS != actions_index[index]) {
 		throw eActionInvalType();
@@ -1008,7 +1008,7 @@ cofactions::drop_action_set_nw_tos(unsigned int index)
 
 
 bool
-cofactions::has_action_set_nw_tos(unsigned int index) const
+cofactions::has_action_set_nw_tos(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_NW_TOS == actions_index.at(index)));
@@ -1017,7 +1017,7 @@ cofactions::has_action_set_nw_tos(unsigned int index) const
 
 
 cofaction_set_tp_src&
-cofactions::add_action_set_tp_src(unsigned int index)
+cofactions::add_action_set_tp_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_tp_src() invalid version");
@@ -1033,7 +1033,7 @@ cofactions::add_action_set_tp_src(unsigned int index)
 
 
 cofaction_set_tp_src&
-cofactions::set_action_set_tp_src(unsigned int index)
+cofactions::set_action_set_tp_src(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_tp_src() invalid version");
@@ -1048,7 +1048,7 @@ cofactions::set_action_set_tp_src(unsigned int index)
 
 
 const cofaction_set_tp_src&
-cofactions::get_action_set_tp_src(unsigned int index) const
+cofactions::get_action_set_tp_src(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_TP_SRC != actions_index.at(index))) {
@@ -1060,7 +1060,7 @@ cofactions::get_action_set_tp_src(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_tp_src(unsigned int index)
+cofactions::drop_action_set_tp_src(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_TP_SRC != actions_index[index]) {
 		throw eActionInvalType();
@@ -1071,7 +1071,7 @@ cofactions::drop_action_set_tp_src(unsigned int index)
 
 
 bool
-cofactions::has_action_set_tp_src(unsigned int index) const
+cofactions::has_action_set_tp_src(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_TP_SRC == actions_index.at(index)));
@@ -1080,7 +1080,7 @@ cofactions::has_action_set_tp_src(unsigned int index) const
 
 
 cofaction_set_tp_dst&
-cofactions::add_action_set_tp_dst(unsigned int index)
+cofactions::add_action_set_tp_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_tp_dst() invalid version");
@@ -1096,7 +1096,7 @@ cofactions::add_action_set_tp_dst(unsigned int index)
 
 
 cofaction_set_tp_dst&
-cofactions::set_action_set_tp_dst(unsigned int index)
+cofactions::set_action_set_tp_dst(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_tp_dst() invalid version");
@@ -1111,7 +1111,7 @@ cofactions::set_action_set_tp_dst(unsigned int index)
 
 
 const cofaction_set_tp_dst&
-cofactions::get_action_set_tp_dst(unsigned int index) const
+cofactions::get_action_set_tp_dst(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_TP_DST != actions_index.at(index))) {
@@ -1123,7 +1123,7 @@ cofactions::get_action_set_tp_dst(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_tp_dst(unsigned int index)
+cofactions::drop_action_set_tp_dst(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_TP_DST != actions_index[index]) {
 		throw eActionInvalType();
@@ -1134,7 +1134,7 @@ cofactions::drop_action_set_tp_dst(unsigned int index)
 
 
 bool
-cofactions::has_action_set_tp_dst(unsigned int index) const
+cofactions::has_action_set_tp_dst(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_TP_DST == actions_index.at(index)));
@@ -1143,7 +1143,7 @@ cofactions::has_action_set_tp_dst(unsigned int index) const
 
 
 cofaction_enqueue&
-cofactions::add_action_enqueue(unsigned int index)
+cofactions::add_action_enqueue(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_enqueue() invalid version");
@@ -1159,7 +1159,7 @@ cofactions::add_action_enqueue(unsigned int index)
 
 
 cofaction_enqueue&
-cofactions::set_action_enqueue(unsigned int index)
+cofactions::set_action_enqueue(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_enqueue() invalid version");
@@ -1174,7 +1174,7 @@ cofactions::set_action_enqueue(unsigned int index)
 
 
 const cofaction_enqueue&
-cofactions::get_action_enqueue(unsigned int index) const
+cofactions::get_action_enqueue(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow10::OFPAT_ENQUEUE != actions_index.at(index))) {
@@ -1186,7 +1186,7 @@ cofactions::get_action_enqueue(unsigned int index) const
 
 
 void
-cofactions::drop_action_enqueue(unsigned int index)
+cofactions::drop_action_enqueue(const cindex& index)
 {
 	if (rofl::openflow10::OFPAT_ENQUEUE != actions_index[index]) {
 		throw eActionInvalType();
@@ -1197,7 +1197,7 @@ cofactions::drop_action_enqueue(unsigned int index)
 
 
 bool
-cofactions::has_action_enqueue(unsigned int index) const
+cofactions::has_action_enqueue(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow10::OFPAT_ENQUEUE == actions_index.at(index)));
@@ -1206,7 +1206,7 @@ cofactions::has_action_enqueue(unsigned int index) const
 
 
 cofaction_vendor&
-cofactions::add_action_vendor(unsigned int index)
+cofactions::add_action_vendor(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_vendor() invalid version");
@@ -1222,7 +1222,7 @@ cofactions::add_action_vendor(unsigned int index)
 
 
 cofaction_vendor&
-cofactions::set_action_vendor(unsigned int index)
+cofactions::set_action_vendor(const cindex& index)
 {
 	if (get_version() != rofl::openflow10::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_vendor() invalid version");
@@ -1237,7 +1237,7 @@ cofactions::set_action_vendor(unsigned int index)
 
 
 const cofaction_vendor&
-cofactions::get_action_vendor(unsigned int index) const
+cofactions::get_action_vendor(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow10::OFPAT_VENDOR != actions_index.at(index))) {
@@ -1249,7 +1249,7 @@ cofactions::get_action_vendor(unsigned int index) const
 
 
 void
-cofactions::drop_action_vendor(unsigned int index)
+cofactions::drop_action_vendor(const cindex& index)
 {
 	if (rofl::openflow10::OFPAT_VENDOR != actions_index[index]) {
 		throw eActionInvalType();
@@ -1260,7 +1260,7 @@ cofactions::drop_action_vendor(unsigned int index)
 
 
 bool
-cofactions::has_action_vendor(unsigned int index) const
+cofactions::has_action_vendor(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow10::OFPAT_VENDOR == actions_index.at(index)));
@@ -1269,7 +1269,7 @@ cofactions::has_action_vendor(unsigned int index) const
 
 
 cofaction_copy_ttl_out&
-cofactions::add_action_copy_ttl_out(unsigned int index)
+cofactions::add_action_copy_ttl_out(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_copy_ttl_out() invalid version");
@@ -1285,7 +1285,7 @@ cofactions::add_action_copy_ttl_out(unsigned int index)
 
 
 cofaction_copy_ttl_out&
-cofactions::set_action_copy_ttl_out(unsigned int index)
+cofactions::set_action_copy_ttl_out(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_copy_ttl_out() invalid version");
@@ -1300,7 +1300,7 @@ cofactions::set_action_copy_ttl_out(unsigned int index)
 
 
 const cofaction_copy_ttl_out&
-cofactions::get_action_copy_ttl_out(unsigned int index) const
+cofactions::get_action_copy_ttl_out(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_COPY_TTL_OUT != actions_index.at(index))) {
@@ -1312,7 +1312,7 @@ cofactions::get_action_copy_ttl_out(unsigned int index) const
 
 
 void
-cofactions::drop_action_copy_ttl_out(unsigned int index)
+cofactions::drop_action_copy_ttl_out(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_COPY_TTL_OUT != actions_index[index]) {
 		throw eActionInvalType();
@@ -1323,7 +1323,7 @@ cofactions::drop_action_copy_ttl_out(unsigned int index)
 
 
 bool
-cofactions::has_action_copy_ttl_out(unsigned int index) const
+cofactions::has_action_copy_ttl_out(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_COPY_TTL_OUT == actions_index.at(index)));
@@ -1332,7 +1332,7 @@ cofactions::has_action_copy_ttl_out(unsigned int index) const
 
 
 cofaction_copy_ttl_in&
-cofactions::add_action_copy_ttl_in(unsigned int index)
+cofactions::add_action_copy_ttl_in(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_copy_ttl_in() invalid version");
@@ -1348,7 +1348,7 @@ cofactions::add_action_copy_ttl_in(unsigned int index)
 
 
 cofaction_copy_ttl_in&
-cofactions::set_action_copy_ttl_in(unsigned int index)
+cofactions::set_action_copy_ttl_in(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_copy_ttl_in() invalid version");
@@ -1363,7 +1363,7 @@ cofactions::set_action_copy_ttl_in(unsigned int index)
 
 
 const cofaction_copy_ttl_in&
-cofactions::get_action_copy_ttl_in(unsigned int index) const
+cofactions::get_action_copy_ttl_in(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_COPY_TTL_IN != actions_index.at(index))) {
@@ -1375,7 +1375,7 @@ cofactions::get_action_copy_ttl_in(unsigned int index) const
 
 
 void
-cofactions::drop_action_copy_ttl_in(unsigned int index)
+cofactions::drop_action_copy_ttl_in(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_COPY_TTL_IN != actions_index[index]) {
 		throw eActionInvalType();
@@ -1386,7 +1386,7 @@ cofactions::drop_action_copy_ttl_in(unsigned int index)
 
 
 bool
-cofactions::has_action_copy_ttl_in(unsigned int index) const
+cofactions::has_action_copy_ttl_in(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_COPY_TTL_IN == actions_index.at(index)));
@@ -1395,7 +1395,7 @@ cofactions::has_action_copy_ttl_in(unsigned int index) const
 
 
 cofaction_set_mpls_ttl&
-cofactions::add_action_set_mpls_ttl(unsigned int index)
+cofactions::add_action_set_mpls_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_mpls_ttl() invalid version");
@@ -1411,7 +1411,7 @@ cofactions::add_action_set_mpls_ttl(unsigned int index)
 
 
 cofaction_set_mpls_ttl&
-cofactions::set_action_set_mpls_ttl(unsigned int index)
+cofactions::set_action_set_mpls_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_mpls_ttl() invalid version");
@@ -1426,7 +1426,7 @@ cofactions::set_action_set_mpls_ttl(unsigned int index)
 
 
 const cofaction_set_mpls_ttl&
-cofactions::get_action_set_mpls_ttl(unsigned int index) const
+cofactions::get_action_set_mpls_ttl(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_MPLS_TTL != actions_index.at(index))) {
@@ -1438,7 +1438,7 @@ cofactions::get_action_set_mpls_ttl(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_mpls_ttl(unsigned int index)
+cofactions::drop_action_set_mpls_ttl(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_MPLS_TTL != actions_index[index]) {
 		throw eActionInvalType();
@@ -1449,7 +1449,7 @@ cofactions::drop_action_set_mpls_ttl(unsigned int index)
 
 
 bool
-cofactions::has_action_set_mpls_ttl(unsigned int index) const
+cofactions::has_action_set_mpls_ttl(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_MPLS_TTL == actions_index.at(index)));
@@ -1458,7 +1458,7 @@ cofactions::has_action_set_mpls_ttl(unsigned int index) const
 
 
 cofaction_dec_mpls_ttl&
-cofactions::add_action_dec_mpls_ttl(unsigned int index)
+cofactions::add_action_dec_mpls_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_dec_mpls_ttl() invalid version");
@@ -1474,7 +1474,7 @@ cofactions::add_action_dec_mpls_ttl(unsigned int index)
 
 
 cofaction_dec_mpls_ttl&
-cofactions::set_action_dec_mpls_ttl(unsigned int index)
+cofactions::set_action_dec_mpls_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_dec_mpls_ttl() invalid version");
@@ -1489,7 +1489,7 @@ cofactions::set_action_dec_mpls_ttl(unsigned int index)
 
 
 const cofaction_dec_mpls_ttl&
-cofactions::get_action_dec_mpls_ttl(unsigned int index) const
+cofactions::get_action_dec_mpls_ttl(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_DEC_MPLS_TTL != actions_index.at(index))) {
@@ -1501,7 +1501,7 @@ cofactions::get_action_dec_mpls_ttl(unsigned int index) const
 
 
 void
-cofactions::drop_action_dec_mpls_ttl(unsigned int index)
+cofactions::drop_action_dec_mpls_ttl(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_DEC_MPLS_TTL != actions_index[index]) {
 		throw eActionInvalType();
@@ -1512,7 +1512,7 @@ cofactions::drop_action_dec_mpls_ttl(unsigned int index)
 
 
 bool
-cofactions::has_action_dec_mpls_ttl(unsigned int index) const
+cofactions::has_action_dec_mpls_ttl(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_DEC_MPLS_TTL == actions_index.at(index)));
@@ -1521,7 +1521,7 @@ cofactions::has_action_dec_mpls_ttl(unsigned int index) const
 
 
 cofaction_push_vlan&
-cofactions::add_action_push_vlan(unsigned int index)
+cofactions::add_action_push_vlan(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_push_vlan() invalid version");
@@ -1537,7 +1537,7 @@ cofactions::add_action_push_vlan(unsigned int index)
 
 
 cofaction_push_vlan&
-cofactions::set_action_push_vlan(unsigned int index)
+cofactions::set_action_push_vlan(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_push_vlan() invalid version");
@@ -1552,7 +1552,7 @@ cofactions::set_action_push_vlan(unsigned int index)
 
 
 const cofaction_push_vlan&
-cofactions::get_action_push_vlan(unsigned int index) const
+cofactions::get_action_push_vlan(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_PUSH_VLAN != actions_index.at(index))) {
@@ -1564,7 +1564,7 @@ cofactions::get_action_push_vlan(unsigned int index) const
 
 
 void
-cofactions::drop_action_push_vlan(unsigned int index)
+cofactions::drop_action_push_vlan(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_PUSH_VLAN != actions_index[index]) {
 		throw eActionInvalType();
@@ -1575,7 +1575,7 @@ cofactions::drop_action_push_vlan(unsigned int index)
 
 
 bool
-cofactions::has_action_push_vlan(unsigned int index) const
+cofactions::has_action_push_vlan(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_PUSH_VLAN == actions_index.at(index)));
@@ -1584,7 +1584,7 @@ cofactions::has_action_push_vlan(unsigned int index) const
 
 
 cofaction_pop_vlan&
-cofactions::add_action_pop_vlan(unsigned int index)
+cofactions::add_action_pop_vlan(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_pop_vlan() invalid version");
@@ -1600,7 +1600,7 @@ cofactions::add_action_pop_vlan(unsigned int index)
 
 
 cofaction_pop_vlan&
-cofactions::set_action_pop_vlan(unsigned int index)
+cofactions::set_action_pop_vlan(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_pop_vlan() invalid version");
@@ -1615,7 +1615,7 @@ cofactions::set_action_pop_vlan(unsigned int index)
 
 
 const cofaction_pop_vlan&
-cofactions::get_action_pop_vlan(unsigned int index) const
+cofactions::get_action_pop_vlan(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_POP_VLAN != actions_index.at(index))) {
@@ -1627,7 +1627,7 @@ cofactions::get_action_pop_vlan(unsigned int index) const
 
 
 void
-cofactions::drop_action_pop_vlan(unsigned int index)
+cofactions::drop_action_pop_vlan(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_POP_VLAN != actions_index[index]) {
 		throw eActionInvalType();
@@ -1638,7 +1638,7 @@ cofactions::drop_action_pop_vlan(unsigned int index)
 
 
 bool
-cofactions::has_action_pop_vlan(unsigned int index) const
+cofactions::has_action_pop_vlan(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_POP_VLAN == actions_index.at(index)));
@@ -1647,7 +1647,7 @@ cofactions::has_action_pop_vlan(unsigned int index) const
 
 
 cofaction_push_mpls&
-cofactions::add_action_push_mpls(unsigned int index)
+cofactions::add_action_push_mpls(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_push_mpls() invalid version");
@@ -1663,7 +1663,7 @@ cofactions::add_action_push_mpls(unsigned int index)
 
 
 cofaction_push_mpls&
-cofactions::set_action_push_mpls(unsigned int index)
+cofactions::set_action_push_mpls(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_push_mpls() invalid version");
@@ -1678,7 +1678,7 @@ cofactions::set_action_push_mpls(unsigned int index)
 
 
 const cofaction_push_mpls&
-cofactions::get_action_push_mpls(unsigned int index) const
+cofactions::get_action_push_mpls(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_PUSH_MPLS != actions_index.at(index))) {
@@ -1690,7 +1690,7 @@ cofactions::get_action_push_mpls(unsigned int index) const
 
 
 void
-cofactions::drop_action_push_mpls(unsigned int index)
+cofactions::drop_action_push_mpls(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_PUSH_MPLS != actions_index[index]) {
 		throw eActionInvalType();
@@ -1701,7 +1701,7 @@ cofactions::drop_action_push_mpls(unsigned int index)
 
 
 bool
-cofactions::has_action_push_mpls(unsigned int index) const
+cofactions::has_action_push_mpls(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_PUSH_MPLS == actions_index.at(index)));
@@ -1710,7 +1710,7 @@ cofactions::has_action_push_mpls(unsigned int index) const
 
 
 cofaction_pop_mpls&
-cofactions::add_action_pop_mpls(unsigned int index)
+cofactions::add_action_pop_mpls(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_pop_mpls() invalid version");
@@ -1726,7 +1726,7 @@ cofactions::add_action_pop_mpls(unsigned int index)
 
 
 cofaction_pop_mpls&
-cofactions::set_action_pop_mpls(unsigned int index)
+cofactions::set_action_pop_mpls(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_pop_mpls() invalid version");
@@ -1741,7 +1741,7 @@ cofactions::set_action_pop_mpls(unsigned int index)
 
 
 const cofaction_pop_mpls&
-cofactions::get_action_pop_mpls(unsigned int index) const
+cofactions::get_action_pop_mpls(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_POP_MPLS != actions_index.at(index))) {
@@ -1753,7 +1753,7 @@ cofactions::get_action_pop_mpls(unsigned int index) const
 
 
 void
-cofactions::drop_action_pop_mpls(unsigned int index)
+cofactions::drop_action_pop_mpls(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_POP_MPLS != actions_index[index]) {
 		throw eActionInvalType();
@@ -1764,7 +1764,7 @@ cofactions::drop_action_pop_mpls(unsigned int index)
 
 
 bool
-cofactions::has_action_pop_mpls(unsigned int index) const
+cofactions::has_action_pop_mpls(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_POP_MPLS == actions_index.at(index)));
@@ -1773,7 +1773,7 @@ cofactions::has_action_pop_mpls(unsigned int index) const
 
 
 cofaction_group&
-cofactions::add_action_group(unsigned int index)
+cofactions::add_action_group(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_group() invalid version");
@@ -1789,7 +1789,7 @@ cofactions::add_action_group(unsigned int index)
 
 
 cofaction_group&
-cofactions::set_action_group(unsigned int index)
+cofactions::set_action_group(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_group() invalid version");
@@ -1804,7 +1804,7 @@ cofactions::set_action_group(unsigned int index)
 
 
 const cofaction_group&
-cofactions::get_action_group(unsigned int index) const
+cofactions::get_action_group(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_GROUP != actions_index.at(index))) {
@@ -1816,7 +1816,7 @@ cofactions::get_action_group(unsigned int index) const
 
 
 void
-cofactions::drop_action_group(unsigned int index)
+cofactions::drop_action_group(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_GROUP != actions_index[index]) {
 		throw eActionInvalType();
@@ -1827,7 +1827,7 @@ cofactions::drop_action_group(unsigned int index)
 
 
 bool
-cofactions::has_action_group(unsigned int index) const
+cofactions::has_action_group(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_GROUP == actions_index.at(index)));
@@ -1836,7 +1836,7 @@ cofactions::has_action_group(unsigned int index) const
 
 
 cofaction_set_nw_ttl&
-cofactions::add_action_set_nw_ttl(unsigned int index)
+cofactions::add_action_set_nw_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_nw_ttl() invalid version");
@@ -1852,7 +1852,7 @@ cofactions::add_action_set_nw_ttl(unsigned int index)
 
 
 cofaction_set_nw_ttl&
-cofactions::set_action_set_nw_ttl(unsigned int index)
+cofactions::set_action_set_nw_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_nw_ttl() invalid version");
@@ -1867,7 +1867,7 @@ cofactions::set_action_set_nw_ttl(unsigned int index)
 
 
 const cofaction_set_nw_ttl&
-cofactions::get_action_set_nw_ttl(unsigned int index) const
+cofactions::get_action_set_nw_ttl(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_NW_TTL != actions_index.at(index))) {
@@ -1879,7 +1879,7 @@ cofactions::get_action_set_nw_ttl(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_nw_ttl(unsigned int index)
+cofactions::drop_action_set_nw_ttl(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_NW_TTL != actions_index[index]) {
 		throw eActionInvalType();
@@ -1890,7 +1890,7 @@ cofactions::drop_action_set_nw_ttl(unsigned int index)
 
 
 bool
-cofactions::has_action_set_nw_ttl(unsigned int index) const
+cofactions::has_action_set_nw_ttl(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_NW_TTL == actions_index.at(index)));
@@ -1899,7 +1899,7 @@ cofactions::has_action_set_nw_ttl(unsigned int index) const
 
 
 cofaction_dec_nw_ttl&
-cofactions::add_action_dec_nw_ttl(unsigned int index)
+cofactions::add_action_dec_nw_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_dec_nw_ttl() invalid version");
@@ -1915,7 +1915,7 @@ cofactions::add_action_dec_nw_ttl(unsigned int index)
 
 
 cofaction_dec_nw_ttl&
-cofactions::set_action_dec_nw_ttl(unsigned int index)
+cofactions::set_action_dec_nw_ttl(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_dec_nw_ttl() invalid version");
@@ -1930,7 +1930,7 @@ cofactions::set_action_dec_nw_ttl(unsigned int index)
 
 
 const cofaction_dec_nw_ttl&
-cofactions::get_action_dec_nw_ttl(unsigned int index) const
+cofactions::get_action_dec_nw_ttl(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_DEC_NW_TTL != actions_index.at(index))) {
@@ -1942,7 +1942,7 @@ cofactions::get_action_dec_nw_ttl(unsigned int index) const
 
 
 void
-cofactions::drop_action_dec_nw_ttl(unsigned int index)
+cofactions::drop_action_dec_nw_ttl(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_DEC_NW_TTL != actions_index[index]) {
 		throw eActionInvalType();
@@ -1953,7 +1953,7 @@ cofactions::drop_action_dec_nw_ttl(unsigned int index)
 
 
 bool
-cofactions::has_action_dec_nw_ttl(unsigned int index) const
+cofactions::has_action_dec_nw_ttl(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_DEC_NW_TTL == actions_index.at(index)));
@@ -1962,7 +1962,7 @@ cofactions::has_action_dec_nw_ttl(unsigned int index) const
 
 
 cofaction_set_queue&
-cofactions::add_action_set_queue(unsigned int index)
+cofactions::add_action_set_queue(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_queue() invalid version");
@@ -1978,7 +1978,7 @@ cofactions::add_action_set_queue(unsigned int index)
 
 
 cofaction_set_queue&
-cofactions::set_action_set_queue(unsigned int index)
+cofactions::set_action_set_queue(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_queue() invalid version");
@@ -1993,7 +1993,7 @@ cofactions::set_action_set_queue(unsigned int index)
 
 
 const cofaction_set_queue&
-cofactions::get_action_set_queue(unsigned int index) const
+cofactions::get_action_set_queue(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_QUEUE != actions_index.at(index))) {
@@ -2005,7 +2005,7 @@ cofactions::get_action_set_queue(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_queue(unsigned int index)
+cofactions::drop_action_set_queue(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_QUEUE != actions_index[index]) {
 		throw eActionInvalType();
@@ -2016,7 +2016,7 @@ cofactions::drop_action_set_queue(unsigned int index)
 
 
 bool
-cofactions::has_action_set_queue(unsigned int index) const
+cofactions::has_action_set_queue(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_QUEUE == actions_index.at(index)));
@@ -2025,7 +2025,7 @@ cofactions::has_action_set_queue(unsigned int index) const
 
 
 cofaction_set_field&
-cofactions::add_action_set_field(unsigned int index)
+cofactions::add_action_set_field(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_set_field() invalid version");
@@ -2041,7 +2041,7 @@ cofactions::add_action_set_field(unsigned int index)
 
 
 cofaction_set_field&
-cofactions::set_action_set_field(unsigned int index)
+cofactions::set_action_set_field(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_set_field() invalid version");
@@ -2056,7 +2056,7 @@ cofactions::set_action_set_field(unsigned int index)
 
 
 const cofaction_set_field&
-cofactions::get_action_set_field(unsigned int index) const
+cofactions::get_action_set_field(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_SET_FIELD != actions_index.at(index))) {
@@ -2068,7 +2068,7 @@ cofactions::get_action_set_field(unsigned int index) const
 
 
 void
-cofactions::drop_action_set_field(unsigned int index)
+cofactions::drop_action_set_field(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_SET_FIELD != actions_index[index]) {
 		throw eActionInvalType();
@@ -2079,7 +2079,7 @@ cofactions::drop_action_set_field(unsigned int index)
 
 
 bool
-cofactions::has_action_set_field(unsigned int index) const
+cofactions::has_action_set_field(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_SET_FIELD == actions_index.at(index)));
@@ -2088,7 +2088,7 @@ cofactions::has_action_set_field(unsigned int index) const
 
 
 cofaction_experimenter&
-cofactions::add_action_experimenter(unsigned int index)
+cofactions::add_action_experimenter(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_experimenter() invalid version");
@@ -2104,7 +2104,7 @@ cofactions::add_action_experimenter(unsigned int index)
 
 
 cofaction_experimenter&
-cofactions::set_action_experimenter(unsigned int index)
+cofactions::set_action_experimenter(const cindex& index)
 {
 	if (get_version() < rofl::openflow12::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_experimenter() invalid version");
@@ -2119,7 +2119,7 @@ cofactions::set_action_experimenter(unsigned int index)
 
 
 const cofaction_experimenter&
-cofactions::get_action_experimenter(unsigned int index) const
+cofactions::get_action_experimenter(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_EXPERIMENTER != actions_index.at(index))) {
@@ -2131,7 +2131,7 @@ cofactions::get_action_experimenter(unsigned int index) const
 
 
 void
-cofactions::drop_action_experimenter(unsigned int index)
+cofactions::drop_action_experimenter(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_EXPERIMENTER != actions_index[index]) {
 		throw eActionInvalType();
@@ -2142,7 +2142,7 @@ cofactions::drop_action_experimenter(unsigned int index)
 
 
 bool
-cofactions::has_action_experimenter(unsigned int index) const
+cofactions::has_action_experimenter(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_EXPERIMENTER == actions_index.at(index)));
@@ -2151,7 +2151,7 @@ cofactions::has_action_experimenter(unsigned int index) const
 
 
 cofaction_push_pbb&
-cofactions::add_action_push_pbb(unsigned int index)
+cofactions::add_action_push_pbb(const cindex& index)
 {
 	if (get_version() < rofl::openflow13::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_push_pbb() invalid version");
@@ -2167,7 +2167,7 @@ cofactions::add_action_push_pbb(unsigned int index)
 
 
 cofaction_push_pbb&
-cofactions::set_action_push_pbb(unsigned int index)
+cofactions::set_action_push_pbb(const cindex& index)
 {
 	if (get_version() < rofl::openflow13::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_push_pbb() invalid version");
@@ -2182,7 +2182,7 @@ cofactions::set_action_push_pbb(unsigned int index)
 
 
 const cofaction_push_pbb&
-cofactions::get_action_push_pbb(unsigned int index) const
+cofactions::get_action_push_pbb(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_PUSH_PBB != actions_index.at(index))) {
@@ -2194,7 +2194,7 @@ cofactions::get_action_push_pbb(unsigned int index) const
 
 
 void
-cofactions::drop_action_push_pbb(unsigned int index)
+cofactions::drop_action_push_pbb(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_PUSH_PBB != actions_index[index]) {
 		throw eActionInvalType();
@@ -2205,7 +2205,7 @@ cofactions::drop_action_push_pbb(unsigned int index)
 
 
 bool
-cofactions::has_action_push_pbb(unsigned int index) const
+cofactions::has_action_push_pbb(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_PUSH_PBB == actions_index.at(index)));
@@ -2214,7 +2214,7 @@ cofactions::has_action_push_pbb(unsigned int index) const
 
 
 cofaction_pop_pbb&
-cofactions::add_action_pop_pbb(unsigned int index)
+cofactions::add_action_pop_pbb(const cindex& index)
 {
 	if (get_version() < rofl::openflow13::OFP_VERSION)
 		throw eBadVersion("cofactions::add_action_pop_pbb() invalid version");
@@ -2230,7 +2230,7 @@ cofactions::add_action_pop_pbb(unsigned int index)
 
 
 cofaction_pop_pbb&
-cofactions::set_action_pop_pbb(unsigned int index)
+cofactions::set_action_pop_pbb(const cindex& index)
 {
 	if (get_version() < rofl::openflow13::OFP_VERSION)
 		throw eBadVersion("cofactions::set_action_pop_pbb() invalid version");
@@ -2245,7 +2245,7 @@ cofactions::set_action_pop_pbb(unsigned int index)
 
 
 const cofaction_pop_pbb&
-cofactions::get_action_pop_pbb(unsigned int index) const
+cofactions::get_action_pop_pbb(const cindex& index) const
 {
 	if ((actions_index.find(index) == actions_index.end()) ||
 			(rofl::openflow::OFPAT_POP_PBB != actions_index.at(index))) {
@@ -2257,7 +2257,7 @@ cofactions::get_action_pop_pbb(unsigned int index) const
 
 
 void
-cofactions::drop_action_pop_pbb(unsigned int index)
+cofactions::drop_action_pop_pbb(const cindex& index)
 {
 	if (rofl::openflow::OFPAT_POP_PBB != actions_index[index]) {
 		throw eActionInvalType();
@@ -2268,11 +2268,10 @@ cofactions::drop_action_pop_pbb(unsigned int index)
 
 
 bool
-cofactions::has_action_pop_pbb(unsigned int index) const
+cofactions::has_action_pop_pbb(const cindex& index) const
 {
 	return ((actions_index.find(index) != actions_index.end()) &&
 			(rofl::openflow::OFPAT_POP_PBB == actions_index.at(index)));
 }
-
 
 

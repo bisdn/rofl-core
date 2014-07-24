@@ -21,6 +21,7 @@
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatch.h"
 #include "rofl/common/logging.h"
+#include "rofl/common/cindex.h"
 
 
 namespace rofl {
@@ -170,7 +171,7 @@ public:
 		bool operator() (const cofaction* action) {
 			return (action->get_type() == type);
 		};
-		bool operator() (const std::pair<unsigned int, cofaction*>& p) {
+		bool operator() (const std::pair<cindex, cofaction*>& p) {
 			return (p.second->get_type() == type);
 		};
 	};
@@ -2581,6 +2582,12 @@ public:
 	 */
 	rofl::cmemory&
 	set_exp_body() { return exp_body; };
+
+	/**
+	 *
+	 */
+	void
+	set_exp_body(const rofl::cmemory& exp_body) { this->exp_body = exp_body; };
 
 	/**
 	 *

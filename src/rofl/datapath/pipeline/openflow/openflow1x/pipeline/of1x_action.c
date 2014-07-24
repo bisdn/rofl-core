@@ -819,6 +819,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 			{
 				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				(void)addr;
 				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_SRC: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}
@@ -826,6 +827,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_SET_FIELD_IPV6_DST:
 			{
 				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				(void)addr;
 				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_DST: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}
@@ -835,6 +837,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
 			{
 				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
+				(void)addr;
 				COND_NTOHB128(raw_nbo,addr);
 				ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_ND_TARGET: 0x%lx %lx",UINT128__T_HI(addr),UINT128__T_LO(addr));
 			}

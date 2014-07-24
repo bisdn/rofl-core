@@ -120,15 +120,15 @@ uint64_t
 caddress_ll::get_mac() const
 {
 	uint64_t mac = 0;
+	
+	((uint8_t*)&mac)[2] = (*this)[0];
+	((uint8_t*)&mac)[3] = (*this)[1];
+	((uint8_t*)&mac)[4] = (*this)[2];
+	((uint8_t*)&mac)[5] = (*this)[3];
+	((uint8_t*)&mac)[6] = (*this)[4];
+	((uint8_t*)&mac)[7] = (*this)[5];
 
-	((uint8_t*)&mac)[5] = (*this)[0];
-	((uint8_t*)&mac)[4] = (*this)[1];
-	((uint8_t*)&mac)[3] = (*this)[2];
-	((uint8_t*)&mac)[2] = (*this)[3];
-	((uint8_t*)&mac)[1] = (*this)[4];
-	((uint8_t*)&mac)[0] = (*this)[5];
-
-	return mac;
+	return be64toh(mac);
 }
 
 
@@ -136,12 +136,14 @@ caddress_ll::get_mac() const
 void
 caddress_ll::set_mac(uint64_t mac)
 {
-	(*this)[5] = ((uint8_t*)&mac)[0];
-	(*this)[4] = ((uint8_t*)&mac)[1];
-	(*this)[3] = ((uint8_t*)&mac)[2];
-	(*this)[2] = ((uint8_t*)&mac)[3];
-	(*this)[1] = ((uint8_t*)&mac)[4];
-	(*this)[0] = ((uint8_t*)&mac)[5];
+	uint64_t _mac = htobe64(mac);
+
+	(*this)[0] = ((uint8_t*)&_mac)[2];
+	(*this)[1] = ((uint8_t*)&_mac)[3];
+	(*this)[2] = ((uint8_t*)&_mac)[4];
+	(*this)[3] = ((uint8_t*)&_mac)[5];
+	(*this)[4] = ((uint8_t*)&_mac)[6];
+	(*this)[5] = ((uint8_t*)&_mac)[7];	
 }
 
 

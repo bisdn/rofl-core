@@ -297,7 +297,7 @@ cmemory::pack(
 		size_t buflen)
 {
 	if (buflen < memlen())
-		throw eTooShort();
+		throw eInval("cmemory::pack()");
 	memcpy(buf, somem(), memlen());
 }
 

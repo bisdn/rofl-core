@@ -300,6 +300,7 @@ public:
 			uint16_t priority,
 			uint16_t idle_timeout,
 			uint16_t hard_timeout,
+			uint16_t flags,
 			uint64_t cookie,
 			uint64_t packet_count,
 			uint64_t byte_count,
@@ -559,6 +560,7 @@ public:
 			os << indent(2) << "<cookie: 0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
 			os << indent(2) << "<packet-count: " << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
 			os << indent(2) << "<byte-count: " << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
+			os << indent(2) << "<flags: " << (int)flow_stats_reply.get_flags() << " >" << std::endl;
 			indent i(2);
 			os << flow_stats_reply.match;
 		} break;
