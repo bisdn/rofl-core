@@ -101,10 +101,8 @@ typedef struct of1x_flow_table{
 	//Timers associated
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	unsigned int current_timer_group; /*in case of static allocation indicates the timer group*/
-	struct of1x_timer_group timers[OF1X_TIMER_GROUPS_MAX];
-#else
-	struct of1x_timer_group* timers;
 #endif
+	struct of1x_timer_group* timers;
 	
 	//Table config
 	of1x_flow_table_miss_config_t default_action; 

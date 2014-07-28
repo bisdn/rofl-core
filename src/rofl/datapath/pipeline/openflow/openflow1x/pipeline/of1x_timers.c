@@ -122,6 +122,10 @@ void __of1x_timer_group_static_init(of1x_flow_table_t* table){
 	uint64_t time_next_slot;
 	platform_gettimeofday(&now);
 	time_next_slot = __of1x_get_expiration_time_slotted(0,&now);
+
+	//First allocate the memory
+	table->timers = (struct of1x_timer_group*) malloc(sizeof(struct of1x_timer_group)*OF1X_TIMER_GROUPS_MAX);
+
 	for(i=0; i<OF1X_TIMER_GROUPS_MAX;i++)
 	{
 		table->timers[i].timeout=time_next_slot+OF1X_TIMER_SLOT_MS*i;
@@ -129,6 +133,15 @@ void __of1x_timer_group_static_init(of1x_flow_table_t* table){
 		table->timers[i].list.head = table->timers[i].list.tail = NULL;
 	}
 	table->current_timer_group=0;
+}
+
+/**
+ * of1x_timer_group_static_destroy
+ * Destroys the timers table
+ * initializes the values for the entry lists
+ */
+void __of1x_timer_group_static_destroy(of1x_flow_table_t* table){
+	free(table->timers);
 }
 
 /**
