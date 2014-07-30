@@ -149,24 +149,18 @@ cofmsg_aggr_stats_request::pack(uint8_t *buf, size_t buflen)
 		return;
 
 	if (buflen < length())
-		throw eInval();
+		throw eInval("cofmsg_aggr_stats_request::pack() buflen too short");
 
 	set_length(length());
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow10::ofp_stats_request) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow10::ofp_stats_request), aggr_stats.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow12::ofp_stats_request) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_request), aggr_stats.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow13::ofp_multipart_request) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_request), aggr_stats.length());
 	} break;
 	default:
@@ -379,24 +373,18 @@ cofmsg_aggr_stats_reply::pack(uint8_t *buf, size_t buflen)
 		return;
 
 	if (buflen < length())
-		throw eInval();
+		throw eInval("cofmsg_aggr_stats_reply::pack() buflen too short");
 
 	set_length(length());
 
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow10::ofp_stats_reply) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow10::ofp_stats_reply), aggr_stats.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow12::ofp_stats_reply) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow12::ofp_stats_reply), aggr_stats.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		if (buflen < (sizeof(struct rofl::openflow13::ofp_multipart_reply) + aggr_stats.length()))
-			throw eInval();
 		aggr_stats.pack(buf + sizeof(struct rofl::openflow13::ofp_multipart_reply), aggr_stats.length());
 	} break;
 	default:

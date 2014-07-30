@@ -28,7 +28,7 @@ class eUdpSendNotFound			: public eUdpSendBase {};
 class cudpsend :
 		public rofl::ciosrv
 {
-	static std::map<rofl::caddress, cudpsend*>	 udpsenders;
+	static std::map<rofl::csockaddr, cudpsend*>	 udpsenders;
 
 private:
 
@@ -37,8 +37,8 @@ private:
 
 	pthread_t			tid;
 	int					duration;
-	rofl::caddress		remote;
-	rofl::caddress		local;
+	rofl::csockaddr		remote;
+	rofl::csockaddr		local;
 	int					stats_interval;
 	time_t				starttime;
 	time_t				stoptime;
@@ -56,7 +56,7 @@ public:
 
 	static cudpsend&
 	get_udpsend(
-			rofl::caddress const& peer);
+			rofl::csockaddr const& peer);
 
 	static void*
 	start_udp_sending_thread(void* data);
@@ -64,8 +64,8 @@ public:
 public:
 
 	cudpsend(
-			rofl::caddress const& remote,
-			rofl::caddress const& local,
+			rofl::csockaddr const& remote,
+			rofl::csockaddr const& local,
 			unsigned int msglen = DEFAULT_UDP_NODE_MSGLEN);
 
 	virtual

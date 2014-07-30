@@ -28,9 +28,9 @@
 	#define ETH_TYPE_PBB			0x88E7
 	
 	//VLAN values
-	#define VLAN_CTAG_ETHER 0x8100
- 	#define VLAN_STAG_ETHER 0x88a8
- 	#define VLAN_ITAG_ETHER 0x88e7
+	#define VLAN_CTAG_ETHER_TYPE 0x8100
+ 	#define VLAN_STAG_ETHER_TYPE 0x88a8
+ 	#define VLAN_ITAG_ETHER_TYPE 0x88e7
 	//MPLS values
 
 	//PPP values
@@ -49,6 +49,8 @@
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x084B //2123
 	#define UDP_DST_PORT_GTPU		0x0868 //2152
+	#define UDP_DST_PORT_CAPWAPC	0x147e //5246
+	#define UDP_DST_PORT_CAPWAPU	0x147f //5247
 
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	//Useful ETH_TYPE values
@@ -63,9 +65,9 @@
 	#define ETH_TYPE_PBB			0xE788
 	
 	//VLAN values
-	#define VLAN_CTAG_ETHER 0x0081
- 	#define VLAN_STAG_ETHER 0xa888
- 	#define VLAN_ITAG_ETHER 0xe788
+	#define VLAN_CTAG_ETHER_TYPE 0x0081
+ 	#define VLAN_STAG_ETHER_TYPE 0xa888
+ 	#define VLAN_ITAG_ETHER_TYPE 0xe788
 	//MPLS values
 	
 	//PPP values
@@ -84,6 +86,9 @@
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x4B08 //2123
 	#define UDP_DST_PORT_GTPU		0x6808 //2152
+	#define UDP_DST_PORT_CAPWAPC	0x7e14 //5246
+	#define UDP_DST_PORT_CAPWAPU	0x7f14 //5247
+
 #else
 	#error Unknwon endianness
 #endif

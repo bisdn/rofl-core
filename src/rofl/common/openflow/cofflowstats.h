@@ -248,12 +248,13 @@ private: // data structures
 	uint16_t	priority;
 	uint16_t 	idle_timeout;
 	uint16_t	hard_timeout;
+	uint16_t	flags; 				// since OF1.3
 	uint64_t	cookie;
 	uint64_t 	packet_count;
 	uint64_t	byte_count;
 	cofmatch 	match;
-	cofactions	actions;		// for OF1.0
-	cofinstructions	instructions;	// for OF1.2
+	cofactions	actions;			// for OF1.0
+	cofinstructions	instructions;	// since OF1.2
 
 #define OFP12_FLOW_STATS_REPLY_STATIC_HDR_LEN 		48 // bytes
 
@@ -299,6 +300,7 @@ public:
 			uint16_t priority,
 			uint16_t idle_timeout,
 			uint16_t hard_timeout,
+			uint16_t flags,
 			uint64_t cookie,
 			uint64_t packet_count,
 			uint64_t byte_count,
@@ -410,6 +412,12 @@ public:
 	/**
 	 *
 	 */
+	uint16_t
+	get_flags() const;
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_cookie() const;
 
@@ -466,6 +474,12 @@ public:
 	 */
 	void
 	set_hard_timeout(uint16_t hard_timeout);
+
+	/**
+	 *
+	 */
+	void
+	set_flags(uint16_t flags);
 
 	/**
 	 *
@@ -546,6 +560,7 @@ public:
 			os << indent(2) << "<cookie: 0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
 			os << indent(2) << "<packet-count: " << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
 			os << indent(2) << "<byte-count: " << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
+			os << indent(2) << "<flags: " << (int)flow_stats_reply.get_flags() << " >" << std::endl;
 			indent i(2);
 			os << flow_stats_reply.match;
 		} break;

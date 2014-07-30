@@ -5,6 +5,8 @@
 #ifndef CROFLEXCEPTION_H
 #define CROFLEXCEPTION_H
 
+#include <assert.h>
+
 #include <set>
 #include <string>
 #include <iostream>
@@ -14,65 +16,85 @@
 #include <stdio.h>
 #include <strings.h>
 #include <stdarg.h>
+#include <stdexcept>
 
 namespace rofl
 {
 
-// base class for entire error class hierarchy
-class RoflException {
+/*
+ *  base class for entire error class hierarchy in rofl
+ */
+class RoflException : public std::runtime_error {
 public:
-
-	std::string 		desc;
-
+	RoflException(const std::string& __arg = std::string("")) :
+		std::runtime_error(__arg) {};
+	virtual ~RoflException() throw() {};
 public:
-	RoflException(std::string const& desc = std::string("")) :
-		desc(desc)
-	{};
-	friend std::ostream& operator<< (std::ostream& os, RoflException& e) {
-		os << "<ROFL exception " << e.desc << ">";
+	friend std::ostream&
+	operator<< (std::ostream& os, const RoflException& e) {
+		os << "<RoflException: " << e.what() << " >";
 		return os;
 	};
 };
 
 class eSysCall : public RoflException {
 public:
-	std::string	syscall;
-	int			n_err;
-	std::string	s_err;
-public:
-	eSysCall(std::string const& syscall = std::string("")) :
-		syscall(syscall),
-		n_err(errno),
-		s_err(strerror(errno))
-	{};
-	eSysCall(int optval, std::string const& syscall = std::string("")) :
-		syscall(syscall),
-		n_err(optval),
-		s_err(strerror(optval))
-	{};
+	eSysCall(std::string const& syscall = std::string("unknown")) :
+		RoflException(syscall+std::string(__FILE__)+std::string(":")+std::string(__func__)),
+		n_err(errno), s_err(strerror(errno)) {};
+	virtual ~eSysCall() throw() {};
 public:
 	friend std::ostream& operator<< (std::ostream& os, eSysCall const& e) {
-		os << "<eSysCall syscall:" << e.syscall << " errno: " << e.n_err << " (" << e.s_err << ") >";
+		os << "<eSysCall syscall:" << e.what() << " errno: " << e.n_err << " (" << e.s_err << ") >";
 		return os;
+	};
+
+private:
+	int			n_err;
+	std::string	s_err;
+};
+
+class eNotImplemented : public RoflException {
+public:
+	eNotImplemented(
+			const std::string& __arg = std::string("eNotImplemented")) :
+				RoflException(__arg) {};
+	virtual ~eNotImplemented() throw() {};
+};
+
+class eInval : public RoflException {
+public:
+	eInval(
+			const std::string& __arg = std::string("eInval")) :
+				RoflException(__arg) {};
+	virtual ~eInval() throw() {};
+};
+
+class eBadVersion : public RoflException {
+public:
+	eBadVersion(
+			const std::string& __arg = std::string("eBadVersion")) :
+				RoflException(__arg) {
+#ifndef NDEBUG
+		std::cerr << "BAD-WOLF" << std::endl;
+//		assert(0 == 1);
+#endif
 	};
 };
 
-class eOutOFMemory 			: public RoflException {}; //< out of mem error
-class eNotImplemented 		: public RoflException {
+class eBadSyntax					: public RoflException {
 public:
-	eNotImplemented(std::string desc = std::string("")) : RoflException(desc) {};
-public:
-	friend std::ostream& operator<< (std::ostream& os, eNotImplemented const& e) {
-		os << "<eNotImplemented where:" << e.desc << " >";
-		return os;
-	};
-}; //< oops, fix me exception :D
+	eBadSyntax(
+			const std::string& __arg = std::string("eBadSyntax")) :
+				RoflException(__arg) {};
+};
 
-class eInternalError 		: public RoflException {}; //< some internal error occured
-class eDebug 				: public RoflException {};
-class eInval				: public RoflException {};
-class eTooShort				: public RoflException {};
-class eNotConnected			: public RoflException {};
+class eBadSyntaxTooShort			: public eBadSyntax {
+public:
+	eBadSyntaxTooShort(
+			const std::string& __arg = std::string("eBadSyntaxTooShort")) :
+				eBadSyntax(__arg) {};
+};
 
 }; // end of namespace
 

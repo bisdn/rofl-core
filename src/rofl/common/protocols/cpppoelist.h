@@ -7,10 +7,10 @@
 
 #include <algorithm>
 
-#include "../croflexception.h"
-#include "../fframe.h"
-#include "../coflist.h"
-#include "../cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/fframe.h"
+#include "rofl/common/protocols/coflist.h"
+#include "rofl/common/cvastring.h"
 
 #include "cpppoetlv.h"
 

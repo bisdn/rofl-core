@@ -115,13 +115,20 @@ uint64_t __of1x_get_expiration_time_slotted (uint32_t timeout,struct timeval *no
  * initializes the timeout values
  * initializes the values for the entry lists
  */
-void __of1x_timer_group_static_init(of1x_flow_table_t* table){
+rofl_result_t __of1x_timer_group_static_init(of1x_flow_table_t* table){
 
 	int i;
 	struct timeval now;
 	uint64_t time_next_slot;
 	platform_gettimeofday(&now);
 	time_next_slot = __of1x_get_expiration_time_slotted(0,&now);
+
+	//First allocate the memory
+	table->timers = (struct of1x_timer_group*) platform_malloc_shared(sizeof(struct of1x_timer_group)*OF1X_TIMER_GROUPS_MAX);
+
+	if(unlikely(table->timers == NULL))
+		return ROFL_FAILURE;
+
 	for(i=0; i<OF1X_TIMER_GROUPS_MAX;i++)
 	{
 		table->timers[i].timeout=time_next_slot+OF1X_TIMER_SLOT_MS*i;
@@ -129,6 +136,17 @@ void __of1x_timer_group_static_init(of1x_flow_table_t* table){
 		table->timers[i].list.head = table->timers[i].list.tail = NULL;
 	}
 	table->current_timer_group=0;
+	
+	return ROFL_SUCCESS;
+}
+
+/**
+ * of1x_timer_group_static_destroy
+ * Destroys the timers table
+ * initializes the values for the entry lists
+ */
+void __of1x_timer_group_static_destroy(of1x_flow_table_t* table){
+	free(table->timers);
 }
 
 /**

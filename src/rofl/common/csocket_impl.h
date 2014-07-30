@@ -19,8 +19,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <assert.h>
+#include <net/if.h>
 
 #include "rofl/common/csocket.h"
+#include "rofl/common/ctimerid.h"
+#include "rofl/common/caddrinfos.h"
 
 namespace rofl {
 
@@ -51,12 +54,12 @@ protected:
 
 	struct pout_entry_t {
 		cmemory *mem;
-		caddress dest;
+		csockaddr dest;
 		size_t msg_bytes_sent;
-		pout_entry_t(cmemory *mem = 0, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) :
+		pout_entry_t(cmemory *mem = 0, csockaddr const& dest = csockaddr()) :
 			mem(mem), dest(dest), msg_bytes_sent(0) {};
 		pout_entry_t(pout_entry_t const& e) :
-			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)), msg_bytes_sent(0) {
+			mem(0), msg_bytes_sent(0) {
 			*this = e;
 		};
 		struct pout_entry_t&
@@ -94,13 +97,14 @@ protected:
 private:
 
 	enum socket_flag_t {
-		SOCKET_IS_LISTENING = 1, 	/**< socket is in listening state */
-		CONNECT_PENDING		= 2, 	/**< connect() call is pending */
-		RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
-		CONNECTED			= 4,	/**< socket is connected */
+		FLAG_LISTENING = 1, 	/**< socket is in listening state */
+		FLAG_CONNECTING		= 2, 	/**< connect() call is pending */
+		FLAG_RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
+		FLAG_CONNECTED			= 4,	/**< socket is connected */
 		FLAG_ACTIVE_SOCKET	= 5,
 		FLAG_DO_RECONNECT	= 6,
-		FLAG_SEND_CLOSED_NOTIFICATION = 7,
+		FLAG_CLOSING = 7,
+		FLAG_TX_WOULD_BLOCK	= 8,	/**< socket would block for transmission */
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
@@ -114,7 +118,10 @@ private:
 		EVENT_DISCONNECTED	= 2,
 	};
 
+	static const unsigned int DEFAULT_MAX_TXQUEUE_SIZE;
+	unsigned int 				max_txqueue_size;		// limit for pout_squeue
 
+	ctimerid					reconnect_timerid;
 	int							reconnect_start_timeout;
 	int 						reconnect_in_seconds; 	// reconnect in x seconds
 	int 						reconnect_counter;
@@ -224,14 +231,20 @@ public:
 	 */
 	virtual void
 	send(
-			cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+			cmemory *mem, rofl::csockaddr const& dest = rofl::csockaddr());
 
 
 	/**
 	 *
 	 */
 	virtual bool
-	is_connected() const { return sockflags.test(CONNECTED); };
+	is_established() const { return sockflags.test(FLAG_CONNECTED); };
+
+	/**
+	 *
+	 */
+	virtual bool
+	write_would_block() const { return sockflags.test(FLAG_TX_WOULD_BLOCK); };
 
 
 	/**
@@ -260,7 +273,7 @@ protected:
 	 */
 	virtual void
 	listen(
-		caddress la,
+		const csockaddr& la,
 		int domain = PF_INET,
 		int type = SOCK_STREAM,
 		int protocol = 0,
@@ -284,8 +297,8 @@ protected:
 	 */
 	virtual void
 	connect(
-		caddress ra,
-		caddress la = caddress(AF_INET, "0.0.0.0", 0),
+		csockaddr ra,
+		csockaddr la = csockaddr(),
 		int domain = PF_INET,
 		int type = SOCK_STREAM,
 		int protocol = 0,
@@ -351,6 +364,20 @@ protected:
 	handle_conn_refused() {
 		if (socket_owner) {
 			socket_owner->handle_connect_refused(*this);
+		}
+	};
+
+	/**
+	 * Connect on socket failed (client mode).
+	 *
+	 * This notification method is called if the connect() operation fails
+	 * on the socket. It should be overwritten by a derived class
+	 * if the derived class wants to act upon this condition.
+	 */
+	virtual void
+	handle_conn_failed() {
+		if (socket_owner) {
+			socket_owner->handle_connect_failed(*this);
 		}
 	};
 
@@ -496,19 +523,31 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_impl const& sock) {
 		os << dynamic_cast<csocket const&>( sock );
-		os << rofl::indent(2) << "<csocket_impl >" << std::endl;
+		os << rofl::indent(2) << "<csocket_impl #tx-queue:" << sock.pout_squeue.size() << ">" << std::endl;
 		os << rofl::indent(4) << "<flags: ";
-		if (sock.sockflags.test(SOCKET_IS_LISTENING)) {
+		if (sock.sockflags.test(FLAG_LISTENING)) {
 			os << "LISTENING ";
 		}
-		if (sock.sockflags.test(CONNECT_PENDING)) {
-			os << "CONNECT-PENDING ";
+		if (sock.sockflags.test(FLAG_CONNECTING)) {
+			os << "CONNECTING ";
 		}
-		if (sock.sockflags.test(RAW_SOCKET)) {
+		if (sock.sockflags.test(FLAG_RAW_SOCKET)) {
 			os << "RAW-SOCKET ";
 		}
-		if (sock.sockflags.test(CONNECTED)) {
+		if (sock.sockflags.test(FLAG_CONNECTED)) {
 			os << "CONNECTED ";
+		}
+		if (sock.sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			os << "ACTIVE-SOCKET ";
+		}
+		if (sock.sockflags.test(FLAG_DO_RECONNECT)) {
+			os << "DO-RECONNECT ";
+		}
+		if (sock.sockflags.test(FLAG_CLOSING)) {
+			os << "CLOSING ";
+		}
+		if (sock.sockflags.test(FLAG_TX_WOULD_BLOCK)) {
+			os << "TX-WOULD-BLOCK ";
 		}
 		os << ">" << std::endl;
 		return os;

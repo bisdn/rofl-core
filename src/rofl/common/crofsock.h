@@ -19,10 +19,10 @@
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cfsm.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/thread_helper.h"
+#include "rofl/common/croflexception.h"
 
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/messages/cofmsg_hello.h"
@@ -57,6 +57,10 @@
 #include "rofl/common/openflow/messages/cofmsg_experimenter_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_async_config.h"
 #include "rofl/common/openflow/messages/cofmsg_table_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_config_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_meter_features_stats.h"
 
 
 namespace rofl {
@@ -67,10 +71,15 @@ class crofsock_env {
 public:
 	virtual ~crofsock_env() {};
 	virtual void handle_connect_refused(crofsock *endpnt) = 0;
+	virtual void handle_connect_failed(crofsock *endpnt) = 0;
 	virtual void handle_connected(crofsock *endpnt) = 0;
 	virtual void handle_closed(crofsock *endpnt) = 0;
+	virtual void handle_write(crofsock *endpnt) = 0;
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
+
+class eRofSockBase		: public RoflException {};
+class eRofSockTxAgain	: public eRofSockBase {};
 
 class crofsock :
 		public ciosrv,
@@ -81,11 +90,14 @@ class crofsock :
 	csocket								*socket;		// socket abstraction towards peer
 	cmemory								*fragment;
 	unsigned int						msg_bytes_read;
+	unsigned int						max_pkts_rcvd_per_round;
+	static unsigned int const			DEFAULT_MAX_PKTS_RVCD_PER_ROUND = 16;
 
 	enum outqueue_type_t {
-		QUEUE_MGMT = 0, // all packets, except ...
-		QUEUE_FLOW = 1, // Flow-Mod/Flow-Removed
-		QUEUE_PKT  = 2, // Packet-In/Packet-Out
+		QUEUE_OAM  = 0, // Echo.request/Echo.reply
+		QUEUE_MGMT = 1, // all remaining packets, except ...
+		QUEUE_FLOW = 2, // Flow-Mod/Flow-Removed
+		QUEUE_PKT  = 3, // Packet-In/Packet-Out
 		QUEUE_MAX,		// do not use
 	};
 
@@ -93,15 +105,18 @@ class crofsock :
 
 		static unsigned int const DEFAULT_OUTQUEUE_SIZE_THRESHOLD = 8;
 
-		PthreadRwLock					rwlock;
-		std::deque<rofl::openflow::cofmsg*>				queue;
-		unsigned int					limit; // #msgs sent from queue before rescheduling
+		PthreadRwLock							rwlock;
+		std::deque<rofl::openflow::cofmsg*>		queue;
+		unsigned int							max_cwnd_size;
+		static const unsigned int				DEFAULT_MAX_CWND_SIZE = 128;
+		unsigned int							limit; // #msgs sent from queue before rescheduling
+
 	public:
 		/**
 		 *
 		 */
 		rofqueue(unsigned int limit = DEFAULT_OUTQUEUE_SIZE_THRESHOLD) :
-			limit(limit) {};
+			max_cwnd_size(DEFAULT_MAX_CWND_SIZE), limit(limit) {};
 
 		/**
 		 *
@@ -124,10 +139,14 @@ class crofsock :
 		/**
 		 *
 		 */
-		void
+		unsigned int
 		store(rofl::openflow::cofmsg *msg) {
 			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			if (queue.size() >= max_cwnd_size) {
+				throw eRofSockTxAgain();
+			}
 			queue.push_back(msg);
+			return get_cwnd();
 		};
 
 		/**
@@ -139,15 +158,26 @@ class crofsock :
 			if (queue.empty())
 				return NULL;
 			rofl::openflow::cofmsg *msg = queue.front();
-			queue.pop_front();
+			//queue.pop_front();
 			return msg;
 		};
 
 		/**
 		 *
 		 */
+		void
+		pop() {
+			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			if (queue.empty())
+				return;
+			queue.pop_front();
+		};
+
+		/**
+		 *
+		 */
 		unsigned int
-		get_limit() {
+		get_limit() const {
 			return (queue.size() > limit) ? limit : queue.size();
 		};
 
@@ -155,7 +185,21 @@ class crofsock :
 		 *
 		 */
 		void
-		set_limit(unsigned int limit) { this->limit = limit; };
+		set_max_limit(unsigned int limit) { this->limit = limit; };
+
+		/**
+		 *
+		 */
+		unsigned int
+		get_cwnd() const {
+			return (max_cwnd_size - queue.size());
+		};
+
+		/**
+		 *
+		 */
+		void
+		set_max_cwnd(unsigned int max_cwnd_size) { this->max_cwnd_size = max_cwnd_size; };
 
 		/**
 		 *
@@ -228,16 +272,22 @@ public:
 	/**
 	 *
 	 */
-	csocket&
-	get_socket();
+	csocket const&
+	get_socket() const;
 
 
 	/**
 	 *
 	 */
-	void
+	unsigned int
 	send_message(
 			rofl::openflow::cofmsg *msg);
+
+	/**
+	 *
+	 */
+	bool
+	is_established() const { return socket->is_established(); };
 
 private:
 
@@ -249,7 +299,8 @@ private:
 		env(NULL),
 		socket(NULL),
 		fragment(NULL),
-		msg_bytes_read(0)
+		msg_bytes_read(0),
+		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
 	{ };
 
 	/**
@@ -304,6 +355,13 @@ private:
 	 */
 	virtual void
 	handle_connect_refused(
+			csocket& socket);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_failed(
 			csocket& socket);
 
 	/**
@@ -394,8 +452,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofsock const& rofsock) {
-		os << indent(0) << "<crofsock >" << std::endl;
-		{ indent i(2); os << *(rofsock.socket); }
+		os << indent(0) << "<crofsock: transport-connection-established: " << rofsock.get_socket().is_established() << ">" << std::endl;
 		return os;
 	};
 };

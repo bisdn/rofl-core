@@ -98,6 +98,12 @@ typedef struct of1x_flow_entry{
 
 	//Timers
 	struct of1x_timers_info timer_info;
+
+	//Opaque flags bitmap
+	//This is necessary for OF1.3 and beyond, since
+	//the insertion flags need to kept for future 
+	//flow_stats request... none-sense
+	uint32_t flags;
 	
 	//statistics
 	of1x_stats_flow_t stats;

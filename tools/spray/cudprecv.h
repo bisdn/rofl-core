@@ -17,6 +17,7 @@
 
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/csocket.h>
+#include <rofl/common/ctimerid.h>
 
 #include "cudpmsg.h"
 #include "ctimeval.h"
@@ -31,12 +32,12 @@ class eUdpRecvNotFound		: public eUdpRecvBase {};
 class cudprecv :
 		public rofl::ciosrv
 {
-	static std::map<rofl::caddress, cudprecv*> udpreceivers;
+	static std::map<rofl::csockaddr, cudprecv*> udpreceivers;
 
 	bool 				keep_going;
 	pthread_t			tid;
-	rofl::caddress		remote;
-	rofl::caddress		local;
+	rofl::csockaddr		remote;
+	rofl::csockaddr		local;
 	int					stats_interval;
 	time_t				starttime;
 	time_t				stoptime;
@@ -47,6 +48,7 @@ class cudprecv :
 	uint64_t			rxlost;
 	uint64_t			rxbytes;
 	int					pktcnt;
+	rofl::ctimerid		stats_timerid;
 
 	enum cudprecv_timer_t {
 		CUDPRECV_TIMER_PRINT_STATS = 1,
@@ -55,7 +57,7 @@ class cudprecv :
 public:
 
 	static cudprecv&
-	get_udprecv(rofl::caddress const& peer);
+	get_udprecv(rofl::csockaddr const& peer);
 
 	static void*
 	start_udp_receiving_thread(void* data);
@@ -63,8 +65,8 @@ public:
 public:
 
 	cudprecv(
-			rofl::caddress const& remote,
-			rofl::caddress const& local);
+			rofl::csockaddr const& remote,
+			rofl::csockaddr const& local);
 
 	virtual
 	~cudprecv();

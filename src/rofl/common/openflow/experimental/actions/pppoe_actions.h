@@ -1,133 +1,346 @@
 #ifndef PPPOE_ACTIONS_H
 #define PPPOE_ACTIONS_H 1
 
-#include "rofl/common/openflow/cofaction.h"
+#include <inttypes.h>
+#include <iostream>
+
+#include <rofl/common/logging.h>
+#include <rofl/common/cmemory.h>
 
 namespace rofl {
 namespace openflow {
+namespace experimental {
+namespace pppoe {
 
-/** OFXAT_PUSH_PPPOE
- *
- */
-class cofaction_push_pppoe : public cofaction_experimenter {
+enum pppoe_exp_id_t {
+	PPPOE_EXP_ID = 0x5555a780,
+};
 
+enum pppoe_action_type_t {
+	PPPOE_ACTION_PUSH_PPPOE,
+	PPPOE_ACTION_POP_PPPOE,
+};
+
+struct ofp_exp_pppoe_action_body_hdr {
+	uint16_t exptype;
+	uint16_t explen;
+	uint8_t data[0];
+} __attribute__((packed));
+
+struct ofp_exp_pppoe_action_body_push_pppoe {
+	uint16_t exptype;
+	uint16_t explen;
+	uint16_t ethertype;
+} __attribute__((packed));
+
+struct ofp_exp_pppoe_action_body_pop_pppoe {
+	uint16_t exptype;
+	uint16_t explen;
+	uint16_t ethertype;
+} __attribute__((packed));
+
+
+
+class cofaction_exp_body_pppoe : public rofl::cmemory {
 public:
-
-	/* Action structure for OFPAT_POP_PPPOE. */
-	struct ofx_action_push_pppoe_header {
-	    uint16_t type;                  /* OFPAT_POP_PPPOE. */
-	    uint16_t len;                   /* Length is 8. */
-	    uint16_t ethertype;             /* Ethertype */
-	    uint8_t pad[2];
-	};
-	OFP_ASSERT(sizeof(struct ofx_action_push_pppoe_header) == 8);
-
-	enum cofaction_push_pppoe_action_type {
-		OFXAT_PUSH_PPPOE = 1,
-	};
-
-	struct ofx_action_push_pppoe {
-		struct openflow12::ofp_experimenter_header 	exphdr;
-		struct ofx_action_push_pppoe_header	expbody;
-	};
-
-	union {
-		uint8_t									*oacu_action;
-		struct openflow::ofp_action_header		*oacu_header;
-		struct ofx_action_push_pppoe 			*oacu_push_pppoe;
-	} eoac_oacu;
-
-#define eoac_action 	eoac_oacu.oacu_action		// start of action
-#define eoac_header 	eoac_oacu.oacu_header		// action: plain header
-#define eoac_push_pppoe eoac_oacu.oacu_push_pppoe	// action: push
-
-
-public:
-	/** constructor
-	 */
-	cofaction_push_pppoe(
-			uint8_t ofp_version,
-			uint16_t ethertype);
 
 	/**
-	 * constructor
+	 *
 	 */
-	cofaction_push_pppoe(
-			cofaction const& action);
+	cofaction_exp_body_pppoe(
+			uint16_t exptype = 0,
+			size_t bodylen = 0) :
+				rofl::cmemory(bodylen) {
+		set_exp_type(exptype);
+		set_exp_len(bodylen);
+	};
 
-	/** destructor
+	/**
+	 *
 	 */
-	virtual
-	~cofaction_push_pppoe();
+	~cofaction_exp_body_pppoe() {};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pppoe(
+			const cofaction_exp_body_pppoe& body) { *this = body; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pppoe&
+	operator= (
+			const cofaction_exp_body_pppoe& body) {
+		if (this == &body)
+			return *this;
+		rofl::cmemory::operator= (body);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pppoe(
+			const rofl::cmemory& body) { *this = body; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pppoe&
+	operator= (
+			const rofl::cmemory& body) {
+		if (this == &body)
+			return *this;
+		rofl::cmemory::operator= (body);
+		return *this;
+	};
+
+public:
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_ethertype() const;
-};
-
-
-/** OFPAT_POP_PPPOE
- *
- */
-class cofaction_pop_pppoe : public cofaction_experimenter {
-public:
-
-	/* Action structure for OFPAT_POP_PPPOE. */
-	struct ofx_action_pop_pppoe_header {
-	    uint16_t type;                  /* OFPAT_POP_PPPOE. */
-	    uint16_t len;                   /* Length is 8. */
-	    uint16_t ethertype;             /* Ethertype */
-	    uint8_t pad[2];
+	get_exp_type() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_hdr))
+			throw eInval();
+		return be16toh(((struct ofp_exp_pppoe_action_body_hdr*)rofl::cmemory::somem())->exptype);
 	};
-	OFP_ASSERT(sizeof(struct ofx_action_pop_pppoe_header) == 8);
-
-	enum cofaction_pop_pppoe_action_type {
-		OFXAT_POP_PPPOE = 2,
-	};
-
-	struct ofx_action_pop_pppoe {
-		struct openflow12::ofp_experimenter_header 	exphdr;
-		struct ofx_action_pop_pppoe_header 	expbody;
-	};
-
-	union {
-		uint8_t									*oacu_action;
-		struct openflow::ofp_action_header		*oacu_header;
-		struct ofx_action_pop_pppoe 			*oacu_pop_pppoe;
-	} eoac_oacu;
-
-#define eoac_action 	eoac_oacu.oacu_action		// start of action
-#define eoac_header 	eoac_oacu.oacu_header		// action: plain header
-#define eoac_pop_pppoe eoac_oacu.oacu_pop_pppoe		// action: pop_pppoe
-
-
-public:
-	/** constructor
-	 */
-	cofaction_pop_pppoe(
-			uint8_t ofp_version,
-			uint16_t ethertype);
 
 	/**
-	 * constructor
+	 *
 	 */
-	cofaction_pop_pppoe(
-			cofaction const& action);
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_pop_pppoe();
+	void
+	set_exp_type(uint16_t exptype) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_hdr))
+			throw eInval();
+		((struct ofp_exp_pppoe_action_body_hdr*)rofl::cmemory::somem())->exptype = htobe16(exptype);
+	};
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_ethertype() const;
+	get_exp_len() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_hdr))
+			throw eInval();
+		return be16toh(((struct ofp_exp_pppoe_action_body_hdr*)rofl::cmemory::somem())->explen);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_exp_len(uint16_t explen) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_hdr))
+			throw eInval();
+		((struct ofp_exp_pppoe_action_body_hdr*)rofl::cmemory::somem())->explen = htobe16(explen);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_exp_body_pppoe& body) {
+		os << rofl::indent(0) << "<cofaction_exp_body_pppoe exp-type: 0x" <<
+				std::hex << (unsigned int)body.get_exp_type() << std::dec
+				<< ">" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<const rofl::cmemory&>( body );
+		return os;
+	};
 };
 
+
+
+class cofaction_exp_body_push_pppoe : public cofaction_exp_body_pppoe {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_push_pppoe(
+			uint16_t ethertype = 0) :
+				cofaction_exp_body_pppoe(
+						PPPOE_ACTION_PUSH_PPPOE,
+						sizeof(struct ofp_exp_pppoe_action_body_push_pppoe)) {
+		set_ether_type(ethertype);
+	};
+
+	/**
+	 *
+	 */
+	~cofaction_exp_body_push_pppoe() {};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_push_pppoe(
+			const cofaction_exp_body_push_pppoe& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_push_pppoe&
+	operator= (
+			const cofaction_exp_body_push_pppoe& body) {
+		if (this == &body)
+			return *this;
+		rofl::cmemory::operator= (body);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_push_pppoe(
+			const rofl::cmemory& body) { *this = body; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_push_pppoe&
+	operator= (
+			const rofl::cmemory& action) {
+		if (this == &action)
+			return *this;
+		rofl::cmemory::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ether_type() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_push_pppoe))
+			throw eInval();
+		return be16toh(((struct ofp_exp_pppoe_action_body_push_pppoe*)rofl::cmemory::somem())->ethertype);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_ether_type(uint16_t ethertype) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_push_pppoe))
+			throw eInval();
+		((struct ofp_exp_pppoe_action_body_push_pppoe*)rofl::cmemory::somem())->ethertype = htobe16(ethertype);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_exp_body_push_pppoe& action) {
+		os << rofl::indent(0) << "<cofaction_push_pppoe ether-type: 0x" <<
+				std::hex << (unsigned int)action.get_ether_type() << std::dec
+				<< ">" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<const rofl::cmemory&>( action );
+		return os;
+	};
+
+};
+
+
+
+
+class cofaction_exp_body_pop_pppoe : public cofaction_exp_body_pppoe {
+public:
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pop_pppoe(
+			uint16_t ethertype = 0) :
+				cofaction_exp_body_pppoe(
+						PPPOE_ACTION_POP_PPPOE,
+						sizeof(struct ofp_exp_pppoe_action_body_pop_pppoe)) {
+		set_ether_type(ethertype);
+	};
+
+	/**
+	 *
+	 */
+	~cofaction_exp_body_pop_pppoe() {};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pop_pppoe(
+			const cofaction_exp_body_pop_pppoe& action) { *this = action; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pop_pppoe&
+	operator= (
+			const cofaction_exp_body_pop_pppoe& body) {
+		if (this == &body)
+			return *this;
+		rofl::cmemory::operator= (body);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pop_pppoe(
+			const rofl::cmemory& body) { *this = body; };
+
+	/**
+	 *
+	 */
+	cofaction_exp_body_pop_pppoe&
+	operator= (
+			const rofl::cmemory& action) {
+		if (this == &action)
+			return *this;
+		rofl::cmemory::operator= (action);
+		return *this;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ether_type() const {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_pop_pppoe))
+			throw eInval();
+		return be16toh(((struct ofp_exp_pppoe_action_body_pop_pppoe*)rofl::cmemory::somem())->ethertype);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_ether_type(uint16_t ethertype) {
+		if (rofl::cmemory::memlen() < sizeof(struct ofp_exp_pppoe_action_body_pop_pppoe))
+			throw eInval();
+		((struct ofp_exp_pppoe_action_body_pop_pppoe*)rofl::cmemory::somem())->ethertype = htobe16(ethertype);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const cofaction_exp_body_pop_pppoe& action) {
+		os << rofl::indent(0) << "<cofaction_pop_pppoe ether-type: 0x" <<
+				std::hex << (unsigned int)action.get_ether_type() << std::dec
+				<< ">" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<const rofl::cmemory&>( action );
+		return os;
+	};
+
+};
+
+
+}; // end of namespace pppoe
+}; // end of namespace experimental
 }; // end of namespace openflow
 }; // end of namespace rofl
 

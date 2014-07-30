@@ -26,8 +26,9 @@ class eOpenSSL 		: public	RoflException {
 	std::string error;
 public:
 	eOpenSSL(std::string const& error) : error(error) {};
+	virtual ~eOpenSSL() throw() {};
 	friend std::ostream& operator<< (std::ostream& os, eOpenSSL const& e) {
-		os << "EXCEPTION: <eOpenSSL error: " << e.error << " >" << std::endl;
+		os << "<eOpenSSL error: " << e.error << " >" << std::endl;
 		return os;
 	};
 };
@@ -230,15 +231,20 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+	send(cmemory *mem, csockaddr const& dest = csockaddr());
 
 
 	/**
 	 *
 	 */
 	virtual bool
-	is_connected() const { return socket_flags.test(FLAG_SSL_ESTABLISHED); };
+	is_established() const { return socket_flags.test(FLAG_SSL_ESTABLISHED); };
 
+	/**
+	 *
+	 */
+	virtual bool
+	write_would_block() const { return socket.write_would_block(); };
 
 	/**
 	 *
@@ -358,6 +364,16 @@ protected:
 	 */
 	virtual void
 	handle_connect_refused(rofl::csocket& socket);
+
+	/**
+	 * Connect on socket failed (client mode).
+	 *
+	 * This notification method is called if the connect() operation fails
+	 * on the socket. It should be overwritten by a derived class
+	 * if the derived class wants to act upon this condition.
+	 */
+	virtual void
+	handle_connect_failed(rofl::csocket& socket);
 
 	/**
 	 * A new incoming connection was accepted (listening mode).

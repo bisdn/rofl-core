@@ -257,71 +257,78 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 
 	// dl_type
 	if (!(wildcards & rofl::openflow10::OFPFW_DL_TYPE)) {
-		matches.add_match(coxmatch_ofb_eth_type(be16toh(m->dl_type)));
-	}
+		const uint16_t dl_type = be16toh(m->dl_type);
+		matches.add_match(coxmatch_ofb_eth_type(dl_type));
 
-	// nw_tos
-	if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
-		matches.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
-	}
+		// The following text is added in the OpenFlow 1.0.1 specification:
+		// Protocol-specific fields within ofp_match must be ignored when the corresponding protocol
+		// is not specified in the match. The IP header and transport header fields must be ignored
+		// unless the Ethertype is specified as either IPv4 or ARP. The tp_src and tp_dst fields must
+		// be ignored unless the network protocol is set to TCP, UDP or ICMP. The dl_vlan_pcp field
+		// must be ignored when the OFPFW_DL_VLAN wildcard bit is set or when the dl_vlan value is
+		// set to OFP_VLAN_NONE. Fields that are ignored don't need to be wildcarded and should be
+		// set to 0.
 
-	// nw_proto
-	if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
-		matches.add_match(coxmatch_ofx_nw_proto(m->nw_proto));
-	}
+		if (dl_type == 0x0806 /* ARP */ || dl_type == 0x0800 /* IPv4 */) {
+			// nw_src
+			{
+				uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
+				if(num_of_bits > 32)
+					num_of_bits = 32;
+				uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
+				rofl::caddress_in4 addr; addr.set_addr_nbo(m->nw_src);
+				rofl::caddress_in4 mask; mask.set_addr_nbo(htobe32((uint32_t)u_mask));
+				if (num_of_bits <= 32) {
+					matches.add_match(coxmatch_ofx_nw_src(addr, mask));
+				}
+			}
 
-	// nw_src
-	{
-		uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
-		if(num_of_bits > 32)
-			num_of_bits = 32;
-		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
-		rofl::caddress addr(AF_INET, "0.0.0.0");
-		rofl::caddress mask(AF_INET, "0.0.0.0");
-		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
-		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
-		if (num_of_bits <= 32) {
-			matches.add_match(coxmatch_ofx_nw_src(addr, mask));
+			// nw_dst
+			{
+				uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_DST_MASK) >> openflow10::OFPFW_NW_DST_SHIFT;
+				if(num_of_bits > 32)
+					num_of_bits = 32;
+				uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
+				rofl::caddress_in4 addr; addr.set_addr_nbo(m->nw_dst);
+				rofl::caddress_in4 mask; mask.set_addr_nbo(htobe32((uint32_t)u_mask));
+				if (num_of_bits <= 32) {
+					matches.add_match(coxmatch_ofx_nw_dst(addr, mask));
+				}
+			}
+
+			if (dl_type == 0x0800 /* IPv4 */) {
+				// nw_tos
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
+					matches.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
+				}
+
+				// nw_proto
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
+					const uint8_t nw_proto = m->nw_proto;
+					matches.add_match(coxmatch_ofx_nw_proto(nw_proto));
+
+					if (nw_proto == 6 /* TCP */ || nw_proto == 17 /* UDP */ || nw_proto == 1 /* ICMP */) {
+						// tp_src
+						if (!(wildcards & rofl::openflow10::OFPFW_TP_SRC)) {
+							matches.add_match(coxmatch_ofx_tp_src(be16toh(m->tp_src)));
+						}
+
+						// tp_dst
+						if (!(wildcards & rofl::openflow10::OFPFW_TP_DST)) {
+							matches.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
+						}
+					}
+				}
+			}
+
+			if (dl_type == 0x0806 /* ARP */) {
+				// arp_opcode
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
+					const uint8_t arp_opcode = m->nw_proto;
+					matches.add_match(coxmatch_ofx_nw_proto(arp_opcode));
+				}
+			}
 		}
-#ifdef FALSCH
-		if (num_of_bits > 0) {
-			set_nw_src(addr, mask);
-		} else {
-			set_nw_src(addr);
-		}
-#endif
-	}
-
-	// nw_dst
-	{
-		uint64_t num_of_bits = (wildcards & rofl::openflow10::OFPFW_NW_DST_MASK) >> openflow10::OFPFW_NW_DST_SHIFT;
-		if(num_of_bits > 32)
-			num_of_bits = 32;
-		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
-		rofl::caddress addr(AF_INET, "0.0.0.0");
-		rofl::caddress mask(AF_INET, "0.0.0.0");
-		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
-		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
-		if (num_of_bits <= 32) {
-			matches.add_match(coxmatch_ofx_nw_dst(addr, mask));
-		}
-#ifdef FALSCH
-		if (num_of_bits > 0) {
-			set_nw_dst(addr, mask);
-		} else {
-			set_nw_dst(addr);
-		}
-#endif
-	}
-
-	// tp_src
-	if (!(wildcards & rofl::openflow10::OFPFW_TP_SRC)) {
-		matches.add_match(coxmatch_ofx_tp_src(be16toh(m->tp_src)));
-	}
-
-	// tp_dst
-	if (!(wildcards & rofl::openflow10::OFPFW_TP_DST)) {
-		matches.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
 	}
 }
 
@@ -348,7 +355,7 @@ cofmatch::unpack_of13(uint8_t* buf, size_t buflen)
 {
 	matches.clear();
 
-	if (buflen < length()) {
+	if (buflen < 2*sizeof(uint16_t)) {
 		throw eOFmatchInval();
 	}
 

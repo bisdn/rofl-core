@@ -11,7 +11,7 @@
 #endif
 
 #include "../fframe.h"
-#include "../cmacaddr.h"
+#include "../caddress.h"
 #include "../cvastring.h"
 
 namespace rofl

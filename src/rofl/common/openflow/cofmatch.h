@@ -18,7 +18,7 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
 #include "rofl/common/cvastring.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatches.h"
@@ -235,22 +235,22 @@ public:
 	uint8_t  get_nw_tos() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_TOS).get_u8value();
 	};
-	caddress get_nw_src() const {
+	caddress_in4 get_nw_src() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32masked_value_as_addr();
 	};
-	caddress get_nw_src_value() const {
+	caddress_in4 get_nw_src_value() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32value_as_addr();
 	};
-	caddress get_nw_src_mask() const {
+	caddress_in4 get_nw_src_mask() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK).get_u32mask_as_addr();
 	};
-	caddress get_nw_dst() const {
+	caddress_in4 get_nw_dst() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32masked_value_as_addr();
 	};
-	caddress get_nw_dst_value() const {
+	caddress_in4 get_nw_dst_value() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32value_as_addr();
 	};
-	caddress get_nw_dst_mask() const {
+	caddress_in4 get_nw_dst_mask() const {
 	 return matches.get_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK).get_u32mask_as_addr();
 	};
 	uint16_t get_tp_src() const {
@@ -315,22 +315,22 @@ public:
 	uint8_t  get_mpls_tc() const {
 	 return matches.get_match(OXM_TLV_BASIC_MPLS_TC).get_u8value();
 	};
-	caddress get_ipv4_src() const {
+	caddress_in4 get_ipv4_src() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32masked_value_as_addr();
 	};
-	caddress get_ipv4_src_value() const {
+	caddress_in4 get_ipv4_src_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32value_as_addr();
 	};
-	caddress get_ipv4_src_mask() const {
+	caddress_in4 get_ipv4_src_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_SRC).get_u32mask_as_addr();
 	};
-	caddress get_ipv4_dst() const {
+	caddress_in4 get_ipv4_dst() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32masked_value_as_addr();
 	};
-	caddress get_ipv4_dst_value() const {
+	caddress_in4 get_ipv4_dst_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32value_as_addr();
 	};
-	caddress get_ipv4_dst_mask() const {
+	caddress_in4 get_ipv4_dst_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV4_DST).get_u32mask_as_addr();
 	};
 	uint16_t get_arp_opcode() const {
@@ -354,40 +354,40 @@ public:
 	cmacaddr get_arp_tha_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48mask();
 	};
-	caddress get_arp_spa() const {
+	caddress_in4 get_arp_spa() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32masked_value_as_addr();
 	};
-	caddress get_arp_spa_value() const {
+	caddress_in4 get_arp_spa_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32value_as_addr();
 	};
-	caddress get_arp_spa_mask() const {
+	caddress_in4 get_arp_spa_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32mask_as_addr();
 	};
-	caddress get_arp_tpa() const {
+	caddress_in4 get_arp_tpa() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32masked_value_as_addr();
 	};
-	caddress get_arp_tpa_value() const {
+	caddress_in4 get_arp_tpa_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32value_as_addr();
 	};
-	caddress get_arp_tpa_mask() const {
+	caddress_in4 get_arp_tpa_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_TPA).get_u32mask_as_addr();
 	};
-	caddress get_ipv6_src() const {
+	caddress_in6 get_ipv6_src() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128masked_value();
 	};
-	caddress get_ipv6_src_value() const {
+	caddress_in6 get_ipv6_src_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128value();
 	};
-	caddress get_ipv6_src_mask() const {
+	caddress_in6 get_ipv6_src_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_SRC).get_u128mask();
 	};
-	caddress get_ipv6_dst() const {
+	caddress_in6 get_ipv6_dst() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128masked_value();
 	};
-	caddress get_ipv6_dst_value() const {
+	caddress_in6 get_ipv6_dst_value() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128value();
 	};
-	caddress get_ipv6_dst_mask() const {
+	caddress_in6 get_ipv6_dst_mask() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_DST).get_u128mask();
 	};
 	uint8_t  get_ip_proto() const {
@@ -412,7 +412,13 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_ICMPV6_CODE).get_u8value();
 	};
 	uint32_t get_ipv6_flabel() const {
-	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32value(); // OF12 => mask exists, in OF13 not, what a weird spec ...
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32masked_value();
+	};
+	uint32_t get_ipv6_flabel_value() const {
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32value();
+	};
+	uint32_t get_ipv6_flabel_mask() const {
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32mask();
 	};
 	cmacaddr get_ipv6_nd_sll() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_SLL).get_u48masked_value();
@@ -420,7 +426,7 @@ public:
 	cmacaddr get_ipv6_nd_tll() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TLL).get_u48masked_value();
 	};
-	caddress get_ipv6_nd_target() const {
+	caddress_in6 get_ipv6_nd_target() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TARGET).get_u128masked_value();
 	};
 	uint16_t get_udp_src() const {
@@ -481,16 +487,16 @@ public:
 	void set_nw_tos(uint8_t tos) {
 		matches.add_match(coxmatch_ofx_nw_tos(tos));
 	};
-	void set_nw_src(caddress const& src) {
+	void set_nw_src(caddress_in4 const& src) {
 		matches.add_match(coxmatch_ofx_nw_src(src));
 	};
-	void set_nw_src(caddress const& src, caddress const& mask) {
+	void set_nw_src(caddress_in4 const& src, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofx_nw_src(src, mask));
 	};
-	void set_nw_dst(caddress const& dst) {
+	void set_nw_dst(caddress_in4 const& dst) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst));
 	};
-	void set_nw_dst(caddress const& dst, caddress const& mask) {
+	void set_nw_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst, mask));
 	};
 	void set_tp_src(uint16_t src_port) {
@@ -552,16 +558,16 @@ public:
 	void set_ip_proto(uint8_t proto) {
 		matches.add_match(coxmatch_ofb_ip_proto(proto));
 	};
-	void set_ipv4_src(caddress const& src) {
+	void set_ipv4_src(caddress_in4 const& src) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src));
 	};
-	void set_ipv4_src(caddress const& src, caddress const& mask) {
+	void set_ipv4_src(caddress_in4 const& src, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src, mask));
 	};
-	void set_ipv4_dst(caddress const& dst) {
+	void set_ipv4_dst(caddress_in4 const& dst) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst));
 	};
-	void set_ipv4_dst(caddress const& dst, caddress const& mask) {
+	void set_ipv4_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst, mask));
 	};
 	void set_tcp_src(uint16_t src_port) {
@@ -591,16 +597,16 @@ public:
 	void set_arp_opcode(uint16_t opcode) {
 		matches.add_match(coxmatch_ofb_arp_opcode(opcode));
 	};
-	void set_arp_spa(caddress const& spa) {
+	void set_arp_spa(caddress_in4 const& spa) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa));
 	};
-	void set_arp_spa(caddress const& spa, caddress const& mask) {
+	void set_arp_spa(caddress_in4 const& spa, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa, mask));
 	};
-	void set_arp_tpa(caddress const& tpa) {
+	void set_arp_tpa(caddress_in4 const& tpa) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa));
 	};
-	void set_arp_tpa(caddress const& tpa, caddress const& mask) {
+	void set_arp_tpa(caddress_in4 const& tpa, caddress_in4 const& mask) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa, mask));
 	};
 	void set_arp_sha(cmacaddr const& sha) {
@@ -615,20 +621,23 @@ public:
 	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask) {
 		matches.add_match(coxmatch_ofb_arp_tha(tha, mmask));
 	};
-	void set_ipv6_src(caddress const& addr) {
+	void set_ipv6_src(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr));
 	};
-	void set_ipv6_src(caddress const& addr, caddress const& mask) {
+	void set_ipv6_src(caddress_in6 const& addr, caddress_in6 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr, mask));
 	};
-	void set_ipv6_dst(caddress const& addr) {
+	void set_ipv6_dst(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr));
 	};
-	void set_ipv6_dst(caddress const& addr, caddress const& mask) {
+	void set_ipv6_dst(caddress_in6 const& addr, caddress_in6 const& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr, mask));
 	};
 	void set_ipv6_flabel(uint32_t flabel) {
 		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel));
+	};
+	void set_ipv6_flabel(uint32_t flabel, uint32_t mask) {
+		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel, mask));
 	};
 	void set_icmpv6_type(uint8_t type) {
 		matches.add_match(coxmatch_ofb_icmpv6_type(type));
@@ -636,7 +645,7 @@ public:
 	void set_icmpv6_code(uint8_t code) {
 		matches.add_match(coxmatch_ofb_icmpv6_code(code));
 	};
-	void set_ipv6_nd_target(caddress const& addr) {
+	void set_ipv6_nd_target(caddress_in6 const& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_nd_target(addr));
 	};
 	void set_ipv6_nd_sll(cmacaddr const& maddr) {

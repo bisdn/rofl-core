@@ -69,7 +69,7 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	//Apply actions
 	bitmap128_clean(&table->config.apply_actions);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_ETH_DST);
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);		
@@ -154,14 +154,11 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_ND_TARGET);
 	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_ND_SLL);
 	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_ND_TLL);
-	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_EXTHDR);
 	bitmap128_set(&table->config.match, OF1X_MATCH_ICMPV6_CODE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_ICMPV6_TYPE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_LABEL);
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_TC);
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS);
-	//bitmap128_set(&table->config.match, OF1X_MATCH_PBB_ISID);
-	//bitmap128_set(&table->config.match, OF1X_MATCH_TUNNEL_ID);
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPPOE_CODE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPPOE_TYPE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPPOE_SID);
@@ -184,26 +181,21 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_SRC);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_DST);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_FLABEL);
-	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_EXTHDR);
-	//bitmap128_set(&table->config.wildcards, OF1X_MATCH_PBB_ISID);
-	//bitmap128_set(&table->config.wildcards, OF1X_MATCH_TUNNEL_ID);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_GTP_TEID);
 
 
 	//Apply actions
 	bitmap128_clean(&table->config.apply_actions);
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_MPLS);		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GTP);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GTP);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PBB);		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PBB);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GTP);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_MPLS);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_OUT);			
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_OUT);			
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_NW_TTL);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_MPLS_TTL);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_MPLS_TTL);		
@@ -214,7 +206,6 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_TYPE); 		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_LABEL);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_TC);  	   	
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_BOS);  	   	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_VID); 		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_PCP); 		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_OPCODE);	
@@ -236,21 +227,18 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_TARGET);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_SLL);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_TLL);	
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_SRC);  		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_DST);  		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_SRC);  		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_DST);  		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_SRC);  		
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_DST);  		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_DST);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_CODE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_TYPE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_CODE);	
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PBB_ISID);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
@@ -258,15 +246,15 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_GROUP);			
-	//bitmap128_set(&table->config.apply_actions, OF1X_AT_EXPERIMENTER);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_EXPERIMENTER);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_OUTPUT);
 		
 	//Write actions
 	table->config.write_actions = table->config.apply_actions;
 
 	//METADATA (full metadata support)
-	table->config.metadata_match = 0xFFFFFFFFFFFFFFFFUL;  
-	table->config.metadata_write = 0xFFFFFFFFFFFFFFFFUL; 
+	table->config.metadata_match = 0xFFFFFFFFFFFFFFFFULL;  
+	table->config.metadata_write = 0xFFFFFFFFFFFFFFFFULL; 
 
 	//Instructions
 	table->config.instructions = 	(1 << OF1X_IT_APPLY_ACTIONS) |
@@ -284,10 +272,35 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 	//Setting the default behaviour to continue to the next table.
 	table->default_action = OF1X_TABLE_MISS_CONTINUE; 
 	
-	//Adding OF1.3 only matches
+	//Adding OF1.3 matches
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS); 
+	
+	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_EXTHDR);
+	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_EXTHDR);
+	
+	bitmap128_set(&table->config.match, OF1X_MATCH_PBB_ISID);
+	bitmap128_set(&table->config.wildcards, OF1X_MATCH_PBB_ISID);
+	
+	bitmap128_set(&table->config.match, OF1X_MATCH_TUNNEL_ID);
+	bitmap128_set(&table->config.wildcards, OF1X_MATCH_TUNNEL_ID);
+
+	//Adding OF1.3 actions
+
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PBB);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PBB);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_BOS);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PBB_ISID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);	
+
+	//Write actions
+	table->config.write_actions = table->config.apply_actions;
 
 	//TODO: add METER instruction when implemented
+
+
+	//Instructions
+	table->config.instructions |= (1 << OF1X_IT_METER);
 	
 	table->config.table_miss_config = 0x0;
 }
@@ -333,7 +346,11 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 
 	//Initializing timers. NOTE does that need to be done here or somewhere else?
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-	__of1x_timer_group_static_init(table);
+	if(__of1x_timer_group_static_init(table) != ROFL_SUCCESS){
+		platform_mutex_destroy(table->mutex);
+		platform_rwlock_destroy(table->rwlock);
+		return ROFL_FAILURE;
+	}
 #else
 	table->timers = NULL;
 #endif
@@ -358,9 +375,18 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	__of1x_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
-	if(of1x_matching_algorithms[table->matching_algorithm].init_hook)
-		return of1x_matching_algorithms[table->matching_algorithm].init_hook(table);
-	
+	if(of1x_matching_algorithms[table->matching_algorithm].init_hook){
+		rofl_result_t result;
+
+		result = of1x_matching_algorithms[table->matching_algorithm].init_hook(table);
+		
+		if(result != ROFL_SUCCESS){
+			platform_mutex_destroy(table->mutex);
+			platform_rwlock_destroy(table->rwlock);
+			return result;
+		}
+	}
+
 	return ROFL_SUCCESS;
 }
 
@@ -377,6 +403,10 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
 	
+	//Destroy timers
+#if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
+	__of1x_timer_group_static_destroy(table);
+#endif
 	//Destroy stats
 	__of1x_stats_table_destroy(table);
 

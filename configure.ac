@@ -1,4 +1,4 @@
-AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl, https://www.codebasin.net/redmine/projects/rofl-core)
+AC_INIT(ROFL, m4_esyscmd_s(cat VERSION), rofl-devel@roflibs.org, rofl, http://www.roflibs.org)
 
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])

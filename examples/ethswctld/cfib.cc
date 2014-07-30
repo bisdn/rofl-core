@@ -9,12 +9,12 @@
 
 using namespace etherswitch;
 
-std::map<uint64_t, cfib*> cfib::fibs;
+std::map<rofl::cdptid, cfib*> cfib::fibs;
 
 
 /*static*/
 cfib&
-cfib::get_fib(uint64_t dpid)
+cfib::get_fib(const rofl::cdptid& dpid)
 {
 	if (cfib::fibs.find(dpid) == cfib::fibs.end()) {
 		new cfib(dpid);
@@ -23,7 +23,7 @@ cfib::get_fib(uint64_t dpid)
 }
 
 
-cfib::cfib(uint64_t dpid) :
+cfib::cfib(const rofl::cdptid& dpid) :
 		dpid(dpid),
 		rofbase(0),
 		dpt(0)

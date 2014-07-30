@@ -3,6 +3,9 @@
 * @mainpage ROFL-common
 *
 * @section doc Documentation
+*
+* @warning This documentation may not be up-to-date
+*
 * @subsection doc_intro Introduction
 *
 * @subsubsection doc_intro_what_is_it What is it?
@@ -20,7 +23,7 @@
 * details of the protocol and provides a (hopefully) clean and easy to use API to software developers. 
 * We aim towards multi-version support under a common hood: currently, the core library supports 
 * OpenFlow 1.0 and "OpenFlow 1.2":https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.2.pdf. C
-* heck the "features list":https://www.codebasin.net/redmine/projects/rofl-core/wiki/Wiki#Features to see the implementation status of various features. 
+* heck the "features list":http://www.roflibs.org to see the implementation status of various features. 
 *
 * _*Datapath*_ contains building blocks for creating data path elements, most notably an OpenFlow pipeline for integration into hardware platforms, network processors, etc.
 *
@@ -112,11 +115,11 @@ sh# sudo make install
 *
 * @subsection doc_xdpd Extensible Data Path Daemon
 *
-* We have created a data path implementation on top of ROFL: the "extensible Data Path Daemon":https://www.codebasin.net/redmine/projects/xdpd.
+* We have created a data path implementation on top of ROFL: the "extensible Data Path Daemon":http://www.xdpd.org.
 * 
 * xdpd is a modular framework for building your own data path seeking to help you in supporting various hardware platforms. 
 * 
-* More information can be found on the "xdpd project site":https://www.codebasin.net/redmine/projects/xdpd.
+* More information can be found on the "xdpd project site":http://www.xdpd.org .
 *
 */
 

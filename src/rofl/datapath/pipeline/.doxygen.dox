@@ -5,7 +5,7 @@
 * @section doc Documentation 
 * @subsection intro_sec Introduction
 *
-* The ROFL-pipeline library is a platform-agnostic OpenFlow 1.0, 1.2 and 1.3.X pipeline, built focusing on performance and extensibility. The objective is to create a unified common OpenFlow pipeline implementation that can be reused in several platforms. ROFL-pipeline is used by the eXtensible DataPath (<a href="https://www.codebasin.net/redmine/projects/xdpd/wiki">xDPd</a>) in several platforms.
+* The ROFL-pipeline library is a platform-agnostic OpenFlow 1.0, 1.2 and 1.3.X pipeline, built focusing on performance and extensibility. The objective is to create a unified common OpenFlow pipeline implementation that can be reused in several platforms. ROFL-pipeline is used by the eXtensible DataPath (<a href="http://www.xdpd.org">xDPd</a>) in several platforms.
 * 
 * Features:
 *  - Complete dataplane data model.

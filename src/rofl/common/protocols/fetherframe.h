@@ -11,7 +11,7 @@
 #endif
 
 #include "../fframe.h"
-#include "../cmacaddr.h"
+#include "../caddress.h"
 #include "../cvastring.h"
 
 namespace rofl
@@ -24,6 +24,8 @@ class eEtherFrameInvalidSyntax : public eFrameInvalidSyntax {}; // invalid synta
  *
  */
 class fetherframe : public fframe {
+	static const unsigned int ETH_ADDR_LEN = 6;
+
 public: // static
 
 #define DEFAULT_ETHER_FRAME_SIZE 1518
@@ -32,16 +34,16 @@ public: // static
 
 	// Ethernet II header
 	struct eth_hdr_t {
-		uint8_t dl_dst[OFP_ETH_ALEN];
-		uint8_t dl_src[OFP_ETH_ALEN];
+		uint8_t dl_dst[ETH_ADDR_LEN];
+		uint8_t dl_src[ETH_ADDR_LEN];
 		uint16_t dl_type;
 		uint8_t data[0];
 	} __attribute__((packed));
 	
 	//Ethernet LLC header
 	struct eth_llc_hdr_t {
-		uint8_t dl_dst[OFP_ETH_ALEN];
-		uint8_t dl_src[OFP_ETH_ALEN];
+		uint8_t dl_dst[ETH_ADDR_LEN];
+		uint8_t dl_src[ETH_ADDR_LEN];
 		uint16_t dl_len;
 		uint8_t dl_dsap;
 		uint8_t dl_ssap;

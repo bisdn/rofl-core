@@ -9,13 +9,13 @@
 
 using namespace spray;
 
-std::map<rofl::caddress, cudpsend*> cudpsend::udpsenders;
+std::map<rofl::csockaddr, cudpsend*> cudpsend::udpsenders;
 
 
 
 
 cudpsend&
-cudpsend::get_udpsend(rofl::caddress const& peer)
+cudpsend::get_udpsend(rofl::csockaddr const& peer)
 {
 	if (cudpsend::udpsenders.find(peer) == cudpsend::udpsenders.end()) {
 		throw eUdpSendNotFound();
@@ -27,8 +27,8 @@ cudpsend::get_udpsend(rofl::caddress const& peer)
 
 
 cudpsend::cudpsend(
-		rofl::caddress const& peer,
-		rofl::caddress const& local,
+		rofl::csockaddr const& peer,
+		rofl::csockaddr const& local,
 		unsigned int msglen) :
 				tid(0),
 				duration(DEFAULT_UDP_NODE_INTERVAL),

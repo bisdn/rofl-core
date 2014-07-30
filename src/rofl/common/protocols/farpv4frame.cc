@@ -192,7 +192,7 @@ farpv4frame::set_dl_src(
 cmacaddr
 farpv4frame::get_dl_src() const
 {
-	return cmacaddr(arp_hdr->dl_src, OFP_ETH_ALEN);
+	return cmacaddr(arp_hdr->dl_src, ETH_ADDR_LEN);
 }
 
 
@@ -207,7 +207,7 @@ farpv4frame::set_dl_dst(
 cmacaddr
 farpv4frame::get_dl_dst() const
 {
-	return cmacaddr(arp_hdr->dl_dst, OFP_ETH_ALEN);
+	return cmacaddr(arp_hdr->dl_dst, ETH_ADDR_LEN);
 }
 
 
@@ -221,20 +221,16 @@ farpv4frame::set_nw_src(
 
 void
 farpv4frame::set_nw_src(
-		caddress const& addr)
+		caddress_in4 const& addr)
 {
-	if (not addr.is_af_inet())
-		return; // TODO: throw ...
-
-	arp_hdr->ip_src = addr.ca_s4addr->sin_addr.s_addr;
+	arp_hdr->ip_src = addr.get_addr_nbo();
 }
 
 
-caddress
+caddress_in4
 farpv4frame::get_nw_src() const
 {
-	caddress addr(AF_INET, "0.0.0.0");
-	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_src;
+	caddress_in4 addr; addr.set_addr_nbo(arp_hdr->ip_src);
 	return addr;
 }
 
@@ -249,20 +245,16 @@ farpv4frame::set_nw_dst(
 
 void
 farpv4frame::set_nw_dst(
-		caddress const& addr)
+		caddress_in4 const& addr)
 {
-	if (not addr.is_af_inet())
-		return; // TODO: throw ...
-
-	arp_hdr->ip_dst = addr.ca_s4addr->sin_addr.s_addr;
+	arp_hdr->ip_dst = addr.get_addr_nbo();
 }
 
 
-caddress
+caddress_in4
 farpv4frame::get_nw_dst() const
 {
-	caddress addr(AF_INET, "0.0.0.0");
-	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_dst;
+	caddress_in4 addr; addr.set_addr_nbo(arp_hdr->ip_dst);
 	return addr;
 }
 

@@ -56,6 +56,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	of1x_flow_entry_t* match;
 	
 	//Initialize packet for OF1.X pipeline processing 
+	__init_packet_metadata(pkt);
 	__of1x_init_packet_write_actions(&pkt->write_actions.of1x);
 
 	//Mark packet as being processed by this sw
@@ -64,7 +65,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
-	dump_packet_matches(&pkt->matches, false);
+	dump_packet_matches(pkt, false);
 #endif
 	
 	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline.num_of_tables ; i++){
@@ -84,7 +85,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			//Update flow statistics
 			platform_atomic_inc64(&match->stats.packet_count,match->stats.mutex);
-			platform_atomic_add64(&match->stats.byte_count, pkt->matches.__pkt_size_bytes, match->stats.mutex);
+			platform_atomic_add64(&match->stats.byte_count, platform_packet_get_size_bytes(pkt), match->stats.mutex);
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
@@ -128,7 +129,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			}else if(table->default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
-				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
+				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. Generating a PACKET_IN event towards the controller\n",pkt);
 
 				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;

@@ -24,9 +24,7 @@
 #include "rofl/common/cvastring.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
-#include "rofl/common/coflist.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/thread_helper.h"
@@ -125,13 +123,25 @@ public:
 	 *
 	 */
 	coxmatch(
-			uint32_t oxm_id, rofl::caddress const& value);
+			uint32_t oxm_id, rofl::caddress_in4 const& value);
 
 	/**
 	 *
 	 */
 	coxmatch(
-			uint32_t oxm_id, rofl::caddress const& value, rofl::caddress const& mask);
+			uint32_t oxm_id, rofl::caddress_in4 const& value, rofl::caddress_in4 const& mask);
+
+	/**
+	 *
+	 */
+	coxmatch(
+			uint32_t oxm_id, rofl::caddress_in6 const& value);
+
+	/**
+	 *
+	 */
+	coxmatch(
+			uint32_t oxm_id, rofl::caddress_in6 const& value, rofl::caddress_in6 const& mask);
 
 	/**
 	 *
@@ -293,9 +303,9 @@ public:
 	uint32_t get_u32mask() const;
 	uint32_t get_u32masked_value() const;
 
-	rofl::caddress get_u32value_as_addr() const;
-	rofl::caddress get_u32mask_as_addr() const;
-	rofl::caddress get_u32masked_value_as_addr() const;
+	rofl::caddress_in4 get_u32value_as_addr() const;
+	rofl::caddress_in4 get_u32mask_as_addr() const;
+	rofl::caddress_in4 get_u32masked_value_as_addr() const;
 
 	rofl::cmacaddr get_u48value() const;
 	rofl::cmacaddr get_u48mask() const;
@@ -305,9 +315,9 @@ public:
 	uint64_t get_u64mask() const;
 	uint64_t get_u64masked_value() const;
 
-	rofl::caddress get_u128value() const;
-	rofl::caddress get_u128mask() const;
-	rofl::caddress get_u128masked_value() const;
+	rofl::caddress_in6 get_u128value() const;
+	rofl::caddress_in6 get_u128mask() const;
+	rofl::caddress_in6 get_u128masked_value() const;
 
 	void set_u8value(uint8_t value);
 	void set_u8mask(uint8_t mask);
@@ -318,8 +328,8 @@ public:
 	void set_u32value(uint32_t value);
 	void set_u32mask(uint32_t mask);
 
-	void set_u32value(rofl::caddress const& addr);
-	void set_u32mask(rofl::caddress const& mask);
+	void set_u32value(rofl::caddress_in4 const& addr);
+	void set_u32mask(rofl::caddress_in4 const& mask);
 
 	void set_u48value(rofl::cmacaddr const& addr);
 	void set_u48mask(rofl::cmacaddr const& mask);
@@ -327,8 +337,8 @@ public:
 	void set_u64value(uint64_t value);
 	void set_u64mask(uint64_t mask);
 
-	void set_u128value(rofl::caddress const& addr);
-	void set_u128mask(rofl::caddress const& mask);
+	void set_u128value(rofl::caddress_in6 const& addr);
+	void set_u128mask(rofl::caddress_in6 const& mask);
 
 
 public:
@@ -475,9 +485,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<eth-dst: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<eth-dst value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<eth-dst mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -501,9 +512,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<eth-src: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<eth-src value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<eth-src mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -701,10 +713,10 @@ public:
 			uint32_t src, uint32_t mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_SRC_MASK, src, mask) {};
 	coxmatch_ofb_ipv4_src(
-			rofl::caddress const& src) :
+			rofl::caddress_in4 const& src) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_SRC, src) {};
 	coxmatch_ofb_ipv4_src(
-			rofl::caddress const& src, rofl::caddress const& mask) :
+			rofl::caddress_in4 const& src, rofl::caddress_in4 const& mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_SRC_MASK, src, mask) {};
 	coxmatch_ofb_ipv4_src(
 			coxmatch const& oxm) :
@@ -714,9 +726,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-			os << indent(2) << "<ipv4-src: "
-			<< oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr()
-			<< " >" << std::endl;
+		os << indent(2) << "<ipv4-src value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<ipv4-src mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
 };
@@ -734,10 +747,10 @@ public:
 			uint32_t dst, uint32_t mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK, dst, mask) {};
 	coxmatch_ofb_ipv4_dst(
-			caddress const& dst) :
+			caddress_in4 const& dst) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_DST, dst) {};
 	coxmatch_ofb_ipv4_dst(
-			caddress const& dst, caddress const& mask) :
+			caddress_in4 const& dst, caddress_in4 const& mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK, dst, mask) {};
 	coxmatch_ofb_ipv4_dst(
 			coxmatch const& oxm) :
@@ -747,9 +760,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-			os << indent(2) << "<ipv4-dst: "
-			<< oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr()
-			<< " >" << std::endl;
+		os << indent(2) << "<ipv4-dst value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<ipv4-dst mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
 };
@@ -761,10 +775,10 @@ public:
 class coxmatch_ofb_ipv6_src : public coxmatch {
 public:
 	coxmatch_ofb_ipv6_src(
-			rofl::caddress const& src) :
+			rofl::caddress_in6 const& src) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV6_SRC, src) {};
 	coxmatch_ofb_ipv6_src(
-			rofl::caddress const& src, rofl::caddress const& mask) :
+			rofl::caddress_in6 const& src, rofl::caddress_in6 const& mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV6_SRC_MASK, src, mask) {};
 	coxmatch_ofb_ipv6_src(
 			coxmatch const& oxm) :
@@ -775,9 +789,10 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-src: >" << std::endl;
-		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << "/" << oxm.get_u128mask() << " >" << std::endl;
+		os << rofl::indent(0) << "<ipv6-src value: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
+		os << rofl::indent(0) << "<ipv6-src mask: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
 };
@@ -789,10 +804,10 @@ public:
 class coxmatch_ofb_ipv6_dst : public coxmatch {
 public:
 	coxmatch_ofb_ipv6_dst(
-			rofl::caddress const& dst) :
+			rofl::caddress_in6 const& dst) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV6_DST, dst) {};
 	coxmatch_ofb_ipv6_dst(
-			rofl::caddress const& dst, rofl::caddress const& mask) :
+			rofl::caddress_in6 const& dst, rofl::caddress_in6 const& mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV6_DST_MASK, dst, mask) {};
 	coxmatch_ofb_ipv6_dst(
 			coxmatch const& oxm) :
@@ -803,9 +818,10 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-dst: >" << std::endl;
-		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << "/" << oxm.get_u128mask() << " >" << std::endl;
+		os << rofl::indent(0) << "<ipv6-dst value: >" << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
+		os << rofl::indent(0) << "<ipv6-dst mask: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
 };
@@ -817,7 +833,7 @@ public:
 class coxmatch_ofb_ipv6_nd_target : public coxmatch {
 public:
 	coxmatch_ofb_ipv6_nd_target(
-			rofl::caddress const& nd_target) :
+			rofl::caddress_in6 const& nd_target) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_IPV6_ND_TARGET, nd_target) {};
 	coxmatch_ofb_ipv6_nd_target(
 			coxmatch const& oxm) :
@@ -828,9 +844,8 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_target const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
 		rofl::indent i(2);
-		os << rofl::indent(0) << "<ipv6-nd-target: >" << std::endl;
-		rofl::indent j(2);
-		os << "<" << oxm.get_u128value() << " >" << std::endl;
+		os << rofl::indent(0) << "<ipv6-nd-target value: > " << std::endl;
+		{ rofl::indent i(2); os << oxm.get_u128value(); }
 		return os;
 	};
 };
@@ -1063,13 +1078,13 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa) {};
 	coxmatch_ofb_arp_spa(
 			uint32_t spa, uint32_t mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA_MASK, spa, mask) {};
 	coxmatch_ofb_arp_spa(
-			caddress const& spa) :
+			caddress_in4 const& spa) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa) {};
 	coxmatch_ofb_arp_spa(
-			caddress const& spa, caddress const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA, spa, mask) {};
+			caddress_in4 const& spa, caddress_in4 const& mask) :
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SPA_MASK, spa, mask) {};
 	coxmatch_ofb_arp_spa(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1078,9 +1093,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_spa const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-spa: "
-						<< oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-spa value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<arp-spa mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
 };
@@ -1097,13 +1113,13 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa) {};
 	coxmatch_ofb_arp_tpa(
 			uint32_t tpa, uint32_t mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA_MASK, tpa, mask) {};
 	coxmatch_ofb_arp_tpa(
-			caddress const& tpa) :
+			caddress_in4 const& tpa) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa) {};
 	coxmatch_ofb_arp_tpa(
-			caddress const& tpa, caddress const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA, tpa, mask) {};
+			caddress_in4 const& tpa, caddress_in4 const& mask) :
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_TPA_MASK, tpa, mask) {};
 	coxmatch_ofb_arp_tpa(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1112,9 +1128,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tpa const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-tpa: "
-						<< oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-tpa value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<arp-tpa mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
 };
@@ -1130,7 +1147,7 @@ public:
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr) {};
 	coxmatch_ofb_arp_sha(
 			cmacaddr const& maddr, cmacaddr const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA_MASK, maddr, mask) {};
 	coxmatch_ofb_arp_sha(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1139,9 +1156,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_sha const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-sha: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-sha value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<arp-sha mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1155,10 +1173,10 @@ class coxmatch_ofb_arp_tha : public coxmatch {
 public:
 	coxmatch_ofb_arp_tha(
 			cmacaddr const& maddr) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_THA, maddr) {};
 	coxmatch_ofb_arp_tha(
 			cmacaddr const& maddr, cmacaddr const& mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_SHA, maddr, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_ARP_THA_MASK, maddr, mask) {};
 	coxmatch_ofb_arp_tha(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1167,9 +1185,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tha const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<arp-tha: "
-						<< oxm.get_u48value() << "/" << oxm.get_u48mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<arp-tha value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<arp-tha mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
+
 		return os;
 	};
 };
@@ -1196,9 +1216,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_flabel const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-flabel: "
-						<< (int)oxm.get_u32value() << "/" << (int)oxm.get_u32mask()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-flabel: 0x" << std::hex
+						<< (int)oxm.get_u32value() << "/0x" << (int)oxm.get_u32mask()
+						<< std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -1269,9 +1289,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_sll const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-nd-sll: "
-						<< oxm.get_u48value()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-nd-sll value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<ipv6-nd-sll mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1293,9 +1314,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_tll const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-nd-tll: "
-						<< oxm.get_u48value()
-						<< " >" << std::endl;
+		os << indent(2) << "<ipv6-nd-tll value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48value();  }
+		os << indent(2) << "<ipv6-nd-tll mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
 };
@@ -1414,7 +1436,7 @@ public:
 			uint32_t pbb_isid) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID, pbb_isid) {};
 	coxmatch_ofb_pbb_isid(
-			uint64_t pbb_isid, uint64_t mask) :
+			uint32_t pbb_isid, uint32_t mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID_MASK, pbb_isid, mask) {};
 	coxmatch_ofb_pbb_isid(
 			coxmatch const& oxm) :
@@ -1516,10 +1538,10 @@ public:
 			uint32_t src, uint32_t mask) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK, src, mask) {};
 	coxmatch_ofx_nw_src(
-			rofl::caddress const& src) :
+			rofl::caddress_in4 const& src) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC, src) {};
 	coxmatch_ofx_nw_src(
-			rofl::caddress const& src, rofl::caddress const& mask) :
+			rofl::caddress_in4 const& src, rofl::caddress_in4 const& mask) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK, src, mask) {};
 	coxmatch_ofx_nw_src(
 			coxmatch const& oxm) :
@@ -1529,7 +1551,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-src: " << oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr() << " >" << std::endl;
+		os << indent(2) << "<nw-src value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<nw-src mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
 };
@@ -1547,10 +1572,10 @@ public:
 			uint32_t dst, uint32_t mask) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK, dst, mask) {};
 	coxmatch_ofx_nw_dst(
-			rofl::caddress const& dst) :
+			rofl::caddress_in4 const& dst) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST, dst) {};
 	coxmatch_ofx_nw_dst(
-			rofl::caddress const& dst, rofl::caddress const& mask) :
+			rofl::caddress_in4 const& dst, rofl::caddress_in4 const& mask) :
 				coxmatch(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK, dst, mask) {};
 	coxmatch_ofx_nw_dst(
 			coxmatch const& oxm) :
@@ -1560,7 +1585,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm) {
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-dst: " << oxm.get_u32value_as_addr() << "/" << oxm.get_u32mask_as_addr() << " >" << std::endl;
+		os << indent(2) << "<nw-dst value: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32value_as_addr(); }
+		os << indent(2) << "<nw-dst mask: >" << std::endl;
+		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
+
 		return os;
 	};
 };

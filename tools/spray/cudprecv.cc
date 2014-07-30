@@ -10,11 +10,11 @@
 using namespace spray;
 
 
-std::map<rofl::caddress, cudprecv*> cudprecv::udpreceivers;
+std::map<rofl::csockaddr, cudprecv*> cudprecv::udpreceivers;
 
 
 cudprecv&
-cudprecv::get_udprecv(rofl::caddress const& remote)
+cudprecv::get_udprecv(rofl::csockaddr const& remote)
 {
 	if (cudprecv::udpreceivers.find(remote) == cudprecv::udpreceivers.end()) {
 		throw eUdpRecvNotFound();
@@ -25,8 +25,8 @@ cudprecv::get_udprecv(rofl::caddress const& remote)
 
 
 cudprecv::cudprecv(
-		rofl::caddress const& remote,
-		rofl::caddress const& local) :
+		rofl::csockaddr const& remote,
+		rofl::csockaddr const& local) :
 				keep_going(false),
 				tid(0),
 				remote(remote),
@@ -95,7 +95,7 @@ cudprecv::start_receiving()
 		fprintf(stderr, "error creating thread: %d (%s)\n", errno, strerror(errno));
 	}
 
-	register_timer(CUDPRECV_TIMER_PRINT_STATS, 0);
+	stats_timerid = register_timer(CUDPRECV_TIMER_PRINT_STATS, 0);
 }
 
 
@@ -105,7 +105,7 @@ cudprecv::stop_receiving()
 {
 	keep_going = false;
 
-	cancel_timer(CUDPRECV_TIMER_PRINT_STATS);
+	cancel_timer(stats_timerid);
 }
 
 
@@ -135,13 +135,13 @@ cudprecv::recv_udp_msgs()
 	}
 
 	if ((rc = bind(sd, local.ca_saddr, local.salen)) < 0) {
-		std::cerr << "local: " << local.addr_c_str() << std::endl;
+		std::cerr << "local: " << local << std::endl;
 		fprintf(stderr, "error on bind() call: %d (%s)\n", errno, strerror(errno));
 		return;
 	}
 
 	if ((rc = connect(sd, remote.ca_saddr, remote.salen)) < 0) {
-		std::cerr << "remote: " << remote.addr_c_str() << std::endl;
+		std::cerr << "remote: " << remote << std::endl;
 		fprintf(stderr, "error on connect() call: %d (%s)\n", errno, strerror(errno));
 		return;
 	}
@@ -264,7 +264,7 @@ cudprecv::print_statistics()
 			rxseqno, rxbytes, rxlost, rxseqno - startseqno, rxrcvd, loss, bitrate);
 
 	if (keep_going)
-		register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
+		stats_timerid = register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
 }
 
 

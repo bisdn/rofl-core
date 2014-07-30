@@ -60,23 +60,25 @@ cofactionset::get_action_index(uint16_t action_type)
 }
 
 void
-cofactionset::actionset_clear(cofinst& inst)
+cofactionset::actionset_clear(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
 	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
 	acset.clear();
 
-	cofactions::iterator at;
-	for (std::list<cofaction*>::iterator
-			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
-		cofaction& action = *(*at);
-		switch (be16toh(action.oac_header->type)) {
-		case openflow12::OFPAT_SET_FIELD: {
-			coxmatch oxm(
-					(uint8_t*)action.oac_12set_field->field,
-					be16toh(action.oac_12set_field->len));
+	for (std::map<cindex, unsigned int>::const_iterator
+			it = inst.get_actions().get_actions_index().begin();
+					it != inst.get_actions().get_actions_index().end(); ++it) {
+		const cindex& index 		= it->first;
+		const unsigned int& type	= it->second;
+
+		switch (type) {
+		case rofl::openflow13::OFPAT_SET_FIELD: {
+			const coxmatch& oxm = inst.get_actions().get_action_set_field(index).get_oxm();
 			acfields[oxm.get_oxm_class()].erase(oxm.get_oxm_field());
 		} break;
+		default:
+			continue;
 		}
 	}
 }
@@ -91,41 +93,42 @@ cofactionset::actionset_clear()
 
 
 void
-cofactionset::actionset_write_actions(cofinst& inst)
+cofactionset::actionset_write_actions(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
-	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.actions.size() << std::endl;
+	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().get_actions_index().size() << std::endl;
 
-	for (std::list<cofaction*>::iterator
-			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
-		cofaction& action = *(*at);
 
-		/*WRITELOG(COFACTION, DBG, "write action %u at position %u",
-				be16toh(action.oac_header->type),
-				cofactionset::action_indices[be16toh(action.oac_header->type)]);
-		*/
-		logging::debug << "[rofl]"<<this<<" write action "<< be16toh(action.oac_header->type)<<" at position "<<cofactionset::action_indices[be16toh(action.oac_header->type)]<< std::endl;
+	for (std::map<cindex, unsigned int>::const_iterator
+			it = inst.get_actions().get_actions_index().begin();
+					it != inst.get_actions().get_actions_index().end(); ++it) {
+#if 0
+		const unsigned int& index = it->first;
+		const unsigned int& type	= it->second;
 
-		switch (be16toh(action.oac_header->type)) {
-		case openflow12::OFPAT_SET_FIELD: {
-			coxmatch oxm(
-					(uint8_t*)action.oac_12set_field->field,
-					be16toh(action.oac_12set_field->len));
-			acfields[oxm.get_oxm_class()][oxm.get_oxm_field()] = action;
+		switch (type) {
+		case rofl::openflow13::OFPAT_OUTPUT: {
+			acset[ cofactionset::action_indices[type] ] = action;
 		} break;
-		default:
-			acset[ cofactionset::action_indices[be16toh(action.oac_header->type)] ] = action; // copy action into action set
-			break;
+		case rofl::openflow13::OFPAT_SET_FIELD: {
+			const coxmatch& oxm = inst.get_actions().get_action_set_field(index).get_oxm();
+			acfields[oxm.get_oxm_class()] = new cofaction_set_field(inst.get_actions().get_action_set_field(index));
+		} break;
+		default: {
+			acset[ cofactionset::action_indices[type] ] = action; // copy action into action set
 		}
+		}
+#endif
 	}
+
 }
 
 
 void
-cofactionset::actionset_write_metadata(cofinst & inst)
+cofactionset::actionset_write_metadata(const cofinstruction_write_metadata& inst)
 {
-	uint64_t mask =  be64toh(inst.oin_write_metadata->metadata_mask);
-	uint64_t value = be64toh(inst.oin_write_metadata->metadata);
+	uint64_t mask =  inst.get_metadata_mask();
+	uint64_t value = inst.get_metadata();
 
 	this->metadata = (this->metadata & ~mask) | (value & mask);
 }

@@ -99,7 +99,8 @@ rofl_result_t __of1x_destroy_timer_entries(struct of1x_flow_entry * entry);
 void __of1x_process_pipeline_tables_timeout_expirations(struct of1x_pipeline *const pipeline);
 
 void __of1x_dump_timers_structure(of1x_timer_group_t * timer_group);
-void __of1x_timer_group_static_init(struct of1x_flow_table* table);
+rofl_result_t __of1x_timer_group_static_init(struct of1x_flow_table* table);
+void __of1x_timer_group_static_destroy(struct of1x_flow_table* table);
 //void __of1x_timer_update_entry(struct of1x_flow_entry * flow_entry, struct timeval ts);
 void __of1x_fill_new_timer_entry_info(struct of1x_flow_entry * entry, uint32_t hard_timeout, uint32_t idle_timeout);
 // public for testing

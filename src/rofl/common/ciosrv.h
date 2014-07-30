@@ -79,10 +79,10 @@ class cioloop;
 class ciosrv :
 		public ptrciosrv
 {
+	static PthreadRwLock 			ciolist_rwlock;
 	static std::set<ciosrv*> 		ciolist;
 
 	pthread_t						tid;
-	cpipe							pipe;
 	std::set<int>					rfds;
 	std::set<int>					wfds;
 	ctimers							timers;
@@ -159,6 +159,12 @@ protected:
 	events_clear() { events.clear(); };
 
 	friend class cioloop;
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_event();
 
 	/**
 	 * @brief	Called by cioloop
@@ -299,11 +305,11 @@ protected:
 	 * @brief	Installs a new timer to fire in t seconds.
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
-	 * @param t timeout in seconds of this timer
+	 * @param ctimer object
 	 * @return timer handle
 	 */
-	uint32_t
-	register_timer(int opaque, time_t t);
+	const ctimerid&
+	register_timer(int opaque, const ctimespec& timespec);
 
 	/**
 	 * @brief	Resets a running timer of type opaque.
@@ -314,8 +320,8 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	uint32_t
-	reset_timer(uint32_t timer_id, time_t t);
+	const ctimerid&
+	reset_timer(const ctimerid& timer_id, const ctimespec& timespec);
 
 	/**
 	 * @brief	Checks for a pending timer of type opaque.
@@ -324,7 +330,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(uint32_t timer_id);
+	pending_timer(ctimerid const& timer_id);
 
 	/**
 	 * @brief	Cancels a pending timer.
@@ -332,14 +338,21 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(uint32_t timer_id);
+	cancel_timer(ctimerid const& timer_id);
 
 	/**
-	 * @brief	Cancels all pending timer of this instance.
+	 * @brief	Cancels all pending timers of this instance.
 	 *
 	 */
 	void
-	cancel_all_timer();
+	cancel_all_timers();
+
+	/**
+	 * @brief	Cancels all pending events of this instance.
+	 *
+	 */
+	void
+	cancel_all_events();
 
 	/**@}*/
 
@@ -381,7 +394,10 @@ class cioloop {
 	PthreadRwLock							wfds_rwlock;
 	std::map<ciosrv*, bool>					timers;
 	PthreadRwLock							timers_rwlock;
+	std::map<ciosrv*, bool>					events;
+	PthreadRwLock							events_rwlock;
 
+	cpipe									pipe;
 	pthread_t        			       		tid;
 	struct timespec 						ts;
 	bool									keep_on_running;
@@ -404,6 +420,17 @@ public:
 	static cioloop&
 	get_loop() {
 		pthread_t tid = pthread_self();
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			cioloop::threads[tid] = new cioloop();
+		}
+		return *(cioloop::threads[tid]);
+	};
+
+	/**
+	 *
+	 */
+	static cioloop&
+	get_loop(pthread_t tid) {
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			cioloop::threads[tid] = new cioloop();
 		}
@@ -443,6 +470,7 @@ public:
 	};
 
 public:
+
 
 
 	/**
@@ -545,6 +573,30 @@ public:
 		timers[iosrv] = false;
 	};
 
+	/**
+	 *
+	 */
+	void
+	has_event(ciosrv* iosrv) {
+		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+		events[iosrv] = true;
+		pipe.writemsg('1'); // wakeup main loop, just in case
+	};
+
+	/**
+	 *
+	 */
+	void
+	has_no_event(ciosrv* iosrv) {
+		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+		events[iosrv] = false;
+	};
+
+	/**
+	 *
+	 */
+	pthread_t
+	get_tid() const { return tid; };
 
 private:
 
@@ -612,7 +664,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cioloop const& ioloop) {
-		os << indent(0) << "<cioloop >" << std::endl;
+		os << indent(0) << "<cioloop tid:0x"
+				<< std::hex << ioloop.get_tid() << std::dec << ">" << std::endl;
 
 		os << indent(2) << "<read-fds: ";
 		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
@@ -634,6 +687,14 @@ public:
 		// locking?
 		for (std::map<ciosrv*, bool>::const_iterator
 				it = ioloop.timers.begin(); it != ioloop.timers.end(); ++it) {
+			os << it->first << ":" << it->second << " ";
+		}
+		os << ">" << std::endl;
+
+		os << indent(2) << "<instances with event needs: ";
+		// locking?
+		for (std::map<ciosrv*, bool>::const_iterator
+				it = ioloop.events.begin(); it != ioloop.events.end(); ++it) {
 			os << it->first << ":" << it->second << " ";
 		}
 		os << ">" << std::endl;

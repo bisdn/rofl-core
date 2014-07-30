@@ -68,6 +68,15 @@ cofflowstatsarray_test::testCopyConstructor()
 	std::cerr << "mclone:" << std::endl << mclone;
 #endif
 
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [0]" << std::endl;
+	std::cerr << "marray:" << std::endl << marray;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [1]" << std::endl;
+	std::cerr << "mclone:" << std::endl << mclone;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [2]" << std::endl;
+	std::cerr << "array:" << std::endl << array;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [3]" << std::endl;
+	std::cerr << "clone:" << std::endl << clone;
+
 	CPPUNIT_ASSERT(marray == mclone);
 }
 
@@ -76,6 +85,8 @@ cofflowstatsarray_test::testCopyConstructor()
 void
 cofflowstatsarray_test::testOperatorPlus()
 {
+	rofl::cindex index(0);
+
 	std::vector<rofl::openflow::cofflowstatsarray> array;
 	array.push_back(rofl::openflow::cofflowstatsarray(rofl::openflow13::OFP_VERSION));
 	array.push_back(rofl::openflow::cofflowstatsarray(rofl::openflow13::OFP_VERSION));
@@ -92,8 +103,10 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[0].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	array[0].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	array[0].set_flow_stats(0).set_match().set_eth_type(0x3333);
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().
+			set_actions().add_action_copy_ttl_in(index++);
+	array[0].set_flow_stats(0).set_instructions().set_inst_apply_actions().
+			set_actions().add_action_output(index++).set_port_no(6);
 
 	array[0].set_flow_stats(1).set_version(rofl::openflow13::OFP_VERSION);
 	array[0].set_flow_stats(1).set_table_id(2);
@@ -105,6 +118,8 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[0].set_flow_stats(1).set_hard_timeout(0x40);
 	array[0].set_flow_stats(1).set_match().set_arp_opcode(0x8888);
 	array[0].set_flow_stats(1).set_match().set_eth_dst(rofl::cmacaddr("44:44:44:44:44:44"));
+
+	index = rofl::cindex(0);
 
 	array[1].set_flow_stats(0).set_version(rofl::openflow13::OFP_VERSION);
 	array[1].set_flow_stats(0).set_table_id(4);
@@ -118,8 +133,10 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[1].set_flow_stats(0).set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	array[1].set_flow_stats(0).set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	array[1].set_flow_stats(0).set_match().set_eth_type(0x7777);
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().
+			set_actions().add_action_copy_ttl_in(index++);
+	array[1].set_flow_stats(0).set_instructions().set_inst_apply_actions().
+			set_actions().add_action_output(index++).set_port_no(6);
 
 #ifdef DEBUG
 	std::cerr << "array[0]:" << std::endl << array[0];
@@ -146,6 +163,8 @@ cofflowstatsarray_test::testOperatorPlus()
 void
 cofflowstatsarray_test::testPackUnpack()
 {
+	rofl::cindex index(0);
+
 	/*
 	 * test memory
 	 */
@@ -163,8 +182,10 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[0].set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	stats[0].set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	stats[0].set_match().set_eth_type(0x3333);
-	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	stats[0].set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	stats[0].set_instructions().set_inst_apply_actions().
+			set_actions().add_action_copy_ttl_in(index++);
+	stats[0].set_instructions().set_inst_apply_actions().
+			set_actions().add_action_output(index++).set_port_no(6);
 
 	stats[1].set_version(rofl::openflow13::OFP_VERSION);
 	stats[1].set_table_id(2);
@@ -198,8 +219,10 @@ cofflowstatsarray_test::testPackUnpack()
 	stats[3].set_match().set_eth_dst(rofl::cmacaddr("11:22:33:44:55:66"));
 	stats[3].set_match().set_eth_src(rofl::cmacaddr("22:22:22:22:22:22"));
 	stats[3].set_match().set_eth_type(0x3333);
-	stats[3].set_instructions().set_inst_apply_actions().actions.append_action_copy_ttl_in();
-	stats[3].set_instructions().set_inst_apply_actions().actions.append_action_output(6);
+	stats[3].set_instructions().set_inst_apply_actions().
+			set_actions().add_action_copy_ttl_in(index++);
+	stats[3].set_instructions().set_inst_apply_actions().
+			set_actions().add_action_output(index++).set_port_no(6);
 
 
 	size_t len = 0;

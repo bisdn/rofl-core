@@ -215,12 +215,17 @@ public:
 	unpack(
 			uint8_t* buf, size_t buflen);
 
-
 	/**
 	 *
 	 */
 	std::vector<struct rofl::openflow::ofp_instruction>&
-	get_instruction_ids() { return instructions_ids; };
+	set_instruction_ids() { return instructions_ids; };
+
+	/**
+	 *
+	 */
+	const std::vector<struct rofl::openflow::ofp_instruction>&
+	get_instruction_ids() const { return instructions_ids; };
 
 
 	/**
@@ -484,7 +489,13 @@ public:
 	 *
 	 */
 	std::vector<struct rofl::openflow::ofp_action>&
-	get_action_ids() { return actions; };
+	set_action_ids() { return actions; };
+
+	/**
+	 *
+	 */
+	const std::vector<struct rofl::openflow::ofp_action>&
+	get_action_ids() const { return actions; };
 
 
 	/**
@@ -669,14 +680,25 @@ public:
 	 *
 	 */
 	std::vector<uint32_t>&
-	get_oxm_ids() { return oxm_ids; };
+	set_oxm_ids() { return oxm_ids; };
 
+	/**
+	 *
+	 */
+	const std::vector<uint32_t>&
+	get_oxm_ids() const { return oxm_ids; };
 
 	/**
 	 *
 	 */
 	std::vector<uint64_t>&
-	get_oxm_ids_exp() { return oxm_ids_exp; };
+	set_oxm_ids_exp() { return oxm_ids_exp; };
+
+	/**
+	 *
+	 */
+	const std::vector<uint64_t>&
+	get_oxm_ids_exp() const { return oxm_ids_exp; };
 
 
 	/**

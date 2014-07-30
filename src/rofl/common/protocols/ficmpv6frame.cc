@@ -413,22 +413,21 @@ ficmpv6frame::set_icmpv6_type(uint8_t type)
 
 
 
-caddress
+caddress_in6
 ficmpv6frame::get_icmpv6_neighbor_taddr() const
 {
-	caddress addr(AF_INET6);
-	addr.ca_s6addr->sin6_family = AF_INET6;
+	caddress_in6 addr;
 
 	try {
 		switch (get_icmpv6_type()) {
 		case ICMPV6_TYPE_NEIGHBOR_SOLICITATION: {
-			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_neighbor_solicitation->taddr, IPV6_ADDR_LEN);
+			memcpy(addr.somem(), icmpv6_neighbor_solicitation->taddr, IPV6_ADDR_LEN);
 		} break;
 		case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT: {
-			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_neighbor_advertisement->taddr, IPV6_ADDR_LEN);
+			memcpy(addr.somem(), icmpv6_neighbor_advertisement->taddr, IPV6_ADDR_LEN);
 		} break;
 		case ICMPV6_TYPE_REDIRECT_MESSAGE: {
-			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_redirect->taddr, IPV6_ADDR_LEN);
+			memcpy(addr.somem(), icmpv6_redirect->taddr, IPV6_ADDR_LEN);
 		} break;
 		default: {
 			throw eICMPv6FrameInvalType();
@@ -446,21 +445,18 @@ ficmpv6frame::get_icmpv6_neighbor_taddr() const
 
 
 void
-ficmpv6frame::set_icmpv6_neighbor_taddr(caddress const& addr)
+ficmpv6frame::set_icmpv6_neighbor_taddr(caddress_in6 const& addr)
 {
 	try {
-		if (not addr.is_af_inet6()) {
-			return;
-		}
 		switch (get_icmpv6_type()) {
 		case ICMPV6_TYPE_NEIGHBOR_SOLICITATION: {
-			memcpy(icmpv6_neighbor_solicitation->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+			memcpy(icmpv6_neighbor_solicitation->taddr, addr.somem(), IPV6_ADDR_LEN);
 		} break;
 		case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT: {
-			memcpy(icmpv6_neighbor_advertisement->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+			memcpy(icmpv6_neighbor_advertisement->taddr, addr.somem(), IPV6_ADDR_LEN);
 		} break;
 		case ICMPV6_TYPE_REDIRECT_MESSAGE: {
-			memcpy(icmpv6_redirect->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+			memcpy(icmpv6_redirect->taddr, addr.somem(), IPV6_ADDR_LEN);
 		} break;
 		default: {
 			throw eICMPv6FrameInvalType();

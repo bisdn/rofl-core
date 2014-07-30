@@ -3,206 +3,112 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef CADDRESS_H
-#define CADDRESS_H
+#define CADDRESS_H 1
 
-#include <list>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <netinet/in.h>
-#include <sys/un.h>
-#include <sys/types.h>
-#include <linux/if_packet.h>
-#include <linux/if_ether.h>
-#include <linux/if_arp.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/sockios.h>
-#include <endian.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#ifndef htobe16
-	#include "endian_conversion.h"
-#endif
 
-#include "cvastring.h"
-#include "croflexception.h"
-#include "cmemory.h"
-#include "rofl/datapath/pipeline/common/large_types.h"
+#include <string>
 
-namespace rofl
-{
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/logging.h"
 
-/* error classes */
-class eAddress 							: public RoflException {}; // base class caddress related errors
-class eAddressIoctlFailed 				: public eAddress {};
-class eAddressSocketFailed 				: public eAddress {};
-class eAddressSocketFailedNoPermission 	: public eAddressSocketFailed {};
-class eAddressInval 					: public eAddress {};
+namespace rofl {
+
+class eAddress 							: public RoflException {
+public:
+	eAddress(const std::string& __arg) : RoflException(__arg) {};
+};
+
+class eAddressInval 					: public eAddress {
+public:
+	eAddressInval(const std::string& __arg) : eAddress(__arg) {};
+};
 
 
-/**
- * @class	caddress
- * @brief	Auxiliary class for managing sockaddr structures for various address families.
- *
- * This class encapsulates Unix socket address structures. Currently, it
- * supports IPv4, IPv6, LinkLayer, and Unix.
- *
- */
-class caddress :
-	public cmemory
-{
-#define AF_INET4_SIZE	4
-#define AF_INET6_SIZE	16
+class caddress : public cmemory {
 public:
 
-		/**
-		 * @union 	addr_addru
-		 * @brief	A union containing a pointer to the sockaddr structure.
-		 *
-		 * Supports various pointer types (generic, AF_INET, AF_INET6, AF_UNIX, AF_PACKET).
-		 */
-		union {
-			struct sockaddr*		addru_saddr;
-			struct sockaddr_in* 	addru_s4addr;
-			struct sockaddr_in6	*	addru_s6addr;
-			struct sockaddr_un*		addru_suaddr;
-			struct sockaddr_ll*		addru_sladdr;
-		} addr_addru;
+	/**
+	 *
+	 */
+	caddress(
+			size_t size = 0) :
+				rofl::cmemory(size) {};
 
-#define ca_saddr		addr_addru.addru_saddr		// generic sockaddr
-#define ca_s4addr		addr_addru.addru_s4addr		// sockaddr_in
-#define ca_s6addr		addr_addru.addru_s6addr		// sockaddr_in6
-#define ca_suaddr		addr_addru.addru_suaddr		// sockaddr_un
-#define ca_sladdr		addr_addru.addru_sladdr		// sockaddr_ll
+	/**
+	 *
+	 */
+	caddress(
+			const rofl::cmemory& addr) :
+				rofl::cmemory(addr) {};
 
-		socklen_t salen; /**< actual length of struct sockaddr managed by this caddress instance */
+	/**
+	 *
+	 */
+	caddress(
+			const caddress& addr) { *this = addr; };
+
+	/**
+	 *
+	 */
+	virtual
+	~caddress() {};
+
+	/**
+	 *
+	 */
+	caddress&
+	operator= (
+			const caddress& addr) {
+		if (this == &addr)
+			return *this;
+		cmemory::operator= (addr);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator< (
+			const caddress& addr) const { return cmemory::operator< (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator> (
+			const caddress& addr) const { return cmemory::operator> (addr); };
+
+	/**
+	 *
+	 */
+	caddress
+	operator& (
+			const caddress& addr) const { return caddress(cmemory::operator& (addr)); };
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const caddress& addr) const { return cmemory::operator== (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			 const caddress& addr) const { return cmemory::operator!= (addr); };
 
 private:
 
-		/*
-		 * this needs a refactoring in the next round: use struct addrinfo for storing all parameters
-		 */
-		int 				domain;
-		int					sock_type;
-		int					protocol;
-		std::string 		node;		// for getaddrinfo
-		std::string			service;	// for getaddrinfo
-
-	std::string info;	// info string
-
-public:
-
-
 	/**
-	 *
-	 * @param node
-	 * @param service
-	 * @param preferred_family
-	 * @param preferred_socktype
-	 * @param preferred_protocol
+	 * @brief	Shadow rofl::cmemory::resize()
 	 */
-	caddress(
-			std::string const& node,
-			std::string const& service,
-			int ai_flags = 0,
-			int preferred_family = 0,
-			int preferred_socktype = 0,
-			int preferred_protocol = 0);
-
-
-	/**
-	 * @brief	Constructor for creating an empty address. Allocates maximum memory required for any struct sockaddr (currently sockaddr_un).
-	 *
-	 * @param size size of memory area for storing struct sockaddr
-	 */
-	caddress(int af = AF_UNSPEC);
-
-
-
-	/**
-	 * @brief	Constructor for caddress instances of address family AF_PACKET.
-	 *
-	 * Allocates sufficient space for hosting a struct sockaddr_ll and fills the structure.
-	 * See the man page packet(7) for details.
-	 *
-	 * @param af Address family for this socket address (here: PF_PACKET)
-	 * @param protocol Protocol type in use (default: ETH_P_ALL)
-	 * @param devname Device name for this address (default "eth0")
-	 * @param hatype Hardware address type (default: ARPHRD_ETHER)
-	 * @param pkttype Packet type (default: PACKET_HOST)
-	 * @param addr link layer address memory area
-	 * @param halen length of address memory area
-	 */
-	caddress(
-			u_int16_t protocol /*= ETH_P_ALL*/,
-			std::string devname /*= std::string("eth0")*/,
-			u_int16_t hatype = ARPHRD_ETHER,
-			u_int8_t pkttype = PACKET_HOST,
-			const char* addr = NULL,
-			size_t halen = 0);
-
-
-
-	/**
-	 * @brief	Constructor for caddress instances of address family AF_INET, AF_INET6, and AF_UNIX.
-	 *
-	 * Allocates sufficient space for hosting a struct sockaddr_in/sockaddr_in6 and
-	 * fills the structure with the specified address in ASCII form "127.0.0.1".
-	 *
-	 * @param af Address family for this socket address (here: AF_INET, AF_INET6, AF_UNIX)
-	 * @param astr ASCII-encoded address string, e.g. "127.0.0.1" or a FQDN
-	 * @param port port value for a transport address
-	 * @exception eAddressInval is thrown, when an unsupported address family is specified
-	 */
-	caddress(
-			int af,
-			const char* astr,
-			u_int16_t port = 0) throw (eAddressInval);
-
-
-
-
-	/**
-	 * @brief	Creates a caddress instance from a struct sockaddr_in6.
-	 *
-	 * @param sa pointer to struct sockaddr_in6
-	 * @param salen length of buffer
-	 */
-	caddress(
-			struct sockaddr_in6 *sa,
-			size_t salen) throw (eAddressInval);
-
-
-	/**
-	 * @brief	Creates a caddress instance from a struct sockaddr_in.
-	 *
-	 * @param sa pointer to struct sockaddr_in
-	 * @param salen length of buffer	 */
-	caddress(
-			struct sockaddr_in *sa,
-			size_t salen) throw (eAddressInval);
-
-
-
-	/**
-	 * @brief	Copy constructor.
-	 *
-	 * @param ca reference to the caddress instance to be copied.
-	 */
-	caddress(
-			caddress const& ca);
-
-
-
-	/**
-	 * @brief	Destructor.
-	 *
-	 */
-	~caddress();
-
+	virtual uint8_t*
+	resize(size_t size) { return cmemory::resize(size); };
 
 public:
 
@@ -216,356 +122,579 @@ public:
 	 *
 	 */
 	virtual void
-	pack(uint8_t* buf, size_t buflen);
+	pack(
+			uint8_t* buf, size_t buflen);
 
 	/**
 	 *
 	 */
 	virtual void
-	unpack(uint8_t* buf, size_t buflen);
-
-
-public:
-
-	/**
-	 *
-	 */
-	std::string&
-	set_node() { return node; };
-
-	/**
-	 *
-	 */
-	std::string const&
-	get_node() const { return node; };
-
-	/**
-	 *
-	 */
-	std::string&
-	set_service() { return service; };
-
-	/**
-	 *
-	 */
-	std::string const&
-	get_service() const { return service; };
-
-	/**
-	 *
-	 */
-	void
-	set_domain(int domain) { this->domain = domain; };
-
-	/**
-	 *
-	 */
-	int
-	get_domain() { return domain; };
-
-	/**
-	 *
-	 */
-	void
-	set_sock_type(int sock_type) { this->sock_type = sock_type; };
-
-	/**
-	 *
-	 */
-	int
-	get_sock_type() { return sock_type; };
-
-	/**
-	 *
-	 */
-	void
-	set_protocol(int protocol) { this->protocol = protocol; };
-
-	/**
-	 *
-	 */
-	int
-	get_protocol() { return protocol; };
-
+	unpack(
+			uint8_t* buf, size_t buflen);
 
 public:
-
-
-	/**
-	 * @brief	Returns a C-string with the address in ASCII representation ("AF_INET/127.0.0.1:6633").
-	 *
-	 * @return C-string
-	 */
-	const char*
-	c_str();
-
-
-
-	/**
-	 * @brief	Returns a C-string with the address in ASCII representation ("127.0.0.1").
-	 *
-	 * @return C-string
-	 */
-	const char*
-	addr_c_str();
-
 
 	/**
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, caddress const& addr)
-	{
-		caddress t_addr(addr);
-		os << std::string(t_addr.addr_c_str());
-#if 0
-		caddress t_addr(addr);
-		os << "caddress{"
-				<< "af=" << t_addr.c_str() << " "
-				<< "}";
-#endif
+	operator<< (std::ostream& os,  const caddress& addr) {
+		os << rofl::indent(0) << "<caddress >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<const rofl::cmemory&>( addr );
 		return os;
 	};
+};
 
 
+
+class caddress_ll : public caddress {
 public:
 
-
 	/**
-	 * @name Operators
+	 *
 	 */
-
-	/**@{*/
+	caddress_ll() :
+		caddress(ETH_ADDR_LEN) {};
 
 	/**
-	 * @brief	Returns address family of this instance.
 	 *
-	 * @return AF_INET, AF_INET6, AF_UNSPEC, ...
 	 */
-	int
-	get_family() const;
-
+	caddress_ll(uint8_t* buf, size_t buflen) :
+		caddress(ETH_ADDR_LEN) {
+		if (buflen < ETH_ADDR_LEN)
+			throw eAddressInval("caddress_ll::caddress_ll() buflen too short");
+		cmemory::unpack(buf, buflen);
+	};
 
 	/**
-	 * @brief	Assignment operator.
 	 *
-	 * @param ca reference to caddress instance to be assigned to *this
 	 */
-	caddress&
-	operator=(
-			caddress const& ca);
-
-
+	caddress_ll(
+			const std::string& addr) :
+					caddress(ETH_ADDR_LEN) {
+		str2addr(addr);
+	};
 
 	/**
-	 * @brief	Less than operator.
 	 *
-	 * This compares the two memory regions.
+	 */
+	caddress_ll(
+			uint64_t mac) :
+					caddress(ETH_ADDR_LEN) {
+		set_mac(mac);
+	};
+
+	/**
 	 *
-	 * @param ca reference to caddress instance for comparison
+	 */
+	virtual
+	~caddress_ll() {};
+
+	/**
+	 *
+	 */
+	caddress_ll(
+			const caddress_ll& addr) { *this = addr; };
+
+	/**
+	 *
+	 */
+	caddress_ll&
+	operator= (
+			const caddress_ll& addr) {
+		if (this == &addr)
+			return *this;
+		caddress::operator= (addr);
+		return *this;
+	};
+
+	/**
+	 *
 	 */
 	bool
-	operator<(
-			caddress const& ca) const;
-
-
+	operator< (
+			const caddress_ll& addr) const { return caddress::operator< (addr); };
 
 	/**
-	 * @brief	Greater than operator.
 	 *
-	 * This compares the two memory regions.
-	 *
-	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
-	operator>(
-			caddress const& ca) const;
-
-
+	operator> (
+			const caddress_ll& addr) const { return caddress::operator> (addr); };
 
 	/**
-	 * @brief	AND operator.
 	 *
-	 * @param mask reference to caddress instance to be used for ANDing with this caddress
 	 */
-	caddress
+	caddress_ll
 	operator& (
-			caddress const& mask) const;
-
-
+			const caddress_ll& addr) const {
+		caddress_ll addr_ll;
+		addr_ll[0] = (*this)[0] & addr[0];
+		addr_ll[1] = (*this)[1] & addr[1];
+		addr_ll[2] = (*this)[2] & addr[2];
+		addr_ll[3] = (*this)[3] & addr[3];
+		addr_ll[4] = (*this)[4] & addr[4];
+		addr_ll[5] = (*this)[5] & addr[5];
+		return addr_ll;
+	};
 
 	/**
-	 * @brief	Equals operator.
 	 *
-	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator== (
-			caddress const& ca) const;
-
-
+			const caddress_ll& addr) const { return caddress::operator== (addr); };
 
 	/**
-	 * @brief	Unequals operator.
 	 *
-	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator!= (
-			caddress const& ca) const;
-
-
-	/**
-	 * @brief	Index operator granting direct access to address bytes
-	 *
-	 * @param index index defines the byte to be returned as reference
-	 */
-	uint8_t&
-	operator[] (
-			unsigned int index);
-
-	/**@}*/
-
+			 const caddress_ll& addr) const { return caddress::operator!= (addr); };
 
 public:
 
 	/**
-	 * @name Helper methods
-	 */
-
-	/**@{*/
-
-	/**
-	 * @brief	Checks for an address family AF_INET.
+	 * @brief	Check for multicast bit in hardware address.
 	 *
-	 * @return true: address family is AF_INET, false otherwise
-	 */
-	bool
-	is_af_inet() const;
-
-
-
-	/**
-	 * @brief	Checks for an address family AF_INET6.
-	 *
-	 * @return true: address family is AF_INET6, false otherwise
-	 */
-	bool
-	is_af_inet6() const;
-
-
-
-	/**
-	 * @brief	Checks for an address family AF_UNIX.
-	 *
-	 * @return true: address family is AF_UNIX, false otherwise
-	 */
-	bool
-	is_af_unix() const;
-
-
-
-	/**
-	 * @brief	Checks for an address family AF_PACKET.
-	 *
-	 * @return true: address family is AF_PACKET, false otherwise
-	 */
-	bool
-	is_af_packet() const;
-
-
-	/**
-	 * @brief	Checks for multicast address.
+	 * @return true: hardware address has multicast bit set, false otherwise
 	 */
 	bool
 	is_multicast() const;
 
-
 	/**
-	 * @brief	Checks for broadcast address.
+	 * @brief	Check for broadcast hardware address.
+	 *
+	 * @return true: hardware address equals "ff:ff:ff:ff:ff:ff", false otherwise
 	 */
 	bool
 	is_broadcast() const;
 
-
-	/**@}*/
-
-#if 0
 	/**
-	 * Global method as output operator for class caddress().
-	 * Puts the caddress 'address' into an output stream identified
-	 * by 'os'.
-	 * @param os Output stream to put the address to.
-	 * @param ca The caddress instance to dump its content to the output stream.
-	 * @return The output stream for chaining operators<<()
+	 * @brief	Check for null hardware address.
+	 *
+	 * @return true: hardware address equals "00:00:00:00:00:00", false otherwise
 	 */
-	friend std::ostream &
-	operator<<(std::ostream& os, caddress& ca)
-	{
-		char address[256];
-		bzero(address, sizeof(address));
-		switch (ca.ca_saddr->sa_family) {
-		case 0:
-			os << "caddress(EMPTY)";
-			break;
-		case AF_INET:
-			os << "caddress(AF_INET/" << inet_ntop(AF_INET, &(ca.s4addr->sin_addr), address, 256)
-			<< ":" << ntohs(ca.s4addr->sin_port) << "/" << ca.salen << ")";
-			break;
-		case AF_INET6:
-			os << "caddress(AF_INET6/" << inet_ntop(AF_INET6, &(ca.ca_s6addr->sin6_addr), address, 256)
-			<< ":" << ntohs(ca.ca_s6addr->sin6_port) << "/" << ca.salen << ")";
-			break;
-		case AF_UNIX:
-			os << "caddress(AF_UNIX/" << ca.ca_suaddr->sun_path << "/" << ca.salen << ")";
-			break;
-		case AF_PACKET:
-			os << "caddress(AF_PACKET/TODO: implement!)";
-			break;
-		}
-		return os;
-	};
-#endif
-
-
-protected:
+	bool
+	is_null() const;
 
 	/**
-	 * Helper method: gethostbyname() replacement.
-	 * Retrieves for an ASCII description the network address in network
-	 * byte order. Used by the class constructors. Supports IPv6.
-	 * @param af The address family
-	 * @param astr The ASCII encoded string containing an address or FQDN
+	 * @brief	Return the MAC address as a uint64_t value. The MAC address will be transformed to host byte order and resides in the lower bytes.
+	 *
+	 * @return uint64_t mac
 	 */
-	void pton(int af, const char* astr);
+	uint64_t
+	get_mac() const;
 
-public: // static
+	/**
+	 *
+	 */
+	void
+	set_mac(uint64_t mac);
 
-	static void
-	test();
-	
-	uint32_t
-	get_ipv4_addr();
-	
-	void
-	set_ipv4_addr(uint32_t addr);
-	
-	uint128__t
-	get_ipv6_addr();
-	
-	void
-	set_ipv6_addr(uint128__t addr);
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
 
 private:
 
 	/**
 	 *
 	 */
-	virtual uint8_t*
-	resize(size_t len);
+	void
+	str2addr(
+			const std::string& addr);
 
+	/**
+	 *
+	 */
+	std::string
+	addr2str() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const caddress_ll& addr) {
+		os << rofl::indent(0) << "<caddress_ll " << addr.addr2str() << " >" << std::endl;
+#if 0
+		rofl::indent i(2);
+		os << dynamic_cast<const caddress&>( addr );
+#endif
+		return os;
+	};
+
+private:
+
+	static const size_t ETH_ADDR_LEN = 6;
 };
 
-}; // end of namespace
+typedef caddress_ll cmacaddr;
+
+
+
+
+class caddress_in : public caddress {
+public:
+
+	/**
+	 *
+	 */
+	caddress_in(
+			size_t size = 0) :
+					caddress(size) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~caddress_in() {};
+
+	/**
+	 *
+	 */
+	caddress_in(
+			const caddress_in& addr) { *this = addr; };
+
+	/**
+	 *
+	 */
+	caddress_in&
+	operator= (
+			const caddress_in& addr) {
+		if (this == &addr)
+			return *this;
+		caddress::operator= (addr);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator< (
+			const caddress_in& addr) const { return caddress::operator< (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator> (
+			const caddress_in& addr) const { return caddress::operator> (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const caddress_in& addr) const { return caddress::operator== (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			 const caddress_in& addr) const { return caddress::operator!= (addr); };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const caddress_in& addr) {
+		os << rofl::indent(0) << "<caddress_in >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<const caddress&>( addr );
+		return os;
+	};
+};
+
+
+
+class caddress_in4 : public caddress_in {
+public:
+
+	/**
+	 *
+	 */
+	caddress_in4() :
+		caddress_in(INET4_ADDR_LEN) {};
+
+	/**
+	 *
+	 */
+	caddress_in4(
+			const std::string& addr) :
+					caddress_in(INET4_ADDR_LEN) {
+		str2addr(addr);
+	};
+
+	/**
+	 *
+	 */
+	virtual
+	~caddress_in4() {};
+
+	/**
+	 *
+	 */
+	caddress_in4(
+			const caddress_in4& addr) { *this = addr; };
+
+	/**
+	 *
+	 */
+	caddress_in4&
+	operator= (
+			const caddress_in4& addr) {
+		if (this == &addr)
+			return *this;
+		caddress_in::operator= (addr);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator< (
+			const caddress_in4& addr) const { return caddress_in::operator< (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator> (
+			const caddress_in4& addr) const { return caddress_in::operator> (addr); };
+
+	/**
+	 *
+	 */
+	caddress_in4
+	operator& (
+			const caddress_in4& addr) const {
+		caddress_in4 addr_in4;
+		for (unsigned int i = 0; i < INET4_ADDR_LEN; i++) {
+			addr_in4[i] = (*this)[i] & addr[i];
+		}
+		return addr_in4;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const caddress_in4& addr) const { return caddress_in::operator== (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			 const caddress_in4& addr) const { return caddress_in::operator!= (addr); };
+
+public:
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_addr_nbo() const {
+		uint8_t* ptr = somem();
+		return *((uint32_t*)ptr);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_addr_nbo(uint32_t addr) {
+		uint8_t* ptr = somem();
+		*((uint32_t*)ptr) = addr;
+	};
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_addr_hbo() const {
+		uint8_t* ptr = somem();
+		return be32toh(*((uint32_t*)ptr));
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_addr_hbo(uint32_t addr) {
+		uint8_t* ptr = somem();
+		*((uint32_t*)ptr) = htobe32(addr);
+	};
+
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
+
+private:
+
+	/**
+	 *
+	 */
+	void
+	str2addr(
+			const std::string& addr);
+
+	/**
+	 *
+	 */
+	std::string
+	addr2str() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const caddress_in4& addr) {
+		os << rofl::indent(0) << "<caddress_in4 " << addr.addr2str() << " >" << std::endl;
+#if 0
+		rofl::indent i(2);
+		os << dynamic_cast<const caddress&>( addr );
+#endif
+		return os;
+	};
+
+private:
+
+	static const size_t INET4_ADDR_LEN = 4;
+};
+
+
+
+class caddress_in6 : public caddress_in {
+public:
+
+	/**
+	 *
+	 */
+	caddress_in6() :
+		caddress_in(INET6_ADDR_LEN) {};
+
+	/**
+	 *
+	 */
+	caddress_in6(
+			const std::string& addr) :
+					caddress_in(INET6_ADDR_LEN) {
+		str2addr(addr);
+	};
+
+	/**
+	 *
+	 */
+	virtual
+	~caddress_in6() {};
+
+	/**
+	 *
+	 */
+	caddress_in6(
+			const caddress_in6& addr) { *this = addr; };
+
+	/**
+	 *
+	 */
+	caddress_in6&
+	operator= (
+			const caddress_in6& addr) {
+		if (this == &addr)
+			return *this;
+		caddress_in::operator= (addr);
+		return *this;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator< (
+			const caddress_in6& addr) const { return caddress_in::operator< (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator> (
+			const caddress_in6& addr) const { return caddress_in::operator> (addr); };
+
+	/**
+	 *
+	 */
+	caddress_in6
+	operator& (
+			const caddress_in6& addr) const {
+		caddress_in6 addr_in6;
+		for (unsigned int i = 0; i < INET6_ADDR_LEN; i++) {
+			addr_in6[i] = (*this)[i] & addr[i];
+		}
+		return addr_in6;
+	};
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			const caddress_in6& addr) const { return caddress_in::operator== (addr); };
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			 const caddress_in6& addr) const { return caddress_in::operator!= (addr); };
+
+	/**
+	 *
+	 */
+	std::string
+	str() { return addr2str(); };
+
+private:
+
+	/**
+	 *
+	 */
+	void
+	str2addr(
+			const std::string& addr);
+
+	/**
+	 *
+	 */
+	std::string
+	addr2str() const;
+
+private:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const caddress_in6& addr) {
+		os << rofl::indent(0) << "<caddress_in6 " << addr.addr2str() << " >" << std::endl;
+#if 0
+		rofl::indent i(2);
+		os << dynamic_cast<const caddress&>( addr );
+#endif
+		return os;
+	};
+
+private:
+
+	static const size_t INET6_ADDR_LEN = 16;
+};
+
+
+}; // end of namespace rofl
 
 #endif

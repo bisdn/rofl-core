@@ -123,7 +123,7 @@ hal_result_t hal_driver_create_switch(char* name, uint64_t dpid, of_version_t of
 
 /**
  * 
- * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using switch_port_destroy_snapshot()
+ * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using of_switch_destroy_snapshot() 
  * @ingroup hal_driver
  * @retval  Pointer to of_switch_snapshot_t instance or NULL 
  */

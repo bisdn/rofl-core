@@ -342,6 +342,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(0),
 				idle_timeout(0),
 				hard_timeout(0),
+				flags(0),
 				cookie(0),
 				packet_count(0),
 				byte_count(0),
@@ -376,6 +377,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(priority),
 				idle_timeout(idle_timeout),
 				hard_timeout(hard_timeout),
+				flags(0),
 				cookie(cookie),
 				packet_count(packet_count),
 				byte_count(byte_count),
@@ -393,6 +395,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 		uint16_t priority,
 		uint16_t idle_timeout,
 		uint16_t hard_timeout,
+		uint16_t flags,
 		uint64_t cookie,
 		uint64_t packet_count,
 		uint64_t byte_count,
@@ -405,6 +408,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 				priority(priority),
 				idle_timeout(idle_timeout),
 				hard_timeout(hard_timeout),
+				flags(flags),
 				cookie(cookie),
 				packet_count(packet_count),
 				byte_count(byte_count),
@@ -441,6 +445,7 @@ cofflow_stats_reply::operator= (
 	priority 		= fs.priority;
 	idle_timeout 	= fs.idle_timeout;
 	hard_timeout 	= fs.hard_timeout;
+	flags			= fs.flags;
 	cookie 			= fs.cookie;
 	packet_count 	= fs.packet_count;
 	byte_count 		= fs.byte_count;
@@ -464,6 +469,7 @@ cofflow_stats_reply::operator== (
 			(priority 		== flowstats.priority) &&
 			(idle_timeout 	== flowstats.idle_timeout) &&
 			(hard_timeout 	== flowstats.hard_timeout) &&
+			(flags			== flowstats.flags) &&
 			(cookie 		== flowstats.cookie) &&
 			(packet_count 	== flowstats.packet_count) &&
 			(byte_count 	== flowstats.byte_count) &&
@@ -501,8 +507,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		actions.pack((uint8_t*)(fs->actions), buflen - sizeof(struct rofl::openflow10::ofp_flow_stats));
 
 	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
 
@@ -518,10 +523,38 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		fs->cookie			= htobe64(cookie);
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
-		match.pack((uint8_t*)&(fs->match), match.length());
-		instructions.pack((((uint8_t*)&(fs->match)) + match.length()), instructions.length());
+
+		uint8_t *p_match = buf + sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match);
+
+		match.pack(p_match, match.length());
+		instructions.pack(p_match + match.length(), instructions.length());
 
 	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		if (buflen < length())
+			throw eInval();
+
+		struct rofl::openflow13::ofp_flow_stats *fs = (struct rofl::openflow13::ofp_flow_stats*)buf;
+
+		fs->length 			= htobe16(length());
+		fs->table_id 		= table_id;
+		fs->duration_sec 	= htobe32(duration_sec);
+		fs->duration_nsec 	= htobe32(duration_nsec);
+		fs->priority		= htobe16(priority);
+		fs->idle_timeout	= htobe16(idle_timeout);
+		fs->hard_timeout	= htobe16(hard_timeout);
+		fs->flags			= htobe16(flags);
+		fs->cookie			= htobe64(cookie);
+		fs->packet_count	= htobe64(packet_count);
+		fs->byte_count		= htobe64(byte_count);
+
+		uint8_t *p_match = buf + sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match);
+
+		match.pack(p_match, match.length());
+		instructions.pack(p_match + match.length(), instructions.length());
+
+	} break;
+
 	default:
 		throw eBadVersion();
 	}
@@ -556,8 +589,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		actions.unpack((uint8_t*)fs->actions, buflen - sizeof(struct rofl::openflow10::ofp_flow_stats));
 
 	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow12::ofp_flow_stats))
 			throw eInval();
 
@@ -585,9 +617,47 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		if (buflen < (sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + matchlen))
 			throw eInval();
 
-		match.unpack((uint8_t*)&(fs->match), matchlen);
-		instructions.unpack((buf + sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + matchlen),
-									buflen - sizeof(struct rofl::openflow12::ofp_flow_stats) + sizeof(struct rofl::openflow12::ofp_match) - matchlen);
+		uint8_t *p_match = buf + sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match);
+
+		match.unpack(p_match, matchlen);
+		instructions.unpack((p_match + matchlen),
+					buflen - sizeof(struct rofl::openflow12::ofp_flow_stats) + sizeof(struct rofl::openflow12::ofp_match) - matchlen);
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct rofl::openflow13::ofp_flow_stats))
+			throw eInval();
+
+		struct rofl::openflow13::ofp_flow_stats* fs = (struct rofl::openflow13::ofp_flow_stats*)buf;
+
+		table_id		= fs->table_id;
+		duration_sec	= be32toh(fs->duration_sec);
+		duration_nsec	= be32toh(fs->duration_nsec);
+		priority		= be16toh(fs->priority);
+		idle_timeout	= be16toh(fs->idle_timeout);
+		hard_timeout	= be16toh(fs->hard_timeout);
+		flags			= be16toh(fs->flags);
+		cookie			= be64toh(fs->cookie);
+		packet_count	= be64toh(fs->packet_count);
+		byte_count		= be64toh(fs->byte_count);
+
+		// derive length for match
+		uint16_t matchlen = be16toh(fs->match.length);
+
+		size_t pad = (0x7 & matchlen);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			matchlen += 8 - pad;
+		}
+
+		if (buflen < (sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + matchlen))
+			throw eInval();
+
+		uint8_t *p_match = buf + sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match);
+
+		match.unpack(p_match, matchlen);
+		instructions.unpack((p_match + matchlen),
+					buflen - sizeof(struct rofl::openflow12::ofp_flow_stats) + sizeof(struct rofl::openflow12::ofp_match) - matchlen);
 
 	} break;
 	default:
@@ -604,9 +674,11 @@ cofflow_stats_reply::length() const
 	case rofl::openflow10::OFP_VERSION: {
 		return (sizeof(struct rofl::openflow10::ofp_flow_stats) + actions.length());
 	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return (sizeof(struct rofl::openflow12::ofp_flow_stats) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + instructions.length());
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_flow_stats) - sizeof(struct rofl::openflow13::ofp_match) + match.length() + instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -619,8 +691,8 @@ cofflow_stats_reply::length() const
 void
 cofflow_stats_reply::set_version(uint8_t of_version)
 {
-	this->actions.ofp_version = of_version;
-	this->instructions.ofp_version = of_version;
+	this->actions.set_version(of_version);
+	this->instructions.set_version(of_version);
 	this->match.set_version(of_version);
 	this->of_version = of_version;
 }
@@ -679,6 +751,14 @@ uint16_t
 cofflow_stats_reply::get_hard_timeout() const
 {
 	return hard_timeout;
+}
+
+
+
+uint16_t
+cofflow_stats_reply::get_flags() const
+{
+	return flags;
 }
 
 
@@ -751,6 +831,14 @@ void
 cofflow_stats_reply::set_hard_timeout(uint16_t hard_timeout)
 {
 	this->hard_timeout = hard_timeout;
+}
+
+
+
+void
+cofflow_stats_reply::set_flags(uint16_t flags)
+{
+	this->flags = flags;
 }
 
 

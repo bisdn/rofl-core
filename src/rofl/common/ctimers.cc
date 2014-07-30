@@ -61,29 +61,26 @@ ctimers::get_next_timer()
 }
 
 
-uint32_t
+const ctimerid&
 ctimers::add_timer(ctimer const& t)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-	timers.insert(t);
-	return t.get_timer_id();
+	std::multiset<ctimer>::iterator it = timers.insert(t);
+	return it->get_timer_id();
 }
 
 
-uint32_t
-ctimers::reset(uint32_t timer_id, time_t t)
+const ctimerid&
+ctimers::reset(const ctimerid& timer_id, const ctimespec& timespec)
 {
-	ctimer timer;
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-	std::set<ctimer>::iterator it;
+	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		throw eTimersNotFound();
 	}
-	timer = (*it);
+	const ctimerid& timerid = timers.insert(ctimer(it->get_ptrciosrv(), it->get_opaque(), timespec))->get_timer_id();
 	timers.erase(it);
-	timer.get_ts().tv_sec = t;
-	timers.insert(timer);
-	return timer_id;
+	return timerid;
 }
 
 
@@ -96,7 +93,7 @@ ctimers::get_expired_timer()
 	}
 	ctimer now = ctimer::now();
 
-	std::set<ctimer>::iterator it = timers.begin();
+	std::multiset<ctimer>::iterator it = timers.begin();
 
 	ctimer timer = *(it);
 
@@ -111,10 +108,10 @@ ctimers::get_expired_timer()
 
 
 bool
-ctimers::pending(uint32_t timer_id)
+ctimers::pending(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_READ);
-	std::set<ctimer>::iterator it;
+	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		return false;
 	}
@@ -123,14 +120,17 @@ ctimers::pending(uint32_t timer_id)
 
 
 void
-ctimers::cancel(uint32_t timer_id)
+ctimers::cancel(const ctimerid& timer_id)
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-	std::set<ctimer>::iterator it;
+	//rofl::logging::debug << "[rofl][ctimers][0] cancel: " << std::endl << timer_id;
+	//rofl::logging::debug << "[rofl][ctimers][1] cancel: " << std::endl << *this;
+	std::multiset<ctimer>::iterator it;
 	if ((it = find_if(timers.begin(), timers.end(), ctimer::ctimer_find_by_timer_id(timer_id))) == timers.end()) {
 		return;
 	}
 	timers.erase(it);
+	//rofl::logging::debug << "[rofl][ctimers][2] cancel: " << std::endl << *this;
 }
 
 

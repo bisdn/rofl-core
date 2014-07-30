@@ -151,6 +151,29 @@ cmemory::operator< (const cmemory& m) const
 
 
 
+bool
+cmemory::operator> (const cmemory& m) const
+{
+	if (this->memlen() > m.memlen()) {
+		return true;
+	}
+	else if (this->memlen() < m.memlen()) {
+		return false;
+	}
+
+	int rc = memcmp(this->somem(), m.somem(), this->memlen());
+
+	if (rc > 0) {
+		return true;
+	} else {
+		return false;
+	}
+
+	return true; // never reached
+}
+
+
+
 cmemory
 cmemory::operator& (const cmemory& m) const
 {
@@ -274,7 +297,7 @@ cmemory::pack(
 		size_t buflen)
 {
 	if (buflen < memlen())
-		throw eTooShort();
+		throw eInval("cmemory::pack()");
 	memcpy(buf, somem(), memlen());
 }
 

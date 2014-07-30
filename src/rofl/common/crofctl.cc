@@ -11,11 +11,11 @@ using namespace rofl;
 
 uint64_t crofctl::next_ctlid = 0;
 
-std::map<uint64_t, crofctl*> crofctl::rofctls;
+std::map<cctlid, crofctl*> crofctl::rofctls;
 
-crofctl&
+/*static*/crofctl&
 crofctl::get_ctl(
-		uint64_t ctlid)
+		const cctlid& ctlid)
 {
 	if (crofctl::rofctls.find(ctlid) == crofctl::rofctls.end()) {
 		throw eRofCtlNotFound();

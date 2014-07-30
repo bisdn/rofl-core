@@ -62,6 +62,7 @@ namespace openflow {
 		uint32_t xid;       /* Transaction id associated with this packet.
 							   Replies use the same id as was in the request
 							   to facilitate pairing. */
+		uint8_t body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_header) == 8);
 
@@ -175,6 +176,7 @@ namespace openflow {
 	struct ofp_instruction {
 		uint16_t type;                /* Instruction type */
 		uint16_t len;                 /* Length of this struct in bytes. */
+		uint8_t body[0];
 		//uint8_t pad[4];             /* Align to 64-bits */
 	};
 	OFP_ASSERT(sizeof(struct ofp_instruction) == 4);
@@ -187,6 +189,7 @@ namespace openflow {
 										   header.  This is the length of action,
 										   including any padding to make it
 										   64-bit aligned. */
+		uint8_t body[0];
 		//uint8_t pad[4];
 	};
 	OFP_ASSERT(sizeof(struct ofp_action) == 4);
@@ -506,6 +509,31 @@ namespace openflow {
 	enum ofp_match_type {
 		OFPMT_STANDARD = 0, /* Deprecated. */
 		OFPMT_OXM = 1, 		/* OpenFlow Extensible Match */
+	};
+
+
+	enum ofp_port_no {
+		/* Maximum number of physical switch ports. */
+		OFPP_MAX        = 0xffffff00,
+
+		/* Fake output "ports". */
+		OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
+										  virtual port must be explicitly used
+										  in order to send back out of the input
+										  port. */
+		OFPP_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
+										  NB: This destination port can only be
+										  used in packet-out messages. */
+		OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+		OFPP_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
+										  port and those blocked or link down. */
+		OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+		OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+		OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+		OFPP_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
+										  (delete) and flow stats requests. Selects
+										  all flows regardless of output port
+										  (including flows with no output port). */
 	};
 
 

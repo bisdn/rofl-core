@@ -25,7 +25,6 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cclock.h"
 #include "rofl/common/fframe.h"
-#include "rofl/common/cmacaddr.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/thread_helper.h"
 
@@ -331,13 +330,14 @@ public: // methods
 		os << "datalen:" << (int)pack.framelen() << " ";
 		os << ">" << std::endl;
 
+		unsigned int nbytes = 32;
 		if (pack.framelen() > 0) {
 			for (unsigned int i=0; i < pack.framelen(); i++) {
-				if (0 == (i % 64)) {
+				if (0 == (i % nbytes)) {
 					os << indent(2)
 						<< std::setfill('0')
 						<< std::setw(4)
-						<< std::dec << (i/64) << ": " << std::hex
+						<< std::dec << (i/nbytes) << ": " << std::hex
 						<< std::setw(0)
 						<< std::setfill(' ');
 				}
@@ -351,7 +351,7 @@ public: // methods
 
 				if (0 == ((i+1) % 8))
 					os << "  ";
-				if (0 == ((i+1) % 64))
+				if (0 == ((i+1) % nbytes))
 					os << std::endl;
 			}
 			os << std::endl;

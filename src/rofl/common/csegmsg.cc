@@ -114,7 +114,15 @@ csegmsg::clone(rofl::openflow::cofmsg_stats const& msg_stats)
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
 			msg = new rofl::openflow::cofmsg_group_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>(msg_stats));
 		} break;
-		// TODO: meters
+		case rofl::openflow13::OFPMP_METER: {
+			msg = new rofl::openflow::cofmsg_meter_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_stats_request const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_CONFIG: {
+			msg = new rofl::openflow::cofmsg_meter_config_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_FEATURES: {
+			msg = new rofl::openflow::cofmsg_meter_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request const&>(msg_stats));
+		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			msg = new rofl::openflow::cofmsg_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>(msg_stats));
 		} break;
@@ -160,7 +168,15 @@ csegmsg::clone(rofl::openflow::cofmsg_stats const& msg_stats)
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
 			msg = new rofl::openflow::cofmsg_group_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>(msg_stats));
 		} break;
-		// TODO: meters
+		case rofl::openflow13::OFPMP_METER: {
+			msg = new rofl::openflow::cofmsg_meter_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_CONFIG: {
+			msg = new rofl::openflow::cofmsg_meter_config_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>(msg_stats));
+		} break;
+		case rofl::openflow13::OFPMP_METER_FEATURES: {
+			msg = new rofl::openflow::cofmsg_meter_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply const&>(msg_stats));
+		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 			msg = new rofl::openflow::cofmsg_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>(msg_stats));
 		} break;
@@ -291,6 +307,28 @@ csegmsg::store_and_merge_msg(rofl::openflow::cofmsg_stats const& msg_stats)
 						dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>(msg_stats);
 
 				msg_group->set_group_desc_stats_array() += msg_group_stats.get_group_desc_stats_array();
+
+			} break;
+			case rofl::openflow13::OFPMP_METER: {
+
+				rofl::openflow::cofmsg_meter_stats_reply* msg_meter =
+						dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply*>(msg);
+
+				rofl::openflow::cofmsg_meter_stats_reply const& msg_meter_stats =
+						dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>(msg_stats);
+
+				msg_meter->set_meter_stats_array() += msg_meter_stats.get_meter_stats_array();
+
+			} break;
+			case rofl::openflow13::OFPMP_METER_CONFIG: {
+
+				rofl::openflow::cofmsg_meter_config_stats_reply* msg_meter =
+						dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply*>(msg);
+
+				rofl::openflow::cofmsg_meter_config_stats_reply const& msg_meter_stats =
+						dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>(msg_stats);
+
+				msg_meter->set_meter_config_array() += msg_meter_stats.get_meter_config_array();
 
 			} break;
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {

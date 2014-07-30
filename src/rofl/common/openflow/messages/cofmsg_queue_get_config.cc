@@ -234,7 +234,7 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint32_t port_no,
-		cofpacket_queue_list const& pql) :
+		cofpacket_queues const& pql) :
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	pql(pql)
 {
@@ -272,7 +272,7 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 	pql(rofl::openflow12::OFP_VERSION)
 {
 	ofh_queue_get_config_reply = soframe();
-	pql = cofpacket_queue_list(get_version());
+	pql = cofpacket_queues(get_version());
 }
 
 
@@ -461,7 +461,7 @@ cofmsg_queue_get_config_reply::set_port_no(uint32_t port_no)
 
 
 
-cofpacket_queue_list&
+cofpacket_queues&
 cofmsg_queue_get_config_reply::get_queues()
 {
 	return pql;

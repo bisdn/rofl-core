@@ -99,14 +99,18 @@ typedef enum{
 	OF1X_AT_POP_VLAN,			/* Pop the outer VLAN tag */
 	OF1X_AT_POP_MPLS,			/* Pop the outer MPLS tag */
 	OF1X_AT_POP_GTP,			/* Pop the GTP header */
+	OF1X_AT_POP_CAPWAP,			/* Pop the CAPWAP header */
 	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
 	OF1X_AT_POP_PBB,			/* Pop the PBB header */
+	OF1X_AT_POP_WLAN,			/* Pop the WLAN header */
 
 	/*
 	* Push: first PBB, PPP, PPPoE, MPLS, VLAN
 	*/
+	OF1X_AT_PUSH_WLAN,			/* Push a new WLAN header */
 	OF1X_AT_PUSH_PBB,			/* Push a new PBB header */
 	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE header */
+	OF1X_AT_PUSH_CAPWAP,		/* Push a new CAPWAP header */
 	OF1X_AT_PUSH_GTP,			/* Push a new GTP header */
 	OF1X_AT_PUSH_MPLS,			/* Push a new MPLS tag */
 	OF1X_AT_PUSH_VLAN,			/* Push a new VLAN tag */
@@ -195,7 +199,19 @@ typedef enum{
 	OF1X_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
     
 	OF1X_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
-	OF1X_AT_SET_FIELD_GTP_TEID,		/* GTP TEID */
+	OF1X_AT_SET_FIELD_GTP_TEID,			/* GTP TEID */
+
+	OF1X_AT_SET_FIELD_CAPWAP_WBID,		/* CAPWAP wbid */
+	OF1X_AT_SET_FIELD_CAPWAP_RID,		/* CAPWAP rid */
+	OF1X_AT_SET_FIELD_CAPWAP_FLAGS,		/* CAPWAP flags */
+
+	OF1X_AT_SET_FIELD_WLAN_FC,			/* WLAN fc */
+	OF1X_AT_SET_FIELD_WLAN_TYPE,		/* WLAN type */
+	OF1X_AT_SET_FIELD_WLAN_SUBTYPE,		/* WLAN subtype */
+	OF1X_AT_SET_FIELD_WLAN_DIRECTION,	/* WLAN direction */
+	OF1X_AT_SET_FIELD_WLAN_ADDRESS_1,	/* WLAN address 1 */
+	OF1X_AT_SET_FIELD_WLAN_ADDRESS_2,	/* WLAN address 2 */
+	OF1X_AT_SET_FIELD_WLAN_ADDRESS_3,	/* WLAN address 3 */
 
 	/* Add more set fields here... */
 
@@ -472,6 +488,7 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 		case OF1X_AT_SET_FIELD_ARP_SPA:
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 		case OF1X_AT_SET_FIELD_GTP_TEID:
+		case OF1X_AT_SET_FIELD_PBB_ISID:
 			return NTOHB32(action->__field.u32);
 			break;
 		case OF1X_AT_SET_QUEUE:
@@ -479,7 +496,6 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 		case OF1X_AT_GROUP:
 			return action->__field.u32;
 			break;
-		case OF1X_AT_SET_FIELD_PBB_ISID:
 		default:
 			return 0x0;
 			break;

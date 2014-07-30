@@ -9,14 +9,32 @@
 
 using namespace rofl;
 
-std::map<uint64_t, crofdpt*> crofdpt::rofdpts;
+uint64_t crofdpt::next_dptid = 0;
 
-crofdpt&
+std::map<cdptid, crofdpt*> crofdpt::rofdpts;
+
+/*static*/crofdpt&
+crofdpt::get_dpt(
+		const cdptid& dptid)
+{
+	if (crofdpt::rofdpts.find(dptid) == crofdpt::rofdpts.end()) {
+		throw eRofDptNotFound();
+	}
+	return *(crofdpt::rofdpts[dptid]);
+}
+
+
+
+/*static*/crofdpt&
 crofdpt::get_dpt(
 		uint64_t dpid)
 {
-	if (crofdpt::rofdpts.find(dpid) == crofdpt::rofdpts.end()) {
+	std::map<cdptid, crofdpt*>::iterator it;
+	if ((it = find_if(crofdpt::rofdpts.begin(), crofdpt::rofdpts.end(),
+			crofdpt::crofdpt_find_by_dpid(dpid))) == crofdpt::rofdpts.end()) {
 		throw eRofDptNotFound();
 	}
-	return *(crofdpt::rofdpts[dpid]);
+	return *(it->second);
 }
+
+

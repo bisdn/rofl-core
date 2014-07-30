@@ -67,14 +67,14 @@ public:
 	/**
 	 *
 	 */
-	uint32_t
+	const ctimerid&
 	add_timer(ctimer const& t);
 
 	/**
 	 *
 	 */
-	uint32_t
-	reset(uint32_t timer_id, time_t t);
+	const ctimerid&
+	reset(const ctimerid& timer_id, const ctimespec& t);
 
 	/**
 	 *
@@ -86,13 +86,13 @@ public:
 	 *
 	 */
 	bool
-	pending(uint32_t timer_id);
+	pending(const ctimerid& timer_id);
 
 	/**
 	 *
 	 */
 	void
-	cancel(uint32_t timer_id);
+	cancel(const ctimerid& timer_id);
 
 	/**
 	 * @brief	cancel all timers

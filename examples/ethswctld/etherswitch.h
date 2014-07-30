@@ -2,7 +2,6 @@
 #define ETHERSWITCH_H 1
 
 #include <map>
-#include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/crofbase.h"
 #include "rofl/common/crofdpt.h"
@@ -53,16 +52,16 @@ public:
 	handle_timeout(int opaque, void *data = (void*)0);
 
 	virtual void
-	handle_dpath_open(crofdpt& dpt);
+	handle_dpt_open(crofdpt& dpt);
 
 	virtual void
-	handle_dpath_close(crofdpt& dpt);
+	handle_dpt_close(crofdpt& dpt);
 
 	virtual void
-	handle_packet_in(crofdpt& dpt, rofl::openflow::cofmsg_packet_in& msg, uint8_t aux_id = 0);
+	handle_packet_in(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
 
 	virtual void
-	handle_flow_stats_reply(crofdpt& dpt, rofl::openflow::cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0);
+	handle_flow_stats_reply(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg);
 
 private:
 

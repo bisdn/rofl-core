@@ -16,6 +16,8 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
+#include "rofl/common/ctimerid.h"
+#include "rofl/common/ctimespec.h"
 
 namespace rofl {
 
@@ -23,20 +25,23 @@ class ptrciosrv {};
 
 class ctimer {
 
-	static uint32_t next_timer_id;
-
-	static uint32_t get_next_timer_id();
 
 #define CC_TIMER_ONE_SECOND_S 1
 #define CC_TIMER_ONE_SECOND_NS 1000000000
 
-	uint32_t			timer_id;
+	ctimerid			timer_id;
 	ptrciosrv			*ptr;		// this refers to the ciosrv instance that registered the timer associated with this ctimer instance
-	struct timespec		ts;
+	ctimespec			timespec;
 	int					opaque; 	// can be used as type field by a class deriving from ciosrv => not used by ctimer, ciosrv or cioloop
 	void*				data;		// can be used as arbitrary pointer by a class deriving from ciosrv => not used by ctimer, ciosrv or cioloop
 
 public:
+
+	/**
+	 *
+	 */
+	static ctimer
+	now();
 
 	/**
 	 *
@@ -46,17 +51,7 @@ public:
 	/**
 	 *
 	 */
-	ctimer(ptrciosrv* ptr, int opaque, long tv_sec);
-
-	/**
-	 *
-	 */
-	ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec);
-
-	/**
-	 *
-	 */
-	ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec, void *data);
+	ctimer(ptrciosrv* ptr, int opaque, const ctimespec& timespec, void *data = (void*)0);
 
 	/**
 	 *
@@ -78,13 +73,13 @@ public:
 	/**
 	 *
 	 */
-	static ctimer
-	now();
+	ptrciosrv*
+	get_ptrciosrv() const { return ptr; };
 
 	/**
 	 *
 	 */
-	uint64_t
+	ctimerid const&
 	get_timer_id() const { return timer_id; };
 
 	/**
@@ -102,9 +97,16 @@ public:
 	/**
 	 *
 	 */
-	struct timespec&
-	get_ts() { return ts; };
+	ctimespec&
+	set_timespec() { return timespec; };
 
+	/**
+	 *
+	 */
+	const ctimespec&
+	get_timespec() const { return timespec; };
+
+#if 0
 	/**
 	 *
 	 */
@@ -128,6 +130,7 @@ public:
 	 */
 	ctimer&
 	operator-= (ctimer const& t);
+#endif
 
 	/**
 	 *
@@ -168,14 +171,14 @@ public:
 public:
 
 	class ctimer_find_by_timer_id {
-		uint32_t timer_id;
+		ctimerid timer_id;
 	public:
-		ctimer_find_by_timer_id(uint32_t timer_id) : timer_id(timer_id) {};
+		ctimer_find_by_timer_id(ctimerid timer_id) : timer_id(timer_id) {};
 		bool operator() (ctimer const& t) {
-			return (t.get_timer_id() == timer_id);
+			return (timer_id == t.get_timer_id());
 		};
 		bool operator() (ctimer const* t) {
-			return (t->get_timer_id() == timer_id);
+			return (timer_id == t->get_timer_id());
 		};
 	};
 
@@ -185,12 +188,12 @@ public:
 	operator<< (std::ostream& os, ctimer const& timer) {
 		ctimer delta = ctimer(timer);
 		os << indent(0) << "<ctimer ";
-		os << "timer-id:" << (unsigned long long)timer.timer_id << " ";
 		os << "opaque:" << timer.opaque << " ";
-		os << "sec:" << delta.ts.tv_sec << " ";
-		os << "nsec:" << delta.ts.tv_nsec << " ";
 		os << "data:" << timer.data << " ";
 		os << ">" << std::endl;
+		rofl::indent i(2);
+		os << timer.timer_id;
+		os << timer.timespec;
 		return os;
 	};
 };

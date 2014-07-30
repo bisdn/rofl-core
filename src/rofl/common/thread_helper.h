@@ -34,9 +34,21 @@ public:
 	}
 };
 
-class eLockBase : public RoflException {};
-class eLockInval : public eLockBase {};
-class eLockWouldBlock : public eLockBase {};
+
+class eLockBase : public RoflException {
+public:
+	eLockBase(const std::string& __arg) : RoflException(__arg) {};
+};
+
+class eLockInval : public eLockBase {
+public:
+	eLockInval(const std::string& __arg) : eLockBase(__arg) {};
+};
+
+class eLockWouldBlock : public eLockBase {
+public:
+	eLockWouldBlock(const std::string& __arg) : eLockBase(__arg) {};
+};
 
 class Lock
 {
@@ -50,9 +62,9 @@ public:
 			if (pthread_mutex_trylock(this->mutex) < 0) {
 				switch (errno) {
 				case EBUSY:
-					throw eLockWouldBlock();
+					throw eLockWouldBlock("Lock::Lock() pthread_mutex_trylock");
 				default:
-					throw eInternalError();
+					throw eSysCall("pthread_mutex_trylock failed");
 				}
 			}
 		}
@@ -101,7 +113,7 @@ public:
 					pthread_rwlock_wrlock(rwlock);
 					break;
 				default:
-					throw eLockInval();
+					throw eLockInval("RwLock::RwLock() invalid locking type");
 				}
 			} else {
 				int rc = 0;
@@ -114,16 +126,16 @@ public:
 					rc = pthread_rwlock_trywrlock(rwlock);
 					break;
 				default:
-					throw eLockInval();
+					throw eLockInval("RwLock::RwLock() invalid locking type");
 				}
 
 				if (rc < 0) {
 					switch (errno) {
 					case EBUSY:
-						throw eLockWouldBlock();
+						throw eLockWouldBlock("RwLock::RwLock() pthread_mutex_trylock");
 
 					default:
-						throw eInternalError();
+						throw eSysCall("pthread_mutex_trylock failed");
 					}
 				}
 			}
@@ -147,7 +159,7 @@ public:
 					pthread_rwlock_wrlock(rwlock);
 					break;
 				default:
-					throw eLockInval();
+					throw eLockInval("RwLock::RwLock() invalid locking type");
 				}
 			} else {
 				int rc = 0;
@@ -160,16 +172,16 @@ public:
 					rc = pthread_rwlock_trywrlock(rwlock);
 					break;
 				default:
-					throw eLockInval();
+					throw eLockInval("RwLock::RwLock() invalid locking type");
 				}
 
 				if (rc < 0) {
 					switch (errno) {
 					case EBUSY:
-						throw eLockWouldBlock();
+						throw eLockWouldBlock("RwLock::RwLock() pthread_mutex_trylock");
 
 					default:
-						throw eInternalError();
+						throw eSysCall("pthread_rwlock_trylock failed");
 					}
 				}
 			}

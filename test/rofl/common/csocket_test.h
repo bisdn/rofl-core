@@ -16,6 +16,7 @@
 #endif
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
+#include "rofl/common/ctimerid.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -50,7 +51,7 @@ private:
 	std::bitset<64>						test_flags;
 	enum rofl::csocket::socket_type_t 	socket_type;
 	unsigned long 						send_counter;
-	uint32_t 							send_timer_id;
+	rofl::ctimerid 						send_timer_id;
 
 	enum socket_test_timer_t {
 		TIMER_SEND_DATA = 1,
@@ -92,6 +93,10 @@ private:
 
 	virtual void
 	handle_connect_refused(
+			rofl::csocket& socket);
+
+	virtual void
+	handle_connect_failed(
 			rofl::csocket& socket);
 
 	virtual void

@@ -184,6 +184,7 @@ namespace openflow13 {
 
 	/* Min rate > 1000 means not configured. */
 	#define OFPQ_MIN_RATE_UNCFG     0xffff
+	#define OFPQ_MAX_RATE_UNCFG		0xffff
 
 	enum ofp_queue_properties {
 		OFPQT_MIN_RATE 	= 1,  /* Minimum datarate guaranteed. */
@@ -197,7 +198,7 @@ namespace openflow13 {
 	struct ofp_queue_prop_header {
 		uint16_t property;    /* One of OFPQT_. */
 		uint16_t len;         /* Length of property, including this header. */
-		uint8_t pad[4];       /* 64-bit alignemnt. */
+		uint8_t pad[4];       /* 64-bit alignment. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_queue_prop_header) == 8);
 
@@ -560,6 +561,7 @@ namespace openflow13 {
 									 * - MSB 0: low-order bytes are IEEE OUI.
 									 * - MSB != 0: defined by OpenFlow
 									 *   consortium. */
+		uint8_t body[0];
 		/* Experimenter-defined arbitrary additional data. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_instruction_experimenter) == 8);
@@ -936,6 +938,7 @@ namespace openflow13 {
 		uint16_t len;					/* Length in bytes of this band. */
 		uint32_t rate;					/* Rate for this band. */
 		uint32_t burst_size; 			/* Size of bursts. */
+		uint8_t  body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_meter_band_header) == 12);
 
@@ -1011,6 +1014,7 @@ namespace openflow13 {
 		uint32_t rate;			/* Rate for this band. */
 		uint32_t burst_size;	/* Size of bursts. */
 		uint32_t experimenter; 	/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
+		uint8_t body[0];
 	};
 	OFP_ASSERT(sizeof(struct ofp_meter_band_experimenter) == 16);
 
@@ -1197,7 +1201,8 @@ namespace openflow13 {
 									 when this is not an exact-match entry. */
 		uint16_t idle_timeout;    /* Number of seconds idle before expiration. */
 		uint16_t hard_timeout;    /* Number of seconds before expiration. */
-		uint8_t pad2[6];          /* Align to 64-bits. */
+		uint16_t flags;			  /* OFPFF_... */
+		uint8_t pad2[4];          /* Align to 64-bits. */
 		uint64_t cookie;          /* Opaque controller-issued identifier. */
 		uint64_t packet_count;    /* Number of packets in flow. */
 		uint64_t byte_count;      /* Number of bytes in flow. */

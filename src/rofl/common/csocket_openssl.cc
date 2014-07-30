@@ -293,6 +293,9 @@ csocket_openssl::connect(
 
 	socket_flags.set(FLAG_ACTIVE_SOCKET);
 
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
+
 	socket.connect(socket_params);
 }
 
@@ -318,6 +321,16 @@ csocket_openssl::handle_connect_refused(rofl::csocket& socket)
 	socket.close();
 
 	if (socket_owner) socket_owner->handle_connect_refused(*this);
+}
+
+
+
+void
+csocket_openssl::handle_connect_failed(rofl::csocket& socket)
+{
+	socket.close();
+
+	if (socket_owner) socket_owner->handle_connect_failed(*this);
 }
 
 
@@ -384,10 +397,10 @@ csocket_openssl::recv(void* buf, size_t count)
 		switch (SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
 			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_READ" << std::endl;
-		} throw eSocketAgain();
+		} throw eSocketRxAgain();
 		case SSL_ERROR_WANT_WRITE: {
 			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_WRITE" << std::endl;
-		} throw eSocketAgain();
+		} throw eSocketRxAgain();
 		default:
 			openssl_destroy_ssl();
 			throw eOpenSSL("[rofl][csocket][openssl][handle-read] SSL_read() failed");
@@ -424,14 +437,20 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {
 
 		dequeue_packet();
+
+		if (socket_owner) {
+			socket_owner->handle_write(*this);
+		}
 	}
 }
 
 
 
 void
-csocket_openssl::send(cmemory *mem, caddress const& dest)
+csocket_openssl::send(cmemory *mem, csockaddr const& dest)
 {
+	assert(mem);
+
 	RwLock lock(&ssl_lock, RwLock::RWLOCK_WRITE);
 
 	txqueue.push_back(mem);
@@ -447,6 +466,7 @@ csocket_openssl::handle_event(cevent const& e)
 	switch (e.get_cmd()) {
 	case EVENT_SEND_TXQUEUE: {
 		dequeue_packet();
+		if (socket_owner) socket_owner->handle_write(*this);
 	} break;
 	case EVENT_RECV_RXQUEUE: {
 		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
@@ -501,6 +521,8 @@ csocket_openssl::reconnect()
 		throw eInval();
 	}
 	close();
+	ciosrv::cancel_all_timers();
+	ciosrv::cancel_all_events();
 	connect(socket_params);
 }
 

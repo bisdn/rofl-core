@@ -9,7 +9,6 @@
 #include <sys/time.h>
 #include "../openflow/of_switch.h"
 
-#include "packet_matches.h"
 //OF1.X
 #include "../openflow/openflow1x/pipeline/of1x_action.h"
 //Add more here...
@@ -55,8 +54,8 @@ typedef struct datapacket{
 	//Pointer to the switch which is processing the packet
 	of_switch_t const* sw;
 
-	//Generic OpenFlow matches and write actions 
-	packet_matches_t matches;
+	//Generic OpenFlow metadata and write actions 
+	uint64_t __metadata;	
 	of_write_actions_t write_actions;
 	
 	/**
@@ -76,6 +75,10 @@ typedef struct datapacket{
 	platform_datapacket_state_t* platform_state;
 
 }datapacket_t;
+
+static inline void __init_packet_metadata(datapacket_t *const pkt){
+	pkt->__metadata = 0ULL;
+};
 
 #endif //DATAPACKET
 

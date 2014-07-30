@@ -12,10 +12,11 @@
 #include <inttypes.h>
 
 #include <rofl/common/ciosrv.h>
-#include <rofl/common/cmacaddr.h>
+#include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/crofdpt.h>
 #include <rofl/common/logging.h>
+#include <rofl/common/ctimerid.h>
 
 namespace etherswitch
 {
@@ -46,7 +47,7 @@ private:
 	rofl::crofbase				*rofbase;
 	rofl::crofdpt				*dpt;
 	int							entry_timeout;
-	uint32_t					expiration_timer_id;
+	rofl::ctimerid				expiration_timer_id;
 
 public:
 
