@@ -346,7 +346,11 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 
 	//Initializing timers. NOTE does that need to be done here or somewhere else?
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-	__of1x_timer_group_static_init(table);
+	if(__of1x_timer_group_static_init(table) != ROFL_SUCCESS){
+		platform_mutex_destroy(table->mutex);
+		platform_rwlock_destroy(table->rwlock);
+		return ROFL_FAILURE;
+	}
 #else
 	table->timers = NULL;
 #endif
@@ -371,9 +375,18 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	__of1x_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
-	if(of1x_matching_algorithms[table->matching_algorithm].init_hook)
-		return of1x_matching_algorithms[table->matching_algorithm].init_hook(table);
-	
+	if(of1x_matching_algorithms[table->matching_algorithm].init_hook){
+		rofl_result_t result;
+
+		result = of1x_matching_algorithms[table->matching_algorithm].init_hook(table);
+		
+		if(result != ROFL_SUCCESS){
+			platform_mutex_destroy(table->mutex);
+			platform_rwlock_destroy(table->rwlock);
+			return result;
+		}
+	}
+
 	return ROFL_SUCCESS;
 }
 
@@ -390,6 +403,10 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
 	
+	//Destroy timers
+#if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
+	__of1x_timer_group_static_destroy(table);
+#endif
 	//Destroy stats
 	__of1x_stats_table_destroy(table);
 
