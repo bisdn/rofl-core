@@ -87,8 +87,11 @@ void __of1x_dump_timers_structure(of1x_timer_group_t * timer_group){
  * transforms the timeval to a single uint64_t unit time in miliseconds
  */
 inline uint64_t __of1x_get_time_ms(struct timeval *time){
-
-	return time->tv_sec*1000+time->tv_usec/1000;
+	//Make sure 32bit compilers don't truncate and do wrong
+	//convesions from 32 bit values (tv_sec) to uint64
+	uint64_t tmp = time->tv_sec;
+	tmp *= 1000;
+	return tmp + (time->tv_usec/1000);
 }
 
 /**
