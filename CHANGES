@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.4.4
+
+[B][rofl-pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
+
 v0.4.3
 
 [B][common] Fixed bug for match ARP_THA used invalid constants for OXM type 
