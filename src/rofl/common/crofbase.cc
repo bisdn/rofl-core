@@ -213,7 +213,8 @@ crofbase::handle_accepted(
 		fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
 #endif
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
-		ofdpt_set.insert(cofdpt_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+		ofdpt_set.insert(cofdpt_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol,
+            get_highest_supported_ofp_version()));
 	}
 	else
 	{
@@ -432,6 +433,19 @@ crofbase::cofctl_factory(
 }
 
 
+
+cofdpt*
+crofbase::cofdpt_factory(
+		crofbase* owner,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol,
+		uint8_t ofp_version)
+{
+	return new cofdptImpl(owner, newsd, ra, domain, type, protocol, ofp_version);
+}
 
 cofdpt*
 crofbase::cofdpt_factory(
