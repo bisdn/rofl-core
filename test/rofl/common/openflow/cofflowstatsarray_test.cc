@@ -68,6 +68,15 @@ cofflowstatsarray_test::testCopyConstructor()
 	std::cerr << "mclone:" << std::endl << mclone;
 #endif
 
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [0]" << std::endl;
+	std::cerr << "marray:" << std::endl << marray;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [1]" << std::endl;
+	std::cerr << "mclone:" << std::endl << mclone;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [2]" << std::endl;
+	std::cerr << "array:" << std::endl << array;
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX [3]" << std::endl;
+	std::cerr << "clone:" << std::endl << clone;
+
 	CPPUNIT_ASSERT(marray == mclone);
 }
 
@@ -76,7 +85,7 @@ cofflowstatsarray_test::testCopyConstructor()
 void
 cofflowstatsarray_test::testOperatorPlus()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	std::vector<rofl::openflow::cofflowstatsarray> array;
 	array.push_back(rofl::openflow::cofflowstatsarray(rofl::openflow13::OFP_VERSION));
@@ -110,7 +119,7 @@ cofflowstatsarray_test::testOperatorPlus()
 	array[0].set_flow_stats(1).set_match().set_arp_opcode(0x8888);
 	array[0].set_flow_stats(1).set_match().set_eth_dst(rofl::cmacaddr("44:44:44:44:44:44"));
 
-	index = 0;
+	index = rofl::cindex(0);
 
 	array[1].set_flow_stats(0).set_version(rofl::openflow13::OFP_VERSION);
 	array[1].set_flow_stats(0).set_table_id(4);
@@ -154,7 +163,7 @@ cofflowstatsarray_test::testOperatorPlus()
 void
 cofflowstatsarray_test::testPackUnpack()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
 
 	/*
 	 * test memory

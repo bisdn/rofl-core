@@ -1436,7 +1436,7 @@ public:
 			uint32_t pbb_isid) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID, pbb_isid) {};
 	coxmatch_ofb_pbb_isid(
-			uint64_t pbb_isid, uint64_t mask) :
+			uint32_t pbb_isid, uint32_t mask) :
 				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID_MASK, pbb_isid, mask) {};
 	coxmatch_ofb_pbb_isid(
 			coxmatch const& oxm) :

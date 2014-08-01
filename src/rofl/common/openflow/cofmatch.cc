@@ -296,7 +296,7 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 				}
 			}
 
-			if (dl_type != 0x0806 /* ARP */) {
+			if (dl_type == 0x0800 /* IPv4 */) {
 				// nw_tos
 				if (!(wildcards & rofl::openflow10::OFPFW_NW_TOS)) {
 					matches.add_match(coxmatch_ofx_nw_tos(m->nw_tos));
@@ -318,6 +318,14 @@ cofmatch::unpack_of10(uint8_t* buf, size_t buflen)
 							matches.add_match(coxmatch_ofx_tp_dst(be16toh(m->tp_dst)));
 						}
 					}
+				}
+			}
+
+			if (dl_type == 0x0806 /* ARP */) {
+				// arp_opcode
+				if (!(wildcards & rofl::openflow10::OFPFW_NW_PROTO)) {
+					const uint8_t arp_opcode = m->nw_proto;
+					matches.add_match(coxmatch_ofx_nw_proto(arp_opcode));
 				}
 			}
 		}

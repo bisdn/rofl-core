@@ -571,7 +571,7 @@ crofctl_impl::recv_message(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
-	} catch (eBadInstEPerm& e) {
+	} catch (eBadInstEperm& e) {
 
 		rofl::logging::error << "[rofl[ctl] eBadInstEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_eperm(
@@ -662,7 +662,7 @@ crofctl_impl::recv_message(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
-	} catch (eBadMatchEPerm& e) {
+	} catch (eBadMatchEperm& e) {
 
 		rofl::logging::error << "[rofl[ctl] eBadMatchEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_eperm(
@@ -2201,7 +2201,7 @@ crofctl_impl::port_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_port_mod
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
-	} catch (ePortModEPerm& e) {
+	} catch (ePortModEperm& e) {
 
 		rofl::logging::warn << "ePortModEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_port_mod_failed_eperm(
@@ -2246,7 +2246,7 @@ crofctl_impl::table_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_table_m
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
-	} catch (eTableModEPerm& e) {
+	} catch (eTableModEperm& e) {
 
 		rofl::logging::warn << "eTableModEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_table_mod_failed_eperm(

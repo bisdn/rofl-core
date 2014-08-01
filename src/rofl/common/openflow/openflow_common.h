@@ -512,6 +512,31 @@ namespace openflow {
 	};
 
 
+	enum ofp_port_no {
+		/* Maximum number of physical switch ports. */
+		OFPP_MAX        = 0xffffff00,
+
+		/* Fake output "ports". */
+		OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
+										  virtual port must be explicitly used
+										  in order to send back out of the input
+										  port. */
+		OFPP_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
+										  NB: This destination port can only be
+										  used in packet-out messages. */
+		OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+		OFPP_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
+										  port and those blocked or link down. */
+		OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+		OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+		OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+		OFPP_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
+										  (delete) and flow stats requests. Selects
+										  all flows regardless of output port
+										  (including flows with no output port). */
+	};
+
+
 	/* Group numbering. Groups can use any number up to OFPG_MAX. */
 	enum ofp_group {
 		/* Last usable group number. */

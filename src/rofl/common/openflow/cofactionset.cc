@@ -66,10 +66,10 @@ cofactionset::actionset_clear(const cofinstruction_actions& inst)
 	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
 	acset.clear();
 
-	for (std::map<unsigned int, unsigned int>::const_iterator
+	for (std::map<cindex, unsigned int>::const_iterator
 			it = inst.get_actions().get_actions_index().begin();
 					it != inst.get_actions().get_actions_index().end(); ++it) {
-		const unsigned int& index = it->first;
+		const cindex& index 		= it->first;
 		const unsigned int& type	= it->second;
 
 		switch (type) {
@@ -99,7 +99,7 @@ cofactionset::actionset_write_actions(const cofinstruction_actions& inst)
 	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().get_actions_index().size() << std::endl;
 
 
-	for (std::map<unsigned int, unsigned int>::const_iterator
+	for (std::map<cindex, unsigned int>::const_iterator
 			it = inst.get_actions().get_actions_index().begin();
 					it != inst.get_actions().get_actions_index().end(); ++it) {
 #if 0

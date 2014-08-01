@@ -29,6 +29,8 @@ cofflowmod_test::tearDown()
 void
 cofflowmod_test::testFlowMod10()
 {
+	rofl::cindex index(0);
+
 	uint16_t port_no = 0xb6b7;
 	uint16_t max_len = 0xf5f6;
 	rofl::cmacaddr eth_dst("a1:a2:a3:a4:a5:a6");
@@ -62,8 +64,8 @@ cofflowmod_test::testFlowMod10()
 	flowmod.set_match().set_eth_src(eth_src);
 	flowmod.set_match().set_eth_type(eth_type);
 
-	flowmod.set_actions().add_action_output(0).set_port_no(port_no);
-	flowmod.set_actions().set_action_output(0).set_max_len(max_len);
+	flowmod.set_actions().add_action_output(index).set_port_no(port_no);
+	flowmod.set_actions().set_action_output(index).set_max_len(max_len);
 
 	//std::cerr << "[10] flowmod:" << std::endl << flowmod;
 
@@ -97,6 +99,8 @@ cofflowmod_test::testFlowMod10()
 void
 cofflowmod_test::testFlowMod13()
 {
+	rofl::cindex index(0);
+
 	uint32_t port_no = 0xb6b7b8b9;
 	uint16_t max_len = 0xf5f6;
 	rofl::cmacaddr eth_dst("a1:a2:a3:a4:a5:a6");
@@ -137,8 +141,8 @@ cofflowmod_test::testFlowMod13()
 	flowmod.set_match().set_eth_type(eth_type);
 
 	flowmod.set_instructions().set_inst_goto_table().set_table_id(table_id+1);
-	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(0).set_port_no(port_no);
-	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(0).set_max_len(max_len);
+	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(index).set_port_no(port_no);
+	flowmod.set_instructions().set_inst_apply_actions().set_actions().add_action_output(index).set_max_len(max_len);
 
 	//std::cerr << "[13] flowmod:" << std::endl << flowmod;
 

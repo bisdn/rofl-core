@@ -412,7 +412,13 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_ICMPV6_CODE).get_u8value();
 	};
 	uint32_t get_ipv6_flabel() const {
-	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32value(); // OF12 => mask exists, in OF13 not, what a weird spec ...
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32masked_value();
+	};
+	uint32_t get_ipv6_flabel_value() const {
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32value();
+	};
+	uint32_t get_ipv6_flabel_mask() const {
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32mask();
 	};
 	cmacaddr get_ipv6_nd_sll() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_SLL).get_u48masked_value();
@@ -629,6 +635,9 @@ public:
 	};
 	void set_ipv6_flabel(uint32_t flabel) {
 		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel));
+	};
+	void set_ipv6_flabel(uint32_t flabel, uint32_t mask) {
+		matches.add_match(coxmatch_ofb_ipv6_flabel(flabel, mask));
 	};
 	void set_icmpv6_type(uint8_t type) {
 		matches.add_match(coxmatch_ofb_icmpv6_type(type));

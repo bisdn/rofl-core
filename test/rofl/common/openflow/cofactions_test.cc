@@ -29,7 +29,8 @@ cofactions_test::tearDown()
 void
 cofactions_test::testActions()
 {
-	unsigned int index = 0;
+	rofl::cindex index(0);
+
 	rofl::openflow::cofactions actions;
 	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == actions.get_version());
 

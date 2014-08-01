@@ -167,7 +167,7 @@ void platform_packet_set_icmpv6_type(datapacket_t * pkt, uint8_t icmpv6_type){}
 void platform_packet_set_icmpv6_code(datapacket_t * pkt, uint8_t icmpv6_code){}
 
 void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid){}
-void platform_packet_pop_pbb(datapacket_t* pkt, uint16_t ether_type){}
+void platform_packet_pop_pbb(datapacket_t* pkt){}
 void platform_packet_push_pbb(datapacket_t* pkt, uint16_t ether_type){}
 void platform_packet_pop_gtp(datapacket_t* pkt){}
 void platform_packet_push_gtp(datapacket_t* pkt){}

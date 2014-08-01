@@ -98,6 +98,7 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	//Tunnel id
 	m->__tunnel_id = ( (ptr64=platform_packet_get_tunnel_id(pkt))==NULL ? 0 : *ptr64);
 
+#ifdef EXPERIMENTAL
 	/*	
 	* Extensions
 	*/
@@ -114,7 +115,20 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__gtp_msg_type = ( (ptr8=platform_packet_get_gtp_msg_type(pkt))==NULL ? 0 : *ptr8);
 	m->__gtp_teid = ( (ptr32=platform_packet_get_gtp_teid(pkt))==NULL ? 0 : *ptr32);
 
+	//CAPWAP related extensions
+	m->__capwap_wbid = ( (ptr8=platform_packet_get_capwap_wbid(pkt))==NULL ? 0 : *ptr8);
+	m->__capwap_rid = ( (ptr8=platform_packet_get_capwap_rid(pkt))==NULL ? 0 : *ptr8);
+	m->__capwap_flags = ( (ptr16=platform_packet_get_capwap_flags(pkt))==NULL ? 0 : *ptr16);
 
+	//WLAN related extensions
+	m->__wlan_fc = ( (ptr16=platform_packet_get_wlan_fc(pkt))==NULL ? 0 : *ptr16);
+	m->__wlan_type = ( (ptr8=platform_packet_get_wlan_type(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_subtype = ( (ptr8=platform_packet_get_wlan_subtype(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_direction = ( (ptr8=platform_packet_get_wlan_direction(pkt))==NULL ? 0 : *ptr8);
+	m->__wlan_address_1 = ( (ptr64=platform_packet_get_wlan_address_1(pkt))==NULL ? 0 : *ptr64);
+	m->__wlan_address_2 = ( (ptr64=platform_packet_get_wlan_address_2(pkt))==NULL ? 0 : *ptr64);
+	m->__wlan_address_3 = ( (ptr64=platform_packet_get_wlan_address_3(pkt))==NULL ? 0 : *ptr64);
+#endif
 }
 
 
@@ -226,25 +240,27 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	//IPv6
 	if( UINT128__T_LO(m->__ipv6_src) || UINT128__T_HI(m->__ipv6_src) ){
 		uint128__t tmp = m->__ipv6_src;
+		(void)tmp;
 		if(!raw_nbo)
 			NTOHB128(tmp); 	
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_SRC:0x%lx:%lx, ",UINT128__T_HI(tmp),UINT128__T_LO(tmp));
 	}
 	if( UINT128__T_LO(m->__ipv6_dst) || UINT128__T_HI(m->__ipv6_dst) ){
 		uint128__t tmp = m->__ipv6_dst;
+		(void)tmp;
 		if(!raw_nbo)
 			NTOHB128(tmp); 
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",UINT128__T_HI(tmp),UINT128__T_LO(tmp));
 	}
 	if(m->__eth_type == ETH_TYPE_IPV6){
 		uint32_t tmp = m->__ipv6_flabel;
-
 		if(!raw_nbo)
 			tmp = OF1X_IP6_FLABEL_VALUE(NTOHB32(tmp));		
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_FLABEL:0x%lu, ", tmp);
 	}
 	if(m->__ip_proto == IP_PROTO_ICMPV6){
 		uint128__t tmp = m->__ipv6_nd_target; 
+		(void)tmp;
 		if(!raw_nbo)
 			NTOHB128(tmp); 	
 		ROFL_PIPELINE_INFO_NO_PREFIX("IPV6_ND_TARGET:0x%lx:%lx, ",UINT128__T_HI(tmp),UINT128__T_LO(tmp));
@@ -281,6 +297,15 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 		}
 		ROFL_PIPELINE_INFO_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, MPLS_BOS:%u", tmp_label, tmp_tc, m->__mpls_bos);
 	}
+
+	//PBB
+	if(m->__pbb_isid)
+		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:%u,", COND_NTOHB32(raw_nbo,m->__pbb_isid));
+	//Tunnel id
+	if(m->__tunnel_id)
+		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,m->__tunnel_id));
+
+#ifdef EXPERIMENTAL
 	//PPPoE
 	if(m->__eth_type == ETH_TYPE_PPPOE_DISCOVERY || m->__eth_type == ETH_TYPE_PPPOE_SESSION ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",m->__pppoe_code, m->__pppoe_type,COND_NTOHB16(raw_nbo, m->__pppoe_sid));
@@ -290,17 +315,44 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 				
 	}
 
-	//PBB
-	if(m->__pbb_isid)
-		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:%u,", COND_NTOHB32(raw_nbo,m->__pbb_isid));
-	//Tunnel id
-	if(m->__tunnel_id)
-		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,m->__tunnel_id));
-	
 	//GTP
 	if(m->__ip_proto == IP_PROTO_UDP && m->__udp_dst == UDP_DST_PORT_GTPU){
 		ROFL_PIPELINE_INFO_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",m->__gtp_msg_type,  COND_NTOHB32(raw_nbo, m->__gtp_teid));
 	}
+
+	//CAPWAP
+	if((m->__ip_proto == IP_PROTO_UDP) && ((m->__udp_dst == UDP_DST_PORT_CAPWAPC) || (m->__udp_dst == UDP_DST_PORT_CAPWAPU))) {
+		ROFL_PIPELINE_INFO_NO_PREFIX("CAPWAP_WBID:%u, CAPWAP_RID:%u, CAPWAP_FLAGS:0x%x, ", m->__capwap_wbid, m->__capwap_rid, COND_NTOHB16(raw_nbo, m->__capwap_flags));
+	}
+
+	//WLAN
+	if(m->__wlan_fc)
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_FC:0x%x,", COND_NTOHB16(raw_nbo, m->__wlan_fc));
+	if(m->__wlan_type)
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_TYPE:%u,", m->__wlan_type);
+	if(m->__wlan_subtype)
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_SUBTYPE:%u,", m->__wlan_type);
+	if(m->__wlan_direction)
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_DIRECTION:%u,", m->__wlan_direction);
+	if(m->__wlan_address_1){
+		uint64_t tmp = m->__wlan_address_1;
+		if(!raw_nbo)
+			tmp = OF1X_MAC_VALUE(NTOHB64(tmp));
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_ADDRESS_1:0x%"PRIx64", ", tmp);
+	}
+	if(m->__wlan_address_2){
+		uint64_t tmp = m->__wlan_address_2;
+		if(!raw_nbo)
+			tmp = OF1X_MAC_VALUE(NTOHB64(tmp));
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_ADDRESS_2:0x%"PRIx64", ", tmp);
+	}
+	if(m->__wlan_address_3){
+		uint64_t tmp = m->__wlan_address_3;
+		if(!raw_nbo)
+			tmp = OF1X_MAC_VALUE(NTOHB64(tmp));
+		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_ADDRESS_3:0x%"PRIx64", ", tmp);
+	}
+#endif
 	
 	ROFL_PIPELINE_INFO_NO_PREFIX("]\n");	
 

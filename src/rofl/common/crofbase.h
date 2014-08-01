@@ -642,7 +642,7 @@ protected:
 	 * @param auxid
 	 */
 	virtual void
-	handle_write(rofl::crofctl& ctl, const cauxid& auxid) {};
+	handle_write(rofl::crofctl& ctl, const rofl::cauxid& auxid) {};
 
 
 
@@ -652,7 +652,7 @@ protected:
 	 * @param auxid
 	 */
 	virtual void
-	handle_write(rofl::crofdpt& dpt, const cauxid& auxid) {};
+	handle_write(rofl::crofdpt& dpt, const rofl::cauxid& auxid) {};
 
 
 
@@ -665,7 +665,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_features_request& msg) {};
+	handle_features_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_request& msg) {};
 
 
 
@@ -678,7 +678,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_features_reply& msg) {};
+	handle_features_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_reply& msg) {};
 
 
 
@@ -703,7 +703,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_get_config_request& msg) {};
+	handle_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_request& msg) {};
 
 
 
@@ -716,7 +716,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_get_config_reply& msg) {};
+	handle_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_reply& msg) {};
 
 
 
@@ -756,7 +756,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -769,7 +769,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_stats_reply& msg) {};
+	handle_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_reply& msg) {};
 
 
 
@@ -796,7 +796,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -809,7 +809,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_desc_stats_reply& msg) {};
+	handle_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_reply& msg) {};
 
 
 
@@ -834,7 +834,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
-	handle_table_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -847,7 +847,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_table_stats_reply& msg) {};
+	handle_table_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_reply& msg) {};
 
 
 
@@ -872,7 +872,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -885,7 +885,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_stats_reply& msg) {};
+	handle_port_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_reply& msg) {};
 
 
 
@@ -910,7 +910,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_flow_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -923,7 +923,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg) {};
+	handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg) {};
 
 
 
@@ -948,7 +948,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
-	handle_aggregate_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -962,7 +962,7 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_reply& msg) {};
+	handle_aggregate_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_reply& msg) {};
 
 
 
@@ -987,7 +987,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_queue_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1000,7 +1000,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_queue_stats_reply& msg) {};
+	handle_queue_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_reply& msg) {};
 
 
 
@@ -1025,7 +1025,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1038,7 +1038,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_stats_reply& msg) {};
+	handle_group_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_reply& msg) {};
 
 
 
@@ -1063,7 +1063,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1076,7 +1076,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_reply& msg) {};
+	handle_group_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_reply& msg) {};
 
 
 
@@ -1101,7 +1101,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1114,7 +1114,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_reply& msg) {};
+	handle_group_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_reply& msg) {};
 
 
 
@@ -1139,7 +1139,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_meter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_meter_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_meter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1152,7 +1152,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_meter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_meter_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_stats_reply& msg) {};
+	handle_meter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_reply& msg) {};
 
 
 
@@ -1177,7 +1177,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_meter_config_stats_request message containing the received message
 	 */
 	virtual void
-	handle_meter_config_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_meter_config_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1190,7 +1190,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_meter_config_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_meter_config_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_reply& msg) {};
+	handle_meter_config_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_reply& msg) {};
 
 
 
@@ -1215,7 +1215,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_meter_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_meter_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_meter_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1228,7 +1228,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_meter_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_meter_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_reply& msg) {};
+	handle_meter_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_reply& msg) {};
 
 
 
@@ -1253,7 +1253,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_features_request message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_table_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1266,7 +1266,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_table_features_reply message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_reply& msg) {};
+	handle_table_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_reply& msg) {};
 
 
 
@@ -1291,7 +1291,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_desc_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_port_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1304,7 +1304,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_desc_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_reply& msg) {};
+	handle_port_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_reply& msg) {};
 
 
 
@@ -1329,7 +1329,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_request& msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_request& msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1342,7 +1342,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_reply& msg) {};
+	handle_experimenter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_reply& msg) {};
 
 
 
@@ -1366,7 +1366,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_packet_out& msg) {};
+	handle_packet_out(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_out& msg) {};
 
 
 
@@ -1379,7 +1379,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg) {};
+	handle_packet_in(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg) {};
 
 
 
@@ -1392,7 +1392,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_barrier_request& msg) {};
+	handle_barrier_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_request& msg) {};
 
 
 
@@ -1405,7 +1405,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_barrier_reply& msg) {};
+	handle_barrier_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_reply& msg) {};
 
 
 
@@ -1432,7 +1432,7 @@ protected:
 	 */
 #if 0
 	virtual void
-	handle_error(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
+	handle_error(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 #endif
 
 
@@ -1445,7 +1445,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_flow_mod& msg) {};
+	handle_flow_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_mod& msg) {};
 
 
 
@@ -1458,7 +1458,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_group_mod& msg) {};
+	handle_group_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_mod& msg) {};
 
 
 
@@ -1471,7 +1471,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_table_mod& msg) {};
+	handle_table_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_mod& msg) {};
 
 
 
@@ -1484,7 +1484,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_port_mod& msg) {};
+	handle_port_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_mod& msg) {};
 
 
 
@@ -1497,7 +1497,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_removed& msg) {};
+	handle_flow_removed(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_removed& msg) {};
 
 
 
@@ -1510,7 +1510,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_port_status& msg) {};
+	handle_port_status(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_status& msg) {};
 
 
 
@@ -1524,7 +1524,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_request& msg) {};
+	handle_queue_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_request& msg) {};
 
 
 
@@ -1537,7 +1537,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_reply& msg) {};
+	handle_queue_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_reply& msg) {};
 
 
 	/**
@@ -1561,7 +1561,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_set_config& msg) {};
+	handle_set_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_config& msg) {};
 
 
 
@@ -1575,7 +1575,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
+	handle_experimenter_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
 
 
 
@@ -1588,7 +1588,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
+	handle_experimenter_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
 
 
 
@@ -1602,7 +1602,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
+	handle_error_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 
 
 
@@ -1615,7 +1615,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_error_message(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
+	handle_error_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 
 
 
@@ -1652,7 +1652,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_role_request& msg) {};
+	handle_role_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_request& msg) {};
 
 
 
@@ -1665,7 +1665,7 @@ protected:
 	 * @param msg pointer to rofl::openflow::cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_role_reply& msg) {};
+	handle_role_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_reply& msg) {};
 
 
 
@@ -1690,7 +1690,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_get_async_config_request& msg) {};
+	handle_get_async_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_request& msg) {};
 
 
 
@@ -1703,7 +1703,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(rofl::crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_get_async_config_reply& msg) {};
+	handle_get_async_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_reply& msg) {};
 
 
 	/**
@@ -1726,7 +1726,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_set_async_config& msg) {};
+	handle_set_async_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_async_config& msg) {};
 
 
 	/**
@@ -1738,7 +1738,7 @@ protected:
 	 * @param msg Pointer to rofl::openflow::cofmsg_meter_mod message containing the received message
 	 */
 	virtual void
-	handle_meter_mod(rofl::crofctl& ctl, const cauxid& auxid, rofl::openflow::cofmsg_meter_mod& msg) {};
+	handle_meter_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_mod& msg) {};
 
 
 	/**@}*/
@@ -1753,7 +1753,7 @@ protected:
 	 */
 	void
 	send_packet_in_message(
-			const cauxid& auxid,
+			const rofl::cauxid& auxid,
 			uint32_t buffer_id,
 			uint16_t total_len,
 			uint8_t reason,
@@ -1769,7 +1769,7 @@ protected:
 	 */
 	void
 	send_flow_removed_message(
-			const cauxid& auxid,
+			const rofl::cauxid& auxid,
 			rofl::openflow::cofmatch& match,
 			uint64_t cookie,
 			uint16_t priority,
@@ -1787,7 +1787,7 @@ protected:
 	 */
 	void
 	send_port_status_message(
-			const cauxid& auxid,
+			const rofl::cauxid& auxid,
 			uint8_t reason,
 			rofl::openflow::cofport const& port);
 

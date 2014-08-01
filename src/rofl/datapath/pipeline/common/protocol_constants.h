@@ -49,6 +49,8 @@
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x084B //2123
 	#define UDP_DST_PORT_GTPU		0x0868 //2152
+	#define UDP_DST_PORT_CAPWAPC	0x147e //5246
+	#define UDP_DST_PORT_CAPWAPU	0x147f //5247
 
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	//Useful ETH_TYPE values
@@ -84,6 +86,9 @@
 	//Useful UDP destination port values
 	#define UDP_DST_PORT_GTPC		0x4B08 //2123
 	#define UDP_DST_PORT_GTPU		0x6808 //2152
+	#define UDP_DST_PORT_CAPWAPC	0x7e14 //5246
+	#define UDP_DST_PORT_CAPWAPU	0x7f14 //5247
+
 #else
 	#error Unknwon endianness
 #endif
