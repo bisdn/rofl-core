@@ -139,11 +139,11 @@ public:
 	operator<< (std::ostream& os, cofdesc_stats_reply const& reply) {
 		switch (reply.get_version()) {
 		case rofl::openflow::OFP_VERSION_UNKNOWN: {
-			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << (int)reply.get_version() << " >" << std::endl;
 
 		} break;
 		case rofl::openflow10::OFP_VERSION: {
-			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << (int)reply.get_version() << " >" << std::endl;
 			os << indent(2) << "<mfr-desc: " << reply.mfr_desc << " >" << std::endl;
 			os << indent(2) << "<hw-desc: " << reply.hw_desc << " >" << std::endl;
 			os << indent(2) << "<sw-desc: " << reply.sw_desc << " >" << std::endl;
@@ -153,7 +153,7 @@ public:
 		} break;
 		case rofl::openflow12::OFP_VERSION:
 		case rofl::openflow13::OFP_VERSION: {
-			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << (int)reply.get_version() << " >" << std::endl;
 			os << indent(2) << "<mfr-desc: " << reply.mfr_desc << " >" << std::endl;
 			os << indent(2) << "<hw-desc: " << reply.hw_desc << " >" << std::endl;
 			os << indent(2) << "<sw-desc: " << reply.sw_desc << " >" << std::endl;

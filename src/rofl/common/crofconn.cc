@@ -584,7 +584,7 @@ crofconn::recv_message(
 			}
 
 			// start new or continue pending transaction
-			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
+			if (stats->get_stats_flags() & rofl::openflow13::OFPMPF_REQ_MORE) {
 
 				sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<rofl::openflow::cofmsg_stats const&>(*msg));
 				delete msg; // delete msg here, we store a copy in the transaction
