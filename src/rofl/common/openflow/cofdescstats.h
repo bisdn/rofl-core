@@ -158,6 +158,7 @@ public:
 			os << indent(2) << "<hw-desc: " << reply.hw_desc << " >" << std::endl;
 			os << indent(2) << "<sw-desc: " << reply.sw_desc << " >" << std::endl;
 			os << indent(2) << "<serial-num: " << reply.serial_num << " >" << std::endl;
+			os << indent(2) << "<dp-desc: " << reply.dp_desc << " >" << std::endl;
 
 		} break;
 		default: {
