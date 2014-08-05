@@ -193,9 +193,11 @@ cofdesc_stats_reply::length() const
 	case rofl::openflow10::OFP_VERSION: {
 		return (sizeof(struct openflow10::ofp_desc_stats));
 	} break;
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:{
 		return (sizeof(struct openflow12::ofp_desc_stats));
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow13::ofp_desc));
 	} break;
 	default:
 		throw eBadVersion();
