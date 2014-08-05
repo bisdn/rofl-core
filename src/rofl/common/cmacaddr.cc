@@ -5,6 +5,8 @@
 #include "cmacaddr.h"
 #include "endian_conversion.h"
 
+#include <inttypes.h>
+
 using namespace rofl;
 
 cmacaddr::cmacaddr() :
@@ -74,13 +76,13 @@ cmacaddr::cmacaddr(uint8_t *data, size_t datalen) :
 cmacaddr::cmacaddr(const std::string& s_addr) :
 	cmemory(OFP_ETH_ALEN)
 {
-	sscanf(s_addr.c_str(), "%x:%x:%x:%x:%x:%x",
-			(int*)&((*this)[0]),
-			(int*)&((*this)[1]),
-			(int*)&((*this)[2]),
-			(int*)&((*this)[3]),
-			(int*)&((*this)[4]),
-			(int*)&((*this)[5]));
+	sscanf(s_addr.c_str(), "%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8,
+			(uint8_t*)&((*this)[0]),
+			(uint8_t*)&((*this)[1]),
+			(uint8_t*)&((*this)[2]),
+			(uint8_t*)&((*this)[3]),
+			(uint8_t*)&((*this)[4]),
+			(uint8_t*)&((*this)[5]));
 
 	cvastring vas(32);
 
