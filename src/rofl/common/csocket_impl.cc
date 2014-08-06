@@ -888,6 +888,12 @@ csocket_impl::connect(
 			rofl::logging::debug << "[rofl][csocket][impl] ECONNREFUSED" << std::endl << *this;
 
 		} break;
+		case ENETUNREACH: {
+			close();
+			handle_conn_failed();
+			rofl::logging::debug << "[rofl][csocket][impl] ENETUNREACH" << std::endl << *this;
+
+		} return;
 		default: {
 			//throw eSysCall("connect ");
 			close();
