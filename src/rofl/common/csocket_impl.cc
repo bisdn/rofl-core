@@ -137,7 +137,11 @@ csocket_impl::backoff_reconnect(bool reset_timeout)
 		reconnect_in_seconds = max_backoff;
 	}
 
-	reconnect_timerid = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
+	try {
+		reconnect_timerid = reset_timer(reconnect_timerid, reconnect_in_seconds);
+	} catch (eTimersNotFound& e) {
+		reconnect_timerid = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
+	}
 
 	++reconnect_counter;
 }
@@ -230,6 +234,18 @@ csocket_impl::handle_wevent(int fd)
 			} else {
 				handle_conn_refused();
 			}
+		} break;
+		case ENETUNREACH: {
+			rofl::logging::error << "[rofl][csocket][impl] error ENETUNREACH occured during connection establishment." << std::endl << *this;
+
+			close();
+
+			if (sockflags.test(FLAG_DO_RECONNECT)) {
+				cancel_timer(reconnect_timerid);
+			}
+
+			handle_conn_failed();
+
 		} break;
 		default: {
 			rofl::logging::error << "[rofl][csocket][impl] error occured during connection establishment." << std::endl << *this;
@@ -641,7 +657,9 @@ csocket_impl::connect(
 			addrinfos.resolve();
 
 			if (addrinfos.size() == 0) {
-				throw eInval("csocket_impl::connect() unable to resolve hostname");
+				//throw eInval("csocket_impl::connect() unable to resolve hostname");
+				handle_conn_failed();
+				return;
 			}
 
 			// we take simply the first result returned
