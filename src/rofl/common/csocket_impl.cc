@@ -137,7 +137,7 @@ csocket_impl::backoff_reconnect(bool reset_timeout)
 		reconnect_in_seconds = max_backoff;
 	}
 
-	reconnect_timerid = reset_timer(reconnect_timerid, reconnect_in_seconds);
+	reconnect_timerid = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
 
 	++reconnect_counter;
 }
