@@ -28,13 +28,12 @@
  */
 void __of1x_init_flow_stats(of1x_flow_entry_t * entry)
 {
+	memset(&entry->stats, 0, sizeof(of1x_stats_flow_t));
+
 	struct timeval now;
 	platform_gettimeofday(&now);
-	
 	entry->stats.initial_time = now;
-	entry->stats.packet_count = 0;
-	entry->stats.byte_count = 0;
-
+	
 	entry->stats.mutex = platform_mutex_init(NULL);
 
 	return;
@@ -75,6 +74,7 @@ void of1x_destroy_stats_flow_aggregate_msg(of1x_stats_flow_aggregate_msg_t* msg)
 of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_t* entry){
 
 	of1x_stats_single_flow_msg_t* msg;
+	__of1x_stats_flow_tid_t consolidated_stats;
 
 	if(!entry)
 		return NULL;
@@ -99,8 +99,11 @@ of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_
 	msg->idle_timeout = entry->timer_info.idle_timeout;
 	msg->hard_timeout = entry->timer_info.hard_timeout;
 	msg->flags = entry->flags;
-	msg->byte_count = entry->stats.byte_count;
-	msg->packet_count = entry->stats.packet_count;
+	
+	//Aggregate stats
+	__of1x_stats_flow_consolidate(&entry->stats, &consolidated_stats);
+	msg->byte_count = consolidated_stats.byte_count;
+	msg->packet_count = consolidated_stats.packet_count;
 
 	//Get durations
 	of1x_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
@@ -182,10 +185,7 @@ void __of1x_push_single_flow_stats_to_msg(of1x_stats_flow_msg_t* msg, of1x_stats
  * of1x_stats_flow_reset_counts
  */
 void __of1x_stats_flow_reset_counts(of1x_flow_entry_t * entry){
-
-	platform_mutex_lock(entry->stats.mutex);
-	entry->stats.packet_count = entry->stats.byte_count =  0;
-	platform_mutex_unlock(entry->stats.mutex);
+	memset(&entry->stats.counters,0,sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS);
 }
 
 /**
@@ -208,9 +208,7 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
  * Initializes table statistics state
  */
 void __of1x_stats_table_init(of1x_flow_table_t * table){
-
-	table->stats.lookup_count = 0;
-	table->stats.matched_count = 0;
+	memset(&table->stats, 0, sizeof(of1x_stats_table_t));
 
 	//Stats mutex	
 	table->stats.mutex = platform_mutex_init(NULL);

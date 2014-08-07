@@ -11,6 +11,7 @@
 #include "of1x_pipeline.h"
 #include "of1x_flow_table_pp.h"
 #include "of1x_instruction_pp.h"
+#include "of1x_statistics_pp.h"
 
 //This block is not necessary but it is useful to prevent
 //double definitions of static inline methods
@@ -48,7 +49,7 @@ ROFL_BEGIN_DECLS
 * Packet processing through pipeline
 *
 */
-static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt){
+static inline void __of1x_process_packet_pipeline(unsigned int tid, const of_switch_t *sw, datapacket_t *const pkt){
 
 	//Loop over tables
 	unsigned int i, table_to_go, num_of_outputs;
@@ -73,19 +74,17 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
 
 		//Perform lookup	
-		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt);
+		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
 		
 		if(likely(match != NULL)){
 			
 			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
-			platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
-			platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
-
+			__of1x_stats_table_update_match(tid, &table->stats);
+			
 			//Update flow statistics
-			platform_atomic_inc64(&match->stats.packet_count,match->stats.mutex);
-			platform_atomic_add64(&match->stats.byte_count, platform_packet_get_size_bytes(pkt), match->stats.mutex);
+			__of1x_stats_flow_update_match(tid, &match->stats, platform_packet_get_size_bytes(pkt));
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
@@ -118,7 +117,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 			return;	
 		}else{
 			//Update table statistics
-			platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
+			__of1x_stats_table_update_no_match(tid, &table->stats);
 
 			//Not matched, look for table_miss behaviour 
 			if(table->default_action == OF1X_TABLE_MISS_DROP){

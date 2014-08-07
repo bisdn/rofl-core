@@ -77,7 +77,7 @@ void bufs_no_output_action(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 1);	
@@ -130,7 +130,7 @@ void bufs_apply_output_action(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 1);	
@@ -183,7 +183,7 @@ void bufs_write_output_action(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 1);	
@@ -239,7 +239,7 @@ void bufs_multiple_apply_output_actions(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 3);
@@ -306,7 +306,7 @@ void bufs_multiple_apply_write_output_actions(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 3);
@@ -366,7 +366,7 @@ void bufs_single_output_action_group_apply(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 2);
@@ -432,7 +432,7 @@ void bufs_single_output_action_group_write(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 2);
@@ -492,7 +492,7 @@ void bufs_apply_and_group_output_actions(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 3);
@@ -564,7 +564,7 @@ void bufs_write_and_group_output_actions(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 3);
@@ -631,7 +631,7 @@ void bufs_multiple_output_actions_group(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 4);
@@ -679,7 +679,7 @@ void bufs_no_output_action_goto(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 1);	
@@ -743,7 +743,7 @@ void bufs_apply_output_action_last_table_goto(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 1);	
@@ -821,7 +821,7 @@ void bufs_apply_output_action_both_tables_goto(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 2);
@@ -901,7 +901,7 @@ void bufs_apply_output_action_both_tables_bis_goto(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 3);
@@ -990,7 +990,7 @@ void bufs_output_first_table_output_on_group_second_table(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	//Checkings	
 	CU_ASSERT(allocated == 2);
@@ -1094,7 +1094,7 @@ void bufs_output_all(void){
 	of1x_full_dump_switch(sw,false);
 
 	//Process through pipeline. Packet should be dropped
-	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+	of_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID,(of_switch_t*)sw,pkt);
 
 	CU_ASSERT(outputs == 9);
 	//Checkings	

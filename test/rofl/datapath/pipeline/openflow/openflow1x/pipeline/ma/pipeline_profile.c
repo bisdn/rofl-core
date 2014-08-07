@@ -23,13 +23,11 @@ int main(int args, char** argv){
 
 	/* add the tests to the suite */
 	/* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-	if ((NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match match", profile_basic_match)) ||
-	(NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match no-match", profile_basic_no_match)) /* ||
-	(NULL == CU_add_test(pSuite, "test uninstall wildcard", test_uninstall_wildcard)) || 
-	(NULL == CU_add_test(pSuite, "test check overlap addition", test_overlap)) || 
-	(NULL == CU_add_test(pSuite, "test check overlap addition2", test_overlap2)) || 
-	(NULL == CU_add_test(pSuite, "test flow modify", test_flow_modify)) */
-	
+	if ((NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match match (lock)", profile_basic_match_lock)) ||
+	(NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match no-match (lock)", profile_basic_no_match_lock)) || 
+	(NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match match (no lock)", profile_basic_match_no_lock)) ||
+	(NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match no-match (no lock)", profile_basic_no_match_no_lock)) 
+			
 		)
 	{
 		fprintf(stderr,"ERROR WHILE ADDING TEST\n");

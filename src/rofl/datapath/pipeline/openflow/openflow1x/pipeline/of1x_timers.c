@@ -365,8 +365,12 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 {
 	struct timeval system_time;
 	uint64_t expiration_time;
+	__of1x_stats_flow_tid_t consolidated_stats;
+
+	//Consolidate entry
+	__of1x_stats_flow_consolidate(&entry_timer->entry->stats, &consolidated_stats);
 	
-	if(entry_timer->entry->stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
+	if(consolidated_stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
 	{
 	// timeout expired so no need to reschedule !!! we have to delete the entry
 #ifdef DEBUG_NO_REAL_PIPE
@@ -380,7 +384,8 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 		return ROFL_SUCCESS;
 	}
 	
-	entry_timer->entry->timer_info.last_packet_count = entry_timer->entry->stats.packet_count;
+	entry_timer->entry->timer_info.last_packet_count = consolidated_stats.packet_count;
+
 	//NOTE we calculate the new time of expiration from the checking time and not from the last time it was used (less accurate and more efficient)
 	platform_gettimeofday(&system_time);
 	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &system_time);

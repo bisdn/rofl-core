@@ -19,7 +19,11 @@ int set_up(void);
 int tear_down(void);
 	
 /* Test cases */
-void profile_basic_match(void);
-void profile_basic_no_match(void);
+void profile_basic_match_lock(void);
+void profile_basic_no_match_lock(void);
+
+void profile_basic_match_no_lock(void);
+void profile_basic_no_match_no_lock(void);
+
 
 #endif
