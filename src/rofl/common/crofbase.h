@@ -533,6 +533,34 @@ protected:
 			int domain,
 			int type,
 			int protocol);
+            
+	/**
+	 * @brief	creates a new cofdpt instance for an existing socket with sockfd newsd.
+	 *
+	 * This method constructs a new instance of class cofdpt for managing a single connection
+	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofdpt and add additional functionality. When the initial handshake in OpenFlow
+	 * succeeds (FEATURES.request/reply, GET-CONFIG.request/reply, TABLE-STATS.request/reply), method
+	 * crofbase::handle_ctrl_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
+	 * @param newsd socket descriptor of new created socket for cofdpt instance
+	 * @param ra Remote address of peer entity connected via socket referenced by newsd
+	 * @param domain socket domain (see man 2 socket for details)
+	 * @param type socket type (see man 2 socket for details)
+	 * @param protocol socket protocol (see man 2 socket for details)
+	 * @param ofp_version supported OpenFlow version
+     * 
+	 */
+	virtual cofdpt*
+	cofdpt_factory(
+			crofbase* owner,
+			int newsd,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol,            
+            uint8_t ofp_version);
 
 
 	/**

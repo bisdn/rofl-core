@@ -73,9 +73,6 @@ class cofdptImpl :
 {
 
 private: // data structures
-
-
-
 		/* cofdpt timer types */
 		enum cofdpt_timer_t {
 			COFDPT_TIMER_BASE = 0xc721,
@@ -186,7 +183,25 @@ public:
 			int type,
 			int protocol);
 
-
+	/**
+	 * @brief 	Constructor for accepted incoming connection on socket.
+	 *
+	 * @param rofbase pointer to crofbase instance
+	 * @param newsd socket descriptor of new established control connection socket
+	 * @param ra peer address of control connection
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+     * @param ofp_version OpenFlow protocol version expected
+	 */
+	cofdptImpl(
+			crofbase *rofbase,
+			int newsd,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol,
+            uint8_t ofp_version);
 
 	/**
 	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.

@@ -36,6 +36,49 @@ cofdptImpl::cofdptImpl(
 }
 
 
+cofdptImpl::cofdptImpl(
+		crofbase *rofbase,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol,
+        uint8_t ofp_ver) :
+				cofdpt(rofbase),
+				dpid(0),
+				hwaddr(cmacaddr("00:00:00:00:00:00")),
+				n_buffers(0),
+				n_tables(0),
+				capabilities(0),
+				config(0),
+				miss_send_len(0),
+				socket(new csocket(this, newsd, ra, domain, type, protocol)),
+				rofbase(rofbase),
+				fragment(0),
+				msg_bytes_read(0),
+				reconnect_start_timeout(0),
+				reconnect_in_seconds(0),
+				reconnect_counter(0),
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				ofp_version(ofp_ver),
+				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
+{
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
+			"dpid:%"PRIu64" ", this, dpid);
+
+#ifndef NDEBUG
+        caddress raddr(ra);
+        fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
+#endif
+
+	init_state(COFDPT_STATE_DISCONNECTED);
+
+        register_timer(COFDPT_TIMER_SEND_HELLO, 0);
+}
 
 cofdptImpl::cofdptImpl(
 		crofbase *rofbase,
@@ -1821,7 +1864,7 @@ cofdptImpl::try_to_connect(bool reset_timeout)
 			"reconnect in %d seconds (reconnect_counter:%d)",
 			this, reconnect_in_seconds, reconnect_counter);
 
-	int max_backoff = 16 * reconnect_start_timeout;
+	int max_backoff = 1 * reconnect_start_timeout;
 
 	if (reset_timeout) {
 		reconnect_in_seconds = reconnect_start_timeout;
