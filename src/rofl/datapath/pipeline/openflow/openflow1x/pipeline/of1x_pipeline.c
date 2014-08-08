@@ -201,6 +201,8 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 	for(i=0;i<pipeline->num_of_tables;i++){
 		__of1x_stats_table_tid_t c;
 
+		t = &sn->tables[i];
+		
 		//Consolidate stats
 		__of1x_stats_table_consolidate(&t->stats, &c);
 
@@ -210,7 +212,6 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 		//Assign consolidated
 		t->stats.s.counters = c;	
 		
-		t = &sn->tables[i];
 		t->pipeline = t->rwlock = t->mutex = t->matching_aux[0] = t->matching_aux[1] = NULL;
 		
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS	
