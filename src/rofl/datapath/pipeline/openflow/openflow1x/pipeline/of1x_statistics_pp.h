@@ -29,11 +29,11 @@
 static inline void __of1x_stats_flow_update_match(unsigned int tid, of1x_stats_flow_t* stats, uint64_t bytes_rx){
 	
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
-		platform_atomic_inc64(&stats->counters[ROFL_PIPELINE_LOCKED_TID].packet_count, stats->mutex);
-		platform_atomic_add64(&stats->counters[ROFL_PIPELINE_LOCKED_TID].byte_count, bytes_rx, stats->mutex);
+		platform_atomic_inc64(&stats->s.__internal[ROFL_PIPELINE_LOCKED_TID].packet_count, stats->mutex);
+		platform_atomic_add64(&stats->s.__internal[ROFL_PIPELINE_LOCKED_TID].byte_count, bytes_rx, stats->mutex);
 	}else{
-		stats->counters[tid].packet_count++;
-		stats->counters[tid].byte_count+=bytes_rx;
+		stats->s.__internal[tid].packet_count++;
+		stats->s.__internal[tid].byte_count+=bytes_rx;
 	} 
 }
 

@@ -64,9 +64,17 @@ rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of
 	//Notify flow removed
 	if(entry->notify_removal && (reason != OF1X_FLOW_REMOVE_NO_REASON ) ){
 		//Safety checks
-		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw)
-			platform_of1x_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw){
+			__of1x_stats_flow_tid_t consolidated_stats;
 			
+			//Consolidate stats so that users of the pipeline can use counters
+			__of1x_stats_flow_consolidate(&entry->stats, &consolidated_stats);
+			__of1x_stats_flow_reset_counts(entry);
+			entry->stats.s.counters = consolidated_stats;
+					
+			//Then notify	
+			platform_of1x_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+		}	
 	}	
 
 	//destroy stats

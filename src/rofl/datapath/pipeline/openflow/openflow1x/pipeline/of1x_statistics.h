@@ -49,9 +49,13 @@ typedef struct __of1x_stats_flow_tid{
 
 //Flow entry stats (internal entry state)
 typedef struct of1x_stats_flow{
-	
-	//array of counters per thread
-	__of1x_stats_flow_tid_t counters[ROFL_PIPELINE_MAX_TIDS];
+
+	union {	
+		__of1x_stats_flow_tid_t counters;
+		
+		//array of counters per thread
+		__of1x_stats_flow_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
+	}s;
 
 	//And more not so interesting
 	struct timeval initial_time;
@@ -205,12 +209,12 @@ static inline void __of1x_stats_flow_consolidate(of1x_stats_flow_t* stats, __of1
 	c->byte_count = c->packet_count = 0x0ULL;
 	
 	for(i=0;i<ROFL_PIPELINE_MAX_TIDS;i++){
-		c->packet_count += stats->counters[i].packet_count;
-		c->byte_count += stats->counters[i].byte_count;
+		c->packet_count += stats->s.__internal[i].packet_count;
+		c->byte_count += stats->s.__internal[i].byte_count;
 	}
 }
 static inline void __of1x_stats_copy_flow_stats(of1x_stats_flow_t* origin, of1x_stats_flow_t* copy){
-	memcpy(&copy->counters,&origin->counters, sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS); 
+	memcpy(&copy->s.__internal,&origin->s.__internal, sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS); 
 	copy->initial_time = origin->initial_time;
 }
 

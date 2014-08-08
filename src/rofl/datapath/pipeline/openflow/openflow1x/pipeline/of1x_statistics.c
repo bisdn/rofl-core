@@ -185,7 +185,7 @@ void __of1x_push_single_flow_stats_to_msg(of1x_stats_flow_msg_t* msg, of1x_stats
  * of1x_stats_flow_reset_counts
  */
 void __of1x_stats_flow_reset_counts(of1x_flow_entry_t * entry){
-	memset(&entry->stats.counters,0,sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS);
+	memset(&entry->stats.s.__internal,0,sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS);
 }
 
 /**

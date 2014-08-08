@@ -182,7 +182,7 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 	
 	//update the counter
 	time_forward(ito-1,0,&now);
-	entry->stats.counters[1].packet_count++; //__of1x_timer_update_entry(entry,now);
+	entry->stats.s.__internal[1].packet_count++; //__of1x_timer_update_entry(entry,now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	fprintf(stderr,"updated last used. TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+1)%OF1X_TIMER_GROUPS_MAX;
