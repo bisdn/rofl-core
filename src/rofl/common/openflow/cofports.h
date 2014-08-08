@@ -149,7 +149,7 @@ public:
 	 *
 	 */
 	bool
-	has_port(uint32_t portno);
+	has_port(uint32_t portno) const;
 
 public:
 

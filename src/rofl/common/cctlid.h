@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <string>
 #include <iostream>
+#include <ios>
 
 #include "rofl/common/logging.h"
 

@@ -149,7 +149,7 @@ rofl_result_t __of1x_timer_group_static_init(of1x_flow_table_t* table){
  * initializes the values for the entry lists
  */
 void __of1x_timer_group_static_destroy(of1x_flow_table_t* table){
-	free(table->timers);
+	platform_free_shared(table->timers);
 }
 
 /**

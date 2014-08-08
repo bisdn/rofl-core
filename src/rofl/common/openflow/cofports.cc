@@ -249,7 +249,7 @@ cofports::drop_port(uint32_t portno)
 
 
 bool
-cofports::has_port(uint32_t portno)
+cofports::has_port(uint32_t portno) const
 {
 	return (ports.find(portno) != ports.end());
 }
