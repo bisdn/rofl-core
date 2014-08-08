@@ -18,7 +18,7 @@ cofflowmod::cofflowmod(uint8_t ofp_version) :
 		cookie(0),
 		cookie_mask(0),
 		priority(0),
-		buffer_id(0),
+		buffer_id(OFP_NO_BUFFER),
 		out_port(OFPP_ANY),
 		out_group(OFPG_ANY),
 		flags(0)
