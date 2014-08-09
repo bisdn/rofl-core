@@ -97,7 +97,7 @@ public:
 	/** default constructor
 	 *
 	 */
-	cofport(uint8_t of_version = OFP12_VERSION);
+	cofport(uint8_t of_version = OFP10_VERSION);
 
 
 	/** constructor
