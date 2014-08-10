@@ -1090,11 +1090,10 @@ cofdptImpl::features_reply_rcvd(
 		case OFP12_VERSION: {
 			cofportlist& portlist = msg->get_ports();
 
-			for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
-					it != ports.end(); ++it) {
-				delete it->second;
-			}
-			ports.clear();
+			while (not ports.empty())
+            {
+                delete (ports.begin()->second);
+            }
 
 			for (cofportlist::iterator it = portlist.begin();
 					it != portlist.end(); ++it) {
