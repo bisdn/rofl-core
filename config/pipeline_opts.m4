@@ -1,4 +1,10 @@
-#Check inline platform functions
+
+##
+## Pipeline optimizations
+## * Check inline platform functions
+## * Check ROFL_PIPELINE_MAX_TIDS
+##
+##
 #if test "$PIPELINE_SUPPORT" = "yes"; then
 AM_COND_IF([PIPELINE_SUPPORT],[
 	CFLAGS+=" -D__COMPILING_ROFL_PIPELINE__"
