@@ -128,7 +128,7 @@ ROFL_BEGIN_DECLS
  * 
  * This is done during the  initialization of the pipeline
  */
-of1x_group_table_t* of1x_init_group_table(void);
+of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline *pipeline);
 
 /**
  * @brief Destroys the group table.

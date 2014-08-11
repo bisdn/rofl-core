@@ -80,7 +80,7 @@ rofl_result_t __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int nu
 	pipeline->miss_send_len = OF1X_DEFAULT_MISS_SEND_LEN;
 
 	//init groups
-	pipeline->groups = of1x_init_group_table();
+	pipeline->groups = of1x_init_group_table(pipeline);
 
 	return ROFL_SUCCESS;
 }
@@ -113,7 +113,7 @@ rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
 
 	//Create empty entries
 	flow_entry = of1x_init_flow_entry(false);
-	group_entry = of1x_init_group_table(); 
+	group_entry = of1x_init_group_table(pipeline); 
 	
 	if( unlikely(flow_entry==NULL) )
 		return ROFL_FAILURE;
