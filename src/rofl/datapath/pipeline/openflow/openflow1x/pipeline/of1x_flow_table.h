@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "rofl.h"
 #include "../../../common/bitmap.h"
+#include "../../../threading.h"
 #include "of1x_flow_entry.h"
 #include "of1x_timers.h"
 #include "of1x_statistics.h"
@@ -116,6 +117,10 @@ typedef struct of1x_flow_table{
 	* keep its own state
 	*/
 	matching_auxiliary_t* matching_aux[2];
+
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_presence_t tid_presence_mask;
+#endif 
 
 	//Mutexes
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads

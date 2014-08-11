@@ -109,6 +109,9 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 	platform_of1x_remove_entry_hook(specific_entry);
 
 	//Destroy entry
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
 	return __of1x_destroy_flow_entry_with_reason(specific_entry, reason);
 }
 
@@ -197,6 +200,10 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 
 			//Delete old entry
 			if(existing){
+#ifdef ROFL_PIPELINE_LOCKLESS
+				tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
+
 				if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
 					assert(0);
 				}
@@ -240,6 +247,9 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 
 	//Delete old entry
 	if(existing){
+#ifdef ROFL_PIPELINE_LOCKLESS
+		tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
 		if(unlikely(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)){
 			assert(0);
 		}

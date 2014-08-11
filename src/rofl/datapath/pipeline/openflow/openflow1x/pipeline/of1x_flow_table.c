@@ -320,6 +320,10 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	table->rwlock = platform_rwlock_init(NULL);
 	if( unlikely(NULL==table->rwlock) )
 		return ROFL_FAILURE;
+
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_init_presence_mask(&table->tid_presence_mask);
+#endif
 	
 	table->pipeline = pipeline;
 	table->number = table_index;

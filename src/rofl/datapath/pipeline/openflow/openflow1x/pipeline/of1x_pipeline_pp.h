@@ -73,6 +73,11 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 
 		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
 
+#ifdef ROFL_PIPELINE_LOCKLESS
+		//Mark core presence 
+		tid_mark_as_present(tid, &table->tid_presence_mask);
+#endif
+
 		//Perform lookup	
 		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
 		
@@ -94,9 +99,13 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
 				i = table_to_go-1;
 
+#ifdef ROFL_PIPELINE_LOCKLESS
+				//Unmark core presence in the table
+				tid_mark_as_not_present(tid, &table->tid_presence_mask);
+#else
 				//Unlock the entry so that it can eventually be modified/deleted
 				platform_rwlock_rdunlock(match->rwlock);
-	
+#endif
 				continue;
 			}
 
@@ -106,8 +115,13 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 			//Recover the num_of_outputs to release the lock asap
 			num_of_outputs = match->inst_grp.num_of_outputs;
 
+#ifdef ROFL_PIPELINE_LOCKLESS
+			//Unmark core presence in the table
+			tid_mark_as_not_present(tid, &table->tid_presence_mask);
+#else
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
+#endif
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
@@ -116,6 +130,11 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 							
 			return;	
 		}else{
+#ifdef ROFL_PIPELINE_LOCKLESS
+			//Unmark core presence in the table
+			tid_mark_as_not_present(tid, &table->tid_presence_mask);
+#endif
+
 			//Update table statistics
 			__of1x_stats_table_update_no_match(tid, &table->stats);
 

@@ -9,7 +9,8 @@ librofl_pipeline_ladir = $(includedir)/rofl/datapath/pipeline
 librofl_pipeline_la_HEADERS = monitoring.h\
 	physical_switch.h \
 	port_queue.h\
-	switch_port.h 
+	switch_port.h\
+	threading.h 
 
 librofl_pipeline_la_SOURCES = monitoring.h\
 	monitoring.c\
