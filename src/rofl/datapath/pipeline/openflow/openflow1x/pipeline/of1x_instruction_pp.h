@@ -33,35 +33,48 @@ static inline bool  __of1x_process_instructions_must_replicate(const of1x_instru
 /* Process instructions */
 static inline unsigned int __of1x_process_instructions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of1x_instruction_group_t* instructions){
 
-	unsigned int i;
+	of1x_instruction_t* inst = (of1x_instruction_t*)&instructions->instructions[OF1X_IT_APPLY_ACTIONS]; 
 
-	for(i=0;i<OF1X_IT_MAX;i++){
+	/**
+	* Unrolled instructions loop
+	*/
+
+	//Check all instructions in order
+	if(inst->type == OF1X_IT_APPLY_ACTIONS)
+		__of1x_process_apply_actions(tid, sw, table_id, pkt, inst->apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
+
+	inst++; //increase
 	
-		//Check all instructions in order 
-		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(tid, sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
-					break;
-    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(&pkt->write_actions.of1x);
-					break;
-			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(&pkt->write_actions.of1x, instructions->instructions[i].write_actions);
-					break;
-    			case OF1X_IT_WRITE_METADATA:
-				{
-					pkt->__metadata = 	(pkt->__metadata & ~instructions->instructions[i].write_metadata.metadata_mask) |
-								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
-				}
-					break;
-			case OF1X_IT_EXPERIMENTER: //TODO:
-					break;
-			case OF1X_IT_METER: //TODO:
-					break;
-    			case OF1X_IT_GOTO_TABLE: return instructions->instructions[i].go_to_table; 
-					break;
-				
-			default: //Empty instruction 
-				break;
-		}
-	}		
+	if(inst->type == OF1X_IT_CLEAR_ACTIONS)
+		__of1x_clear_write_actions(&pkt->write_actions.of1x);
+
+	inst++; //increase
+	
+	if(inst->type == OF1X_IT_WRITE_ACTIONS)
+		__of1x_update_packet_write_actions(&pkt->write_actions.of1x, inst->write_actions);
+	inst++; //increase
+	
+	if(inst->type == OF1X_IT_WRITE_METADATA){
+		pkt->__metadata = (pkt->__metadata & ~inst->write_metadata.metadata_mask) |
+				(inst->write_metadata.metadata & inst->write_metadata.metadata_mask);
+	}
+	inst++; //increase
+
+	if(inst->type == OF1X_IT_EXPERIMENTER){
+		//TODO:
+	}
+	
+	inst++; //increase
+
+	if(inst->type == OF1X_IT_METER){
+		//TODO:
+	}
+	
+	inst++; //increase
+
+	if(inst->type == OF1X_IT_GOTO_TABLE){
+		return inst->go_to_table;
+	}
 
 	return 0; //NO go-to-table
 }
