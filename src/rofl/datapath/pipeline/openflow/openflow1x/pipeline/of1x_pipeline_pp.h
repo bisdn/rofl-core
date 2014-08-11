@@ -49,7 +49,7 @@ ROFL_BEGIN_DECLS
 * Packet processing through pipeline
 *
 */
-static inline void __of1x_process_packet_pipeline(unsigned int tid, const of_switch_t *sw, datapacket_t *const pkt){
+static inline void __of1x_process_packet_pipeline(const unsigned int tid, const of_switch_t *sw, datapacket_t *const pkt){
 
 	//Loop over tables
 	unsigned int i, table_to_go, num_of_outputs;
@@ -87,7 +87,7 @@ static inline void __of1x_process_packet_pipeline(unsigned int tid, const of_swi
 			__of1x_stats_flow_update_match(tid, &match->stats, platform_packet_get_size_bytes(pkt));
 
 			//Process instructions
-			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
+			table_to_go = __of1x_process_instructions(tid, (of1x_switch_t*)sw, i, pkt, &match->inst_grp);
 
 			if(table_to_go > i && likely(table_to_go < OF1X_MAX_FLOWTABLES)){
 
@@ -101,7 +101,7 @@ static inline void __of1x_process_packet_pipeline(unsigned int tid, const of_swi
 			}
 
 			//Process WRITE actions
-			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, __of1x_process_instructions_must_replicate(&match->inst_grp));
+			__of1x_process_write_actions(tid, (of1x_switch_t*)sw, i, pkt, __of1x_process_instructions_must_replicate(&match->inst_grp));
 
 			//Recover the num_of_outputs to release the lock asap
 			num_of_outputs = match->inst_grp.num_of_outputs;
@@ -146,7 +146,7 @@ static inline void __of1x_process_packet_pipeline(unsigned int tid, const of_swi
 * @brief Processes a packet-out through the OpenFlow pipeline.  
 * @ingroup core_pp 
 */
-static inline void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
+static inline void of1x_process_packet_out_pipeline(const unsigned int tid, const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
 	
 	bool has_multiple_outputs=false;
 	of1x_group_table_t *gt = sw->pipeline.groups;
@@ -163,7 +163,7 @@ static inline void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, dat
 	has_multiple_outputs = (apply_actions_group->num_of_output_actions > 1);
 
 	//Just process the action group
-	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
+	__of1x_process_apply_actions(tid, (of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
 		
 	if(has_multiple_outputs){
 		//Packet was replicated. Drop original packet

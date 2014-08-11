@@ -31,7 +31,7 @@ static inline bool  __of1x_process_instructions_must_replicate(const of1x_instru
 }
 
 /* Process instructions */
-static inline unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of1x_instruction_group_t* instructions){
+static inline unsigned int __of1x_process_instructions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of1x_instruction_group_t* instructions){
 
 	unsigned int i;
 
@@ -39,7 +39,7 @@ static inline unsigned int __of1x_process_instructions(const struct of1x_switch*
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
+			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(tid, sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 					break;
     			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(&pkt->write_actions.of1x);
 					break;

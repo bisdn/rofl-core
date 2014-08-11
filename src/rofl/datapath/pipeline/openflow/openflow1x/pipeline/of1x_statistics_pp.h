@@ -26,6 +26,7 @@
 * @brief Statistics related to packet processing routines
 */
 
+//Flow
 static inline void __of1x_stats_flow_update_match(unsigned int tid, of1x_stats_flow_t* stats, uint64_t bytes_rx){
 	
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
@@ -37,6 +38,7 @@ static inline void __of1x_stats_flow_update_match(unsigned int tid, of1x_stats_f
 	} 
 }
 
+//Flow table
 static inline void __of1x_stats_table_update_match(unsigned int tid, of1x_stats_table_t* stats){
 	
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
@@ -54,6 +56,31 @@ static inline void __of1x_stats_table_update_no_match(unsigned int tid, of1x_sta
 		platform_atomic_inc64(&stats->s.__internal[tid].lookup_count,stats->mutex);
 	}else{
 		stats->s.__internal[tid].lookup_count++;
+	}
+}
+
+//Group
+static void __of1x_stats_group_update(unsigned int tid, of1x_stats_group_t *gr_stats, uint64_t bytes){
+
+	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
+		platform_atomic_inc64(&gr_stats->s.__internal[tid].packet_count, gr_stats->mutex);
+		platform_atomic_add64(&gr_stats->s.__internal[tid].byte_count, bytes, gr_stats->mutex);
+	}else{
+		gr_stats->s.__internal[tid].packet_count++;
+		gr_stats->s.__internal[tid].byte_count += bytes;
+	}
+
+}
+
+//Bucket
+static void __of1x_stats_bucket_update(unsigned int tid, __of1x_stats_bucket_t* bc_stats, uint64_t bytes){
+	
+	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
+		platform_atomic_inc64(&bc_stats->s.__internal[tid].packet_count, bc_stats->mutex);
+		platform_atomic_add64(&bc_stats->s.__internal[tid].byte_count, bytes, bc_stats->mutex);
+	}else{
+		bc_stats->s.__internal[tid].packet_count++;
+		bc_stats->s.__internal[tid].byte_count += bytes;
 	}
 }
 
