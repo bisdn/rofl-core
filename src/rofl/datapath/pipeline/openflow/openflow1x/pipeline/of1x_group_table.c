@@ -115,13 +115,14 @@ of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline* pipeline){
 	gt->rwlock = platform_rwlock_init(NULL);
 	
 	switch(pipeline->sw->of_ver){
+		case OF_VERSION_10:
+			break;
 		case OF_VERSION_12:
 			__of12_set_group_table_defaults(gt);
 			break;
 		case OF_VERSION_13:
 			__of13_set_group_table_defaults(gt);
 			break;
-		case OF_VERSION_10:
 		default:
 			platform_rwlock_destroy(gt->rwlock);
 			platform_free_shared(gt);
