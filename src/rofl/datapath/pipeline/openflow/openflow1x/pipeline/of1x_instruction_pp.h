@@ -43,40 +43,45 @@ static inline unsigned int __of1x_process_instructions(const unsigned int tid, c
 	if(inst->type == OF1X_IT_APPLY_ACTIONS)
 		__of1x_process_apply_actions(tid, sw, table_id, pkt, inst->apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 
-	inst++; //increase
+	//Next instruction
+	inst++; 
 	
 	if(inst->type == OF1X_IT_CLEAR_ACTIONS)
 		__of1x_clear_write_actions(&pkt->write_actions.of1x);
 
-	inst++; //increase
+	//Next instruction
+	inst++;
 	
 	if(inst->type == OF1X_IT_WRITE_ACTIONS)
 		__of1x_update_packet_write_actions(&pkt->write_actions.of1x, inst->write_actions);
-	inst++; //increase
+	
+	//Next instruction
+	inst++;
 	
 	if(inst->type == OF1X_IT_WRITE_METADATA){
 		pkt->__metadata = (pkt->__metadata & ~inst->write_metadata.metadata_mask) |
 				(inst->write_metadata.metadata & inst->write_metadata.metadata_mask);
 	}
-	inst++; //increase
+	
+	//Next instruction
+	inst++;
 
 	if(inst->type == OF1X_IT_EXPERIMENTER){
 		//TODO:
 	}
 	
-	inst++; //increase
+	//Next instruction
+	inst++;
 
 	if(inst->type == OF1X_IT_METER){
 		//TODO:
 	}
 	
-	inst++; //increase
+	//Next instruction (GOTO table)
+	inst++;
 
-	if(inst->type == OF1X_IT_GOTO_TABLE){
-		return inst->go_to_table;
-	}
-
-	return 0; //NO go-to-table
+	//Will be 0 (NO go-to-table) due to memset() of isntruction group
+	return inst->go_to_table;
 }
 
 //C++ extern C
