@@ -53,7 +53,7 @@ typedef struct of1x_stats_flow{
 	union {	
 		__of1x_stats_flow_tid_t counters;
 		
-		//array of counters per thread
+		//array of counters per thread to be used internally
 		__of1x_stats_flow_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
 	}s;
 
@@ -78,7 +78,7 @@ typedef struct of1x_stats_table{
 		/* Flow table counters */
 		__of1x_stats_table_tid_t counters;
 	
-		//array of counters per thread to be used internal
+		//array of counters per thread to be used internally
 		__of1x_stats_table_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];	
 	}s;
 
