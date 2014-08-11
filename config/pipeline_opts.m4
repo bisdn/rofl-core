@@ -29,8 +29,8 @@ enable_inline="no"
 	fi
 
 	#Pipeline thread IDs
-	AC_MSG_CHECKING(the maximum number of threads/cpus that ROFL-pipeline packet processing API) 
-	AC_ARG_WITH([pipeline-max-tids], AS_HELP_STRING([--with-pipeline-max-tids=num], [maximum number of threads/cpus that ROFL-pipeline packet processing API supports concurrently without locking. Supported values {2,4,8,16,32,64,128} [default=16]]), with_pipeline_max_tids="yes", [])
+	AC_MSG_CHECKING(the maximum number of threads/cpus for ROFL-pipeline packet processing API) 
+	AC_ARG_WITH([pipeline-max-tids], AS_HELP_STRING([--with-pipeline-max-tids=num], [maximum number of threads/cpus that ROFL-pipeline packet processing API supports concurrently without locking. Supported values {2,4,8,16,32,64,128} [default=16]]), with_pipeline_max_tids=16, [])
 	
 	MAX_TIDS=16
 
@@ -59,4 +59,18 @@ enable_inline="no"
 
 	AC_SUBST([ROFL_PIPELINE_MAX_TIDS], ["#define ROFL_PIPELINE_MAX_TIDS $MAX_TIDS"])
 	AC_SUBST([ROFL_PIPELINE_LOCKED_TID], ["#define ROFL_PIPELINE_LOCKED_TID 0"])
+	
+	
+	#Pipeline lockless
+	AC_MSG_CHECKING(whether to compile ROFL-pipeline packet processing API without locking) 
+	AC_ARG_WITH([pipeline-lockless], AS_HELP_STRING([--with-pipeline-lockless], [compiles ROFL-pipeline packet processing API without locking [default=no]]), with_pipeline_lockless="yes", [])
+
+		
+	if test "$with_pipeline_lockless" = "yes"; then
+		AC_SUBST([ROFL_PIPELINE_LOCKLESS], ["#define ROFL_PIPELINE_LOCKLESS 1"])
+		AC_MSG_RESULT(yes)
+	else
+		AC_SUBST([ROFL_PIPELINE_LOCKLESS], [""])
+		AC_MSG_RESULT(no)
+	fi
 ])

@@ -63,5 +63,7 @@
 /* pipeline locked tid */
 @ROFL_PIPELINE_LOCKED_TID@
 
+/* pipeline lockless */
+@ROFL_PIPELINE_LOCKLESS@
 
 #endif //__ROFL_CONFIG_H__
