@@ -41,12 +41,18 @@ ccontrol::handle_desc_stats_reply(
 	gm.set_command(rofl::openflow::OFPGC_ADD);
 	gm.set_type(rofl::openflow::OFPGT_ALL);
 	gm.set_group_id(1);
-	gm.set_buckets().set_bucket(0).set_actions().
+	gm.set_buckets().add_bucket(0).set_actions().
 			add_action_push_vlan(rofl::cindex(0)).set_eth_type(rofl::fvlanframe::VLAN_CTAG_ETHER);
 	gm.set_buckets().set_bucket(0).set_actions().
 			add_action_set_field(rofl::cindex(1)).set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(16 | rofl::openflow::OFPVID_PRESENT));
 	gm.set_buckets().set_bucket(0).set_actions().
 			add_action_output(rofl::cindex(2)).set_port_no(2);
+	gm.set_buckets().add_bucket(1).set_actions().
+			add_action_push_vlan(rofl::cindex(0)).set_eth_type(rofl::fvlanframe::VLAN_CTAG_ETHER);
+	gm.set_buckets().set_bucket(1).set_actions().
+			add_action_set_field(rofl::cindex(1)).set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(16 | rofl::openflow::OFPVID_PRESENT));
+	gm.set_buckets().set_bucket(1).set_actions().
+			add_action_output(rofl::cindex(2)).set_port_no(3);
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -73,6 +79,10 @@ ccontrol::handle_desc_stats_reply(
 	gm.set_buckets().add_bucket(0).set_actions().
 			add_action_pop_vlan(rofl::cindex(0));
 	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_output(rofl::cindex(1)).set_port_no(1);
+	gm.set_buckets().add_bucket(1).set_actions().
+			add_action_pop_vlan(rofl::cindex(0));
+	gm.set_buckets().set_bucket(1).set_actions().
 			add_action_output(rofl::cindex(1)).set_port_no(1);
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
