@@ -186,8 +186,6 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 	of1x_flow_table_t* t;
 
 	//Cleanup stuff coming from the cloning process
-	sn->tables = NULL;
-	sn->groups = NULL;
 	sn->sw = NULL;		
 
 	//Allocate tables and initialize	
@@ -216,6 +214,15 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 	sn->capabilities = pipeline->capabilities;
 	sn->miss_send_len = pipeline->miss_send_len;
 
+	//Allocate GROUPS and initialize
+	sn->groups = (of1x_group_table_t*)platform_malloc_shared(sizeof(of1x_group_table_t));
+	
+	//Copy contents (config & num of entries)
+	memcpy(sn->groups, pipeline->groups, sizeof(of1x_group_table_t));
+	
+	//clean unnecessary information
+	sn->groups->head = sn->groups->tail = sn->groups->rwlock = NULL;
+	
 	return ROFL_SUCCESS;
 }
 
@@ -223,4 +230,5 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 void __of1x_pipeline_destroy_snapshot(of1x_pipeline_snapshot_t* sn){
 	//Release tables memory
 	platform_free_shared(sn->tables);
+	platform_free_shared(sn->groups);
 }
