@@ -37,6 +37,19 @@ ccontrol::handle_desc_stats_reply(
 {
 	std::cout << "[ccontrol] rcvd Desc-Stats-Reply: " << std::endl << msg;
 
+	rofl::openflow::cofgroupmod gm(dpt.get_version());
+	gm.set_command(rofl::openflow::OFPGC_ADD);
+	gm.set_type(rofl::openflow::OFPGT_ALL);
+	gm.set_group_id(1);
+	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_push_vlan(rofl::cindex(0)).set_eth_type(rofl::fvlanframe::VLAN_CTAG_ETHER);
+	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_set_field(rofl::cindex(1)).set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(16 | rofl::openflow::OFPVID_PRESENT));
+	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_output(rofl::cindex(2)).set_port_no(2);
+
+	std::cout << "[ccontrol] sending push-vlan flow-mod: " << std::endl;
+
 	rofl::openflow::cofflowmod fm(dpt.get_version());
 	fm.set_command(rofl::openflow::OFPFC_ADD);
 	fm.set_table_id(0);
@@ -44,17 +57,20 @@ ccontrol::handle_desc_stats_reply(
 	fm.set_hard_timeout(0);
 	fm.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
 	fm.set_match().set_in_port(1);
-	rofl::cindex index(0);
 	fm.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_push_vlan(index++).set_eth_type(rofl::fvlanframe::VLAN_CTAG_ETHER);
-	fm.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_set_field(index++).set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(16 | rofl::openflow::OFPVID_PRESENT));
-	fm.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_output(index++).set_port_no(2);
+			add_action_group(rofl::cindex(0)).set_group_id(1);
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 
-	std::cout << "[ccontrol] sending push-vlan flow-mod: " << std::endl << msg;
+
+	std::cout << "[ccontrol] sending pop-vlan flow-mod: " << std::endl;
+	gm.set_command(rofl::openflow::OFPGC_ADD);
+	gm.set_type(rofl::openflow::OFPGT_ALL);
+	gm.set_group_id(2);
+	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_pop_vlan(rofl::cindex(0));
+	gm.set_buckets().set_bucket(0).set_actions().
+			add_action_output(rofl::cindex(1)).set_port_no(1);
 
 	fm.clear();
 	fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -63,15 +79,10 @@ ccontrol::handle_desc_stats_reply(
 	fm.set_hard_timeout(0);
 	fm.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
 	fm.set_match().set_in_port(2);
-	rofl::cindex jndex(0);
 	fm.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_pop_vlan(jndex++);
-	fm.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_output(jndex++).set_port_no(1);
+			add_action_group(rofl::cindex(0)).set_group_id(2);
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
-
-	std::cout << "[ccontrol] sending pop-vlan flow-mod: " << std::endl << msg;
 }
 
 
