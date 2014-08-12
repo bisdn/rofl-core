@@ -345,7 +345,10 @@ crofsock::send_message(
 			cwnd_size = outqueues[QUEUE_PKT].store(msg);
 		} break;
 		case rofl::openflow13::OFPT_FLOW_MOD:
-		case rofl::openflow13::OFPT_FLOW_REMOVED: {
+		case rofl::openflow13::OFPT_FLOW_REMOVED:
+		case rofl::openflow13::OFPT_GROUP_MOD:
+		case rofl::openflow13::OFPT_PORT_MOD:
+		case rofl::openflow13::OFPT_TABLE_MOD: {
 			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
 		case rofl::openflow13::OFPT_ECHO_REQUEST:

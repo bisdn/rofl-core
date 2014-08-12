@@ -633,7 +633,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				if( port_id < LOGICAL_SWITCH_MAX_LOG_PORTS && unlikely(NULL != sw->logical_ports[port_id].port) ){
 
 					//Single port output
-					//According to the spec a packet cannot be sent to the incomming port
+					//According to the spec a packet cannot be sent to the incoming port
 					//unless IN_PORT meta port is used
 					if(unlikely(port_id == *platform_packet_get_port_in(pkt))){
 						platform_packet_drop(pkt_to_send);

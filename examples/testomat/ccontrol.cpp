@@ -62,6 +62,8 @@ ccontrol::handle_desc_stats_reply(
 	gm.set_buckets().set_bucket(1).set_actions().
 			add_action_output(rofl::cindex(2)).set_port_no(3);
 
+	gm.set_buckets().clear();
+
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
 	rofl::openflow::cofflowmod fm(dpt.get_version());
