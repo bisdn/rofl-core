@@ -70,7 +70,7 @@ ccontrol::handle_desc_stats_reply(
 	gm.set_command(rofl::openflow::OFPGC_ADD);
 	gm.set_type(rofl::openflow::OFPGT_ALL);
 	gm.set_group_id(2);
-	gm.add_buckets().set_bucket(0).set_actions().
+	gm.set_buckets().add_bucket(0).set_actions().
 			add_action_pop_vlan(rofl::cindex(0));
 	gm.set_buckets().set_bucket(0).set_actions().
 			add_action_output(rofl::cindex(1)).set_port_no(1);
