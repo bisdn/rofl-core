@@ -37,6 +37,10 @@ ccontrol::handle_desc_stats_reply(
 {
 	std::cout << "[ccontrol] rcvd Desc-Stats-Reply: " << std::endl << msg;
 
+
+
+	std::cout << "[ccontrol] sending push-vlan flow-mod: " << std::endl;
+
 	rofl::openflow::cofgroupmod gm(dpt.get_version());
 	gm.set_command(rofl::openflow::OFPGC_ADD);
 	gm.set_type(rofl::openflow::OFPGT_ALL);
@@ -55,8 +59,6 @@ ccontrol::handle_desc_stats_reply(
 			add_action_output(rofl::cindex(2)).set_port_no(3);
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-	std::cout << "[ccontrol] sending push-vlan flow-mod: " << std::endl;
 
 	rofl::openflow::cofflowmod fm(dpt.get_version());
 	fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -81,9 +83,7 @@ ccontrol::handle_desc_stats_reply(
 	gm.set_buckets().set_bucket(0).set_actions().
 			add_action_output(rofl::cindex(1)).set_port_no(1);
 	gm.set_buckets().add_bucket(1).set_actions().
-			add_action_pop_vlan(rofl::cindex(0));
-	gm.set_buckets().set_bucket(1).set_actions().
-			add_action_output(rofl::cindex(1)).set_port_no(1);
+			add_action_output(rofl::cindex(0)).set_port_no(3);
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
