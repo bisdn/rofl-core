@@ -217,8 +217,12 @@ rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipel
 	//Allocate GROUPS and initialize
 	sn->groups = (of1x_group_table_t*)platform_malloc_shared(sizeof(of1x_group_table_t));
 	
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
+	
 	//Copy contents (config & num of entries)
 	memcpy(sn->groups, pipeline->groups, sizeof(of1x_group_table_t));
+	
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
 	
 	//clean unnecessary information
 	sn->groups->head = sn->groups->tail = sn->groups->rwlock = NULL;
