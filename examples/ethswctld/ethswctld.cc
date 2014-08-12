@@ -8,9 +8,11 @@
 #define ETHSWCTLD_LOG_FILE "/var/log/ethswctld.log"
 #define ETHSWCTLD_PID_FILE "/var/run/ethswctld.pid"
 
-int
-main(int argc, char** argv)
-{
+int main(int argc, char** argv){
+
+	/*
+	* Parse parameters
+	*/
 	rofl::cunixenv env_parser(argc, argv);
 
 	/* update defaults */
@@ -35,18 +37,24 @@ main(int argc, char** argv)
 		rofl::logging::notice << "[ethswctld][main] daemonizing successful" << std::endl;
 	}
 
+	//Initialize the instance of etherswitch (crofbase based)
 	rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
+	versionbitmap.add_ofp_version(rofl::openflow10::OFP_VERSION);
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 
+	//We must now specify the parameters for allowing datapaths to connect
 	rofl::cparams socket_params = csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
 	socket_params.set_param(csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 
+	//Launch main I/O loop
 	rofl::cioloop::run();
 
+	//This will never be called unless the main loop
 	rofl::cioloop::shutdown();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
