@@ -254,14 +254,6 @@ hal_result_t hal_driver_of1x_fetch_group_table(uint64_t dpid, of1x_group_table_t
  */
 of1x_stats_group_msg_t* hal_driver_of1x_get_group_stats(uint64_t dpid, uint32_t id);
 
-/**
- * @brief   Instructs driver to fetch the GROUP statistics from all the groups
- * @ingroup hal_driver_of1x
- *
- * @param dpid 		Datapath ID of the switch where the GROUPS are
- */
-of1x_stats_group_msg_t* hal_driver_of1x_get_group_all_stats(uint64_t dpid, uint32_t id);
-
 // [+] Add more here..
 
 //C++ extern C

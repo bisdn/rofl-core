@@ -204,14 +204,6 @@ void __of1x_stats_group_dec_reference(of1x_stats_group_t *gr_stats);
 of1x_stats_group_msg_t* of1x_get_group_stats(struct of1x_pipeline* pipeline,uint32_t id);
 
 /**
- * @brief Retrieves the statistics of all groups
- * @ingroup core_of1x
- * 
- * Returns a structure with the statistics that needs to be freed by the calling element 
- */
-of1x_stats_group_msg_t* of1x_get_group_all_stats(struct of1x_pipeline* pipeline,uint32_t id);
-
-/**
  * @brief Frees memory of statistics message
  * @ingroup core_of1x
  *

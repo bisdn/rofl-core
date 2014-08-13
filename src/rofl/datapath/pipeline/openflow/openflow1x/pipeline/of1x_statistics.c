@@ -278,7 +278,7 @@ void of1x_destroy_stats_group_msg(of1x_stats_group_msg_t* msg){
 	}
 }
 
-of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t id){
+of1x_stats_group_msg_t* of1x_get_group_single_stats(of1x_pipeline_t* pipeline,uint32_t id){
 	of1x_bucket_t *bu_it;
 	
 	//find the group
@@ -303,18 +303,23 @@ of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t 
 	return msg;
 }
 
-of1x_stats_group_msg_t* of1x_get_group_all_stats(of1x_pipeline_t* pipeline,uint32_t id){
+of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t id){
 	of1x_group_t* group;
 	of1x_stats_group_msg_t *msg=NULL, *last=NULL, *head=NULL;
 	
-	for(group=pipeline->groups->head;group;group=group->next){
-		msg = of1x_get_group_stats(pipeline,group->id);
-		if(last)
-			last->next = msg;
-		if(!head)
-			head=msg;
-		
-		last = msg;
+	if( id == OF1X_GROUP_ALL ){
+	
+		for(group=pipeline->groups->head;group;group=group->next){
+			msg = of1x_get_group_single_stats(pipeline,group->id);
+			if(last)
+				last->next = msg;
+			if(!head)
+				head=msg;
+			
+			last = msg;
+		}
+	} else{
+		head = of1x_get_group_single_stats(pipeline, id);
 	}
 
 	return head;
