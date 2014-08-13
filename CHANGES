@@ -10,7 +10,9 @@ Change log
 
 v0.4.4
 
-[B][rofl-pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
+[B][common] cmacaddr: use right macros in sscanf #29 
+
+[B][pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
 
 v0.4.3
 
