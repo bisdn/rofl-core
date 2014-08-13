@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <sys/time.h>
 #include "rofl.h"
+#include "of1x_group_types.h"
 #include "../../../platform/lock.h"
 
 #define OF1X_STATS_NS_IN_A_SEC 1000000000
@@ -28,6 +29,7 @@
 /*counters OF 1.2 specification page 13*/
 
 //fwd declarations
+struct of1x_action_group;
 struct of1x_instruction_group;
 struct of1x_flow_entry;
 struct of1x_flow_table;
@@ -137,14 +139,29 @@ typedef struct of1x_stats_group{
 }of1x_stats_group_t;
 
 typedef struct of1x_stats_group_msg{
-		uint32_t group_id;
-		uint32_t ref_count;
-		uint64_t packet_count;
-		uint64_t byte_count;
-		int num_of_buckets;/*needed?*/
-		of1x_stats_bucket_counter_t *bucket_stats;
-		struct of1x_stats_group_msg *next;
+	uint32_t group_id;
+	uint32_t ref_count;
+	uint64_t packet_count;
+	uint64_t byte_count;
+	int num_of_buckets;/*needed?*/
+	of1x_stats_bucket_counter_t *bucket_stats;
+	struct of1x_stats_group_msg *next;
 } of1x_stats_group_msg_t;
+
+typedef struct of1x_stats_bucket_desc_msg{
+	uint16_t weight;
+	uint32_t port;
+	uint32_t group;
+	struct of1x_action_group *actions;
+	struct of1x_stats_bucket_desc_msg *next;
+}of1x_stats_bucket_desc_msg_t;
+
+typedef struct of1x_stats_group_desc_msg{
+	uint32_t group_id;
+	of1x_group_type_t type;
+	of1x_stats_bucket_desc_msg_t *bucket;
+	struct of1x_stats_group_desc_msg *next;
+}of1x_stats_group_desc_msg_t;
 
 /** operations in statistics.c **/
 
@@ -231,6 +248,19 @@ of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8
 * @return of1x_stats_flow_aggregate_msg_t instance that must be destroyed using of1x_destroy_stats_flow_aggregate_msg() 
 */
 of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group* matchs);
+
+/**
+ * @ingroup core_of1x
+ * Frees the memory for a of1x_stats_group_desc_msg_t structure
+ */
+void of1x_destroy_group_desc_stats(of1x_stats_group_desc_msg_t *msg);
+
+/**
+ * @ingroup core_of1x
+ * Retrieves a copy of the group and bucket structure
+ * @return of1x_stats_group_desc_msg_t instance that must be destroyed using of1x_destroy_group_desc_stats()
+ */
+of1x_stats_group_desc_msg_t *of1x_get_group_desc_stats(struct of1x_pipeline* pipeline);
 
 ROFL_END_DECLS
 

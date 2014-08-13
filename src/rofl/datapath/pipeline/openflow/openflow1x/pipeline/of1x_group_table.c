@@ -149,18 +149,6 @@ void of1x_destroy_group_table(of1x_group_table_t* gt){
 	platform_free_shared(gt);
 }
 
-/**
- * Copies the structure of the group table.
- */
-rofl_result_t of1x_fetch_group_table(of1x_pipeline_t *pipeline, of1x_group_table_t* group_table){
-	platform_rwlock_rdlock(pipeline->groups->rwlock);
-	
-	*group_table = *(pipeline->groups);
-	
-	platform_rwlock_rdunlock(pipeline->groups->rwlock);
-	return ROFL_SUCCESS;
-}
-
 static
 rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_group_t* actions){
 

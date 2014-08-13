@@ -278,16 +278,11 @@ void of1x_destroy_stats_group_msg(of1x_stats_group_msg_t* msg){
 	}
 }
 
-of1x_stats_group_msg_t* of1x_get_group_single_stats(of1x_pipeline_t* pipeline,uint32_t id){
+of1x_stats_group_msg_t* __of1x_get_group_single_stats(of1x_group_t* group){
 	of1x_bucket_t *bu_it;
-	
-	//find the group
-	of1x_group_t* group = __of1x_group_search(pipeline->groups, id);
-	if(group == NULL) return NULL;
-	
 	of1x_stats_group_msg_t* msg = __of1x_init_stats_group_msg(group->bc_list->num_of_buckets);
 
-	msg->group_id = id;
+	msg->group_id = group->id;
 	msg->ref_count = group->stats.ref_count;
 	msg->packet_count = group->stats.packet_count;
 	msg->byte_count = group->stats.packet_count;
@@ -304,13 +299,16 @@ of1x_stats_group_msg_t* of1x_get_group_single_stats(of1x_pipeline_t* pipeline,ui
 }
 
 of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t id){
-	of1x_group_t* group;
+	of1x_group_t* group=NULL;
 	of1x_stats_group_msg_t *msg=NULL, *last=NULL, *head=NULL;
 	
 	if( id == OF1X_GROUP_ALL ){
 	
 		for(group=pipeline->groups->head;group;group=group->next){
-			msg = of1x_get_group_single_stats(pipeline,group->id);
+			if(group == NULL)
+				return NULL;
+			
+			msg = __of1x_get_group_single_stats(group);
 			if(last)
 				last->next = msg;
 			if(!head)
@@ -319,9 +317,108 @@ of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t 
 			last = msg;
 		}
 	} else{
-		head = of1x_get_group_single_stats(pipeline, id);
+		//find the group
+		group = __of1x_group_search(pipeline->groups, id);
+		if(group == NULL)
+			return NULL;
+		
+		head = __of1x_get_group_single_stats(group);
 	}
 
+	return head;
+}
+
+void __of1x_destroy_bucket_desc_stats(of1x_stats_bucket_desc_msg_t* bucket){
+	of1x_destroy_action_group(bucket->actions);
+	platform_free_shared(bucket);
+}
+
+void of1x_destroy_group_desc_stats(of1x_stats_group_desc_msg_t *msg){
+	of1x_stats_group_desc_msg_t *group_it, *next_gr;
+	of1x_stats_bucket_desc_msg_t* bucket_it, *next_bu;
+	
+	for(group_it=msg; group_it; group_it=next_gr){
+		next_gr = group_it->next;
+		
+		//destroy buckets
+		for(bucket_it = msg->bucket; bucket_it; bucket_it=next_bu){
+			next_bu = bucket_it->next;
+			__of1x_destroy_bucket_desc_stats(bucket_it);
+		}
+		
+		//destroy message
+		platform_free_shared(msg);
+	}
+}
+
+of1x_stats_bucket_desc_msg_t *__of1x_init_bucket_desc_stats(of1x_bucket_t *bucket){
+	of1x_stats_bucket_desc_msg_t *desc_bucket;
+	
+	desc_bucket = platform_malloc_shared( sizeof(of1x_stats_bucket_desc_msg_t) );
+	if ( desc_bucket == NULL ){
+		return NULL;
+	}
+	desc_bucket->group = bucket->group;
+	desc_bucket->weight = bucket->weight;
+	desc_bucket->port = bucket->port;
+	//copy actions
+	desc_bucket->actions = __of1x_copy_action_group(bucket->actions);
+	desc_bucket->next = NULL;
+	
+	return desc_bucket;
+}
+
+of1x_stats_group_desc_msg_t *__of1x_init_group_desc_single_stats(of1x_group_t* group){
+	of1x_bucket_t *bu_it = NULL;
+	of1x_stats_bucket_desc_msg_t *bu_desc=NULL, *head=NULL, *last=NULL;
+	of1x_stats_group_desc_msg_t *msg = platform_malloc_shared( sizeof(of1x_stats_group_desc_msg_t) );
+	
+	if ( msg==NULL )
+		return NULL;
+	
+	msg->group_id = group->id;
+	msg->type = group->type;
+	msg->next = NULL;
+	
+	for( bu_it = group->bc_list->head; bu_it; bu_it=bu_it->next){
+		bu_desc = __of1x_init_bucket_desc_stats(bu_it);
+		if(bu_desc == NULL){
+			of1x_destroy_group_desc_stats(msg);
+			return NULL;
+		}
+		
+		if(last)
+			last->next = bu_desc;
+		if(!head)
+			head=bu_desc;
+		
+		last = bu_desc;
+	}
+	
+	msg->bucket = head;
+	
+	return msg;
+}
+
+of1x_stats_group_desc_msg_t *of1x_get_group_desc_stats(of1x_pipeline_t* pipeline){
+	of1x_group_t* group;
+	of1x_stats_group_desc_msg_t *msg=NULL, *last=NULL, *head=NULL;
+	
+	for(group=pipeline->groups->head;group;group=group->next){
+		msg = __of1x_init_group_desc_single_stats(group);
+		
+		if (msg == NULL){
+			if(head) of1x_destroy_group_desc_stats(head);
+			return NULL;
+		}
+		
+		if(last)
+			last->next = msg;
+		if(!head)
+			head=msg;
+		
+		last = msg;
+		}
 	return head;
 }
 

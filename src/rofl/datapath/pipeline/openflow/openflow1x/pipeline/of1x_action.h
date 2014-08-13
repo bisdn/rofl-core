@@ -295,7 +295,7 @@ typedef struct of1x_packet_action{
 * @ingroup core_of1x 
 * Action group (apply-actions) structure
 */
-typedef struct{
+typedef struct of1x_action_group{
 
 	//bitmap of actions
 	bitmap128_t bitmap;
