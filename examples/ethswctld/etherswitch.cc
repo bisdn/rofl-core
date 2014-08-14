@@ -217,6 +217,7 @@ ethswitch::install_flood_flowmod(
 	fe.set_buffer_id(msg.get_buffer_id());
 	fe.set_idle_timeout(IDLE_TIMEOUT);
 	fe.set_hard_timeout(HARD_TIMEOUT);
+	fe.set_priority(2);
 	fe.set_table_id(msg.get_table_id());
 
 	//Set matches
