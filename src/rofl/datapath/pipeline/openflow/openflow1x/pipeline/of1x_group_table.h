@@ -79,6 +79,7 @@ typedef struct of1x_group_table{
 	
 	uint32_t num_of_entries;
 	
+	platform_mutex_t *mutex;
 	platform_rwlock_t *rwlock;
 	
 	struct of1x_group *head;
