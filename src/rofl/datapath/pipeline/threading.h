@@ -29,7 +29,7 @@
 typedef uint64_t tid_presence_t;
 
 static inline void tid_init_presence_mask(tid_presence_t* presence_mask){
-	presence_mask = 0x0ULL;
+	*presence_mask = 0x0ULL;
 }
 
 /**
