@@ -50,7 +50,7 @@ extern uint128__t tmp_val;
 
 
 //Force a lot of context swaps
-#define NUM_OF_IO_THREADS 20 //0
+#define NUM_OF_IO_THREADS ROFL_PIPELINE_MAX_TIDS 
 #define NUM_OF_ITERATIONS 100000
 
 unsigned int ids[NUM_OF_IO_THREADS];
