@@ -3,13 +3,13 @@
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
+#include <unistd.h>
 #include "CUnit/Basic.h"
 #include "lockless_tests.h"
 
 
 static of1x_switch_t* sw=NULL;
-static datapacket_t pkt;
-static uint64_t accumulated_time;
 
 #define NUM_OF_ITERATONS 1000000
 //#define NUM_OF_ITERATONS 10000
@@ -48,10 +48,109 @@ int tear_down(){
 //tmp val
 extern uint128__t tmp_val;
 
+
+//Force a lot of context swaps
+#define NUM_OF_IO_THREADS 20 //0
+#define NUM_OF_ITERATIONS 100000
+
+unsigned int ids[NUM_OF_IO_THREADS];
+pthread_t mgmt; 
+pthread_t threads[NUM_OF_IO_THREADS];
+bool mgmt_keep_on=true;
+
+void* mgmt_thread(void* none){
+
+	of1x_flow_entry_t* entry;
+	uint32_t port_in;
+
+	while(mgmt_keep_on){
+	
+		entry = of1x_init_flow_entry(false);		
+
+		if(rand() % 2)
+			port_in = 1;
+		else
+			port_in = 2;
+
+		of1x_add_match_to_entry(entry,of1x_init_port_in_match(port_in));
+	
+		//First destroy
+		of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY);
+
+		//The add
+		of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false);
+			
+		usleep(100);
+	}
+
+	return NULL;	
+}
+
+void* io_thread(void* id){
+
+	datapacket_t pkt;
+	unsigned int tid = *((unsigned int*)id);
+	unsigned int cnt = 0;
+
+	fprintf(stderr, "Launching I/O thread: %d\n",tid);
+	
+	while(cnt !=NUM_OF_ITERATIONS){ 
+		//PKT
+		if(rand() % 2)
+			*((uint32_t*)&tmp_val) = 1;
+		else
+			*((uint32_t*)&tmp_val) = 2;
+
+		//Process
+		of_process_packet_pipeline(tid, (const struct of_switch *)sw, &pkt);
+
+		
+		
+		//if(rand() % 100 > 40)
+		//	usleep(10);
+		
+		cnt++;
+	}
+
+	//Check our stats
+	CU_ASSERT(sw->pipeline.tables[0].stats.s.__internal[tid].lookup_count == NUM_OF_ITERATIONS);
+	
+	return NULL;
+}
+
 //Single flow_mod profiling
 void lockless_basic(){
-	(void)pkt;
-	(void)accumulated_time;
+
+	int i;
+
+	srand(time(NULL));
+
+	//launch mgmt_thread
+	int return_val = pthread_create(&mgmt, NULL, mgmt_thread, NULL); 
+	CU_ASSERT(return_val == 0);
+	
+	
+	//Launch workers	
+	for(i=0;i<NUM_OF_IO_THREADS;i++){
+		int return_val;
+		ids[i] = i;
+		return_val = pthread_create(&threads[i], NULL, io_thread, &ids[i]);
+		CU_ASSERT(return_val == 0);
+	}
+
+	//Wait for them	
+	for(i=0;i<NUM_OF_IO_THREADS;i++){
+		pthread_join(threads[i], NULL);	
+	}
+
+	//Stop mgmt core
+	mgmt_keep_on=false;
+	pthread_join(mgmt, NULL);
+	
+	//Check all stats
+	__of1x_stats_table_tid_t c;
+	__of1x_stats_table_consolidate(&sw->pipeline.tables[0].stats, &c);
+	CU_ASSERT(c.lookup_count == NUM_OF_ITERATIONS*NUM_OF_IO_THREADS);
 }
 
 int main(int args, char** argv){
