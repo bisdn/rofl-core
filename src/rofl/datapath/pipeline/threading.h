@@ -35,7 +35,7 @@ static inline void tid_init_presence_mask(tid_presence_t* presence_mask){
 /**
 * Set thread presence  
 */
-static inline void tid_mark_as_present(unsigned int tid, tid_presence_t* presence_mask){
+static inline void tid_mark_as_present(unsigned int tid, volatile tid_presence_t* presence_mask){
 	tid_presence_t old_val, new_val;
 	
 	do{
@@ -54,12 +54,15 @@ TID_MARK_AS_PRESENT_RETRY:
 		new_val = old_val | ( 1<<tid );
 
 	}while( CAS(presence_mask, old_val, new_val) == false);
+
+	//Double check
+	assert( ( *presence_mask & (1<<tid) ) > 0);	
 }
 	
 /**
 * Unset thread presence  
 */
-static inline void tid_mark_as_not_present(unsigned int tid, tid_presence_t* presence_mask){
+static inline void tid_mark_as_not_present(unsigned int tid, volatile tid_presence_t* presence_mask){
 	tid_presence_t old_val, new_val;
 	
 	do{
@@ -77,7 +80,7 @@ static inline void tid_mark_as_not_present(unsigned int tid, tid_presence_t* pre
 /**
 *
 */
-static inline void tid_wait_all_not_present(tid_presence_t* presence_mask){
+static inline void tid_wait_all_not_present(volatile tid_presence_t* presence_mask){
 	int i;
 	uint64_t tid;
 	tid_presence_t present;
