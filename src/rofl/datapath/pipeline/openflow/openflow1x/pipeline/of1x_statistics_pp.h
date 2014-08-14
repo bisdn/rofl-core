@@ -5,6 +5,7 @@
 #ifndef __OF1X_STATISTICS_PP_H__
 #define __OF1X_STATISTICS_PP_H__
 
+#include <assert.h>
 #include "rofl.h"
 #include "../../../util/pp_guard.h" //Never forget to include the guard
 
@@ -28,29 +29,39 @@
 
 //Flow
 static inline void __of1x_stats_flow_update_match(unsigned int tid, of1x_stats_flow_t* stats, uint64_t bytes_rx){
-	
+
+	__of1x_stats_flow_tid_t* s = &stats->s.__internal[tid];
+
+	assert(tid < ROFL_PIPELINE_MAX_TIDS);
+
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
-		platform_atomic_inc64(&stats->s.__internal[ROFL_PIPELINE_LOCKED_TID].packet_count, stats->mutex);
-		platform_atomic_add64(&stats->s.__internal[ROFL_PIPELINE_LOCKED_TID].byte_count, bytes_rx, stats->mutex);
+		platform_atomic_inc64(&s->packet_count, stats->mutex);
+		platform_atomic_add64(&s->byte_count, bytes_rx, stats->mutex);
 	}else{
-		stats->s.__internal[tid].packet_count++;
-		stats->s.__internal[tid].byte_count+=bytes_rx;
+		s->packet_count++;
+		s->byte_count+=bytes_rx;
 	} 
 }
 
 //Flow table
 static inline void __of1x_stats_table_update_match(unsigned int tid, of1x_stats_table_t* stats){
 	
+	__of1x_stats_table_tid_t* s = &stats->s.__internal[tid];
+	
+	assert(tid < ROFL_PIPELINE_MAX_TIDS);
+	
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
-		platform_atomic_inc64(&stats->s.__internal[tid].lookup_count,stats->mutex);
-		platform_atomic_inc64(&stats->s.__internal[tid].matched_count,stats->mutex);
+		platform_atomic_inc64(&s->lookup_count,stats->mutex);
+		platform_atomic_inc64(&s->matched_count,stats->mutex);
 	}else{
-		stats->s.__internal[tid].lookup_count++;
-		stats->s.__internal[tid].matched_count++;
+		s->lookup_count++;
+		s->matched_count++;
 	}
 }
 
 static inline void __of1x_stats_table_update_no_match(unsigned int tid, of1x_stats_table_t* stats){
+	
+	assert(tid < ROFL_PIPELINE_MAX_TIDS);
 
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
 		platform_atomic_inc64(&stats->s.__internal[tid].lookup_count,stats->mutex);
@@ -61,13 +72,17 @@ static inline void __of1x_stats_table_update_no_match(unsigned int tid, of1x_sta
 
 //Group
 static void __of1x_stats_group_update(unsigned int tid, of1x_stats_group_t *gr_stats, uint64_t bytes){
+	
+	__of1x_stats_group_tid_t* s = &gr_stats->s.__internal[tid];
+	
+	assert(tid < ROFL_PIPELINE_MAX_TIDS);
 
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
-		platform_atomic_inc64(&gr_stats->s.__internal[tid].packet_count, gr_stats->mutex);
-		platform_atomic_add64(&gr_stats->s.__internal[tid].byte_count, bytes, gr_stats->mutex);
+		platform_atomic_inc64(&s->packet_count, gr_stats->mutex);
+		platform_atomic_add64(&s->byte_count, bytes, gr_stats->mutex);
 	}else{
-		gr_stats->s.__internal[tid].packet_count++;
-		gr_stats->s.__internal[tid].byte_count += bytes;
+		s->packet_count++;
+		s->byte_count += bytes;
 	}
 
 }
@@ -75,12 +90,16 @@ static void __of1x_stats_group_update(unsigned int tid, of1x_stats_group_t *gr_s
 //Bucket
 static void __of1x_stats_bucket_update(unsigned int tid, __of1x_stats_bucket_t* bc_stats, uint64_t bytes){
 	
+	__of1x_stats_bucket_tid_t* s = &bc_stats->s.__internal[tid];
+	
+	assert(tid < ROFL_PIPELINE_MAX_TIDS);
+	
 	if(unlikely(tid == ROFL_PIPELINE_LOCKED_TID)){
-		platform_atomic_inc64(&bc_stats->s.__internal[tid].packet_count, bc_stats->mutex);
-		platform_atomic_add64(&bc_stats->s.__internal[tid].byte_count, bytes, bc_stats->mutex);
+		platform_atomic_inc64(&s->packet_count, bc_stats->mutex);
+		platform_atomic_add64(&s->byte_count, bytes, bc_stats->mutex);
 	}else{
-		bc_stats->s.__internal[tid].packet_count++;
-		bc_stats->s.__internal[tid].byte_count += bytes;
+		s->packet_count++;
+		s->byte_count += bytes;
 	}
 }
 
