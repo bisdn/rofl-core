@@ -361,6 +361,13 @@ namespace openflow {
 	};
 
 
+	//Only common parts
+	enum ofp_flow_mod_flags {
+		OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
+										* expires or is deleted. */
+		OFPFF_CHECK_OVERLAP = 1 << 1,  /* Check for overlapping entries first. */
+	};
+
 	/* OXM Flow match field types for OpenFlow basic class. */
 	enum oxm_ofb_match_fields {
 		OFPXMT_OFB_IN_PORT = 0,			/* Switch input port. */				// required

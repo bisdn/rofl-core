@@ -89,15 +89,8 @@ void
 cfib::fib_timer_expired(cfibentry *entry)
 {
 	if (fibtable.find(entry->get_lladdr()) != fibtable.end()) {
-#if 0
-		entry->set_out_port_no(OFPP12_FLOOD);
-#else
-#if 0
-		fibtable[entry->get_lladdr()]->flow_mod_delete();
-#endif
 		fibtable.erase(entry->get_lladdr());
 		delete entry;
-#endif
 	}
 
 	std::cerr << "EXPIRED: " << *this << std::endl;
@@ -115,10 +108,6 @@ cfib::fib_update(
 	// update cfibentry for src/inport
 	if (fibtable.find(src) == fibtable.end()) {
 		fibtable[src] = new cfibentry(this, rofbase, &dpt, src, in_port);
-#if 0
-		fibtable[src]->flow_mod_add();
-#endif
-
 		std::cerr << "UPDATE[NEW-ENTRY]: src:" << src << " " << *this << std::endl;
 
 	} else {
@@ -155,26 +144,9 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
-		//rofl::logging::debug << "[ethswctld][ethsw][cfib][lookup] NOT FOUND" << std::endl;
+		rofl::logging::debug << "[ethswctld][ethsw][cfib][lookup] NOT FOUND" << std::endl;
 
 		throw eFibNotFound();
-
-#if 0
-		switch (dpt.get_version()) {
-		case rofl::openflow10::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow10::OFPP_FLOOD); break;
-		case rofl::openflow12::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow12::OFPP_FLOOD); break;
-		case rofl::openflow13::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow13::OFPP_FLOOD); break;
-		default:
-			throw rofl::eBadVersion();
-		}
-
-		fibtable[dst]->flow_mod_add();
-
-		std::cerr << "LOOKUP[1]: " << *this << std::endl;
-#endif
 	}
 
 	return *(fibtable[dst]);
