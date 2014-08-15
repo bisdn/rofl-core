@@ -181,7 +181,7 @@ ethswitch::handle_packet_in(
 			return;
 		}
 
-		//SRC and DST are unicast addresses => Update RIB: learn the source address and its associated portno
+		//SRC is a unicast address => Update RIB: learn the source address and its associated portno
 		fib.set_fib_entry(eth_src, in_port).set_port_no(in_port);
 
 		//Drop frames destined to 01:80:c2:00:00:00
