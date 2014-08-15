@@ -243,10 +243,12 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw){
 
 /* Dumping */
 void of1x_dump_switch(of1x_switch_t* sw, bool nbo){
+	
+	ROFL_PIPELINE_INFO("\n");
 	ROFL_PIPELINE_INFO("OpenFlow switch instance (%p)\n",sw);
 	ROFL_PIPELINE_INFO("========================\n");
 	ROFL_PIPELINE_INFO("Name: %s\n",sw->name);
-	ROFL_PIPELINE_INFO("OpenFlow version: %d\n",sw->of_ver);
+	ROFL_PIPELINE_INFO("OpenFlow version: %s\n", of_version_str[sw->of_ver]);
 	ROFL_PIPELINE_INFO("OpenFlow datapathid: 0x%" PRIx64 "\n",sw->dpid);
 }
 
@@ -260,7 +262,7 @@ void of1x_full_dump_switch(of1x_switch_t* sw, bool nbo){
 	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
 	
 	of1x_dump_group_table(sw->pipeline.groups, nbo);
-	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
+	ROFL_PIPELINE_INFO("--End of group table--\n\n");
 }
 
 //

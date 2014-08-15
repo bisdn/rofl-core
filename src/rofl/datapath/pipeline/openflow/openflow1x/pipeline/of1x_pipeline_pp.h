@@ -62,7 +62,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
 	
-	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
+	ROFL_PIPELINE_INFO("Packet[%p] entering switch %s [%p] pipeline (1.X)\n",pkt,sw->name, sw);	
 
 #ifdef DEBUG
 	dump_packet_matches(pkt, false);
@@ -77,7 +77,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 		
 		if(likely(match != NULL)){
 			
-			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
+			ROFL_PIPELINE_INFO("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
 			platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
@@ -92,7 +92,7 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 
 			if(table_to_go > i && likely(table_to_go < OF1X_MAX_FLOWTABLES)){
 
-				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
+				ROFL_PIPELINE_INFO("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
 				i = table_to_go-1;
 
 				//Unlock the entry so that it can eventually be modified/deleted
@@ -123,13 +123,13 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 			//Not matched, look for table_miss behaviour 
 			if(table->default_action == OF1X_TABLE_MISS_DROP){
 
-				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_DROP %u\n",pkt, i);	
+				ROFL_PIPELINE_INFO("Packet[%p] table MISS_DROP %u\n",pkt, i);	
 				platform_packet_drop(pkt);
 				return;
 
 			}else if(table->default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
-				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. Generating a PACKET_IN event towards the controller\n",pkt);
+				ROFL_PIPELINE_INFO("Packet[%p] table MISS_CONTROLLER. Generating a PACKET_IN event towards the controller\n",pkt);
 
 				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;
@@ -155,19 +155,28 @@ static inline void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, dat
 	//Validate apply_actions_group
 	__of1x_validate_action_group(NULL, (of1x_action_group_t*)apply_actions_group, gt);
 
+#ifdef DEBUG
+	ROFL_PIPELINE_INFO("Packet[%p] Processing PKT_OUT, action group: ",pkt);
+	__of1x_dump_action_group((of1x_action_group_t*)apply_actions_group, false);
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
+#endif
+	
 	if(apply_actions_group->num_of_output_actions == 0){
 		//No output actions or groups; drop and return	
+		ROFL_PIPELINE_INFO("Packet[%p] WARNING: dropping! No output/group actions.\n",pkt);
 		platform_packet_drop(pkt);
 		return;
 	}
 	
 	has_multiple_outputs = (apply_actions_group->num_of_output_actions > 1);
+	
 
 	//Just process the action group
 	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
 		
 	if(has_multiple_outputs){
 		//Packet was replicated. Drop original packet
+		ROFL_PIPELINE_DEBUG("Packet[%p] Dropping original pkt (previously cloned due to multiple output actions).\n", pkt);
 		platform_packet_drop(pkt);
 	}
 }

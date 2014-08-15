@@ -128,6 +128,9 @@ of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline* pipeline){
 			platform_free_shared(gt);
 			return NULL;
 	}
+
+	//Reference back
+	gt->pipeline = pipeline;
 	
 	return gt;
 }
@@ -214,7 +217,7 @@ rofl_of1x_gm_result_t __of1x_check_group_parameters(of1x_group_table_t *gt, of1x
 	
 	//Group types not supported
 	if (type == OF1X_GROUP_TYPE_SELECT || type == OF1X_GROUP_TYPE_FF){
-		ROFL_PIPELINE_DEBUG("Warning; group type %u NOT supported\n", type);
+		ROFL_PIPELINE_ERR("Warning; group type %u NOT supported\n", type);
 		return ROFL_OF1X_GM_INVAL;
 	}
 	
@@ -277,21 +280,29 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 
 rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
+
+	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Starting operation at switch %s(%p), group id: %u\n", *buckets, gt->pipeline->sw->name, gt->pipeline->sw, id);
+	
 	platform_rwlock_wrlock(gt->rwlock);
 	
 	//check wether onither entry with this ID already exists
 	if(__of1x_group_search(gt,id)!=NULL){
 		platform_rwlock_wrunlock(gt->rwlock);
+		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED validation. Group exists...\n", *buckets);
 		return ROFL_OF1X_GM_EXISTS;
 	}
 	
 	ret_val = __of1x_init_group(gt,type,id,*buckets);
 	if (ret_val!=ROFL_OF1X_GM_OK){
 		platform_rwlock_wrunlock(gt->rwlock);
+		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED, reason %u\n", *buckets, ret_val);
 		return ret_val;
 	}
 	
+	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Successful\n", *buckets);
+	
 	platform_rwlock_wrunlock(gt->rwlock);
+	
 
 	//Was successful set the pointer to NULL
 	//so that is not further used outside the pipeline
@@ -489,61 +500,56 @@ bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){
 }
 
 void of1x_dump_bucket(of1x_bucket_t *bc, bool raw_nbo){
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
-	
-	//NOTE stats?
-	
+	ROFL_PIPELINE_INFO_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
 	__of1x_dump_action_group(bc->actions, raw_nbo);
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("\n");
+	ROFL_PIPELINE_INFO_NO_PREFIX(" statistics {pkt_count: %u}", bc->stats.packet_count);
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 
 void of1x_dump_group(of1x_group_t* group, bool raw_nbo){
 	of1x_bucket_t *bc_it;
 	unsigned int i;
 	
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("Id %u, ", group->id);
+	ROFL_PIPELINE_INFO_NO_PREFIX("id %u, ", group->id);
 	switch(group->type){
 		case OF1X_GROUP_TYPE_ALL:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_ALL, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_ALL, ");
 			break;
 		case OF1X_GROUP_TYPE_SELECT:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_SELECT, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_SELECT, ");
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_INDIRECT, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_INDIRECT, ");
 			break;
 		case OF1X_GROUP_TYPE_FF:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_FF, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_FF, ");
 			break;
 		default:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
+			ROFL_PIPELINE_INFO_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
 			break;
 	}
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("# of buckets %u\n", group->bc_list->num_of_buckets);
+	ROFL_PIPELINE_INFO_NO_PREFIX("num of buckets %u, statistics {pkt_count: %u} \n", group->bc_list->num_of_buckets, group->stats.packet_count);
 	
-	//NOTE stats
-	
-
 	for(bc_it=group->bc_list->head, i=0; bc_it; bc_it=bc_it->next, i++){
-		ROFL_PIPELINE_DEBUG("\t\t[%u] Bucket (%p). ", i, bc_it);
+		ROFL_PIPELINE_INFO("\t\t[%u] Bucket (%p). ", i, bc_it);
 		of1x_dump_bucket(bc_it, raw_nbo);
 	}
-	ROFL_PIPELINE_DEBUG("\n");
+	ROFL_PIPELINE_INFO("\n");
 }
 
 void of1x_dump_group_table(of1x_group_table_t *gt, bool raw_nbo){
 	of1x_group_t* it;
 	unsigned int i;
 	
-	ROFL_PIPELINE_DEBUG("Dumping group table. # of group entries: %u. \n",gt->num_of_entries);
+	ROFL_PIPELINE_INFO("Dumping group table. Num of group entries: %u\n",gt->num_of_entries);
 	if (gt->num_of_entries > 0){
 		for(it=gt->head, i=0; it; it=it->next, i++){
-			ROFL_PIPELINE_DEBUG("\t[%u] Group (%p). ", i, it);
+			ROFL_PIPELINE_INFO("\t[%u] Group (%p). ", i, it);
 			of1x_dump_group(it, raw_nbo);
 		}
 	}
 	else{
-		ROFL_PIPELINE_DEBUG("\t[*] No entries\n");
-		ROFL_PIPELINE_DEBUG("\n");
+		ROFL_PIPELINE_INFO("\t[*] No entries\n");
+		ROFL_PIPELINE_INFO("\n");
 	}
 }

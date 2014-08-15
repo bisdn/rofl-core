@@ -13,6 +13,7 @@
 #include "../../../../../platform/likely.h"
 #include "../../../../../platform/memory.h"
 #include "../matching_algorithms.h"
+#include "../../../../../util/logging.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
@@ -28,6 +29,28 @@
 * If you want more performance: just create a new matching
 * algorithm!
 */
+
+
+//Nice trace
+static void of1x_remove_flow_entry_table_trace( of1x_flow_entry_t *const entry, of1x_flow_entry_t *const it, of1x_flow_remove_reason_t reason){
+	switch(reason){	
+		case OF1X_FLOW_REMOVE_DELETE:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove(%p)] Existing entry (%p) will be removed\n", entry, it);
+			break;
+		case OF1X_FLOW_REMOVE_IDLE_TIMEOUT:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to IDLE timeout\n", it);
+			break;
+		case OF1X_FLOW_REMOVE_HARD_TIMEOUT:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to HARD timeout\n", it);
+			break;
+		case OF1X_FLOW_REMOVE_GROUP_DELETE:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to GROUP delete\n", it);
+			break;
+		default:
+			break;	
+	}
+
+}
 
 /**
 * Looks for an overlapping entry from the entry pointer by start_entry. This is an EXPENSIVE call
@@ -88,6 +111,10 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 
 	//Prevent readers to jump in
 	platform_rwlock_wrlock(table->rwlock);
+
+#ifdef DEBUG
+	of1x_remove_flow_entry_table_trace(NULL, specific_entry, reason);
+#endif
 	
 	if(!specific_entry->prev){
 		//First table entry
@@ -148,8 +175,11 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 		existing = of1x_flow_table_loop_check_identical(table->entries, entry, OF1X_PORT_ANY, OF1X_GROUP_ANY, false); //According to spec do NOT check cookie
 
 	if(existing){
+		ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Existing entry(%p) will be replaced by (%p)\n", entry, existing, entry);
+		
 		//There was already an entry. Update it..
 		if(!reset_counts){
+			ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Getting counters from (%p)\n", entry, existing);
 			entry->stats.packet_count = existing->stats.packet_count; 
 			entry->stats.byte_count = existing->stats.byte_count; 
 			entry->stats.initial_time = existing->stats.initial_time; 
@@ -200,6 +230,7 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 
 			//Delete old entry
 			if(existing){
+				ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Removing old entry (%p)\n", entry, existing);
 				if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
 					assert(0);
 				}
@@ -243,6 +274,7 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 
 	//Delete old entry
 	if(existing){
+		ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Removing old entry (%p)\n", entry, existing);
 		if(unlikely(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)){
 			assert(0);
 		}
@@ -262,6 +294,7 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 * This function shall NOT be used if there is some prior knowledge by the lookup algorithm before (specially a pointer to the entry), as it is inherently VERY innefficient
 */
 
+
 static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of1x_flow_remove_reason_t reason){
 
 	int deleted=0; 
@@ -280,7 +313,10 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( __of1x_flow_entry_check_equal(it, entry, out_port, out_group, true && (ver != OF_VERSION_10)) ){
-				
+
+#ifdef DEBUG
+				of1x_remove_flow_entry_table_trace(entry, it, reason);
+#endif
 				if(of1x_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
 					return ROFL_FAILURE;
@@ -291,6 +327,9 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 		}else{
 			if( __of1x_flow_entry_check_contained(it, entry, strict, true && (ver != OF_VERSION_10), out_port, out_group,false) ){
 				
+#ifdef DEBUG
+				of1x_remove_flow_entry_table_trace(entry, it, reason);
+#endif
 				if(of1x_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
 					return ROFL_FAILURE;
@@ -362,6 +401,7 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( __of1x_flow_entry_check_equal(it, entry, OF1X_PORT_ANY, OF1X_GROUP_ANY, true) ){
+				ROFL_PIPELINE_DEBUG("[flowmod-modify(%p)] Existing entry (%p) will be updated with (%p)\n", entry, it, entry);
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
@@ -369,6 +409,7 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 			}
 		}else{
 			if( __of1x_flow_entry_check_contained(it, entry, strict, true, OF1X_PORT_ANY, OF1X_GROUP_ANY,false) ){
+				ROFL_PIPELINE_DEBUG("[flowmod-modify(%p)] Existing entry (%p) will be updated with (%p)\n", entry, it, entry);
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
@@ -383,6 +424,8 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 		return of1x_add_flow_entry_loop(table, entry, false, reset_counts);
 	}
 
+	ROFL_PIPELINE_DEBUG("[flowmod-modify(%p)] Deleting modifying flowmod \n", entry);
+	
 	//Delete the original flowmod (modify one)
 	of1x_destroy_flow_entry(entry);	
 
