@@ -562,4 +562,5 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 		ROFL_PIPELINE_INFO("\tMatching algorithm %u specific state\n", table->matching_algorithm);
 		of1x_matching_algorithms[table->matching_algorithm].dump_hook(table, raw_nbo);
 	}
+	ROFL_PIPELINE_INFO("\n");
 }
