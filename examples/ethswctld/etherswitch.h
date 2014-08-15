@@ -7,7 +7,8 @@
 #include <rofl/common/crofbase.h>
 #include <rofl/common/crofdpt.h>
 
-#include "cfib.h"
+#include "cfibtable.h"
+#include "cflowtable.h"
 
 //using namespace rofl;
 
@@ -16,27 +17,30 @@ namespace etherswitch{
 /**
 * A controller that implements normal L2 forwarding (incl. VLANs)
 */ 
-class ethswitch : public rofl::crofbase
-{
-
+class ethswitch : public rofl::crofbase {
 public:
 
-	ethswitch(rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+	ethswitch(
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~ethswitch();
 
 	virtual void
-	handle_dpt_open(rofl::crofdpt& dpt);
+	handle_dpt_open(
+			rofl::crofdpt& dpt);
 
 	virtual void
-	handle_dpt_close(rofl::crofdpt& dpt);
+	handle_dpt_close(
+			rofl::crofdpt& dpt);
 
 	virtual void
-	handle_packet_in(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
+	handle_packet_in(
+			rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
 
 	virtual void
-	handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg);
+	handle_flow_stats_reply(
+			rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg);
 
 private:
 
@@ -53,34 +57,16 @@ private:
 		rofl::openflow::cofmsg_packet_in& msg);
 
 	void
-	install_drop_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg);
-
-	void
-	install_flood_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg);
-
-	rofl_result_t	
-	install_fwd_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg,
-		const rofl::caddress_ll& eth_src,
-		const rofl::caddress_ll& eth_dst);
-
-
-	void
 	request_flow_stats();
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const ethswitch& sw) {
-		os << rofl::indent(0) << "<ethswitch >" << std::endl;
+		os << rofl::indent(0) << "<ethswitch dpid: "
+				<< rofl::crofdpt::get_dpt(sw.dptid).get_dpid_s() << " >" << std::endl;
+		rofl::indent i(2);
+		os << cfibtable::get_fib(sw.dptid);
 		return os;
 	};
 
@@ -90,6 +76,7 @@ private:
 		TIMER_DUMP_FIB = 1,
 	};
 
+	rofl::cdptid				dptid;
 	rofl::ctimerid 				timer_id_dump_fib;
 	unsigned int				dump_fib_interval;
 	static const unsigned int	DUMP_FIB_DEFAULT_INTERNAL = 15; // seconds

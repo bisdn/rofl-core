@@ -79,9 +79,10 @@ ethswitch::handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid
 void
 ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 {
+	dptid = dpt.get_dptid();
 
 	//New connection => cleanup the RIB
-	cfib::get_fib(dpt.get_dptid()).clear();
+	cfibtable::get_fib(dpt.get_dptid()).clear();
 
 	//Remove all flows in the table
 	dpt.flow_mod_reset();
@@ -143,9 +144,6 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 
 	//Send the flowmod
 	dpt.send_flow_mod_message(rofl::cauxid(0), fe);
-
-	//Add the flowmod to the RIB
-	cfib::get_fib(dpt.get_dptid()).dpt_bind(this, &dpt);
 }
 
 
@@ -154,9 +152,7 @@ void
 ethswitch::handle_dpt_close(
 		rofl::crofdpt& dpt)
 {
-	cfib::get_fib(dpt.get_dptid()).dpt_release(this, &dpt);
-
-	rofl::logging::info << "[ethsw][dpath-close]" << std::endl << cfib::get_fib(dpt.get_dptid());
+	rofl::logging::info << "[ethsw][dpath-close]" << std::endl << cfibtable::get_fib(dpt.get_dptid());
 }
 
 /*
@@ -182,154 +178,20 @@ ethswitch::dump_packet_in(
 }
 
 void
-ethswitch::install_drop_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg)
-{
-	
-	/**
-	* We want to drop all packets from this
-	*/
-
-	//Create flowmod and assign command
-	rofl::openflow::cofflowmod fe(dpt.get_version());
-	fe.set_command(rofl::openflow::OFPFC_ADD);
-
-	//Set the basic parameters
-	fe.set_buffer_id(msg.get_buffer_id());
-	fe.set_idle_timeout(IDLE_TIMEOUT);
-	fe.set_hard_timeout(HARD_TIMEOUT);
-	fe.set_table_id(msg.get_table_id());
-	fe.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM /*| rofl::openflow::OFPFF_CHECK_OVERLAP*/);
-
-	//Matches
-	fe.set_match().set_matches().add_match(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT));
-	fe.set_match().set_eth_dst(msg.set_packet().ether()->get_dl_dst());
-	fe.set_match().set_eth_type(msg.set_match().get_eth_type());
-
-	//Instruction with empty actions => DROP
-	fe.set_instructions().add_inst_apply_actions();
-
-	rofl::logging::info << "[ethsw][packet-in] installing new DROP Flow-Mod entry:" << std::endl << fe;
-
-	//Install
-	dpt.send_flow_mod_message(auxid, fe);
-}
-
-void
-ethswitch::install_flood_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg)
-{
-	//Create flowmod and assign command
-	rofl::openflow::cofflowmod fe(dpt.get_version());
-	rofl::cindex index;
-	fe.set_command(rofl::openflow::OFPFC_ADD);
-	fe.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM /*| rofl::openflow::OFPFF_CHECK_OVERLAP*/);
-
-	//Set the basic parameters
-	fe.set_buffer_id(msg.get_buffer_id());
-	fe.set_idle_timeout(IDLE_TIMEOUT);
-	fe.set_hard_timeout(HARD_TIMEOUT);
-	fe.set_priority(2);
-	fe.set_table_id(msg.get_table_id());
-
-	//Set matches
-	fe.set_match().set_in_port(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
-	fe.set_match().set_eth_dst(msg.set_packet().ether()->get_dl_dst());
-	fe.set_match().set_eth_type(msg.set_match().get_eth_type());
-
-	//Action flood
-	fe.set_instructions().add_inst_apply_actions();
-	fe.set_instructions().set_inst_apply_actions().set_actions().add_action_output(index++).set_port_no(crofbase::get_ofp_flood_port(dpt.get_version()));
-
-	rofl::logging::info << "[ethsw][packet-in] installing new FLOOD Flow-Mod entry:" << std::endl << fe;
-
-	//Install flowmod
-	dpt.send_flow_mod_message(auxid, fe);
-
-}
-
-rofl_result_t
-ethswitch::install_fwd_flowmod(
-		rofl::crofdpt& dpt,
-		const rofl::cauxid& auxid,
-		rofl::openflow::cofmsg_packet_in& msg,
-		const rofl::caddress_ll& eth_src,
-		const rofl::caddress_ll& eth_dst)
-{
-
-	//Check the RIB and insert if found
-	try {
-		cfibentry& entry = cfib::get_fib(dpt.get_dptid()).fib_lookup(
-					this,
-					dpt,
-					msg.set_packet().ether()->get_dl_dst(),
-					msg.set_packet().ether()->get_dl_src(),
-					msg.set_match().get_in_port());
-
-
-		if (msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value() == entry.get_out_port_no()) {
-			rofl::indent i(2);
-			rofl::logging::debug << "[ethsw][packet-in] found entry for eth-dst:" << eth_dst
-					<< ", but in-port == out-port, ignoring" << std::endl << entry;
-
-			return ROFL_FAILURE;
-		}
-
-		//Create flowmod
-		rofl::openflow::cofflowmod fe(dpt.get_version());
-		rofl::cindex index;
-		fe.set_command(rofl::openflow12::OFPFC_ADD);
-		
-		//Set default properties
-		fe.set_table_id(msg.get_table_id());
-		fe.set_idle_timeout(IDLE_TIMEOUT);
-		fe.set_hard_timeout(HARD_TIMEOUT);
-		fe.set_priority(DEFAULT_PRIORITY);
-		fe.set_buffer_id(msg.get_buffer_id());
-		fe.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM /*| rofl::openflow::OFPFF_CHECK_OVERLAP*/);
-
-		//Set match
-		fe.set_match().set_eth_dst(eth_dst);
-		fe.set_match().set_eth_src(eth_src);
-
-		//Set actions
-		fe.set_instructions().add_inst_apply_actions().set_actions().
-				add_action_output(index++).set_port_no(entry.get_out_port_no());
-
-		rofl::indent i(2); rofl::logging::debug << "[ethsw][packet-in] installing flow mod" << std::endl << fe;
-
-		//Install flowmod
-		dpt.send_flow_mod_message(auxid, fe);
-
-		return ROFL_SUCCESS;
-
-	} catch (eFibInval& e) {
-		rofl::logging::debug << "[ethsw][packet-in] eFibInval, ignoring." << std::endl << cfib::get_fib(dpt.get_dptid());
-	} catch (eFibNotFound& e) {
-		rofl::logging::debug << "[ethsw][packet-in] dst:" << eth_dst << " NOT FOUND in FIB, PACKET-OUT flooding." << std::endl;
-	}
-	
-	return ROFL_FAILURE;
-
-}
-
-void
 ethswitch::handle_packet_in(
 		rofl::crofdpt& dpt,
 		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_packet_in& msg)
 {
-
 	try {
+		cfibtable& fib = cfibtable::get_fib(dpt.get_dptid());
+		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
 
 		//Use ROFL-common classifier (do not use PKT_IN matches)
-		msg.set_packet().classify(msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
-		rofl::caddress_ll eth_src = msg.set_packet().ether()->get_dl_src();
-		rofl::caddress_ll eth_dst = msg.set_packet().ether()->get_dl_dst();
+		msg.set_packet().classify(msg.get_match().get_in_port());
+		const rofl::caddress_ll& eth_src = msg.set_packet().ether()->get_dl_src();
+		const rofl::caddress_ll& eth_dst = msg.set_packet().ether()->get_dl_dst();
+		uint32_t in_port = msg.get_match().get_in_port();
 
 		//Dump the pkt info
 		dump_packet_in(dpt, msg);
@@ -340,68 +202,20 @@ ethswitch::handle_packet_in(
 			return;
 		}
 
-//
-//This block is really optional, just to show how the framework works
-//
-		/*
-		 * block mac address 01:80:c2:00:00:00
-		 */
-		if (msg.set_packet().ether()->get_dl_dst() == rofl::caddress_ll("01:80:c2:00:00:00") ||
-			msg.set_packet().ether()->get_dl_dst() == rofl::caddress_ll("01:00:5e:00:00:fb")) {
+		//SRC and DST are unicast address => Update RIB (learn)
+		fib.set_fib_entry(eth_src, in_port).set_port_no(in_port);
 
-			//Install dropping rule and return
-			install_drop_flowmod(dpt, auxid, msg);
-			return;
-		}
-
-
-		//Update RIB (learn)
-		cfib::get_fib(dpt.get_dptid()).fib_update(this,
-								dpt,
-								msg.set_packet().ether()->get_dl_src(),
-								msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value());
-
-
-		/*
-		 * Treat flood mac addresses specially 33:33:00:00:00:02 and ff:ff:ff:ff:ff:ff
-		 */
-		if ((msg.set_packet().ether()->get_dl_dst() == rofl::caddress_ll("33:33:00:00:00:02")) ||
-			msg.set_packet().ether()->get_dl_dst() == rofl::caddress_ll("ff:ff:ff:ff:ff:ff")) {
-		
-			//Install flowmod and return 
-			install_flood_flowmod(dpt, auxid, msg);
-			return;
-		}
-//
-// End of optional block
-//
-
-		//Check if is multicast (dst) otherwise try to install flowmod
+		//Flood multicast frames (DST)
 		if (eth_dst.is_multicast()) {
-			rofl::logging::debug << "[ethsw][packet-in] eth-dst:" << eth_dst << " is multicast, PACKET-OUT flooding" << std::endl;
-		} else {
-			//Install flowmod and return if successful
-			if( install_fwd_flowmod(dpt, auxid, msg, eth_src, eth_dst) == ROFL_SUCCESS)
-				return;
+			rofl::openflow::cofactions actions(dpt.get_version());
+			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version()));
+			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+			return;
 		}
 
-		/*
-		* No RIB entry => PKT_OUT
-		*/
-		rofl::openflow::cofactions actions(dpt.get_version());
-		rofl::cindex index;
-
-		//Port number
-		uint32_t ofp_no_buffer = crofbase::get_ofp_no_buffer(dpt.get_version());
-
-		//Add actions
-		actions.add_action_output(index).set_port_no(crofbase::get_ofp_flood_port(dpt.get_version()));
-
-		if (ofp_no_buffer != msg.get_buffer_id()) {
-			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions);
-		} else {
-			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.set_match().get_matches().get_match(rofl::openflow::OXM_TLV_BASIC_IN_PORT).get_u32value(), actions,
-					msg.set_packet().soframe(), msg.set_packet().framelen());
+		//SRC and DST are unicast address => Create flow entry on data path
+		if (fib.has_fib_entry(eth_dst)) {
+			ftb.set_flow_entry(eth_src, eth_dst, fib.get_fib_entry(eth_dst).get_port_no());
 		}
 
 	} catch (...) {
