@@ -155,19 +155,28 @@ static inline void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, dat
 	//Validate apply_actions_group
 	__of1x_validate_action_group(NULL, (of1x_action_group_t*)apply_actions_group, gt);
 
+#ifdef DEBUG
+	ROFL_PIPELINE_INFO("Packet[%p] Processing PKT_OUT, action group: ",pkt);
+	__of1x_dump_action_group((of1x_action_group_t*)apply_actions_group, false);
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
+#endif
+	
 	if(apply_actions_group->num_of_output_actions == 0){
 		//No output actions or groups; drop and return	
+		ROFL_PIPELINE_INFO("Packet[%p] WARNING: dropping! No output/group actions.\n",pkt);
 		platform_packet_drop(pkt);
 		return;
 	}
 	
 	has_multiple_outputs = (apply_actions_group->num_of_output_actions > 1);
+	
 
 	//Just process the action group
 	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
 		
 	if(has_multiple_outputs){
 		//Packet was replicated. Drop original packet
+		ROFL_PIPELINE_DEBUG("Packet[%p] Dropping original pkt (previously cloned due to multiple output actions).\n", pkt);
 		platform_packet_drop(pkt);
 	}
 }

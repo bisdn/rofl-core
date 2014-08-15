@@ -11,7 +11,8 @@
 #include "../of1x_switch.h"
 
 
-
+//Nice dumping strings
+const char* __of1x_flow_table_miss_config_str[__OF1X_TABLE_MISS_MAX]={"CONTROLLER", "CONTINUE", "DROP", "INVALID"};
 
 /* 
 * OpenFlow table operations
@@ -545,7 +546,7 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 	int i;	
 
 	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
-	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %u. # of entries: %d\n", table->number, table, table->default_action,table->num_of_entries);
+	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, table->stats.lookup_count, table->stats.matched_count);
 	
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");
