@@ -9,24 +9,15 @@
 
 #include "cfib.h"
 
-using namespace rofl;
+//using namespace rofl;
 
 namespace etherswitch{
 
 /**
 * A controller that implements normal L2 forwarding (incl. VLANs)
 */ 
-class ethswitch : public crofbase
+class ethswitch : public rofl::crofbase
 {
-
-private:
-
-	enum etherswitch_timer_t {
-		ETHSWITCH_TIMER_BASE 			= ((0x6271)),
-		ETHSWITCH_TIMER_FIB 			= ((ETHSWITCH_TIMER_BASE) + 1),
-		ETHSWITCH_TIMER_FLOW_STATS 		= ((ETHSWITCH_TIMER_BASE) + 2),
-		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL 	= ((ETHSWITCH_TIMER_BASE) + 3),
-	};
 
 public:
 
@@ -36,48 +27,72 @@ public:
 	~ethswitch();
 
 	virtual void
-	handle_dpt_open(crofdpt& dpt);
+	handle_dpt_open(rofl::crofdpt& dpt);
 
 	virtual void
-	handle_dpt_close(crofdpt& dpt);
+	handle_dpt_close(rofl::crofdpt& dpt);
 
 	virtual void
-	handle_packet_in(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
+	handle_packet_in(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg);
 
 	virtual void
-	handle_flow_stats_reply(crofdpt& dpt, const cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg);
+	handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg);
 
 private:
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(int opaque, void* data = (void*)NULL);
+
+
 	void
 	dump_packet_in(
 		rofl::crofdpt& dpt,
-		rofl::openflow::cofmsg_packet_in& msg,
-		rofl::cmacaddr& eth_src,
-		rofl::cmacaddr& eth_dst);
+		rofl::openflow::cofmsg_packet_in& msg);
 
 	void
 	install_drop_flowmod(
-		crofdpt& dpt,
-		const cauxid& auxid,
+		rofl::crofdpt& dpt,
+		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_packet_in& msg);
 
 	void
 	install_flood_flowmod(
-		crofdpt& dpt,
-		const cauxid& auxid,
+		rofl::crofdpt& dpt,
+		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_packet_in& msg);
 
 	rofl_result_t	
 	install_fwd_flowmod(
-		crofdpt& dpt,
-		const cauxid& auxid,
+		rofl::crofdpt& dpt,
+		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_packet_in& msg,
-		rofl::cmacaddr& eth_src,
-		rofl::cmacaddr& eth_dst);
+		const rofl::caddress_ll& eth_src,
+		const rofl::caddress_ll& eth_dst);
 
 
 	void
 	request_flow_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, const ethswitch& sw) {
+		os << rofl::indent(0) << "<ethswitch >" << std::endl;
+		return os;
+	};
+
+private:
+
+	enum etherswitch_timer_t {
+		TIMER_DUMP_FIB = 1,
+	};
+
+	rofl::ctimerid 				timer_id_dump_fib;
+	unsigned int				dump_fib_interval;
+	static const unsigned int	DUMP_FIB_DEFAULT_INTERNAL = 15; // seconds
 };
 
 }; // etherswitch namespace

@@ -45,7 +45,7 @@ cfib::~cfib()
 void
 cfib::clear()
 {
-	for (std::map<rofl::cmacaddr, cfibentry*>::iterator
+	for (std::map<rofl::caddress_ll, cfibentry*>::iterator
 			it = fibtable.begin(); it != fibtable.end(); ++it) {
 		delete it->second;
 	}
@@ -76,7 +76,7 @@ cfib::dpt_release(rofl::crofbase *rofbase, rofl::crofdpt *dpt)
 	this->rofbase	= 0;
 	this->dpt		= 0;
 
-	for (std::map<rofl::cmacaddr, cfibentry*>::iterator
+	for (std::map<rofl::caddress_ll, cfibentry*>::iterator
 			it = fibtable.begin(); it != fibtable.end(); ++it) {
 		delete (it->second);
 	}
@@ -102,7 +102,7 @@ void
 cfib::fib_update(
 		rofl::crofbase *rofbase,
 		rofl::crofdpt& dpt,
-		rofl::cmacaddr const& src,
+		rofl::caddress_ll const& src,
 		uint32_t in_port)
 {
 	// update cfibentry for src/inport
@@ -124,8 +124,8 @@ cfibentry&
 cfib::fib_lookup(
 		rofl::crofbase *rofbase,
 		rofl::crofdpt& dpt,
-		rofl::cmacaddr const& dst,
-		rofl::cmacaddr const& src,
+		rofl::caddress_ll const& dst,
+		rofl::caddress_ll const& src,
 		uint32_t in_port)
 {
 	//std::cerr << "LOOKUP: dst: " << dst << " src: " << src << std::endl;

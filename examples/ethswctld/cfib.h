@@ -17,7 +17,7 @@
 #include <rofl/common/crofdpt.h>
 #include <rofl/common/caddress.h>
 
-#include <cfibentry.h>
+#include "cfibentry.h"
 
 namespace etherswitch
 {
@@ -43,7 +43,7 @@ private:
 	rofl::cdptid							dpid;
 	rofl::crofbase							*rofbase;
 	rofl::crofdpt							*dpt;
-	std::map<rofl::cmacaddr, cfibentry*>	fibtable;
+	std::map<rofl::caddress_ll, cfibentry*>	fibtable;
 
 public:
 
@@ -116,11 +116,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cfib const& fib)
 	{
-		os << "fib<";
+		os << "<cfib ";
 			os << "dpid: " << fib.dpid << " ";
 		os << ">";
 		if (not fib.fibtable.empty()) { os << std::endl; }
-		std::map<rofl::cmacaddr, cfibentry*>::const_iterator it;
+		std::map<rofl::caddress_ll, cfibentry*>::const_iterator it;
 		for (it = fib.fibtable.begin(); it != fib.fibtable.end(); ++it) {
 			os << "\t" << *(it->second) << std::endl;
 		}
