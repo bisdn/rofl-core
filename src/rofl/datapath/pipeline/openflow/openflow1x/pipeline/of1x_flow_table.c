@@ -425,10 +425,19 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 
 	rofl_of1x_fm_result_t result;
 	of1x_flow_table_t* table;
-	
+
+#ifdef DEBUG
+	//Dump entry	
+	ROFL_PIPELINE_INFO("[flowmod-add(%p)] Starting operation at switch %s(%p), table %u, with flags: %s %s\n", *entry, pipeline->sw->name, pipeline->sw, table_id, check_overlap ? "CHK_OVERLAP ": "", (reset_counts)? "RESET_COUNTERS":"" );
+	ROFL_PIPELINE_INFO(""); 
+	of1x_dump_flow_entry(*entry, false);
+#endif
 	//Verify table_id
-	if(table_id >= pipeline->num_of_tables)
+	if(unlikely(table_id >= pipeline->num_of_tables)){
+		ROFL_PIPELINE_ERR("[flowmod-add(%p)] ERROR: invalid table id %u > switch max table id: %u\n", *entry, table_id, pipeline->num_of_tables-1);
+		assert(0);
 		return ROFL_OF1X_FM_FAILURE;
+	}
 
 	table = &pipeline->tables[table_id];
 
@@ -436,9 +445,10 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(__of1x_validate_flow_entry(*entry, pipeline, table_id) != ROFL_SUCCESS){
+	if(unlikely(__of1x_validate_flow_entry(*entry, pipeline, table_id) != ROFL_SUCCESS)){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED validation. Ignoring...\n", *entry);
 		return ROFL_OF1X_FM_FAILURE;
 	}
 
@@ -449,12 +459,15 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	if(result != ROFL_OF1X_FM_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED, reason: %u\n", *entry, result);
 		return result;
 	}
 	
 	//Add timer
 	__of1x_add_timer(table, *entry);
 
+	ROFL_PIPELINE_INFO("[flowmod-add(%p)] Succesful.\n", *entry);
+	
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
 
@@ -470,10 +483,20 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
 	rofl_result_t result;
 	of1x_flow_table_t* table;
-	
+
+#ifdef DEBUG
+	//Dump entry	
+	ROFL_PIPELINE_INFO("[flowmod-modify(%p)] Starting operation at switch %s(%p), table %u, with flags: %s %s\n", *entry, pipeline->sw->name, pipeline->sw, table_id, (strict) ? "STRICT ": "NOT STRICT", (reset_counts)? "RESET_COUNTERS":"" );
+	ROFL_PIPELINE_INFO(""); 
+	of1x_dump_flow_entry(*entry, false);
+#endif
+
 	//Verify table_id
-	if(table_id >= pipeline->num_of_tables)
+	if(table_id >= pipeline->num_of_tables){
+		ROFL_PIPELINE_ERR("[flowmod-modify(%p)] ERROR: invalid table id %u > switch max table id: %u\n", *entry, table_id, pipeline->num_of_tables-1);
+		assert(0);
 		return ROFL_FAILURE;
+	}
 
 	table = &pipeline->tables[table_id];
 
@@ -484,6 +507,7 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	if(__of1x_validate_flow_entry(*entry, pipeline, table_id) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED validation. Ignoring...\n", *entry);
 		return ROFL_FAILURE;
 	}
 
@@ -493,11 +517,15 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	if(result != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED\n", *entry);
 		return result;
 	}
 	
+	ROFL_PIPELINE_INFO("[flowmod-modify(%p)] Succesful.\n", *entry);
+	
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		
 
 	//Was successful set the pointer to NULL
 	//so that is not further used outside the pipeline
@@ -510,20 +538,53 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
 	
 	of1x_flow_table_t* table;
-	
+	rofl_result_t result;	
+
+#ifdef DEBUG
+	//Dump entry	
+	ROFL_PIPELINE_INFO("[flowmod-remove(%p)] Starting operation at switch %s(%p), table %u, %s, ", entry, pipeline->sw->name, pipeline->sw, table_id,  (strict) ? "STRICT ": "NOT STRICT");
+
+	if(out_port == OF1X_PORT_ANY){
+		ROFL_PIPELINE_INFO_NO_PREFIX("out_port: %s, ", "ANY");
+	}else{
+		ROFL_PIPELINE_INFO_NO_PREFIX("out_port: %u, ", out_port);
+	} 
+	if(out_group == OF1X_GROUP_ANY){
+		ROFL_PIPELINE_INFO_NO_PREFIX("out_group: %s", "ANY");
+	}else{
+		ROFL_PIPELINE_INFO_NO_PREFIX("out_group: %u", out_group);
+	}
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n"); 
+	ROFL_PIPELINE_INFO(""); 
+	of1x_dump_flow_entry(entry, false);
+#endif
+
 	//Verify table_id
-	if(table_id >= pipeline->num_of_tables)
+	if(table_id >= pipeline->num_of_tables){
+		ROFL_PIPELINE_ERR("[flowmod-remove(%p)] ERROR: invalid table id %u > switch max table id: %u\n", entry, table_id, pipeline->num_of_tables-1);
+		assert(0);
 		return ROFL_FAILURE;
+	}
 
 	//Verify entry
 	if(__of1x_validate_flow_entry(entry, pipeline, table_id) != ROFL_SUCCESS){
+		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED validation. Ignoring...\n", entry);
 		return ROFL_FAILURE;
 	}
 
 	//Recover table pointer
 	table = &pipeline->tables[table_id];
 	
-	return of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, OF1X_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
+	result = of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, OF1X_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
+	
+#ifdef DEBUG
+	if(result != ROFL_SUCCESS)
+		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED\n", entry);
+	else
+		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] Succesful.\n", entry);
+#endif
+	return result;
+
 }
 
 //This API call should NOT be called from outside pipeline library
