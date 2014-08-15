@@ -30,6 +30,28 @@
 * algorithm!
 */
 
+
+//Nice trace
+static void of1x_remove_flow_entry_table_trace( of1x_flow_entry_t *const entry, of1x_flow_entry_t *const it, of1x_flow_remove_reason_t reason){
+	switch(reason){	
+		case OF1X_FLOW_REMOVE_DELETE:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove(%p)] Existing entry (%p) will be removed\n", entry, it);
+			break;
+		case OF1X_FLOW_REMOVE_IDLE_TIMEOUT:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to IDLE timeout\n", it);
+			break;
+		case OF1X_FLOW_REMOVE_HARD_TIMEOUT:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to HARD timeout\n", it);
+			break;
+		case OF1X_FLOW_REMOVE_GROUP_DELETE:
+			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to GROUP delete\n", it);
+			break;
+		default:
+			break;	
+	}
+
+}
+
 /**
 * Looks for an overlapping entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
@@ -89,6 +111,10 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 
 	//Prevent readers to jump in
 	platform_rwlock_wrlock(table->rwlock);
+
+#ifdef DEBUG
+	of1x_remove_flow_entry_table_trace(NULL, specific_entry, reason);
+#endif
 	
 	if(!specific_entry->prev){
 		//First table entry
@@ -268,25 +294,6 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 * This function shall NOT be used if there is some prior knowledge by the lookup algorithm before (specially a pointer to the entry), as it is inherently VERY innefficient
 */
 
-static void of1x_remove_flow_entry_table_trace( of1x_flow_entry_t *const entry, of1x_flow_entry_t *const it, of1x_flow_remove_reason_t reason){
-	switch(reason){	
-		case OF1X_FLOW_REMOVE_DELETE:
-			ROFL_PIPELINE_DEBUG("[flowmod-remove(%p)] Existing entry (%p) will be removed\n", entry, it);
-			break;
-		case OF1X_FLOW_REMOVE_IDLE_TIMEOUT:
-			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to IDLE timeout\n", it);
-			break;
-		case OF1X_FLOW_REMOVE_HARD_TIMEOUT:
-			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to HARD timeout\n", it);
-			break;
-		case OF1X_FLOW_REMOVE_GROUP_DELETE:
-			ROFL_PIPELINE_DEBUG("[flowmod-remove] Removing entry(%p) due to GROUP delete\n", it);
-			break;
-		default:
-			break;	
-	}
-
-}
 
 static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of1x_flow_remove_reason_t reason){
 
