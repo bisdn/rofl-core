@@ -121,8 +121,9 @@ public:
 		if (ftable[src].find(dst) == ftable[src].end()) {
 			return;
 		}
-		delete ftable[src][dst];
+		cflowentry* flowentry = ftable[src][dst];
 		ftable[src].erase(dst);
+		delete flowentry;
 	};
 
 	/**
@@ -171,15 +172,15 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cflowtable const& flowtable) {
-		os << "<cflowtable ";
-			os << "dpid: " << flowtable.dptid << " ";
-		os << ">";
-		if (not flowtable.ftable.empty()) { os << std::endl; }
+		os << rofl::indent(0) << "<cflowtable dpid: "
+				<< rofl::crofdpt::get_dpt(flowtable.dptid).get_dpid_s() << " >" << std::endl;
+
+		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, std::map<rofl::caddress_ll, cflowentry*> >::const_iterator
 				it = flowtable.ftable.begin(); it != flowtable.ftable.end(); ++it) {
 			for (std::map<rofl::caddress_ll, cflowentry*>::const_iterator
 					jt = it->second.begin(); jt != it->second.end(); ++jt) {
-				os << "\t" << *(jt->second) << std::endl;
+				os << *(jt->second);
 			}
 		}
 		return os;

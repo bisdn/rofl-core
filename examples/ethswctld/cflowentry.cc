@@ -23,13 +23,16 @@ cflowentry::cflowentry(
 		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT),
 		expiration_timer_id()
 {
+	flow_mod_add();
 	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+	rofl::logging::notice << "[cflowentry] created" << std::endl << *this;
 }
 
 
 cflowentry::~cflowentry()
 {
-
+	rofl::logging::notice << "[cflowentry] deleted" << std::endl << *this;
+	flow_mod_delete();
 }
 
 
@@ -75,8 +78,8 @@ cflowentry::flow_mod_add()
 		fe.set_command(rofl::openflow::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.set_hard_timeout(entry_timeout);
-		fe.set_match().set_eth_src(dst);
-		fe.set_match().set_eth_dst(src);
+		fe.set_match().set_eth_src(src);
+		fe.set_match().set_eth_dst(dst);
 
 		fe.set_instructions().set_inst_apply_actions().set_actions().
 				add_action_output(index++).set_port_no(port_no);
@@ -104,8 +107,8 @@ cflowentry::flow_mod_modify()
 		fe.set_command(rofl::openflow::OFPFC_MODIFY_STRICT);
 		fe.set_table_id(0);
 		fe.set_hard_timeout(entry_timeout);
-		fe.set_match().set_eth_src(dst);
-		fe.set_match().set_eth_dst(src);
+		fe.set_match().set_eth_src(src);
+		fe.set_match().set_eth_dst(dst);
 
 		fe.set_instructions().set_inst_apply_actions().set_actions().
 				add_action_output(index++).set_port_no(port_no);
@@ -133,8 +136,8 @@ cflowentry::flow_mod_delete()
 		fe.set_command(rofl::openflow::OFPFC_DELETE_STRICT);
 		fe.set_table_id(0);
 		fe.set_hard_timeout(entry_timeout);
-		fe.set_match().set_eth_src(dst);
-		fe.set_match().set_eth_dst(src);
+		fe.set_match().set_eth_src(src);
+		fe.set_match().set_eth_dst(dst);
 
 		dpt.send_flow_mod_message(rofl::cauxid(0), fe);
 

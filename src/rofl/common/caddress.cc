@@ -42,29 +42,13 @@ void
 caddress_ll::str2addr(
 		const std::string& addr)
 {
-#if 0
-	sscanf(addr.c_str(), "%02x:%02x:%02x:%02x:%02x:%02x",
-			(unsigned int*)&((*this)[0]),
-			(unsigned int*)&((*this)[1]),
-			(unsigned int*)&((*this)[2]),
-			(unsigned int*)&((*this)[3]),
-			(unsigned int*)&((*this)[4]),
-			(unsigned int*)&((*this)[5]));
-#endif
-	unsigned int v[6];
-	sscanf(addr.c_str(), "%02x:%02x:%02x:%02x:%02x:%02x",
-			&v[0],
-			&v[1],
-			&v[2],
-			&v[3],
-			&v[4],
-			&v[5]);
-	(*this)[0] = v[0] & 0x000000ff;
-	(*this)[1] = v[1] & 0x000000ff;
-	(*this)[2] = v[2] & 0x000000ff;
-	(*this)[3] = v[3] & 0x000000ff;
-	(*this)[4] = v[4] & 0x000000ff;
-	(*this)[5] = v[5] & 0x000000ff;
+    sscanf(addr.c_str(), "%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8":%"SCNx8,
+                    (uint8_t*)&((*this)[0]),
+                    (uint8_t*)&((*this)[1]),
+                    (uint8_t*)&((*this)[2]),
+                    (uint8_t*)&((*this)[3]),
+                    (uint8_t*)&((*this)[4]),
+                    (uint8_t*)&((*this)[5]));
 }
 
 

@@ -96,7 +96,7 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 	//TODO: fix
 #endif
 
-
+#if 0
 	//For 1.3 set the table 0 catch-all flow-mod 
 	if(dpt.get_version() == rofl::openflow13::OFP_VERSION) {
 		//Catch all flowmod
@@ -113,6 +113,7 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 		//Send the flowmod
 		dpt.send_flow_mod_message(rofl::cauxid(0), fe_all);
 	}
+#endif
 
 	//Construct the ETH_TYPE ARP capture flowmod
 	rofl::openflow::cofflowmod fe(dpt.get_version());
@@ -120,11 +121,11 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 	//This is not necessary, it is done automatically by the constructor
 	//fe.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
 	//fe.set_table_id(0);
-	fe.set_priority(1); //lowest priority+1
+	fe.set_priority(0);
 
 	//Set command	
 	fe.set_command(rofl::openflow::OFPFC_ADD);
-	fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(rofl::farpv4frame::ARPV4_ETHER));
+	//fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(rofl::farpv4frame::ARPV4_ETHER));
 
 	//Now add action
 	//OF1.0 has no instructions, so the code here differs
@@ -187,14 +188,9 @@ ethswitch::handle_packet_in(
 		cfibtable& fib = cfibtable::get_fib(dpt.get_dptid());
 		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
 
-		//Use ROFL-common classifier (do not use PKT_IN matches)
-		msg.set_packet().classify(msg.get_match().get_in_port());
-		const rofl::caddress_ll& eth_src = msg.set_packet().ether()->get_dl_src();
-		const rofl::caddress_ll& eth_dst = msg.set_packet().ether()->get_dl_dst();
+		const rofl::caddress_ll& eth_src = msg.get_match().get_eth_src();
+		const rofl::caddress_ll& eth_dst = msg.set_match().get_eth_dst();
 		uint32_t in_port = msg.get_match().get_in_port();
-
-		//Dump the pkt info
-		dump_packet_in(dpt, msg);
 
 		//Ignore multi-cast frames (SRC)
 		if (eth_src.is_multicast()) {
@@ -205,8 +201,17 @@ ethswitch::handle_packet_in(
 		//SRC and DST are unicast address => Update RIB (learn)
 		fib.set_fib_entry(eth_src, in_port).set_port_no(in_port);
 
-		//Flood multicast frames (DST)
-		if (eth_dst.is_multicast()) {
+		//Drop frames destined to 01:80:c2:00:00:00
+		if (eth_dst == rofl::caddress_ll("01:80:c2:00:00:00")) {
+			dpt.drop_buffer(auxid, msg.get_buffer_id());
+			return;
+		}
+
+		//Dump the pkt info
+		dump_packet_in(dpt, msg);
+
+		//Flood multicast and yet unknown frames (DST)
+		if (eth_dst.is_multicast() || (not fib.has_fib_entry(eth_dst))) {
 			rofl::openflow::cofactions actions(dpt.get_version());
 			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version()));
 			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
@@ -216,7 +221,14 @@ ethswitch::handle_packet_in(
 		//SRC and DST are unicast address => Create flow entry on data path
 		if (fib.has_fib_entry(eth_dst)) {
 			ftb.set_flow_entry(eth_src, eth_dst, fib.get_fib_entry(eth_dst).get_port_no());
+
+			if (rofl::openflow::OFP_NO_BUFFER != msg.get_buffer_id()) {
+				rofl::openflow::cofactions actions(dpt.get_version());
+				actions.add_action_output(rofl::cindex(0)).set_port_no(fib.get_fib_entry(eth_dst).get_port_no());
+				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+			}
 		}
+
 
 	} catch (...) {
 		rofl::logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;

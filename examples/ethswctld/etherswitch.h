@@ -67,6 +67,7 @@ public:
 				<< rofl::crofdpt::get_dpt(sw.dptid).get_dpid_s() << " >" << std::endl;
 		rofl::indent i(2);
 		os << cfibtable::get_fib(sw.dptid);
+		os << cflowtable::get_flowtable(sw.dptid);
 		return os;
 	};
 
@@ -79,7 +80,7 @@ private:
 	rofl::cdptid				dptid;
 	rofl::ctimerid 				timer_id_dump_fib;
 	unsigned int				dump_fib_interval;
-	static const unsigned int	DUMP_FIB_DEFAULT_INTERNAL = 15; // seconds
+	static const unsigned int	DUMP_FIB_DEFAULT_INTERNAL = 60; // seconds
 };
 
 }; // etherswitch namespace

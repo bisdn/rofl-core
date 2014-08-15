@@ -366,6 +366,12 @@ cioloop::run_loop()
 			}
 			// conduct urgent timeouts (those with a timer expired before ctimer::now())
 			for (std::map<ciosrv*, int>::iterator it = urgent.begin(); it != urgent.end(); ++it) {
+				{
+					RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+					if (ciosrv::ciolist.find(next_timeout.first) == ciosrv::ciolist.end()) {
+						continue;
+					}
+				}
 				(*it).first->__handle_timeout();
 			}
 		}

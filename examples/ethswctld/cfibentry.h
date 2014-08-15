@@ -18,15 +18,14 @@
 #include <rofl/common/logging.h>
 #include <rofl/common/ctimerid.h>
 
-namespace etherswitch
-{
+namespace etherswitch {
 
 class cfibentry; // forward declaration, see below
 
 class cfibenv {
 public:
 	virtual ~cfibenv() {};
-	virtual void fib_timer_expired(const cfibentry& entry) = 0;
+	virtual void fib_timer_expired(const rofl::caddress_ll& hwaddr) = 0;
 	virtual void fib_port_update(const cfibentry& entry) = 0;
 };
 
@@ -37,7 +36,7 @@ public:
 	 *
 	 */
 	cfibentry(
-			cfibenv *fib,
+			cfibenv *fibenv,
 			const rofl::cdptid& dptid,
 			const rofl::caddress_ll& hwaddr,
 			uint32_t port_no);
@@ -58,7 +57,7 @@ public:
 	 *
 	 */
 	void
-	set_port_no(uint32_t out_port_no);
+	set_port_no(uint32_t port_no);
 
 	/**
 	 *
@@ -81,10 +80,10 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibentry const& entry) {
-		os << rofl::indent(0) << "<cfibentry ";
-			os << "hwaddr: " << entry.hwaddr << " ";
-			os << "portno: " << entry.port_no << " ";
-		os << ">" << std::endl;
+		os << rofl::indent(0) << "<cfibentry portno: "
+				<< entry.port_no << " >" << std::endl;
+		rofl::indent i(2);
+		os << entry.hwaddr;
 		return os;
 	};
 

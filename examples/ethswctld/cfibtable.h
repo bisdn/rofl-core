@@ -117,8 +117,9 @@ public:
 		if (ftable.find(hwaddr) == ftable.end()) {
 			return;
 		}
-		delete ftable[hwaddr];
+		cfibentry* fibentry = ftable[hwaddr];
 		ftable.erase(hwaddr);
+		delete fibentry;
 	};
 
 	/**
@@ -155,8 +156,8 @@ private:
 	 *
 	 */
 	virtual void
-	fib_timer_expired(const cfibentry& entry) {
-		drop_fib_entry(entry.get_hwaddr());
+	fib_timer_expired(const rofl::caddress_ll& hwaddr) {
+		drop_fib_entry(hwaddr);
 	};
 
 	/**
@@ -175,10 +176,13 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibtable const& fib) {
-		os << "<cfib " << "dpid: " << rofl::crofdpt::get_dpt(fib.dptid).get_dpid_s() << " >" << std::endl;
+		os << rofl::indent(0) << "<cfibtable " << "dpid: "
+				<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid_s() << " >" << std::endl;
+
+		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, cfibentry*>::const_iterator
 				it = fib.ftable.begin(); it != fib.ftable.end(); ++it) {
-			os << *(it->second) << std::endl;
+			os << *(it->second);
 		}
 		return os;
 	};
