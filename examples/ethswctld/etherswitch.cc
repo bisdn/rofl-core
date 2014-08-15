@@ -32,7 +32,9 @@ ethswitch::handle_timeout(int opaque, void* data)
 {
 	switch (opaque) {
 	case TIMER_DUMP_FIB: {
-		rofl::logging::info << *this;
+		rofl::logging::notice << "****************************************" << std::endl;
+		rofl::logging::notice << *this;
+		rofl::logging::notice << "****************************************" << std::endl;
 		//re-register timer for next round
 		timer_id_dump_fib = register_timer(TIMER_DUMP_FIB, rofl::ctimespec(dump_fib_interval));
 	} break;
@@ -232,7 +234,6 @@ ethswitch::handle_packet_in(
 
 	} catch (...) {
 		rofl::logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;
-		throw;
 		assert(0);
 	}
 }
