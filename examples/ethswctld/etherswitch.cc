@@ -108,18 +108,18 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 
 	//Set command	
 	fe.set_command(rofl::openflow::OFPFC_ADD);
-	//fe.set_match().set_matches().add_match(rofl::openflow::coxmatch_ofb_eth_type(rofl::farpv4frame::ARPV4_ETHER));
 
 	//Now add action
 	//OF1.0 has no instructions, so the code here differs
 	switch (dpt.get_version()) {
 		case rofl::openflow10::OFP_VERSION:
-			fe.set_actions().add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
+			fe.set_actions().
+					add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
 			break;
 		case rofl::openflow12::OFP_VERSION:
 		case rofl::openflow13::OFP_VERSION:
 			fe.set_instructions().set_inst_apply_actions().set_actions().
-							add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
+					add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
 			break;
 		default:
 			assert(0);
@@ -181,7 +181,7 @@ ethswitch::handle_packet_in(
 			return;
 		}
 
-		//SRC and DST are unicast address => Update RIB (learn)
+		//SRC and DST are unicast addresses => Update RIB: learn the source address and its associated portno
 		fib.set_fib_entry(eth_src, in_port).set_port_no(in_port);
 
 		//Drop frames destined to 01:80:c2:00:00:00
@@ -201,7 +201,7 @@ ethswitch::handle_packet_in(
 			return;
 		}
 
-		//SRC and DST are unicast address => Create flow entry on data path
+		//SRC and DST are unicast addresses => Create flow entry on data path
 		if (fib.has_fib_entry(eth_dst)) {
 			ftb.set_flow_entry(eth_src, eth_dst, fib.get_fib_entry(eth_dst).get_port_no());
 
@@ -216,6 +216,7 @@ ethswitch::handle_packet_in(
 	} catch (...) {
 		rofl::logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;
 		assert(0);
+		throw;
 	}
 }
 
