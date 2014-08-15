@@ -602,10 +602,15 @@ bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of
 	if( unlikely(apply_actions_group==NULL) )
 		return false;	
 
-
 	for(it=apply_actions_group->head; it; it=it->next){
-		if( (it->type == type) && (value != 0x0 && it->__field.u64 == value) )
-			return true;
+		
+		if(type != OF1X_AT_GROUP){
+			//Filter types where field cannot be 0
+			return (it->type == type) &&  (value != 0x0 && it->__field.u64 == value);
+		}else{
+			//Groups or anything else
+			return (it->type == type) &&  (it->__field.u64 == value);
+		}
 	}
 	return false;	
 }
