@@ -98,25 +98,6 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 	//TODO: fix
 #endif
 
-#if 0
-	//For 1.3 set the table 0 catch-all flow-mod 
-	if(dpt.get_version() == rofl::openflow13::OFP_VERSION) {
-		//Catch all flowmod
-		rofl::openflow::cofflowmod fe_all(dpt.get_version());
-		fe_all.set_priority(0); //lowest priority+1
-	
-		//Command
-		fe_all.set_command(rofl::openflow::OFPFC_ADD);
-
-		//Action
-		fe_all.set_instructions().set_inst_apply_actions().set_actions().
-			add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
-	
-		//Send the flowmod
-		dpt.send_flow_mod_message(rofl::cauxid(0), fe_all);
-	}
-#endif
-
 	//Construct the ETH_TYPE ARP capture flowmod
 	rofl::openflow::cofflowmod fe(dpt.get_version());
 	
