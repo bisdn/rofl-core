@@ -262,7 +262,7 @@ void of1x_full_dump_switch(of1x_switch_t* sw, bool nbo){
 	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
 	
 	of1x_dump_group_table(sw->pipeline.groups, nbo);
-	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
+	ROFL_PIPELINE_INFO("--End of group table--\n\n");
 }
 
 //
