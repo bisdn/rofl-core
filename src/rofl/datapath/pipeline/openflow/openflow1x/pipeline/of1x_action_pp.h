@@ -97,11 +97,12 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
 	
+	platform_rwlock_rdlock(group->rwlock);
+	
 	//process the actions in the buckets depending on the type
 	switch(group->type){
 		case OF1X_GROUP_TYPE_ALL:
 			//executes all buckets
-			platform_rwlock_rdlock(group->rwlock);
 			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
 
 				//If there are no output actions, skip bucket 
@@ -123,7 +124,6 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 				if(it_bk->actions->num_of_output_actions > 1)
 					platform_packet_drop(pkt_replica);
 			}
-			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_SELECT:
 			//NOT SUPPORTED	
@@ -131,10 +131,8 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
-			platform_rwlock_rdlock(group->rwlock);
 			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
 			__of1x_stats_bucket_update(&group->bc_list->head->stats, platform_packet_get_size_bytes(pkt));
-			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_FF:
 			//NOT SUPPORTED
@@ -145,7 +143,7 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			break;
 	}
 	__of1x_stats_group_update(&group->stats, platform_packet_get_size_bytes(pkt));
-	
+	platform_rwlock_rdunlock(group->rwlock);
 }
 
 /* Contains switch with all the different action functions */
