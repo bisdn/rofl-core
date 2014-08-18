@@ -225,6 +225,32 @@ cofports::set_port(uint32_t portno)
 
 
 
+cofport&
+cofports::set_port(const std::string& devname)
+{
+	std::map<uint32_t, cofport*>::iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_port_name(devname))) == ports.end()) {
+		throw ePortNotFound();
+	}
+	return *(it->second);
+}
+
+
+
+cofport&
+cofports::set_port(const rofl::caddress_ll& hwaddr)
+{
+	std::map<uint32_t, cofport*>::iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_maddr(hwaddr))) == ports.end()) {
+		throw ePortNotFound();
+	}
+	return *(it->second);
+}
+
+
+
 cofport const&
 cofports::get_port(uint32_t portno) const
 {
@@ -232,6 +258,32 @@ cofports::get_port(uint32_t portno) const
 		throw ePortNotFound();
 	}
 	return *(ports.at(portno));
+}
+
+
+
+cofport const&
+cofports::get_port(const std::string& devname) const
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_port_name(devname))) == ports.end()) {
+		throw ePortNotFound();
+	}
+	return *(it->second);
+}
+
+
+
+cofport const&
+cofports::get_port(const rofl::caddress_ll& hwaddr) const
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_maddr(hwaddr))) == ports.end()) {
+		throw ePortNotFound();
+	}
+	return *(it->second);
 }
 
 
@@ -248,10 +300,66 @@ cofports::drop_port(uint32_t portno)
 
 
 
+void
+cofports::drop_port(const std::string& devname)
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_port_name(devname))) == ports.end()) {
+		return;
+	}
+	delete it->second;
+	ports.erase(it->first);
+}
+
+
+
+void
+cofports::drop_port(const rofl::caddress_ll& hwaddr)
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_maddr(hwaddr))) == ports.end()) {
+		return;
+	}
+	delete it->second;
+	ports.erase(it->first);
+}
+
+
+
 bool
 cofports::has_port(uint32_t portno) const
 {
 	return (ports.find(portno) != ports.end());
 }
+
+
+
+bool
+cofports::has_port(const std::string& devname) const
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_port_name(devname))) == ports.end()) {
+		return false;
+	}
+	return true;
+}
+
+
+
+bool
+cofports::has_port(const rofl::caddress_ll& hwaddr) const
+{
+	std::map<uint32_t, cofport*>::const_iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_maddr(hwaddr))) == ports.end()) {
+		return false;
+	}
+	return true;
+}
+
+
 
 

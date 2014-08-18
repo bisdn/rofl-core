@@ -229,6 +229,14 @@ public:
 		groupids.erase(group_id);
 	};
 
+	/**
+	 *
+	 */
+	void
+	clear_group_ids() {
+		groupids.clear();
+	};
+
 
 public:
 
