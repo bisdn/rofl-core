@@ -18,48 +18,28 @@
 #include <rofl/common/logging.h>
 #include <rofl/common/ctimerid.h>
 
-namespace etherswitch
-{
+namespace etherswitch {
 
 class cfibentry; // forward declaration, see below
 
-class cfibtable
-{
+class cfibenv {
 public:
-	virtual ~cfibtable() {};
-	virtual void fib_timer_expired(cfibentry *entry) = 0;
+	virtual ~cfibenv() {};
+	virtual void fib_timer_expired(const rofl::caddress_ll& hwaddr) = 0;
+	virtual void fib_port_update(const cfibentry& entry) = 0;
 };
 
-class cfibentry :
-		public rofl::ciosrv
-{
-#define CFIBENTRY_DEFAULT_TIMEOUT		60
-
-private:
-
-	enum cfibentry_timer_t {
-		CFIBENTRY_ENTRY_EXPIRED = 0x99ae,
-	};
-
-	cfibtable					*fib;
-	uint32_t					out_port_no;
-	rofl::cmacaddr				dst;
-	rofl::crofbase				*rofbase;
-	rofl::crofdpt				*dpt;
-	int							entry_timeout;
-	rofl::ctimerid				expiration_timer_id;
-
+class cfibentry : public rofl::ciosrv {
 public:
 
 	/**
 	 *
 	 */
 	cfibentry(
-			cfibtable *fib,
-			rofl::crofbase *rofbase,
-			rofl::crofdpt *dpt,
-			rofl::cmacaddr dst,
-			uint32_t out_port_no);
+			cfibenv *fibenv,
+			const rofl::cdptid& dptid,
+			const rofl::caddress_ll& hwaddr,
+			uint32_t port_no);
 
 	/**
 	 *
@@ -71,37 +51,19 @@ public:
 	 *
 	 */
 	uint32_t
-	get_out_port_no() const { return out_port_no; };
+	get_port_no() const { return port_no; };
 
 	/**
 	 *
 	 */
 	void
-	set_out_port_no(uint32_t out_port_no);
+	set_port_no(uint32_t port_no);
 
 	/**
 	 *
 	 */
-	rofl::cmacaddr const&
-	get_lladdr() const { return dst; };
-
-	/**
-	 *
-	 */
-	void
-	flow_mod_add();
-
-	/**
-	 *
-	 */
-	void
-	flow_mod_delete();
-
-	/**
-	 *
-	 */
-	void
-	flow_mod_modify();
+	const rofl::caddress_ll&
+	get_hwaddr() const { return hwaddr; };
 
 private:
 
@@ -109,7 +71,7 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void* data = (void*)NULL);
 
 public:
 
@@ -117,14 +79,28 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cfibentry const& entry)
-	{
-		os << rofl::indent(0) << "<fibentry ";
-			os << "hwaddr: " << entry.dst << " ";
-			os << "port: " << entry.out_port_no << " ";
-		os << ">" << std::endl;
+	operator<< (std::ostream& os, cfibentry const& entry) {
+		os << rofl::indent(0) << "<cfibentry portno: "
+				<< entry.port_no << " >" << std::endl;
+		rofl::indent i(2);
+		os << entry.hwaddr;
 		return os;
 	};
+
+private:
+
+#define CFIBENTRY_DEFAULT_TIMEOUT		60
+
+	enum cfibentry_timer_t {
+		CFIBENTRY_ENTRY_EXPIRED = 1,
+	};
+
+	cfibenv						*fibenv;
+	rofl::cdptid				dptid;
+	uint32_t					port_no;
+	rofl::caddress_ll			hwaddr;
+	int							entry_timeout;
+	rofl::ctimerid				expiration_timer_id;
 };
 
 }; // end of namespace

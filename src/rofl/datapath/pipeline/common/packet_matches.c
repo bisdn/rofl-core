@@ -141,7 +141,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	//Prefill packet matches	
 	fill_packet_matches(pkt, m);
 	
-	ROFL_PIPELINE_INFO_NO_PREFIX("Packet matches [");	
+	ROFL_PIPELINE_INFO("Packet[%p] {", pkt);	
 	
 	//Ports
 	if(m->__port_in)
@@ -354,7 +354,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	}
 #endif
 	
-	ROFL_PIPELINE_INFO_NO_PREFIX("]\n");	
+	ROFL_PIPELINE_INFO_NO_PREFIX("}\n");	
 
 	//Add more here...	
 }

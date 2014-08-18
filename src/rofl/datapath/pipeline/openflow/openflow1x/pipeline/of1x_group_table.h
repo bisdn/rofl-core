@@ -84,6 +84,10 @@ typedef struct of1x_group_table{
 	
 	struct of1x_group *head;
 	struct of1x_group *tail;
+
+	//Reference back
+	struct of1x_pipeline* pipeline;
+
 }of1x_group_table_t;
 
 typedef enum{
