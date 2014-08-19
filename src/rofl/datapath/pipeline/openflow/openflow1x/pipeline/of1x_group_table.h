@@ -93,6 +93,10 @@ typedef struct of1x_group_table{
 	
 	struct of1x_group *head;
 	struct of1x_group *tail;
+
+	//Reference back
+	struct of1x_pipeline* pipeline;
+
 }of1x_group_table_t;
 
 typedef enum{
@@ -128,7 +132,7 @@ ROFL_BEGIN_DECLS
  * 
  * This is done during the  initialization of the pipeline
  */
-of1x_group_table_t* of1x_init_group_table(void);
+of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline *pipeline);
 
 /**
  * @brief Destroys the group table.
@@ -203,7 +207,8 @@ of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket_t *bucket);
 
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);
-
+void __of12_set_group_table_defaults(of1x_group_table_t *gt);
+void __of13_set_group_table_defaults(of1x_group_table_t *gt);
 /*
 * Dump group table. Not recommended to use it directly
 *

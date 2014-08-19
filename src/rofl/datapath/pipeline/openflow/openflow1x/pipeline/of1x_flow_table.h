@@ -62,6 +62,11 @@ typedef enum{
 	OF1X_TABLE_MISS_MASK       = 3
 }of1x_flow_table_miss_config_t; 
 
+
+//To str()
+#define __OF1X_TABLE_MISS_MAX OF1X_TABLE_MISS_MASK+1
+extern const char* __of1x_flow_table_miss_config_str[__OF1X_TABLE_MISS_MAX];
+
 /**
 * Table configuration
 */

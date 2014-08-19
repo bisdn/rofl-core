@@ -622,10 +622,14 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				//Duplicate the packet only if necessary
 				if(replicate_pkts){
 					pkt_to_send = platform_packet_replicate(pkt);
-	
+				
 					//check for wrong copy
-					if(!pkt_to_send)
+					if(unlikely(pkt_to_send == NULL)){
+						ROFL_PIPELINE_INFO("Packet[%p] could NOT be cloned during OUTPUT action\n", pkt);
 						return;
+					}
+					ROFL_PIPELINE_INFO("Packet[%p] was cloned into [%p] during OUTPUT action\n", pkt, pkt_to_send);
+					
 				}else
 					pkt_to_send = pkt;
 
@@ -633,30 +637,37 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				if( port_id < LOGICAL_SWITCH_MAX_LOG_PORTS && unlikely(NULL != sw->logical_ports[port_id].port) ){
 
 					//Single port output
-					//According to the spec a packet cannot be sent to the incomming port
+					//According to the spec a packet cannot be sent to the incoming port
 					//unless IN_PORT meta port is used
 					if(unlikely(port_id == *platform_packet_get_port_in(pkt))){
+						ROFL_PIPELINE_DEBUG("Packet[%p] dropped. Attempting to output to the incoming port %u\n", pkt_to_send, port_id);
 						platform_packet_drop(pkt_to_send);
 					}else{
+						ROFL_PIPELINE_INFO("Packet[%p] outputting to port num. %u\n", pkt_to_send, port_id);
 						platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
 					}
 
 				}else if(port_id == OF1X_PORT_FLOOD){
 					//Flood
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to FLOOD\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, flood_meta_port);
 				}else if(port_id == OF1X_PORT_CONTROLLER ||
 					port_id == OF1X_PORT_NORMAL){
 					//Controller
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to CONTROLLER\n", pkt_to_send);
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, action->send_len, OF1X_PKT_IN_ACTION);
 				}else if(port_id == OF1X_PORT_ALL){
-					//Flood
+					//All
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to ALL_PORT\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, all_meta_port);
 				}else if(port_id == OF1X_PORT_IN_PORT){
 					//in port
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to IN_PORT\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
 
 					//This condition can never happen, unless port number has been somehow corrupted??
+					ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u\n", pkt_to_send, port_id);
 					assert(0);
 					if(pkt != pkt_to_send) //Drop replica, if any
 						platform_packet_drop(pkt_to_send);

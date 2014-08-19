@@ -12,6 +12,7 @@ v0.5.0
 
 [+][common] Improved OF1.3 support and other fixes
 
+[+][pipeline] Improved tracing and logging
 [+][pipeline] Improved OF1.3 support
 [+][pipeline] Changed default behaviour for table matches/actions bitmaps; all capabilities enabled by default. 
 [+][pipeline] Added placeholders for WLAN/CAPWAP matches and actions 
@@ -19,7 +20,9 @@ v0.5.0
 
 v0.4.4
 
-[B][rofl-pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
+[B][common] cmacaddr: use right macros in sscanf #29 
+
+[B][pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
 
 v0.4.3
 
