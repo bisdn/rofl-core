@@ -112,6 +112,7 @@ of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline* pipeline){
 	gt->head = NULL;
 	gt->tail = NULL;
 	
+	gt->mutex = platform_mutex_init(NULL);
 	gt->rwlock = platform_rwlock_init(NULL);
 	
 	switch(pipeline->sw->of_ver){
@@ -124,6 +125,7 @@ of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline* pipeline){
 			__of13_set_group_table_defaults(gt);
 			break;
 		default:
+			platform_mutex_destroy(gt->mutex);
 			platform_rwlock_destroy(gt->rwlock);
 			platform_free_shared(gt);
 			return NULL;
@@ -139,6 +141,7 @@ void of1x_destroy_group_table(of1x_group_table_t* gt){
 	of1x_group_t *iterator=NULL, *next=NULL;
 	//check if there are existing entries and deleting them
 	
+	platform_mutex_lock(gt->mutex);
 	platform_rwlock_wrlock(gt->rwlock);
 	
 	for(iterator=gt->head; iterator!=NULL; iterator=next){
@@ -146,22 +149,11 @@ void of1x_destroy_group_table(of1x_group_table_t* gt){
 		__of1x_destroy_group(gt,iterator);
 	}
 	
+	platform_mutex_destroy(gt->mutex);
 	platform_rwlock_destroy(gt->rwlock);
 	
 	
 	platform_free_shared(gt);
-}
-
-/**
- * Copies the structure of the group table.
- */
-rofl_result_t of1x_fetch_group_table(of1x_pipeline_t *pipeline, of1x_group_table_t* group_table){
-	platform_rwlock_rdlock(pipeline->groups->rwlock);
-	
-	*group_table = *(pipeline->groups);
-	
-	platform_rwlock_rdunlock(pipeline->groups->rwlock);
-	return ROFL_SUCCESS;
 }
 
 static
@@ -193,11 +185,17 @@ rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id){
 	of1x_group_t *iterator=NULL, *next=NULL;
 	
+	platform_rwlock_rdlock(gt->rwlock);
+	
 	for(iterator=gt->head; iterator!=NULL; iterator=next){
 		next=iterator->next;
-		if(iterator->id == id)
+		if(iterator->id == id){
+			platform_rwlock_rdunlock(gt->rwlock);
 			return iterator;
+		}
 	}
+	
+	platform_rwlock_rdunlock(gt->rwlock);
 	
 	return NULL;
 }
@@ -262,6 +260,8 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 		ge->num_of_output_actions += bc->actions->num_of_output_actions;
 	}
 	
+	platform_rwlock_wrlock(gt->rwlock);
+	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
 		gt->head = ge;
@@ -275,34 +275,35 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
+	platform_rwlock_wrunlock(gt->rwlock);
+	
 	return ROFL_OF1X_GM_OK;
 }
 
 rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
-
 	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Starting operation at switch %s(%p), group id: %u\n", *buckets, gt->pipeline->sw->name, gt->pipeline->sw, id);
-	
-	platform_rwlock_wrlock(gt->rwlock);
+
+	//serialize mgmt actions
+	platform_mutex_lock(gt->mutex);
 	
 	//check wether onither entry with this ID already exists
 	if(__of1x_group_search(gt,id)!=NULL){
-		platform_rwlock_wrunlock(gt->rwlock);
+		platform_mutex_unlock(gt->mutex);
 		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED validation. Group exists...\n", *buckets);
 		return ROFL_OF1X_GM_EXISTS;
 	}
 	
 	ret_val = __of1x_init_group(gt,type,id,*buckets);
 	if (ret_val!=ROFL_OF1X_GM_OK){
-		platform_rwlock_wrunlock(gt->rwlock);
+		platform_mutex_unlock(gt->mutex);
 		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED, reason %u\n", *buckets, ret_val);
 		return ret_val;
 	}
 	
 	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Successful\n", *buckets);
 	
-	platform_rwlock_wrunlock(gt->rwlock);
-	
+	platform_mutex_unlock(gt->mutex);
 
 	//Was successful set the pointer to NULL
 	//so that is not further used outside the pipeline
@@ -362,13 +363,17 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	of1x_flow_entry_t* entry;
 	of1x_group_t *ge, *next;
 	
-	//TODO if the group value is OFP1X_GROUP_ALL, delete all groups 
+	//serialize mgmt actions
+	platform_mutex_lock(gt->mutex);
+	
 	if(id == OF1X_GROUP_ALL){
 		for(ge = gt->head; ge; ge=next){
 			next = ge->next;
 			//extract the group without destroying it (only the first thread that comes gets it)
-			if(__of1x_extract_group(gt, ge)==ROFL_FAILURE)
+			if(__of1x_extract_group(gt, ge)==ROFL_FAILURE){
+				platform_mutex_unlock(gt->mutex);
 				return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+			}
 			
 			//loop for all the tables and erase entries that point to the group
 			for(i=0; i<pipeline->num_of_tables; i++){
@@ -379,16 +384,21 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 			//destroy the group
 			__of1x_destroy_group(gt,ge);
 		}
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK;
 	}
 	
 	//search the table for the group
-	if((ge=__of1x_group_search(gt,id))==NULL);
+	if((ge=__of1x_group_search(gt,id))==NULL){
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+	}
 	
 	//extract the group without destroying it (only the first thread that comes gets it)
-	if(__of1x_extract_group(gt, ge)==ROFL_FAILURE)
+	if(__of1x_extract_group(gt, ge)==ROFL_FAILURE){
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+	}
 	
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
@@ -399,6 +409,8 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	
 	//destroy the group
 	__of1x_destroy_group(gt,ge);
+	
+	platform_mutex_unlock(gt->mutex);
 	
 	return ROFL_OF1X_GM_OK;
 }

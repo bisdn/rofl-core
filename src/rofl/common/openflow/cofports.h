@@ -136,8 +136,32 @@ public:
 	/**
 	 *
 	 */
+	cofport&
+	set_port(const std::string& devname);
+
+	/**
+	 *
+	 */
+	cofport&
+	set_port(const rofl::caddress_ll& hwaddr);
+
+	/**
+	 *
+	 */
 	cofport const&
 	get_port(uint32_t portno) const;
+
+	/**
+	 *
+	 */
+	cofport const&
+	get_port(const std::string& devname) const;
+
+	/**
+	 *
+	 */
+	cofport const&
+	get_port(const rofl::caddress_ll& hwaddr) const;
 
 	/**
 	 *
@@ -148,8 +172,32 @@ public:
 	/**
 	 *
 	 */
+	void
+	drop_port(const std::string& devname);
+
+	/**
+	 *
+	 */
+	void
+	drop_port(const rofl::caddress_ll& hwaddr);
+
+	/**
+	 *
+	 */
 	bool
 	has_port(uint32_t portno) const;
+
+	/**
+	 *
+	 */
+	bool
+	has_port(const std::string& devname) const;
+
+	/**
+	 *
+	 */
+	bool
+	has_port(const rofl::caddress_ll& hwaddr) const;
 
 public:
 

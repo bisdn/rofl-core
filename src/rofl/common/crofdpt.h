@@ -208,6 +208,35 @@ public:
 	virtual rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() = 0;
 
+	/**
+	 *
+	 */
+	uint32_t
+	get_next_idle_group_id() {
+		uint32_t group_id = 1;
+		while (groupids.find(group_id) != groupids.end()) {
+			group_id++;
+		}
+		groupids.insert(group_id);
+		return group_id;
+	};
+
+	/**
+	 *
+	 */
+	void
+	release_group_id(uint32_t group_id) {
+		groupids.erase(group_id);
+	};
+
+	/**
+	 *
+	 */
+	void
+	clear_group_ids() {
+		groupids.clear();
+	};
+
 
 public:
 
@@ -878,7 +907,7 @@ private:
 	cdptid   							dptid;			// handle for this crofdpt instance
 	uint64_t 							dpid;			// datapath id
 	std::string	 						s_dpid;			// datapath id as std::string
-
+	std::set<uint32_t>					groupids;		// allocated groupids on datapath
 };
 
 
