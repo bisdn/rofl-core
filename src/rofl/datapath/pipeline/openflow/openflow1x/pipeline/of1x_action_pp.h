@@ -666,7 +666,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 					//This condition can never happen, unless port number has been somehow corrupted??
 					ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u\n", pkt_to_send, port_id);
-					assert(0);
+					//assert(0);
 					if(pkt != pkt_to_send) //Drop replica, if any
 						platform_packet_drop(pkt_to_send);
 				}

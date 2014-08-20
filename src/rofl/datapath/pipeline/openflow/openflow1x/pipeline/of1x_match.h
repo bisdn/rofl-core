@@ -706,8 +706,8 @@ uint16_t __of1x_get_match_val16(const of1x_match_t* match, bool get_mask, bool r
 		case OF1X_MATCH_TP_DST:
 		case OF1X_MATCH_PPPOE_SID:
 		case OF1X_MATCH_PPP_PROT:
-			return NTOHB16(wrap->u16);
 		case OF1X_MATCH_IPV6_EXTHDR:
+			return NTOHB16(wrap->u16);
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
 			assert(0);
