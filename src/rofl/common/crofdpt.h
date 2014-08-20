@@ -426,9 +426,9 @@ public:
 	 * Drops a packet stored on the data path in the buffer identified by buffer-id
 	 */
 	virtual void
-	drop_buffer(const rofl::cauxid& auxid, uint32_t buffer_id) {
+	drop_buffer(const rofl::cauxid& auxid, uint32_t buffer_id, uint32_t inport = rofl::openflow::OFPP_CONTROLLER) {
 		rofl::openflow::cofactions actions(get_version());
-		send_packet_out_message(auxid, buffer_id, rofl::openflow::OFPP_CONTROLLER, actions, NULL, 0);
+		send_packet_out_message(auxid, buffer_id, inport, actions, NULL, 0);
 	};
 
 	/**@}*/

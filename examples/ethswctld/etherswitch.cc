@@ -210,7 +210,7 @@ ethswitch::handle_packet_in(
 		if (eth_dst.is_multicast() || (not fib.has_fib_entry(eth_dst))) {
 			rofl::openflow::cofactions actions(dpt.get_version());
 			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version()));
-			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			return;
 		}
 
@@ -221,7 +221,7 @@ ethswitch::handle_packet_in(
 			if (rofl::openflow::OFP_NO_BUFFER != msg.get_buffer_id()) {
 				rofl::openflow::cofactions actions(dpt.get_version());
 				actions.add_action_output(rofl::cindex(0)).set_port_no(fib.get_fib_entry(eth_dst).get_port_no());
-				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			}
 		}
 
