@@ -9,6 +9,7 @@
 #include "of1x_statistics.h"
 #include "of1x_action.h"
 #include "of1x_flow_entry.h"
+#include "of1x_group_types.h"
 #include "../../../platform/lock.h"
 
 #define OF1X_GROUP_MAX 0xffffff00
@@ -44,17 +45,6 @@ typedef struct of1x_bucket_list{
 	of1x_bucket_t *tail;
 }of1x_bucket_list_t;
 
-/**
-* @ingroup core_of1x 
-* Group type
-*/
-typedef enum{
-	OF1X_GROUP_TYPE_ALL 		= 0,	/* All (multicast/broadcast) group.  */
-	OF1X_GROUP_TYPE_SELECT 		= 1,   	/* Select group. */
-	OF1X_GROUP_TYPE_INDIRECT 	= 2, 	/* Indirect group. */
-	OF1X_GROUP_TYPE_FF	 	= 3,	/* Fast failover group. */
-}of1x_group_type_t;
-
 struct of1x_group_table;
 
 /**
@@ -89,10 +79,15 @@ typedef struct of1x_group_table{
 	
 	uint32_t num_of_entries;
 	
+	platform_mutex_t *mutex;
 	platform_rwlock_t *rwlock;
 	
 	struct of1x_group *head;
 	struct of1x_group *tail;
+
+	//Reference back
+	struct of1x_pipeline* pipeline;
+
 }of1x_group_table_t;
 
 typedef enum{
@@ -128,7 +123,7 @@ ROFL_BEGIN_DECLS
  * 
  * This is done during the  initialization of the pipeline
  */
-of1x_group_table_t* of1x_init_group_table(void);
+of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline *pipeline);
 
 /**
  * @brief Destroys the group table.
@@ -137,15 +132,6 @@ of1x_group_table_t* of1x_init_group_table(void);
  * This is done during the reset of the pipeline
  */
 void of1x_destroy_group_table(of1x_group_table_t* gt);
-
-/**
- * @brief Copies the structure of the group table.
- * @ingroup core_of1x
- * 
- * Used for the group description statistics
- */
-//NOTE Is this function and the subsequent AFA one really necessary?
-rofl_result_t of1x_fetch_group_table(struct of1x_pipeline *pipeline, of1x_group_table_t* group_table);
 
 /**
  * @brief Adds a group to the table.
@@ -203,7 +189,8 @@ of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket_t *bucket);
 
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);
-
+void __of12_set_group_table_defaults(of1x_group_table_t *gt);
+void __of13_set_group_table_defaults(of1x_group_table_t *gt);
 /*
 * Dump group table. Not recommended to use it directly
 *

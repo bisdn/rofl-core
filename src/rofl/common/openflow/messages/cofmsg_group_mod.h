@@ -202,7 +202,8 @@ public:
 			}
 		os << indent(4) << "<group-type:" 	<< (int)msg.get_group_type() 	<< " >" << std::endl;
 		os << indent(4) << "<group-id:" 	<< (int)msg.get_group_id() 		<< " >" << std::endl;
-		os << indent(4) << msg.buckets;
+		rofl::indent i(4);
+		os << msg.buckets;
 		return os;
 	};
 };

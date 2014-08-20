@@ -216,7 +216,7 @@ crofconn::event_disconnected()
 		rofl::logging::debug << "[rofl-common][conn] connection in state -disconnected-" << std::endl;
 	} break;
 	case STATE_CONNECT_PENDING: {
-		rofl::logging::info << "[rofl-common][conn] entering state -disconnected-" << std::endl;
+		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
 		if (flags.test(FLAGS_CONNECT_REFUSED)) {
 			env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
 		}
@@ -228,7 +228,7 @@ crofconn::event_disconnected()
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED:
 	default: {
-		rofl::logging::info << "[rofl-common][conn] entering state -disconnected-" << std::endl;
+		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
 		state = STATE_DISCONNECTED;
 		timer_stop_wait_for_echo();
 		timer_stop_wait_for_hello();
@@ -413,7 +413,7 @@ crofconn::action_send_hello_message()
 						env->get_async_xid(this),
 						body.somem(), body.memlen());
 
-		rofl::logging::error << "[rofl-common][conn] sending HELLO.message:" << std::endl << *hello;
+		rofl::logging::debug << "[rofl-common][conn] sending HELLO.message:" << std::endl << *hello;
 
 		rofsock.send_message(hello);
 
@@ -440,7 +440,7 @@ crofconn::action_send_features_request()
 		rofl::openflow::cofmsg_features_request *request =
 				new rofl::openflow::cofmsg_features_request(ofp_version, env->get_async_xid(this));
 
-		rofl::logging::error << "[rofl-common][conn] sending FEATURES.request:" << std::endl << *request;
+		rofl::logging::debug << "[rofl-common][conn] sending FEATURES.request:" << std::endl << *request;
 
 		rofsock.send_message(request);
 
@@ -584,7 +584,7 @@ crofconn::recv_message(
 			}
 
 			// start new or continue pending transaction
-			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
+			if (stats->get_stats_flags() & rofl::openflow13::OFPMPF_REQ_MORE) {
 
 				sar.set_transaction(msg->get_xid()).store_and_merge_msg(dynamic_cast<rofl::openflow::cofmsg_stats const&>(*msg));
 				delete msg; // delete msg here, we store a copy in the transaction
@@ -1569,7 +1569,7 @@ crofconn::backoff_reconnect(bool reset_timeout)
 		}
 	}
 
-	rofl::logging::info << "[rofl-common][conn][backoff] " << " scheduled reconnect in: " << std::endl << reconnect_timespec;
+	rofl::logging::debug << "[rofl-common][conn][backoff] " << " scheduled reconnect in: " << std::endl << reconnect_timespec;
 
 	timer_start_next_reconnect();
 

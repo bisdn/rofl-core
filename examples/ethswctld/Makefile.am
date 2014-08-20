@@ -10,10 +10,15 @@ ethswctld_SOURCES = \
 	ethswctld.cc \
 	etherswitch.cc \
 	etherswitch.h \
-	cfib.cc \
-	cfib.h \
+	cfibtable.cc \
+	cfibtable.h \
 	cfibentry.h \
-	cfibentry.cc
+	cfibentry.cc \
+	cflowtable.h \
+	cflowtable.cc \
+	cflowentry.h \
+	cflowentry.cc
+
 ethswctld_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 

@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <string>
 #include <iostream>
+#include <ios>
 
 #include "rofl/common/logging.h"
 
@@ -103,8 +104,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const cdptid& dptid) {
-		os << rofl::indent(0) << "<cdptid:" << std::hex << (unsigned long long)dptid.id << std::dec
-				<< "(" << dptid.s_id << ")" << " >" << std::endl;
+		os << rofl::indent(0) << "<cdptid: " << std::hex << (unsigned long long)dptid.id << std::dec
+				<< " (" << dptid.s_id << ")" << " >" << std::endl;
 		return os;
 	};
 };

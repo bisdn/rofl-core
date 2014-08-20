@@ -754,6 +754,7 @@ crofdpt_impl::flow_mod_reset()
 void
 crofdpt_impl::group_mod_reset()
 {
+	crofdpt::clear_group_ids();
 	rofl::openflow::cofgroupmod ge(rofchan.get_version());
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: {

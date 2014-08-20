@@ -295,7 +295,7 @@ typedef struct of1x_packet_action{
 * @ingroup core_of1x 
 * Action group (apply-actions) structure
 */
-typedef struct{
+typedef struct of1x_action_group{
 
 	//bitmap of actions
 	bitmap128_t bitmap;
@@ -555,7 +555,7 @@ uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
 //128 bit
 static inline 
 uint128__t __of1x_get_packet_action_field128(const of1x_packet_action_t* action, bool raw_nbo){
-	uint128__t tmp;
+	uint128__t tmp= {{0x00}};
 
 	if(raw_nbo)
 		return action->__field.u128;

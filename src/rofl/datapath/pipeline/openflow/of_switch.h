@@ -29,6 +29,11 @@ typedef enum{
 	//Add more here...
 }of_version_t;
 
+#define __OF_VERSION_MAX (OF_VERSION_13+1)
+
+//String for nice dumping
+extern const char* of_version_str[__OF_VERSION_MAX];
+
 #ifndef LOGICAL_SWITCH_MAX_LOG_PORTS
 	#define LOGICAL_SWITCH_MAX_LOG_PORTS 512 // 511, 0 slot NEVER used (has to be less than OF1X_PORT_MAX)
 #endif

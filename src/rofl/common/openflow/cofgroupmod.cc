@@ -28,7 +28,7 @@ cofgroupmod::cofgroupmod(uint8_t ofp_version) :
 
 	grp_mod = group_mod_area.somem();
 
-	reset();
+	clear();
 }
 
 
@@ -55,7 +55,7 @@ cofgroupmod::operator= (const cofgroupmod& ge)
 
 
 void
-cofgroupmod::reset()
+cofgroupmod::clear()
 {
 	group_mod_area.clear();
 	grp_mod = group_mod_area.somem();
@@ -75,6 +75,8 @@ cofgroupmod::reset()
 		of13_grp_mod->group_id 	= htobe32(0);
 	} break;
 	}
+
+	buckets.clear();
 }
 
 
