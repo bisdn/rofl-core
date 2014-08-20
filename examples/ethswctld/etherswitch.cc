@@ -157,7 +157,7 @@ ethswitch::dump_packet_in(
 						<< "eth-dst:" << msg.set_packet().ether()->get_dl_dst() << " "
 						<< "eth-type:0x" << std::hex << msg.set_packet().ether()->get_dl_type() << std::dec << " "
 						<< std::endl;
-	rofl::logging::info << dpt.get_dpid_s();
+	rofl::logging::info << dpt.get_dpid();
 
 }
 

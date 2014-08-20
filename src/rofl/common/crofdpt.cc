@@ -27,14 +27,13 @@ crofdpt::get_dpt(
 
 /*static*/crofdpt&
 crofdpt::get_dpt(
-		uint64_t dpid)
+		const cdpid& dpid)
 {
 	std::map<cdptid, crofdpt*>::iterator it;
 	if ((it = find_if(crofdpt::rofdpts.begin(), crofdpt::rofdpts.end(),
-			crofdpt::crofdpt_find_by_dpid(dpid))) == crofdpt::rofdpts.end()) {
+			crofdpt::crofdpt_find_by_dpid(dpid.get_uint64_t()))) == crofdpt::rofdpts.end()) {
 		throw eRofDptNotFound();
 	}
 	return *(it->second);
 }
-
 

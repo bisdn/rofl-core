@@ -32,6 +32,7 @@
 #include "rofl/common/openflow/cofmeterconfig.h"
 #include "rofl/common/openflow/cofmeterfeatures.h"
 #include "rofl/common/cauxid.h"
+#include "rofl/common/cdpid.h"
 
 
 namespace rofl
@@ -79,7 +80,7 @@ public: // static
 	 * @return	Reference to crofdpt instance
 	 */
 	static crofdpt&
-	get_dpt(uint64_t dpid);
+	get_dpt(const cdpid& dpid);
 
 public:
 
@@ -120,18 +121,8 @@ public:
 	 *
 	 * @return dpid
 	 */
-	const uint64_t&
+	const cdpid&
 	get_dpid() const { return dpid; };
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	const std::string&
-	get_dpid_s() const { return s_dpid; };
-
 
 public:
 
@@ -881,7 +872,7 @@ public:
 	public:
 		crofdpt_find_by_dpid(uint64_t dpid) : dpid(dpid) {};
 		bool operator() (const std::pair<cdptid, crofdpt*>& p) {
-			return (p.second->get_dpid() == dpid);
+			return (p.second->get_dpid().get_uint64_t() == dpid);
 		};
 	};
 
@@ -891,10 +882,8 @@ protected:
 	 *
 	 */
 	void
-	set_dpid(uint64_t dpid) {
+	set_dpid(const cdpid& dpid) {
 		this->dpid = dpid;
-		std::stringstream sstr; sstr << this->dpid;
-		s_dpid = sstr.str();
 	};
 
 
@@ -905,8 +894,7 @@ private:
 	static std::map<cdptid, crofdpt*> 	rofdpts;
 
 	cdptid   							dptid;			// handle for this crofdpt instance
-	uint64_t 							dpid;			// datapath id
-	std::string	 						s_dpid;			// datapath id as std::string
+	cdpid 								dpid;			// datapath id
 	std::set<uint32_t>					groupids;		// allocated groupids on datapath
 };
 
