@@ -321,6 +321,10 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	table->rwlock = platform_rwlock_init(NULL);
 	if( unlikely(NULL==table->rwlock) )
 		return ROFL_FAILURE;
+
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_init_presence_mask(&table->tid_presence_mask);
+#endif
 	
 	table->pipeline = pipeline;
 	table->number = table_index;
@@ -606,8 +610,13 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 	of1x_flow_entry_t* entry;
 	int i;	
 
+	__of1x_stats_table_tid_t c;
+
+	//Consolidate stats
+	__of1x_stats_table_consolidate(&table->stats, &c);
+
 	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
-	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, table->stats.lookup_count, table->stats.matched_count);
+	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, c.lookup_count, c.matched_count);
 	
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");

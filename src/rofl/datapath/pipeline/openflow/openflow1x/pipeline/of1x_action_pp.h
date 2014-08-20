@@ -11,6 +11,7 @@
 #include <assert.h>
 #include "rofl.h"
 #include "../../../util/pp_guard.h" //Never forget to include the guard
+#include "of1x_statistics_pp.h"
 #include "of1x_action.h"
 #include "of1x_group_table.h"
 #include "of1x_flow_table.h"
@@ -90,10 +91,10 @@ static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_ac
 }
 
 //fwd decl
-static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
+static inline void __of1x_process_apply_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Process all actions from a group
-static inline void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
+static inline void __of1x_process_group_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
 	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
 	
@@ -118,8 +119,8 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 				} 
 				
 				//Process all actions in the bucket
-				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
-				__of1x_stats_bucket_update(&it_bk->stats, platform_packet_get_size_bytes(pkt));
+				__of1x_process_apply_actions(tid, sw, table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
+				__of1x_stats_bucket_update(tid, &it_bk->stats, platform_packet_get_size_bytes(pkt));
 				
 				if(it_bk->actions->num_of_output_actions > 1)
 					platform_packet_drop(pkt_replica);
@@ -131,8 +132,8 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
-			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
-			__of1x_stats_bucket_update(&group->bc_list->head->stats, platform_packet_get_size_bytes(pkt));
+			__of1x_process_apply_actions(tid, sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
+			__of1x_stats_bucket_update(tid, &group->bc_list->head->stats, platform_packet_get_size_bytes(pkt));
 			break;
 		case OF1X_GROUP_TYPE_FF:
 			//NOT SUPPORTED
@@ -142,12 +143,14 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			assert(0);  //Should NEVER be reached 
 			break;
 	}
-	__of1x_stats_group_update(&group->stats, platform_packet_get_size_bytes(pkt));
+	
+	__of1x_stats_group_update(tid, &group->stats, platform_packet_get_size_bytes(pkt));
 	platform_rwlock_rdunlock(group->rwlock);
+
 }
 
 /* Contains switch with all the different action functions */
-static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
+static inline void __of1x_process_packet_action(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
 	uint32_t port_id;
 
@@ -596,7 +599,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		case OF1X_AT_GROUP:
-			__of1x_process_group_actions(sw, table_id, pkt, action->__field.u32, action->group, replicate_pkts);
+			__of1x_process_group_actions(tid, sw, table_id, pkt, action->__field.u32, action->group, replicate_pkts);
 			break;
 
 		case OF1X_AT_EXPERIMENTER: //FIXME: implement
@@ -678,12 +681,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 
 //Process apply actions
-static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
+static inline void __of1x_process_apply_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
 
 	of1x_packet_action_t* it;
 
 	for(it=apply_actions_group->head;it;it=it->next){
-		__of1x_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
+		__of1x_process_packet_action(tid, sw, table_id, pkt, it, replicate_pkts);
 	}	
 }
 
@@ -691,7 +694,7 @@ static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, co
 * The of1x_process_write_actions is meant to encapsulate the processing of the write actions
 *
 */
-static inline void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
+static inline void __of1x_process_write_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
 
 	unsigned int i,j;
 
@@ -700,7 +703,7 @@ static inline void __of1x_process_write_actions(const struct of1x_switch* sw, co
 	for(i=0,j=0;(i<write_actions->num_of_actions) && (j < OF1X_AT_NUMBER);j++){
 		if( bitmap128_is_bit_set(&write_actions->bitmap,j) ){
 			//Process action
-			__of1x_process_packet_action(sw, table_id, pkt, &write_actions->actions[j], replicate_pkts);	
+			__of1x_process_packet_action(tid, sw, table_id, pkt, &write_actions->actions[j], replicate_pkts);	
 			i++;		
 		}
 	}

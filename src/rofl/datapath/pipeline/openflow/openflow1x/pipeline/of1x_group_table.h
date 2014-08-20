@@ -31,7 +31,7 @@ typedef struct of1x_bucket{
 	uint32_t port;
 	uint32_t group;
 	of1x_action_group_t *actions;
-	of1x_stats_bucket_counter_t stats;
+	__of1x_stats_bucket_t stats;
 	struct of1x_bucket *next;
 }of1x_bucket_t;
 

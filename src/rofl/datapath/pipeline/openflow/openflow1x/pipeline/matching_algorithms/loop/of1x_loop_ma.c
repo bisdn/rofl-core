@@ -136,6 +136,9 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 	platform_of1x_remove_entry_hook(specific_entry);
 
 	//Destroy entry
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
 	return __of1x_destroy_flow_entry_with_reason(specific_entry, reason);
 }
 
@@ -180,9 +183,7 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 		//There was already an entry. Update it..
 		if(!reset_counts){
 			ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Getting counters from (%p)\n", entry, existing);
-			entry->stats.packet_count = existing->stats.packet_count; 
-			entry->stats.byte_count = existing->stats.byte_count; 
-			entry->stats.initial_time = existing->stats.initial_time; 
+			__of1x_stats_copy_flow_stats(&existing->stats, &entry->stats);
 		}
 		
 		//Let it add normally...
@@ -231,6 +232,10 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 			//Delete old entry
 			if(existing){
 				ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Removing old entry (%p)\n", entry, existing);
+#ifdef ROFL_PIPELINE_LOCKLESS
+				tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
+
 				if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
 					assert(0);
 				}
@@ -275,6 +280,10 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 	//Delete old entry
 	if(existing){
 		ROFL_PIPELINE_DEBUG("[flowmod-add(%p)] Removing old entry (%p)\n", entry, existing);
+#ifdef ROFL_PIPELINE_LOCKLESS
+		tid_wait_all_not_present(&table->tid_presence_mask);	
+#endif
+		
 		if(unlikely(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)){
 			assert(0);
 		}
@@ -538,9 +547,13 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 	
 		//Check if is contained 
 		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, check_cookie, out_port, out_group,true)){
-			//Increment stats
-			msg->packet_count += entry->stats.packet_count;
-			msg->byte_count += entry->stats.byte_count;
+			
+			//Consolidate stats
+			__of1x_stats_flow_tid_t c;
+			__of1x_stats_flow_consolidate(&entry->stats, &c);
+
+			msg->packet_count += c.packet_count;
+			msg->byte_count += c.byte_count;
 			msg->flow_count++;
 		}
 	
