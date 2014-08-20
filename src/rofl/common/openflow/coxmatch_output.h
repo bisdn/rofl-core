@@ -8,10 +8,12 @@
 #ifndef COXMATCH_OUTPUT_H_
 #define COXMATCH_OUTPUT_H_
 
+#include "rofl.h"
 #include "rofl/common/openflow/coxmatch.h"
-#ifdef EXPERIMENTAL
-#include "rofl/common/openflow/experimental/matches/gtp_matches.h"
-#include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
+
+#ifdef ROFL_EXPERIMENTAL
+	#include "rofl/common/openflow/experimental/matches/gtp_matches.h"
+	#include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 #endif
 
 
@@ -128,7 +130,7 @@ public:
 				os << coxmatch_ofx_tp_src(oxm); return os;
 			case openflow::experimental::OFPXMT_OFX_TP_DST:
 				os << coxmatch_ofx_tp_dst(oxm); return os;
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 			case openflow::experimental::gtp::OFPXMT_OFX_GTP_MSGTYPE:
 				os << openflow::experimental::gtp::coxmatch_ofx_gtp_msg_type(oxm); return os;
 			case openflow::experimental::gtp::OFPXMT_OFX_GTP_TEID:
