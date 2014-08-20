@@ -177,7 +177,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibtable const& fib) {
 		os << rofl::indent(0) << "<cfibtable " << "dpid: "
-				<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid() << " >" << std::endl;
+				<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid().str() << " >" << std::endl;
 
 		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, cfibentry*>::const_iterator
