@@ -59,6 +59,14 @@ public:
 		return (this->dpid < dpid.dpid);
 	};
 
+	/**
+	 *
+	 */
+	bool
+	operator== (const cdpid& dpid) const {
+		return (this->dpid == dpid.dpid);
+	};
+
 public:
 
 	/**
