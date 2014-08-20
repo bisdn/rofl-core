@@ -20,6 +20,7 @@
 #include "rofl/common/caddress.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/coxmatch.h"
+#include "rofl/common/openflow/coxmatch_output.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/cindex.h"
 

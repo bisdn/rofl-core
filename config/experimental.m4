@@ -7,6 +7,7 @@ AC_ARG_ENABLE(experimental,
 
 if test "$enable_experimental" = "yes"; then
 	AM_CONDITIONAL(EXPERIMENTAL, [true])
+	AC_DEFINE(EXPERIMENTAL)
 	AC_MSG_RESULT(yes)
 else
 	AM_CONDITIONAL(EXPERIMENTAL, [false])
