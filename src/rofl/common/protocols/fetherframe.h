@@ -189,8 +189,7 @@ public:
 			{ rofl::indent i(6); os << frame.get_dl_dst(); }
 			os << rofl::indent(4) << "<dl-src >" << std::endl;
 			{ rofl::indent i(6); os << frame.get_dl_src(); }
-			os << "dl-type:0x" << std::hex << (int)frame.get_dl_type() << std::dec << " ";
-		os << ">" << std::endl;
+			os << rofl::indent(4) << "<dl-type:0x" << std::hex << (int)frame.get_dl_type() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
