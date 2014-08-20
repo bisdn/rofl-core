@@ -38,6 +38,9 @@
 /* Description */
 #define ROFL_VERSION_ "@ROFL_VERSION@"
 
+/* Experimental */
+@ROFL_EXPERIMENTAL@
+
 @ROFL_HAVE_OPENSSL@
 
 @ROFL_PIPELINE_PRESENT@

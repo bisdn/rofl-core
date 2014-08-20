@@ -81,7 +81,7 @@ cfsptable::find_matching_entries(
 		uint32_t total_len,
 		cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax)
 {
-	return find_matching_entries(pack.get_match());
+	return find_matching_entries(pack.set_match());
 }
 
 

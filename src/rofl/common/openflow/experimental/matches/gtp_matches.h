@@ -44,13 +44,10 @@ public:
 	~coxmatch_ofx_gtp_teid() {};
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_gtp_teid const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<GTP-TEID: " << (unsigned int)oxm.get_u32value();
-			if (oxm.get_oxm_hasmask()) {
-				os << ":" << (unsigned int)oxm.get_u32mask();
-			}
-			os << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<gtp-teid: "
+						<< (int)oxm.get_u32value() << "/" << (int)oxm.get_u32mask()
+						<< " >" << std::endl;
 		return os;
 	};
 };
@@ -74,9 +71,10 @@ public:
 	~coxmatch_ofx_gtp_msg_type() {};;
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_gtp_msg_type const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<GTP-MSG-TYPE: " << (unsigned int)oxm.get_u8value() << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<gtp-msg-type: "
+						<< (int)oxm.get_u8value()
+						<< " >" << std::endl;
 		return os;
 	};
 };

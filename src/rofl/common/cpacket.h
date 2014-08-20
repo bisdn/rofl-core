@@ -482,9 +482,17 @@ public:
 	 *
 	 * @return cpacket's internal cofmatch instance
 	 */
-	rofl::openflow::cofmatch&
-	get_match() { return match; };
+	const rofl::openflow::cofmatch&
+	get_match() const { return match; };
 
+
+	/**
+	 * @brief	Returns reference to cpacket's internal cofmatch instance.
+	 *
+	 * @return cpacket's internal cofmatch instance
+	 */
+	rofl::openflow::cofmatch&
+	set_match() { return match; };
 
 
 	/**
