@@ -170,10 +170,23 @@ ethswitch::handle_packet_in(
 	try {
 		cfibtable& fib = cfibtable::get_fib(dpt.get_dptid());
 		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
+		rofl::caddress_ll eth_src;
+		rofl::caddress_ll eth_dst;
+		uint32_t in_port = 0;
 
-		const rofl::caddress_ll& eth_src = msg.get_match().get_eth_src();
-		const rofl::caddress_ll& eth_dst = msg.set_match().get_eth_dst();
-		uint32_t in_port = msg.get_match().get_in_port();
+		switch (dpt.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			msg.set_packet().classify(msg.get_in_port());
+			eth_src = msg.get_packet().get_match().get_eth_src();
+			eth_dst = msg.get_packet().get_match().get_eth_dst();
+			in_port = msg.get_in_port();
+		} break;
+		default: {
+			eth_src = msg.get_match().get_eth_src();
+			eth_dst = msg.set_match().get_eth_dst();
+			in_port = msg.get_match().get_in_port();
+		};
+		}
 
 		//Ignore multi-cast frames (SRC)
 		if (eth_src.is_multicast()) {
