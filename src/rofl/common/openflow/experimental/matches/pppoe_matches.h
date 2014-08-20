@@ -43,9 +43,10 @@ public:
 	~coxmatch_ofx_pppoe_code() {};
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_pppoe_code const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-CODE: " << (unsigned int)oxm.get_u8value() << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<pppoe-code: "
+						<< (int)oxm.get_u8value()
+						<< " >" << std::endl;
 		return os;
 	};
 };
@@ -66,9 +67,10 @@ public:
 	~coxmatch_ofx_pppoe_type() {};
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_pppoe_type const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-CODE: " << (unsigned int)oxm.get_u8value() << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<pppoe-type: "
+						<< (int)oxm.get_u8value()
+						<< " >" << std::endl;
 		return os;
 	};
 };
@@ -89,9 +91,10 @@ public:
 	~coxmatch_ofx_pppoe_sid() {};
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_pppoe_sid const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPPOE-SID: " << (unsigned int)oxm.get_u16value() << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<pppoe-sid: "
+						<< (int)oxm.get_u16value()
+						<< " >" << std::endl;
 		return os;
 	};
 };
@@ -112,9 +115,10 @@ public:
 	~coxmatch_ofx_ppp_prot() {};
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_ppp_prot const& oxm) {
-		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<PPP-PROT: " << (unsigned int)oxm.get_u16value() << ">";
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<ppp-prot: "
+						<< (int)oxm.get_u16value()
+						<< " >" << std::endl;
 		return os;
 	};
 };
