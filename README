@@ -40,26 +40,28 @@ ROFL package uses 'subdir-objects'. From 1.14 on, the support of 'subdir-objects
 
 http://debbugs.gnu.org/cgi/bugreport.cgi?bug=13928
 
-The build system won't work if 'subdir-objects' is added in AM_INIT_AUTOMAKE(). 
+The build system won't work if `subdir-objects` is added in AM_INIT_AUTOMAKE(). 
 
-Currently, in order to compile the package, the suggested strategy is to remove -Werror from AM_INIT_AUTOMAKE() in the configure.ac:
+Currently, in order to compile the package, the suggested strategy is to remove `-Werror` from `AM_INIT_AUTOMAKE()` in the configure.ac:
 
 	diff --git a/configure.ac b/configure.ac
-	index 0864619..e10a114 100644
+	index 9d918d4..62fce3d 100644
 	--- a/configure.ac
 	+++ b/configure.ac
-	@@ -3,7 +3,7 @@ AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl, https://www.codebasin.net/redmine/proj
+	@@ -3,7 +3,7 @@ AC_INIT(ROFL, m4_esyscmd_s(cat VERSION), rofl-devel@roflibs.org, rofl, http://ww
 	 AC_CONFIG_AUX_DIR([build-aux])
 	 AC_CONFIG_MACRO_DIR([m4])
 	 
 	-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 	+AM_INIT_AUTOMAKE([-Wall foreign])
- 
-Note there will be a considerably number of warnings shown. Once bug 13928, 'subdir-objects' will be added as it should be.
+	 
+	 AC_GNU_SOURCE
+
+Note there will be a considerably number of warnings shown. Once bug 13928, `subdir-objects` will be added as it should be.
 
 Doxygen documentation
 ================================
-Documentation can be compiled via 'make doc'. Documentation is generated in build/doc/ folder
+Documentation can be compiled via `make doc`. Documentation is generated in build/doc/ folder
 
 FAQ
 ===
@@ -74,7 +76,7 @@ You can have a look on:
 http://www.roflibs.org/
 http://www.roflibs.org/doc/
 
-Documentation can be compiled via 'make doc'. Documentation is generated in build/doc/ folder
+Documentation can be compiled via `make doc`. Documentation is generated in build/doc/ folder
 
 For getting support or participate in the discussions, join the mailing list rofl-devel@roflibs.org at https://lists.roflibs.org/mailman
 
