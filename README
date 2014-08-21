@@ -36,11 +36,11 @@ Optional ../configure parameters
 Known issues with Automake 1.14
 ===============================
 
-ROFL package uses 'subdir-objects'. From 1.14 on, the support of 'subdir-objects' must be explicitly added in AM_INIT_AUTOMAKE() in order to prevent warnings that will abort compilation. However, due to the following bug:
+ROFL package uses `subdir-objects`. From Automake v1.14 on, the support of `subdir-objects` must be explicitly added in `AM_INIT_AUTOMAKE()` in order to prevent warnings that will abort compilation. However, due to the following bug:
 
 http://debbugs.gnu.org/cgi/bugreport.cgi?bug=13928
 
-The build system won't work if `subdir-objects` is added in AM_INIT_AUTOMAKE(). 
+The build system won't work if `subdir-objects` is added in `AM_INIT_AUTOMAKE()`. 
 
 Currently, in order to compile the package, the suggested strategy is to remove `-Werror` from `AM_INIT_AUTOMAKE()` in the configure.ac:
 
