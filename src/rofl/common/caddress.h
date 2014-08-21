@@ -660,7 +660,7 @@ public:
 	 *
 	 */
 	std::string
-	str() { return addr2str(); };
+	str() const { return addr2str(); };
 
 private:
 
