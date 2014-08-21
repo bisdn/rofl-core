@@ -30,7 +30,7 @@ enable_inline="no"
 
 	#Pipeline thread IDs
 	AC_MSG_CHECKING(the maximum number of threads/cpus for ROFL-pipeline packet processing API) 
-	AC_ARG_WITH([pipeline-max-tids], AS_HELP_STRING([--with-pipeline-max-tids=num], [maximum number of threads/cpus that ROFL-pipeline packet processing API supports concurrently without locking. Supported values {2,4,8,16,32,64,128} [default=16]]), with_pipeline_max_tids=16, [])
+	AC_ARG_WITH([pipeline-max-tids], AS_HELP_STRING([--with-pipeline-max-tids=num], [maximum number of threads/cpus that ROFL-pipeline packet processing API supports concurrently without locking. Supported values {2,4,8,16,32,64} [default=16]]), with_pipeline_max_tids=16, [])
 	
 	MAX_TIDS=16
 
@@ -48,11 +48,9 @@ enable_inline="no"
 			MAX_TIDS=$withval
 		elif test "$withval" = "64"; then
 			MAX_TIDS=$withval
-		elif test "$withval" = "128"; then
-			MAX_TIDS=$withval
 		else
 			AC_MSG_RESULT(ERROR)
-		  	AC_ERROR([Invalid value for --with-pipeline-max-tids of '$withval'; supported values {2,4,8,16,32,64,128}])
+		  	AC_ERROR([Invalid value for --with-pipeline-max-tids of '$withval'; supported values {2,4,8,16,32,64}])
 		fi	
 	fi
 	AC_MSG_RESULT($MAX_TIDS)
