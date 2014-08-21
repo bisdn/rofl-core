@@ -135,6 +135,10 @@ cflowentry::flow_mod_modify()
 		// datapath with handle dptid not found
 	} catch (rofl::eRofSockTxAgain& e) {
 		// control channel congested
+	} catch (rofl::eRofBaseNotConnected& e) {
+		// when xdpd has already died ...
+	} catch (...) {
+		// ...
 	}
 }
 
