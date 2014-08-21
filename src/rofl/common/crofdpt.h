@@ -96,7 +96,7 @@ public:
 
 
 	/**
-	 * @brief	Destroys crodpt instance.
+	 * @brief	Destroys crofdpt instance.
 	 *
 	 */
 	virtual

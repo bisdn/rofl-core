@@ -54,13 +54,14 @@ csocket_impl::csocket_impl(
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
+	//rofl::logging::debug << "[rofl][csocket_impl] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 csocket_impl::~csocket_impl()
 {
-	rofl::logging::debug << "[rofl][csocket][impl] destructor:" << std::endl << *this;
+	//rofl::logging::debug << "[rofl][csocket_impl] destructor " << std::hex << this << std::dec << std::endl;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);

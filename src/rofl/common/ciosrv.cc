@@ -33,11 +33,13 @@ ciosrv::ciosrv() :
 {
 	RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
 	ciosrv::ciolist.insert(this);
+	//rofl::logging::debug << "[rofl][ciosrv] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 ciosrv::~ciosrv()
 {
+	//rofl::logging::debug << "[rofl][ciosrv] destructor " << std::hex << this << std::dec << std::endl;
 	{
 		RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
 		ciosrv::ciolist.erase(this);
@@ -368,7 +370,7 @@ cioloop::run_loop()
 			for (std::map<ciosrv*, int>::iterator it = urgent.begin(); it != urgent.end(); ++it) {
 				{
 					RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-					if (ciosrv::ciolist.find(next_timeout.first) == ciosrv::ciolist.end()) {
+					if (ciosrv::ciolist.find(it->first) == ciosrv::ciolist.end()) {
 						continue;
 					}
 				}
@@ -411,6 +413,13 @@ cioloop::run_loop()
 				for (unsigned int i = 0; i < rfds.size(); i++) {
 					if (FD_ISSET(i, &exceptfds)) {
 						if((NULL != rfds[i]) || (NULL != wfds[i])) {
+							rofl::logging::trace << "[rofl][cioloop][run] checking for exceptfds: " << std::hex << rfds[i] << std::dec << std::endl;
+							{
+								RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+								if (ciosrv::ciolist.find(rfds[i]) == ciosrv::ciolist.end()) {
+									continue;
+								}
+							}
 							rfds[i]->handle_xevent(i);
 						}
 					}
@@ -418,13 +427,31 @@ cioloop::run_loop()
 
 				for (unsigned int i = minwfd; i < maxwfd; i++) {
 					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
+						rofl::logging::trace << "[rofl][cioloop][run] checking for wfds: " << std::hex << wfds[i] << std::dec << std::endl;
+						{
+							RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+							if (ciosrv::ciolist.find(wfds[i]) == ciosrv::ciolist.end()) {
+								continue;
+							}
+						}
+						rofl::logging::trace << "[rofl][cioloop][run] checking for readfds before handle_wevent" << std::endl << *this;
 						wfds[i]->handle_wevent(i);
+						rofl::logging::trace << "[rofl][cioloop][run] checking for readfds after handle_wevent" << std::endl << *this;
 					}
 				}
 
 				for (unsigned int i = minrfd; i < maxrfd; i++) {
 					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
+						rofl::logging::trace << "[rofl][cioloop][run] checking for rfds: " << std::hex << rfds[i] << std::dec << std::endl;
+						{
+							RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+							if (ciosrv::ciolist.find(rfds[i]) == ciosrv::ciolist.end()) {
+								continue;
+							}
+						}
+						rofl::logging::trace << "[rofl][cioloop][run] checking for readfds before handle_revent" << std::endl << *this;
 						rfds[i]->__handle_revent(i);
+						rofl::logging::trace << "[rofl][cioloop][run] checking for readfds after handle_revent" << std::endl << *this;
 					}
 				}
 

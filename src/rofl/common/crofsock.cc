@@ -30,12 +30,14 @@ crofsock::crofsock(
 	outqueues[QUEUE_MGMT].set_max_cwnd(128);
 	outqueues[QUEUE_FLOW].set_max_cwnd(64);
 	outqueues[QUEUE_PKT ].set_max_cwnd(32);
+	//rofl::logging::debug << "[rofl][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofsock::~crofsock()
 {
+	//rofl::logging::debug << "[rofl][crofsock] destructor " << std::hex << this << std::dec << std::endl;
 	if (fragment)
 		delete fragment;
 	if (socket)
