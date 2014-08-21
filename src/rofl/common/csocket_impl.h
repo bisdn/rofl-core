@@ -210,7 +210,14 @@ public:
 	 */
 	virtual ssize_t
 	recv(
-			void *buf, size_t count);
+			void *buf, size_t count) {
+		csockaddr from;
+		return recv(buf, count, 0, from);
+	};
+
+	virtual ssize_t
+	recv(
+			void *buf, size_t count, int flags, rofl::csockaddr& from);
 
 
 	/**

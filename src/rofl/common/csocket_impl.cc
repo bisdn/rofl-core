@@ -958,8 +958,10 @@ csocket_impl::close()
 	}
 }
 
+
+
 ssize_t
-csocket_impl::recv(void *buf, size_t count)
+csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 {
 	if (sd == -1)
 		throw eSocketNotConnected();
@@ -967,7 +969,25 @@ csocket_impl::recv(void *buf, size_t count)
 
 
 		// read from socket:
-		rc = ::read(sd, (void*)buf, count);
+		switch (type) {
+		case SOCK_STREAM:
+		case SOCK_SEQPACKET: {
+			rc = ::read(sd, (void*)buf, count);
+			from = raddr;
+		} break;
+		case SOCK_DGRAM:
+		case SOCK_RAW: {
+			switch (domain) {
+			case AF_INET:  from = csockaddr(caddress_in4("0.0.0.0"), 0); break;
+			case AF_INET6: from = csockaddr(caddress_in6("::"), 0); break;
+			}
+			rc = recvfrom(sd, (void*)buf, count, flags, from.ca_saddr, &from.salen);
+		} break;
+		default: {
+			return 0;
+		};
+		}
+
 
 		if (rc > 0) {
 			return rc;
