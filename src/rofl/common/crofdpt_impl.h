@@ -1221,7 +1221,7 @@ public:
 			os << indent(2) << "<state: -UNKNOWN- >" << std::endl;
 		} break;
 		}
-		os << indent(2) << "<hwaddr: " << dpt.hwaddr << " >" << std::endl;
+		os << indent(2) << "<hwaddr: " << dpt.hwaddr.str() << " >" << std::endl;
 		os << indent(2) << "<#buffers: " << (int)dpt.n_buffers << " >" << std::endl;
 		os << indent(2) << "<#tables: " << (int)dpt.n_tables << " >" << std::endl;
 		os << indent(2) << "<capabilities: " << std::hex << (int)dpt.capabilities << std::dec << " >" << std::endl;
