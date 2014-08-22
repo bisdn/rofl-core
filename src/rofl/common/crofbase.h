@@ -357,7 +357,7 @@ public:
 	 */
 	cdptid const&
 	add_dpt(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 
@@ -409,7 +409,7 @@ public:
 	 */
 	cctlid const&
 	add_ctl(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 
@@ -520,7 +520,8 @@ protected:
 	virtual crofctl*
 	rofctl_factory(
 			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 	/**
@@ -539,7 +540,8 @@ protected:
 	virtual crofdpt*
 	rofdpt_factory(
 			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 public:
@@ -1932,6 +1934,10 @@ private:
 	void
 	handle_dpt_detached(crofdpt& dpt) {
 		handle_dpt_close(dpt);
+		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
+		if (rofl::crofdpt::FLAVOUR_PASSIVE == dpt.get_flavour()) {
+			drop_dpt(dpt.get_dptid());
+		}
 	};
 
 	/** for use by cofctl
@@ -1948,6 +1954,10 @@ private:
 	void
 	handle_ctl_detached(crofctl& ctl) {
 		handle_ctl_close(ctl);
+		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
+		if (rofl::crofctl::FLAVOUR_PASSIVE == ctl.get_flavour()) {
+			drop_ctl(ctl.get_ctlid());
+		}
 	};
 
 	/** get highest support OF protocol version

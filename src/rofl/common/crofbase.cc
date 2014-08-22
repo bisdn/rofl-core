@@ -118,7 +118,7 @@ crofbase::handle_connected(
 	switch (conn->get_flavour()) {
 	case crofconn::FLAVOUR_CTL: {
 
-		set_ctl(add_ctl(conn->get_versionbitmap())).set_channel().add_conn(conn->get_aux_id(), conn);
+		set_ctl(add_ctl(conn->get_versionbitmap(), rofl::crofctl::FLAVOUR_PASSIVE)).set_channel().add_conn(conn->get_aux_id(), conn);
 
 	} break;
 	case crofconn::FLAVOUR_DPT: try {
@@ -129,7 +129,7 @@ crofbase::handle_connected(
 		rofl::logging::info << "[rofl][base] new dpt representing handle created for dpid:"
 				<< conn->get_dpid() << std::endl;
 
-		set_dpt(add_dpt(conn->get_versionbitmap())).set_channel().add_conn(conn->get_aux_id(), conn);
+		set_dpt(add_dpt(conn->get_versionbitmap(), rofl::crofdpt::FLAVOUR_PASSIVE)).set_channel().add_conn(conn->get_aux_id(), conn);
 	} break;
 	default: {
 
@@ -214,7 +214,7 @@ crofbase::rpc_connect_to_ctl(
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
-	const cctlid& ctlid = add_ctl(versionbitmap);
+	const cctlid& ctlid = add_ctl(versionbitmap, rofl::crofctl::FLAVOUR_ACTIVE);
 	set_ctl(ctlid).connect(socket_type, socket_params);
 	return set_ctl(ctlid);
 }
@@ -227,7 +227,7 @@ crofbase::rpc_connect_to_dpt(
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
-	const cdptid& dptid = add_dpt(versionbitmap);
+	const cdptid& dptid = add_dpt(versionbitmap, rofl::crofdpt::FLAVOUR_ACTIVE);
 	set_dpt(dptid).connect(socket_type, socket_params);
 	return set_dpt(dptid);
 }
@@ -238,9 +238,9 @@ crofbase::rpc_connect_to_dpt(
 
 cdptid const&
 crofbase::add_dpt(
-	const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
+	const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofdpt::crofdpt_flavour_t flavour)
 {
-	crofdpt *rofdpt = rofdpt_factory(this, versionbitmap);
+	crofdpt *rofdpt = rofdpt_factory(this, versionbitmap, flavour);
 	rofdpts[rofdpt->get_dptid()] = rofdpt;
 	return rofdpt->get_dptid();
 }
@@ -283,9 +283,10 @@ crofbase::has_dpt(
 
 cctlid const&
 crofbase::add_ctl(
-	const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
+	const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+	enum rofl::crofctl::crofctl_flavour_t flavour)
 {
-	crofctl *rofctl = rofctl_factory(this, versionbitmap);
+	crofctl *rofctl = rofctl_factory(this, versionbitmap, flavour);
 	rofctls[rofctl->get_ctlid()] = rofctl;
 	return rofctl->get_ctlid();
 }
@@ -329,9 +330,10 @@ crofbase::has_ctl(
 crofdpt*
 crofbase::rofdpt_factory(
 		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap)
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		enum rofl::crofdpt::crofdpt_flavour_t flavour)
 {
-	return new crofdpt_impl(owner, versionbitmap);
+	return new crofdpt_impl(owner, versionbitmap, flavour);
 }
 
 
@@ -339,9 +341,10 @@ crofbase::rofdpt_factory(
 crofctl*
 crofbase::rofctl_factory(
 		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap)
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		enum rofl::crofctl::crofctl_flavour_t flavour)
 {
-	return new crofctl_impl(owner, versionbitmap);
+	return new crofctl_impl(owner, versionbitmap, flavour);
 }
 
 

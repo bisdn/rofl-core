@@ -115,7 +115,8 @@ public:
 	 */
 	crofdpt_impl(
 			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 	/**
 	 * @brief 	Constructor for accepted incoming connection on socket.
@@ -127,7 +128,8 @@ public:
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			enum rofl::csocket::socket_type_t socket_type,
-			int newsd);
+			int newsd,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 	/**

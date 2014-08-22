@@ -9,7 +9,9 @@ using namespace rofl;
 
 crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		enum rofl::crofctl::crofctl_flavour_t flavour) :
+				crofctl(flavour),
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -26,7 +28,9 @@ crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		rofl::csocket::socket_type_t socket_type,
-		int newsd) :
+		int newsd,
+		enum rofl::crofctl::crofctl_flavour_t flavour) :
+				crofctl(flavour),
 				ctid(0),
 				rofbase(rofbase),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),

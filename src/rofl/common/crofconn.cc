@@ -236,7 +236,7 @@ crofconn::event_disconnected()
 		rofsock.close();
 
 		if (flags.test(FLAGS_CLOSED)) {
-			flags.reset(FLAGS_CLOSED); env->handle_closed(this);
+			flags.reset(FLAGS_CLOSED); env->handle_closed(this); return; // this object may have been destroyed here
 		}
 	};
 	}

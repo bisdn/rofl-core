@@ -9,7 +9,9 @@ using namespace rofl;
 
 crofdpt_impl::crofdpt_impl(
 		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		enum rofl::crofdpt::crofdpt_flavour_t flavour) :
+				crofdpt(flavour),
 				rofchan(this, versionbitmap),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -30,7 +32,9 @@ crofdpt_impl::crofdpt_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		enum rofl::csocket::socket_type_t socket_type,
-		int newsd) :
+		int newsd,
+		enum rofl::crofdpt::crofdpt_flavour_t flavour) :
+				crofdpt(flavour),
 				rofchan(this, versionbitmap),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
