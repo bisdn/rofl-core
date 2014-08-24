@@ -259,12 +259,11 @@ public:
 	 */
 	friend std::ostream &
 	operator<<(std::ostream& os, const cpacket& pack) {
-		os << indent(0) << "<cpacket >" << std::endl;
-		indent i(2);
-		os << indent(0) << "<content: ";
+		os << rofl::indent(0) << "<cpacket ";
 		os << "data:" << (void*)pack.soframe() << " ";
 		os << "datalen:" << (int)pack.length() << " ";
 		os << ">" << std::endl;
+		rofl::indent i(2);
 
 		unsigned int nbytes = 32;
 		if (pack.length() > 0) {
