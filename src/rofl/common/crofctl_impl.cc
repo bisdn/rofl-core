@@ -46,7 +46,7 @@ crofctl_impl::crofctl_impl(
 
 crofctl_impl::~crofctl_impl()
 {
-	rofbase->fsptable.delete_fsp_entries(this);
+
 }
 
 
@@ -1985,13 +1985,6 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 		rofl::logging::warn << "eFlowModBase " << *msg << std::endl;
 		delete msg;
 
-	} catch (rofl::openflow::eFspNotAllowed& e) {
-
-		rofl::logging::warn << "eFspNotAllowed " << *msg << " fsptable:" << rofbase->fsptable << std::endl;
-		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_flow_mod_failed_eperm(
-				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
-		delete msg;
-
 	} catch (eRofBaseTableNotFound& e) {
 
 		rofl::logging::warn << "eRofBaseTableNotFound " << *msg << std::endl;
@@ -2761,55 +2754,9 @@ crofctl_impl::experimenter_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_expe
 			<< " Experimenter message received" << std::endl << message;
 
 	switch (msg->get_experimenter_id()) {
-	case OFPEXPID_ROFL: {
-		switch (msg->get_experimenter_type()) {
-		case rofl::openflow::croflexp::OFPRET_FLOWSPACE: {
-			rofl::openflow::croflexp rexp(msg->get_body().somem(), msg->get_body().memlen());
-
-			switch (rexp.rext_fsp->command) {
-			case rofl::openflow::croflexp::OFPRET_FSP_ADD:
-			try {
-
-				rofbase->fsptable.insert_fsp_entry(this, rexp.match);
-
-				rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-						<< "flowspace registration accepted" << std::endl << indent(2) << rexp.match;
-
-			} catch (rofl::openflow::eFspEntryOverlap& e) {
-
-				rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-						<< "flowspace registration rejected" << std::endl << indent(2) << rexp.match;
-
-			} break;
-			case rofl::openflow::croflexp::OFPRET_FSP_DELETE:
-			try {
-
-				rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
-
-				rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-						<< "flowspace registration deleted" << std::endl << indent(2) << rexp.match;
-
-			} catch (rofl::openflow::eFspEntryNotFound& e) {
-
-				rofl::logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-						<< "flowspace registration deletion failed" << std::endl << indent(2) << rexp.match;
-
-			} break;
-			default:
-				break;
-			}
-
-			break;
-		}
-
-		}
-
-		delete msg;
-		break;
-	}
-	default:
+	default: {
 		rofbase->handle_experimenter_message(*this, auxid, message);
-		break;
+	};
 	}
 
 	delete msg;

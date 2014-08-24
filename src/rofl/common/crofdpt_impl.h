@@ -98,8 +98,6 @@ private: // data structures
 		uint16_t								config;
 		uint16_t 								miss_send_len; 	// length of bytes sent to controller
 
-		rofl::openflow::cfsptable 				fsptable;		// flowspace registration table
-
 		crofbase 								*rofbase;		// layer-(n) entity
 		ctransactions							transactions;	// pending OFP transactions
 
@@ -320,16 +318,6 @@ public:
 	 */
 	virtual uint16_t
 	get_miss_send_len() const { return miss_send_len; };
-
-
-	/**
-	 * @brief	Returns reference to the data path element's flowspace table.
-	 *
-	 * @return fsptable
-	 */
-	virtual rofl::openflow::cfsptable&
-	get_fsptable() { return fsptable; };
-
 
 	/**
 	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.

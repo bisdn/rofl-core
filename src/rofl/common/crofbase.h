@@ -47,7 +47,6 @@
 #include "rofl/common/openflow/cofpacketqueues.h"
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofstats.h"
-#include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
@@ -140,7 +139,6 @@ class crofbase :
 protected:
 
 	rofl::openflow::cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
-	rofl::openflow::cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::map<cctlid, crofctl*>					rofctls;		/**< set of active controller connections */
 	std::map<cdptid, crofdpt*>					rofdpts;		/**< set of active data path connections */
 	ctransactions								transactions;

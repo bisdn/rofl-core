@@ -19,7 +19,6 @@
 #include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
-#include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofflowmod.h"
@@ -306,16 +305,6 @@ public:
 	 */
 	virtual uint16_t
 	get_miss_send_len() const = 0;
-
-
-	/**
-	 * @brief	Returns reference to the data path element's flowspace table.
-	 *
-	 * @return fsptable
-	 */
-	virtual rofl::openflow::cfsptable&
-	get_fsptable() = 0;
-
 
 	/**
 	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.

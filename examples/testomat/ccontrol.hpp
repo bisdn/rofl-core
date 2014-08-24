@@ -9,6 +9,7 @@
 #define CCONTROL_HPP_
 
 #include <rofl/common/crofbase.h>
+#include <rofl/common/protocols/fvlanframe.h>
 
 namespace testomat {
 
