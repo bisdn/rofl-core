@@ -19,7 +19,6 @@
 #include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
-#include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofflowmod.h"
@@ -84,23 +83,37 @@ public: // static
 
 public:
 
+	enum crofdpt_flavour_t {
+		FLAVOUR_PASSIVE = 1,	// connection was established from peer entity
+		FLAVOUR_ACTIVE = 2,		// connection was established actively by us
+	};
+
+	/**
+	 *
+	 */
+	enum crofdpt_flavour_t
+	get_flavour() const { return flavour; };
 
 	/**
 	 * @brief 	Creates new crofdpt instance.
 	 *
 	 */
-	crofdpt() :
-		dptid(cdptid(++crofdpt::next_dptid)), dpid(0) {
+	crofdpt(enum crofdpt_flavour_t flavour) :
+		dptid(cdptid(++crofdpt::next_dptid)), dpid(0), flavour(flavour) {
 		crofdpt::rofdpts[dptid] = this;
+		rofl::logging::debug << "[rofl][crofdpt] instance creating, dptid: "
+				<< (unsigned long long)dptid.get_dptid() << std::endl;
 	};
 
 
 	/**
-	 * @brief	Destroys crodpt instance.
+	 * @brief	Destroys crofdpt instance.
 	 *
 	 */
 	virtual
 	~crofdpt() {
+		rofl::logging::debug << "[rofl][crofdpt] destroying instance, dptid: "
+				<< (unsigned long long)dptid.get_dptid() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
 	};
 
@@ -292,16 +305,6 @@ public:
 	 */
 	virtual uint16_t
 	get_miss_send_len() const = 0;
-
-
-	/**
-	 * @brief	Returns reference to the data path element's flowspace table.
-	 *
-	 * @return fsptable
-	 */
-	virtual rofl::openflow::cfsptable&
-	get_fsptable() = 0;
-
 
 	/**
 	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
@@ -896,6 +899,7 @@ private:
 	cdptid   							dptid;			// handle for this crofdpt instance
 	cdpid 								dpid;			// datapath id
 	std::set<uint32_t>					groupids;		// allocated groupids on datapath
+	enum crofdpt_flavour_t				flavour;		// connection mode (active/passive)
 };
 
 

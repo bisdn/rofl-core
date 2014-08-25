@@ -43,20 +43,11 @@ void platform_packet_set_udp_src(datapacket_t* pkt, uint16_t udp_src){}
 void platform_packet_set_udp_dst(datapacket_t* pkt, uint16_t udp_dst){}
 void platform_packet_set_sctp_src(datapacket_t* pkt, uint16_t sctp_src){}
 void platform_packet_set_sctp_dst(datapacket_t* pkt, uint16_t sctp_dst){}
-
-
-
 void platform_packet_set_icmpv4_type(datapacket_t* pkt, uint8_t type){}
 void platform_packet_set_icmpv4_code(datapacket_t* pkt, uint8_t code){}
 void platform_packet_set_mpls_label(datapacket_t* pkt, uint32_t label){}
 void platform_packet_set_mpls_tc(datapacket_t* pkt, uint8_t tc){}
 void platform_packet_set_mpls_bos(datapacket_t* pkt, bool bos){}
-void platform_packet_set_pppoe_type(datapacket_t* pkt, uint8_t type){}
-void platform_packet_set_pppoe_code(datapacket_t* pkt, uint8_t code){}
-void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid){}
-void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto){}
-void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type){}
-void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid){}
 void platform_packet_output(datapacket_t* pkt, switch_port_t* port){}
 datapacket_t* platform_packet_replicate(datapacket_t* pkt){return NULL;}
 void platform_packet_drop(datapacket_t* pkt){}
@@ -73,10 +64,31 @@ void platform_packet_set_icmpv6_code(datapacket_t * pkt, uint8_t icmpv6_code){}
 void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid){}
 void platform_packet_pop_pbb(datapacket_t* pkt){}
 void platform_packet_push_pbb(datapacket_t* pkt, uint16_t ether_type){}
+
+#ifdef ROFL_EXPERIMENTAL
+void platform_packet_set_pppoe_type(datapacket_t* pkt, uint8_t type){}
+void platform_packet_set_pppoe_code(datapacket_t* pkt, uint8_t code){}
+void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid){}
+void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto){}
+void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type){}
+void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid){}
 void platform_packet_pop_gtp(datapacket_t* pkt){}
 void platform_packet_push_gtp(datapacket_t* pkt){}
-
-
+void platform_packet_set_capwap_wbid(datapacket_t* pkt, uint8_t wbid){};
+void platform_packet_set_capwap_rid(datapacket_t* pkt, uint8_t rid){};
+void platform_packet_set_capwap_flags(datapacket_t* pkt, uint16_t flags){};
+void platform_packet_pop_capwap(datapacket_t* pkt){};
+void platform_packet_push_capwap(datapacket_t* pkt){};
+void platform_packet_set_wlan_fc(datapacket_t* pkt, uint16_t fc){};
+void platform_packet_set_wlan_type(datapacket_t* pkt, uint8_t type){};
+void platform_packet_set_wlan_subtype(datapacket_t* pkt, uint8_t subtype){};
+void platform_packet_set_wlan_direction(datapacket_t* pkt, uint8_t direction){};
+void platform_packet_set_wlan_address_1(datapacket_t* pkt, uint64_t address_1){};
+void platform_packet_set_wlan_address_2(datapacket_t* pkt, uint64_t address_2){};
+void platform_packet_set_wlan_address_3(datapacket_t* pkt, uint64_t address_3){};
+void platform_packet_pop_wlan(datapacket_t* pkt){};
+void platform_packet_push_wlan(datapacket_t* pkt){};
+#endif
 
 void platform_packet_set_tunnel_id(datapacket_t*pkt, uint64_t tunnel_id){}
 
@@ -169,18 +181,6 @@ uint8_t* platform_packet_get_mpls_tc(datapacket_t *const pkt){
 bool platform_packet_get_mpls_bos(datapacket_t *const pkt){
 	return false;
 }
-uint8_t* platform_packet_get_pppoe_code(datapacket_t *const pkt){
-	return (uint8_t*)&tmp_val;
-}
-uint8_t* platform_packet_get_pppoe_type(datapacket_t *const pkt){
-	return (uint8_t*)&tmp_val;
-}
-uint16_t* platform_packet_get_pppoe_sid(datapacket_t *const pkt){
-	return (uint16_t*)&tmp_val;
-}
-uint16_t* platform_packet_get_ppp_proto(datapacket_t *const pkt){
-	return (uint16_t*)&tmp_val;
-}
 uint128__t* platform_packet_get_ipv6_src(datapacket_t *const pkt){
 	return &tmp_val;
 }
@@ -214,12 +214,56 @@ uint32_t* platform_packet_get_pbb_isid(datapacket_t *const pkt){
 uint64_t* platform_packet_get_tunnel_id(datapacket_t *const pkt){
 	return (uint64_t*)&tmp_val;
 }
+#ifdef ROFL_EXPERIMENTAL
+uint8_t* platform_packet_get_pppoe_code(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+}
+uint8_t* platform_packet_get_pppoe_type(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+}
+uint16_t* platform_packet_get_pppoe_sid(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+}
+uint16_t* platform_packet_get_ppp_proto(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+}
 uint8_t* platform_packet_get_gtp_msg_type(datapacket_t *const pkt){
 	return (uint8_t*)&tmp_val;
 }
 uint32_t* platform_packet_get_gtp_teid(datapacket_t *const pkt){
 	return (uint32_t*)&tmp_val;
 }
+uint8_t* platform_packet_get_capwap_wbid(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+};
+uint8_t* platform_packet_get_capwap_rid(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+};
+uint16_t* platform_packet_get_capwap_flags(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+};
+uint16_t* platform_packet_get_wlan_fc(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+};
+uint8_t* platform_packet_get_wlan_type(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+};
+uint8_t* platform_packet_get_wlan_subtype(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+};
+uint8_t* platform_packet_get_wlan_direction(datapacket_t *const pkt){
+	return (uint8_t*)&tmp_val;
+};
+uint64_t* platform_packet_get_wlan_address_1(datapacket_t *const pkt){
+	return (uint64_t*)&tmp_val;
+};
+uint64_t* platform_packet_get_wlan_address_2(datapacket_t *const pkt){
+	return (uint64_t*)&tmp_val;
+};
+uint64_t* platform_packet_get_wlan_address_3(datapacket_t *const pkt){
+	return (uint64_t*)&tmp_val;
+};
+#endif
 bool platform_packet_has_vlan(datapacket_t *const pkt){
        return false;
 }

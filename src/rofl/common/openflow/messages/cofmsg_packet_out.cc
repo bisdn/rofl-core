@@ -12,7 +12,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		size_t datalen) :
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	actions(actions),
-	packet(of_version, data, datalen, in_port, false)
+	packet(data, datalen)
 {
 	ofh_packet_out = soframe();
 
@@ -125,13 +125,13 @@ cofmsg_packet_out::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow10::ofp_packet_out) + actions.length() + packet.framelen());
+		return (sizeof(struct rofl::openflow10::ofp_packet_out) + actions.length() + packet.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow12::ofp_packet_out) + actions.length() + packet.framelen());
+		return (sizeof(struct rofl::openflow12::ofp_packet_out) + actions.length() + packet.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow13::ofp_packet_out) + actions.length() + packet.framelen());
+		return (sizeof(struct rofl::openflow13::ofp_packet_out) + actions.length() + packet.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -169,17 +169,17 @@ cofmsg_packet_out::pack(uint8_t *buf, size_t buflen)
 	case rofl::openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct rofl::openflow10::ofp_packet_out));
 		actions.pack(buf + sizeof(struct rofl::openflow10::ofp_packet_out), actions.length());
-		memcpy(buf + sizeof(struct rofl::openflow10::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf + sizeof(struct rofl::openflow10::ofp_packet_out) + actions.length(), packet.soframe(), packet.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct rofl::openflow12::ofp_packet_out));
 		actions.pack(buf + sizeof(struct rofl::openflow12::ofp_packet_out), actions.length());
-		memcpy(buf + sizeof(struct rofl::openflow12::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf + sizeof(struct rofl::openflow12::ofp_packet_out) + actions.length(), packet.soframe(), packet.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct rofl::openflow13::ofp_packet_out));
 		actions.pack(buf + sizeof(struct rofl::openflow13::ofp_packet_out), actions.length());
-		memcpy(buf + sizeof(struct rofl::openflow13::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf + sizeof(struct rofl::openflow13::ofp_packet_out) + actions.length(), packet.soframe(), packet.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -220,8 +220,7 @@ cofmsg_packet_out::validate()
 						be16toh(ofh10_packet_out->actions_len));
 
 		if (rofl::openflow10::OFP_NO_BUFFER == get_buffer_id()) {
-			packet.unpack(get_in_port(),
-						((uint8_t*)ofh10_packet_out) +
+			packet.unpack(((uint8_t*)ofh10_packet_out) +
 							sizeof(struct rofl::openflow10::ofp_packet_out) +
 								be16toh(ofh10_packet_out->actions_len),
 								be16toh(ofh10_packet_out->header.length) -
@@ -240,8 +239,7 @@ cofmsg_packet_out::validate()
 						be16toh(ofh12_packet_out->actions_len));
 
 		if (rofl::openflow12::OFP_NO_BUFFER == get_buffer_id()) {
-			packet.unpack(get_in_port(),
-						((uint8_t*)ofh12_packet_out) +
+			packet.unpack(((uint8_t*)ofh12_packet_out) +
 							sizeof(struct rofl::openflow12::ofp_packet_out) +
 								be16toh(ofh12_packet_out->actions_len),
 								get_length() - sizeof(struct rofl::openflow12::ofp_packet_out) -
@@ -259,8 +257,7 @@ cofmsg_packet_out::validate()
 						be16toh(ofh13_packet_out->actions_len));
 
 		if (rofl::openflow13::OFP_NO_BUFFER == get_buffer_id()) {
-			packet.unpack(get_in_port(),
-						((uint8_t*)ofh13_packet_out) +
+			packet.unpack(((uint8_t*)ofh13_packet_out) +
 							sizeof(struct rofl::openflow13::ofp_packet_out) +
 								be16toh(ofh13_packet_out->actions_len),
 								be16toh(ofh13_packet_out->header.length) -

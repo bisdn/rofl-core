@@ -11,12 +11,11 @@
 
 #include "crofchan.h"
 
-#include "ciosrv.h"
-#include "thread_helper.h"
-#include "logging.h"
-#include "openflow/cofmatch.h"
-#include "openflow/extensions/cfspentry.h"
-#include "openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/ctransactions.h"
 
 
@@ -30,8 +29,7 @@ class crofctl_impl :
 	public crofctl,
 	public rofl::crofchan_env,
 	public rofl::ctransactions_env,
-	public ciosrv,
-	public rofl::openflow::cfspentry_owner
+	public ciosrv
 {
 
 private: // data structures
@@ -59,7 +57,8 @@ public: // methods
 	 */
 	crofctl_impl(
 			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 
@@ -74,7 +73,8 @@ public: // methods
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			rofl::csocket::socket_type_t socket_type,
-			int newsd);
+			int newsd,
+			enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 	/**

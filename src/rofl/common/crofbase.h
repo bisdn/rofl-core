@@ -47,7 +47,6 @@
 #include "rofl/common/openflow/cofpacketqueues.h"
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofstats.h"
-#include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
@@ -140,7 +139,6 @@ class crofbase :
 protected:
 
 	rofl::openflow::cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
-	rofl::openflow::cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::map<cctlid, crofctl*>					rofctls;		/**< set of active controller connections */
 	std::map<cdptid, crofdpt*>					rofdpts;		/**< set of active data path connections */
 	ctransactions								transactions;
@@ -357,7 +355,7 @@ public:
 	 */
 	cdptid const&
 	add_dpt(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 
@@ -409,7 +407,7 @@ public:
 	 */
 	cctlid const&
 	add_ctl(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 
@@ -520,7 +518,8 @@ protected:
 	virtual crofctl*
 	rofctl_factory(
 			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofctl::crofctl_flavour_t flavour);
 
 
 	/**
@@ -539,7 +538,8 @@ protected:
 	virtual crofdpt*
 	rofdpt_factory(
 			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 public:
@@ -1932,6 +1932,10 @@ private:
 	void
 	handle_dpt_detached(crofdpt& dpt) {
 		handle_dpt_close(dpt);
+		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
+		if (rofl::crofdpt::FLAVOUR_PASSIVE == dpt.get_flavour()) {
+			drop_dpt(dpt.get_dptid());
+		}
 	};
 
 	/** for use by cofctl
@@ -1948,6 +1952,10 @@ private:
 	void
 	handle_ctl_detached(crofctl& ctl) {
 		handle_ctl_close(ctl);
+		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
+		if (rofl::crofctl::FLAVOUR_PASSIVE == ctl.get_flavour()) {
+			drop_ctl(ctl.get_ctlid());
+		}
 	};
 
 	/** get highest support OF protocol version
