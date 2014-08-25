@@ -230,9 +230,7 @@ public:
 	 */
 	virtual void
 	unpack(uint8_t* buf, size_t buflen) {
-		if (length() < buflen) {
-			rofl::cmemory::resize(head + buflen + tail);
-		}
+		rofl::cmemory::resize(head + buflen + tail);
 		memcpy(soframe(), buf, buflen);
 	};
 
