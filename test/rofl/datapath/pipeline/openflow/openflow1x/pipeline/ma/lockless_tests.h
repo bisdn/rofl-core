@@ -1,5 +1,5 @@
-#ifndef MATCHING_TEST
-#define MATCHING_TEST
+#ifndef LOCKLESS_TEST
+#define LOCKLESS_TEST
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,11 +19,7 @@ int set_up(void);
 int tear_down(void);
 	
 /* Test cases */
-void profile_basic_match_lock(void);
-void profile_basic_no_match_lock(void);
-
-void profile_basic_match_no_lock(void);
-void profile_basic_no_match_no_lock(void);
+void lockless_basic(void);
 
 
 #endif

@@ -512,15 +512,20 @@ bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){
 }
 
 void of1x_dump_bucket(of1x_bucket_t *bc, bool raw_nbo){
+
+	__of1x_stats_bucket_tid_t c;
+	__of1x_stats_bucket_consolidate(&bc->stats, &c);
+		
 	ROFL_PIPELINE_INFO_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
 	__of1x_dump_action_group(bc->actions, raw_nbo);
-	ROFL_PIPELINE_INFO_NO_PREFIX(" statistics {pkt_count: %u}", bc->stats.packet_count);
+	ROFL_PIPELINE_INFO_NO_PREFIX(" statistics {pkt_count: %u}", c.packet_count);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 
 void of1x_dump_group(of1x_group_t* group, bool raw_nbo){
 	of1x_bucket_t *bc_it;
 	unsigned int i;
+	__of1x_stats_group_tid_t c;
 	
 	ROFL_PIPELINE_INFO_NO_PREFIX("id %u, ", group->id);
 	switch(group->type){
@@ -540,7 +545,10 @@ void of1x_dump_group(of1x_group_t* group, bool raw_nbo){
 			ROFL_PIPELINE_INFO_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
 			break;
 	}
-	ROFL_PIPELINE_INFO_NO_PREFIX("num of buckets %u, statistics {pkt_count: %u} \n", group->bc_list->num_of_buckets, group->stats.packet_count);
+
+	__of1x_stats_group_consolidate(&group->stats, &c);
+
+	ROFL_PIPELINE_INFO_NO_PREFIX("num of buckets %u, statistics {pkt_count: %u} \n", group->bc_list->num_of_buckets, c.packet_count);
 	
 	for(bc_it=group->bc_list->head, i=0; bc_it; bc_it=bc_it->next, i++){
 		ROFL_PIPELINE_INFO("\t\t[%u] Bucket (%p). ", i, bc_it);

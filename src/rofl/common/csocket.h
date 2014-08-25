@@ -302,7 +302,8 @@ public:
 	 */
 	virtual ssize_t
 	recv(void *buf, size_t count) = 0;
-
+	virtual ssize_t
+	recv(void *buf, size_t count, int flags, rofl::csockaddr& from) = 0;
 
 	/**
 	 * @brief	Store a packet for transmission.

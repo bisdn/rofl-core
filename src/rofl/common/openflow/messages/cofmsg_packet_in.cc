@@ -16,7 +16,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct rofl::openflow::ofp_header)),
 	match(match),
-	packet(of_version, data, datalen, match.get_matches().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value(), false)
+	packet(data, datalen)
 {
 	ofh_packet_in = soframe();
 
@@ -130,14 +130,14 @@ cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow10::ofp_packet_in) - 2 + packet.framelen());
+		return (sizeof(struct rofl::openflow10::ofp_packet_in) /*18+2*/+ packet.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
-		//return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.framelen());
-		return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+		//return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.length());
+		return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.length());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
-		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -163,24 +163,24 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	 */
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct rofl::openflow10::ofp_packet_in) - 2);
+		memcpy(buf, soframe(), rofl::openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
 		if (not packet.empty()) {
 			struct rofl::openflow10::ofp_packet_in *packet_in = (struct rofl::openflow10::ofp_packet_in*)buf;
-			memcpy(packet_in->data, packet.soframe(), packet.framelen());
+			memcpy(packet_in->data + 2, packet.soframe(), packet.length());
 		}
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
 		if (not packet.empty()) {
-			memcpy(buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+			memcpy(buf + rofl::openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.length());
 		}
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
 		if (not packet.empty()) {
-			memcpy(buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+			memcpy(buf + rofl::openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.length());
 		}
 	} break;
 	default:
@@ -221,11 +221,9 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN/*18+2*/;
 
-		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
-
-		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
+		packet.unpack((uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
 
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
@@ -252,18 +250,10 @@ cofmsg_packet_in::validate()
 		 */
 		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
 
-		uint32_t in_port = 0;
-
-		try {
-			in_port = match.get_matches().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value();
-		} catch (eOFmatchNotFound& e) {
-			in_port = 0;
-		}
-
 		if (offset > framelen())
 			throw eBadSyntaxTooShort();
 
-		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset));
+		packet.unpack((uint8_t*)(soframe() + offset), framelen() - (offset));
 
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
@@ -290,18 +280,10 @@ cofmsg_packet_in::validate()
 		 */
 		uint16_t offset = OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
 
-		uint32_t in_port = 0;
-
-		try {
-			in_port = match.get_matches().get_match(OXM_TLV_BASIC_IN_PORT).get_u32value();
-		} catch (eOFmatchNotFound& e) {
-			in_port = 0;
-		}
-
 		if (offset > framelen())
 			throw eBadSyntaxTooShort();
 
-		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
+		packet.unpack((uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
 
 	} break;
 	default:

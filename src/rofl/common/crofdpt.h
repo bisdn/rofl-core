@@ -19,7 +19,6 @@
 #include "rofl/common/cdptid.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
-#include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofflowmod.h"
@@ -32,6 +31,7 @@
 #include "rofl/common/openflow/cofmeterconfig.h"
 #include "rofl/common/openflow/cofmeterfeatures.h"
 #include "rofl/common/cauxid.h"
+#include "rofl/common/cdpid.h"
 
 
 namespace rofl
@@ -79,27 +79,41 @@ public: // static
 	 * @return	Reference to crofdpt instance
 	 */
 	static crofdpt&
-	get_dpt(uint64_t dpid);
+	get_dpt(const cdpid& dpid);
 
 public:
 
+	enum crofdpt_flavour_t {
+		FLAVOUR_PASSIVE = 1,	// connection was established from peer entity
+		FLAVOUR_ACTIVE = 2,		// connection was established actively by us
+	};
+
+	/**
+	 *
+	 */
+	enum crofdpt_flavour_t
+	get_flavour() const { return flavour; };
 
 	/**
 	 * @brief 	Creates new crofdpt instance.
 	 *
 	 */
-	crofdpt() :
-		dptid(cdptid(++crofdpt::next_dptid)), dpid(0) {
+	crofdpt(enum crofdpt_flavour_t flavour) :
+		dptid(cdptid(++crofdpt::next_dptid)), dpid(0), flavour(flavour) {
 		crofdpt::rofdpts[dptid] = this;
+		rofl::logging::debug << "[rofl][crofdpt] instance creating, dptid: "
+				<< (unsigned long long)dptid.get_dptid() << std::endl;
 	};
 
 
 	/**
-	 * @brief	Destroys crodpt instance.
+	 * @brief	Destroys crofdpt instance.
 	 *
 	 */
 	virtual
 	~crofdpt() {
+		rofl::logging::debug << "[rofl][crofdpt] destroying instance, dptid: "
+				<< (unsigned long long)dptid.get_dptid() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
 	};
 
@@ -120,18 +134,8 @@ public:
 	 *
 	 * @return dpid
 	 */
-	const uint64_t&
+	const cdpid&
 	get_dpid() const { return dpid; };
-
-
-	/**
-	 * @brief	Returns the data path element's ID string.
-	 *
-	 * @return s_dpid
-	 */
-	const std::string&
-	get_dpid_s() const { return s_dpid; };
-
 
 public:
 
@@ -302,16 +306,6 @@ public:
 	virtual uint16_t
 	get_miss_send_len() const = 0;
 
-
-	/**
-	 * @brief	Returns reference to the data path element's flowspace table.
-	 *
-	 * @return fsptable
-	 */
-	virtual rofl::openflow::cfsptable&
-	get_fsptable() = 0;
-
-
 	/**
 	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
 	 *
@@ -435,9 +429,9 @@ public:
 	 * Drops a packet stored on the data path in the buffer identified by buffer-id
 	 */
 	virtual void
-	drop_buffer(const rofl::cauxid& auxid, uint32_t buffer_id) {
+	drop_buffer(const rofl::cauxid& auxid, uint32_t buffer_id, uint32_t inport = rofl::openflow::OFPP_CONTROLLER) {
 		rofl::openflow::cofactions actions(get_version());
-		send_packet_out_message(auxid, buffer_id, rofl::openflow::OFPP_CONTROLLER, actions, NULL, 0);
+		send_packet_out_message(auxid, buffer_id, inport, actions, NULL, 0);
 	};
 
 	/**@}*/
@@ -881,7 +875,7 @@ public:
 	public:
 		crofdpt_find_by_dpid(uint64_t dpid) : dpid(dpid) {};
 		bool operator() (const std::pair<cdptid, crofdpt*>& p) {
-			return (p.second->get_dpid() == dpid);
+			return (p.second->get_dpid().get_uint64_t() == dpid);
 		};
 	};
 
@@ -891,10 +885,8 @@ protected:
 	 *
 	 */
 	void
-	set_dpid(uint64_t dpid) {
+	set_dpid(const cdpid& dpid) {
 		this->dpid = dpid;
-		std::stringstream sstr; sstr << this->dpid;
-		s_dpid = sstr.str();
 	};
 
 
@@ -905,9 +897,9 @@ private:
 	static std::map<cdptid, crofdpt*> 	rofdpts;
 
 	cdptid   							dptid;			// handle for this crofdpt instance
-	uint64_t 							dpid;			// datapath id
-	std::string	 						s_dpid;			// datapath id as std::string
+	cdpid 								dpid;			// datapath id
 	std::set<uint32_t>					groupids;		// allocated groupids on datapath
+	enum crofdpt_flavour_t				flavour;		// connection mode (active/passive)
 };
 
 

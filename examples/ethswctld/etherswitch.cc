@@ -150,14 +150,29 @@ ethswitch::dump_packet_in(
 		rofl::crofdpt& dpt,
 		rofl::openflow::cofmsg_packet_in& msg)
 {
+	struct eth_hdr_t {
+		uint8_t eth_dst[6];
+		uint8_t eth_src[6];
+		uint16_t eth_type;
+	};
+
+	if (msg.get_packet().length() < sizeof(struct eth_hdr_t)) {
+		return;
+	}
+
+	struct eth_hdr_t* eth_hdr = (struct eth_hdr_t*)msg.get_packet().soframe();
+
+	rofl::caddress_ll eth_dst(eth_hdr->eth_dst, 6);
+	rofl::caddress_ll eth_src(eth_hdr->eth_src, 6);
+
 	//Dump some information
 	rofl::logging::info << "[ethsw][packet-in] PACKET-IN => frame seen, "
 						<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
-						<< "eth-src:" << msg.set_packet().ether()->get_dl_src() << " "
-						<< "eth-dst:" << msg.set_packet().ether()->get_dl_dst() << " "
-						<< "eth-type:0x" << std::hex << msg.set_packet().ether()->get_dl_type() << std::dec << " "
+						<< "eth-src:" << eth_src << " "
+						<< "eth-dst:" << eth_dst << " "
+						<< "eth-type:0x" << std::hex << (int)be16toh(eth_hdr->eth_type) << std::dec << " "
 						<< std::endl;
-	rofl::logging::info << dpt.get_dpid_s();
+	rofl::logging::info << dpt.get_dpid();
 
 }
 
@@ -170,10 +185,31 @@ ethswitch::handle_packet_in(
 	try {
 		cfibtable& fib = cfibtable::get_fib(dpt.get_dptid());
 		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
+		rofl::caddress_ll eth_src;
+		rofl::caddress_ll eth_dst;
+		uint32_t in_port = 0;
 
-		const rofl::caddress_ll& eth_src = msg.get_match().get_eth_src();
-		const rofl::caddress_ll& eth_dst = msg.set_match().get_eth_dst();
-		uint32_t in_port = msg.get_match().get_in_port();
+		switch (dpt.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			struct eth_hdr_t {
+				uint8_t eth_dst[6];
+				uint8_t eth_src[6];
+				uint16_t eth_type;
+			};
+			if (msg.get_packet().length() < sizeof(struct eth_hdr_t)) {
+				return;
+			}
+			struct eth_hdr_t* eth_hdr = (struct eth_hdr_t*)msg.get_packet().soframe();
+			eth_dst.unpack(eth_hdr->eth_dst, 6);
+			eth_src.unpack(eth_hdr->eth_src, 6);
+			in_port = msg.get_in_port();
+		} break;
+		default: {
+			eth_src = msg.get_match().get_eth_src();
+			eth_dst = msg.set_match().get_eth_dst();
+			in_port = msg.get_match().get_in_port();
+		};
+		}
 
 		//Ignore multi-cast frames (SRC)
 		if (eth_src.is_multicast()) {
@@ -197,7 +233,7 @@ ethswitch::handle_packet_in(
 		if (eth_dst.is_multicast() || (not fib.has_fib_entry(eth_dst))) {
 			rofl::openflow::cofactions actions(dpt.get_version());
 			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version()));
-			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			return;
 		}
 
@@ -208,7 +244,7 @@ ethswitch::handle_packet_in(
 			if (rofl::openflow::OFP_NO_BUFFER != msg.get_buffer_id()) {
 				rofl::openflow::cofactions actions(dpt.get_version());
 				actions.add_action_output(rofl::cindex(0)).set_port_no(fib.get_fib_entry(eth_dst).get_port_no());
-				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			}
 		}
 

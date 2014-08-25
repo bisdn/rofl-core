@@ -32,14 +32,14 @@ for ALG in "$@"; do
 	if test -e "$file_name";then
 		echo "//Detected inline provider for of1x_find_best_match_"$ALG"_ma()"	
 	else
-		echo "of1x_flow_entry_t* of1x_find_best_match_"$ALG"_ma(of1x_flow_table_t *const table, datapacket_t *const pkt);"
+		echo "of1x_flow_entry_t* of1x_find_best_match_"$ALG"_ma(unsigned tid, of1x_flow_table_t *const table, datapacket_t *const pkt);"
 	fi
 done
 
 cat <<-EOF
 
 //Main inline find_best_match demux routine
-static inline struct of1x_flow_entry*  __of1x_matching_algorithms_find_best_match(enum of1x_matching_algorithm_available ma, struct of1x_flow_table *const table, datapacket_t *const pkt){
+static inline struct of1x_flow_entry*  __of1x_matching_algorithms_find_best_match(unsigned int tid, enum of1x_matching_algorithm_available ma, struct of1x_flow_table *const table, datapacket_t *const pkt){
 	switch(ma){
 
 EOF
@@ -52,7 +52,7 @@ for ALG in "$@"; do
 		echo "return of1x_find_best_match_"$ALG"_ma(table, pkt);"
 	else
 		#non-inline version
-		echo "return of1x_matching_algorithms[ma]->find_best_match_hook(table, pkt);"
+		echo "return of1x_matching_algorithms[ma]->find_best_match_hook(tid, table, pkt);"
 	fi
 done
 

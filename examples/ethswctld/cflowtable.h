@@ -173,7 +173,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cflowtable const& flowtable) {
 		os << rofl::indent(0) << "<cflowtable dpid: "
-				<< rofl::crofdpt::get_dpt(flowtable.dptid).get_dpid_s() << " >" << std::endl;
+				<< rofl::crofdpt::get_dpt(flowtable.dptid).get_dpid().str() << " >" << std::endl;
 
 		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, std::map<rofl::caddress_ll, cflowentry*> >::const_iterator

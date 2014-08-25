@@ -176,7 +176,7 @@ typedef struct of1x_matching_algorithm_functions{
 	* specifications for versions 1.0, 1.2 and 1.3.2
 	*/
 	of1x_flow_entry_t*
-	(*find_best_match_hook)(struct of1x_flow_table *const table,
+	(*find_best_match_hook)(unsigned tid, struct of1x_flow_table *const table,
 			packet_matches_t *const pkt_matches);
 
 

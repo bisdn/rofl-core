@@ -9,6 +9,7 @@
 #define COFMSG_PORT_MOD_H_ 1
 
 #include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/caddress.h"
 
 namespace rofl {
 namespace openflow {

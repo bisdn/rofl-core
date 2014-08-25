@@ -30,13 +30,14 @@ crofconn::crofconn(
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
 {
-
+	//rofl::logging::debug << "[rofl][crofconn] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofconn::~crofconn()
 {
+	//rofl::logging::debug << "[rofl][crofconn] destructor " << std::hex << this << std::dec << std::endl;
 	if (STATE_DISCONNECTED != state) {
 		close();
 	}
@@ -235,7 +236,7 @@ crofconn::event_disconnected()
 		rofsock.close();
 
 		if (flags.test(FLAGS_CLOSED)) {
-			env->handle_closed(this); flags.reset(FLAGS_CLOSED);
+			flags.reset(FLAGS_CLOSED); env->handle_closed(this); return; // this object may have been destroyed here
 		}
 	};
 	}

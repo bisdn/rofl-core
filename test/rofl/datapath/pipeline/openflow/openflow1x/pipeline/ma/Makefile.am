@@ -23,22 +23,28 @@ SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_ma.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/available_ma.c \
 	../memory.c \
-	../empty_packet.c\
 	../platform_empty_hooks_of12.cc\
 	../pthread_atomic_operations.c\
 	../pthread_lock.c \
 	../timing.c
 
 pipe_profile_SOURCES= $(SHARED_SRC)\
-			profiling_tests.c\
-			pipeline_profile.c
-		
-
+			../empty_packet.c\
+			profiling_tests.c
 pipe_profile_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
-
 pipe_profile_CFLAGS = -O3 -pg 
 pipe_profile_CXXFLAGS = -O3 -pg 
 pipe_profile_CPPFLAGS = -UDEBUG 
 
-check_PROGRAMS= pipe_profile
-TESTS = pipe_profile
+
+lockless_SOURCES= $(SHARED_SRC)\
+			../empty_packet.c\
+			lockless_tests.c
+lockless_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
+lockless_CFLAGS = -O3 -pg 
+lockless_CXXFLAGS = -O3 -pg 
+lockless_CPPFLAGS = -UDEBUG 
+
+
+check_PROGRAMS = lockless pipe_profile
+TESTS = lockless pipe_profile 
