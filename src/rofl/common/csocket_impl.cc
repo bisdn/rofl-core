@@ -994,7 +994,7 @@ csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 			return rc;
 
 		} else if (rc == 0) {
-			rofl::logging::error << "[rofl][csocket][impl] peer closed connection: "
+			rofl::logging::debug << "[rofl][csocket][impl] peer closed connection: "
 					<< eSysCall("read") << std::endl << *this;
 			close();
 
