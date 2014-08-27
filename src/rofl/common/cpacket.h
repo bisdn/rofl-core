@@ -60,7 +60,7 @@ public:
 	 *
 	 */
 	cpacket() :
-		rofl::cmemory(0), head(0), tail(0) {};
+		rofl::cmemory(0), head(0), tail(0), initial_head(0), initial_tail(0) {};
 
 	/**
 	 *
@@ -73,14 +73,14 @@ public:
 	 */
 	cpacket(
 			size_t size, size_t head = DEFAULT_HSPACE, size_t tail = DEFAULT_TSPACE) :
-				rofl::cmemory(head + size + tail), head(head), tail(tail) {};
+				rofl::cmemory(head + size + tail), head(head), tail(tail), initial_head(head), initial_tail(tail) {};
 
 	/**
 	 *
 	 */
 	cpacket(
 			uint8_t *buf, size_t buflen, size_t head = DEFAULT_HSPACE, size_t tail = DEFAULT_TSPACE) :
-				rofl::cmemory(head + buflen + tail), head(head), tail(tail)
+				rofl::cmemory(head + buflen + tail), head(head), tail(tail), initial_head(head), initial_tail(tail)
 		{ memcpy(somem()+head, buf, buflen); };
 
 	/**
@@ -99,6 +99,8 @@ public:
 		rofl::cmemory::operator= (pack);
 		head = pack.head;
 		tail = pack.tail;
+		initial_head = pack.initial_head;
+		initial_tail = pack.initial_tail;
 		return *this;
 	};
 
@@ -110,6 +112,8 @@ public:
 	void
 	clear() {
 		rofl::cmemory::clear();
+		head = initial_head;
+		tail = initial_tail;
 	};
 
 public:
@@ -326,6 +330,8 @@ private:
 
 	size_t			 head;	// head space size: this is used as extra space for pushing tags
 	size_t			 tail;	// tail space size: this is used as extra space for appending payload(s)
+	size_t			 initial_head;
+	size_t 			 initial_tail;
 };
 
 }; // end of namespace rofl
