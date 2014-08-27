@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.4.5
+
+[B][pipeline] Fixed critical bug in __of1x_destroy_all_entries_from_timer_group() leading to a memory corruption
+
 v0.4.4
 
 [B][common] cmacaddr: use right macros in sscanf #29 
