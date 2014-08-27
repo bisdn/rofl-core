@@ -247,13 +247,8 @@ private:
 	 *
 	 */
 	void
-	tag_insert(
-			size_t len) {
-		if (len > head) {
-			throw ePacketInval("cpacket::tag_insert() insufficient head space");
-		}
-		head -= len;
-	};
+	tag_remove(
+			uint8_t* ptr, size_t len) { throw eNotImplemented(); };
 
 public:
 
@@ -261,8 +256,13 @@ public:
 	 *
 	 */
 	void
-	tag_remove(
-			uint8_t* ptr, size_t len) { throw eNotImplemented(); };
+	tag_insert(
+			size_t len) {
+		if (len > head) {
+			throw ePacketInval("cpacket::tag_insert() insufficient head space");
+		}
+		head -= len;
+	};
 
 	/**
 	 *
