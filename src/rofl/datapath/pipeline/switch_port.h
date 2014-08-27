@@ -115,14 +115,16 @@ typedef enum port_type{
 	PORT_TYPE_META_IN_PORT		= 6,
 	PORT_TYPE_META_ALL		= 7,
 
-	//
-	// Other types of port
-	//
+	/*
+	* Other types of port
+	*/
 
-	//Private Execution Enviornment
-	PORT_TYPE_PEX_DPDK_PRIMARY	= 8,
-	PORT_TYPE_PEX_DPDK_SECONDARY	= 9,
-	PORT_TYPE_PEX_DPDK_KNI		= 10
+	//Network Functions port types
+	//NFs are exported to the OF pipeline
+	//as ports
+	PORT_TYPE_NF_NATIVE		= 8, //Native 
+	PORT_TYPE_NF_SHMEM		= 9, //External NF but with shared memory
+	PORT_TYPE_NF_EXTERNAL		= 10 //External NF (e.g. real port) 
 }port_type_t;
 
 

@@ -10,7 +10,6 @@ librofl_pipeline_la_HEADERS = monitoring.h\
 	physical_switch.h \
 	port_queue.h \
 	switch_port.h \
-	pex_connected.h \
 	threading.h 
 
 librofl_pipeline_la_SOURCES = monitoring.h\
@@ -20,8 +19,7 @@ librofl_pipeline_la_SOURCES = monitoring.h\
 	port_queue.h \
 	port_queue.c \
 	switch_port.c \
-	switch_port.h \
-	pex_connected.h
+	switch_port.h
 
 librofl_pipeline_la_LIBADD = \
 	common/librofl_pipeline_common.la \
