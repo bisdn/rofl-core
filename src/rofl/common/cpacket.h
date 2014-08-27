@@ -247,8 +247,32 @@ private:
 	 *
 	 */
 	void
+	tag_insert(
+			size_t len) {
+		if (len > head) {
+			throw ePacketInval("cpacket::tag_insert() insufficient head space");
+		}
+		head -= len;
+	};
+
+	/**
+	 *
+	 */
+	void
 	tag_remove(
 			uint8_t* ptr, size_t len) { throw eNotImplemented(); };
+
+	/**
+	 *
+	 */
+	void
+	tag_remove(
+			size_t len) {
+		if ((len + head) > rofl::cmemory::memlen()) {
+			throw ePacketInval("cpacket::tag_insert() invalid tag size");
+		}
+		head += len;
+	};
 
 public:
 
