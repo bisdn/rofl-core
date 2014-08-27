@@ -39,9 +39,7 @@ unittest_SOURCES= \
 	cofasyncconfig_test.cc \
 	cofasyncconfig_test.h \
 	cofrole_test.cc \
-	cofrole_test.h \
-	cofactions_test.cc \
-	cofactions_test.h
+	cofrole_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
