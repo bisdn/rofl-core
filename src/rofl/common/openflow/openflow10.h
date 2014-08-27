@@ -338,7 +338,9 @@ namespace openflow10 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_in) == 20);
 
-	static int const OFP_PACKET_IN_STATIC_HDR_LEN = sizeof(struct ofp_packet_in);
+	static int const OFP_PACKET_IN_STATIC_HDR_LEN = sizeof(struct ofp_packet_in) - 2; /* 18bytes */
+
+	OFP_ASSERT(OFP_PACKET_IN_STATIC_HDR_LEN == 18);
 
 	enum ofp_action_type {
 		OFPAT_OUTPUT,           /* Output to switch port. */
