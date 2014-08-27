@@ -255,6 +255,8 @@ private:
 		head -= len;
 	};
 
+public:
+
 	/**
 	 *
 	 */
