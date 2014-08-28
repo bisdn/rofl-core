@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "logging.h"
 
