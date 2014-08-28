@@ -38,23 +38,6 @@ hal_result_t hal_driver_nf_create_nf_port(const char *nf_name, const char *nf_po
  */
 hal_result_t hal_driver_nf_destroy_nf_port(const char *nf_port_name);
 
-/**
- * @name    hal_result_t hal_driver_nf_start_nf_port
- * @brief   Instructs driver to start a NF port
- *
- * @param nf_port_name		Name of the NF port to be started
- */
-hal_result_t hal_driver_nf_start_nf_port(const char *nf_port_name);
-
-/**
- * @name    hal_result_t hal_driver_nf_stop_nf_port
- * @brief   Instructs driver to stop a NF port
- *
- * @param nf_port_name		Name of the NF port to be stopped
- */
-hal_result_t hal_driver_nf_stop_nf_port(const char *nf_port_name);
-
-
 // [+] Add more here..
 
 //C++ extern C
