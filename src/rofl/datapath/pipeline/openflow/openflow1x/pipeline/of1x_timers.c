@@ -420,22 +420,16 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
  */
 static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_group_t* tg, of1x_pipeline_t *const pipeline, unsigned int id_table)
 {
-	of1x_entry_timer_t* entry_iterator, *next/*, *prev*/;
-	if(tg->list.num_of_timers>0 && tg->list.head)
-	{
-		for(entry_iterator = tg->list.head; entry_iterator; entry_iterator=next)
-		{
-			next = entry_iterator->next;
-			
+	of1x_entry_timer_t* entry_iterator;
+
+	if(tg->list.num_of_timers>0 && tg->list.head){
+		while( (entry_iterator = tg->list.head) != NULL){
 			//NOTE actual removal of timer_entries is done in the destruction of the entry
 			
-			if(entry_iterator->type == IDLE_TO)
-			{
+			if(entry_iterator->type == IDLE_TO){
 				if(__of1x_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS)
 					return ROFL_FAILURE;
-			}
-			else
-			{
+			}else{
 #ifdef DEBUG_NO_REAL_PIPE
 				ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 				__of1x_fill_new_timer_entry_info(entry_iterator->entry,0,0);

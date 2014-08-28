@@ -130,7 +130,7 @@ cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow10::OFP_VERSION: {
-		return (sizeof(struct rofl::openflow10::ofp_packet_in) /*18+2*/+ packet.length());
+		return (OFP10_PACKET_IN_STATIC_HDR_LEN /*18*/+ packet.length());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		//return (sizeof(struct rofl::openflow12::ofp_packet_in) - sizeof(struct rofl::openflow12::ofp_match) + match.length() + 2 + packet.length());
@@ -166,7 +166,7 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 		memcpy(buf, soframe(), rofl::openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
 		if (not packet.empty()) {
 			struct rofl::openflow10::ofp_packet_in *packet_in = (struct rofl::openflow10::ofp_packet_in*)buf;
-			memcpy(packet_in->data + 2, packet.soframe(), packet.length());
+			memcpy(packet_in->data, packet.soframe(), packet.length());
 		}
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
@@ -221,9 +221,8 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN/*18+2*/;
-
-		packet.unpack((uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
+		packet.unpack((uint8_t*)(soframe() + OFP10_PACKET_IN_STATIC_HDR_LEN),
+				framelen() - (OFP10_PACKET_IN_STATIC_HDR_LEN));
 
 	} break;
 	case rofl::openflow12::OFP_VERSION: {

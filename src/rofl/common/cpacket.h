@@ -60,7 +60,7 @@ public:
 	 *
 	 */
 	cpacket() :
-		rofl::cmemory(0), head(0), tail(0) {};
+		rofl::cmemory(0), head(0), tail(0), initial_head(0), initial_tail(0) {};
 
 	/**
 	 *
@@ -73,14 +73,14 @@ public:
 	 */
 	cpacket(
 			size_t size, size_t head = DEFAULT_HSPACE, size_t tail = DEFAULT_TSPACE) :
-				rofl::cmemory(head + size + tail), head(head), tail(tail) {};
+				rofl::cmemory(head + size + tail), head(head), tail(tail), initial_head(head), initial_tail(tail) {};
 
 	/**
 	 *
 	 */
 	cpacket(
 			uint8_t *buf, size_t buflen, size_t head = DEFAULT_HSPACE, size_t tail = DEFAULT_TSPACE) :
-				rofl::cmemory(head + buflen + tail), head(head), tail(tail)
+				rofl::cmemory(head + buflen + tail), head(head), tail(tail), initial_head(head), initial_tail(tail)
 		{ memcpy(somem()+head, buf, buflen); };
 
 	/**
@@ -99,6 +99,8 @@ public:
 		rofl::cmemory::operator= (pack);
 		head = pack.head;
 		tail = pack.tail;
+		initial_head = pack.initial_head;
+		initial_tail = pack.initial_tail;
 		return *this;
 	};
 
@@ -110,6 +112,8 @@ public:
 	void
 	clear() {
 		rofl::cmemory::clear();
+		head = initial_head;
+		tail = initial_tail;
 	};
 
 public:
@@ -196,6 +200,27 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	assign(uint8_t *buf, size_t buflen) {
+		head = initial_head;
+		tail = initial_tail;
+		cmemory::resize(head + buflen + tail);
+		cmemory::clear();
+		memcpy(soframe(), buf, buflen);
+	};
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len) {
+		cmemory::resize(head + len + tail);
+		return soframe();
+	};
+
+	/**
+	 *
+	 */
 	uint8_t*
 	soframe() const
 		{ return (rofl::cmemory::somem() + head); };
@@ -230,9 +255,7 @@ public:
 	 */
 	virtual void
 	unpack(uint8_t* buf, size_t buflen) {
-		if (length() < buflen) {
-			rofl::cmemory::resize(head + buflen + tail);
-		}
+		rofl::cmemory::resize(head + buflen + tail);
 		memcpy(soframe(), buf, buflen);
 	};
 
@@ -251,6 +274,32 @@ private:
 	void
 	tag_remove(
 			uint8_t* ptr, size_t len) { throw eNotImplemented(); };
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	tag_insert(
+			size_t len) {
+		if (len > head) {
+			throw ePacketInval("cpacket::tag_insert() insufficient head space");
+		}
+		head -= len;
+	};
+
+	/**
+	 *
+	 */
+	void
+	tag_remove(
+			size_t len) {
+		if ((len + head) > rofl::cmemory::memlen()) {
+			throw ePacketInval("cpacket::tag_insert() invalid tag size");
+		}
+		head += len;
+	};
 
 public:
 
@@ -302,6 +351,8 @@ private:
 
 	size_t			 head;	// head space size: this is used as extra space for pushing tags
 	size_t			 tail;	// tail space size: this is used as extra space for appending payload(s)
+	size_t			 initial_head;
+	size_t 			 initial_tail;
 };
 
 }; // end of namespace rofl

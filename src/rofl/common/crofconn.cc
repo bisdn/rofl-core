@@ -333,7 +333,7 @@ crofconn::event_features_expired()
 
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+		rofl::logging::debug << "[rofl-common][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
 	};
 	}
 }

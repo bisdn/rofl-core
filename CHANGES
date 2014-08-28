@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.5.1
+
+[B][pipeline] Fixes bug in the destruction of of1x_stats_group_desc_msg_t
+
 v0.5.0
 
 [+][common] Improved OF1.3 support and other fixes
@@ -21,6 +25,11 @@ v0.5.0
 [B][pipeline] Fixed group ID 0 is valid
  
 [+][examples] Improved ethswctld, now supporting OF1.0, OF1.2 and OF1.3 simultaneously 
+
+
+v0.4.5
+
+[B][pipeline] Fixed critical bug in __of1x_destroy_all_entries_from_timer_group() leading to a memory corruption
 
 v0.4.4
 

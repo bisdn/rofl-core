@@ -344,13 +344,13 @@ void of1x_destroy_group_desc_stats(of1x_stats_group_desc_msg_t *msg){
 		next_gr = group_it->next;
 		
 		//destroy buckets
-		for(bucket_it = msg->bucket; bucket_it; bucket_it=next_bu){
+		for(bucket_it = group_it->bucket; bucket_it; bucket_it=next_bu){
 			next_bu = bucket_it->next;
 			__of1x_destroy_bucket_desc_stats(bucket_it);
 		}
 		
 		//destroy message
-		platform_free_shared(msg);
+		platform_free_shared(group_it);
 	}
 }
 

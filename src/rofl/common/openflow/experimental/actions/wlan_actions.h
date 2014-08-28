@@ -56,7 +56,7 @@ public:
 	 */
 	cofaction_exp_body_wlan(
 			uint16_t exptype = 0,
-			size_t bodylen = 0) :
+			size_t bodylen = sizeof(struct ofp_exp_wlan_action_body_hdr)) :
 				rofl::cmemory(bodylen) {
 		set_exp_type(exptype);
 		set_exp_len(bodylen);
