@@ -200,6 +200,27 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	assign(uint8_t *buf, size_t buflen) {
+		head = initial_head;
+		tail = initial_tail;
+		cmemory::resize(head + buflen + tail);
+		cmemory::clear();
+		memcpy(soframe(), buf, buflen);
+	};
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len) {
+		cmemory::resize(head + len + tail);
+		return soframe();
+	};
+
+	/**
+	 *
+	 */
 	uint8_t*
 	soframe() const
 		{ return (rofl::cmemory::somem() + head); };
