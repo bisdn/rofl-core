@@ -439,7 +439,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_set_icmpv6_code(pkt, action->__field.u8);
 			break;
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 
 		case OF1X_AT_POP_PPPOE:
 			//Call platform
