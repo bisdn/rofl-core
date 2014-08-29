@@ -64,14 +64,14 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 	
 	ROFL_PIPELINE_INFO("Packet[%p] entering switch %s [%p] pipeline (1.X)\n",pkt,sw->name, sw);	
 
-#ifdef DEBUG
-	dump_packet_matches(pkt, false);
-#endif
-	
 	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline.num_of_tables ; i++){
 
 		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
 
+#ifdef DEBUG
+		dump_packet_matches(pkt, false);
+#endif
+	
 		//Perform lookup	
 		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt);
 		
