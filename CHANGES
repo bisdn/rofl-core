@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.5.1
+
+[B][pipeline] Fixes bug in the destruction of of1x_stats_group_desc_msg_t
+
 v0.5.0
 
 [+][common] Improved OF1.3 support and other fixes
