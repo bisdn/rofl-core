@@ -442,7 +442,7 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 			platform_packet_set_icmpv6_code(pkt, action->__field.u8);
 			break;
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 
 		case OF1X_AT_POP_PPPOE:
 			//Call platform
@@ -484,11 +484,11 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 			break;
 		case OF1X_AT_POP_GTP: 
 			//Call platform
-			platform_packet_pop_gtp(pkt);
+			platform_packet_pop_gtp(pkt, action->__field.u16);
 			break;
 		case OF1X_AT_PUSH_GTP: 
 			//Call platform
-			platform_packet_push_gtp(pkt);
+			platform_packet_push_gtp(pkt, action->__field.u16);
 			break;
 
 		//CAPWAP

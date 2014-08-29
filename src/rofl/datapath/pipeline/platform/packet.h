@@ -838,11 +838,11 @@ void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
 * @ingroup platform_packet
 * Pop the GTP frame 
 */
-void platform_packet_pop_gtp(datapacket_t* pkt);
+void platform_packet_pop_gtp(datapacket_t* pkt, uint16_t ether_type);
 /**
 * Push a new GTP frame 
 */
-void platform_packet_push_gtp(datapacket_t* pkt);
+void platform_packet_push_gtp(datapacket_t* pkt, uint16_t ether_type);
 
 
 
