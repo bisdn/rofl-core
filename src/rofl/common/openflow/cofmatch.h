@@ -71,7 +71,7 @@ public:
 	 *
 	 */
 	bool
-	operator== (const cofmatch& m);
+	operator== (const cofmatch& m) const;
 
 
 
