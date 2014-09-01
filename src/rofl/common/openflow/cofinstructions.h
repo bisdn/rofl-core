@@ -309,6 +309,33 @@ public:
 		}
 		return os;
 	};
+	
+	std::ostream& str_sl(std::ostream& os, cofinstructions const& inlist) {
+		os << indent(0) << "<cofintructions ofp-version:" << (int)inlist.ofp_version << " >" << std::endl;
+		for (std::map<uint16_t, cofinstruction*>::const_iterator
+				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
+			indent i(2);
+			switch (it->second->get_type()) {
+			case openflow::OFPIT_GOTO_TABLE:
+				inlist.get_inst_goto_table().str_sl(os); break;
+			case openflow::OFPIT_WRITE_METADATA:
+				inlist.get_inst_write_metadata().str_sl(os); break;
+			case openflow::OFPIT_WRITE_ACTIONS:
+				inlist.get_inst_write_actions().str_sl(os); break;
+			case openflow::OFPIT_APPLY_ACTIONS:
+				inlist.get_inst_apply_actions().str_sl(os); break;
+			case openflow::OFPIT_CLEAR_ACTIONS:
+				inlist.get_inst_clear_actions().str_sl(os); break;
+			case openflow::OFPIT_METER:
+				inlist.get_inst_meter().str_sl(os); break;
+			case openflow::OFPIT_EXPERIMENTER:
+				inlist.get_inst_experimenter().str_sl(os); break;
+			default:
+				(*(it->second)).str_sl(os); break;
+			}
+		}
+		return os;
+	};
 
 private:
 

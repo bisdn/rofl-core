@@ -166,6 +166,11 @@ public:
 		}
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
+	};
 
 	class cofinst_find_type {
 	public:
@@ -291,6 +296,11 @@ public:
 		{ rofl::indent i(4); os << inst.actions; }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
+	};
 
 private:
 
@@ -344,6 +354,11 @@ public:
 		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
+	};
 };
 
 
@@ -393,6 +408,11 @@ public:
 		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
+	};
 };
 
 
@@ -441,6 +461,11 @@ public:
 		os << rofl::indent(0) << "<cofinstruction_clear_actions >" << std::endl;
 		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction_actions&>( inst ); }
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
 	};
 };
 
@@ -536,6 +561,11 @@ public:
 		{ rofl::indent i(2); os << dynamic_cast<const cofinstruction&>( inst ); }
 		os << rofl::indent(4) << "<table-id:" << (int)inst.get_table_id() << " >" << std::endl;
 		return os;
+	};
+	
+	void str_sl(std::ostream& os) const {
+		os << "<cofinstruction_goto_table: " << " table-id:" << (int)get_table_id() << " >" << std::endl;
+		( dynamic_cast<const cofinstruction&>( *this )).str_sl(os);
 	};
 
 public:
@@ -647,6 +677,17 @@ public:
 		os << indent(4) << "<metadata-mask: 0x" << (unsigned long long)inst.get_metadata_mask() << " >" << std::endl;
 		os << std::dec;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofinstruction_write_metadata> ";
+		os << rofl::indent(2);
+		(dynamic_cast<const cofinstruction&>( *this )).str_sl(os);
+		os << std::hex;
+		os << indent(4) << "<metadata: 0x" << (unsigned long long)get_metadata() << " > ";
+		os << indent(4) << "<metadata-mask: 0x" << (unsigned long long)get_metadata_mask() << " > " << std::endl;
+		os << std::dec;
 	};
 
 private:
@@ -775,6 +816,11 @@ public:
 		{ rofl::indent i(4); os << inst.get_exp_body(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
+	};
 
 private:
 
@@ -871,6 +917,11 @@ public:
 		{ rofl::indent i(2); os << dynamic_cast<cofinstruction const&>( inst ); }
 		os << rofl::indent(4) << "<meter-id: 0x" << std::hex << inst.get_meter_id() << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		//TODO
 	};
 
 private:
