@@ -116,7 +116,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 
 		//NW (OF1.0 only)
    		case OF1X_MATCH_NW_PROTO:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || *ptr_ether_type == ETH_TYPE_ARP || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && (*ptr_ppp_proto == PPP_PROTO_IP4 || *ptr_ppp_proto == PPP_PROTO_IP6) ))) return false;
@@ -138,7 +138,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
    		case OF1X_MATCH_NW_SRC:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) 
@@ -156,7 +156,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
    		case OF1X_MATCH_NW_DST:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( ptr_ether_type && (*ptr_ether_type == ETH_TYPE_IPV4 ||(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 )))  
@@ -176,7 +176,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 		
 		//IP
    		case OF1X_MATCH_IP_PROTO:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && (*ptr_ppp_proto == PPP_PROTO_IP4 || *ptr_ppp_proto == PPP_PROTO_IP6) ))) return false; 
@@ -188,7 +188,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
 		case OF1X_MATCH_IP_ECN:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
@@ -206,7 +206,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
 		case OF1X_MATCH_IP_DSCP:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || *ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; //NOTE PPP_PROTO_IP6
@@ -226,7 +226,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 		
 		//IPv4
    		case OF1X_MATCH_IPV4_SRC:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false; 
@@ -238,7 +238,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
    		case OF1X_MATCH_IPV4_DST:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV4 ||(*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP4 ))) return false;  
@@ -325,7 +325,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
   		
 		//IPv6
 		case OF1X_MATCH_IPV6_SRC:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
@@ -337,7 +337,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
 		case OF1X_MATCH_IPV6_DST:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
@@ -349,7 +349,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 #endif
 		}
 		case OF1X_MATCH_IPV6_FLABEL:{
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);
 					uint16_t *ptr_ppp_proto = platform_packet_get_ppp_proto(pkt);
 					if( !ptr_ether_type || !(*ptr_ether_type == ETH_TYPE_IPV6 || (*ptr_ether_type == ETH_TYPE_PPPOE_SESSION && ptr_ppp_proto && *ptr_ppp_proto == PPP_PROTO_IP6 ))) return false; 
@@ -400,7 +400,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
 	 	//TUNNEL id
    		case OF1X_MATCH_TUNNEL_ID: return __utern_compare64(it->__tern, platform_packet_get_tunnel_id(pkt));
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 		//PPPoE related extensions
    		case OF1X_MATCH_PPPOE_CODE:{
 					uint16_t *ptr_ether_type = platform_packet_get_eth_type(pkt);

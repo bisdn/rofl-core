@@ -34,9 +34,20 @@
 namespace rofl {
 namespace openflow {
 
-class ePortBase 			: public RoflException {};
-class ePortInval	 		: public ePortBase {};
-class ePortNotFound 		: public ePortBase {};
+class ePortBase 			: public RoflException {
+public:
+	ePortBase(const std::string& __arg) : RoflException(__arg) {};
+};
+class ePortInval	 		: public ePortBase {
+public:
+	ePortInval(const std::string& __arg) : ePortBase(__arg) {};
+};
+class ePortNotFound 		: public ePortBase {
+public:
+	ePortNotFound(const std::string& __arg) : ePortBase(__arg) {};
+};
+
+
 
 class cofport : public cmemory
 {

@@ -104,7 +104,7 @@ cofport::pack(
 		uint8_t *buf, size_t buflen)
 {
 	if (buflen < length()) {
-		throw ePortInval();
+		throw ePortInval("cofport::pack()");
 	}
 	memcpy(buf, somem(), length());
 }
@@ -118,17 +118,17 @@ cofport::unpack(
 	switch (ofp_version) {
 	case rofl::openflow10::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow10::ofp_port))
-			throw ePortInval();
+			throw ePortInval("cofport::unpack()");
 		assign(buf, sizeof(struct rofl::openflow10::ofp_port));
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow12::ofp_port))
-			throw ePortInval();
+			throw ePortInval("cofport::unpack()");
 		assign(buf, sizeof(struct rofl::openflow12::ofp_port));
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow13::ofp_port))
-			throw ePortInval();
+			throw ePortInval("cofport::unpack()");
 		assign(buf, sizeof(struct rofl::openflow13::ofp_port));
 	} break;
 	default:

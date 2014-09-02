@@ -8,18 +8,34 @@ Legend:
 Change log
 ==========
 
+v0.5.1
+
+[B][pipeline] Fixes bug in the destruction of of1x_stats_group_desc_msg_t
+
 v0.5.0
 
 [+][common] Improved OF1.3 support and other fixes
+[+][common] Set more useful defaults for cofmsg (e.g. OFP_NO_BUFFER for buffer-id)
 
+[+][pipeline] Improved tracing and logging
 [+][pipeline] Improved OF1.3 support
 [+][pipeline] Changed default behaviour for table matches/actions bitmaps; all capabilities enabled by default. 
 [+][pipeline] Added placeholders for WLAN/CAPWAP matches and actions 
-[+][pipeline] Added PBB_ISID support 
+[+][pipeline] Added PBB_ISID support
+[B][pipeline] Fixed group ID 0 is valid
+ 
+[+][examples] Improved ethswctld, now supporting OF1.0, OF1.2 and OF1.3 simultaneously 
+
+
+v0.4.5
+
+[B][pipeline] Fixed critical bug in __of1x_destroy_all_entries_from_timer_group() leading to a memory corruption
 
 v0.4.4
 
-[B][rofl-pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
+[B][common] cmacaddr: use right macros in sscanf #29 
+
+[B][pipeline] Fixed critical bug in __of1x_get_time_ms() for 32bit compilers leading to dead-lock in timers.
 
 v0.4.3
 

@@ -47,19 +47,27 @@ class eRofCtlNotFound 	: public eRofCtlBase {};
 class crofbase;
 
 
-class crofctl
-{
-	static uint64_t next_ctlid;
-
-	static std::map<cctlid, crofctl*> rofctls;
-
-	cctlid   ctlid;
-
+class crofctl {
 public: // methods
 
-
+	/**
+	 *
+	 */
 	static crofctl&
 	get_ctl(const cctlid& ctlid);
+
+public:
+
+	enum crofctl_flavour_t {
+		FLAVOUR_PASSIVE = 1,	// connection was established from peer entity
+		FLAVOUR_ACTIVE = 2,		// connection was established actively by us
+	};
+
+	/**
+	 *
+	 */
+	enum crofctl_flavour_t
+	get_flavour() const { return flavour; };
 
 
 	/**
@@ -67,9 +75,11 @@ public: // methods
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofctl() :
-			ctlid(cctlid(++crofctl::next_ctlid)) {
+	crofctl(enum crofctl_flavour_t flavour) :
+			ctlid(cctlid(++crofctl::next_ctlid)), flavour(flavour) {
 		crofctl::rofctls[ctlid] = this;
+		rofl::logging::debug << "[rofl][crofctl] instance creating, ctlid: "
+				<< (unsigned long long)ctlid.get_ctlid() << std::endl;
 	};
 
 	/**
@@ -78,6 +88,8 @@ public: // methods
 	virtual
 	~crofctl() {
 		crofctl::rofctls.erase(ctlid);
+		rofl::logging::debug << "[rofl][crofctl] destroying instance, ctlid: "
+				<< (unsigned long long)ctlid.get_ctlid() << std::endl;
 	};
 
 public:
@@ -668,6 +680,12 @@ public:
 		};
 	};
 
+private:
+
+	static uint64_t 					next_ctlid;
+	static std::map<cctlid, crofctl*> 	rofctls;
+	cctlid   							ctlid;
+	enum crofctl_flavour_t 				flavour;
 };
 
 

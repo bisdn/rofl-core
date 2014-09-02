@@ -64,9 +64,17 @@ rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of
 	//Notify flow removed
 	if(entry->notify_removal && (reason != OF1X_FLOW_REMOVE_NO_REASON ) ){
 		//Safety checks
-		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw)
-			platform_of1x_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw){
+			__of1x_stats_flow_tid_t consolidated_stats;
 			
+			//Consolidate stats so that users of the pipeline can use counters
+			__of1x_stats_flow_consolidate(&entry->stats, &consolidated_stats);
+			__of1x_stats_flow_reset_counts(entry);
+			entry->stats.s.counters = consolidated_stats;
+					
+			//Then notify	
+			platform_of1x_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+		}	
 	}	
 
 	//destroy stats
@@ -279,13 +287,18 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 }
 
 void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool raw_nbo){
-	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u #hits %u ",entry, entry->priority, entry->matches.num_elements);
+	
+	__of1x_stats_flow_tid_t c;
+	
+	//Consolidate stats so that users of the pipeline can use counters
+	__of1x_stats_flow_consolidate(&entry->stats, &c);
+
+	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u, pkts.matched %u. Matches:{",entry, entry->priority, c.packet_count, entry->matches.num_elements);
+	
 	//print matches(all)
-	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
 	__of1x_dump_matches(entry->matches.head, raw_nbo);
-	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
+	ROFL_PIPELINE_INFO_NO_PREFIX("}\n");
 	__of1x_dump_instructions(entry->inst_grp, raw_nbo);
-	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 
 /**

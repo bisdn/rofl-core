@@ -11,6 +11,7 @@
 #include <assert.h>
 #include "rofl.h"
 #include "../../../util/pp_guard.h" //Never forget to include the guard
+#include "of1x_statistics_pp.h"
 #include "of1x_action.h"
 #include "of1x_group_table.h"
 #include "of1x_flow_table.h"
@@ -90,18 +91,19 @@ static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_ac
 }
 
 //fwd decl
-static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
+static inline void __of1x_process_apply_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Process all actions from a group
-static inline void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
+static inline void __of1x_process_group_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
 	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
+	
+	platform_rwlock_rdlock(group->rwlock);
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){
 		case OF1X_GROUP_TYPE_ALL:
 			//executes all buckets
-			platform_rwlock_rdlock(group->rwlock);
 			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
 
 				//If there are no output actions, skip bucket 
@@ -117,13 +119,12 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 				} 
 				
 				//Process all actions in the bucket
-				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
-				__of1x_stats_bucket_update(&it_bk->stats, platform_packet_get_size_bytes(pkt));
+				__of1x_process_apply_actions(tid, sw, table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
+				__of1x_stats_bucket_update(tid, &it_bk->stats, platform_packet_get_size_bytes(pkt));
 				
 				if(it_bk->actions->num_of_output_actions > 1)
 					platform_packet_drop(pkt_replica);
 			}
-			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_SELECT:
 			//NOT SUPPORTED	
@@ -131,10 +132,8 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
-			platform_rwlock_rdlock(group->rwlock);
-			__of1x_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
-			__of1x_stats_bucket_update(&group->bc_list->head->stats, platform_packet_get_size_bytes(pkt));
-			platform_rwlock_rdunlock(group->rwlock);
+			__of1x_process_apply_actions(tid, sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
+			__of1x_stats_bucket_update(tid, &group->bc_list->head->stats, platform_packet_get_size_bytes(pkt));
 			break;
 		case OF1X_GROUP_TYPE_FF:
 			//NOT SUPPORTED
@@ -144,12 +143,14 @@ static inline void __of1x_process_group_actions(const struct of1x_switch* sw, co
 			assert(0);  //Should NEVER be reached 
 			break;
 	}
-	__of1x_stats_group_update(&group->stats, platform_packet_get_size_bytes(pkt));
 	
+	__of1x_stats_group_update(tid, &group->stats, platform_packet_get_size_bytes(pkt));
+	platform_rwlock_rdunlock(group->rwlock);
+
 }
 
 /* Contains switch with all the different action functions */
-static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
+static inline void __of1x_process_packet_action(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
 	uint32_t port_id;
 
@@ -441,7 +442,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_set_icmpv6_code(pkt, action->__field.u8);
 			break;
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 
 		case OF1X_AT_POP_PPPOE:
 			//Call platform
@@ -483,11 +484,11 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_POP_GTP: 
 			//Call platform
-			platform_packet_pop_gtp(pkt);
+			platform_packet_pop_gtp(pkt, action->__field.u16);
 			break;
 		case OF1X_AT_PUSH_GTP: 
 			//Call platform
-			platform_packet_push_gtp(pkt);
+			platform_packet_push_gtp(pkt, action->__field.u16);
 			break;
 
 		//CAPWAP
@@ -598,7 +599,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		case OF1X_AT_GROUP:
-			__of1x_process_group_actions(sw, table_id, pkt, action->__field.u32, action->group, replicate_pkts);
+			__of1x_process_group_actions(tid, sw, table_id, pkt, action->__field.u32, action->group, replicate_pkts);
 			break;
 
 		case OF1X_AT_EXPERIMENTER: //FIXME: implement
@@ -622,10 +623,14 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				//Duplicate the packet only if necessary
 				if(replicate_pkts){
 					pkt_to_send = platform_packet_replicate(pkt);
-	
+				
 					//check for wrong copy
-					if(!pkt_to_send)
+					if(unlikely(pkt_to_send == NULL)){
+						ROFL_PIPELINE_INFO("Packet[%p] could NOT be cloned during OUTPUT action\n", pkt);
 						return;
+					}
+					ROFL_PIPELINE_INFO("Packet[%p] was cloned into [%p] during OUTPUT action\n", pkt, pkt_to_send);
+					
 				}else
 					pkt_to_send = pkt;
 
@@ -633,31 +638,38 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				if( port_id < LOGICAL_SWITCH_MAX_LOG_PORTS && unlikely(NULL != sw->logical_ports[port_id].port) ){
 
 					//Single port output
-					//According to the spec a packet cannot be sent to the incomming port
+					//According to the spec a packet cannot be sent to the incoming port
 					//unless IN_PORT meta port is used
 					if(unlikely(port_id == *platform_packet_get_port_in(pkt))){
+						ROFL_PIPELINE_DEBUG("Packet[%p] dropped. Attempting to output to the incoming port %u\n", pkt_to_send, port_id);
 						platform_packet_drop(pkt_to_send);
 					}else{
+						ROFL_PIPELINE_INFO("Packet[%p] outputting to port num. %u\n", pkt_to_send, port_id);
 						platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
 					}
 
 				}else if(port_id == OF1X_PORT_FLOOD){
 					//Flood
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to FLOOD\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, flood_meta_port);
 				}else if(port_id == OF1X_PORT_CONTROLLER ||
 					port_id == OF1X_PORT_NORMAL){
 					//Controller
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to CONTROLLER\n", pkt_to_send);
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, action->send_len, OF1X_PKT_IN_ACTION);
 				}else if(port_id == OF1X_PORT_ALL){
-					//Flood
+					//All
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to ALL_PORT\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, all_meta_port);
 				}else if(port_id == OF1X_PORT_IN_PORT){
 					//in port
+					ROFL_PIPELINE_INFO("Packet[%p] outputting to IN_PORT\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
 
 					//This condition can never happen, unless port number has been somehow corrupted??
-					assert(0);
+					ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u\n", pkt_to_send, port_id);
+					//assert(0);
 					if(pkt != pkt_to_send) //Drop replica, if any
 						platform_packet_drop(pkt_to_send);
 				}
@@ -669,12 +681,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 
 //Process apply actions
-static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
+static inline void __of1x_process_apply_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts){
 
 	of1x_packet_action_t* it;
 
 	for(it=apply_actions_group->head;it;it=it->next){
-		__of1x_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
+		__of1x_process_packet_action(tid, sw, table_id, pkt, it, replicate_pkts);
 	}	
 }
 
@@ -682,7 +694,7 @@ static inline void __of1x_process_apply_actions(const struct of1x_switch* sw, co
 * The of1x_process_write_actions is meant to encapsulate the processing of the write actions
 *
 */
-static inline void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
+static inline void __of1x_process_write_actions(const unsigned int tid, const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
 
 	unsigned int i,j;
 
@@ -691,7 +703,7 @@ static inline void __of1x_process_write_actions(const struct of1x_switch* sw, co
 	for(i=0,j=0;(i<write_actions->num_of_actions) && (j < OF1X_AT_NUMBER);j++){
 		if( bitmap128_is_bit_set(&write_actions->bitmap,j) ){
 			//Process action
-			__of1x_process_packet_action(sw, table_id, pkt, &write_actions->actions[j], replicate_pkts);	
+			__of1x_process_packet_action(tid, sw, table_id, pkt, &write_actions->actions[j], replicate_pkts);	
 			i++;		
 		}
 	}
