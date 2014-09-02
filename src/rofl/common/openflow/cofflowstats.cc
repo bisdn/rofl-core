@@ -9,8 +9,8 @@ cofflow_stats_request::cofflow_stats_request(
 				of_version(of_version),
 				match(of_version),
 				table_id(0),
-				out_port(0),
-				out_group(0),
+				out_port(OFPP_ANY),
+				out_group(OFPG_ANY),
 				cookie(0),
 				cookie_mask(0)
 {
