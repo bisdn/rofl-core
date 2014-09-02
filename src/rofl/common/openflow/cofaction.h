@@ -160,6 +160,14 @@ public:
 		os << " >" << std::endl;
 		return os;
 	}
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction ";
+			os << "ofp-version:" << (int)get_version() << " ";
+			os << "type:0x" << std::hex << (int)get_type() << std::dec << " ";
+			os << "length:" << (int)get_length() << " ";
+	};
 
 	class cofaction_find_by_type {
 		uint16_t type;
@@ -296,6 +304,18 @@ public:
 		return os;
 	};
 
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_output ";
+		os << std::hex;
+		os << "port-no: 0x" << (unsigned int)get_port_no() << " ";
+		os << "max-len: 0x" << (unsigned int)get_max_len() << " ";
+		os << std::dec;
+		os << ">";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
+	
 private:
 
 	uint32_t	port_no;
@@ -395,6 +415,14 @@ public:
 		return os;
 	};
 
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_vlan_vid ";
+		os << "vid:0x" << std::hex << (unsigned int)get_vlan_vid() << std::dec << " > ";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
+	
 private:
 
 	uint16_t		vlan_vid;
@@ -489,6 +517,14 @@ public:
 		return os;
 	};
 
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_vlan_pcp ";
+		os << "pcp:ox" << std::hex << (unsigned int)get_vlan_pcp() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
+	
 private:
 
 	uint8_t		vlan_pcp;
@@ -562,6 +598,13 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<const cofaction&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_strip_vlan > ";
+		rofl::indent i(2);
+		(dynamic_cast<const cofaction&>( *this )).str_sl(os);
 	};
 };
 
@@ -655,6 +698,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_dl_src macaddr:";
+		os << get_dl_src() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 
 private:
@@ -752,6 +803,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_dl_dst macaddr:";
+		os << get_dl_dst() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 
 private:
@@ -851,6 +910,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_nw_src ";
+		os << "nw-src:" << get_nw_src() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -949,6 +1016,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_nw_dst ";
+		os << "nw-dst:" << get_nw_dst() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -1041,6 +1116,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_nw_tos ";
+		os << "nw-tos:0x" << std::hex << (unsigned int)get_nw_tos() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -1132,6 +1215,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_tp_src ";
+		os << "tp-src:" << (unsigned int)get_tp_src() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -1222,6 +1313,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_tp_dst ";
+		os << "tp-dst:" << (unsigned int)get_tp_dst() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 
 private:
@@ -1332,6 +1431,17 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_enqueue ";
+		os << std::hex;
+		os << "port-no:0x" << (unsigned int)get_port_no() << " ";
+		os << "queue-id:0x" << (unsigned int)get_queue_id() << " >";
+		os << std::dec;
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);;
+	};
 
 private:
 
@@ -1441,6 +1551,15 @@ public:
 		return os;
 	};
 
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_vendor ";
+		os << "exp-id:0x" << std::hex << (unsigned int)get_exp_id() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+		os << get_exp_body();
+	};
+	
 private:
 
 	uint32_t		exp_id;
@@ -1513,6 +1632,13 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_copy_ttl_out >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 };
 
 
@@ -1580,6 +1706,13 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_copy_ttl_in >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 };
 
@@ -1668,6 +1801,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_mpls_ttl ";
+		os << "mpls-ttl:0x" << std::hex << (unsigned int)get_mpls_ttl() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);;
+	};
 
 private:
 
@@ -1741,6 +1882,13 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_dec_mpls_ttl >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	}
 };
 
 
@@ -1828,6 +1976,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_push_vlan ";
+		os << "eth-type:0x" << std::hex << (unsigned int)get_eth_type() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -1899,6 +2055,13 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_pop_vlan >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 };
 
@@ -1986,6 +2149,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_push_mpls ";
+		os << "eth-type:0x" << std::hex << (unsigned int)get_eth_type() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 
 private:
@@ -2078,6 +2249,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_pop_mpls ";
+		os << "eth-type:0x" << std::hex << (unsigned int)get_eth_type() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -2167,6 +2346,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_group ";
+		os << "group-id:0x" << std::hex << (int)get_group_id() << std::dec << " >";
+		rofl::indent i(2);
+		os << dynamic_cast<cofaction const&>( *this );
 	};
 
 private:
@@ -2259,6 +2446,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_nw_ttl ";
+		os << "nw-ttl:" << (unsigned int)get_nw_ttl() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -2330,6 +2525,13 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_dec_nw_ttl >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 };
 
@@ -2417,6 +2619,14 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_queue ";
+		os << "queue-id:" << (unsigned int)get_queue_id() << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 
 private:
@@ -2517,6 +2727,15 @@ public:
 		return os;
 	};
 
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_set_field >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+		rofl::indent j(2);
+		coxmatch_output(get_oxm()).str_sl(os);
+	};
+	
 private:
 
 	rofl::openflow::coxmatch oxm;
@@ -2632,6 +2851,18 @@ public:
 		os << action.get_exp_body();
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_experimenter ";
+		os << std::hex;
+		os << "exp-id:0x" << (unsigned int)get_exp_id() << " ";
+		os << std::dec;
+		os << ">";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+		os << get_exp_body();
+	};
 
 private:
 
@@ -2724,6 +2955,14 @@ public:
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_push_pbb ";
+		os << "eth-type:0x" << std::hex << (unsigned int)get_eth_type() << std::dec << " >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
+	};
 
 private:
 
@@ -2795,6 +3034,13 @@ public:
 		rofl::indent i(2);
 		os << dynamic_cast<cofaction const&>( action );
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofaction_pop_pbb >";
+		rofl::indent i(2);
+		(dynamic_cast<cofaction const&>( *this )).str_sl(os);
 	};
 };
 

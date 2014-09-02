@@ -169,7 +169,13 @@ public:
 	
 	void
 	str_sl(std::ostream& os) const {
-		//TODO
+		os << rofl::indent(0) << "<cofinstruction ";
+		os << "type: 0x" << std::hex << (int)get_type() << std::dec << " ";
+		os << "length: " << (int)length() << " ";
+		os << ">" << std::endl;
+		if (not get_body().empty()) {
+			rofl::indent i(2); os << get_body();
+		}
 	};
 
 	class cofinst_find_type {
@@ -299,7 +305,11 @@ public:
 	
 	void
 	str_sl(std::ostream& os) const {
-		//TODO
+		os << rofl::indent(0) << "<cofinstruction_actions > ";
+		{ rofl::indent i(2); 
+		(dynamic_cast<cofinstruction const&>( *this )).str_sl(os); }
+		{ rofl::indent i(4);
+		actions.str_sl(os); }
 	};
 
 private:
@@ -357,7 +367,8 @@ public:
 	
 	void
 	str_sl(std::ostream& os) const {
-		//TODO
+		os << rofl::indent(0) << "<cofinstruction_apply_actions > ";
+		{ rofl::indent i(2); (dynamic_cast<const cofinstruction_actions&>( *this )).str_sl(os); }
 	};
 };
 
@@ -411,7 +422,8 @@ public:
 	
 	void
 	str_sl(std::ostream& os) const {
-		//TODO
+		os << rofl::indent(0) << "<cofinstruction_write_actions > ";
+		{ rofl::indent i(2); (dynamic_cast<const cofinstruction_actions&>( *this )).str_sl(os); }
 	};
 };
 
@@ -465,7 +477,8 @@ public:
 	
 	void
 	str_sl(std::ostream& os) const {
-		//TODO
+		os << rofl::indent(0) << "<cofinstruction_clear_actions > ";
+		{ rofl::indent i(2); (dynamic_cast<const cofinstruction_actions&>( *this )).str_sl(os); }
 	};
 };
 

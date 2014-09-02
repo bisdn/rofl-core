@@ -353,7 +353,13 @@ public:
 		os << dynamic_cast<rofl::cmemory const&>( oxm );
 		return os;
 	};
-
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<coxmatch oxm-id: 0x" << std::hex << get_oxm_id() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<rofl::cmemory const&>( *this );
+	};
 };
 
 
@@ -412,6 +418,12 @@ public:
 		os << indent(2) << "<in-port: " << std::hex << (int)oxm.get_u32value() << std::dec << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<in-port: " << std::hex << (int)get_u32value() << std::dec << " >";
+	};
 };
 
 
@@ -433,6 +445,12 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<in-phy-port: " << std::hex << (int)oxm.get_u32value() << std::dec << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);;
+		os << indent(2) << "<in-phy-port: " << std::hex << (int)get_u32value() << std::dec << " >";
 	};
 };
 
@@ -463,6 +481,16 @@ public:
 		<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << std::hex;
+		os << indent(2) << "<metadata: "
+		<< (unsigned long long)get_u64value() << "/" << (unsigned long long)get_u64mask()
+		<< std::dec
+		<< " >";
+	};
 };
 
 
@@ -491,6 +519,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);;
+		os << indent(2) << "<eth-dst value: > ";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<eth-dst mask: > ";
+		{ rofl::indent i(4); os << get_u48mask();  }
+	};
 };
 
 
@@ -518,6 +555,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<eth-src value: >";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<eth-src mask: >";
+		{ rofl::indent i(4); os << get_u48mask();  }
+	};
 };
 
 
@@ -539,6 +585,12 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<eth-type: 0x" << std::hex << (int)oxm.get_u16value() << std::dec << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<eth-type: 0x" << std::hex << (int)get_u16value() << std::dec << " >";
 	};
 };
 
@@ -565,6 +617,13 @@ public:
 		os << rofl::indent(4) << "<vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/0x" << (int)oxm.get_u16mask() << std::dec << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << rofl::indent(2) << "<coxmatch_ofb_vlan_vid > ";
+		os << rofl::indent(4) << "<vlan-vid: 0x" << std::hex << (int)get_u16value() << "/0x" << (int)get_u16mask() << std::dec << " >";
+	};
 };
 
 
@@ -586,6 +645,12 @@ public:
 		os << dynamic_cast<coxmatch_ofb_vlan_vid const&>(oxm);
 		os << rofl::indent(2) << "<vlan-untagged >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch_ofb_vlan_vid const&>(*this)).str_sl(os);
+		os << rofl::indent(2) << "<vlan-untagged >";
 	};
 };
 
@@ -610,6 +675,12 @@ public:
 		os << rofl::indent(2) << "<vlan-present >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch_ofb_vlan_vid const&>(*this)).str_sl(os);
+		os << rofl::indent(2) << "<vlan-present >";
+	};
 };
 
 
@@ -631,6 +702,12 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<vlan-pcp: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<vlan-pcp: " << (int)get_u8value() << " >";
 	};
 };
 
@@ -654,6 +731,12 @@ public:
 		os << indent(2) << "<ip-dscp: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ip-dscp: " << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -676,6 +759,12 @@ public:
 		os << indent(2) << "<ip-ecn: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ip-ecn: " << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -697,6 +786,12 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ip-proto: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ip-proto: " << (int)get_u8value() << " >";
 	};
 };
 
@@ -732,6 +827,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv4-src value: > ";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<ipv4-src mask: > ";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
+	};
 };
 
 
@@ -766,6 +870,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv4-dst value: >";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<ipv4-dst mask: >";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
+	};
 };
 
 
@@ -794,6 +907,16 @@ public:
 		os << rofl::indent(0) << "<ipv6-src mask: > " << std::endl;
 		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		rofl::indent i(2);
+		os << rofl::indent(0) << "<ipv6-src value: > ";
+		{ rofl::indent i(2); os << get_u128value(); }
+		os << rofl::indent(0) << "<ipv6-src mask: > ";
+		{ rofl::indent i(2); os << get_u128mask(); }
 	};
 };
 
@@ -824,6 +947,16 @@ public:
 		{ rofl::indent i(2); os << oxm.get_u128mask(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		rofl::indent i(2);
+		os << rofl::indent(0) << "<ipv6-dst value: >";
+		{ rofl::indent i(2); os << get_u128value(); }
+		os << rofl::indent(0) << "<ipv6-dst mask: > ";
+		{ rofl::indent i(2); os << get_u128mask(); }
+	};
 };
 
 
@@ -847,6 +980,14 @@ public:
 		os << rofl::indent(0) << "<ipv6-nd-target value: > " << std::endl;
 		{ rofl::indent i(2); os << oxm.get_u128value(); }
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		rofl::indent i(2);
+		os << rofl::indent(0) << "<ipv6-nd-target value: > ";
+		{ rofl::indent i(2); os << get_u128value(); }
 	};
 };
 
@@ -872,6 +1013,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<tcp-src: ";
+		os << (int)get_u16value() << " >";
+	};
 };
 
 
@@ -895,6 +1043,13 @@ public:
 						<< (int)oxm.get_u16value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<tcp-dst: ";
+		os << (int)get_u16value() << " >";
 	};
 };
 
@@ -920,6 +1075,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<udp-src: ";
+		os << (int)get_u16value() << " >";
+	};
 };
 
 
@@ -943,6 +1105,13 @@ public:
 						<< (int)oxm.get_u16value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<udp-dst: ";
+		os << (int)get_u16value() << " >";
 	};
 };
 
@@ -968,6 +1137,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<sctp-src: ";
+		os << (int)get_u16value() << " >";
+	};
 };
 
 
@@ -991,6 +1167,13 @@ public:
 						<< (int)oxm.get_u16value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<sctp-dst: ";
+		os << (int)get_u16value() << " >";
 	};
 };
 
@@ -1016,6 +1199,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<icmpv4-type: ";
+		os << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -1040,6 +1230,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<icmpv4-code: ";
+		os << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -1063,6 +1260,13 @@ public:
 						<< (int)oxm.get_u16value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<arp-opcode: ";
+		os << (int)get_u16value() << " >";
 	};
 };
 
@@ -1099,6 +1303,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<arp-spa value: >";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<arp-spa mask: >";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
+	};
 };
 
 
@@ -1134,6 +1347,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<arp-tpa value: >";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<arp-tpa mask: >";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
+	};
 };
 
 
@@ -1161,6 +1383,15 @@ public:
 		os << indent(2) << "<arp-sha mask: >" << std::endl;
 		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<arp-sha value: >";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<arp-sha mask: >";
+		{ rofl::indent i(4); os << get_u48mask();  }
 	};
 };
 
@@ -1192,6 +1423,15 @@ public:
 
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<arp-tha value: >";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<arp-tha mask: >";
+		{ rofl::indent i(4); os << get_u48mask();  }
+	};
 };
 
 
@@ -1221,6 +1461,13 @@ public:
 						<< std::dec << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv6-flabel: 0x" << std::hex;
+		os << (int)get_u32value() << "/0x" << (int)get_u32mask() << std::dec << " >";
+	};
 };
 
 
@@ -1245,6 +1492,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<icmpv6-type: ";
+		os << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -1268,6 +1522,13 @@ public:
 						<< (int)oxm.get_u8value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<icmpv6-code: ";
+		os << (int)get_u8value() << " >";
 	};
 };
 
@@ -1295,6 +1556,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv6-nd-sll value: >";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<ipv6-nd-sll mask: >";
+		{ rofl::indent i(4); os << get_u48mask();  }
+	};
 };
 
 
@@ -1320,6 +1590,15 @@ public:
 		{ rofl::indent i(4); os << oxm.get_u48mask();  }
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv6-nd-tll value: >";
+		{ rofl::indent i(4); os << get_u48value();  }
+		os << indent(2) << "<ipv6-nd-tll mask: >";
+		{ rofl::indent i(4); os << get_u48mask();  }
+	};
 };
 
 
@@ -1343,6 +1622,13 @@ public:
 						<< std::hex << (int)oxm.get_u32value() << std::dec
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<mpls-label: 0x";
+		os << std::hex << (int)get_u32value() << std::dec << " >";
 	};
 };
 
@@ -1368,6 +1654,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<mpls-tc: ";
+		os << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -1392,6 +1685,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<mpls-bos: ";
+		os << (int)get_u8value() << " >";
+	}
 };
 
 
@@ -1421,6 +1721,15 @@ public:
 						<< std::dec
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<tunnel_id: " << std::hex;
+		os << (unsigned long long)get_u64value();
+		os << "/" << (unsigned long long)get_u64mask();
+		os << std::dec << " >";
 	};
 };
 
@@ -1453,6 +1762,14 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<pbb_isid: " << std::hex;
+		os << (unsigned int)get_u32value() << "/" << (unsigned int)get_u32mask();
+		os << std::dec << " >";
+	};
 };
 
 
@@ -1480,6 +1797,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<ipv6-exthdr: ";
+		os << (int)get_u16value() << "/" << get_u16mask() << " >";
+	};
 };
 
 
@@ -1502,6 +1826,12 @@ public:
 		os << indent(2) << "<nw-proto: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<nw-proto: " << (int)get_u8value() << " >";
+	};
 };
 
 
@@ -1522,6 +1852,12 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<nw-tos: " << (int)oxm.get_u8value() << " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<nw-tos: " << (int)get_u8value() << " >";
 	};
 };
 
@@ -1556,6 +1892,15 @@ public:
 		os << indent(2) << "<nw-src mask: >" << std::endl;
 		{ rofl::indent i(4); os << oxm.get_u32mask_as_addr(); }
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<nw-src value: >";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<nw-src mask: >";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
 	};
 };
 
@@ -1592,6 +1937,15 @@ public:
 
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<nw-dst value: >";
+		{ rofl::indent i(4); os << get_u32value_as_addr(); }
+		os << indent(2) << "<nw-dst mask: >";
+		{ rofl::indent i(4); os << get_u32mask_as_addr(); }
+	};
 };
 
 
@@ -1616,6 +1970,13 @@ public:
 						<< " >" << std::endl;
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<tp-src: ";
+		os << (int)get_u16value() << " >";
+	};
 };
 
 
@@ -1639,6 +2000,13 @@ public:
 						<< (int)oxm.get_u16value()
 						<< " >" << std::endl;
 		return os;
+	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		(dynamic_cast<coxmatch const&>(*this)).str_sl(os);
+		os << indent(2) << "<tp-dst: ";
+		os << (int)get_u16value() << " >";
 	};
 };
 

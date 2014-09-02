@@ -705,6 +705,17 @@ public:
 		}
 		return os;
 	};
+	
+	void
+	str_sl(std::ostream& os) const {
+		os << rofl::indent(0) << "<cofactions ofp-version:" << (int)get_version() <<
+				" #actions:" << (int)get_actions().size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::map<cindex, cofaction*>::const_iterator
+				it = actions.begin(); it != actions.end(); ++it) {
+			cofaction::dump(os, *(it->second));
+		}
+	};
 
 private:
 
