@@ -28,13 +28,12 @@
  */
 void __of1x_init_flow_stats(of1x_flow_entry_t * entry)
 {
+	memset(&entry->stats, 0, sizeof(of1x_stats_flow_t));
+
 	struct timeval now;
 	platform_gettimeofday(&now);
-	
 	entry->stats.initial_time = now;
-	entry->stats.packet_count = 0;
-	entry->stats.byte_count = 0;
-
+	
 	entry->stats.mutex = platform_mutex_init(NULL);
 
 	return;
@@ -75,6 +74,7 @@ void of1x_destroy_stats_flow_aggregate_msg(of1x_stats_flow_aggregate_msg_t* msg)
 of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_t* entry){
 
 	of1x_stats_single_flow_msg_t* msg;
+	__of1x_stats_flow_tid_t consolidated_stats;
 
 	if(!entry)
 		return NULL;
@@ -99,8 +99,11 @@ of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_
 	msg->idle_timeout = entry->timer_info.idle_timeout;
 	msg->hard_timeout = entry->timer_info.hard_timeout;
 	msg->flags = entry->flags;
-	msg->byte_count = entry->stats.byte_count;
-	msg->packet_count = entry->stats.packet_count;
+	
+	//Aggregate stats
+	__of1x_stats_flow_consolidate(&entry->stats, &consolidated_stats);
+	msg->byte_count = consolidated_stats.byte_count;
+	msg->packet_count = consolidated_stats.packet_count;
 
 	//Get durations
 	of1x_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
@@ -182,10 +185,7 @@ void __of1x_push_single_flow_stats_to_msg(of1x_stats_flow_msg_t* msg, of1x_stats
  * of1x_stats_flow_reset_counts
  */
 void __of1x_stats_flow_reset_counts(of1x_flow_entry_t * entry){
-
-	platform_mutex_lock(entry->stats.mutex);
-	entry->stats.packet_count = entry->stats.byte_count =  0;
-	platform_mutex_unlock(entry->stats.mutex);
+	memset(&entry->stats.s,0,sizeof(union __of1x_stats_flow_tids));
 }
 
 /**
@@ -208,9 +208,8 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
  * Initializes table statistics state
  */
 void __of1x_stats_table_init(of1x_flow_table_t * table){
-
-	table->stats.lookup_count = 0;
-	table->stats.matched_count = 0;
+	
+	memset(&table->stats, 0, sizeof(of1x_stats_table_t));
 
 	//Stats mutex	
 	table->stats.mutex = platform_mutex_init(NULL);
@@ -227,21 +226,17 @@ void __of1x_stats_table_destroy(of1x_flow_table_t * table){
 
 
 void __of1x_init_group_stats(of1x_stats_group_t *group_stats){
+	
+	memset(group_stats, 0, sizeof(of1x_stats_group_t));
+	
 	//NOTE bucket stats are initialized when the group is created, before being attached to the list
 	group_stats->mutex = platform_mutex_init(NULL);
-	group_stats->byte_count = 0;
-	group_stats->packet_count = 0;
-	group_stats->ref_count = 0;
 }
 
 void __of1x_destroy_group_stats(of1x_stats_group_t* group_stats){
 	platform_mutex_destroy(group_stats->mutex);
 }
 
-void __of1x_stats_group_update(of1x_stats_group_t *gr_stats, uint64_t bytes){
-	platform_atomic_inc64(&gr_stats->packet_count, gr_stats->mutex);
-	platform_atomic_add64(&gr_stats->byte_count, bytes, gr_stats->mutex);
-}
 
 void __of1x_stats_group_inc_reference(of1x_stats_group_t *gr_stats){
 	platform_atomic_inc32(&gr_stats->ref_count, gr_stats->mutex);
@@ -255,7 +250,7 @@ of1x_stats_group_msg_t* __of1x_init_stats_group_msg(unsigned int num_buckets){
 	
 	of1x_stats_group_msg_t *msg = (of1x_stats_group_msg_t *) platform_malloc_shared(sizeof(of1x_stats_group_msg_t));
 	if(likely(msg!=NULL)){
-		msg->bucket_stats = (of1x_stats_bucket_counter_t*) platform_malloc_shared(sizeof(of1x_stats_bucket_counter_t) * num_buckets);
+		msg->bucket_stats = (of1x_stats_bucket_t*) platform_malloc_shared(sizeof(of1x_stats_bucket_t) * num_buckets);
 		if(msg->bucket_stats)
 			return msg;
 		else
@@ -278,62 +273,169 @@ void of1x_destroy_stats_group_msg(of1x_stats_group_msg_t* msg){
 	}
 }
 
-of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t id){
+of1x_stats_group_msg_t* __of1x_get_group_single_stats(of1x_group_t* group){
 	of1x_bucket_t *bu_it;
-	
-	//find the group
-	of1x_group_t* group = __of1x_group_search(pipeline->groups, id);
-	if(group == NULL) return NULL;
-	
 	of1x_stats_group_msg_t* msg = __of1x_init_stats_group_msg(group->bc_list->num_of_buckets);
 
-	msg->group_id = id;
+	//Consolidate
+	__of1x_stats_group_tid_t c;	
+	__of1x_stats_group_consolidate(&group->stats, &c);
+
+	msg->group_id = group->id;
 	msg->ref_count = group->stats.ref_count;
-	msg->packet_count = group->stats.packet_count;
-	msg->byte_count = group->stats.packet_count;
+	msg->packet_count = c.packet_count; 
+	msg->byte_count = c.byte_count; 
 	msg->num_of_buckets = group->bc_list->num_of_buckets;
 	msg->next = NULL;
 	
 	//collect statistics from buckets
 	int i=0;
 	for(bu_it=group->bc_list->head;bu_it;bu_it=bu_it->next,i++){
-		msg->bucket_stats[i].byte_count = bu_it->stats.byte_count;
-		msg->bucket_stats[i].packet_count = bu_it->stats.packet_count;
+		//Consolidate
+		__of1x_stats_bucket_tid_t cc;
+		__of1x_stats_bucket_consolidate(&bu_it->stats, &cc);
+
+		msg->bucket_stats[i].byte_count = cc.byte_count;
+		msg->bucket_stats[i].packet_count = cc.packet_count;
 	}
 	return msg;
 }
 
-of1x_stats_group_msg_t* of1x_get_group_all_stats(of1x_pipeline_t* pipeline,uint32_t id){
-	of1x_group_t* group;
+of1x_stats_group_msg_t* of1x_get_group_stats(of1x_pipeline_t* pipeline,uint32_t id){
+	of1x_group_t* group=NULL;
 	of1x_stats_group_msg_t *msg=NULL, *last=NULL, *head=NULL;
 	
+	if( id == OF1X_GROUP_ALL ){
+	
+		for(group=pipeline->groups->head;group;group=group->next){
+			if(group == NULL)
+				return NULL;
+			
+			msg = __of1x_get_group_single_stats(group);
+			if(last)
+				last->next = msg;
+			if(!head)
+				head=msg;
+			
+			last = msg;
+		}
+	} else{
+		//find the group
+		group = __of1x_group_search(pipeline->groups, id);
+		if(group == NULL)
+			return NULL;
+		
+		head = __of1x_get_group_single_stats(group);
+	}
+
+	return head;
+}
+
+void __of1x_destroy_bucket_desc_stats(of1x_stats_bucket_desc_msg_t* bucket){
+	of1x_destroy_action_group(bucket->actions);
+	platform_free_shared(bucket);
+}
+
+void of1x_destroy_group_desc_stats(of1x_stats_group_desc_msg_t *msg){
+	of1x_stats_group_desc_msg_t *group_it, *next_gr;
+	of1x_stats_bucket_desc_msg_t* bucket_it, *next_bu;
+	
+	for(group_it=msg; group_it; group_it=next_gr){
+		next_gr = group_it->next;
+		
+		//destroy buckets
+		for(bucket_it = group_it->bucket; bucket_it; bucket_it=next_bu){
+			next_bu = bucket_it->next;
+			__of1x_destroy_bucket_desc_stats(bucket_it);
+		}
+		
+		//destroy message
+		platform_free_shared(group_it);
+	}
+}
+
+of1x_stats_bucket_desc_msg_t *__of1x_init_bucket_desc_stats(of1x_bucket_t *bucket){
+	of1x_stats_bucket_desc_msg_t *desc_bucket;
+	
+	desc_bucket = platform_malloc_shared( sizeof(of1x_stats_bucket_desc_msg_t) );
+	if ( desc_bucket == NULL ){
+		return NULL;
+	}
+	desc_bucket->group = bucket->group;
+	desc_bucket->weight = bucket->weight;
+	desc_bucket->port = bucket->port;
+	//copy actions
+	desc_bucket->actions = __of1x_copy_action_group(bucket->actions);
+	desc_bucket->next = NULL;
+	
+	return desc_bucket;
+}
+
+of1x_stats_group_desc_msg_t *__of1x_init_group_desc_single_stats(of1x_group_t* group){
+	of1x_bucket_t *bu_it = NULL;
+	of1x_stats_bucket_desc_msg_t *bu_desc=NULL, *head=NULL, *last=NULL;
+	of1x_stats_group_desc_msg_t *msg = platform_malloc_shared( sizeof(of1x_stats_group_desc_msg_t) );
+	
+	if ( msg==NULL )
+		return NULL;
+	
+	msg->group_id = group->id;
+	msg->type = group->type;
+	msg->next = NULL;
+	
+	for( bu_it = group->bc_list->head; bu_it; bu_it=bu_it->next){
+		bu_desc = __of1x_init_bucket_desc_stats(bu_it);
+		if(bu_desc == NULL){
+			of1x_destroy_group_desc_stats(msg);
+			return NULL;
+		}
+		
+		if(last)
+			last->next = bu_desc;
+		if(!head)
+			head=bu_desc;
+		
+		last = bu_desc;
+	}
+	
+	msg->bucket = head;
+	
+	return msg;
+}
+
+of1x_stats_group_desc_msg_t *of1x_get_group_desc_stats(of1x_pipeline_t* pipeline){
+	of1x_group_t* group;
+	of1x_stats_group_desc_msg_t *msg=NULL, *last=NULL, *head=NULL;
+	
 	for(group=pipeline->groups->head;group;group=group->next){
-		msg = of1x_get_group_stats(pipeline,group->id);
+		msg = __of1x_init_group_desc_single_stats(group);
+		
+		if (msg == NULL){
+			if(head) of1x_destroy_group_desc_stats(head);
+			return NULL;
+		}
+		
 		if(last)
 			last->next = msg;
 		if(!head)
 			head=msg;
 		
 		last = msg;
-	}
-
+		}
 	return head;
 }
 
-void __of1x_init_bucket_stats(of1x_stats_bucket_counter_t *bc_stats){
+void __of1x_init_bucket_stats(__of1x_stats_bucket_t *bc_stats){
+	
+	memset(bc_stats, 0, sizeof(__of1x_stats_bucket_t));
+	
 	bc_stats->mutex = platform_mutex_init(NULL);
-	bc_stats->byte_count = 0;
-	bc_stats->packet_count = 0;
 }
 
-void __of1x_destroy_buckets_stats(of1x_stats_bucket_counter_t *bc_stats){
+void __of1x_destroy_buckets_stats(__of1x_stats_bucket_t *bc_stats){
 	platform_mutex_destroy(bc_stats->mutex);
 }
 
-void __of1x_stats_bucket_update(of1x_stats_bucket_counter_t* bc_stats, uint64_t bytes){
-	platform_atomic_inc64(&bc_stats->packet_count, bc_stats->mutex);
-	platform_atomic_add64(&bc_stats->byte_count, bytes, bc_stats->mutex);
-}
 
 /*
 * External interfaces

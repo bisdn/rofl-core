@@ -30,13 +30,14 @@ crofconn::crofconn(
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
 {
-
+	//rofl::logging::debug << "[rofl][crofconn] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofconn::~crofconn()
 {
+	//rofl::logging::debug << "[rofl][crofconn] destructor " << std::hex << this << std::dec << std::endl;
 	if (STATE_DISCONNECTED != state) {
 		close();
 	}
@@ -216,7 +217,7 @@ crofconn::event_disconnected()
 		rofl::logging::debug << "[rofl-common][conn] connection in state -disconnected-" << std::endl;
 	} break;
 	case STATE_CONNECT_PENDING: {
-		rofl::logging::info << "[rofl-common][conn] entering state -disconnected-" << std::endl;
+		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
 		if (flags.test(FLAGS_CONNECT_REFUSED)) {
 			env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
 		}
@@ -228,14 +229,14 @@ crofconn::event_disconnected()
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED:
 	default: {
-		rofl::logging::info << "[rofl-common][conn] entering state -disconnected-" << std::endl;
+		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
 		state = STATE_DISCONNECTED;
 		timer_stop_wait_for_echo();
 		timer_stop_wait_for_hello();
 		rofsock.close();
 
 		if (flags.test(FLAGS_CLOSED)) {
-			env->handle_closed(this); flags.reset(FLAGS_CLOSED);
+			flags.reset(FLAGS_CLOSED); env->handle_closed(this); return; // this object may have been destroyed here
 		}
 	};
 	}
@@ -332,7 +333,7 @@ crofconn::event_features_expired()
 
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+		rofl::logging::debug << "[rofl-common][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -413,7 +414,7 @@ crofconn::action_send_hello_message()
 						env->get_async_xid(this),
 						body.somem(), body.memlen());
 
-		rofl::logging::error << "[rofl-common][conn] sending HELLO.message:" << std::endl << *hello;
+		rofl::logging::debug << "[rofl-common][conn] sending HELLO.message:" << std::endl << *hello;
 
 		rofsock.send_message(hello);
 
@@ -440,7 +441,7 @@ crofconn::action_send_features_request()
 		rofl::openflow::cofmsg_features_request *request =
 				new rofl::openflow::cofmsg_features_request(ofp_version, env->get_async_xid(this));
 
-		rofl::logging::error << "[rofl-common][conn] sending FEATURES.request:" << std::endl << *request;
+		rofl::logging::debug << "[rofl-common][conn] sending FEATURES.request:" << std::endl << *request;
 
 		rofsock.send_message(request);
 
@@ -1569,7 +1570,7 @@ crofconn::backoff_reconnect(bool reset_timeout)
 		}
 	}
 
-	rofl::logging::info << "[rofl-common][conn][backoff] " << " scheduled reconnect in: " << std::endl << reconnect_timespec;
+	rofl::logging::debug << "[rofl-common][conn][backoff] " << " scheduled reconnect in: " << std::endl << reconnect_timespec;
 
 	timer_start_next_reconnect();
 

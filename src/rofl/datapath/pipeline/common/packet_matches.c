@@ -98,7 +98,7 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	//Tunnel id
 	m->__tunnel_id = ( (ptr64=platform_packet_get_tunnel_id(pkt))==NULL ? 0 : *ptr64);
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 	/*	
 	* Extensions
 	*/
@@ -141,7 +141,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	//Prefill packet matches	
 	fill_packet_matches(pkt, m);
 	
-	ROFL_PIPELINE_INFO_NO_PREFIX("Packet matches [");	
+	ROFL_PIPELINE_INFO("Packet[%p] {", pkt);	
 	
 	//Ports
 	if(m->__port_in)
@@ -305,7 +305,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	if(m->__tunnel_id)
 		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,m->__tunnel_id));
 
-#ifdef EXPERIMENTAL
+#ifdef ROFL_EXPERIMENTAL
 	//PPPoE
 	if(m->__eth_type == ETH_TYPE_PPPOE_DISCOVERY || m->__eth_type == ETH_TYPE_PPPOE_SESSION ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",m->__pppoe_code, m->__pppoe_type,COND_NTOHB16(raw_nbo, m->__pppoe_sid));
@@ -354,7 +354,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 	}
 #endif
 	
-	ROFL_PIPELINE_INFO_NO_PREFIX("]\n");	
+	ROFL_PIPELINE_INFO_NO_PREFIX("}\n");	
 
 	//Add more here...	
 }

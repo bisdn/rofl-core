@@ -212,6 +212,10 @@ public:
 	 */
 	virtual ssize_t
 	recv(void *buf, size_t count);
+	virtual ssize_t
+	recv(void *buf, size_t count, int flags, rofl::csockaddr& from) {
+		return recv(buf, count); // TODO: OpenSSL with DTLS on datagram sockets
+	};
 
 
 	/**

@@ -22,8 +22,8 @@ ROFL_BEGIN_DECLS
 * Entry lookup. This should never be used directly
 */ 
 /* Main process_packet_through */
-static inline struct of1x_flow_entry* __of1x_find_best_match_table(struct of1x_flow_table *const table, datapacket_t *const pkt){
-	return __of1x_matching_algorithms_find_best_match(table->matching_algorithm, table, pkt);
+static inline struct of1x_flow_entry* __of1x_find_best_match_table(unsigned int tid, struct of1x_flow_table *const table, datapacket_t *const pkt){
+	return __of1x_matching_algorithms_find_best_match(tid, table->matching_algorithm, table, pkt);
 }
 
 //C++ extern C

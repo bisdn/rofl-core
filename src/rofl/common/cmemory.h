@@ -231,7 +231,7 @@ public:
 	 * @param buf pointer to start of buffer to be copied
 	 * @param buflen length of buffer to be copied
 	 */
-	void
+	virtual void
 	assign(
 			uint8_t *buf,
 			size_t buflen);

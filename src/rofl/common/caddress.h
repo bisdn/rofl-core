@@ -25,6 +25,7 @@ public:
 	eAddressInval(const std::string& __arg) : eAddress(__arg) {};
 };
 
+class csockaddr; // forward declaration
 
 class caddress : public cmemory {
 public:
@@ -297,7 +298,7 @@ public:
 	 *
 	 */
 	std::string
-	str() { return addr2str(); };
+	str() const { return addr2str(); };
 
 private:
 
@@ -432,6 +433,18 @@ public:
 	/**
 	 *
 	 */
+	caddress_in4(
+			struct sockaddr_in* sin, socklen_t salen) :
+					caddress_in(INET4_ADDR_LEN) {
+		if (salen < sizeof(struct sockaddr_in)) {
+			throw eAddressInval("caddress_in4::caddress_in4() invalid struct sockaddr_in");
+		}
+		set_addr_nbo(sin->sin_addr.s_addr);
+	};
+
+	/**
+	 *
+	 */
 	virtual
 	~caddress_in4() {};
 
@@ -537,7 +550,7 @@ public:
 	 *
 	 */
 	std::string
-	str() { return addr2str(); };
+	str() const { return addr2str(); };
 
 private:
 
@@ -589,6 +602,18 @@ public:
 			const std::string& addr) :
 					caddress_in(INET6_ADDR_LEN) {
 		str2addr(addr);
+	};
+
+	/**
+	 *
+	 */
+	caddress_in6(
+			struct sockaddr_in6* sin6, socklen_t salen) :
+					caddress_in(INET6_ADDR_LEN) {
+		if (salen < sizeof(struct sockaddr_in6)) {
+			throw eAddressInval("caddress_in6::caddress_in6() invalid struct sockaddr_in6");
+		}
+		memcpy(somem(), sin6->sin6_addr.s6_addr, INET6_ADDR_LEN);
 	};
 
 	/**
@@ -660,7 +685,7 @@ public:
 	 *
 	 */
 	std::string
-	str() { return addr2str(); };
+	str() const { return addr2str(); };
 
 private:
 
@@ -693,7 +718,6 @@ private:
 
 	static const size_t INET6_ADDR_LEN = 16;
 };
-
 
 }; // end of namespace rofl
 

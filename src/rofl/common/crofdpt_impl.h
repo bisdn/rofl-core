@@ -98,8 +98,6 @@ private: // data structures
 		uint16_t								config;
 		uint16_t 								miss_send_len; 	// length of bytes sent to controller
 
-		rofl::openflow::cfsptable 				fsptable;		// flowspace registration table
-
 		crofbase 								*rofbase;		// layer-(n) entity
 		ctransactions							transactions;	// pending OFP transactions
 
@@ -115,7 +113,8 @@ public:
 	 */
 	crofdpt_impl(
 			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 	/**
 	 * @brief 	Constructor for accepted incoming connection on socket.
@@ -127,7 +126,8 @@ public:
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			enum rofl::csocket::socket_type_t socket_type,
-			int newsd);
+			int newsd,
+			enum rofl::crofdpt::crofdpt_flavour_t flavour);
 
 
 	/**
@@ -318,16 +318,6 @@ public:
 	 */
 	virtual uint16_t
 	get_miss_send_len() const { return miss_send_len; };
-
-
-	/**
-	 * @brief	Returns reference to the data path element's flowspace table.
-	 *
-	 * @return fsptable
-	 */
-	virtual rofl::openflow::cfsptable&
-	get_fsptable() { return fsptable; };
-
 
 	/**
 	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
@@ -1219,7 +1209,7 @@ public:
 			os << indent(2) << "<state: -UNKNOWN- >" << std::endl;
 		} break;
 		}
-		os << indent(2) << "<hwaddr: " << dpt.hwaddr << " >" << std::endl;
+		os << indent(2) << "<hwaddr: " << dpt.hwaddr.str() << " >" << std::endl;
 		os << indent(2) << "<#buffers: " << (int)dpt.n_buffers << " >" << std::endl;
 		os << indent(2) << "<#tables: " << (int)dpt.n_tables << " >" << std::endl;
 		os << indent(2) << "<capabilities: " << std::hex << (int)dpt.capabilities << std::dec << " >" << std::endl;

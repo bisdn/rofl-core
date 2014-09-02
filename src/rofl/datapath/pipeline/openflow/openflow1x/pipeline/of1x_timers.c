@@ -149,7 +149,7 @@ rofl_result_t __of1x_timer_group_static_init(of1x_flow_table_t* table){
  * initializes the values for the entry lists
  */
 void __of1x_timer_group_static_destroy(of1x_flow_table_t* table){
-	free(table->timers);
+	platform_free_shared(table->timers);
 }
 
 /**
@@ -365,8 +365,12 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 {
 	struct timeval system_time;
 	uint64_t expiration_time;
+	__of1x_stats_flow_tid_t consolidated_stats;
+
+	//Consolidate entry
+	__of1x_stats_flow_consolidate(&entry_timer->entry->stats, &consolidated_stats);
 	
-	if(entry_timer->entry->stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
+	if(consolidated_stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
 	{
 	// timeout expired so no need to reschedule !!! we have to delete the entry
 #ifdef DEBUG_NO_REAL_PIPE
@@ -380,7 +384,8 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 		return ROFL_SUCCESS;
 	}
 	
-	entry_timer->entry->timer_info.last_packet_count = entry_timer->entry->stats.packet_count;
+	entry_timer->entry->timer_info.last_packet_count = consolidated_stats.packet_count;
+
 	//NOTE we calculate the new time of expiration from the checking time and not from the last time it was used (less accurate and more efficient)
 	platform_gettimeofday(&system_time);
 	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &system_time);
@@ -415,22 +420,16 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
  */
 static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_group_t* tg, of1x_pipeline_t *const pipeline, unsigned int id_table)
 {
-	of1x_entry_timer_t* entry_iterator, *next/*, *prev*/;
-	if(tg->list.num_of_timers>0 && tg->list.head)
-	{
-		for(entry_iterator = tg->list.head; entry_iterator; entry_iterator=next)
-		{
-			next = entry_iterator->next;
-			
+	of1x_entry_timer_t* entry_iterator;
+
+	if(tg->list.num_of_timers>0 && tg->list.head){
+		while( (entry_iterator = tg->list.head) != NULL){
 			//NOTE actual removal of timer_entries is done in the destruction of the entry
 			
-			if(entry_iterator->type == IDLE_TO)
-			{
+			if(entry_iterator->type == IDLE_TO){
 				if(__of1x_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS)
 					return ROFL_FAILURE;
-			}
-			else
-			{
+			}else{
 #ifdef DEBUG_NO_REAL_PIPE
 				ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 				__of1x_fill_new_timer_entry_info(entry_iterator->entry,0,0);

@@ -11,6 +11,7 @@
  */
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
+#include "../of1x_switch.h"
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/likely.h"
@@ -20,34 +21,20 @@
 static void __of1x_destroy_group(of1x_group_table_t *gt, of1x_group_t *ge);
 bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl);
 
-of1x_group_table_t* of1x_init_group_table(){
-	of1x_group_table_t *gt;
-	gt = (of1x_group_table_t *) platform_malloc_shared(sizeof(of1x_group_table_t));
-	
-	if( unlikely(gt==NULL) ){
-		return NULL;
-	}
-	
-	gt->num_of_entries = 0;
-	gt->head = NULL;
-	gt->tail = NULL;
-	
-	gt->rwlock = platform_rwlock_init(NULL);
+void __of12_set_group_table_defaults(of1x_group_table_t *gt){
 	bitmap128_clean(&gt->config.supported_actions);
 
 	//We initialize with the support of all possible actions. This can be customized via the init hook
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_IN
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_IN);
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_VLAN);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_MPLS);		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_GTP);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_GTP);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PPPOE);		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PBB);		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PBB);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PPPOE);		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GTP);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_MPLS);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_VLAN);		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_OUT);			
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_OUT);			
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_DEC_NW_TTL);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_DEC_MPLS_TTL);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_MPLS_TTL);		
@@ -58,7 +45,6 @@ of1x_group_table_t* of1x_init_group_table(){
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ETH_TYPE); 		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_LABEL);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_TC);  	   	
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_BOS);  	   	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_VLAN_VID); 		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_VLAN_PCP); 		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ARP_OPCODE);	
@@ -80,21 +66,18 @@ of1x_group_table_t* of1x_init_group_table(){
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_TARGET);
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_SLL);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_ND_TLL);	
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TCP_SRC);  		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TCP_DST);  		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_UDP_SRC);  		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_UDP_DST);  		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_SRC);  		
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_DST);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_SRC);  		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_SCTP_DST);  		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TP_SRC);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TP_DST);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV4_CODE);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV6_TYPE);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_ICMPV6_CODE);	
-	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PBB_ISID);	
-	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
@@ -104,7 +87,53 @@ of1x_group_table_t* of1x_init_group_table(){
 	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_GROUP); //WE DON'T SUPPORT INDIRECT GROUP reference	
 	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_OUTPUT);
+}
 
+void __of13_set_group_table_defaults(of1x_group_table_t *gt){
+	__of12_set_group_table_defaults(gt);
+	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PBB);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PBB);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_MPLS_BOS);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PBB_ISID);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);
+}
+
+of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline* pipeline){
+	of1x_group_table_t *gt;
+	gt = (of1x_group_table_t *) platform_malloc_shared(sizeof(of1x_group_table_t));
+	
+	if( unlikely(gt==NULL) ){
+		return NULL;
+	}
+	
+	gt->num_of_entries = 0;
+	gt->head = NULL;
+	gt->tail = NULL;
+	
+	gt->mutex = platform_mutex_init(NULL);
+	gt->rwlock = platform_rwlock_init(NULL);
+	
+	switch(pipeline->sw->of_ver){
+		case OF_VERSION_10:
+			break;
+		case OF_VERSION_12:
+			__of12_set_group_table_defaults(gt);
+			break;
+		case OF_VERSION_13:
+			__of13_set_group_table_defaults(gt);
+			break;
+		default:
+			platform_mutex_destroy(gt->mutex);
+			platform_rwlock_destroy(gt->rwlock);
+			platform_free_shared(gt);
+			return NULL;
+	}
+
+	//Reference back
+	gt->pipeline = pipeline;
+	
 	return gt;
 }
 
@@ -112,6 +141,7 @@ void of1x_destroy_group_table(of1x_group_table_t* gt){
 	of1x_group_t *iterator=NULL, *next=NULL;
 	//check if there are existing entries and deleting them
 	
+	platform_mutex_lock(gt->mutex);
 	platform_rwlock_wrlock(gt->rwlock);
 	
 	for(iterator=gt->head; iterator!=NULL; iterator=next){
@@ -119,22 +149,11 @@ void of1x_destroy_group_table(of1x_group_table_t* gt){
 		__of1x_destroy_group(gt,iterator);
 	}
 	
+	platform_mutex_destroy(gt->mutex);
 	platform_rwlock_destroy(gt->rwlock);
 	
 	
 	platform_free_shared(gt);
-}
-
-/**
- * Copies the structure of the group table.
- */
-rofl_result_t of1x_fetch_group_table(of1x_pipeline_t *pipeline, of1x_group_table_t* group_table){
-	platform_rwlock_rdlock(pipeline->groups->rwlock);
-	
-	*group_table = *(pipeline->groups);
-	
-	platform_rwlock_rdunlock(pipeline->groups->rwlock);
-	return ROFL_SUCCESS;
 }
 
 static
@@ -166,11 +185,17 @@ rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id){
 	of1x_group_t *iterator=NULL, *next=NULL;
 	
+	platform_rwlock_rdlock(gt->rwlock);
+	
 	for(iterator=gt->head; iterator!=NULL; iterator=next){
 		next=iterator->next;
-		if(iterator->id == id)
+		if(iterator->id == id){
+			platform_rwlock_rdunlock(gt->rwlock);
 			return iterator;
+		}
 	}
+	
+	platform_rwlock_rdunlock(gt->rwlock);
 	
 	return NULL;
 }
@@ -190,7 +215,7 @@ rofl_of1x_gm_result_t __of1x_check_group_parameters(of1x_group_table_t *gt, of1x
 	
 	//Group types not supported
 	if (type == OF1X_GROUP_TYPE_SELECT || type == OF1X_GROUP_TYPE_FF){
-		ROFL_PIPELINE_DEBUG("Warning; group type %u NOT supported\n", type);
+		ROFL_PIPELINE_ERR("Warning; group type %u NOT supported\n", type);
 		return ROFL_OF1X_GM_INVAL;
 	}
 	
@@ -235,6 +260,8 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 		ge->num_of_output_actions += bc->actions->num_of_output_actions;
 	}
 	
+	platform_rwlock_wrlock(gt->rwlock);
+	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
 		gt->head = ge;
@@ -248,26 +275,35 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
+	platform_rwlock_wrunlock(gt->rwlock);
+	
 	return ROFL_OF1X_GM_OK;
 }
 
 rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
-	platform_rwlock_wrlock(gt->rwlock);
+	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Starting operation at switch %s(%p), group id: %u\n", *buckets, gt->pipeline->sw->name, gt->pipeline->sw, id);
+
+	//serialize mgmt actions
+	platform_mutex_lock(gt->mutex);
 	
 	//check wether onither entry with this ID already exists
 	if(__of1x_group_search(gt,id)!=NULL){
-		platform_rwlock_wrunlock(gt->rwlock);
+		platform_mutex_unlock(gt->mutex);
+		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED validation. Group exists...\n", *buckets);
 		return ROFL_OF1X_GM_EXISTS;
 	}
 	
 	ret_val = __of1x_init_group(gt,type,id,*buckets);
 	if (ret_val!=ROFL_OF1X_GM_OK){
-		platform_rwlock_wrunlock(gt->rwlock);
+		platform_mutex_unlock(gt->mutex);
+		ROFL_PIPELINE_INFO("[groupmod-add(%p)] FAILED, reason %u\n", *buckets, ret_val);
 		return ret_val;
 	}
 	
-	platform_rwlock_wrunlock(gt->rwlock);
+	ROFL_PIPELINE_INFO("[groupmod-add(%p)] Successful\n", *buckets);
+	
+	platform_mutex_unlock(gt->mutex);
 
 	//Was successful set the pointer to NULL
 	//so that is not further used outside the pipeline
@@ -327,13 +363,17 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	of1x_flow_entry_t* entry;
 	of1x_group_t *ge, *next;
 	
-	//TODO if the group value is OFP1X_GROUP_ALL, delete all groups 
+	//serialize mgmt actions
+	platform_mutex_lock(gt->mutex);
+	
 	if(id == OF1X_GROUP_ALL){
 		for(ge = gt->head; ge; ge=next){
 			next = ge->next;
 			//extract the group without destroying it (only the first thread that comes gets it)
-			if(__of1x_extract_group(gt, ge)==ROFL_FAILURE)
+			if(__of1x_extract_group(gt, ge)==ROFL_FAILURE){
+				platform_mutex_unlock(gt->mutex);
 				return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+			}
 			
 			//loop for all the tables and erase entries that point to the group
 			for(i=0; i<pipeline->num_of_tables; i++){
@@ -344,16 +384,21 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 			//destroy the group
 			__of1x_destroy_group(gt,ge);
 		}
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK;
 	}
 	
 	//search the table for the group
-	if((ge=__of1x_group_search(gt,id))==NULL);
+	if((ge=__of1x_group_search(gt,id))==NULL){
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+	}
 	
 	//extract the group without destroying it (only the first thread that comes gets it)
-	if(__of1x_extract_group(gt, ge)==ROFL_FAILURE)
+	if(__of1x_extract_group(gt, ge)==ROFL_FAILURE){
+		platform_mutex_unlock(gt->mutex);
 		return ROFL_OF1X_GM_OK; //if it is not found no need to throw an error
+	}
 	
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
@@ -364,6 +409,8 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
 	
 	//destroy the group
 	__of1x_destroy_group(gt,ge);
+	
+	platform_mutex_unlock(gt->mutex);
 	
 	return ROFL_OF1X_GM_OK;
 }
@@ -465,61 +512,64 @@ bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){
 }
 
 void of1x_dump_bucket(of1x_bucket_t *bc, bool raw_nbo){
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
-	
-	//NOTE stats?
-	
+
+	__of1x_stats_bucket_tid_t c;
+	__of1x_stats_bucket_consolidate(&bc->stats, &c);
+		
+	ROFL_PIPELINE_INFO_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
 	__of1x_dump_action_group(bc->actions, raw_nbo);
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("\n");
+	ROFL_PIPELINE_INFO_NO_PREFIX(" statistics {pkt_count: %u}", c.packet_count);
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 
 void of1x_dump_group(of1x_group_t* group, bool raw_nbo){
 	of1x_bucket_t *bc_it;
 	unsigned int i;
+	__of1x_stats_group_tid_t c;
 	
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("Id %u, ", group->id);
+	ROFL_PIPELINE_INFO_NO_PREFIX("id %u, ", group->id);
 	switch(group->type){
 		case OF1X_GROUP_TYPE_ALL:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_ALL, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_ALL, ");
 			break;
 		case OF1X_GROUP_TYPE_SELECT:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_SELECT, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_SELECT, ");
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_INDIRECT, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_INDIRECT, ");
 			break;
 		case OF1X_GROUP_TYPE_FF:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_FF, ");
+			ROFL_PIPELINE_INFO_NO_PREFIX("GROUP_TYPE_FF, ");
 			break;
 		default:
-			ROFL_PIPELINE_DEBUG_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
+			ROFL_PIPELINE_INFO_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
 			break;
 	}
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("# of buckets %u\n", group->bc_list->num_of_buckets);
-	
-	//NOTE stats
-	
 
+	__of1x_stats_group_consolidate(&group->stats, &c);
+
+	ROFL_PIPELINE_INFO_NO_PREFIX("num of buckets %u, statistics {pkt_count: %u} \n", group->bc_list->num_of_buckets, c.packet_count);
+	
 	for(bc_it=group->bc_list->head, i=0; bc_it; bc_it=bc_it->next, i++){
-		ROFL_PIPELINE_DEBUG("\t\t[%u] Bucket (%p). ", i, bc_it);
+		ROFL_PIPELINE_INFO("\t\t[%u] Bucket (%p). ", i, bc_it);
 		of1x_dump_bucket(bc_it, raw_nbo);
 	}
-	ROFL_PIPELINE_DEBUG("\n");
+	ROFL_PIPELINE_INFO("\n");
 }
 
 void of1x_dump_group_table(of1x_group_table_t *gt, bool raw_nbo){
 	of1x_group_t* it;
 	unsigned int i;
 	
-	ROFL_PIPELINE_DEBUG("Dumping group table. # of group entries: %u. \n",gt->num_of_entries);
+	ROFL_PIPELINE_INFO("Dumping group table. Num of group entries: %u\n",gt->num_of_entries);
 	if (gt->num_of_entries > 0){
 		for(it=gt->head, i=0; it; it=it->next, i++){
-			ROFL_PIPELINE_DEBUG("\t[%u] Group (%p). ", i, it);
+			ROFL_PIPELINE_INFO("\t[%u] Group (%p). ", i, it);
 			of1x_dump_group(it, raw_nbo);
 		}
 	}
 	else{
-		ROFL_PIPELINE_DEBUG("\t[*] No entries\n");
-		ROFL_PIPELINE_DEBUG("\n");
+		ROFL_PIPELINE_INFO("\t[*] No entries\n");
+		ROFL_PIPELINE_INFO("\n");
 	}
 }

@@ -23,8 +23,10 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 	of1x_match_t* it;
 	of1x_flow_entry_t *entry;
 
+#ifndef ROFL_PIPELINE_LOCKLESS
 	//Prevent writers to change structure during matching
 	platform_rwlock_rdlock(table->rwlock);
+#endif
 	
 	//Table is sorted out by nº of hits and priority N. First full match => best_match 
 	for(entry = table->entries;entry!=NULL;entry = entry->next){
@@ -38,18 +40,22 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 		}
 
 		if(matched){
+#ifndef ROFL_PIPELINE_LOCKLESS
 			//Lock writers to modify the entry while packet processing. WARNING!!!! this must be released by the pipeline, once packet is processed!
 			platform_rwlock_rdlock(entry->rwlock);
 
 			//Green light for writers
 			platform_rwlock_rdunlock(table->rwlock);
+#endif
 			return entry;
 		}
 	}
 	
+#ifndef ROFL_PIPELINE_LOCKLESS
 	//No match
 	//Green light for writers
 	platform_rwlock_rdunlock(table->rwlock);
+#endif
 	return NULL; 
 }
 

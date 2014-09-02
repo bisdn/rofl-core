@@ -30,12 +30,14 @@ crofsock::crofsock(
 	outqueues[QUEUE_MGMT].set_max_cwnd(128);
 	outqueues[QUEUE_FLOW].set_max_cwnd(64);
 	outqueues[QUEUE_PKT ].set_max_cwnd(32);
+	//rofl::logging::debug << "[rofl][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofsock::~crofsock()
 {
+	//rofl::logging::debug << "[rofl][crofsock] destructor " << std::hex << this << std::dec << std::endl;
 	if (fragment)
 		delete fragment;
 	if (socket)
@@ -345,7 +347,10 @@ crofsock::send_message(
 			cwnd_size = outqueues[QUEUE_PKT].store(msg);
 		} break;
 		case rofl::openflow13::OFPT_FLOW_MOD:
-		case rofl::openflow13::OFPT_FLOW_REMOVED: {
+		case rofl::openflow13::OFPT_FLOW_REMOVED:
+		case rofl::openflow13::OFPT_GROUP_MOD:
+		case rofl::openflow13::OFPT_PORT_MOD:
+		case rofl::openflow13::OFPT_TABLE_MOD: {
 			cwnd_size = outqueues[QUEUE_FLOW].store(msg);
 		} break;
 		case rofl::openflow13::OFPT_ECHO_REQUEST:

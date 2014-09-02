@@ -38,7 +38,7 @@ private:
 #define ofh12_packet_in ofhu.ofhu12_packet_in
 #define ofh13_packet_in ofhu.ofhu13_packet_in
 
-#define OFP10_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow10::ofp_packet_in))
+#define OFP10_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow10::ofp_packet_in) - 2)
 #define OFP12_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow12::ofp_packet_in) - sizeof(struct openflow12::ofp_match))	// length without struct openflow12::ofp_match
 #define OFP13_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow13::ofp_packet_in) - sizeof(struct openflow13::ofp_match))	// length without struct openflow13::ofp_match
 

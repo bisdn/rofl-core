@@ -74,7 +74,7 @@ public: // methods
 	 * @brief	reset instance
 	 */
 	void
-	reset();
+	clear();
 
 
 	/**

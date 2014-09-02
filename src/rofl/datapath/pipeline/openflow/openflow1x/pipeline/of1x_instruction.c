@@ -12,12 +12,14 @@
 /* Instructions init and destroyers */ 
 static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table){
 
-	if( unlikely(type==0) )
+	if( unlikely(type==OF1X_IT_NO_INSTRUCTION) )
 		return;
 	
-	inst->type = type;
+	inst->type = type; //mark that is present
+
 	inst->apply_actions = apply_actions;
 	inst->write_actions = write_actions;
+
 	if(write_metadata)
 		inst->write_metadata = *write_metadata;
 
@@ -157,7 +159,7 @@ void __of1x_dump_instructions(of1x_instruction_group_t group, bool raw_nbo){
 
 	unsigned int i,has_write_actions=0, has_apply_actions=0;
 
-	ROFL_PIPELINE_INFO_NO_PREFIX("Inst->> ");
+	ROFL_PIPELINE_INFO("\t\tInst->> ");
 
 	for(i=0;i<OF1X_IT_MAX;i++){
 
@@ -192,13 +194,16 @@ void __of1x_dump_instructions(of1x_instruction_group_t group, bool raw_nbo){
 				break;
 		}
 	}
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 	if( has_apply_actions ){
-		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tAPP.ACTIONs:");
+		ROFL_PIPELINE_INFO("\t\t\tAPP.ACTIONs:");
 		__of1x_dump_action_group(group.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, raw_nbo);
+		ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 	}
 	if( has_write_actions ){
-		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tWR.ACTIONs:");
+		ROFL_PIPELINE_INFO("\t\t\tWR.ACTIONs:");
 		__of1x_dump_write_actions(group.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, raw_nbo);
+		ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 	}	
 }
 

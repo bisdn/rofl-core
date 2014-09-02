@@ -54,13 +54,14 @@ csocket_impl::csocket_impl(
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
+	//rofl::logging::debug << "[rofl][csocket_impl] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 csocket_impl::~csocket_impl()
 {
-	rofl::logging::debug << "[rofl][csocket][impl] destructor:" << std::endl << *this;
+	//rofl::logging::debug << "[rofl][csocket_impl] destructor " << std::hex << this << std::dec << std::endl;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
@@ -958,8 +959,10 @@ csocket_impl::close()
 	}
 }
 
+
+
 ssize_t
-csocket_impl::recv(void *buf, size_t count)
+csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 {
 	if (sd == -1)
 		throw eSocketNotConnected();
@@ -967,13 +970,31 @@ csocket_impl::recv(void *buf, size_t count)
 
 
 		// read from socket:
-		rc = ::read(sd, (void*)buf, count);
+		switch (type) {
+		case SOCK_STREAM:
+		case SOCK_SEQPACKET: {
+			rc = ::read(sd, (void*)buf, count);
+			from = raddr;
+		} break;
+		case SOCK_DGRAM:
+		case SOCK_RAW: {
+			switch (domain) {
+			case AF_INET:  from = csockaddr(caddress_in4("0.0.0.0"), 0); break;
+			case AF_INET6: from = csockaddr(caddress_in6("::"), 0); break;
+			}
+			rc = recvfrom(sd, (void*)buf, count, flags, from.ca_saddr, &from.salen);
+		} break;
+		default: {
+			return 0;
+		};
+		}
+
 
 		if (rc > 0) {
 			return rc;
 
 		} else if (rc == 0) {
-			rofl::logging::error << "[rofl][csocket][impl] peer closed connection: "
+			rofl::logging::debug << "[rofl][csocket][impl] peer closed connection: "
 					<< eSysCall("read") << std::endl << *this;
 			close();
 
