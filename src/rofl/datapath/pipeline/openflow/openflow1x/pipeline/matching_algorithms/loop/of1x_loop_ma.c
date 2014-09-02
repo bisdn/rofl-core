@@ -418,6 +418,7 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( __of1x_flow_entry_check_equal(it, entry, OF1X_PORT_ANY, OF1X_GROUP_ANY, true) ){
+
 				//Modify hook	
 				if(ma_modify_hook_ptr)
 					(*ma_modify_hook_ptr)(entry);
@@ -434,6 +435,7 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 			}
 		}else{
 			if( __of1x_flow_entry_check_contained(it, entry, strict, true, OF1X_PORT_ANY, OF1X_GROUP_ANY,false) ){
+	
 				//Modify hook	
 				if(ma_modify_hook_ptr)
 					(*ma_modify_hook_ptr)(entry);
@@ -442,7 +444,7 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 				platform_of1x_modify_entry_hook(it, entry, reset_counts);
 				
 				ROFL_PIPELINE_DEBUG("[flowmod-modify(%p)] Existing entry (%p) will be updated with (%p)\n", entry, it, entry);
-
+				
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
