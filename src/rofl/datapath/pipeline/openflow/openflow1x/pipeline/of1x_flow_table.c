@@ -616,7 +616,7 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 	__of1x_stats_table_consolidate(&table->stats, &c);
 
 	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
-	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, c.lookup_count, c.matched_count);
+	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, ma: %u statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, table->matching_algorithm,  c.lookup_count, c.matched_count);
 	
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");
