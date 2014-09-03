@@ -8,6 +8,9 @@
 //C++ extern C
 ROFL_BEGIN_DECLS
 
+//fwd decl
+struct l2hash_ht_entry;
+
 //Bucket
 typedef struct l2hash_ht_bucket{
 
@@ -17,6 +20,9 @@ typedef struct l2hash_ht_bucket{
 	
 	//Flow entry pointer
 	of1x_flow_entry_t* entry;
+
+	//Pointer back to the entry
+	struct l2hash_ht_entry* ht_entry;
 	
 	//Double linked list
 	struct l2hash_ht_bucket* prev;
@@ -75,6 +81,11 @@ static inline uint16_t l2hash_ht_hash16(const char* key, unsigned int size){
 	return hash;	
 }
 
+//Platform state
+typedef struct l2hash_entry_ps{
+	bool has_vlan;
+	l2hash_ht_bucket_t* bucket;	
+}l2hash_entry_ps_t;
 
 //C++  xtern C
 ROFL_END_DECLS

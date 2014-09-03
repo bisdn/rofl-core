@@ -38,6 +38,7 @@ rofl_result_t of1x_init_l2hash(struct of1x_flow_table *const table){
 	return ROFL_FAILURE; 
 }
 
+
 static void l2hash_destroy_ht(l2hash_ht_table_t* ht){
 	unsigned int i;	
 	l2hash_ht_bucket_t *bucket, *next_bucket;
@@ -58,6 +59,66 @@ static void l2hash_destroy_ht(l2hash_ht_table_t* ht){
 	}
 }
 
+//Add&Remove routine
+void l2hash_ht_add_bucket(l2hash_ht_table_t* ht, uint16_t hash, l2hash_ht_bucket_t* bucket){
+	l2hash_ht_entry_t* ht_e = &ht->table[hash];
+	l2hash_ht_bucket_t* it;
+
+	//Insertion priority
+	uint32_t priority = bucket->entry->priority;
+ 
+	//Assign HT entry to the buck
+	bucket->ht_entry = ht_e;
+
+	if(ht_e->bucket_list){
+		it = ht_e->bucket_list;
+		//Find the postion
+		while(it){
+			if(it->entry->priority <= priority)
+				break;
+			it = it->next;
+		}
+
+		//Assign first the next and previous on our node
+		bucket->next = it;
+		bucket->prev = it->prev;	
+		it->prev = bucket;
+
+		//Add before it
+		if(it->prev)
+			it->prev->next = bucket;
+		else
+			ht_e->bucket_list = bucket;
+	}else{
+		//Put in the head and continue
+		ht_e->bucket_list = bucket;
+		bucket->next = bucket->prev = NULL;
+	}
+	
+	ht_e->num_of_buckets++;
+}
+
+void l2hash_ht_remove_bucket(l2hash_ht_bucket_t* bucket){
+	
+	//Recover the entry from the bucket
+	l2hash_ht_entry_t* ht_e = bucket->ht_entry; 
+
+	//Adjust prev and next pointers
+	bucket->next->prev = bucket->prev;
+
+	if(bucket->prev){
+		bucket->prev->next = bucket->next;
+	}else{
+		ht_e->bucket_list = bucket->next; 
+	}
+	
+	ht_e->num_of_buckets--;
+}
+
+
+//
+// L2 hash table state
+//
 rofl_result_t of1x_destroy_l2hash(struct of1x_flow_table *const table){
 
 	l2hash_destroy_ht(&((struct l2hash_state*)table->matching_aux[0])->vlan);
@@ -71,27 +132,100 @@ rofl_result_t of1x_destroy_l2hash(struct of1x_flow_table *const table){
 //Hooks
 //
 void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
-	if( bitmap128_is_bit_set(&entry->matches.match_bm, OF1X_MATCH_VLAN_VID) ){
-		//VLAN
-		//l2hash_vlan_key_t key;
+
+	uint16_t hash;
+	of1x_match_t *vlan=NULL, *eth_dst=NULL, *match;	
+	l2hash_entry_ps_t* ps;
+	l2hash_ht_bucket_t* bucket;
+	l2hash_state_t* state = (l2hash_state_t*)entry->table->matching_aux[0];
 		
+	for(match = entry->matches.head;match;){
+		of1x_match_t *next = match->next;
+		
+		if(match->type == OF1X_MATCH_VLAN_VID){
+			vlan = match;
+		}else if(match->type == OF1X_MATCH_ETH_DST){
+			eth_dst=match;
+		}	
+		match = next;
+	}
+
+	if(unlikely(eth_dst == NULL)){
+		assert(0);
+		return;//ROFL_FAILURE;
+	}
+
+	//allocate flow entry additional state
+	ps = (l2hash_entry_ps_t*)platform_malloc_shared(sizeof(l2hash_entry_ps_t));
+	bucket = (l2hash_ht_bucket_t*)platform_malloc_shared(sizeof(l2hash_ht_bucket_t));
+
+	//Check for allocations
+	if(unlikely(ps == NULL) || unlikely(bucket == NULL)){
+		assert(0);
+		return;// ROFL_FAILURE;
+	}
+
+	//That could not happen
+	assert( bitmap128_is_bit_set(&entry->matches.match_bm, OF1X_MATCH_VLAN_VID) == (vlan != NULL) );
+
+
+	//Assign common stuff of the bucket
+	bucket->entry = entry;
+
+	if(vlan){
+		//VLAN
+		l2hash_vlan_key_t key;
+		key.vid = vlan->__tern->value.u16 & vlan->__tern->mask.u16;	
+		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
+		//calculate hash	
+		hash = l2hash_ht_hash16((const char*)&key, sizeof(l2hash_vlan_key_t)); 		
+		//Fill in ps
+		ps->has_vlan = false;
+
+		//Fill-in bucket
+		bucket->eth_dst = key.eth_dst;	
+		bucket->vid = key.vid;	
+	
+		//Add to the bucket list
+		l2hash_ht_add_bucket(&state->vlan, hash, bucket);
 	}else{
 		//NO-VLAN
-		//l2hash_novlan_key_t key;
+		l2hash_novlan_key_t key;
+		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
+		//calculate hash	
+		hash = l2hash_ht_hash16((const char*)&key, sizeof(l2hash_novlan_key_t));
+
+		//Fill in ps
+		ps->has_vlan = false;
+	
+		//Fill-in bucket
+		bucket->eth_dst = key.eth_dst;	
+	
+		//Add to the bucket list
+		l2hash_ht_add_bucket(&state->no_vlan, hash, bucket);
 	}
+	
+	//Store ps to entry	
+	ps->bucket = bucket;	
+	entry->platform_state = (void*)ps;
 }
 void of1x_modify_hook_l2hash(of1x_flow_entry_t *const entry){
 	//We don't care
 }
 void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
-	//Locate the existing entry in the hash table
-	if( bitmap128_is_bit_set(&entry->matches.match_bm, OF1X_MATCH_VLAN_VID) ){
-		//VLAN
-		//TODO
-	}else{
-		//NO-VLAN
-		//TODO
+	
+	if(unlikely(entry->platform_state == NULL)){
+		assert(0);
+		return;
 	}
+	
+	l2hash_entry_ps_t* ps = (l2hash_entry_ps_t*)entry->platform_state;
+
+	//Perform the remove
+	l2hash_ht_remove_bucket(ps->bucket);
+
+	platform_free_shared(entry->platform_state);
+	entry->platform_state = NULL;
 }
 
 //
