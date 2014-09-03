@@ -63,6 +63,8 @@ typedef struct l2hash_vlan{
 }l2hash_vlan_key_t;
 
 
+
+#if 0
 //Matrix of T elements for Pearsons's algorithm
 extern uint16_t l2hash_ht_T[L2HASH_MAX_ENTRIES];
 
@@ -97,7 +99,58 @@ static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[9])];
 	return hash;	
 }
+#else
 
+/**
+* FNV hash, based on: http://isthe.com/chongo/tech/comp/fnv/
+*/
+
+#define L2_HASH_FNV_MASK_16 0xFFFF
+#define L2_HASH_FNV_PRIME 0x01000193 //16777619
+#define L2_HASH_FNV_SEED 0x811C9DC5 //2166136261
+
+
+static inline uint32_t l2hash_fnv1a(unsigned char c, uint32_t hash){
+	return (c ^ hash) * L2_HASH_FNV_PRIME;
+}
+/// hash a single byte
+static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
+
+	uint32_t hash = L2_HASH_FNV_SEED;
+	
+	hash = l2hash_fnv1a( key[0], hash); 
+	hash = l2hash_fnv1a( key[1], hash); 
+	hash = l2hash_fnv1a( key[2], hash); 
+	hash = l2hash_fnv1a( key[3], hash); 
+	hash = l2hash_fnv1a( key[4], hash); 
+	hash = l2hash_fnv1a( key[5], hash); 
+	hash = l2hash_fnv1a( key[6], hash); 
+	hash = l2hash_fnv1a( key[7], hash); 
+
+	//Fold
+	return  (hash>>16) ^ (hash & L2_HASH_FNV_MASK_16);
+}
+
+//96 bit
+static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
+	uint32_t hash = L2_HASH_FNV_SEED;
+	
+	hash = l2hash_fnv1a( key[0], hash); 
+	hash = l2hash_fnv1a( key[1], hash); 
+	hash = l2hash_fnv1a( key[2], hash); 
+	hash = l2hash_fnv1a( key[3], hash); 
+	hash = l2hash_fnv1a( key[4], hash); 
+	hash = l2hash_fnv1a( key[5], hash); 
+	hash = l2hash_fnv1a( key[6], hash); 
+	hash = l2hash_fnv1a( key[7], hash); 
+	hash = l2hash_fnv1a( key[8], hash); 
+	hash = l2hash_fnv1a( key[9], hash); 
+
+	//Fold
+	return (hash>>16) ^ (hash & L2_HASH_FNV_MASK_16);
+}
+
+#endif
 //Platform state
 typedef struct l2hash_entry_ps{
 	bool has_vlan;
