@@ -104,7 +104,8 @@ void l2hash_ht_remove_bucket(l2hash_ht_bucket_t* bucket){
 	l2hash_ht_entry_t* ht_e = bucket->ht_entry; 
 
 	//Adjust prev and next pointers
-	bucket->next->prev = bucket->prev;
+	if(bucket->next)
+		bucket->next->prev = bucket->prev;
 
 	if(bucket->prev){
 		bucket->prev->next = bucket->next;
