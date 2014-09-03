@@ -61,14 +61,14 @@ static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_
 
 	//Check no-VLAN table-hash
 	if(state->no_vlan.num_of_entries > 0){
-		ht_entry = &state->no_vlan.table[l2hash_ht_hash16((const char*)&key_novlan, sizeof(key_novlan))];	
+		ht_entry = &state->no_vlan.table[l2hash_ht_hash64((const char*)&key_novlan, sizeof(key_novlan))];	
 		//Check buckets
 		l2_hash_check_all_buckets_no_vlan(ht_entry->bucket_list, &key_novlan, &best_match);
 	}	
 	
 	//Check VLAN table-hash
 	if(state->vlan.num_of_entries > 0){
-		ht_entry = &state->vlan.table[l2hash_ht_hash16((const char*)&key_vlan, sizeof(key_vlan))];	
+		ht_entry = &state->vlan.table[l2hash_ht_hash96((const char*)&key_vlan, sizeof(key_vlan))];	
 		if(best_match){
 			l2_hash_check_all_buckets_vlan(ht_entry->bucket_list, &key_vlan, &tmp);
 			if(tmp && (tmp->priority > best_match->priority))

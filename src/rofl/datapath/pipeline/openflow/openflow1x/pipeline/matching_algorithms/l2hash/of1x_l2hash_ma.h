@@ -66,18 +66,35 @@ typedef struct l2hash_vlan{
 //Matrix of T elements for Pearsons's algorithm
 extern uint16_t l2hash_ht_T[L2HASH_MAX_ENTRIES];
 
-//Key
-static inline uint16_t l2hash_ht_hash16(const char* key, unsigned int size){
+//Hashing functions
+static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
 	
-	unsigned int i;
-	unsigned char c;
-	uint16_t hash;	
+	uint16_t hash=0x0;	
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[0])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[1])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[2])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[3])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[4])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[5])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[6])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[7])];
+	return hash;	
+}
 
-	for(i=0; i<size; i++) {
-		c = key[i];
-		hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & c)];
-	}
+//Hashing functions
+static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
 	
+	uint16_t hash=0x0;	
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[0])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[1])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[2])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[3])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[4])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[5])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[6])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[7])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[8])];
+	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[9])];
 	return hash;	
 }
 

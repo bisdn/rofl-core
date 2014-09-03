@@ -178,7 +178,7 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 		key.vid = vlan->__tern->value.u16 & vlan->__tern->mask.u16;	
 		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
 		//calculate hash	
-		hash = l2hash_ht_hash16((const char*)&key, sizeof(l2hash_vlan_key_t)); 		
+		hash = l2hash_ht_hash96((const char*)&key, sizeof(l2hash_vlan_key_t)); 		
 		//Fill in ps
 		ps->has_vlan = false;
 
@@ -196,7 +196,7 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 		l2hash_novlan_key_t key;
 		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
 		//calculate hash	
-		hash = l2hash_ht_hash16((const char*)&key, sizeof(l2hash_novlan_key_t));
+		hash = l2hash_ht_hash64((const char*)&key, sizeof(l2hash_novlan_key_t));
 
 		//Fill in ps
 		ps->has_vlan = false;
