@@ -35,7 +35,7 @@ rofl_result_t of1x_init_l2hash(struct of1x_flow_table *const table){
 	
 	bitmap128_clean(&table->config.wildcards);
 	
-	return ROFL_FAILURE; 
+	return ROFL_SUCCESS; 
 }
 
 
@@ -188,6 +188,9 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 	
 		//Add to the bucket list
 		l2hash_ht_add_bucket(&state->vlan, hash, bucket);
+
+		//Increase the number of entries
+		state->vlan.num_of_entries++;
 	}else{
 		//NO-VLAN
 		l2hash_novlan_key_t key;
@@ -203,6 +206,9 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 	
 		//Add to the bucket list
 		l2hash_ht_add_bucket(&state->no_vlan, hash, bucket);
+		
+		//Increase the number of entries
+		state->no_vlan.num_of_entries++;
 	}
 	
 	//Store ps to entry	
@@ -214,6 +220,8 @@ void of1x_modify_hook_l2hash(of1x_flow_entry_t *const entry){
 }
 void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
 	
+	l2hash_state_t* state = (l2hash_state_t*)entry->table->matching_aux[0];
+	
 	if(unlikely(entry->platform_state == NULL)){
 		assert(0);
 		return;
@@ -223,6 +231,12 @@ void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
 
 	//Perform the remove
 	l2hash_ht_remove_bucket(ps->bucket);
+
+	if(ps->has_vlan){
+		state->vlan.num_of_entries--;
+	}else{
+		state->no_vlan.num_of_entries--;
+	}
 
 	platform_free_shared(entry->platform_state);
 	entry->platform_state = NULL;

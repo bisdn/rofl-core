@@ -46,13 +46,18 @@ static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_
 	l2hash_vlan_key_t key_vlan;
 	of1x_flow_entry_t *best_match = NULL, *tmp=NULL;
 	l2hash_ht_entry_t* ht_entry;
+	uint16_t* vid;
 
 	//Table hash table 
 	l2hash_state_t* state = (l2hash_state_t*)table->matching_aux[0];
 	
 	//Recover keys	
 	key_novlan.eth_dst = key_vlan.eth_dst = *platform_packet_get_eth_dst(pkt) & OF1X_6_BYTE_MASK;
-	key_vlan.vid = *platform_packet_get_vlan_vid(pkt)&OF1X_VLAN_ID_MASK;
+
+	vid = platform_packet_get_vlan_vid(pkt);
+
+	if(vid)
+		key_vlan.vid = *vid&OF1X_VLAN_ID_MASK;
 
 	//Check no-VLAN table-hash
 	if(state->no_vlan.num_of_entries > 0){
