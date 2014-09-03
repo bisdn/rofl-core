@@ -20,7 +20,9 @@ ctimer::now()
 
 
 ctimer::ctimer() :
+		timer_id(),
 		ptr(0),
+		timespec(0, 0),
 		opaque(0),
 		data(0)
 {

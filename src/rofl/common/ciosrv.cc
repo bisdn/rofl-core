@@ -140,7 +140,6 @@ ciosrv::__handle_event()
 {
 	try {
 
-		logging::trace << "[rofl][common][ciosrv][event] entering event loop:" << std::endl << *this;
 		{
 			RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
 			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
@@ -148,6 +147,7 @@ ciosrv::__handle_event()
 				return;
 			}
 		}
+		logging::trace << "[rofl][common][ciosrv][event] entering event loop:" << std::endl << *this;
 
 		cevents clone = events; events.clear();
 

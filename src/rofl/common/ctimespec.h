@@ -152,8 +152,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, const ctimespec& timespec) {
 		os << rofl::indent(0) << "<ctimespec ";
-		os << "sec:" << timespec.get_timespec().tv_sec << " ";
-		os << "nsec:" << timespec.get_timespec().tv_nsec << " ";
+		os << "sec:" << (long int)timespec.ts.tv_sec << " ";
+		os << "nsec:" << (long int)timespec.ts.tv_nsec << " ";
 		os << ">" << std::endl;
 		return os;
 	};
