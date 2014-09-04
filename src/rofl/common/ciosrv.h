@@ -324,6 +324,28 @@ protected:
 	reset_timer(const ctimerid& timer_id, const ctimespec& timespec);
 
 	/**
+	 * @brief	Resets an existing or creates a new timer.
+	 *
+	 * If timer specified by timer_id exists, the timer is reset to the value defined by timespec.
+	 * If no timer of the specified timer_id exists, a new timer is created based on values
+	 * opaque and timespec.
+	 *
+	 * @param timer_id An existing timer_id. This value is going to be overwritten.
+	 * @param opaque this timer type value can be chosen by the caller
+	 * @param timespec timeout defined for this timer
+	 * @return reference to parameter timer_id
+	 */
+	ctimerid&
+	restart_timer(rofl::ctimerid& timer_id, int opaque, const rofl::ctimespec& timespec) {
+		if (pending_timer(timer_id)) {
+			timer_id = reset_timer(timer_id, timespec);
+		} else {
+			timer_id = register_timer(opaque, timespec);
+		}
+		return timer_id;
+	};
+
+	/**
 	 * @brief	Checks for a pending timer of type opaque.
 	 *
 	 * @param opaque timer type the caller is seeking for
