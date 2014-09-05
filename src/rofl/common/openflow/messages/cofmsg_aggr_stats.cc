@@ -16,17 +16,17 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		set_type(rofl::openflow10::OFPT_STATS_REQUEST);
 		set_stats_type(rofl::openflow10::OFPST_AGGREGATE);
 		resize(sizeof(struct rofl::openflow10::ofp_stats_request) + sizeof(struct rofl::openflow10::ofp_aggregate_stats_request));
-		this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_request), sizeof(struct rofl::openflow10::ofp_aggregate_stats_request));
+		//this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow10::ofp_stats_request), sizeof(struct rofl::openflow10::ofp_aggregate_stats_request));
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_STATS_REQUEST);
 		resize(sizeof(struct rofl::openflow12::ofp_stats_request) + sizeof(struct rofl::openflow12::ofp_aggregate_stats_request));
-		this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_request), sizeof(struct rofl::openflow12::ofp_aggregate_stats_request));
+		//this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow12::ofp_stats_request), sizeof(struct rofl::openflow12::ofp_aggregate_stats_request));
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		set_type(rofl::openflow13::OFPT_MULTIPART_REQUEST);
 		resize(sizeof(struct rofl::openflow13::ofp_multipart_request) + sizeof(struct rofl::openflow13::ofp_aggregate_stats_request));
-		this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_request), sizeof(struct rofl::openflow13::ofp_aggregate_stats_request));
+		//this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_request), sizeof(struct rofl::openflow13::ofp_aggregate_stats_request));
 	} break;
 	default:
 		logging::warn << "cofinst_aggr_stats_request: OFP version not supported" << std::endl;

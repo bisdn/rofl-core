@@ -18,19 +18,16 @@ cofmsg_flow_stats_request::cofmsg_flow_stats_request(
 		set_type(rofl::openflow10::OFPT_STATS_REQUEST);
 		set_stats_type(rofl::openflow10::OFPST_FLOW);
 		resize(length());
-		pack(soframe(), framelen());
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_STATS_REQUEST);
 		set_stats_type(rofl::openflow12::OFPST_FLOW);
 		resize(length());
-		pack(soframe(), framelen());
 	} break;
 	case rofl::openflow13::OFP_VERSION: {
 		set_type(rofl::openflow13::OFPT_MULTIPART_REQUEST);
 		set_stats_type(rofl::openflow13::OFPMP_FLOW);
 		resize(length());
-		pack(soframe(), framelen());
 	} break;
 	default:
 		throw eBadVersion();
