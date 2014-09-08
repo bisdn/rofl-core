@@ -368,7 +368,7 @@ public:
 	 */
 	void
 	drop_dpt(
-		const cdptid& dptid);
+		cdptid dptid); // make a copy here, do not use a const reference
 
 
 
@@ -420,7 +420,7 @@ public:
 	 */
 	void
 	drop_ctl(
-		const cctlid& ctlid);
+		cctlid ctlid); // make a copy here, do not use a const reference
 
 
 
