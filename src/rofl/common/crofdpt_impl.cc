@@ -152,7 +152,7 @@ crofdpt_impl::event_disconnected()
 	tables.clear();
 	ports.clear();
 	state = STATE_DISCONNECTED;
-	register_timer(TIMER_SIGNAL_DISCONNECT, ctimespec(1));
+	register_timer(TIMER_SIGNAL_DISCONNECT, ctimespec(0));
 }
 
 
@@ -2010,7 +2010,6 @@ crofdpt_impl::features_reply_rcvd(
 		if (STATE_ESTABLISHED == state) {
 			rofbase->handle_features_reply(*this, auxid, *reply);
 		}
-		delete msg;
 
 		run_engine(EVENT_FEATURES_REPLY_RCVD);
 
@@ -2019,6 +2018,8 @@ crofdpt_impl::features_reply_rcvd(
 		logging::error << "[rofl][dpt] eRoflException in Features.reply rcvd" << *msg << std::endl;
 		run_engine(EVENT_DISCONNECTED);
 	}
+
+	delete msg;
 }
 
 
