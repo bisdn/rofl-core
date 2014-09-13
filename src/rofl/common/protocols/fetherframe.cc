@@ -56,13 +56,13 @@ fetherframe::is_llc_frame() const
 }
 
 bool
-fetherframe::complete()
+fetherframe::complete() const
 {
 	// TODO: case of Ethernet 802.3 header not handled cause the function is not used
 	if (framelen() < sizeof(struct eth_hdr_t))
 		return false;
 
-	initialize();
+	//initialize();
 
 	return true;
 }
@@ -70,13 +70,13 @@ fetherframe::complete()
 
 
 size_t
-fetherframe::need_bytes()
+fetherframe::need_bytes() const
 {
 	// TODO: case of Ethernet 802.3 header not handled cause the function is not used
 	if (framelen() < sizeof(struct eth_hdr_t))
 		return (sizeof(struct eth_hdr_t) - framelen());
 
-	initialize();
+	//initialize();
 
 	return 0;
 }
@@ -143,9 +143,9 @@ fetherframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fetherframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
+fetherframe::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if( is_llc_frame() ){
 		if (framelen() < (sizeof(struct eth_llc_hdr_t)))

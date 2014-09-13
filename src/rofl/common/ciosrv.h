@@ -421,7 +421,6 @@ class cioloop {
 
 	cpipe									pipe;
 	pthread_t        			       		tid;
-	struct timespec 						ts;
 	bool									keep_on_running;
 
 	unsigned int							minrfd; // lowest set readfd

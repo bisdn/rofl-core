@@ -62,9 +62,9 @@ fpppoeframe::initialize()
 
 
 bool
-fpppoeframe::complete()
+fpppoeframe::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct pppoe_hdr_t))
 		return false;
@@ -74,7 +74,7 @@ fpppoeframe::complete()
 
 
 size_t
-fpppoeframe::need_bytes()
+fpppoeframe::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -122,8 +122,7 @@ fpppoeframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate(uint16_t total_len)
-      throw (eFrameInvalidSyntax)
+fpppoeframe::validate(uint16_t total_len) const
 {
     try {
           //initialize(); // commented out 2012-12-13
@@ -215,8 +214,7 @@ fpppoeframe::validate(uint16_t total_len)
 
 
 void
-fpppoeframe::validate_pppoe_discovery_padi()
-      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+fpppoeframe::validate_pppoe_discovery_padi() const
 {
 #ifdef STRICT_MODE_RFC2516
     if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
@@ -225,17 +223,18 @@ fpppoeframe::validate_pppoe_discovery_padi()
     }
 #endif
 
+#if 0
     tags.unpack(pppoe_hdr->data, (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)));
 
 #ifdef STRICT_MODE_RFC2516
     tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
 #endif
+#endif
 }
 
 
 void
-fpppoeframe::validate_pppoe_discovery_pado()
-      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+fpppoeframe::validate_pppoe_discovery_pado() const
 {
 #ifdef STRICT_MODE_RFC2516
     if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
@@ -244,6 +243,7 @@ fpppoeframe::validate_pppoe_discovery_pado()
     }
 #endif
 
+#if 0
     tags.unpack(pppoe_hdr->data, get_hdr_length());
 
 #ifdef STRICT_MODE_RFC2516
@@ -251,12 +251,11 @@ fpppoeframe::validate_pppoe_discovery_pado()
 
     tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME); // tag -Service-Name- must be present
 #endif
-
+#endif
 }
 
 void
-fpppoeframe::validate_pppoe_discovery_padr()
-      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+fpppoeframe::validate_pppoe_discovery_padr() const
 {
 #ifdef STRICT_MODE_RFC2516
     if (0x0000 != get_pppoe_sessid())
@@ -265,22 +264,25 @@ fpppoeframe::validate_pppoe_discovery_padr()
     }
 #endif
 
+#if 0
     tags.unpack(pppoe_hdr->data, get_hdr_length());
 
 #ifdef STRICT_MODE_RFC2516
     tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
 #endif
+#endif
 }
 
 
 void
-fpppoeframe::validate_pppoe_discovery_pads()
-      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+fpppoeframe::validate_pppoe_discovery_pads() const
 {
+#if 0
     tags.unpack(pppoe_hdr->data, get_hdr_length());
 
 #ifdef STRICT_MODE_RFC2516
     tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
+#endif
 #endif
 
     // FIXME: this behavior is invalid compared to RFC 2516, check section 5.4
@@ -289,8 +291,7 @@ fpppoeframe::validate_pppoe_discovery_pads()
 
 
 void
-fpppoeframe::validate_pppoe_discovery_padt()
-      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+fpppoeframe::validate_pppoe_discovery_padt() const
 {
 #ifdef STRICT_MODE_RFC2516
     if (0x0000 == get_pppoe_sessid()) // session id should not be 0x0000 for a PADT (ongoing session)
@@ -304,8 +305,7 @@ fpppoeframe::validate_pppoe_discovery_padt()
 
 
 void
-fpppoeframe::validate_pppoe_session()
-      throw (ePPPoEFrameInvalSid, eFrameInvalidSyntax)
+fpppoeframe::validate_pppoe_session() const
 {
 #ifdef STRICT_MODE_RFC2516
     if (0x0000 == get_pppoe_sessid()) // sessid must not be 0
@@ -314,6 +314,7 @@ fpppoeframe::validate_pppoe_session()
     }
 #endif
 
+#if 0
 	size_t res_len = framelen() - sizeof(struct pppoe_hdr_t); // effective PPPoE payload length
 
 	pppdatalen = get_hdr_length(); // PPPoE payload length claimed in header
@@ -344,6 +345,7 @@ fpppoeframe::validate_pppoe_session()
 		pppdatalen = 0;
 		throw eFrameInvalidSyntax();
 	}
+#endif
 }
 
 uint8_t
@@ -402,11 +404,11 @@ fpppoeframe::pppoe_calc_length()
 
 
 uint16_t
-fpppoeframe::get_hdr_length()
+fpppoeframe::get_hdr_length() const
 {
 	if (NULL == pppoe_hdr)
 	{
-		initialize();
+		//initialize();
 	}
 	return be16toh(pppoe_hdr->length);
 }

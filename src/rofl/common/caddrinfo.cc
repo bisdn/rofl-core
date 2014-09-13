@@ -80,7 +80,7 @@ caddrinfo::unpack(struct addrinfo* buf, size_t buflen)
 	ai_addr.ca_saddr->sa_family = ai_family;
 	if ((0 == ai->ai_addr) || (ai->ai_addrlen < ai_addr.length()))
 		throw eInval("caddrinfo::unpack() ai_addr_len too short");
-	ai_addr.unpack(ai->ai_addr, ai->ai_addrlen);
+	ai_addr.unpack((uint8_t*)(ai->ai_addr), ai->ai_addrlen);
 	ai_addr.salen = ai->ai_addrlen;
 }
 

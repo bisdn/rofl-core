@@ -68,7 +68,7 @@ cofmsg_get_async_config_request::reset()
 
 
 size_t
-cofmsg_get_async_config_request::length()
+cofmsg_get_async_config_request::length() const
 {
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {

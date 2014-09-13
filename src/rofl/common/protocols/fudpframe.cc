@@ -44,9 +44,9 @@ fudpframe::initialize()
 
 
 bool
-fudpframe::complete()
+fudpframe::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct udp_hdr_t))
 		return false;
@@ -59,7 +59,7 @@ fudpframe::complete()
 
 
 size_t
-fudpframe::need_bytes()
+fudpframe::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -112,9 +112,9 @@ fudpframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fudpframe::validate(uint16_t total_len) throw (eUdpFrameTooShort)
+fudpframe::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (!complete())
 	{

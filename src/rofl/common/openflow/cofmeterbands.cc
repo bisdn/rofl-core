@@ -76,19 +76,19 @@ cofmeter_bands::operator== (
 	}
 	for (std::map<unsigned int, cofmeter_band_drop>::const_iterator
 			it = mbs_drop.begin(), jt = mbands.mbs_drop.begin();
-				it != mbs_drop.end(), jt != mbands.mbs_drop.end(); ++it, ++jt) {
+				it != mbs_drop.end(); ++it, ++jt) {
 		if (not (it->second == jt->second))
 			return false;
 	}
 	for (std::map<unsigned int, cofmeter_band_dscp_remark>::const_iterator
 			it = mbs_dscp_remark.begin(), jt = mbands.mbs_dscp_remark.begin();
-				it != mbs_dscp_remark.end(), jt != mbands.mbs_dscp_remark.end(); ++it, ++jt) {
+				it != mbs_dscp_remark.end(); ++it, ++jt) {
 		if (not (it->second == jt->second))
 			return false;
 	}
 	for (std::map<unsigned int, cofmeter_band_experimenter>::const_iterator
 			it = mbs_experimenter.begin(), jt = mbands.mbs_experimenter.begin();
-				it != mbs_experimenter.end(), jt != mbands.mbs_experimenter.end(); ++it, ++jt) {
+				it != mbs_experimenter.end(); ++it, ++jt) {
 		if (not (it->second == jt->second))
 			return false;
 	}

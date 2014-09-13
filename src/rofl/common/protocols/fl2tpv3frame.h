@@ -142,7 +142,7 @@ public:
 	 *
 	 */
 	virtual void
-	reset(
+	reset2(
 			enum l2tp_encap_t encap_type,
 			uint8_t* data,
 			size_t datalen);

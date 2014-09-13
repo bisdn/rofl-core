@@ -57,7 +57,7 @@ fipv4frame::initialize()
 
 
 bool
-fipv4frame::complete()
+fipv4frame::complete() const
 {
 	if (framelen() < sizeof(struct ipv4_hdr_t))
 		return false;
@@ -70,7 +70,7 @@ fipv4frame::complete()
 
 
 size_t
-fipv4frame::need_bytes()
+fipv4frame::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -123,7 +123,7 @@ fipv4frame::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fipv4frame::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
+fipv4frame::validate(uint16_t total_len) const
 {
 	if (!complete())
 		throw eFrameInvalidSyntax();
@@ -315,7 +315,7 @@ fipv4frame::set_ipv4_ihl(uint8_t ihl)
 
 
 uint8_t
-fipv4frame::get_ipv4_ihl()
+fipv4frame::get_ipv4_ihl() const
 {
 	return ((ipv4_hdr->ihlvers & 0x0f));
 }
@@ -329,7 +329,7 @@ fipv4frame::set_ipv4_version(uint8_t version)
 
 
 uint8_t
-fipv4frame::get_ipv4_version()
+fipv4frame::get_ipv4_version() const
 {
 	return ((ipv4_hdr->ihlvers & 0xf0) >> 4);
 }

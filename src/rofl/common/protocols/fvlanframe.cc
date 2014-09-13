@@ -48,24 +48,24 @@ fvlanframe::initialize()
 
 
 bool
-fvlanframe::complete()
+fvlanframe::complete() const
 {
 	if (framelen() < sizeof(struct vlan_hdr_t))
 		return false;
 
-	initialize();
+	//initialize();
 
 	return true;
 }
 
 
 size_t
-fvlanframe::need_bytes()
+fvlanframe::need_bytes() const
 {
 	if (framelen() < sizeof(struct vlan_hdr_t))
 		return (sizeof(struct vlan_hdr_t) - framelen());
 
-	initialize();
+	//initialize();
 
 	return 0;
 }
@@ -109,9 +109,9 @@ fvlanframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fvlanframe::validate(uint16_t total_len) throw (eVlanFrameTooShort)
+fvlanframe::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < (sizeof(struct vlan_hdr_t)))
 	{

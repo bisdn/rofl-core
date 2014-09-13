@@ -91,9 +91,9 @@ fpppframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPInval)
 
 
 bool
-fpppframe::complete()
+fpppframe::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct ppp_hdr_t))
 		return false;
@@ -127,7 +127,7 @@ fpppframe::complete()
 
 
 size_t
-fpppframe::need_bytes()
+fpppframe::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -381,7 +381,7 @@ fpppframe::tryfcs16(
 
 
 void
-fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
+fpppframe::validate(uint16_t total_len) const
 {
 #if 0
 	if ((*this)[0] == HDLC_FRAME_DELIMITER)
@@ -392,8 +392,6 @@ fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 
 	if (framelen() < sizeof(struct ppp_hdr_t))
 		throw ePPPFrameInvalidSyntax();
-
-	ppp_hdr = (struct ppp_hdr_t*)soframe();
 
 	switch (be16toh(ppp_hdr->prot)) {
 	case PPP_PROT_LCP:
@@ -409,12 +407,10 @@ fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 }
 
 void
-fpppframe::validate_lcp() throw (ePPPFrameInvalidSyntax)
+fpppframe::validate_lcp() const
 {
 	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t)))
 		throw ePPPFrameInvalidSyntax();
-
-	ppp_lcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
 
 	if (framelen() < (be16toh(ppp_lcp_hdr->length) + sizeof(struct ppp_hdr_t)))
 		throw ePPPFrameInvalidSyntax();
@@ -425,7 +421,7 @@ fpppframe::validate_lcp() throw (ePPPFrameInvalidSyntax)
 	case PPP_LCP_CONF_ACK:
 	case PPP_LCP_CONF_NAK:
 	case PPP_LCP_CODE_REJ:
-		parse_lcp_options();
+		//parse_lcp_options();
 		break;
 	default:
 		break;
@@ -433,9 +429,11 @@ fpppframe::validate_lcp() throw (ePPPFrameInvalidSyntax)
 }
 
 void
-fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
+fpppframe::parse_lcp_options()
 {
 	try {
+		ppp_lcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
+
 		struct ppp_lcp_opt_hdr_t *opt = (struct ppp_lcp_opt_hdr_t*)ppp_lcp_hdr->data;
 		size_t res_len = be16toh(ppp_lcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
 
@@ -472,13 +470,11 @@ fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
 
 
 void
-fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
+fpppframe::validate_ipcp() const
 {
 	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t))) {
 		throw ePPPFrameInvalidSyntax();
 	}
-
-	ppp_ipcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
 
 	if (framelen() < (be16toh(ppp_ipcp_hdr->length) + sizeof(struct ppp_hdr_t))) {
 		throw ePPPFrameInvalidSyntax();
@@ -494,7 +490,7 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 	case PPP_IPCP_OPT_PRIM_MBNS:
 	case PPP_IPCP_OPT_SEC_DNS:
 	case PPP_IPCP_OPT_SEC_MBNS: {
-		parse_ipcp_options();
+		//parse_ipcp_options();
 	} break;
 	default:
 		break;
@@ -503,9 +499,11 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 
 
 void
-fpppframe::parse_ipcp_options() throw (ePPPFrameInvalidSyntax)
+fpppframe::parse_ipcp_options()
 {
 	try {
+		ppp_ipcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
+
 		struct ppp_ipcp_opt_hdr_t *opt = (struct ppp_ipcp_opt_hdr_t*)ppp_ipcp_hdr->data;
 		size_t res_len = be16toh(ppp_ipcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
 

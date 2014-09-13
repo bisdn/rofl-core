@@ -102,7 +102,7 @@ cofmsg_error::resize(size_t len)
 
 
 size_t
-cofmsg_error::length()
+cofmsg_error::length() const
 {
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {

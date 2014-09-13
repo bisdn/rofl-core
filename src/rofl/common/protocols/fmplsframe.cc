@@ -43,24 +43,24 @@ fmplsframe::initialize()
 
 
 bool
-fmplsframe::complete()
+fmplsframe::complete() const
 {
 	if (framelen() < sizeof(struct mpls_hdr_t))
 		return false;
 
-	initialize();
+	//initialize();
 
 	return true;
 }
 
 
 size_t
-fmplsframe::need_bytes()
+fmplsframe::need_bytes() const
 {
 	if (framelen() < sizeof(struct mpls_hdr_t))
 		return (sizeof(struct mpls_hdr_t) - framelen());
 
-	initialize();
+	//initialize();
 
 	// TODO: use length field from Ethernet 802.3 header, for now just Ethernet II
 
@@ -104,7 +104,7 @@ fmplsframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fmplsframe::validate(uint16_t total_len) throw (eMplsFrameTooShort)
+fmplsframe::validate(uint16_t total_len) const
 {
 	//initialize(); // commented out 2012-12-13
 

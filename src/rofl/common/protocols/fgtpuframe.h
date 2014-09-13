@@ -145,7 +145,7 @@ public:
 	 *
 	 */
 	virtual uint8_t*
-	sopdu();
+	sopdu() const;
 
 
 	/**
@@ -153,14 +153,14 @@ public:
 	 *
 	 */
 	virtual size_t
-	pdulen();
+	pdulen() const;
 
 
 	/**
 	 * @brief	Returns pointer to begin of SDU encapsulated in this PDU (if any).
 	 */
 	virtual uint8_t*
-	sosdu();
+	sosdu() const;
 
 
 
@@ -346,14 +346,14 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual bool
-	complete();
+	complete() const;
 
 
 	/**
 	 *
 	 */
 	virtual size_t
-	need_bytes();
+	need_bytes() const;
 
 
 	/**
@@ -361,7 +361,7 @@ public: // overloaded from fframe
 	 */
 	virtual void
 	validate(
-			uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+			uint16_t total_len = 0) const;
 
 
 	/**
