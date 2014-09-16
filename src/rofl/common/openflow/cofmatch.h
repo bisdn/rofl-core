@@ -683,6 +683,264 @@ public:
 	void set_ipv6_exthdr(uint16_t ipv6_exthdr, uint16_t mask) {
 		matches.add_match(coxmatch_ofb_ipv6_exthdr(ipv6_exthdr, mask));
 	};
+
+public:
+
+	/*
+  	 * old API: to be or not to be ... deprecated (???)
+	 */
+
+	// OF10
+	bool has_nw_proto() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_PROTO);
+	};
+	bool has_nw_tos() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_TOS);
+	};
+	bool has_nw_src() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK);
+	};
+	bool has_nw_src_value() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK);
+	};
+	bool has_nw_src_mask() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_SRC_MASK);
+	};
+	bool has_nw_dst() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK);
+	};
+	bool has_nw_dst_value() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK);
+	};
+	bool has_nw_dst_mask() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_NW_DST_MASK);
+	};
+	bool has_tp_src() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_SRC);
+	};
+	bool has_tp_dst() const {
+	 return matches.has_match(rofl::openflow::experimental::OXM_TLV_EXPR_TP_DST);
+	};
+
+	// OF12
+	bool has_in_port() const {
+	 return matches.has_match(OXM_TLV_BASIC_IN_PORT);
+	};
+	bool has_in_phy_port() const {
+	 return matches.has_match(OXM_TLV_BASIC_IN_PHY_PORT);
+	};
+	bool has_metadata() const {
+	 return matches.has_match(OXM_TLV_BASIC_METADATA);
+	};
+	bool has_metadata_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_METADATA);
+	};
+	bool has_metadata_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_METADATA);
+	};
+	bool has_eth_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_DST);
+	};
+	bool has_eth_dst_addr() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_DST);
+	};
+	bool has_eth_dst_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_DST);
+	};
+	bool has_eth_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_SRC);
+	};
+	bool has_eth_src_addr() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_SRC);
+	};
+	bool has_eth_src_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_SRC);
+	};
+	bool has_eth_type() const {
+	 return matches.has_match(OXM_TLV_BASIC_ETH_TYPE);
+	};
+	bool has_vlan_vid() const {
+	 return matches.has_match(OXM_TLV_BASIC_VLAN_VID);
+	};
+	bool has_vlan_vid_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_VLAN_VID);
+	};
+	bool has_vlan_vid_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_VLAN_VID);
+	};
+	bool has_vlan_pcp() const {
+	 return matches.has_match(OXM_TLV_BASIC_VLAN_PCP);
+	};
+	bool has_mpls_label() const {
+	 return matches.has_match(OXM_TLV_BASIC_MPLS_LABEL);
+	};
+	bool has_mpls_tc() const {
+	 return matches.has_match(OXM_TLV_BASIC_MPLS_TC);
+	};
+	bool has_ipv4_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_SRC);
+	};
+	bool has_ipv4_src_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_SRC);
+	};
+	bool has_ipv4_src_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_SRC);
+	};
+	bool has_ipv4_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_DST);
+	};
+	bool has_ipv4_dst_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_DST);
+	};
+	bool has_ipv4_dst_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV4_DST);
+	};
+	bool has_arp_opcode() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_OP);
+	};
+	bool has_arp_sha() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SHA);
+	};
+	bool has_arp_sha_addr() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SHA);
+	};
+	bool has_arp_sha_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SHA);
+	};
+	bool has_arp_tha() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_THA);
+	};
+	bool has_arp_tha_addr() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_THA);
+	};
+	bool has_arp_tha_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_THA);
+	};
+	bool has_arp_spa() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SPA);
+	};
+	bool has_arp_spa_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SPA);
+	};
+	bool has_arp_spa_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_SPA);
+	};
+	bool has_arp_tpa() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_TPA);
+	};
+	bool has_arp_tpa_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_TPA);
+	};
+	bool has_arp_tpa_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_ARP_TPA);
+	};
+	bool has_ipv6_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_SRC);
+	};
+	bool has_ipv6_src_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_SRC);
+	};
+	bool has_ipv6_src_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_SRC);
+	};
+	bool has_ipv6_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_DST);
+	};
+	bool has_ipv6_dst_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_DST);
+	};
+	bool has_ipv6_dst_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_DST);
+	};
+	bool has_ip_proto() const {
+	 return matches.has_match(OXM_TLV_BASIC_IP_PROTO);
+	};
+	bool has_ip_dscp() const {
+	 return matches.has_match(OXM_TLV_BASIC_IP_DSCP);
+	};
+	bool has_ip_ecn() const {
+	 return matches.has_match(OXM_TLV_BASIC_IP_ECN);
+	};
+	bool has_icmpv4_type() const {
+	 return matches.has_match(OXM_TLV_BASIC_ICMPV4_TYPE);
+	};
+	bool has_icmpv4_code() const {
+	 return matches.has_match(OXM_TLV_BASIC_ICMPV4_CODE);
+	};
+	bool has_icmpv6_type() const {
+	 return matches.has_match(OXM_TLV_BASIC_ICMPV6_TYPE);
+	};
+	bool has_icmpv6_code() const {
+	 return matches.has_match(OXM_TLV_BASIC_ICMPV6_CODE);
+	};
+	bool has_ipv6_flabel() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_FLABEL);
+	};
+	bool has_ipv6_flabel_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_FLABEL);
+	};
+	bool has_ipv6_flabel_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_FLABEL);
+	};
+	bool has_ipv6_nd_sll() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_ND_SLL);
+	};
+	bool has_ipv6_nd_tll() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_ND_TLL);
+	};
+	bool has_ipv6_nd_target() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_ND_TARGET);
+	};
+	bool has_udp_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_UDP_SRC);
+	};
+	bool has_udp_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_UDP_DST);
+	};
+	bool has_tcp_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_TCP_SRC);
+	};
+	bool has_tcp_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_TCP_DST);
+	};
+	bool has_sctp_src() const {
+	 return matches.has_match(OXM_TLV_BASIC_SCTP_SRC);
+	};
+	bool has_sctp_dst() const {
+	 return matches.has_match(OXM_TLV_BASIC_SCTP_DST);
+	};
+
+	// OF13
+	bool     has_mpls_bos() const {
+	 return matches.has_match(OXM_TLV_BASIC_MPLS_BOS);
+	};
+	bool has_tunnel_id() const {
+	 return matches.has_match(OXM_TLV_BASIC_TUNNEL_ID);
+	};
+	bool has_tunnel_id_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_TUNNEL_ID);
+	};
+	bool has_tunnel_id_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_TUNNEL_ID);
+	};
+	bool has_pbb_isid() const {
+	 return matches.has_match(OXM_TLV_BASIC_PBB_ISID);
+	};
+	bool has_pbb_isid_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_PBB_ISID);
+	};
+	bool has_pbb_isid_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_PBB_ISID);
+	};
+	bool has_ipv6_exthdr() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_EXTHDR);
+	};
+	bool has_ipv6_exthdr_value() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_EXTHDR);
+	};
+	bool has_ipv6_exthdr_mask() const {
+	 return matches.has_match(OXM_TLV_BASIC_IPV6_EXTHDR);
+	};
 };
 
 }; // end of namespace openflow
