@@ -112,6 +112,9 @@ private:
 
 	virtual void
 	handle_closed(csocket& socket) {};
+
+	virtual void
+	handle_write(crofsock* endpnt) {};
 };
 
 }; // end of namespace openflow

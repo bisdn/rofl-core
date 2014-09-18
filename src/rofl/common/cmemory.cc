@@ -12,8 +12,7 @@ using namespace rofl;
 
 cmemory::cmemory(
 		size_t len) :
-		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
-		occupied(0)
+		data(std::make_pair<uint8_t*, size_t>(NULL,0))
 {
 #if 0
 	if (0 == cmemory::memlockcnt)
@@ -33,8 +32,7 @@ cmemory::cmemory(
 cmemory::cmemory(
 		uint8_t *data,
 		size_t datalen) :
-		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
-		occupied(0)
+		data(std::make_pair<uint8_t*, size_t>(NULL,0))
 {
 #if 0
 	if (0 == cmemory::memlockcnt)
@@ -53,8 +51,7 @@ cmemory::cmemory(
 
 
 cmemory::cmemory(cmemory const& m) :
-		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
-		occupied(0)
+		data(std::make_pair<uint8_t*, size_t>(NULL,0))
 {
 #if 0
 	if (0 == cmemory::memlockcnt)

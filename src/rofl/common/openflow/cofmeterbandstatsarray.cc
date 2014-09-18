@@ -62,7 +62,7 @@ cofmeter_band_stats_array::operator== (
 		return false;
 
 	for (std::map<unsigned int, cofmeter_band_stats>::const_iterator
-				it = array.begin(), jt = mbs.array.begin(); it != array.end(), jt != mbs.array.end(); ++it, ++jt) {
+				it = array.begin(), jt = mbs.array.begin(); it != array.end(); ++it, ++jt) {
 		if (not (it->second == jt->second))
 			return false;
 	}

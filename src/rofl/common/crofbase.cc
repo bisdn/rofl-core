@@ -249,7 +249,7 @@ crofbase::add_dpt(
 
 void
 crofbase::drop_dpt(
-	const cdptid& dptid)
+	cdptid dptid)
 {
 	if (rofdpts.find(dptid) == rofdpts.end()) {
 		return;
@@ -295,7 +295,7 @@ crofbase::add_ctl(
 
 void
 crofbase::drop_ctl(
-	const cctlid& ctlid)
+	cctlid ctlid)
 {
 	if (rofctls.find(ctlid) == rofctls.end()) {
 		return;

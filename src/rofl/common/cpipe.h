@@ -49,6 +49,18 @@ public:
 	unsigned char
 	recvmsg();
 
+	/**
+	 *
+	 */
+	int
+	get_readfd() const { return pipefd[0]; };
+
+	/**
+	 *
+	 */
+	int
+	get_writefd() const { return pipefd[1]; };
+
 public:
 
 	int pipefd[2]; // pipefd[0]: read, pipefd[1]: write

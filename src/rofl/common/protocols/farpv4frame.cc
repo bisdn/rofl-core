@@ -43,10 +43,8 @@ farpv4frame::initialize()
 
 
 bool
-farpv4frame::complete()
+farpv4frame::complete() const
 {
-	initialize();
-
 	if (framelen() < sizeof(struct arpv4_hdr_t))
 		return false;
 
@@ -56,7 +54,7 @@ farpv4frame::complete()
 
 
 size_t
-farpv4frame::need_bytes()
+farpv4frame::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -95,9 +93,9 @@ farpv4frame::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-farpv4frame::validate(uint16_t total_len) throw (eARPv4FrameTooShort)
+farpv4frame::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < (sizeof(struct arpv4_hdr_t)))
 	{

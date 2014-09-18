@@ -761,7 +761,7 @@ public:
 
 		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
 
-			switch (*it) {
+			switch ((int32_t)*it) {
 			case rofl::openflow::OXM_TLV_BASIC_IN_PORT: {
 				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IN-PORT >" << std::endl;
 			} break;

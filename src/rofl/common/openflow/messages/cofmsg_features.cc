@@ -73,7 +73,7 @@ cofmsg_features_request::reset()
 
 
 size_t
-cofmsg_features_request::length()
+cofmsg_features_request::length() const
 {
 	return (sizeof(struct rofl::openflow::ofp_header));
 }

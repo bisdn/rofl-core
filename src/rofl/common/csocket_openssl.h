@@ -100,7 +100,6 @@ class csocket_openssl :
 	 * OpenSSL related structures
 	 */
 	SSL_CTX						*ctx;
-	SSL_METHOD					*method;
 	SSL							*ssl;
 	BIO							*bio;
 

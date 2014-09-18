@@ -44,9 +44,9 @@ ftcpframe::initialize()
 
 
 bool
-ftcpframe::complete()
+ftcpframe::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct tcp_hdr_t))
 		return false;
@@ -59,7 +59,7 @@ ftcpframe::complete()
 
 
 size_t
-ftcpframe::need_bytes()
+ftcpframe::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -111,9 +111,9 @@ ftcpframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-ftcpframe::validate(uint16_t total_len) throw (eTcpFrameTooShort)
+ftcpframe::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (!complete())
 	{

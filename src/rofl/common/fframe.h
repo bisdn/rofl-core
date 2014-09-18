@@ -103,20 +103,20 @@ public:
 	 *
 	 */
 	virtual uint8_t*
-	sopdu() { return soframe(); };
+	sopdu() const { return soframe(); };
 
 	/**
 	 * @brief	Returns length of this PDU
 	 *
 	 */
 	virtual size_t
-	pdulen() { return framelen(); };
+	pdulen() const { return framelen(); };
 
 	/**
 	 * @brief	Returns pointer to begin of SDU encapsulated in this PDU (if any).
 	 */
 	virtual uint8_t*
-	sosdu() { return soframe(); };
+	sosdu() const { return soframe(); };
 
 	/** index operator
 	 *

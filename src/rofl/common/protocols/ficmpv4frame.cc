@@ -53,9 +53,9 @@ ficmpv4frame::initialize()
 
 
 bool
-ficmpv4frame::complete()
+ficmpv4frame::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct icmpv4_hdr_t))
 		return false;
@@ -65,7 +65,7 @@ ficmpv4frame::complete()
 
 
 size_t
-ficmpv4frame::need_bytes()
+ficmpv4frame::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -112,9 +112,9 @@ ficmpv4frame::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-ficmpv4frame::validate(uint16_t total_len) throw (eICMPv4FrameTooShort)
+ficmpv4frame::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (!complete())
 	{

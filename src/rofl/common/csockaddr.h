@@ -127,14 +127,14 @@ public:
 	 */
 	virtual void
 	pack(
-			struct sockaddr* sa, size_t salen);
+			uint8_t* sa, size_t salen);
 
 	/**
 	 *
 	 */
 	virtual void
 	unpack(
-			struct sockaddr* sa, size_t salen);
+			uint8_t* sa, size_t salen);
 
 public:
 

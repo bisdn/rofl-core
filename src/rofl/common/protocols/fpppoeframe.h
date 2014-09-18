@@ -177,18 +177,18 @@ public: // overloaded from fframe
 	/** returns boolean value indicating completeness of the packet
 	 */
 	virtual bool
-	complete();
+	complete() const;
 
 	/** returns the number of bytes this packet expects from the socket next
 	 */
 	virtual size_t
-	need_bytes();
+	need_bytes() const;
 
 	/** validate (frame structure)
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+	validate(uint16_t total_len = 0) const;
 
 
 	/** initialize (set eth_hdr, pppoe_hdr)
@@ -223,7 +223,7 @@ public:
 	/**
 	 */
 	uint16_t
-	get_hdr_length();
+	get_hdr_length() const;
 
 	/**
 	 */
@@ -301,21 +301,21 @@ private: // methods
 	 *
 	 */
 	void
-	validate_pppoe_session() throw (ePPPoEFrameInvalSid, eFrameInvalidSyntax);
+	validate_pppoe_session() const;
 
 	/** validate PPPoE discovery packet
 	 *
 	 */
 	void
-	validate_pppoe_discovery_padi() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	validate_pppoe_discovery_padi() const;
 	void
-	validate_pppoe_discovery_pado() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	validate_pppoe_discovery_pado() const;
 	void
-	validate_pppoe_discovery_padr() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	validate_pppoe_discovery_padr() const;
 	void
-	validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	validate_pppoe_discovery_pads() const;
 	void
-	validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	validate_pppoe_discovery_padt() const;
 
 public:
 

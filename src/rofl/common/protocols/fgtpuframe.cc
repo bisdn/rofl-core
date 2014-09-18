@@ -48,7 +48,7 @@ fgtpuframe::reset(
 
 
 uint8_t*
-fgtpuframe::sopdu()
+fgtpuframe::sopdu() const
 {
 	return soframe();
 }
@@ -56,7 +56,7 @@ fgtpuframe::sopdu()
 
 
 uint8_t*
-fgtpuframe::sosdu()
+fgtpuframe::sosdu() const
 {
 	size_t offset = (sizeof(struct gtpu_base_hdr_t));
 
@@ -73,7 +73,7 @@ fgtpuframe::sosdu()
 
 
 size_t
-fgtpuframe::pdulen()
+fgtpuframe::pdulen() const
 {
 	return (sizeof(struct gtpu_base_hdr_t) + get_length());
 }
@@ -304,7 +304,7 @@ fgtpuframe::get_hdr_length() const
 
 
 bool
-fgtpuframe::complete()
+fgtpuframe::complete() const
 {
 	// at least a short header must be available
 	if (framelen() < sizeof(struct gtpu_base_hdr_t))
@@ -320,7 +320,7 @@ fgtpuframe::complete()
 
 
 size_t
-fgtpuframe::need_bytes()
+fgtpuframe::need_bytes() const
 {
 	// at least a short header must be available
 	if (framelen() < sizeof(struct gtpu_base_hdr_t))
@@ -337,7 +337,7 @@ fgtpuframe::need_bytes()
 
 void
 fgtpuframe::validate(
-		uint16_t total_len) throw (eFrameInvalidSyntax)
+		uint16_t total_len) const
 {
 	if (not complete())
 		throw eFrameInvalidSyntax();

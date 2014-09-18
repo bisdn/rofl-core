@@ -70,7 +70,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length();
+	length() const;
 
 
 	/**

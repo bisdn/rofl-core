@@ -55,9 +55,9 @@ fsctpframe::initialize()
 
 
 bool
-fsctpframe::complete()
+fsctpframe::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct sctp_hdr_t))
 		return false;
@@ -69,7 +69,7 @@ fsctpframe::complete()
 
 
 size_t
-fsctpframe::need_bytes()
+fsctpframe::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -115,9 +115,9 @@ fsctpframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fsctpframe::validate(uint16_t total_len) throw (eSctpFrameTooShort)
+fsctpframe::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (!complete())
 	{

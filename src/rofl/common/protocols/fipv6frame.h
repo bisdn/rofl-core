@@ -195,18 +195,18 @@ public: // overloaded from fframe
 	/** returns boolean value indicating completeness of the packet
 	 */
 	virtual bool
-	complete();
+	complete() const;
 
 	/** returns the number of bytes this packet expects from the socket next
 	 */
 	virtual size_t
-	need_bytes();
+	need_bytes() const;
 
 	/** validate (frame structure)
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+	validate(uint16_t total_len = 0) const;
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -293,7 +293,7 @@ public:
 	/**
 	 */
 	uint16_t
-	get_payload_length();
+	get_payload_length() const;
 
 	/**
 	 */

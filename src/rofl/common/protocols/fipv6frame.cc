@@ -103,7 +103,7 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 
 
 bool
-fipv6frame::complete()
+fipv6frame::complete() const
 {
 	if (framelen() < sizeof(struct ipv6_hdr_t))
 		return false;
@@ -117,7 +117,7 @@ fipv6frame::complete()
 
 
 size_t
-fipv6frame::need_bytes()
+fipv6frame::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -163,7 +163,7 @@ fipv6frame::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fipv6frame::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
+fipv6frame::validate(uint16_t total_len) const
 {
 	if (!complete())
 		throw eFrameInvalidSyntax();
@@ -293,7 +293,7 @@ fipv6frame::set_payload_length(uint16_t len)
 
 
 uint16_t
-fipv6frame::get_payload_length()
+fipv6frame::get_payload_length() const
 {
 	return be16toh(ipv6_hdr->payloadlen);
 }

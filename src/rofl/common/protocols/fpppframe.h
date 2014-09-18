@@ -334,18 +334,18 @@ public: // overloaded from fframe
 	/** returns boolean value indicating completeness of the packet
 	 */
 	virtual bool
-	complete();
+	complete() const;
 
 	/** returns the number of bytes this packet expects from the socket next
 	 */
 	virtual size_t
-	need_bytes();
+	need_bytes() const;
 
 	/** validate (frame structure)
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+	validate(uint16_t total_len = 0) const;
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -403,25 +403,25 @@ private: // methods
 	 *
 	 */
 	void
-	validate_lcp() throw (ePPPFrameInvalidSyntax);
+	validate_lcp() const;
 
 	/** parse PPP LCP options
 	 *
 	 */
 	void
-	parse_lcp_options() throw (ePPPFrameInvalidSyntax);
+	parse_lcp_options();
 
 	/**
 	 * validate PPP IPCP frame
 	 */
 	void
-	validate_ipcp() throw (ePPPFrameInvalidSyntax);
+	validate_ipcp() const;
 
 	/**
 	 * parse PPP IPCP options
 	 */
 	void
-	parse_ipcp_options() throw (ePPPFrameInvalidSyntax);
+	parse_ipcp_options();
 };
 
 
@@ -433,7 +433,7 @@ public:
 		fframe(opt, optlen), hdr((struct fpppframe::ppp_lcp_opt_hdr_t*)opt) {};
 	fppp_lcp_option(fpppframe::ppp_lcp_opt_hdr_t *opt, size_t optlen) :
 		fframe((uint8_t*)opt, optlen), hdr(opt) {};
-	void validate() throw (ePPPLcpOptionInvalid) {
+	void validate(uint16_t total_len = 0) const {
 		if (hdr->length < sizeof(uint16_t)) throw ePPPLcpOptionInvalid();
 		switch (hdr->option) {
 		case fpppframe::PPP_LCP_OPT_RESERVED: {
@@ -501,7 +501,7 @@ public:
 		fframe(opt, optlen), hdr((struct fpppframe::ppp_ipcp_opt_hdr_t*)opt) {};
 	fppp_ipcp_option(fpppframe::ppp_ipcp_opt_hdr_t *opt, size_t optlen) :
 		fframe((uint8_t*)opt, optlen), hdr(opt) {};
-	void validate() throw (ePPPIpcpOptionInvalid) {
+	void validate(uint16_t total_len = 0) const {
 		if (hdr->length < sizeof(uint16_t)) throw ePPPIpcpOptionInvalid();
 		switch (hdr->option) {
 		case fpppframe::PPP_IPCP_OPT_IP_COMP: {

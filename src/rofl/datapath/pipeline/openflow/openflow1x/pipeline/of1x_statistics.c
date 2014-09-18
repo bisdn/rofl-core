@@ -283,8 +283,13 @@ of1x_stats_group_msg_t* __of1x_get_group_single_stats(of1x_group_t* group){
 
 	msg->group_id = group->id;
 	msg->ref_count = group->stats.ref_count;
+<<<<<<< HEAD
 	msg->packet_count = c.packet_count; 
 	msg->byte_count = c.byte_count; 
+=======
+	msg->packet_count = group->stats.packet_count;
+	msg->byte_count = group->stats.byte_count;
+>>>>>>> devel-0.5
 	msg->num_of_buckets = group->bc_list->num_of_buckets;
 	msg->next = NULL;
 	

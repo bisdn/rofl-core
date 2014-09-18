@@ -63,7 +63,7 @@ cofmeterconfigarray::operator== (
 
 	for (std::map<unsigned int, cofmeter_config_reply>::const_iterator
 				it = array.begin(),jt = mconfig.array.begin();
-					it != array.end(), jt != mconfig.array.end(); ++it, ++jt) {
+					it != array.end(); ++it, ++jt) {
 		if (not (const_cast<cofmeter_config_reply&>(it->second) == jt->second))
 			return false;
 	}

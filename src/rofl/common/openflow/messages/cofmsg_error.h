@@ -98,7 +98,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length();
+	length() const;
 
 
 	/**
@@ -161,7 +161,7 @@ public:
 
 		os << std::hex;
 		uint32_t error_id = ((uint32_t)msg.get_err_type() << 16) | msg.get_err_code();
-		switch (error_id) {
+		switch ((int32_t)error_id) {
 		case OFPETC_HELLO_FAILED_INCOMPATIBLE: {
 			os << indent(4) << "<error-id: 0x" << (int)error_id << " HELLO-FAILED-INCOMPATIBLE >" << std::endl;
 		} break;

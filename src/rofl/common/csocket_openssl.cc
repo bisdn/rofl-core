@@ -59,7 +59,6 @@ csocket_openssl::csocket_openssl(
 				csocket(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
 				socket(this),
 				ctx(NULL),
-				method(NULL),
 				ssl(NULL),
 				bio(NULL)
 {

@@ -86,7 +86,7 @@ csockaddr::length() const
 
 void
 csockaddr::pack(
-		struct sockaddr* sa, size_t salen)
+		uint8_t* sa, size_t salen)
 {
 	if ((0 == sa) || (0 == salen))
 		return;
@@ -101,7 +101,7 @@ csockaddr::pack(
 
 void
 csockaddr::unpack(
-		struct sockaddr* sa, size_t salen)
+		uint8_t* sa, size_t salen)
 {
 	if ((0 == sa) || (0 == salen))
 		return;

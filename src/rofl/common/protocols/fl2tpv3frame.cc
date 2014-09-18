@@ -51,7 +51,7 @@ fl2tpv3frame::~fl2tpv3frame()
 
 
 void
-fl2tpv3frame::reset(
+fl2tpv3frame::reset2(
 		enum l2tp_encap_t encap_type,
 		uint8_t* data,
 		size_t datalen)

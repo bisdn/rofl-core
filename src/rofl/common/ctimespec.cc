@@ -11,8 +11,7 @@ using namespace rofl;
 
 ctimespec::ctimespec()
 {
-	ts.tv_sec 	= 0;
-	ts.tv_nsec 	= 0;
+	memset(&ts, 0, sizeof(ts));
 }
 
 

@@ -19,8 +19,8 @@ ctimerid::get_next_timer_id() {
 
 
 
-ctimerid::ctimerid() :
-				tid(ctimerid::get_next_timer_id())
+ctimerid::ctimerid() : tid(++ctimerid::next_timer_id)
+				//tid(ctimerid::get_next_timer_id())
 {
 
 }

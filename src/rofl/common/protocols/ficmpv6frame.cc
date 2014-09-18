@@ -268,9 +268,9 @@ ficmpv6frame::parse_icmpv6_redirect() throw (eICMPv6FrameTooShort)
 
 
 bool
-ficmpv6frame::complete()
+ficmpv6frame::complete() const
 {
-	initialize();
+	//initialize();
 
 	if (framelen() < sizeof(struct icmpv6_hdr_t))
 		return false;
@@ -280,7 +280,7 @@ ficmpv6frame::complete()
 
 
 size_t
-ficmpv6frame::need_bytes()
+ficmpv6frame::need_bytes() const
 {
 	if (complete())
 		return 0;
@@ -327,9 +327,9 @@ ficmpv6frame::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-ficmpv6frame::validate(uint16_t total_len) throw (eICMPv6FrameTooShort)
+ficmpv6frame::validate(uint16_t total_len) const
 {
-	initialize();
+	//initialize();
 
 	if (!complete())
 	{

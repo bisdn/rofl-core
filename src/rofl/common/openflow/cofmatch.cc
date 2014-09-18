@@ -46,7 +46,7 @@ cofmatch::operator= (
 
 bool
 cofmatch::operator== (
-		const cofmatch& match)
+		const cofmatch& match) const
 {
 	return (
 		(of_version == match.of_version) &&
