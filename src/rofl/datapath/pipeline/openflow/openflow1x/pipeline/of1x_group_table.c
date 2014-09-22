@@ -445,7 +445,7 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 	//so that is not further used outside the pipeline
 	*buckets = NULL;	
 
-	return ROFL_SUCCESS;
+	return ROFL_OF1X_GM_OK;
 }
 
 of1x_bucket_list_t* of1x_init_bucket_list(void){

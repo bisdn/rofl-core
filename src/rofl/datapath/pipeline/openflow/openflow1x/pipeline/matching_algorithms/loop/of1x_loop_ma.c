@@ -456,7 +456,8 @@ rofl_result_t __of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x
 
 	//According to spec
 	if(moded == 0){	
-		return __of1x_add_flow_entry_loop(table, entry, false, reset_counts, ma_add_hook_ptr);
+		//TODO: remove cast
+		return (rofl_result_t)__of1x_add_flow_entry_loop(table, entry, false, reset_counts, ma_add_hook_ptr);
 	}
 
 	ROFL_PIPELINE_DEBUG("[flowmod-modify(%p)] Deleting modifying flowmod \n", entry);

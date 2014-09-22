@@ -269,29 +269,29 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 
 		//NW
 		case OF1X_AT_SET_FIELD_NW_PROTO:
-			if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4)){
+			if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4){
 				//Call platform
 				platform_packet_set_ip_proto(pkt, action->__field.u8);
-			}else if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP)){
+			}else if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP){
 				//Call plattform
 				platform_packet_set_arp_opcode(pkt, action->__field.u8);
 			}
 
 			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
-			if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4)){
+			if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4){
 				//Call platform
 				platform_packet_set_ipv4_src(pkt, action->__field.u32);
-			}else if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP)){
+			}else if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP){
 				//Call platform
 				platform_packet_set_arp_spa(pkt, action->__field.u32);
 			}
 			break;
 		case OF1X_AT_SET_FIELD_NW_DST:
-			if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4)){
+			if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_IPV4){
 				//Call platform
 				platform_packet_set_ipv4_dst(pkt, action->__field.u32);
-			}else if((*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP)){
+			}else if(*platform_packet_get_eth_type(pkt) == ETH_TYPE_ARP){
 				//Call platform
 				platform_packet_set_arp_tpa(pkt, action->__field.u32);
 			}
@@ -323,25 +323,25 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 
 		//TP
 		case OF1X_AT_SET_FIELD_TP_SRC:  
-			if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_TCP)){
+			if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_TCP){
 				//Call platform
 				platform_packet_set_tcp_src(pkt, action->__field.u16);
-			}else if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_UDP)){
+			}else if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_UDP){
 				//Call platform
 				platform_packet_set_udp_src(pkt, action->__field.u16);
-			}else if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_ICMPV4)){
+			}else if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_ICMPV4){
 				//Call platform
 				platform_packet_set_icmpv4_type(pkt, action->__field.u8);
 			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
-			if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_TCP)){
+			if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_TCP){
 				//Call platform
 				platform_packet_set_tcp_dst(pkt, action->__field.u16);
-			}else if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_UDP)){
+			}else if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_UDP){
 				//Call platform
 				platform_packet_set_udp_dst(pkt, action->__field.u16);
-			}else if((*platform_packet_get_ip_proto(pkt) == IP_PROTO_ICMPV4)){
+			}else if(*platform_packet_get_ip_proto(pkt) == IP_PROTO_ICMPV4){
 				//Call platform
 				platform_packet_set_icmpv4_code(pkt, action->__field.u8);
 			}
