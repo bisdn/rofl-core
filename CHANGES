@@ -8,6 +8,11 @@ Legend:
 Change log
 ==========
 
+v0.6.0
+
+[+][rofl-pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
+
+
 v0.5.1
 
 [B][pipeline] Fixes bug in the destruction of of1x_stats_group_desc_msg_t
