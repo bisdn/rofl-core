@@ -10,7 +10,8 @@ Change log
 
 v0.5.1
 
-[B][pipeline] Fixes bug in the destruction of of1x_stats_group_desc_msg_t
+[B][pipeline] Fixed improper byte counter setting for group statistics
+[B][pipeline] Fixed bug in the destruction of of1x_stats_group_desc_msg_t
 
 v0.5.0
 
