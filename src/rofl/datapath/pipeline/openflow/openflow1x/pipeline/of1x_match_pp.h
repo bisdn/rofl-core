@@ -495,7 +495,7 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    		case OF1X_MATCH_GRE_VERSION:{
 					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
 					if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_GRE)) return false;
-   					return __utern_compare8(it->__tern, platform_packet_get_gre_version(pkt));
+   					return __utern_compare16(it->__tern, platform_packet_get_gre_version(pkt));
 		}
    		case OF1X_MATCH_GRE_PROT_TYPE:{
 			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
