@@ -24,8 +24,8 @@ enum gre_exp_id_t {
 };
 
 enum gre_action_type_t {
-	GRE_ACTION_PUSH_GTP,
-	GRE_ACTION_POP_GTP,
+	GRE_ACTION_PUSH_GRE,
+	GRE_ACTION_POP_GRE,
 };
 
 struct ofp_exp_gre_action_body_hdr {
@@ -169,7 +169,7 @@ public:
 	cofaction_exp_body_push_gre(
 			uint16_t ethertype = 0) :
 				cofaction_exp_body_gre(
-						GRE_ACTION_PUSH_GTP,
+						GRE_ACTION_PUSH_GRE,
 						sizeof(struct ofp_exp_gre_action_body_push_gre)) {
 		set_ether_type(ethertype);
 	};
@@ -263,7 +263,7 @@ public:
 	cofaction_exp_body_pop_gre(
 			uint16_t ethertype = 0) :
 				cofaction_exp_body_gre(
-						GRE_ACTION_POP_GTP,
+						GRE_ACTION_POP_GRE,
 						sizeof(struct ofp_exp_gre_action_body_pop_gre)) {
 		set_ether_type(ethertype);
 	};
