@@ -138,6 +138,10 @@ typedef struct packet_matches{
 	uint64_t __wlan_address_2;	/* WLAN address 2 */
 	uint64_t __wlan_address_3;	/* WLAN address 3 */
 
+	//GRE related extensions
+	uint16_t __gre_version;		/* GRE version */
+	uint16_t __gre_prot_type;	/* GRE protocol type */
+	uint32_t __gre_key;			/* GRE key */
 }packet_matches_t;
 
 
@@ -670,6 +674,32 @@ uint64_t packet_matches_get_wlan_address_2_value(packet_matches_t *const pkt_mat
 static inline
 uint64_t packet_matches_get_wlan_address_3_value(packet_matches_t *const pkt_matches){
 	return OF1X_MAC_VALUE(NTOHB64(pkt_matches->__wlan_address_3));
+};
+
+//GRE
+/**
+* @brief Get the packet match GRE_VERSION value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint16_t packet_matches_get_gre_version_value(packet_matches_t *const pkt_matches){
+	return NTOHB16(pkt_matches->__gre_version);
+};
+/**
+* @brief Get the packet match GRE_PROT_TYPE value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint16_t packet_matches_get_gre_prot_type_value(packet_matches_t *const pkt_matches){
+	return NTOHB16(pkt_matches->__gre_prot_type);
+};
+/**
+* @brief Get the packet match GRE_KEY value in HOST BYTE ORDER
+* @ingroup core_of1x
+*/
+static inline
+uint32_t packet_matches_get_gre_key_value(packet_matches_t *const pkt_matches){
+	return NTOHB32(pkt_matches->__gre_key);
 };
 
 //C++ extern C

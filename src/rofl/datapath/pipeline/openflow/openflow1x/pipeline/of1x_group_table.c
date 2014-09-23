@@ -27,11 +27,13 @@ void __of12_set_group_table_defaults(of1x_group_table_t *gt){
 	//We initialize with the support of all possible actions. This can be customized via the init hook
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_IN);
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_VLAN);		
-	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_MPLS);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_MPLS);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_GRE);
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_GTP);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_POP_PPPOE);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_PPPOE);		
-	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GTP);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_GRE);
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_MPLS);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_PUSH_VLAN);		
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_COPY_TTL_OUT);			
@@ -83,7 +85,10 @@ void __of12_set_group_table_defaults(of1x_group_table_t *gt){
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
-	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GTP_TEID);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GRE_VERSION);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GRE_PROT_TYPE);
+	bitmap128_set(&gt->config.supported_actions, OF1X_AT_SET_FIELD_GRE_KEY);
 	//bitmap128_set(&gt->config.supported_actions, OF1X_AT_GROUP); //WE DON'T SUPPORT INDIRECT GROUP reference	
 	
 	bitmap128_set(&gt->config.supported_actions, OF1X_AT_OUTPUT);

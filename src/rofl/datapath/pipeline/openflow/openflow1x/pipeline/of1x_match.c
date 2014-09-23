@@ -1451,6 +1451,67 @@ of1x_match_t* of1x_init_wlan_address_3_match(uint64_t value, uint64_t mask){
 
 	return match;
 }
+//GRE
+of1x_match_t* of1x_init_gre_version_match(uint16_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_GRE_VERSION;
+	match->__tern = __init_utern16(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //no wildcard
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_gre_prot_type_match(uint16_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	match->type = OF1X_MATCH_GRE_PROT_TYPE;
+	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
+of1x_match_t* of1x_init_gre_key_match(uint32_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
+	// Align to pipeline convention (NBO, lower memory address)
+	value = HTONB32(value);
+
+	match->type = OF1X_MATCH_GRE_KEY;
+	match->__tern = __init_utern32(value, OF1X_4_BYTE_MASK);
+
+	//Set fast validation flags
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	//Initialize linked-list
+	match->prev=match->next=NULL;
+
+	return match;
+}
 
 //Add more here...
 
@@ -1831,6 +1892,14 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 			case OF1X_MATCH_WLAN_ADDRESS_2:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_ADDRESS_2:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
 				break;
 			case OF1X_MATCH_WLAN_ADDRESS_3:  ROFL_PIPELINE_INFO_NO_PREFIX("[WLAN_ADDRESS_3:0x%"PRIx64"], ",__of1x_get_match_val64(it, false, raw_nbo));
+				break;
+
+			/* GRE related extensions */
+			case OF1X_MATCH_GRE_VERSION:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_VERSION:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_GRE_PROT_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_PROT_TYPE:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
+				break;
+			case OF1X_MATCH_GRE_KEY:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_KEY:0x%x], ",__of1x_get_match_val32(it, false, raw_nbo));
 				break;
 
 			case OF1X_MATCH_MAX: assert(0);

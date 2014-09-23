@@ -128,11 +128,18 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->send_len = output_send_len;
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
+		/* Extensions */
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 			field.u32 = HTONB32(field.u32);
 			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		case OF1X_AT_SET_FIELD_GRE_KEY:
+			field.u32 = HTONB32(field.u32);
+			action->__field.u32 = field.u32&OF1X_4_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		/* Extensions end */
 
 		//3 byte
 		case OF1X_AT_SET_FIELD_PBB_ISID:
@@ -205,6 +212,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		/* Extensions */
 		case OF1X_AT_SET_FIELD_PPPOE_SID:
 			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
@@ -225,6 +233,17 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		case OF1X_AT_SET_FIELD_GRE_VERSION:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_GRE_PROT_TYPE:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		/* Extensions end */
 		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
 		case OF1X_AT_POP_MPLS:
 			field.u16 = HTONB16(field.u16);
@@ -242,6 +261,11 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 		/* Extensions */
+		case OF1X_AT_POP_GRE:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_POP_WLAN:
 			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
@@ -268,6 +292,11 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_PUSH_WLAN:
+			field.u16 = HTONB16(field.u16);
+			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_GRE:
 			field.u16 = HTONB16(field.u16);
 			action->__field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
@@ -905,6 +934,17 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_POP_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("POP_WLAN");
 			break;
 		case OF1X_AT_PUSH_WLAN:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_WLAN");
+			break;
+
+		case OF1X_AT_SET_FIELD_GRE_VERSION:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GRE_VERSION: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_GRE_PROT_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GRE_PROT_TYPE: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
+			break;
+		case OF1X_AT_SET_FIELD_GRE_KEY:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GRE_KEY: 0x%x", __of1x_get_packet_action_field32(action, raw_nbo));
+			break;
+		case OF1X_AT_POP_GRE:ROFL_PIPELINE_INFO_NO_PREFIX("POP_GRE");
+			break;
+		case OF1X_AT_PUSH_GRE:ROFL_PIPELINE_INFO_NO_PREFIX("PUSH_GRE");
 			break;
 
 		case OF1X_AT_GROUP:ROFL_PIPELINE_INFO_NO_PREFIX("GROUP:%u", __of1x_get_packet_action_field32(action, raw_nbo));

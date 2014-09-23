@@ -57,6 +57,9 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPP_PROT);
 	bitmap128_set(&table->config.match, OF1X_MATCH_GTP_MSG_TYPE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_GTP_TEID);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_VERSION);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_PROT_TYPE);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_KEY);
 
 	//Wildcards
 	bitmap128_clean(&table->config.wildcards);
@@ -99,6 +102,9 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_VERSION);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_PROT_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_KEY);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_OUTPUT);
 	
 	//Write actions	
@@ -166,6 +172,9 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.match, OF1X_MATCH_PPP_PROT);
 	bitmap128_set(&table->config.match, OF1X_MATCH_GTP_MSG_TYPE);
 	bitmap128_set(&table->config.match, OF1X_MATCH_GTP_TEID);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_VERSION);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_PROT_TYPE);
+	bitmap128_set(&table->config.match, OF1X_MATCH_GRE_KEY);
 
 	//Wildcards
 	bitmap128_clean(&table->config.wildcards);
@@ -189,11 +198,13 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_clean(&table->config.apply_actions);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_MPLS);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_MPLS);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GRE);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GTP);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GRE);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_MPLS);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);		
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_OUT);			
@@ -245,7 +256,10 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_VERSION);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_PROT_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_KEY);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_GROUP);			
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_EXPERIMENTER);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_OUTPUT);

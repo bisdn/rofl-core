@@ -490,6 +490,23 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    			// TODO: check prerequisites for WLAN frame
 			return __utern_compare64(it->__tern, platform_packet_get_wlan_address_3(pkt));
 		}
+
+		//GRE
+   		case OF1X_MATCH_GRE_VERSION:{
+					uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+					if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_GRE)) return false;
+   					return __utern_compare8(it->__tern, platform_packet_get_gre_version(pkt));
+		}
+   		case OF1X_MATCH_GRE_PROT_TYPE:{
+			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_GRE)) return false;
+   					return __utern_compare16(it->__tern, platform_packet_get_gre_prot_type(pkt));
+		}
+   		case OF1X_MATCH_GRE_KEY:{
+			uint8_t *ptr_ip_proto = platform_packet_get_ip_proto(pkt);
+			if (!ptr_ip_proto || !(*ptr_ip_proto == IP_PROTO_GRE)) return false;
+   					return __utern_compare32(it->__tern, platform_packet_get_gre_key(pkt));
+		}
 #else
    		case OF1X_MATCH_PPPOE_CODE:
    		case OF1X_MATCH_PPPOE_TYPE:
@@ -507,6 +524,9 @@ static inline bool __of1x_check_match(datapacket_t *const pkt, of1x_match_t* it)
    		case OF1X_MATCH_WLAN_ADDRESS_1:
    		case OF1X_MATCH_WLAN_ADDRESS_2:
    		case OF1X_MATCH_WLAN_ADDRESS_3:
+   		case OF1X_MATCH_GRE_VERSION:
+   		case OF1X_MATCH_GRE_PROT_TYPE:
+   		case OF1X_MATCH_GRE_KEY:
    			break;
 
 #endif
