@@ -12,6 +12,7 @@
 #include "rofl/common/openflow/coxmatch.h"
 
 #ifdef ROFL_EXPERIMENTAL
+	#include "rofl/common/openflow/experimental/matches/gre_matches.h"
 	#include "rofl/common/openflow/experimental/matches/gtp_matches.h"
 	#include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 #endif
@@ -143,6 +144,12 @@ public:
 				os << openflow::experimental::pppoe::coxmatch_ofx_pppoe_type(oxm); return os;
 			case openflow::experimental::pppoe::OFPXMT_OFX_PPP_PROT:
 				os << openflow::experimental::pppoe::coxmatch_ofx_ppp_prot(oxm); return os;
+			case openflow::experimental::gre::OFPXMT_OFX_GRE_VERSION:
+				os << openflow::experimental::gre::coxmatch_ofx_gre_version(oxm); return os;
+			case openflow::experimental::gre::OFPXMT_OFX_GRE_PROT_TYPE:
+				os << openflow::experimental::gre::coxmatch_ofx_gre_prot_type(oxm); return os;
+			case openflow::experimental::gre::OFPXMT_OFX_GRE_KEY:
+				os << openflow::experimental::gre::coxmatch_ofx_gre_key(oxm); return os;
 #endif
 			default:
 				os << oxm; return os;

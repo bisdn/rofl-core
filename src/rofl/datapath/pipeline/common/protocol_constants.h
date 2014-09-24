@@ -105,6 +105,7 @@
 #define IP_PROTO_TCP		6
 #define IP_PROTO_UDP		17
 #define IP_PROTO_SCTP		132
+#define IP_PROTO_GRE		47
 #define IP_PROTO_ICMPV4		1
 #define IP_PROTO_ICMPV6		58
 

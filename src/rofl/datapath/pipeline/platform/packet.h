@@ -1003,6 +1003,59 @@ void platform_packet_pop_wlan(datapacket_t* pkt);
 void platform_packet_push_wlan(datapacket_t* pkt);
 
 
+//////////
+// GRE //
+////////
+/**
+* @ingroup platform_packet
+* Get the GRE version
+* @return value if existing, 0x0 otherwise.
+*/
+uint16_t* platform_packet_get_gre_version(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the GRE protocol type
+* @return value if existing, 0x0 otherwise.
+*/
+uint16_t* platform_packet_get_gre_prot_type(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get the GRE key
+* @return value if existing, 0x0 otherwise.
+* @warning Return value comes in normal NBO endianness
+*/
+uint32_t* platform_packet_get_gre_key(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the GRE version
+*/
+void platform_packet_set_gre_version(datapacket_t* pkt, uint16_t version);
+/**
+* @ingroup platform_packet
+* Set a new value for the GRE protocol type
+*/
+void platform_packet_set_gre_prot_type(datapacket_t* pkt, uint16_t prot_type);
+/**
+* @ingroup platform_packet
+* Set a new value for the GRE key
+* @warning teid must be in normal NBO endianness
+*/
+void platform_packet_set_gre_key(datapacket_t* pkt, uint32_t key);
+
+/**
+* @ingroup platform_packet
+* Pop the GRE frame
+*/
+void platform_packet_pop_gre(datapacket_t* pkt, uint16_t ether_type);
+/**
+* Push a new GRE frame
+*/
+void platform_packet_push_gre(datapacket_t* pkt, uint16_t ether_type);
+
+
+
+
 /* end of extensions */
 #endif
 

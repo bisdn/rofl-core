@@ -551,6 +551,28 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 			platform_packet_push_wlan(pkt);
 			break;
 
+		//GRE
+		case OF1X_AT_SET_FIELD_GRE_VERSION:
+			//Call platform
+			platform_packet_set_gre_version(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_GRE_PROT_TYPE:
+			//Call platform
+			platform_packet_set_gre_prot_type(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_SET_FIELD_GRE_KEY:
+			//Call platform
+			platform_packet_set_gre_key(pkt, action->__field.u32);
+			break;
+		case OF1X_AT_POP_GRE:
+			//Call platform
+			platform_packet_pop_gre(pkt, action->__field.u16);
+			break;
+		case OF1X_AT_PUSH_GRE:
+			//Call platform
+			platform_packet_push_gre(pkt, action->__field.u16);
+			break;
+
 #else
 		case OF1X_AT_POP_PPPOE:
 		case OF1X_AT_PUSH_PPPOE:
@@ -576,6 +598,11 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 		case OF1X_AT_SET_FIELD_WLAN_ADDRESS_3:
 		case OF1X_AT_POP_WLAN:
 		case OF1X_AT_PUSH_WLAN:
+		case OF1X_AT_SET_FIELD_GRE_VERSION:
+		case OF1X_AT_SET_FIELD_GRE_PROT_TYPE:
+		case OF1X_AT_SET_FIELD_GRE_KEY:
+		case OF1X_AT_POP_GRE:
+		case OF1X_AT_PUSH_GRE:
 			break;
 #endif
 		//PBB

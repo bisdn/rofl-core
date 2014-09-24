@@ -128,6 +128,11 @@ void fill_packet_matches(datapacket_t *const pkt, packet_matches_t* m){
 	m->__wlan_address_1 = ( (ptr64=platform_packet_get_wlan_address_1(pkt))==NULL ? 0 : *ptr64);
 	m->__wlan_address_2 = ( (ptr64=platform_packet_get_wlan_address_2(pkt))==NULL ? 0 : *ptr64);
 	m->__wlan_address_3 = ( (ptr64=platform_packet_get_wlan_address_3(pkt))==NULL ? 0 : *ptr64);
+
+	//GRE related extensions
+	m->__gre_version = ( (ptr16=platform_packet_get_gre_version(pkt))==NULL ? 0 : *ptr16);
+	m->__gre_prot_type = ( (ptr16=platform_packet_get_gre_prot_type(pkt))==NULL ? 0 : *ptr16);
+	m->__gre_key = ( (ptr32=platform_packet_get_gre_key(pkt))==NULL ? 0 : *ptr32);
 #endif
 }
 
@@ -351,6 +356,11 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 		if(!raw_nbo)
 			tmp = OF1X_MAC_VALUE(NTOHB64(tmp));
 		ROFL_PIPELINE_INFO_NO_PREFIX("WLAN_ADDRESS_3:0x%"PRIx64", ", tmp);
+	}
+
+	//GTP
+	if(m->__ip_proto == IP_PROTO_GRE){
+		ROFL_PIPELINE_INFO_NO_PREFIX("GRE_VERSION:0x%x, GRE_PROT_TYPE:0x%x, GRE_KEY:0x%x, ",COND_NTOHB16(raw_nbo, m->__gre_version), COND_NTOHB16(raw_nbo, m->__gre_prot_type), COND_NTOHB32(raw_nbo, m->__gre_key));
 	}
 #endif
 	

@@ -103,10 +103,12 @@ typedef enum{
 	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
 	OF1X_AT_POP_PBB,			/* Pop the PBB header */
 	OF1X_AT_POP_WLAN,			/* Pop the WLAN header */
+	OF1X_AT_POP_GRE,			/* Pop the GRE header */
 
 	/*
 	* Push: first PBB, PPP, PPPoE, MPLS, VLAN
 	*/
+	OF1X_AT_PUSH_GRE,			/* Push a new GRE header */
 	OF1X_AT_PUSH_WLAN,			/* Push a new WLAN header */
 	OF1X_AT_PUSH_PBB,			/* Push a new PBB header */
 	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE header */
@@ -212,6 +214,10 @@ typedef enum{
 	OF1X_AT_SET_FIELD_WLAN_ADDRESS_1,	/* WLAN address 1 */
 	OF1X_AT_SET_FIELD_WLAN_ADDRESS_2,	/* WLAN address 2 */
 	OF1X_AT_SET_FIELD_WLAN_ADDRESS_3,	/* WLAN address 3 */
+
+	OF1X_AT_SET_FIELD_GRE_VERSION,		/* GRE version */
+	OF1X_AT_SET_FIELD_GRE_PROT_TYPE,	/* GRE protocol type */
+	OF1X_AT_SET_FIELD_GRE_KEY,			/* GRE key */
 
 	/* Add more set fields here... */
 
@@ -447,6 +453,8 @@ uint16_t __of1x_get_packet_action_field16(const of1x_packet_action_t* action, bo
 		case OF1X_AT_PUSH_VLAN:
 		case OF1X_AT_PUSH_PBB:
 		case OF1X_AT_SET_FIELD_VLAN_VID:
+		case OF1X_AT_SET_FIELD_GRE_VERSION:
+		case OF1X_AT_SET_FIELD_GRE_PROT_TYPE:
 			return NTOHB16(action->__field.u16);
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
@@ -489,6 +497,7 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 		case OF1X_AT_SET_FIELD_PBB_ISID:
+		case OF1X_AT_SET_FIELD_GRE_KEY:
 			return NTOHB32(action->__field.u32);
 			break;
 		case OF1X_AT_SET_QUEUE:

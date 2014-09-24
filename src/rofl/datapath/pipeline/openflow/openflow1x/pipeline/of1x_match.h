@@ -133,6 +133,11 @@ typedef enum{
 	OF1X_MATCH_WLAN_ADDRESS_2,	/* WLAN address 2 */
 	OF1X_MATCH_WLAN_ADDRESS_3,	/* WLAN address 3 */
 
+	/* GRE related extensions */
+	OF1X_MATCH_GRE_VERSION,		/* GRE version */
+	OF1X_MATCH_GRE_PROT_TYPE,	/* GRE protocol types */
+	OF1X_MATCH_GRE_KEY,			/* GRE key */
+
 	/* max value */
 	OF1X_MATCH_MAX,
 }of1x_match_type_t;
@@ -435,6 +440,26 @@ of1x_match_t* of1x_init_nw_src_match(uint32_t value, uint32_t mask);
 */
 of1x_match_t* of1x_init_nw_dst_match(uint32_t value, uint32_t mask);
 
+//GRE
+/**
+* @brief Create a GRE_VERSION match
+* @ingroup core_of1x
+* @warning parameter value must be in Host Byte Order
+*/
+of1x_match_t* of1x_init_gre_version_match(uint16_t value);
+/**
+* @brief Create a GRE_PROT_TYPE match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_gre_prot_type_match(uint16_t value);
+/**
+* @brief Create a GRE_KEY match
+* @ingroup core_of1x
+* @warning parameters value and mask be in Host Byte Order
+*/
+of1x_match_t* of1x_init_gre_key_match(uint32_t value);
+
 //IP
 /**
 * @brief Create an IP_PROTO match 
@@ -707,6 +732,8 @@ uint16_t __of1x_get_match_val16(const of1x_match_t* match, bool get_mask, bool r
 		case OF1X_MATCH_PPPOE_SID:
 		case OF1X_MATCH_PPP_PROT:
 		case OF1X_MATCH_IPV6_EXTHDR:
+		case OF1X_MATCH_GRE_VERSION:
+		case OF1X_MATCH_GRE_PROT_TYPE:
 			return NTOHB16(wrap->u16);
 		default:{
 			//ROFL_PIPELINE_ERR("%s: Match type %u not found\n",__func__,match->type);
@@ -755,6 +782,7 @@ uint32_t __of1x_get_match_val32(const of1x_match_t* match, bool get_mask, bool r
 		case OF1X_MATCH_IPV4_DST:
 		case OF1X_MATCH_GTP_TEID:
 		case OF1X_MATCH_PBB_ISID:
+		case OF1X_MATCH_GRE_KEY:
 			return NTOHB32(wrap->u32);
 		case OF1X_MATCH_IPV6_FLABEL:
 			return OF1X_IP6_FLABEL_VALUE(NTOHB32(wrap->u32));
