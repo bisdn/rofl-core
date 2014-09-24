@@ -360,7 +360,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 
 	//GTP
 	if(m->__ip_proto == IP_PROTO_GRE){
-		ROFL_PIPELINE_INFO_NO_PREFIX("GRE_VERSION:%u, GRE_PROT_TYPE:0x%x, GRE_KEY:0x%x, ",COND_NTOHB16(raw_nbo, m->__gre_version), COND_NTOHB16(raw_nbo, m->__gre_prot_type), COND_NTOHB32(raw_nbo, m->__gre_key));
+		ROFL_PIPELINE_INFO_NO_PREFIX("GRE_VERSION:0x%x, GRE_PROT_TYPE:0x%x, GRE_KEY:0x%x, ",COND_NTOHB16(raw_nbo, m->__gre_version), COND_NTOHB16(raw_nbo, m->__gre_prot_type), COND_NTOHB32(raw_nbo, m->__gre_key));
 	}
 #endif
 	
