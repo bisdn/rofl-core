@@ -86,9 +86,11 @@ AC_CONFIG_FILES([
 
 	src/rofl/datapath/hal/Makefile
 	src/rofl/datapath/hal/openflow/openflow1x/Makefile
+	src/rofl/datapath/hal/nf/Makefile
 	
 	examples/Makefile
 	examples/ethswctld/Makefile
+	examples/pex_controller/Makefile
 	examples/testomat/Makefile
 
 	tools/Makefile

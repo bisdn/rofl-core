@@ -108,12 +108,23 @@ typedef enum port_type{
 	PORT_TYPE_PHYSICAL 		= 1,
 	PORT_TYPE_VIRTUAL 		= 2,
 	PORT_TYPE_TUNNEL 		= 3,
-
+	
 	//Special META(fake) ports
 	//PORT_TYPE_META		= 4, 
 	PORT_TYPE_META_FLOOD		= 5,
 	PORT_TYPE_META_IN_PORT		= 6,
-	PORT_TYPE_META_ALL		= 7
+	PORT_TYPE_META_ALL		= 7,
+
+	/*
+	* Other types of port
+	*/
+
+	//Network Functions port types
+	//NFs are exported to the OF pipeline
+	//as ports
+	PORT_TYPE_NF_NATIVE		= 8, //Native 
+	PORT_TYPE_NF_SHMEM		= 9, //External NF but with shared memory
+	PORT_TYPE_NF_EXTERNAL		= 10 //External NF (e.g. real port) 
 }port_type_t;
 
 
