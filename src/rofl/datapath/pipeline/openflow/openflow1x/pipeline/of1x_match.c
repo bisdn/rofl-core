@@ -1899,7 +1899,7 @@ void __of1x_dump_matches(of1x_match_t* matches, bool raw_nbo){
 				break;
 
 			/* GRE related extensions */
-			case OF1X_MATCH_GRE_VERSION:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_VERSION:%u], ",__of1x_get_match_val16(it, false, raw_nbo));
+			case OF1X_MATCH_GRE_VERSION:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_VERSION:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break;
 			case OF1X_MATCH_GRE_PROT_TYPE:  ROFL_PIPELINE_INFO_NO_PREFIX("[GRE_PROT_TYPE:0x%x], ",__of1x_get_match_val16(it, false, raw_nbo));
 				break;
