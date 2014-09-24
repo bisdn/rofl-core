@@ -1458,6 +1458,8 @@ of1x_match_t* of1x_init_gre_version_match(uint16_t value){
 	if(unlikely(match == NULL))
 		return NULL;
 
+	value = HTONB16(value);
+
 	match->type = OF1X_MATCH_GRE_VERSION;
 	match->__tern = __init_utern16(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //no wildcard
 
@@ -1476,6 +1478,8 @@ of1x_match_t* of1x_init_gre_prot_type_match(uint16_t value){
 
 	if(unlikely(match == NULL))
 		return NULL;
+
+	value = HTONB16(value);
 
 	match->type = OF1X_MATCH_GRE_PROT_TYPE;
 	match->__tern = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard
