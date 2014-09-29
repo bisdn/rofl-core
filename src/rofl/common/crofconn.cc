@@ -840,7 +840,7 @@ crofconn::error_rcvd(
 
 	} catch (RoflException& e) {
 
-		rofl::logging::warn << "[rofl-common][conn] RoflException in error_rcvd() " << *error << std::endl;
+		rofl::logging::warn << "[rofl-common][conn] RoflException in error_rcvd() " << std::endl;
 	}
 }
 
@@ -879,7 +879,7 @@ crofconn::features_reply_rcvd(
 
 	} catch (RoflException& e) {
 
-		rofl::logging::warn << "[rofl-common][conn] RoflException in features_reply_rcvd() " << *reply << std::endl;
+		rofl::logging::warn << "[rofl-common][conn] RoflException in features_reply_rcvd() " << std::endl;
 	}
 }
 
