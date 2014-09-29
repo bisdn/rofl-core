@@ -8,9 +8,12 @@ Legend:
 Change log
 ==========
 
-v0.4.5
+v0.4.6
 
 [B][pipeline] Fixed bug during OUTPUT action for unknown ports, that could lead to a leakage of PKTs in exceptional situations.
+
+v0.4.5
+
 [B][pipeline] Fixed critical bug in __of1x_destroy_all_entries_from_timer_group() leading to a memory corruption
 
 v0.4.4
