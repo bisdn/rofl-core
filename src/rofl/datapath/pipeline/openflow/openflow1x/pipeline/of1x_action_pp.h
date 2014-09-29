@@ -663,12 +663,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					ROFL_PIPELINE_INFO("Packet[%p] outputting to IN_PORT\n", pkt_to_send);
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
-
-					//This condition can never happen, unless port number has been somehow corrupted??
+					//This condition can only happen when flowmods are left for ports that are non-existent anymore
+					//or port id has been corrupted
 					ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u\n", pkt_to_send, port_id);
-					//assert(0);
-					if(pkt != pkt_to_send) //Drop replica, if any
-						platform_packet_drop(pkt_to_send);
+		
+					//Drop the pkt
+					platform_packet_drop(pkt_to_send);
 				}
 			}
 			break;
