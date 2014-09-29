@@ -18,7 +18,7 @@ caddress::length() const
 
 void
 caddress::pack(
-		uint8_t* buf, size_t buflen)
+		uint8_t* buf, size_t buflen) const
 {
 	if (buflen < caddress::length())
 		throw eAddressInval("caddress::pack() buflen too short");

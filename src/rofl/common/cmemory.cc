@@ -291,7 +291,7 @@ cmemory::clear()
 void
 cmemory::pack(
 		uint8_t *buf,
-		size_t buflen)
+		size_t buflen) const
 {
 	if (buflen < memlen())
 		throw eInval("cmemory::pack()");

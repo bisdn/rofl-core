@@ -82,7 +82,7 @@ cofhello_elem::length() const
 
 
 void
-cofhello_elem::pack(uint8_t *buf, size_t buflen)
+cofhello_elem::pack(uint8_t *buf, size_t buflen) const
 {
 	if (buflen < length())
 		throw eHelloElemInval();

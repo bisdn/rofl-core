@@ -345,7 +345,7 @@ public:
 	virtual void
 	pack(
 			uint8_t *buf,
-			size_t buflen);
+			size_t buflen) const;
 
 
 

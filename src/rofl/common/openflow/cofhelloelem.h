@@ -81,7 +81,7 @@ public:
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen);
+	pack(uint8_t *buf, size_t buflen) const;
 
 	/**
 	 *

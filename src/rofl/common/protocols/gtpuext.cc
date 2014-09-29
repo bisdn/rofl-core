@@ -62,7 +62,7 @@ gtpuext::gtpuext(uint8_t* buf, size_t buflen) :
 
 
 void
-gtpuext::pack(uint8_t *buf, size_t buflen)
+gtpuext::pack(uint8_t *buf, size_t buflen) const
 {
 	cmemory::pack(buf, buflen);
 }

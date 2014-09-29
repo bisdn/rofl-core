@@ -101,7 +101,7 @@ cofport::resize(
 
 void
 cofport::pack(
-		uint8_t *buf, size_t buflen)
+		uint8_t *buf, size_t buflen) const
 {
 	if (buflen < length()) {
 		throw ePortInval("cofport::pack()");
