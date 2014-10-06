@@ -90,7 +90,6 @@ AC_CONFIG_FILES([
 	
 	examples/Makefile
 	examples/ethswctld/Makefile
-	examples/pex_controller/Makefile
 	examples/testomat/Makefile
 
 	tools/Makefile
