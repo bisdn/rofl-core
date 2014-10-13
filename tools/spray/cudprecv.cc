@@ -56,7 +56,7 @@ cudprecv::~cudprecv()
 
 
 void
-cudprecv::handle_timeout(int opaque)
+cudprecv::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case CUDPRECV_TIMER_PRINT_STATS: {
