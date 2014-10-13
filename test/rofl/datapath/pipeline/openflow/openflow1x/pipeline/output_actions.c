@@ -41,7 +41,7 @@ void oa_basic_test(void){
 	
 	oa_set_up();
 	
-	wrap_uint_t field; field.u32 = be32toh(port);
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
@@ -71,7 +71,7 @@ void oa_only_apply(void){
 	 * specifically we have to put OUTPUT_ACTIONS in the apply_actions, write_actions and in the groups.
 	 */
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,0x0);
@@ -100,7 +100,7 @@ void oa_only_write(void){
 	 * specifically we have to put OUTPUT_ACTIONS in the apply_actions, write_actions and in the groups.
 	 */
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
 	
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0);
@@ -126,7 +126,7 @@ void oa_only_write(void){
 void oa_no_output(){
 	
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
 	
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,0x0);
 	of1x_push_packet_action_to_group(apply_actions,action);
@@ -152,8 +152,8 @@ void oa_test_with_groups(void){
 	//TODO add more output actions and GROUPS with output actions
 	fprintf(stderr,"<%s:%d>\n",__func__,__LINE__);
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
-	wrap_uint_t field_grp; field_grp.u16 = grp_id;
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
+	wrap_uint_t field_grp={0}; field_grp.u16 = grp_id;
 
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_action_group_t *ag2=of1x_init_action_group(0);
@@ -186,8 +186,8 @@ void oa_test_with_groups(void){
 
 void oa_two_outputs_apply(void){
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
-	wrap_uint_t field2; field2.u32 = be32toh(port+1);
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
+	wrap_uint_t field2={0}; field2.u32 = be32toh(port+1);
 	//wrap_uint_t field_grp; field_grp.u16 = grp_id;
 	
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,0x0));
@@ -252,8 +252,8 @@ void oa_two_outputs_write(void){
 void oa_write_and_group(void){
 	fprintf(stderr,"<%s:%d>\n",__func__,__LINE__);
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
-	wrap_uint_t field_grp; field_grp.u16 = grp_id;
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
+	wrap_uint_t field_grp={0}; field_grp.u16 = grp_id;
 
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
@@ -285,8 +285,8 @@ void oa_write_and_group(void){
 void oa_apply_and_group(void){
 	fprintf(stderr,"<%s:%d>\n",__func__,__LINE__);
 	oa_set_up();
-	wrap_uint_t field; field.u32 = be32toh(port);
-	wrap_uint_t field_grp; field_grp.u16 = grp_id;
+	wrap_uint_t field={0}; field.u32 = be32toh(port);
+	wrap_uint_t field_grp={0}; field_grp.u16 = grp_id;
 
 	of1x_action_group_t *ag=of1x_init_action_group(0);
 	of1x_bucket_list_t *buckets=of1x_init_bucket_list();
