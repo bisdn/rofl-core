@@ -57,6 +57,8 @@ for ALG in "$@"; do
 done
 
 cat <<-EOF
+	default: 
+		break;
 	}
 
 	assert(0);	
