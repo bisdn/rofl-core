@@ -114,7 +114,7 @@ rofl_result_t of_get_switch_matching_algorithms(of_version_t of_version, const c
 		case OF_VERSION_12:
 		case OF_VERSION_13:
 		{
-			static const char const * names[] = OF1X_MATCHING_ALGORITHM_NAMES;
+			static const char * names[] = OF1X_MATCHING_ALGORITHM_NAMES;
 
 			*count = of1x_matching_algorithm_count;
 			*name_list = names;
