@@ -49,7 +49,9 @@ typedef struct __of1x_stats_flow_tid{
 	uint64_t byte_count;
 }__of1x_stats_flow_tid_t;
 
-//Flow entry stats (internal entry state)
+/**
+* Flow entry stats
+*/
 typedef struct of1x_stats_flow{
 
 	union __of1x_stats_flow_tids{	
@@ -73,7 +75,9 @@ typedef struct __of1x_stats_table_tid{
 	uint64_t matched_count; /* Number of packets that hit table. */
 }__of1x_stats_table_tid_t;
 
-//Table stats (table state)
+/**
+* Table stats
+*/
 typedef struct of1x_stats_table{
 
 	union __of1x_stats_table_tids{ 
@@ -97,6 +101,9 @@ typedef struct __of1x_stats_bucket_tid{
 
 typedef __of1x_stats_bucket_tid_t of1x_stats_bucket_t; //Used only for msgs
 
+/**
+* Bucket stats
+*/
 typedef struct __of1x_stats_bucket{
 	union __of1x_stats_bucket_tids{ 
 		/* Bucket counters */
@@ -115,7 +122,9 @@ typedef struct __of1x_stats_group_tid{
 	uint64_t byte_count;
 }__of1x_stats_group_tid_t;
 
-//Group stats
+/**
+* Group stats
+*/
 typedef struct of1x_stats_group{
 	
 	uint32_t ref_count;
@@ -132,6 +141,44 @@ typedef struct of1x_stats_group{
 }of1x_stats_group_t;
 
 
+/* Meters */
+
+/**
+* Meter band stats 
+*/
+typedef struct of1x_stats_meter_band {
+	//Packet count
+	uint64_t packet_band_count;
+	//Byte count
+	uint64_t byte_band_count;
+}of1x_stats_meter_band_t;
+
+//Per tid stats
+typedef struct __of1x_stats_meter_tid {
+	uint32_t flow_count;
+	uint64_t packet_count;
+	uint64_t byte_count;
+}__of1x_stats_meter_tid_t;
+
+/**
+* Meter stats
+*/
+typedef struct of1x_stats_meter {
+
+	union __of1x_stats_meter_tids{ 
+		/* Bucket counters */
+		__of1x_stats_meter_tid_t counters;
+	
+		//array of counters per thread to be used internally
+		__of1x_stats_meter_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];	
+	}s;
+
+	//And more not so interesting
+	struct timeval initial_time;
+
+	//Mutex
+	platform_mutex_t* mutex;
+}of1x_stats_meter_t;
 
 //
 // Flow stats / Group stats message section

@@ -17,6 +17,7 @@ librofl_pipeline_openflow1x_pipeline_la_HEADERS = of1x_action.h \
 	of1x_instruction_pp.h \
 	of1x_match.h \
 	of1x_match_pp.h \
+	of1x_meter.h \
 	of1x_pipeline.h \
 	of1x_pipeline_pp.h \
 	of1x_timers.h \
@@ -38,6 +39,7 @@ librofl_pipeline_openflow1x_pipeline_la_SOURCES = of1x_action.h \
 	of1x_group_table.c \
 	of1x_instruction.c \
 	of1x_match.c \
+	of1x_meter.c \
 	of1x_pipeline.c \
 	of1x_timers.c \
 	of1x_statistics.c
