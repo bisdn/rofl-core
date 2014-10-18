@@ -270,9 +270,9 @@ public:
 	 *
 	 * Establishes a socket connection to a remote controller entity.
 	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_ctrl_open().
+	 * method crofbase::handle_ctl_open().
 	 *
-	 * \see{ handle_ctrl_open() }
+	 * \see{ handle_ctl_open() }
 	 *
 	 * @param ofp_version OpenFlow version to use for connecting to controller
 	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
@@ -292,9 +292,9 @@ public:
 	 *
 	 * Establishes a socket connection to a remote controller entity.
 	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_ctrl_open().
+	 * method crofbase::handle_ctl_open().
 	 *
-	 * \see{ handle_ctrl_open() }
+	 * \see{ handle_ctl_open() }
 	 *
 	 * @param ofp_version OpenFlow version to use for connecting to controller
 	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
@@ -508,7 +508,7 @@ protected:
 	 * intends to overwrite cofctl and add additional functionality. cofctl will indefinitely attempt
 	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_ctl().
 	 * When connection setup and the initial HELLO message exchange in OpenFlow succeeds, method
-	 * crofbase::handle_ctrl_open() will be called.
+	 * crofbase::handle_ctl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
 	 * @param ofp_version OpenFlow version to use for connecting to controller
@@ -529,7 +529,7 @@ protected:
 	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
 	 * intends to overwrite cofdpt and add additional functionality. When the initial handshake in OpenFlow
 	 * succeeds (FEATURES.request/reply, GET-CONFIG.request/reply, TABLE-STATS.request/reply), method
-	 * crofbase::handle_ctrl_open() will be called.
+	 * crofbase::handle_ctl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
 	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
