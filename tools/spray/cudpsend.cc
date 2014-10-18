@@ -82,10 +82,8 @@ cudpsend::stop_sending()
 }
 
 
-
 void
-cudpsend::handle_timeout(int opaque)
-{
+cudpsend::handle_timeout(int opaque, void *data = (void*)0) {
 	switch (opaque) {
 	case CUDPSEND_TIMER_STOP_SENDING: {
 		stop_sending();

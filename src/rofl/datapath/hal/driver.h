@@ -14,6 +14,7 @@
 
 #include "hal.h"
 #include "hal_utils.h"
+#include "extensions/extensions.h"
 
 /**
 * @file driver.h
@@ -64,10 +65,11 @@ HAL_BEGIN_DECLS
 * 
 * @brief   Initialises driver. Before using the HAL_DRIVER routines, higher layers must allow driver to initialise itself
 * @ingroup hal_driver
+* @param extensions Driver must set all the function pointers for supported extensions or NULL. If none are supported, struct can be entirely memset to 0.
 * @param extra_params Driver specific extra parameters string. Refer to the usage for details of this parameter. Most drivers
 * do not use it
 */
-hal_result_t hal_driver_init(const char* extra_params);
+hal_result_t hal_driver_init(hal_extension_ops_t* extensions, const char* extra_params);
 
 /**
 * 

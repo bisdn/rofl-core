@@ -10,7 +10,12 @@ Change log
 
 v0.6.0
 
-[+][rofl-pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
+[+] Fixed some LLVM related warnings and errors (clang/clang++)
+
+[+][hal] Added NF port extensions 
+
+[+][pipeline] Added NF port type extensions 
+[+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
 
 
 v0.5.1

@@ -18,12 +18,9 @@ for ALG in "$@"; do
 done
 
 cat <<-EOF
+	//matching algorithm count
+	of1x_matching_algorithm_count 
 };
-
-EOF
-echo "//Define maximum out of the enum"
-echo "#define of1x_matching_algorithm_count ("$last_ma" + 1)"
-cat <<-EOF
 
 #define OF1X_MATCHING_ALGORITHM_NAMES \\
 { \\

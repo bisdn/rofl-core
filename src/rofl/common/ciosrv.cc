@@ -327,6 +327,8 @@ cioloop::run_loop()
 		FD_SET(pipe.pipefd[0], &readfds);
 		FD_SET(pipe.pipefd[0], &exceptfds);
 
+		maxfd = ((unsigned int)pipe.pipefd[0] > maxfd) ? pipe.pipefd[0] : maxfd;
+
 		FD_ZERO(&writefds);
 		{
 			RwLock lock(wfds_rwlock, RwLock::RWLOCK_READ);
