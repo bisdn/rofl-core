@@ -67,6 +67,8 @@ crofctl_impl::handle_established(
 {
 	rofl::logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection established:" << std::endl << *chan;
+
+	rofbase->handle_ctl_attached(*this);
 }
 
 
@@ -80,7 +82,7 @@ crofctl_impl::handle_disconnected(
 
 	transactions.clear();
 
-	rofbase->rpc_ctl_failed(this); // send notification to crofbase, when main connection has been closed
+	rofbase->handle_ctl_detached(*this);
 }
 
 
