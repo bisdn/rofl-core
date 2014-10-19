@@ -35,9 +35,15 @@ cpacket_test::test_push()
 		p[i] = i;
 	}
 
+	rofl::cpacket pclone(p);
+
+	std::cerr << p;
+	p.push(14, 4);
+	std::cerr << p;
+	p.pop(14, 4);
 	std::cerr << p;
 
-	//CPPUNIT_ASSERT(p == clone);
+	CPPUNIT_ASSERT(p == pclone);
 }
 
 

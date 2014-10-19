@@ -309,8 +309,9 @@ public:
 		if (nbytes > head) {
 			resize(length() + nbytes);
 		}
-		rofl::cmemory::insert(offset, nbytes);
+		memmove(somem() + head - nbytes, somem() + head, offset);
 		head -= nbytes;
+		memset(somem() + head + offset, 0, nbytes);
 		return (soframe() + offset);
 	};
 
@@ -319,7 +320,11 @@ public:
 	 */
 	void
 	pop(unsigned int offset, unsigned int nbytes) {
-		rofl::cmemory::remove(offset, nbytes);
+		if ((head + offset + nbytes) > memlen()) {
+			throw ePacketOutOfRange("rofl::cpacket::pop()");
+		}
+		memmove(somem() + head + nbytes, somem() + head, offset);
+		memset(somem() + head, 0, nbytes);
 		head += nbytes;
 	};
 
