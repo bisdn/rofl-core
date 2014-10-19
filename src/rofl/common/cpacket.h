@@ -301,6 +301,28 @@ public:
 		head += len;
 	};
 
+	/**
+	 *
+	 */
+	uint8_t*
+	push(unsigned int offset, unsigned int nbytes) {
+		if (nbytes > head) {
+			resize(length() + nbytes);
+		}
+		rofl::cmemory::insert(offset, nbytes);
+		head -= nbytes;
+		return (soframe() + offset);
+	};
+
+	/**
+	 *
+	 */
+	void
+	pop(unsigned int offset, unsigned int nbytes) {
+		rofl::cmemory::remove(offset, nbytes);
+		head += nbytes;
+	};
+
 public:
 
 	/**

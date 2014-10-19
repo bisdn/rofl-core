@@ -41,7 +41,7 @@ csockaddr_test::testSockAddr()
 	sin.sin_addr.s_addr = 0xa4a3a2a1;
 	sin.sin_port = htobe16(6633);
 
-	saddr.unpack((struct sockaddr*)&sin, sizeof(sin));
+	saddr.unpack((uint8_t*)&sin, sizeof(sin));
 
 	std::cerr << "saddr:" << std::endl << saddr;
 }
