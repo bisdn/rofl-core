@@ -72,8 +72,8 @@ void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid){}
 void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto){}
 void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type){}
 void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid){}
-void platform_packet_pop_gtp(datapacket_t* pkt){}
-void platform_packet_push_gtp(datapacket_t* pkt){}
+void platform_packet_pop_gtp(datapacket_t* pkt, uint16_t ether_type){}
+void platform_packet_push_gtp(datapacket_t* pkt, uint16_t ether_type){}
 void platform_packet_set_capwap_wbid(datapacket_t* pkt, uint8_t wbid){};
 void platform_packet_set_capwap_rid(datapacket_t* pkt, uint8_t rid){};
 void platform_packet_set_capwap_flags(datapacket_t* pkt, uint16_t flags){};

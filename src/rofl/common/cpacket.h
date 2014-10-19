@@ -301,6 +301,33 @@ public:
 		head += len;
 	};
 
+	/**
+	 *
+	 */
+	uint8_t*
+	push(unsigned int offset, unsigned int nbytes) {
+		if (nbytes > head) {
+			resize(length() + nbytes);
+		}
+		memmove(somem() + head - nbytes, somem() + head, offset);
+		head -= nbytes;
+		memset(somem() + head + offset, 0, nbytes);
+		return (soframe() + offset);
+	};
+
+	/**
+	 *
+	 */
+	void
+	pop(unsigned int offset, unsigned int nbytes) {
+		if ((head + offset + nbytes) > memlen()) {
+			throw ePacketOutOfRange("rofl::cpacket::pop()");
+		}
+		memmove(somem() + head + nbytes, somem() + head, offset);
+		memset(somem() + head, 0, nbytes);
+		head += nbytes;
+	};
+
 public:
 
 	/**
