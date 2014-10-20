@@ -12,15 +12,24 @@ BUILT_SOURCES = available_ma.h available_ma_pp.h available_ma.c
 #Add here your new matching algorithm lib if they need to be compiled by this makefile
 EXTRA_LTLIBRARIES = \
 	librofl_pipeline_openflow1x_pipeline_matching_algorithms_l2hash.la\
-	librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop.la
+	librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop.la\
+	librofl_pipeline_openflow1x_pipeline_matching_algorithms_trie.la
 
-#Loop matching library compilation
+#trie
+librofl_pipeline_openflow1x_pipeline_matching_algorithms_trie_ladir = \
+	$(library_includedir)/trie
+
+librofl_pipeline_openflow1x_pipeline_matching_algorithms_trie_la_HEADERS = \
+	l2hash/of1x_trie_ma.h\
+	l2hash/of1x_trie_ma_pp.h
+librofl_pipeline_openflow1x_pipeline_matching_algorithms_trie_la_SOURCES = \
+	l2hash/of1x_trie_ma.c \
+	l2hash/of1x_trie_ma.h
+
+
+#l2hash
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_l2hash_ladir = \
 	$(library_includedir)/l2hash
-
-librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_ladir = \
-	$(library_includedir)/loop
-
 
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_l2hash_la_HEADERS = \
 	l2hash/of1x_l2hash_ma.h\
@@ -28,6 +37,13 @@ librofl_pipeline_openflow1x_pipeline_matching_algorithms_l2hash_la_HEADERS = \
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_l2hash_la_SOURCES = \
 	l2hash/of1x_l2hash_ma.c \
 	l2hash/of1x_l2hash_ma.h
+
+
+#Loop
+
+librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_ladir = \
+	$(library_includedir)/loop
+
 
 librofl_pipeline_openflow1x_pipeline_matching_algorithms_loop_la_HEADERS = \
 	loop/of1x_loop_ma.h\
