@@ -15,7 +15,7 @@
 #include "../matching_algorithms.h"
 #include "../loop/of1x_loop_ma.h"
 
-#define L2HASH_DESCRIPTION "The l2hash algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
+#define L2HASH_DESCRIPTION "The l2hash algorithm uses a simple hash table to perform the table lookup. It is O(1). Supports only ETH_DST, VLAN (optional) without masks" 
 
 
 //
