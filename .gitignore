@@ -36,3 +36,4 @@ src/rofl_pipeline.h
 /build/*
 
 !.gitignore
+!.travis.yml
