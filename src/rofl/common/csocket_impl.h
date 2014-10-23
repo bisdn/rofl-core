@@ -24,6 +24,7 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/ctimerid.h"
 #include "rofl/common/caddrinfos.h"
+#include "rofl/common/openflow/openflow_common.h"
 
 namespace rofl {
 
@@ -105,6 +106,7 @@ private:
 		FLAG_DO_RECONNECT	= 6,
 		FLAG_CLOSING = 7,
 		FLAG_TX_WOULD_BLOCK	= 8,	/**< socket would block for transmission */
+		FLAG_TX_WOULD_BLOCK_NOTIFIED = 9,	/**< user was notified about blocking condition */
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
