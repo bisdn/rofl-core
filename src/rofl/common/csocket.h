@@ -27,12 +27,15 @@
 
 namespace rofl {
 
-class eSocketBase		: public RoflException {};
-class eSocketRxAgain		: public eSocketBase {};
-class eSocketTxAgain		: public eSocketBase {};
-class eSocketNotConnected	: public eSocketBase {};
-class eSocketTypeNotFound	: public eSocketBase {};
-class eSocketParamNotFound	: public eSocketBase {};
+class eSocketBase					: public RoflException {};
+class eSocketRxAgain				: public eSocketBase {};
+class eSocketTxAgain				: public eSocketBase {};
+class eSocketTxAgainCongestion		: public eSocketTxAgain {};
+class eSocketTxAgainTxQueueFull		: public eSocketTxAgain {};
+class eSocketTxAgainPacketDropped	: public eSocketTxAgain {};
+class eSocketNotConnected			: public eSocketBase {};
+class eSocketTypeNotFound			: public eSocketBase {};
+class eSocketParamNotFound			: public eSocketBase {};
 
 class csocket; // forward declaration for csocket_owner, see below
 
