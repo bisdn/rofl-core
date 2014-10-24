@@ -412,9 +412,9 @@ cioloop::run_loop()
 
 			try {
 
-				for (unsigned int i = 0; i < rfds.size(); i++) {
+				for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {
 					if (FD_ISSET(i, &exceptfds)) {
-						if((NULL != rfds[i]) || (NULL != wfds[i])) {
+						if(NULL != rfds[i]) {
 							rofl::logging::trace << "[rofl][common][cioloop][run] checking for exceptfds: " << std::hex << rfds[i] << std::dec << std::endl;
 							{
 								RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
@@ -423,7 +423,17 @@ cioloop::run_loop()
 								}
 							}
 							rfds[i]->handle_xevent(i);
+						} else if (NULL != wfds[i]) {
+							rofl::logging::trace << "[rofl][common][cioloop][run] checking for exceptfds: " << std::hex << rfds[i] << std::dec << std::endl;
+							{
+								RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
+								if (ciosrv::ciolist.find(wfds[i]) == ciosrv::ciolist.end()) {
+									continue;
+								}
+							}
+							wfds[i]->handle_xevent(i);
 						}
+
 					}
 				}
 
