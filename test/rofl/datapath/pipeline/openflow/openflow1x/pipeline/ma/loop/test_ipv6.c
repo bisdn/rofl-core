@@ -164,7 +164,6 @@ void ipv6_install_flow_mod(void){
 	uint128__t value; UINT128__T_HI(value) = 0xffffffffffffffff; UINT128__T_LO(value) = 0xffffffffffff1234;
 	uint128__t mask;  UINT128__T_HI(mask) = 0xffffffffffffffff; UINT128__T_LO(mask) = 0xffffffffffff0000;
 
-	printf("value=%lx %lx mask=%lx lx\n",  UINT128__T_HI(value), UINT128__T_LO(value), )
 	//Create a simple flow_mod
 	of1x_flow_entry_t* entry = of1x_init_flow_entry(false); 
 	CU_ASSERT(entry != NULL);	
