@@ -91,6 +91,7 @@ AC_CONFIG_FILES([
 	examples/Makefile
 	examples/ethswctld/Makefile
 	examples/testomat/Makefile
+	examples/proxyd/Makefile
 
 	tools/Makefile
 	tools/spray/Makefile
