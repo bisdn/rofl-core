@@ -9,11 +9,12 @@
 #define CCONTROL_HPP_
 
 #include <rofl/common/crofbase.h>
+#include <rofl/common/crofshim.h>
 #include <rofl/common/protocols/fvlanframe.h>
 
 namespace testomat {
 
-class ccontrol : public rofl::crofbase {
+class ccontrol : public rofl::crofbase, public rofl::common::crofshim {
 public:
 
 	/**
