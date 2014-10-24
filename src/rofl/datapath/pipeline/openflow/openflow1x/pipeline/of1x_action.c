@@ -561,12 +561,16 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions){
 	platform_free_shared(write_actions);	
 }
 
-void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
+rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
 
 	if( unlikely(write_actions==NULL) || action->type >= OF1X_AT_NUMBER ){
 		assert(0);
-		return;
+		return ROFL_FAILURE;
 	}
+	
+	//Ignore write action output OF1X_PORT_TABLE
+	if(action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE)
+		return ROFL_FAILURE;
 
 	//Update field
 	write_actions->actions[action->type].__field = action->__field;
@@ -589,6 +593,8 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 		write_actions->ver_req.min_ver = action->ver_req.min_ver;
 	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
 		write_actions->ver_req.max_ver = action->ver_req.max_ver;
+		
+	return ROFL_SUCCESS;
 }
 
 //Update apply/write
