@@ -12,4 +12,4 @@ script:
   - cd build 
   - ../configure --disable-silent-rules
   - make -j 2
-  - make -j 2 check
+#  - make -j 2 check
