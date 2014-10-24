@@ -228,7 +228,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				break;
 				
 			case OF1X_IT_APPLY_ACTIONS:
-				if(__of1x_validate_action_group(&table->config.apply_actions, inst_grp->instructions[i].apply_actions, gt) != ROFL_SUCCESS)
+				if(__of1x_validate_action_group(&table->config.apply_actions, inst_grp->instructions[i].apply_actions, gt, false) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
 				if( (version < inst_grp->instructions[i].apply_actions->ver_req.min_ver) ||
