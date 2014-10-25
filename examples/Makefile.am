@@ -1,4 +1,3 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = ethswctld testomat
-
+SUBDIRS = ethswctld testomat proxyd pushpopd
