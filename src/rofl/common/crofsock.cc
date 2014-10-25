@@ -26,10 +26,10 @@ crofsock::crofsock(
 	outqueues[QUEUE_FLOW].set_max_limit(4);
 	outqueues[QUEUE_PKT ].set_max_limit(2);
 	// maximum congestion window for queues
-	outqueues[QUEUE_OAM ].set_max_cwnd(64);
-	outqueues[QUEUE_MGMT].set_max_cwnd(128);
-	outqueues[QUEUE_FLOW].set_max_cwnd(64);
-	outqueues[QUEUE_PKT ].set_max_cwnd(32);
+	outqueues[QUEUE_OAM ].set_max_cwnd(512);
+	outqueues[QUEUE_MGMT].set_max_cwnd(1024);
+	outqueues[QUEUE_FLOW].set_max_cwnd(512);
+	outqueues[QUEUE_PKT ].set_max_cwnd(256);
 	//rofl::logging::debug << "[rofl][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
