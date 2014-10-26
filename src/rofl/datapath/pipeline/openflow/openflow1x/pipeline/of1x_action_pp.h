@@ -700,7 +700,7 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 			}else{
 				//This condition can only happen when flowmods are left for ports that are non-existent anymore
 				//or port id has been corrupted
-				ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u\n", pkt_to_send, port_id);
+				ROFL_PIPELINE_INFO("Packet[%p] WARNING output to UNKNOWN port %u. Dropping...\n", pkt_to_send, port_id);
 	
 				//Drop the pkt
 				platform_packet_drop(pkt_to_send);
