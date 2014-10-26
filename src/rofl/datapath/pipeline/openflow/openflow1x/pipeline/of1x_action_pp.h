@@ -665,7 +665,7 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 					platform_packet_drop(pkt_to_send);
 				}else{
 #ifdef DEBUG
-                    dump_packet_matches(pkt_to_send, false);
+                    			dump_packet_matches(pkt_to_send, false);
 #endif
 					ROFL_PIPELINE_INFO("Packet[%p] outputting to port num. %u\n", pkt_to_send, port_id);
 					platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
