@@ -12,7 +12,7 @@
 #include <rofl/common/crofshim.h>
 #include <rofl/common/protocols/fvlanframe.h>
 
-namespace testomat {
+namespace pushpop {
 
 class ccontrol : public rofl::crofbase, public rofl::common::crofshim {
 public:
@@ -55,6 +55,6 @@ protected:
 
 };
 
-}; // end of namespace testomat
+}; // end of namespace pushpop
 
 #endif /* CCONTROL_HPP_ */

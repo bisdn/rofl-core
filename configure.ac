@@ -23,7 +23,7 @@ LT_INIT
 AC_ENABLE_STATIC
 
 # default flags
-CFLAGS="-Werror -Wall $CFLAGS"
+CFLAGS="-std=gnu89 -Werror -Wall $CFLAGS"
 CXXFLAGS="-Werror -Wall $CXXFLAGS"
 AC_DEFINE([__STDC_FORMAT_MACROS], [], [Description])
 	
@@ -91,6 +91,7 @@ AC_CONFIG_FILES([
 	examples/Makefile
 	examples/ethswctld/Makefile
 	examples/testomat/Makefile
+	examples/proxyd/Makefile
 
 	tools/Makefile
 	tools/spray/Makefile

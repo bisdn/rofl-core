@@ -1052,19 +1052,19 @@ csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
 
 		if (pout_squeue.size() < max_txqueue_size) {
 			rofl::logging::warn << "[rofl][csocket][impl] socket tx queue nearly full => congestion, "
-					<< "xid:" << (unsigned int)be32toh(hdr->xid) << std::endl;
+					<< "xid:0x" << std::hex << (unsigned int)be32toh(hdr->xid) << std::dec << std::endl;
 			pout_squeue.push_back(pout_entry_t(mem, dest));
 			throw eSocketTxAgainCongestion();
 		} else {
 			if (not sockflags.test(FLAG_TX_WOULD_BLOCK_NOTIFIED)) {
 				sockflags.set(FLAG_TX_WOULD_BLOCK_NOTIFIED);
 				rofl::logging::warn << "[rofl][csocket][impl] socket tx queue full => congestion, "
-						<< "last packet queued, tx-queue exhausted, xid:" << (unsigned int)be32toh(hdr->xid) << std::endl;
+						<< "last packet queued, tx-queue exhausted, xid:0x" << std::hex << (unsigned int)be32toh(hdr->xid) << std::dec << std::endl;
 				pout_squeue.push_back(pout_entry_t(mem, dest));
 				throw eSocketTxAgainTxQueueFull(); // inform sender about failed transmission
 			} else {
 				rofl::logging::warn << "[rofl][csocket][impl] socket tx queue full => congestion, "
-						<< "dropping message, xid:" << (unsigned int)be32toh(hdr->xid) << std::endl;
+						<< "dropping message, xid:0x" << std::hex << (unsigned int)be32toh(hdr->xid) << std::dec << std::endl;
 				delete mem;
 				throw eSocketTxAgainPacketDropped();
 			}

@@ -10,6 +10,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <arpa/inet.h>
 
 #include <iostream>
@@ -75,8 +76,8 @@ public:
 	 *
 	 */
 	csockaddr() :
-			rofl::cmemory(sizeof(struct sockaddr_in6)),
-			salen(0) {
+			rofl::cmemory(sizeof(struct sockaddr_un)),
+			salen(sizeof(struct sockaddr_un)) {
 		ca_mem = cmemory::somem();
 	};
 
