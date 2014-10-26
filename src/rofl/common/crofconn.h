@@ -19,6 +19,7 @@
 #include "rofl/common/csegmentation.h"
 #include "rofl/common/ctimerid.h"
 #include "rofl/common/cauxid.h"
+#include "rofl/common/cthread.h"
 
 namespace rofl {
 

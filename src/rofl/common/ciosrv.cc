@@ -28,9 +28,12 @@ PthreadRwLock 					cioloop::threads_rwlock;
 std::map<pthread_t, cioloop*> 	cioloop::threads;
 
 
-ciosrv::ciosrv() :
-		tid(pthread_self())
+ciosrv::ciosrv(pthread_t tid) :
+		tid(tid)
 {
+	if (0 == tid) {
+		this->tid = pthread_self();
+	}
 	RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
 	ciosrv::ciolist.insert(this);
 	//rofl::logging::debug << "[rofl][common][ciosrv] constructor " << std::hex << this << std::dec << std::endl;
@@ -264,6 +267,10 @@ cioloop::child_sig_handler (int x) {
 void
 cioloop::run_loop()
 {
+	if (tid != pthread_self()) {
+		return;
+	}
+
 	if (keep_on_running) {
 		return;
 	}

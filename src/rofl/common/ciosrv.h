@@ -36,9 +36,7 @@
 #include "rofl/common/ctimers.h"
 #include "rofl/common/ctimer.h"
 
-namespace rofl
-{
-
+namespace rofl {
 
 /* error classes */
 class eIoSvcBase			: public RoflException {}; 	//< base error class for ciosrv
@@ -93,7 +91,7 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv();
+	ciosrv(pthread_t tid = 0);
 
 	/**
 	 * @brief	Deallocates resources for this ciosrv object.
@@ -439,21 +437,12 @@ public:
 	 *
 	 */
 	static cioloop&
-	get_loop() {
-		pthread_t tid = pthread_self();
-		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
-			cioloop::threads[tid] = new cioloop();
+	get_loop(pthread_t tid = 0) {
+		if (0 == tid) {
+			tid = pthread_self();
 		}
-		return *(cioloop::threads[tid]);
-	};
-
-	/**
-	 *
-	 */
-	static cioloop&
-	get_loop(pthread_t tid) {
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
-			cioloop::threads[tid] = new cioloop();
+			cioloop::threads[tid] = new cioloop(tid);
 		}
 		return *(cioloop::threads[tid]);
 	};
@@ -624,9 +613,13 @@ private:
 	/**
 	 *
 	 */
-	cioloop() :
-		tid(pthread_self()),
+	cioloop(pthread_t tid = 0) :
+		tid(tid),
 		keep_on_running(false) {
+
+		if (0 == tid) {
+			this->tid = pthread_self();
+		}
 
 		struct rlimit rlim;
 		if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {

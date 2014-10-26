@@ -9,6 +9,7 @@ librofl_common_la_SOURCES = \
 		rofcommon.h \
 		croflexception.h \
 		thread_helper.h \
+		cthread.h \
 		caddress.h \
 		caddress.cc \
 		cpacket.h \
@@ -127,6 +128,7 @@ library_include_HEADERS= \
 		cvastring.h \
 		fframe.h \
 		thread_helper.h \
+		cthread.h \
 		ctransaction.h \
 		ctransactions.h \
 		logging.h \
