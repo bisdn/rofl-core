@@ -472,6 +472,7 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 	action_group->ver_req.min_ver = OF1X_MIN_VERSION;
 	action_group->ver_req.max_ver = OF1X_MAX_VERSION;
 	bitmap128_clean(&action_group->bitmap);
+	action_group->has_output_table = false;
 
 	return action_group;
 }
@@ -525,6 +526,10 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 	if(group->ver_req.max_ver > action->ver_req.max_ver)
 		group->ver_req.max_ver = action->ver_req.max_ver;
 	bitmap128_set(&group->bitmap, action->type);
+
+	//Set has_output_table for fast validation
+	group->has_output_table = (action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE);
+
 }
 
 of1x_write_actions_t* of1x_init_write_actions(){
@@ -556,12 +561,16 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions){
 	platform_free_shared(write_actions);	
 }
 
-void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
+rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
 
 	if( unlikely(write_actions==NULL) || action->type >= OF1X_AT_NUMBER ){
 		assert(0);
-		return;
+		return ROFL_FAILURE;
 	}
+	
+	//Ignore write action output OF1X_PORT_TABLE
+	if(action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE)
+		return ROFL_FAILURE;
 
 	//Update field
 	write_actions->actions[action->type].__field = action->__field;
@@ -584,6 +593,8 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 		write_actions->ver_req.min_ver = action->ver_req.min_ver;
 	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
 		write_actions->ver_req.max_ver = action->ver_req.max_ver;
+		
+	return ROFL_SUCCESS;
 }
 
 //Update apply/write
@@ -969,6 +980,9 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 					case OF1X_PORT_ALL:
 						ROFL_PIPELINE_INFO_NO_PREFIX("ALL");
 						break;	
+					case OF1X_PORT_TABLE:
+						ROFL_PIPELINE_INFO_NO_PREFIX("TABLE");
+						break;	
 					case OF1X_PORT_IN_PORT:
 						ROFL_PIPELINE_INFO_NO_PREFIX("IN-PORT");
 						break;	
@@ -1006,7 +1020,7 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group, bool raw_nbo){
 	}
 }
 
-rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, of1x_group_table_t *gt){
+rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, of1x_group_table_t *gt, bool is_pkt_out_al){
 	of1x_packet_action_t *pa_it;
 
 	if(unlikely(ag == NULL))
@@ -1029,6 +1043,10 @@ rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_g
 			}
 		}
 	}
+
+	//Only pkt_out action lists can have output to table
+	if(!is_pkt_out_al && ag->has_output_table)
+		return ROFL_FAILURE;
 	
 	return ROFL_SUCCESS;
 }
