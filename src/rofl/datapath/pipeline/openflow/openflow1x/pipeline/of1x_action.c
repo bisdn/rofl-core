@@ -499,6 +499,17 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 		return;
 	}
 
+	//Set has_output_table for fast validation
+	if(action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE){
+		//We only accept an output action to PORT_TABLE
+		if(unlikely(group->has_output_table == true)){
+			ROFL_PIPELINE_ERR("Trying to add an action OUTPUT to port TABLE to action group(%p) when there is already one. Ignoring...", group);
+			assert(0);
+			return;
+		}
+		group->has_output_table = true; 
+	}
+
 	if(!group->tail){
 		group->head = action; 
 		action->prev = NULL;
@@ -526,9 +537,6 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 	if(group->ver_req.max_ver > action->ver_req.max_ver)
 		group->ver_req.max_ver = action->ver_req.max_ver;
 	bitmap128_set(&group->bitmap, action->type);
-
-	//Set has_output_table for fast validation
-	group->has_output_table = (action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE);
 
 }
 
