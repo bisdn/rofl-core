@@ -176,8 +176,9 @@ public:
 
 	/* supported socket types */
 	enum socket_type_t {
-		SOCKET_TYPE_PLAIN 		= 0,
-		SOCKET_TYPE_OPENSSL 	= 1,
+		SOCKET_TYPE_UNKNOWN		= 0,
+		SOCKET_TYPE_PLAIN 		= 1,
+		SOCKET_TYPE_OPENSSL 	= 2,
 	};
 
 protected:

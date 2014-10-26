@@ -46,7 +46,8 @@ public:
 
 class crofconn :
 		public crofsock_env,
-		public ciosrv
+		public ciosrv,
+		public rofl::common::cthread
 {
 	enum msg_type_t {
 		OFPT_HELLO = 0,
@@ -197,7 +198,7 @@ public:
 	 * @brief
 	 */
 	crofsock const&
-	get_rofsocket() const { return rofsock; };
+	get_rofsocket() const { return *rofsock; };
 
 	/**
 	 * @brief	Send OFP message via socket
@@ -217,6 +218,11 @@ public:
 	void
 	set_max_backoff(
 			const ctimespec& timespec);
+
+protected:
+
+	virtual void
+	init_thread();
 
 private:
 
@@ -562,8 +568,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofconn const& conn) {
+		bool is_established = false;
+		if (conn.rofsock && conn.rofsock->is_established()) {
+			is_established = true;
+		}
 		os << indent(0) << "<crofconn ofp-version:" << (int)conn.ofp_version
-				<< " OFP-transport-connection-established:" << conn.rofsock.is_established()
+				<< " OFP-transport-connection-established:" << is_established
 				<< " >" << std::endl;
 		{ rofl::indent i(2); os << conn.get_aux_id(); }
 		if (conn.state == STATE_DISCONNECTED) {
@@ -591,10 +601,10 @@ public:
 
 private:
 
-	crofconn_env 					*env;
+	crofconn_env* 					env;
 	uint64_t						dpid;
 	cauxid							auxiliary_id;
-	crofsock						rofsock;
+	crofsock*						rofsock;
 	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
 	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
 	uint8_t							ofp_version;			// negotiated OFP version
@@ -614,7 +624,10 @@ private:
 	static int const CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS 	= 10000000;	// start reconnect timeout (default 10ms)
 	static int const CROFCONN_RECONNECT_VARIANCE_IN_NSECS 		= 10000000; // reconnect variance (default 10ms)
 
-	enum crofconn_flavour_t			flavour;
+	enum crofconn_flavour_t					flavour;
+	enum rofl::csocket::socket_type_t 		socket_type;
+	rofl::cparams 							socket_params;
+	int										newsd;
 	std::deque<enum crofconn_event_t> 		events;
 	enum crofconn_state_t					state;
 	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv

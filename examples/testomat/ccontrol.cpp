@@ -14,7 +14,7 @@ ccontrol::handle_dpt_open(
 		rofl::crofdpt& dpt)
 {
 	std::cout << "[ccontrol] dpt open, dpid: " << dpt.get_dpid() << std::endl;
-
+#if 0
 	enum rofl::csocket::socket_type_t socket_type = rofl::csocket::SOCKET_TYPE_PLAIN;
 	rofl::cparams socket_params = rofl::csocket::get_default_params(socket_type);
 
@@ -25,7 +25,7 @@ ccontrol::handle_dpt_open(
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_HOSTNAME).set_string("0.0.0.0");
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string("6653");
 	rofl::common::crofshim::add_listening_socket_in4(socket_type, socket_params);
-
+#endif
 	std::cout << "[ccontrol] sending Desc-Stats-Request " << std::endl;
 	dpt.send_desc_stats_request(rofl::cauxid(0), 0);
 }

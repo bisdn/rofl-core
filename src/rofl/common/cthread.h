@@ -82,16 +82,16 @@ protected:
 		if (rc != 0) {
 			switch (rc) {
 			case EAGAIN: {
-				throw eRofThreadFailed("cthread::start() insufficient resources");
+				throw eRofThreadFailed("cthread::start_thread() insufficient resources");
 			} break;
 			case EINVAL: {
-				throw eRofThreadFailed("cthread::start() invalid thread attributes");
+				throw eRofThreadFailed("cthread::start_thread() invalid thread attributes");
 			} break;
 			case EPERM: {
-				throw eRofThreadFailed("cthread::start() permission denied");
+				throw eRofThreadFailed("cthread::start_thread() permission denied");
 			} break;
 			default: {
-				throw eRofThreadFailed("cthread::start() unknown error occured");
+				throw eRofThreadFailed("cthread::start_thread() unknown error occured");
 			};
 			}
 		}
