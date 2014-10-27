@@ -7,9 +7,12 @@ before_install:
   - sudo apt-get install -y -qq libssl-dev libcunit1-dev libcppunit-dev
 install:
   - ./autogen.sh
+env:
+  - FLAGS=--enalbe-debug
+  - FLAGS=
 script: 
   - mkdir -p build
   - cd build 
-  - ../configure --disable-silent-rules
+  - ../configure $FLAGS
   - make -j 2
   - make -j 2 check
