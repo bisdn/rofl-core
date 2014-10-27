@@ -33,8 +33,8 @@ pipe_profile_SOURCES= $(SHARED_SRC)\
 			../empty_packet.c\
 			profiling_tests.c
 pipe_profile_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
-pipe_profile_CFLAGS = -O3 -pg 
-pipe_profile_CXXFLAGS = -O3 -pg 
+pipe_profile_CFLAGS = -O3 -pg -fno-omit-frame-pointer
+pipe_profile_CXXFLAGS = -O3 -pg -fno-omit-frame-pointer
 pipe_profile_CPPFLAGS = -UDEBUG 
 
 
@@ -42,8 +42,8 @@ lockless_SOURCES= $(SHARED_SRC)\
 			../empty_packet.c\
 			lockless_tests.c
 lockless_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
-lockless_CFLAGS = -O3 -pg 
-lockless_CXXFLAGS = -O3 -pg 
+lockless_CFLAGS = -O3 -pg -fno-omit-frame-pointer
+lockless_CXXFLAGS = -O3 -pg -fno-omit-frame-pointer
 lockless_CPPFLAGS = -UDEBUG 
 
 
