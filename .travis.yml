@@ -8,7 +8,7 @@ before_install:
 install:
   - ./autogen.sh
 env:
-  - FLAGS=--enalbe-debug
+  - FLAGS=--enable-debug
   - FLAGS=
 script: 
   - mkdir -p build
