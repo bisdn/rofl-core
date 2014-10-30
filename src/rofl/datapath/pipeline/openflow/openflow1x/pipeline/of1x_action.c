@@ -500,9 +500,7 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 
 	if(!group->tail){
 		group->head = action; 
-		action->prev = NULL;
 	}else{
-		action->prev = group->tail;
 		group->tail->next = action;
 	}		
 
@@ -692,9 +690,7 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 		//Insert in the double linked-list
 		if(!copy->tail){
 			copy->head = act; 
-			act->prev = NULL;
 		}else{
-			act->prev = copy->tail;
 			copy->tail->next = act;
 		}				
 		act->next = NULL;

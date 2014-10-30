@@ -289,7 +289,6 @@ typedef struct of1x_packet_action{
 	struct of1x_group* group;
 	
 	//DLL
-	struct of1x_packet_action* prev;
 	struct of1x_packet_action* next;
 
 	/* Fast validation flags */
