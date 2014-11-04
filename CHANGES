@@ -17,6 +17,10 @@ v0.6.0
 [+][pipeline] Added NF port type extensions 
 [+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
 
+v0.5.2
+
+[B][common] Fixed issue #37 (bug) => cofactions::drop_action() 
+[+][common] Fixed issue #36 (enhancement) => making cofactions::count_action_type() const method
 
 v0.5.1
 
