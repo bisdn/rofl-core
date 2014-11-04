@@ -367,7 +367,7 @@ cofactions::unpack(uint8_t* buf, size_t buflen)
 
 int
 cofactions::count_action_type(
-		uint16_t type)
+		uint16_t type) const
 {
 	return count_if(actions.begin(), actions.end(), cofaction::cofaction_find_by_type(type));
 }
@@ -439,6 +439,7 @@ cofactions::drop_action(const cindex& index)
 	}
 	delete actions[index];
 	actions.erase(index);
+	actions_index.erase(index);
 }
 
 

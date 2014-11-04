@@ -88,7 +88,7 @@ public:
 	 */
 	int
 	count_action_type(
-			uint16_t type);
+			uint16_t type) const;
 
 
 	/** counts number of actions output in ActionList acvec of this instruction

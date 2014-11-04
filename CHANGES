@@ -8,6 +8,11 @@ Legend:
 Change log
 ==========
 
+v0.5.2
+
+[B][common] Fixed issue #37 (bug) => cofactions::drop_action() 
+[+][common] Fixed issue #36 (enhancement) => making cofactions::count_action_type() const method
+
 v0.5.1
 
 [B][pipeline] Fixed improper byte counter setting for group statistics
