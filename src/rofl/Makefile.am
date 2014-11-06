@@ -6,10 +6,12 @@ if PIPELINE_SUPPORT
 PIPELINE_DIRS=datapath/pipeline
 endif
 
-SUBDIRS = datapath/hal $(PIPELINE_DIRS)
+SUBDIRS = common datapath/hal $(PIPELINE_DIRS)
+LIBS_ROFL = common/utils/librofl_common_utils.la
+
 if !ONLY_C_CODE
-SUBDIRS += common datapath/hal $(PIPELINE_DIRS) platform
-LIBS_ROFL=common/librofl_common.la platform/libplatform.la
+SUBDIRS += datapath/hal $(PIPELINE_DIRS) platform
+LIBS_ROFL += common/librofl_common.la platform/libplatform.la
 endif
 
 lib_LTLIBRARIES = librofl.la

@@ -1,8 +1,12 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = openflow protocols utils 
+SUBDIRS = utils
+
+if !ONLY_C_CODE
+SUBDIRS += openflow protocols 
 
 noinst_LTLIBRARIES = librofl_common.la
+endif
 
 librofl_common_la_SOURCES = \
 		endian_conversion.h \
