@@ -17,26 +17,26 @@
 
 //Define debug levels
 enum rofl_debug_levels {
-	UNDEF_DEBUG_LEVEL	= -1,/* Undefined debug level */
-	//EMERGENCY_LEVEL,		/* system is unusable */
-	//ALERT_LEVEL,			/* action must be taken immediately */
-	//CRITICAL_LEVEL,		/* critical conditions */
-	ERROR_LEVEL 		= 3,/* error conditions */
-	WARN_LEVEL			= 4,/* warning conditions */
-	//NOTICE_LEVEL,			/* normal but significant condition */
-	INFO_LEVEL			= 6,/* informational */
-	DBG_LEVEL			= 7,/* debug-level messages */
-	DBG_VERBOSE_LEVEL	= 8,/* debug-level messages */
-	MAX_DEBUG_LEVEL			/* DO NOT USE */
+	UNDEF_DEBUG_LEVEL	= -1,	/* Undefined debug level */
+	//EMERGENCY_LEVEL,			/* system is unusable */
+	//ALERT_LEVEL,				/* action must be taken immediately */
+	//CRITICAL_LEVEL,			/* critical conditions */
+	ERROR_LEVEL 		= 3,	/* error conditions */
+	WARN_LEVEL			= 4,	/* warning conditions */
+	//NOTICE_LEVEL,				/* normal but significant condition */
+	INFO_LEVEL			= 6,	/* informational */
+	DBG_LEVEL			= 7,	/* debug-level messages */
+	DBG_VERBOSE_LEVEL	= 8,	/* debug-level messages */
+	MAX_DEBUG_LEVEL				/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_LEVEL! */
 };
 
 //Debug classes (not used currently)
 enum rofl_debug_class {
-	UNDEF_DEBUG_CLASS = -1,		/* Undefined debug level */
-	DEFAULT = 0,			/* todo name it correct */
-	MAX_DEBUG_CLASS			/* DO NOT USE */
+	UNDEF_DEBUG_CLASS	= -1,	/* Undefined debug level */
+	DEFAULT				= 0,	/* todo name it correct */
+	MAX_DEBUG_CLASS				/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
 };
