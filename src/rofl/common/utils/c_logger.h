@@ -36,7 +36,7 @@ enum rofl_debug_levels {
 enum rofl_debug_class {
 	UNDEF_DEBUG_CLASS	= -1,	/* Undefined debug level */
 	DEFAULT				= 0,	/* todo name it correct */
-	ALL,
+	ALL,						/* DO NOT USE */
 	MAX_DEBUG_CLASS		= ALL	/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
@@ -98,7 +98,7 @@ ROFL_BEGIN_DECLS
 void rofl_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
 
 //API to capture logging events of the logger 
-void rofl_set_logging_level(/*cn,*/ enum rofl_debug_levels level);
+void rofl_set_logging_level(enum rofl_debug_class c, enum rofl_debug_levels level);
 
 
 //C++ extern C
