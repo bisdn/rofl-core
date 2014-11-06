@@ -36,7 +36,8 @@ enum rofl_debug_levels {
 enum rofl_debug_class {
 	UNDEF_DEBUG_CLASS	= -1,	/* Undefined debug level */
 	DEFAULT				= 0,	/* todo name it correct */
-	MAX_DEBUG_CLASS				/* DO NOT USE */
+	ALL,
+	MAX_DEBUG_CLASS		= ALL	/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
 };
