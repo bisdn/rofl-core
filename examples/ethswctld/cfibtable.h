@@ -176,9 +176,12 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibtable const& fib) {
-		os << rofl::indent(0) << "<cfibtable " << "dpid: "
-				<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid().str() << " >" << std::endl;
-
+		try {
+			os << rofl::indent(0) << "<cfibtable dpid:" << "dpid: "
+					<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid().str() << " >" << std::endl;
+		} catch (rofl::eRofDptNotFound& e) {
+			os << rofl::indent(0) << "<cfibtable dptid:" << "dpid: " << fib.dptid << " >" << std::endl;
+		}
 		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, cfibentry*>::const_iterator
 				it = fib.ftable.begin(); it != fib.ftable.end(); ++it) {
