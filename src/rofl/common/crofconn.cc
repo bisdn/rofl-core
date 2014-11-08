@@ -884,41 +884,6 @@ crofconn::features_reply_rcvd(
 }
 
 
-
-unsigned int
-crofconn::send_message(
-		rofl::openflow::cofmsg *msg)
-{
-	/*
-	 * multipart support for sending overlong messages
-	 */
-	switch (msg->get_version()) {
-	case rofl::openflow13::OFP_VERSION: {
-
-		switch (msg->get_type()) {
-		case rofl::openflow13::OFPT_MULTIPART_REQUEST:
-		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
-
-			return fragment_and_send_message(msg);
-
-		} break;
-		default:
-			// no segmentation and reassembly for messages other than multipart request/reply
-			return rofsock.send_message(msg);
-		}
-
-	} break;
-	default: {
-		// no segmentation and reassembly below OF13, so send message directly to rofsock
-		return rofsock.send_message(msg);
-	};
-	}
-
-	return 0;
-}
-
-
-
 unsigned int
 crofconn::fragment_and_send_message(
 		rofl::openflow::cofmsg *msg)
@@ -929,6 +894,32 @@ crofconn::fragment_and_send_message(
 
 	// fragment the packet
 	switch (msg->get_version()) {
+	case rofl::openflow12::OFP_VERSION: {
+
+		switch (msg->get_type()) {
+		case rofl::openflow12::OFPT_STATS_REPLY: {
+
+			switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
+			case rofl::openflow12::OFPST_FLOW: {
+				return fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
+			} break;
+			case rofl::openflow12::OFPST_TABLE: {
+				return fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
+			} break;
+			case rofl::openflow12::OFPST_QUEUE: {
+				return fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
+			} break;
+			case rofl::openflow12::OFPST_GROUP: {
+				return fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
+			} break;
+			case rofl::openflow12::OFPST_GROUP_DESC: {
+				return fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
+			} break;
+			}
+
+		} break;
+		}
+	} break;
 	case rofl::openflow13::OFP_VERSION: {
 
 		switch (msg->get_type()) {
@@ -938,9 +929,6 @@ crofconn::fragment_and_send_message(
 			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
 				return fragment_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg));
 			} break;
-			default: {
-				return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
-			};
 			}
 
 		} break;
@@ -981,23 +969,15 @@ crofconn::fragment_and_send_message(
 				// no array in meter-features, so no need to fragment
 				return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
 			} break;
-			default: {
-				return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
-			};
 			}
 
 		} break;
-		default: {
-			return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
-		};
 		}
 	} break;
-	default: {
-		return rofsock.send_message(msg); // default behaviour for now: send message directly to rofsock
-	};
 	}
 
-	return 0;
+	// default behaviour: send message directly to rofsock
+	return rofsock.send_message(msg);
 }
 
 

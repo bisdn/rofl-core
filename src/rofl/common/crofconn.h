@@ -202,7 +202,9 @@ public:
 	 * @brief	Send OFP message via socket
 	 */
 	unsigned int
-	send_message(rofl::openflow::cofmsg *msg);
+	send_message(rofl::openflow::cofmsg *msg) {
+		return fragment_and_send_message(msg);
+	};
 
 	/**
 	 *
