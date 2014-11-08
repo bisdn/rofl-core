@@ -976,8 +976,9 @@ crofconn::fragment_and_send_message(
 	} break;
 	}
 
-	// default behaviour: send message directly to rofsock
-	return rofsock.send_message(msg);
+	// should never be reached, though
+	assert(false);
+	throw eRofSockMsgTooLarge();
 }
 
 

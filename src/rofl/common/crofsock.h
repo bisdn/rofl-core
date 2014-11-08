@@ -78,8 +78,9 @@ public:
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
 
-class eRofSockBase		: public RoflException {};
-class eRofSockTxAgain	: public eRofSockBase {};
+class eRofSockBase			: public RoflException {};
+class eRofSockTxAgain		: public eRofSockBase {};
+class eRofSockMsgTooLarge 	: public eRofSockBase {};
 
 class crofsock :
 		public ciosrv,
