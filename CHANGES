@@ -25,6 +25,8 @@ v0.5.2
 [+][common] Fixed issue #36 (enhancement) => making cofactions::count_action_type() const method
 [B][common] Fixed issue #33 (bug) => added fragmentation support for overlong OFP messages to OpenFlow 1.2
 
+[B][pipeline] Fixed default table action for OF1.3 according to spec (backported) 
+
 v0.5.1
 
 [B][pipeline] Fixed improper byte counter setting for group statistics
