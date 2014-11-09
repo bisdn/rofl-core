@@ -14,6 +14,7 @@ v0.6.0
 
 [+][hal] Added NF port extensions 
 
+[+][pipeline] Added missing support for OFPP_TABLE 
 [+][pipeline] Added NF port type extensions 
 [+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
 

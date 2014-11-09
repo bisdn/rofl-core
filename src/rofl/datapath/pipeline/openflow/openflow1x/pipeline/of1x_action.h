@@ -314,7 +314,10 @@ typedef struct of1x_action_group{
 	
 	//Number of outputs in the action list
 	unsigned int num_of_output_actions;
-	
+		
+	//Contains output to TABLE 
+	bool has_output_table;
+
 	/* Fast validation flags */
 	//Bitmap of required OF versions
 	of1x_ver_req_t ver_req; 
@@ -633,7 +636,7 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 * Set (copy) the action to the write actions. The action pointer can safely used
 * outside the library, and released. 
 */
-void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
+rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 
 //Update apply/write
 rofl_result_t __of1x_update_apply_actions(of1x_action_group_t** group, of1x_action_group_t* new_group);
@@ -652,7 +655,7 @@ void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group, bool r
 void __of1x_dump_action_group(of1x_action_group_t* action_group, bool raw_nbo);
 
 //validate actions
-rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, struct of1x_group_table *gt);
+rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_group_t *ag, struct of1x_group_table *gt, bool is_pkt_out_ag);
 rofl_result_t __of1x_validate_write_actions(bitmap128_t* supported, of1x_write_actions_t *wa, struct of1x_group_table *gt);
 
 

@@ -176,7 +176,7 @@ rofl_of1x_gm_result_t __of1x_validate_group(of1x_group_table_t* gt, of1x_action_
 	}
 		
 	//verify apply actions
-	if(__of1x_validate_action_group(&gt->config.supported_actions, actions, gt) != ROFL_SUCCESS)
+	if(__of1x_validate_action_group(&gt->config.supported_actions, actions, gt, false) != ROFL_SUCCESS)
 		return ROFL_OF1X_GM_INVAL;
 	
 	return ROFL_OF1X_GM_OK;
