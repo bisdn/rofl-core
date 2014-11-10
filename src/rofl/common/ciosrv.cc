@@ -518,6 +518,8 @@ restartE:
 
 		logging::trace << "[rofl][common][cioloop][run] after select:" << std::endl << *this;
 	}
+
+	keep_on_running = false;
 }
 
 
