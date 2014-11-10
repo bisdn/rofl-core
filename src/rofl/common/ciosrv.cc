@@ -484,9 +484,11 @@ cioloop::run_loop()
 
 			} catch (rofl::RoflException& e) {
 				rofl::logging::error << "[rofl][common][cioloop][run] caught RoflException in main loop: " << e.what() << std::endl;
+				rofl::indent::null();
 
 			} catch (std::exception& e) {
 				rofl::logging::error << "[rofl][common][cioloop][run] caught std::exception in main loop: " << e.what() << std::endl;
+				rofl::indent::null();
 				keep_on_running = false;
 				throw;
 			}
