@@ -10,6 +10,8 @@ Change log
 
 v0.5.2
 
+[B][common] Fixed issue #39 (bug) => set flag keep_on_runnin gin method cioloop:run() to false, when 
+                                     terminating the loop
 [B][common] Fixed issue #38 (bug) => handling so far uncaught exception in etherswitch::operator<<()
 [B][common] Fixed issue #37 (bug) => cofactions::drop_action() 
 [+][common] Fixed issue #36 (enhancement) => making cofactions::count_action_type() const method
