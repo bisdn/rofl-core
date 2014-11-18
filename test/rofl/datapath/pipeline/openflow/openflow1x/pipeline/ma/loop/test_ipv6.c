@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <inttypes.h>
 #include "CUnit/Basic.h"
 #include "test_ipv6.h"
 #include <rofl/datapath/pipeline/common/ternary_fields.h>
@@ -93,7 +94,7 @@ void ipv6_alike_test_low(void){
 	
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("1- masks 0x%lx 0x%lx\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
+		printf("1- masks 0x%"PRIx64" 0x%"PRIx64"\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
 		CU_ASSERT(UINT128__T_HI(res->mask.u128)==0xffffffffffffffff);
 		CU_ASSERT(UINT128__T_LO(res->mask.u128) ==0xffffffffffffe000);
 	}
@@ -114,7 +115,7 @@ void ipv6_alike_test_high(void){
 	res = __utern_get_alike(*tern1,*tern2);
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("2- masks 0x%lx 0x%lx\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
+		printf("2- masks 0x%"PRIx64" 0x%"PRIx64"\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
 		CU_ASSERT(UINT128__T_HI(res->mask.u128)==0xfffffffffffffffc);
 		CU_ASSERT(UINT128__T_LO(res->mask.u128)==0x0000000000000000);
 	}
