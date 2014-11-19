@@ -81,7 +81,8 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 		//Perform lookup	
 		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
 		
-		pkt->__cookie = match->cookie;
+		if (match)
+			pkt->__cookie = match->cookie;
 
 		if(likely(match != NULL)){
 			
