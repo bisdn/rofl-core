@@ -18,6 +18,10 @@ v0.6.0
 [+][pipeline] Added NF port type extensions 
 [+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
 
+v0.5.3
+
+[B][pipeline] Fixed issue #40 (bug) => set cookie field in Packet-In messages based on flow entry
+
 v0.5.2
 
 [B][common] Fixed issue #39 (bug) => set flag keep_on_runnin gin method cioloop:run() to false, when 
