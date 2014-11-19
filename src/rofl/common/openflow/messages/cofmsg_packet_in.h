@@ -292,7 +292,7 @@ public:
 			};
 			}
 			os << indent(4) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
-			os << indent(4) << "<cookie:" 		<< (int)msg.get_cookie() 	<< " >" << std::endl;
+			os << indent(4) << "<cookie:" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
 
 		} break;
 		default: {
