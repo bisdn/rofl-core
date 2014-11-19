@@ -58,6 +58,9 @@ typedef struct datapacket{
 	uint64_t __metadata;	
 	of_write_actions_t write_actions;
 	
+	//OpenFlow 1.3 cookie
+	uint64_t __cookie;
+
 	/**
 	* Flag indicating if it is a replica of the original packet
 	* (used for multi-output matches)
@@ -78,6 +81,7 @@ typedef struct datapacket{
 
 static inline void __init_packet_metadata(datapacket_t *const pkt){
 	pkt->__metadata = 0ULL;
+	pkt->__cookie = 0ULL;
 };
 
 #endif //DATAPACKET
