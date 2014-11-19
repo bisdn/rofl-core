@@ -291,12 +291,12 @@ public:
 				os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
 			};
 			}
-			os << indent(4) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
-			os << indent(4) << "<cookie:" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<table-id: " 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
+			os << indent(4) << "<cookie: 0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
 
 		} break;
 		default: {
-			os << "<unsupported OF version:" 	<< (int)msg.get_version() 	<< " >" << std::endl;
+			os << "<unsupported OF version: " 	<< (int)msg.get_version() 	<< " >" << std::endl;
 		} break;
 		}
 		os << indent(2) << msg.match;
