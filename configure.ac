@@ -31,9 +31,6 @@ AC_DEFINE([__STDC_FORMAT_MACROS], [], [Description])
 # Debug
 m4_include([config/debug.m4])
 
-# Application verbosity 
-m4_include([config/verbose.m4])
-
 # Endianness
 m4_include([config/endianness.m4])
 
