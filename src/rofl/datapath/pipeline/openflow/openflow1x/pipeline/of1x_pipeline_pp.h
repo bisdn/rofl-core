@@ -75,7 +75,8 @@ static inline void __of1x_process_packet_pipeline(const of_switch_t *sw, datapac
 		//Perform lookup	
 		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt);
 		
-		pkt->__cookie = match->cookie;
+		if (match)
+			pkt->__cookie = match->cookie;
 
 		if(likely(match != NULL)){
 			
