@@ -293,7 +293,7 @@ void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool raw_nbo){
 	//Consolidate stats so that users of the pipeline can use counters
 	__of1x_stats_flow_consolidate(&entry->stats, &c);
 
-	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u, pkts.matched %u. Matches:{",entry, entry->priority, c.packet_count, entry->matches.num_elements);
+	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u, cookie 0x%"PRIx64", pkts.matched %u. Matches:{",entry, entry->priority, entry->cookie, c.packet_count, entry->matches.num_elements);
 	
 	//print matches(all)
 	__of1x_dump_matches(entry->matches.head, raw_nbo);
