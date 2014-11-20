@@ -649,6 +649,7 @@ static inline void __of1x_process_packet_action(const unsigned int tid, const st
 					ROFL_PIPELINE_INFO("Packet[%p] could NOT be cloned during OUTPUT action\n", pkt);
 					return;
 				}
+				pkt_to_send->__cookie = pkt->__cookie;
 				ROFL_PIPELINE_INFO("Packet[%p] was cloned into [%p] during OUTPUT action\n", pkt, pkt_to_send);
 				
 			}else
