@@ -80,12 +80,12 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 	
 		//Perform lookup	
 		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
-		
-		if (match)
-			pkt->__cookie = match->cookie;
 
 		if(likely(match != NULL)){
-			
+
+			//store cookie field of this last match in pkt
+			pkt->__cookie = match->cookie;
+
 			ROFL_PIPELINE_INFO("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
