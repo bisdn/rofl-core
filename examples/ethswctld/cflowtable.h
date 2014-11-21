@@ -172,9 +172,12 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, cflowtable const& flowtable) {
-		os << rofl::indent(0) << "<cflowtable dpid: "
-				<< rofl::crofdpt::get_dpt(flowtable.dptid).get_dpid().str() << " >" << std::endl;
-
+		try {
+			os << rofl::indent(0) << "<cflowtable dpid:"
+					<< rofl::crofdpt::get_dpt(flowtable.dptid).get_dpid().str() << " >" << std::endl;
+		} catch (rofl::eRofDptNotFound& e) {
+			os << rofl::indent(0) << "<cflowtable dptid:" << flowtable.dptid << " >" << std::endl;
+		}
 		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, std::map<rofl::caddress_ll, cflowentry*> >::const_iterator
 				it = flowtable.ftable.begin(); it != flowtable.ftable.end(); ++it) {

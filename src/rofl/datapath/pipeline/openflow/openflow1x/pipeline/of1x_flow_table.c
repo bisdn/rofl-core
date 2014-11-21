@@ -284,8 +284,8 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 	//Being lazy...
 	__of12_set_table_defaults(table);
 
-	//Setting the default behaviour to continue to the next table.
-	table->default_action = OF1X_TABLE_MISS_CONTINUE; 
+	//Setting the default behaviour to drop accroding to the spec.
+	table->default_action = OF1X_TABLE_MISS_DROP; 
 	
 	//Adding OF1.3 matches
 	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS); 

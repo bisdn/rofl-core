@@ -78,8 +78,9 @@ public:
 	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
 };
 
-class eRofSockBase		: public RoflException {};
-class eRofSockTxAgain	: public eRofSockBase {};
+class eRofSockBase			: public RoflException {};
+class eRofSockTxAgain		: public eRofSockBase {};
+class eRofSockMsgTooLarge 	: public eRofSockBase {};
 
 class crofsock :
 		public ciosrv,
@@ -108,7 +109,7 @@ class crofsock :
 		PthreadRwLock							rwlock;
 		std::deque<rofl::openflow::cofmsg*>		queue;
 		unsigned int							max_cwnd_size;
-		static const unsigned int				DEFAULT_MAX_CWND_SIZE = 128;
+		static const unsigned int				DEFAULT_MAX_CWND_SIZE = 1024;
 		unsigned int							limit; // #msgs sent from queue before rescheduling
 
 	public:

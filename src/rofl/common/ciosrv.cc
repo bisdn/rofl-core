@@ -491,11 +491,15 @@ cioloop::run_loop()
 					}
 				}
 
-			} catch (std::runtime_error& e) {
-				rofl::logging::error << "[rofl][common][cioloop][run] caught exception in main loop:" << e.what() << std::endl;
-#ifndef NDEBUG
+			} catch (rofl::RoflException& e) {
+				rofl::logging::error << "[rofl][common][cioloop][run] caught RoflException in main loop: " << e.what() << std::endl;
+				rofl::indent::null();
+
+			} catch (std::exception& e) {
+				rofl::logging::error << "[rofl][common][cioloop][run] caught std::exception in main loop: " << e.what() << std::endl;
+				rofl::indent::null();
+				keep_on_running = false;
 				throw;
-#endif
 			}
 		}
 
@@ -525,6 +529,8 @@ restartE:
 
 		logging::trace << "[rofl][common][cioloop][run] after select:" << std::endl << *this;
 	}
+
+	keep_on_running = false;
 }
 
 

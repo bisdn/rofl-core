@@ -41,7 +41,7 @@ static inline unsigned int __of1x_process_instructions(const unsigned int tid, c
 
 	//Check all instructions in order
 	if(inst->type == OF1X_IT_APPLY_ACTIONS)
-		__of1x_process_apply_actions(tid, sw, table_id, pkt, inst->apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
+		__of1x_process_apply_actions(tid, sw, table_id, pkt, inst->apply_actions, __of1x_process_instructions_must_replicate(instructions), NULL); 
 
 	//Next instruction
 	inst++; 

@@ -14,9 +14,26 @@ v0.6.0
 
 [+][hal] Added NF port extensions 
 
+[+][pipeline] Added missing support for OFPP_TABLE 
 [+][pipeline] Added NF port type extensions 
 [+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
+[B][pipeline] Fixed issue #40 (bug) => set cookie field in Packet-In messages based on flow entry
 
+v0.5.3 
+
+[B][pipeline] Issue #40 (bug) => invalid cookie field in Packet-In messages for OpenFlow 1.3 
+                                 (won't fix), fix available in 0.6.0
+
+v0.5.2
+
+[B][common] Fixed issue #39 (bug) => set flag keep_on_runnin gin method cioloop:run() to false, when 
+                                     terminating the loop
+[B][common] Fixed issue #38 (bug) => handling so far uncaught exception in etherswitch::operator<<()
+[B][common] Fixed issue #37 (bug) => cofactions::drop_action() 
+[+][common] Fixed issue #36 (enhancement) => making cofactions::count_action_type() const method
+[B][common] Fixed issue #33 (bug) => added fragmentation support for overlong OFP messages to OpenFlow 1.2
+
+[B][pipeline] Fixed default table action for OF1.3 according to spec (backported) 
 
 v0.5.1
 

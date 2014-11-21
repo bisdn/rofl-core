@@ -80,9 +80,12 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 	
 		//Perform lookup	
 		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
-		
+
 		if(likely(match != NULL)){
-			
+
+			//store cookie field of this last match in pkt
+			pkt->__cookie = match->cookie;
+
 			ROFL_PIPELINE_INFO("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
@@ -168,10 +171,11 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 static inline void of1x_process_packet_out_pipeline(const unsigned int tid, const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
 	
 	bool has_multiple_outputs=false;
+	datapacket_t* reinject_pkt=NULL;
 	of1x_group_table_t *gt = sw->pipeline.groups;
 
 	//Validate apply_actions_group
-	__of1x_validate_action_group(NULL, (of1x_action_group_t*)apply_actions_group, gt);
+	__of1x_validate_action_group(NULL, (of1x_action_group_t*)apply_actions_group, gt, true);
 
 #ifdef DEBUG
 	ROFL_PIPELINE_INFO("Packet[%p] Processing PKT_OUT, action group: ",pkt);
@@ -190,8 +194,12 @@ static inline void of1x_process_packet_out_pipeline(const unsigned int tid, cons
 	
 
 	//Just process the action group
-	__of1x_process_apply_actions(tid, (of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
-		
+	__of1x_process_apply_actions(tid, (of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs, &reinject_pkt);
+
+	//Reinject if necessary
+	if(reinject_pkt)
+		__of1x_process_packet_pipeline(ROFL_PIPELINE_LOCKED_TID, (const of_switch_t*)sw, reinject_pkt);
+
 	if(has_multiple_outputs){
 		//Packet was replicated. Drop original packet
 		ROFL_PIPELINE_DEBUG("Packet[%p] Dropping original pkt (previously cloned due to multiple output actions).\n", pkt);
