@@ -101,7 +101,7 @@ public:
 	crofdpt(enum crofdpt_flavour_t flavour) :
 		dptid(cdptid(++crofdpt::next_dptid)), dpid(0), flavour(flavour) {
 		crofdpt::rofdpts[dptid] = this;
-		rofl::logging::debug << "[rofl][crofdpt] instance creating, dptid: "
+		rofl::logging::debug << "[rofl-common][crofdpt] instance creating, dptid: "
 				<< (unsigned long long)dptid.get_dptid() << std::endl;
 	};
 
@@ -112,7 +112,7 @@ public:
 	 */
 	virtual
 	~crofdpt() {
-		rofl::logging::debug << "[rofl][crofdpt] destroying instance, dptid: "
+		rofl::logging::debug << "[rofl-common][crofdpt] destroying instance, dptid: "
 				<< (unsigned long long)dptid.get_dptid() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
 	};

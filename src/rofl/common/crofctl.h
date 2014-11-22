@@ -78,7 +78,7 @@ public:
 	crofctl(enum crofctl_flavour_t flavour) :
 			ctlid(cctlid(++crofctl::next_ctlid)), flavour(flavour) {
 		crofctl::rofctls[ctlid] = this;
-		rofl::logging::debug << "[rofl][crofctl] instance creating, ctlid: "
+		rofl::logging::debug << "[rofl-common][crofctl] instance creating, ctlid: "
 				<< (unsigned long long)ctlid.get_ctlid() << std::endl;
 	};
 
@@ -88,7 +88,7 @@ public:
 	virtual
 	~crofctl() {
 		crofctl::rofctls.erase(ctlid);
-		rofl::logging::debug << "[rofl][crofctl] destroying instance, ctlid: "
+		rofl::logging::debug << "[rofl-common][crofctl] destroying instance, ctlid: "
 				<< (unsigned long long)ctlid.get_ctlid() << std::endl;
 	};
 
