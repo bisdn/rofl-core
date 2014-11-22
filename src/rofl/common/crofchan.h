@@ -31,93 +31,217 @@ class eRofChanNotConnected	: public eRofChanBase {};
 
 class crofchan; // forward declaration
 
+/**
+ * @class Environment expected by a crofchan instance
+ *
+ */
 class crofchan_env {
 public:
-	virtual ~crofchan_env() {};
-	virtual void handle_established(crofchan *chan) = 0;
-	virtual void handle_disconnected(crofchan *chan) = 0;
-	virtual void handle_write(crofchan *chan, const cauxid& auxid) = 0;
-	virtual void recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg) = 0;
-	virtual uint32_t get_async_xid(crofchan *chan) = 0;
-	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
-	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
+
+	/**
+	 * @brief	destructor
+	 */
+	virtual
+	~crofchan_env() {};
+
+	/**
+	 * @brief	Called once the channel is connected and operational.
+	 *
+	 * Note: This method is executed in the thread context of the underlying
+	 * socket instance.
+	 *
+	 * @param chan crofchan instance
+	 */
+	virtual void
+	handle_established(crofchan *chan) = 0;
+
+	/**
+	 * @brief	Called upon loss of the control connection
+	 *
+	 * Note: This method is executed in the thread context of the underlying
+	 * socket instance.
+	 *
+	 * @param chan crofchan instance
+	 */
+	virtual void
+	handle_disconnected(crofchan *chan) = 0;
+
+	/**
+	 * @brief	Called after a congestion situation has been resolved.
+	 *
+	 * Note: This method is executed in the thread context of the underlying
+	 * socket instance.
+	 *
+	 * @param chan crofchan instance
+	 * @param auxid auxiliary connection that is usable again
+	 */
+	virtual void
+	handle_write(crofchan *chan, const cauxid& auxid) = 0;
+
+	/**
+	 * @brief	Called upon reception of an OpenFlow message by the peer entity.
+	 *
+	 * Note: This method is executed in the thread context of the underlying
+	 * socket instance.
+	 *
+	 * @param chan crofchan instance
+	 * @param auxid auxiliary connection
+	 * @param msg pointer to cofmsg instance
+	 */
+	virtual void
+	recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg) = 0;
+
+	/**
+	 * @brief	Acquires an OpenFlow transaction ID for an asynchronous message.
+	 *
+	 * @param chan crofchan instance
+	 */
+	virtual uint32_t
+	get_async_xid(crofchan *chan) = 0;
+
+	/**
+	 * @brief	Acquires an OpenFlow transaction ID for a synchronous message.
+	 *
+	 * @param chan crofchan instance
+	 */
+	virtual uint32_t
+	get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
+
+	/**
+	 * @brief	Releases a synchronous transaction ID after reception of an OpenFlow reply.
+	 *
+	 * @param chan crofchan instance
+	 */
+	virtual void
+	release_sync_xid(crofchan *chan, uint32_t xid) = 0;
 };
 
-class crofchan :
-		public crofconn_env,
-		public ciosrv
-{
-	crofchan_env						*env;
-	std::map<cauxid, crofconn*>			conns;				// main and auxiliary connections
-	rofl::openflow::cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
-	uint8_t								ofp_version;		// OFP version negotiated
-	std::bitset<32>						flags;
 
+
+class crofchan :
+		public crofconn_env
+{
 	enum crofchan_event_t {
 		EVENT_NONE				= 0,
 		EVENT_DISCONNECTED		= 1,
 		EVENT_ESTABLISHED		= 2,
 	};
-	std::deque<enum crofchan_event_t> 	events;
 
 	enum crofchan_state_t {
 		STATE_DISCONNECTED 		= 1,
 		STATE_CONNECT_PENDING	= 2,
 		STATE_ESTABLISHED 		= 3,
 	};
-	enum crofchan_state_t				state;
 
 public:
 
 	/**
 	 *
 	 */
-	crofchan();
+	crofchan() :
+		env(NULL),
+		ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
+		state(STATE_DISCONNECTED)
+	{};
 
 	/**
 	 *
 	 */
 	crofchan(
 			crofchan_env *env,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+				env(env),
+				versionbitmap(versionbitmap),
+				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
+				state(STATE_DISCONNECTED)
+	{};
 
 	/**
 	 *
 	 */
 	virtual
-	~crofchan();
+	~crofchan() {
+		close();
+	};
 
 public:
 
+	/**
+	 *
+	 */
 	bool
 	is_established() const;
 
-	virtual void
-	handle_connect_refused(crofconn *conn);
+public:
 
+	/**
+	 *
+	 */
 	virtual void
-	handle_connect_failed(crofconn *conn);
+	handle_connect_refused(crofconn *conn) {
+		rofl::logging::warn << "[rofl-common][channel] OFP transport "
+				<< "connection refused." << std::endl << *conn;
+		conn->reconnect();
+	};
 
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_failed(crofconn *conn) {
+		rofl::logging::warn << "[rofl-common][channel] OFP transport "
+				"connection failed." << std::endl << *conn;
+		conn->reconnect();
+	};
+
+	/**
+	 *
+	 */
 	virtual void
 	handle_connected(crofconn *conn, uint8_t ofp_version);
 
+	/**
+	 *
+	 */
 	virtual void
 	handle_closed(crofconn *conn);
 
+	/**
+	 *
+	 */
 	virtual void
-	handle_write(crofconn *conn);
+	handle_write(crofconn *conn) {
+		env->handle_write(this, conn->get_aux_id());
+	};
 
 	virtual void
-	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg);
+	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) {
+		env->recv_message(this, conn->get_aux_id(), msg);
+	};
 
+	/**
+	 *
+	 */
 	virtual uint32_t
-	get_async_xid(crofconn *conn);
+	get_async_xid(crofconn *conn) {
+		return env->get_async_xid(this);
+	};
 
+	/**
+	 *
+	 */
 	virtual uint32_t
-	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
+	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) {
+		return env->get_sync_xid(this, msg_type, msg_sub_type);
+	};
 
+	/**
+	 *
+	 */
 	virtual void
-	release_sync_xid(crofconn *conn, uint32_t xid);
+	release_sync_xid(crofconn *conn, uint32_t xid) {
+		env->release_sync_xid(this, xid);
+	};
 
 public:
 
@@ -238,11 +362,26 @@ public:
 		}
 		return os;
 	};
+
+private:
+
+	// owner of this crofchan instance
+	crofchan_env						*env;
+	// main and auxiliary connections
+	std::map<cauxid, crofconn*>			conns;
+	// supported OFP versions
+	rofl::openflow::cofhello_elem_versionbitmap
+										versionbitmap;
+	// OFP version negotiated
+	uint8_t								ofp_version;
+	// state related flags
+	std::bitset<32>						flags;
+	// event queue
+	std::deque<enum crofchan_event_t> 	events;
+	// current state
+	enum crofchan_state_t				state;
 };
 
 }; /* namespace rofl */
-
-
-
 
 #endif /* CROFCHAN_H_ */
