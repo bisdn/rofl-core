@@ -260,7 +260,7 @@ crofconn::event_disconnected()
 		timer_stop_wait_for_echo();
 		timer_stop_wait_for_hello();
 		//rofsock.close();
-		cthread::stop_thread();
+		//cthread::stop_thread();
 
 		if (flags.test(FLAGS_CLOSED)) {
 			flags.reset(FLAGS_CLOSED); env->handle_closed(this); return; // this object may have been destroyed here
@@ -554,6 +554,7 @@ crofconn::handle_closed(crofsock *endpnt)
 	rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection closed." << std::endl << *this;
 	flags.set(FLAGS_CLOSED);
 	run_engine(EVENT_DISCONNECTED);
+	env->handle_closed(this);
 }
 
 
