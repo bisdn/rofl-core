@@ -346,53 +346,6 @@ public:
 
 public:
 
-
-	/**
-	 * @name Flowspace management methods
-	 *
-	 * ROFL contains a set of extensions that allows a controller to express parts
-	 * of the overall namespace he is willing to control. The flowspace registration
-	 * contains an OpenFlow match structure. Currently, a registration is hard state,
-	 * i.e. it will be removed only when explicitly requested by the controller or
-	 * the control connection between controller and data path is lost.
-	 *
-	 * Please note: this is going to change in a future revision by a soft state approach!
-	 */
-
-	/**@{*/
-
-	/**
-	 * @brief 	Makes a new flowspace registration at the data path element.
-	 *
-	 * This method registers a flowspace on the attached datapath element.
-	 * Calling this method multiple times results in several flowspace
-	 * registrations.
-	 *
-	 * @param ofmatch the flowspace definition to be registered
-	 */
-	virtual void
-	fsp_open(
-			rofl::openflow::cofmatch const& ofmatch) = 0;
-
-
-	/**
-	 * @brief 	Removes a flowspace registration from the attached data path element.
-	 *
-	 * This method deregisters a flowspace on the attached datapath element.
-	 * The default argument is an empty (= all wildcard ofmatch) and removes
-	 * all active flowspace registrations from the datapath element.
-	 *
-	 * @param ofmatch the flowspace definition to be removed
-	 */
-	virtual void
-	fsp_close(
-			rofl::openflow::cofmatch const& ofmatch = rofl::openflow::cofmatch()) = 0;
-
-	/**@}*/
-
-
-public:
-
 	/**
 	 * @name	FlowMod management methods
 	 *

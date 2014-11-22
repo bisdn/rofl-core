@@ -1868,60 +1868,6 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 	try {
 		check_role();
 
-		// check, whether the controlling pack->entity is allowed to install this flow-mod
-		if (rofbase->fe_flags.test(crofbase::NSP_ENABLED)) {
-			switch (get_version()) {
-			case openflow10::OFP_VERSION: {
-				switch (msg->get_flowmod().get_command()) {
-				case openflow10::OFPFC_ADD:
-				case openflow10::OFPFC_MODIFY:
-				case openflow10::OFPFC_MODIFY_STRICT: {
-#if 0
-					/* deactivated for Darmstadt demonstration, needs exact fix */
-					rofbase->fsptable.flow_mod_allowed(this, msg->match);
-#endif
-				} break;
-				/*
-				 * this allows generic DELETE commands to be applied
-				 * FIXME: does this affect somehow entries from other controllers?
-				 */
-				}
-			} break;
-			case openflow12::OFP_VERSION: {
-				switch (msg->get_flowmod().get_command()) {
-				case openflow12::OFPFC_ADD:
-				case openflow12::OFPFC_MODIFY:
-				case openflow12::OFPFC_MODIFY_STRICT: {
-#if 0
-					/* deactivated for Darmstadt demonstration, needs exact fix */
-					rofbase->fsptable.flow_mod_allowed(this, msg->match);
-#endif
-				} break;
-				/*
-				 * this allows generic DELETE commands to be applied
-				 * FIXME: does this affect somehow entries from other controllers?
-				 */
-				}
-			} break;
-			case openflow13::OFP_VERSION: {
-				switch (msg->get_flowmod().get_command()) {
-				case openflow13::OFPFC_ADD:
-				case openflow13::OFPFC_MODIFY:
-				case openflow13::OFPFC_MODIFY_STRICT: {
-#if 0
-					/* deactivated for Darmstadt demonstration, needs exact fix */
-					rofbase->fs<ptable.flow_mod_allowed(this, msg->match);
-#endif
-				} break;
-				/*
-				 * this allows generic DELETE commands to be applied
-				 * FIXME: does this affect somehow entries from other controllers?
-				 */
-				}
-			} break;
-			}
-		}
-
 		rofbase->handle_flow_mod(*this, auxid, message);
 
 		delete msg;

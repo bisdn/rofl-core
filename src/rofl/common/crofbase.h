@@ -24,7 +24,6 @@
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cvastring.h"
-#include "rofl/common/croflexp.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/logging.h"
@@ -114,8 +113,6 @@ class eRofBaseCongested				: public eRofBase {}; // control channel is congested
 
 class crofctl;
 class crofdpt;
-class ssl_context;
-
 
 
 /**
@@ -175,17 +172,6 @@ public:
 	 */
 	virtual
 	~crofbase();
-
-
-
-	/**
-	 * @brief 	enable/disable flowspace registration support in crofbase
-	 *
-	 * @param enable true: enable flowspace support, false: disable flowspace support
-	 */
-	void
-	nsp_enable(bool enable = true);
-
 
 public:
 
@@ -1800,13 +1786,6 @@ private:
 
 
 private:
-
-	enum crofbase_flag_t {
-		NSP_ENABLED = 0x01,
-	};
-
-	std::bitset<32> 					fe_flags;
-
 
 
 	/** \enum crofbase::crofbase_rpc_t

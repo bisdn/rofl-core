@@ -2493,47 +2493,6 @@ crofdpt_impl::port_status_rcvd(
 
 
 void
-crofdpt_impl::fsp_open(rofl::openflow::cofmatch const& ofmatch)
-{
-	rofl::openflow::cofmatch m(ofmatch);
-	rofl::openflow::croflexp_flowspace rexp(rofl::openflow::croflexp::OFPRET_FSP_ADD, m);
-
-	cmemory packed(rexp.length());
-
-	rexp.pack(packed.somem(), packed.memlen());
-
-	send_experimenter_message(
-			cauxid(0),
-			OFPEXPID_ROFL,
-			rofl::openflow::croflexp::OFPRET_FLOWSPACE,
-			packed.somem(),
-			packed.memlen());
-
-}
-
-
-void
-crofdpt_impl::fsp_close(rofl::openflow::cofmatch const& ofmatch)
-{
-	rofl::openflow::cofmatch m(ofmatch);
-	rofl::openflow::croflexp_flowspace rexp(rofl::openflow::croflexp::OFPRET_FSP_DELETE, m);
-
-	cmemory packed(rexp.length());
-
-	rexp.pack(packed.somem(), packed.memlen());
-
-	send_experimenter_message(
-			cauxid(0),
-			OFPEXPID_ROFL,
-			rofl::openflow::croflexp::OFPRET_FLOWSPACE,
-			packed.somem(),
-			packed.memlen());
-
-}
-
-
-
-void
 crofdpt_impl::experimenter_rcvd(
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)

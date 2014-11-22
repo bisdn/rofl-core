@@ -14,8 +14,6 @@ librofl_common_la_SOURCES = \
 		caddress.cc \
 		cpacket.h \
 		cpacket.cc \
-		croflexp.h \
-		croflexp.cc \
 		crandom.h \
 		crandom.cc \
 		cpipe.h \
@@ -100,7 +98,6 @@ library_includedir=$(includedir)/rofl/common
 library_include_HEADERS= \
 		caddress.h \
 		cpacket.h \
-		croflexp.h \
 		crandom.h \
 		cpipe.h \
 		endian_conversion.h \

@@ -68,20 +68,6 @@ crofbase::rpc_close_all()
 
 
 void
-crofbase::nsp_enable(bool enable)
-{
-	if (enable) {
-		fe_flags.set(NSP_ENABLED);
-		rofl::logging::info << "[rofl][base] enabling namespace support" << std::endl;
-	} else {
-		fe_flags.reset(NSP_ENABLED);
-		rofl::logging::info << "[rofl][base] disabling namespace support" << std::endl;
-	}
-}
-
-
-
-void
 crofbase::handle_connect_refused(
 		crofconn *conn)
 {
