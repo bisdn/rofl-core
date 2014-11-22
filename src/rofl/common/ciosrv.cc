@@ -36,6 +36,9 @@ ciosrv::ciosrv(pthread_t tid) :
 	}
 	RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
 	ciosrv::ciolist.insert(this);
+	if (tid != pthread_self()) {
+		notify(cevent());
+	}
 	//rofl::logging::debug << "[rofl][common][ciosrv] constructor " << std::hex << this << std::dec << std::endl;
 }
 

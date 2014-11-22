@@ -915,10 +915,6 @@ unsigned int
 crofconn::fragment_and_send_message(
 		rofl::openflow::cofmsg *msg)
 {
-
-	/*
-	 * multipart support for sending overlong messages
-	 */
 	if (msg->length() <= fragmentation_threshold) {
 		return rofsock->send_message(msg); // default behaviour for now: send message directly to rofsock
 	}
