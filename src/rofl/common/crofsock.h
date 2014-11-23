@@ -96,11 +96,16 @@ class crofsock :
 	};
 
 	enum crofsock_event_t {
-		EVENT_TXQUEUE = 1,
+		EVENT_TXQUEUE		 	= 1,
+		EVENT_CONNECT_FAILED 	= 2,
+		EVENT_CONNECT_REFUSED 	= 3,
+		EVENT_CONNECTED 		= 4,
+		EVENT_CLOSED 			= 5,
 	};
 
 	enum crofsock_flag_t {
 		FLAGS_CONGESTED = 1,
+		FLAGS_CONGESTION_SOLVED = 2,
 	};
 
 public:
@@ -215,7 +220,8 @@ private:
 	handle_accepted(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection established (via accept):" << std::endl << *this;
-		env->handle_connected(this);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
+		//env->handle_connected(this);
 	};
 
 	/**
@@ -235,7 +241,7 @@ private:
 	handle_connected(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection established (via connect):" << std::endl << *this;
-		env->handle_connected(this);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
 	};
 
 	/**
@@ -245,7 +251,7 @@ private:
 	handle_connect_refused(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection refused:" << std::endl << *this;
-		env->handle_connect_refused(this);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	/**
@@ -255,7 +261,7 @@ private:
 	handle_connect_failed(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection failed:" << std::endl << *this;
-		env->handle_connect_failed(this);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	/**
@@ -272,8 +278,8 @@ private:
 	handle_write(
 			csocket& socket) {
 		flags.reset(FLAGS_CONGESTED);
+		flags.set(FLAGS_CONGESTION_SOLVED);
 		rofl::ciosrv::notify(rofl::cevent(EVENT_TXQUEUE));
-		env->handle_write(this);
 	};
 
 	/**
@@ -281,7 +287,9 @@ private:
 	 */
 	virtual void
 	handle_closed(
-			csocket& socket);
+			csocket& socket) {
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
+	};
 
 private:
 
@@ -318,6 +326,12 @@ private:
 	 */
 	void
 	send_from_queue();
+
+	/**
+	 *
+	 */
+	void
+	handle_closed_notification();
 
 	/**
 	 *

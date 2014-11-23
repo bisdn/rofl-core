@@ -93,8 +93,7 @@ crofsock::close()
 
 
 void
-crofsock::handle_closed(
-			csocket& socket)
+crofsock::handle_closed_notification()
 {
 	rofl::logging::info << "[rofl-common][sock] transport connection closed:" << std::endl << *this;
 	if (fragment)
@@ -357,6 +356,11 @@ crofsock::send_from_queue()
 		}
 	}
 
+	if (flags.test(FLAGS_CONGESTION_SOLVED)) {
+		flags.reset(FLAGS_CONGESTION_SOLVED);
+		env->handle_write(this);
+	}
+
 	if (reschedule && not flags.test(FLAGS_CONGESTED)) {
 		rofl::ciosrv::notify(EVENT_TXQUEUE);
 	}
@@ -371,6 +375,18 @@ crofsock::handle_event(
 	switch (ev.cmd) {
 	case EVENT_TXQUEUE: {
 		send_from_queue();
+	} break;
+	case EVENT_CONNECT_FAILED: {
+		env->handle_connect_failed(this);
+	} break;
+	case EVENT_CONNECT_REFUSED: {
+		env->handle_connect_refused(this);
+	} break;
+	case EVENT_CONNECTED: {
+		env->handle_connected(this);
+	} break;
+	case EVENT_CLOSED: {
+		handle_closed_notification();
 	} break;
 	default:
 		rofl::logging::error << "[rofl-common][sock] unknown event type:" << (int)ev.cmd << std::endl;
