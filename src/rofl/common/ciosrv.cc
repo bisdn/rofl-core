@@ -395,6 +395,8 @@ cioloop::run_loop()
 
 		rofl::logging::trace << "[rofl-common][cioloop][run] next-timeout for select:" << std::endl << next_timeout.second;
 
+		rofl::indent::null();
+
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask)) < 0) {
 			switch (errno) {
