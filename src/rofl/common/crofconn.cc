@@ -205,7 +205,10 @@ crofconn::event_reconnect()
 	default: {
 		rofl::logging::debug << "[rofl-common][conn] reconnect: entering state -connect-pending-" << std::endl;
 		state = STATE_CONNECT_PENDING;
-		if (rofsock) rofsock->reconnect();
+		if (rofsock) {
+			rofsock->reconnect();
+			rofsock->notify(rofl::cevent());
+		}
 	};
 	}
 }
