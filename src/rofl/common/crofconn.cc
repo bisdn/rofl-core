@@ -129,9 +129,8 @@ crofconn::close()
 	while (not timer_ids.empty()) {
 		timer_stop(timer_ids.begin()->first);
 	}
-	//rofsock.close();
-
-	cthread::stop_thread();
+	rofsock->stop();
+	rofsock = NULL;
 }
 
 
