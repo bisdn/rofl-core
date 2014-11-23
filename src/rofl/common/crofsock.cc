@@ -292,7 +292,6 @@ void
 crofsock::send_from_queue()
 {
 	bool reschedule = false;
-	//bool congested = false;
 
 	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
 
@@ -325,7 +324,6 @@ crofsock::send_from_queue()
 						<< "connection congested, waiting." << std::endl;
 
 				flags.set(FLAGS_CONGESTED);
-				//congested = true;
 			}
 		}
 
@@ -334,8 +332,7 @@ crofsock::send_from_queue()
 		}
 	}
 
-	if (flags.test(FLAGS_CONGESTION_SOLVED)) {
-		flags.reset(FLAGS_CONGESTION_SOLVED);
+	if (flags.test(FLAGS_CONGESTED)) {
 		env->handle_write(this);
 	}
 

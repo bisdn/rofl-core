@@ -101,7 +101,6 @@ class crofsock :
 
 	enum crofsock_flag_t {
 		FLAGS_CONGESTED 		= 1,
-		FLAGS_CONGESTION_SOLVED = 2,
 	};
 
 	enum crofsock_state_t {
@@ -286,9 +285,7 @@ private:
 	handle_write(
 			csocket& socket) {
 		flags.reset(FLAGS_CONGESTED);
-		flags.set(FLAGS_CONGESTION_SOLVED);
 		rofl::ciosrv::notify(rofl::cevent(EVENT_TXQUEUE));
-		env->handle_write(this);
 	};
 
 	/**
