@@ -21,6 +21,7 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/logging.h"
+#include "rofl/common/crofqueue.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/croflexception.h"
 
@@ -86,14 +87,6 @@ class crofsock :
 		public ciosrv,
 		public csocket_owner
 {
-
-	crofsock_env						*env;
-	csocket								*socket;		// socket abstraction towards peer
-	cmemory								*fragment;
-	unsigned int						msg_bytes_read;
-	unsigned int						max_pkts_rcvd_per_round;
-	static unsigned int const			DEFAULT_MAX_PKTS_RVCD_PER_ROUND = 16;
-
 	enum outqueue_type_t {
 		QUEUE_OAM  = 0, // Echo.request/Echo.reply
 		QUEUE_MGMT = 1, // all remaining packets, except ...
@@ -102,133 +95,13 @@ class crofsock :
 		QUEUE_MAX,		// do not use
 	};
 
-	struct rofqueue {
-
-		static unsigned int const DEFAULT_OUTQUEUE_SIZE_THRESHOLD = 8;
-
-		PthreadRwLock							rwlock;
-		std::deque<rofl::openflow::cofmsg*>		queue;
-		unsigned int							max_cwnd_size;
-		static const unsigned int				DEFAULT_MAX_CWND_SIZE = 1024;
-		unsigned int							limit; // #msgs sent from queue before rescheduling
-
-	public:
-		/**
-		 *
-		 */
-		rofqueue(unsigned int limit = DEFAULT_OUTQUEUE_SIZE_THRESHOLD) :
-			max_cwnd_size(DEFAULT_MAX_CWND_SIZE), limit(limit) {};
-
-		/**
-		 *
-		 */
-		~rofqueue() { clear(); };
-
-		/**
-		 *
-		 */
-		void
-		clear() {
-			RwLock(rwlock, RwLock::RWLOCK_WRITE);
-			for (std::deque<rofl::openflow::cofmsg*>::iterator
-					it = queue.begin(); it != queue.end(); ++it) {
-				delete (*it);
-			}
-			queue.clear();
-		};
-
-		/**
-		 *
-		 */
-		unsigned int
-		store(rofl::openflow::cofmsg *msg) {
-			RwLock(rwlock, RwLock::RWLOCK_WRITE);
-			if (queue.size() >= max_cwnd_size) {
-				throw eRofSockTxAgain();
-			}
-			queue.push_back(msg);
-			return get_cwnd();
-		};
-
-		/**
-		 *
-		 */
-		rofl::openflow::cofmsg*
-		retrieve() {
-			RwLock(rwlock, RwLock::RWLOCK_WRITE);
-			if (queue.empty())
-				return NULL;
-			rofl::openflow::cofmsg *msg = queue.front();
-			//queue.pop_front();
-			return msg;
-		};
-
-		/**
-		 *
-		 */
-		void
-		pop() {
-			RwLock(rwlock, RwLock::RWLOCK_WRITE);
-			if (queue.empty())
-				return;
-			queue.pop_front();
-		};
-
-		/**
-		 *
-		 */
-		unsigned int
-		get_limit() const {
-			return (queue.size() > limit) ? limit : queue.size();
-		};
-
-		/**
-		 *
-		 */
-		void
-		set_max_limit(unsigned int limit) { this->limit = limit; };
-
-		/**
-		 *
-		 */
-		unsigned int
-		get_cwnd() const {
-			return (max_cwnd_size - queue.size());
-		};
-
-		/**
-		 *
-		 */
-		void
-		set_max_cwnd(unsigned int max_cwnd_size) { this->max_cwnd_size = max_cwnd_size; };
-
-		/**
-		 *
-		 */
-		size_t
-		size() {
-			RwLock(rwlock, RwLock::RWLOCK_READ);
-			return queue.size();
-		};
-
-		/**
-		 *
-		 */
-		bool
-		empty() {
-			RwLock(rwlock, RwLock::RWLOCK_READ);
-			return queue.empty();
-		};
-	};
-
-	std::vector<rofqueue>				outqueues;
-					// 0 => all non-asynchronous messages
-					// 1 => queue for Packet-In, Packet-Out, Flow-Mod, Flow-Removed
-
 	enum crofsock_event_t {
-		CROFSOCK_EVENT_WAKEUP = 1,
+		EVENT_TXQUEUE = 1,
 	};
 
+	enum crofsock_flag_t {
+		FLAGS_CONGESTED = 1,
+	};
 
 public:
 
@@ -322,48 +195,68 @@ private:
 	handle_event(
 			cevent const &ev);
 
+private:
+
 	/**
 	 *
 	 */
 	virtual void
 	handle_listen(
 			csocket& socket,
-			int newsd);
+			int newsd) {
+		rofl::logging::info << "[rofl-common][sock] new transport connection request received:" << std::endl << *this;
+		// this should never happen, as passively opened sockets are handled outside of crofsock
+	};
 
 	/**
 	 *
 	 */
 	virtual void
 	handle_accepted(
-			csocket& socket);
+			csocket& socket) {
+		rofl::logging::info << "[rofl-common][sock] transport connection established (via accept):" << std::endl << *this;
+		env->handle_connected(this);
+	};
 
 	/**
 	 *
 	 */
 	virtual void
 	handle_accept_refused(
-			csocket& socket);
+			csocket& socket) {
+		rofl::logging::info << "[rofl-common][sock] accepted transport connection refused:" << std::endl << *this;
+		// do nothing
+	};
 
 	/**
 	 *
 	 */
 	virtual void
 	handle_connected(
-			csocket& socket);
+			csocket& socket) {
+		rofl::logging::info << "[rofl-common][sock] transport connection established (via connect):" << std::endl << *this;
+		env->handle_connected(this);
+	};
 
 	/**
 	 *
 	 */
 	virtual void
 	handle_connect_refused(
-			csocket& socket);
+			csocket& socket) {
+		rofl::logging::info << "[rofl-common][sock] transport connection refused:" << std::endl << *this;
+		env->handle_connect_refused(this);
+	};
 
 	/**
 	 *
 	 */
 	virtual void
 	handle_connect_failed(
-			csocket& socket);
+			csocket& socket) {
+		rofl::logging::info << "[rofl-common][sock] transport connection failed:" << std::endl << *this;
+		env->handle_connect_failed(this);
+	};
 
 	/**
 	 *
@@ -377,7 +270,11 @@ private:
 	 */
 	virtual void
 	handle_write(
-			csocket& socket);
+			csocket& socket) {
+		flags.reset(FLAGS_CONGESTED);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_TXQUEUE));
+		env->handle_write(this);
+	};
 
 	/**
 	 *
@@ -385,6 +282,8 @@ private:
 	virtual void
 	handle_closed(
 			csocket& socket);
+
+private:
 
 	/**
 	 *
@@ -456,6 +355,37 @@ public:
 		os << indent(0) << "<crofsock: transport-connection-established: " << rofsock.get_socket().is_established() << ">" << std::endl;
 		return os;
 	};
+
+private:
+
+	// environment for this crofsock instance
+	crofsock_env*				env;
+	// socket abstraction towards peer
+	csocket*					socket;
+	// various flags for this crofsock instance
+	std::bitset<32>				flags;
+
+	/*
+	 * receiving messages
+	 */
+
+	// incomplete fragment message fragment received in last round
+	cmemory*					fragment;
+	// number of bytes already received for current message fragment
+	unsigned int				msg_bytes_read;
+	// read not more than this number of packets per round before rescheduling
+	unsigned int				max_pkts_rcvd_per_round;
+	// default value for max_pkts_rcvd_per_round
+	static unsigned int const	DEFAULT_MAX_PKTS_RVCD_PER_ROUND = 16;
+
+	/*
+	 * scheduler and txqueues
+	 */
+
+	// QUEUE_MAX txqueues
+	std::vector<crofqueue>		txqueues;
+	// relative scheduling weights for txqueues
+	std::vector<unsigned int>	weights;
 };
 
 } /* namespace rofl */

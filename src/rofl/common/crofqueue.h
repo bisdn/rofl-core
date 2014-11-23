@@ -29,14 +29,31 @@ public:
 	 *
 	 */
 	~crofqueue() {
+		clear();
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	bool
+	empty() {
+		RwLock rwlock(queuelock, RwLock::RWLOCK_READ);
+		return queue.empty();
+	};
+
+	/**
+	 *
+	 */
+	void
+	clear() {
 		RwLock rwlock(queuelock, RwLock::RWLOCK_WRITE);
 		while (not queue.empty()) {
 			delete queue.front();
 			queue.pop_front();
 		}
 	};
-
-public:
 
 	/**
 	 *
@@ -60,6 +77,32 @@ public:
 		}
 		msg = queue.front(); queue.pop_front();
 		return msg;
+	};
+
+	/**
+	 *
+	 */
+	rofl::openflow::cofmsg*
+	front() {
+		rofl::openflow::cofmsg* msg = (rofl::openflow::cofmsg*)0;
+		RwLock rwlock(queuelock, RwLock::RWLOCK_READ);
+		if (queue.empty()) {
+			return msg;
+		}
+		msg = queue.front();
+		return msg;
+	};
+
+	/**
+	 *
+	 */
+	void
+	pop() {
+		RwLock rwlock(queuelock, RwLock::RWLOCK_WRITE);
+		if (queue.empty()) {
+			return;
+		}
+		queue.pop_front();
 	};
 
 public:
