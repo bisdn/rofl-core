@@ -18,6 +18,8 @@ v0.6.0
 [+][pipeline] Added NF port type extensions 
 [+][pipeline] Added L2 (ETH_DST, VLAN) l2hash matching algorithm
 [B][pipeline] Fixed issue #40 (bug) => set cookie field in Packet-In messages based on flow entry
+[+][common] All crofsock instances run in dedicated own thread
+[+][common] Class ciosrv allows assignment to arbitrary threads
 
 v0.5.3 
 
