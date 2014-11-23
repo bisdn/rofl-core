@@ -189,7 +189,8 @@ crofsock::handle_read(
 		// close socket, as it seems, we are out of sync
 		socket.close();
 
-		env->handle_closed(this);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
+		//env->handle_closed(this);
 
 	} catch (RoflException& e) {
 
