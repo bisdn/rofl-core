@@ -267,7 +267,7 @@ private:
 
 	virtual void
 	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg) {
-		rxqueue.write(msg);
+		rxqueue.store(msg);
 		if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
 			ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
 		}

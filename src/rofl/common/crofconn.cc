@@ -525,7 +525,7 @@ crofconn::handle_messages()
 
 	flags.set(FLAGS_RXQUEUE_CONSUMING);
 
-	while ((msg = rxqueue.read()) != NULL) {
+	while ((msg = rxqueue.retrieve()) != NULL) {
 
 		if (rofl::openflow::OFP_VERSION_UNKNOWN == msg->get_version()) {
 			send_message(new rofl::openflow::cofmsg_error_bad_request_bad_version(

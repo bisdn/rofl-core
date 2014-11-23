@@ -42,7 +42,7 @@ public:
 	 *
 	 */
 	size_t
-	write(rofl::openflow::cofmsg* msg) {
+	store(rofl::openflow::cofmsg* msg) {
 		RwLock rwlock(queuelock, RwLock::RWLOCK_WRITE);
 		queue.push_back(msg);
 		return queue.size();
@@ -52,7 +52,7 @@ public:
 	 *
 	 */
 	rofl::openflow::cofmsg*
-	read() {
+	retrieve() {
 		rofl::openflow::cofmsg* msg = (rofl::openflow::cofmsg*)0;
 		RwLock rwlock(queuelock, RwLock::RWLOCK_WRITE);
 		if (queue.empty()) {
