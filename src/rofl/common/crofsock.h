@@ -288,7 +288,7 @@ private:
 	virtual void
 	handle_closed(
 			csocket& socket) {
-		rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
+		//rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
 	};
 
 private:
