@@ -20,6 +20,7 @@
 #include "rofl/common/ctimerid.h"
 #include "rofl/common/cauxid.h"
 #include "rofl/common/cthread.h"
+#include "rofl/common/crofqueue.h"
 
 namespace rofl {
 
@@ -71,6 +72,7 @@ class crofconn :
 		EVENT_ECHO_RCVD			= 8,
 		EVENT_ECHO_EXPIRED		= 9,
 		EVENT_NEED_LIFE_CHECK	= 10,
+		EVENT_RXQUEUE			= 11,
 	};
 
 	enum crofconn_state_t {
@@ -95,6 +97,7 @@ class crofconn :
 		FLAGS_CONNECT_FAILED	= 3,
 		FLAGS_CLOSED			= 4,
 		FLAGS_RECONNECTING		= 5,
+		FLAGS_RXQUEUE_CONSUMING = 6,
 	};
 
 public:
@@ -229,30 +232,72 @@ protected:
 private:
 
 	virtual void
-	handle_connect_refused(crofsock *rofsock);
+	handle_connect_refused(crofsock *rofsock) {
+		rofl::logging::warn << "[rofl-common][conn] OFP socket indicated transport connection refused." << std::endl << *this;
+		flags.set(FLAGS_CONNECT_REFUSED);
+		run_engine(EVENT_DISCONNECTED);
+	};
 
 	virtual void
-	handle_connect_failed(crofsock *rofsock);
+	handle_connect_failed(crofsock *rofsock) {
+		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection failed." << std::endl << *this;
+		flags.set(FLAGS_CONNECT_FAILED);
+		run_engine(EVENT_DISCONNECTED);
+	};
 
 	virtual void
-	handle_connected (crofsock *rofsock);
+	handle_connected (crofsock *rofsock) {
+		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection established." << std::endl << *this;
+		flags.reset(FLAGS_RECONNECTING);
+		run_engine(EVENT_CONNECTED);
+	};
 
 	virtual void
-	handle_closed(crofsock *rofsock);
+	handle_closed(crofsock *rofsock) {
+		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection closed." << std::endl << *this;
+		flags.set(FLAGS_CLOSED);
+		run_engine(EVENT_DISCONNECTED);
+		env->handle_closed(this);
+	};
 
 	virtual void
-	handle_write(crofsock *rofsock);
+	handle_write(crofsock *rofsock) {
+		env->handle_write(this);
+	};
 
 	virtual void
-	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg);
+	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg) {
+		rxqueue.write(msg);
+		if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
+			ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
+		}
+	};
 
 private:
 
 	/**
 	 *
 	 */
+	void
+	handle_messages();
+
+	/**
+	 *
+	 */
 	virtual void
 	handle_timeout(int opaque, void *data = (void*)0);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_event(const cevent& ev) {
+		switch (ev.get_cmd()) {
+		case EVENT_RXQUEUE: {
+			handle_messages();
+		} break;
+		}
+	};
 
 	/**
 	 *
@@ -633,7 +678,7 @@ private:
 	std::deque<enum crofconn_event_t> 		events;
 	enum crofconn_state_t					state;
 	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
-
+	rofl::crofqueue							rxqueue;
 
 #define DEFAULT_HELLO_TIMEOUT	5
 #define DEFAULT_ECHO_TIMEOUT 	60
