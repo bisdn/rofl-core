@@ -169,22 +169,22 @@ private:
 	/**
 	 * @brief	Private copy constructor for suppressing any copy attempt.
 	 */
-	crofsock(crofsock const& endpnt) :
+	crofsock(
+			const crofsock& endpnt) :
 		env(NULL),
 		socket(NULL),
 		fragment(NULL),
 		msg_bytes_read(0),
 		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
-	{ };
+	{};
 
 	/**
 	 * @brief	Private assignment operator.
 	 */
 	crofsock&
-	operator= (crofsock const& endpnt) {
-		return *this;
-	}
-
+	operator= (
+			const crofsock& endpnt)
+	{ return *this; };
 
 private:
 
