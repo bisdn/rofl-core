@@ -257,12 +257,12 @@ private:
 		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection closed." << std::endl << *this;
 		flags.set(FLAGS_CLOSED);
 		run_engine(EVENT_DISCONNECTED);
-		env->handle_closed(this);
+		if (env) env->handle_closed(this);
 	};
 
 	virtual void
 	handle_write(crofsock *rofsock) {
-		env->handle_write(this);
+		if (env) env->handle_write(this);
 	};
 
 	virtual void
