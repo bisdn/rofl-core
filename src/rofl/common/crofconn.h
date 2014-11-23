@@ -72,7 +72,12 @@ class crofconn :
 		EVENT_ECHO_RCVD			= 8,
 		EVENT_ECHO_EXPIRED		= 9,
 		EVENT_NEED_LIFE_CHECK	= 10,
+		//
 		EVENT_RXQUEUE			= 11,
+		EVENT_CONNECT_FAILED	= 13,
+		EVENT_CONNECT_REFUSED	= 14,
+		EVENT_CLOSED			= 15,
+		EVENT_CONGESTION_SOLVED	= 16,
 	};
 
 	enum crofconn_state_t {
@@ -233,36 +238,32 @@ private:
 
 	virtual void
 	handle_connect_refused(crofsock *rofsock) {
-		rofl::logging::warn << "[rofl-common][conn] OFP socket indicated transport connection refused." << std::endl << *this;
-		flags.set(FLAGS_CONNECT_REFUSED);
-		run_engine(EVENT_DISCONNECTED);
+		rofl::logging::warn << "[rofl-common][conn] transport connection: connect refused" << std::endl << *this;
+		ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
 	handle_connect_failed(crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection failed." << std::endl << *this;
-		flags.set(FLAGS_CONNECT_FAILED);
-		run_engine(EVENT_DISCONNECTED);
+		rofl::logging::debug << "[rofl-common][conn] transport connection: connect failed" << std::endl << *this;
+		ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
 	handle_connected (crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection established." << std::endl << *this;
-		flags.reset(FLAGS_RECONNECTING);
-		run_engine(EVENT_CONNECTED);
+		rofl::logging::debug << "[rofl-common][conn] transport connection established" << std::endl << *this;
+		ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
 	};
 
 	virtual void
 	handle_closed(crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][conn] OFP socket indicated transport connection closed." << std::endl << *this;
-		flags.set(FLAGS_CLOSED);
-		run_engine(EVENT_DISCONNECTED);
-		//if (env) env->handle_closed(this);
+		rofl::logging::debug << "[rofl-common][conn] transport connection closed" << std::endl << *this;
+		ciosrv::notify(rofl::cevent(EVENT_CLOSED));
 	};
 
 	virtual void
 	handle_write(crofsock *rofsock) {
-		if (env) env->handle_write(this);
+		rofl::logging::debug << "[rofl-common][conn] transport connection congested" << std::endl << *this;
+		ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
 	virtual void
@@ -295,6 +296,25 @@ private:
 		switch (ev.get_cmd()) {
 		case EVENT_RXQUEUE: {
 			handle_messages();
+		} break;
+		case EVENT_CONNECTED: {
+			flags.reset(FLAGS_RECONNECTING);
+			run_engine(EVENT_CONNECTED);
+		} break;
+		case EVENT_CONNECT_FAILED: {
+			flags.set(FLAGS_CONNECT_FAILED);
+			run_engine(EVENT_DISCONNECTED);
+		} break;
+		case EVENT_CONNECT_REFUSED: {
+			flags.set(FLAGS_CONNECT_REFUSED);
+			run_engine(EVENT_DISCONNECTED);
+		} break;
+		case EVENT_CLOSED: {
+			flags.set(FLAGS_CLOSED);
+			run_engine(EVENT_DISCONNECTED);
+		} break;
+		case EVENT_CONGESTION_SOLVED: {
+			env->handle_write(this);
 		} break;
 		}
 	};
