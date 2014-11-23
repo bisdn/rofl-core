@@ -13,6 +13,7 @@ crofsock::crofsock(
 		crofsock_env *env) :
 				env(env),
 				socket(NULL),
+				state(STATE_INIT),
 				fragment((cmemory*)0),
 				msg_bytes_read(0),
 				max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND),
@@ -45,6 +46,7 @@ crofsock::~crofsock()
 void
 crofsock::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int sd)
 {
+	state = STATE_CONNECTED;
 	if (socket)
 		delete socket;
 	socket = csocket::csocket_factory(socket_type, this);
@@ -58,6 +60,7 @@ crofsock::connect(
 		enum rofl::csocket::socket_type_t socket_type,
 		cparams const& socket_params)
 {
+	state = STATE_CONNECTING;
 	if (socket)
 		delete socket;
 	ciosrv::cancel_all_timers();
@@ -70,6 +73,7 @@ crofsock::connect(
 void
 crofsock::reconnect()
 {
+	state = STATE_CONNECTING;
 	ciosrv::cancel_all_timers();
 	ciosrv::cancel_all_events();
 	socket->reconnect();
@@ -88,24 +92,10 @@ crofsock::close()
 			it = txqueues.begin(); it != txqueues.end(); ++it) {
 		(*it).clear();
 	}
-}
-
-
-
-void
-crofsock::handle_closed_notification()
-{
-	rofl::logging::info << "[rofl-common][sock] transport connection closed:" << std::endl << *this;
-	if (fragment)
-		delete fragment;
-	fragment = (cmemory*)0;
-	{
-		for (std::vector<crofqueue>::iterator
-				it = txqueues.begin(); it != txqueues.end(); ++it) {
-			(*it).clear();
-		}
+	if (STATE_CONNECTED == state) {
+		env->handle_closed(this);
 	}
-	env->handle_closed(this);
+	state = STATE_CLOSED;
 }
 
 
@@ -182,29 +172,15 @@ crofsock::handle_read(
 
 		rofl::logging::warn << "[rofl-common][sock] failed to read from socket: " << e << std::endl;
 
-		if (fragment) {
-			delete fragment; fragment = (cmemory*)0;
-		}
-
 		// close socket, as it seems, we are out of sync
-		socket.close();
-
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
-		env->handle_closed(this);
+		close();
 
 	} catch (RoflException& e) {
 
 		rofl::logging::warn << "[rofl-common][sock] dropping invalid message: " << e << std::endl;
 
-		if (fragment) {
-			delete fragment; fragment = (cmemory*)0;
-		}
-
 		// close socket, as it seems, we are out of sync
-		socket.close();
-
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
-		env->handle_closed(this);
+		close();
 	}
 
 }
@@ -378,20 +354,6 @@ crofsock::handle_event(
 	case EVENT_TXQUEUE: {
 		send_from_queue();
 	} break;
-#if 0
-	case EVENT_CONNECT_FAILED: {
-		env->handle_connect_failed(this);
-	} break;
-	case EVENT_CONNECT_REFUSED: {
-		env->handle_connect_refused(this);
-	} break;
-	case EVENT_CONNECTED: {
-		env->handle_connected(this);
-	} break;
-	case EVENT_CLOSED: {
-		handle_closed_notification();
-	} break;
-#endif
 	default:
 		rofl::logging::error << "[rofl-common][sock] unknown event type:" << (int)ev.cmd << std::endl;
 	}

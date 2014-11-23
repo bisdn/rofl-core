@@ -97,17 +97,18 @@ class crofsock :
 
 	enum crofsock_event_t {
 		EVENT_TXQUEUE		 	= 1,
-#if 0
-		EVENT_CONNECT_FAILED 	= 2,
-		EVENT_CONNECT_REFUSED 	= 3,
-		EVENT_CONNECTED 		= 4,
-		EVENT_CLOSED 			= 5,
-#endif
 	};
 
 	enum crofsock_flag_t {
-		FLAGS_CONGESTED = 1,
+		FLAGS_CONGESTED 		= 1,
 		FLAGS_CONGESTION_SOLVED = 2,
+	};
+
+	enum crofsock_state_t {
+		STATE_INIT				= 0,
+		STATE_CLOSED			= 1,
+		STATE_CONNECTING		= 2,
+		STATE_CONNECTED			= 3,
 	};
 
 public:
@@ -180,6 +181,7 @@ private:
 			const crofsock& endpnt) :
 		env(NULL),
 		socket(NULL),
+		state(STATE_INIT),
 		fragment(NULL),
 		msg_bytes_read(0),
 		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
@@ -222,8 +224,8 @@ private:
 	handle_accepted(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection established (via accept):" << std::endl << *this;
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
-		//env->handle_connected(this);
+		state = STATE_CONNECTED;
+		// do not call handle_connected() here
 	};
 
 	/**
@@ -233,6 +235,7 @@ private:
 	handle_accept_refused(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] accepted transport connection refused:" << std::endl << *this;
+		state = STATE_CLOSED;
 		// do nothing
 	};
 
@@ -243,8 +246,8 @@ private:
 	handle_connected(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection established (via connect):" << std::endl << *this;
+		state = STATE_CONNECTED;
 		env->handle_connected(this);
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
 	};
 
 	/**
@@ -254,8 +257,8 @@ private:
 	handle_connect_refused(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection refused:" << std::endl << *this;
+		state = STATE_CLOSED;
 		env->handle_connect_refused(this);
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	/**
@@ -265,8 +268,8 @@ private:
 	handle_connect_failed(
 			csocket& socket) {
 		rofl::logging::info << "[rofl-common][sock] transport connection failed:" << std::endl << *this;
+		state = STATE_CLOSED;
 		env->handle_connect_failed(this);
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	/**
@@ -294,8 +297,7 @@ private:
 	virtual void
 	handle_closed(
 			csocket& socket) {
-		env->handle_closed(this);
-		//rofl::ciosrv::notify(rofl::cevent(EVENT_CLOSED));
+		close();
 	};
 
 private:
@@ -333,12 +335,6 @@ private:
 	 */
 	void
 	send_from_queue();
-
-	/**
-	 *
-	 */
-	void
-	handle_closed_notification();
 
 	/**
 	 *
@@ -385,6 +381,8 @@ private:
 	csocket*					socket;
 	// various flags for this crofsock instance
 	std::bitset<32>				flags;
+	// connection state
+	enum crofsock_state_t		state;
 
 	/*
 	 * receiving messages
