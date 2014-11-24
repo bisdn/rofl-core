@@ -132,6 +132,11 @@ crofconn::connect(
 void
 crofconn::close()
 {
+    if (rofsock) {
+            rofl::cioloop::get_loop().stop(rofsock->get_thread_id());
+            cthread::stop_thread();
+            rofsock = NULL;
+    }
 	if (STATE_DISCONNECTED == state) {
 		return;
 	}
@@ -139,8 +144,6 @@ crofconn::close()
 	while (not timer_ids.empty()) {
 		timer_stop(timer_ids.begin()->first);
 	}
-	rofl::cioloop::get_loop().stop(rofsock->get_thread_id());
-	rofsock = NULL;
 }
 
 

@@ -104,6 +104,9 @@ void
 crofsock::handle_read(
 		csocket& socket)
 {
+	if (STATE_CLOSED == state) {
+		return;
+	}
 	unsigned int pkts_rcvd_in_round = 0;
 
 	try {
