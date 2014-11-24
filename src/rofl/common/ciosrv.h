@@ -459,8 +459,10 @@ public:
 	 *
 	 */
 	static void
-	stop() {
-		pthread_t tid = pthread_self();
+	stop(pthread_t tid = 0) {
+		if (0 == tid) {
+			tid = pthread_self();
+		}
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
 		}
