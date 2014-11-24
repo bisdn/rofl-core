@@ -139,7 +139,7 @@ crofconn::close()
 	while (not timer_ids.empty()) {
 		timer_stop(timer_ids.begin()->first);
 	}
-	rofl::cioloop::get_loop(rofsock->get_thread_id()).stop();
+	rofl::cioloop::get_loop().stop(rofsock->get_thread_id());
 	rofsock = NULL;
 }
 
