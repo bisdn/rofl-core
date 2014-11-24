@@ -77,6 +77,16 @@ crofconn::init_thread()
 
 
 void
+crofconn::release_thread()
+{
+	if (NULL != rofsock) {
+		delete rofsock; rofsock = NULL;
+	}
+}
+
+
+
+void
 crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
 	this->flavour = flavour;
@@ -877,99 +887,107 @@ unsigned int
 crofconn::fragment_and_send_message(
 		rofl::openflow::cofmsg *msg)
 {
+	unsigned int cwnd_size = 0;
+
 	if (msg->length() <= fragmentation_threshold) {
-		return rofsock->send_message(msg); // default behaviour for now: send message directly to rofsock
-	}
+		cwnd_size = rofsock->send_message(msg); // default behaviour for now: send message directly to rofsock
 
-	// fragment the packet
-	switch (msg->get_version()) {
-	case rofl::openflow12::OFP_VERSION: {
+	} else {
 
-		switch (msg->get_type()) {
-		case rofl::openflow12::OFPT_STATS_REPLY: {
+		// fragment the packet
+		switch (msg->get_version()) {
+		case rofl::openflow12::OFP_VERSION: {
 
-			switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
-			case rofl::openflow12::OFPST_FLOW: {
-				return fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
-			} break;
-			case rofl::openflow12::OFPST_TABLE: {
-				return fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
-			} break;
-			case rofl::openflow12::OFPST_QUEUE: {
-				return fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
-			} break;
-			case rofl::openflow12::OFPST_GROUP: {
-				return fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
-			} break;
-			case rofl::openflow12::OFPST_GROUP_DESC: {
-				return fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
-			} break;
-			}
+			switch (msg->get_type()) {
+			case rofl::openflow12::OFPT_STATS_REPLY: {
 
-		} break;
-		}
-	} break;
-	case rofl::openflow13::OFP_VERSION: {
-
-		switch (msg->get_type()) {
-		case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
-
-			switch (dynamic_cast<rofl::openflow::cofmsg_stats_request*>( msg )->get_stats_type()) {
-			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-				return fragment_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg));
-			} break;
-			}
-
-		} break;
-		case rofl::openflow13::OFPT_MULTIPART_REPLY: {
-
-			switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
-			case rofl::openflow13::OFPMP_FLOW: {
-				return fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_TABLE: {
-				return fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_PORT_STATS: {
-				return fragment_port_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_QUEUE: {
-				return fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_GROUP: {
-				return fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_GROUP_DESC: {
-				return fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-				return fragment_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_PORT_DESC: {
-				return fragment_port_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_METER: {
-				return fragment_meter_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_METER_CONFIG: {
-				return fragment_meter_config_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply*>(msg));
-			} break;
-			case rofl::openflow13::OFPMP_METER_FEATURES: {
-				// no array in meter-features, so no need to fragment
-				if (rofsock) {
-					return rofsock->send_message(msg); // default behaviour for now: send message directly to rofsock
+				switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
+				case rofl::openflow12::OFPST_FLOW: {
+					cwnd_size = fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
+				} break;
+				case rofl::openflow12::OFPST_TABLE: {
+					cwnd_size = fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
+				} break;
+				case rofl::openflow12::OFPST_QUEUE: {
+					cwnd_size = fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
+				} break;
+				case rofl::openflow12::OFPST_GROUP: {
+					cwnd_size = fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
+				} break;
+				case rofl::openflow12::OFPST_GROUP_DESC: {
+					cwnd_size = fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
+				} break;
 				}
+
 			} break;
 			}
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
 
+			switch (msg->get_type()) {
+			case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
+
+				switch (dynamic_cast<rofl::openflow::cofmsg_stats_request*>( msg )->get_stats_type()) {
+				case rofl::openflow13::OFPMP_TABLE_FEATURES: {
+					cwnd_size = fragment_table_features_stats_request(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request*>(msg));
+				} break;
+				}
+
+			} break;
+			case rofl::openflow13::OFPT_MULTIPART_REPLY: {
+
+				switch (dynamic_cast<rofl::openflow::cofmsg_stats_reply*>( msg )->get_stats_type()) {
+				case rofl::openflow13::OFPMP_FLOW: {
+					cwnd_size = fragment_flow_stats_reply(dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_TABLE: {
+					cwnd_size = fragment_table_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_PORT_STATS: {
+					cwnd_size = fragment_port_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_QUEUE: {
+					cwnd_size = fragment_queue_stats_reply(dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_GROUP: {
+					cwnd_size = fragment_group_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_GROUP_DESC: {
+					cwnd_size = fragment_group_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_TABLE_FEATURES: {
+					cwnd_size = fragment_table_features_stats_reply(dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_PORT_DESC: {
+					cwnd_size = fragment_port_desc_stats_reply(dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_METER: {
+					cwnd_size = fragment_meter_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_METER_CONFIG: {
+					cwnd_size = fragment_meter_config_stats_reply(dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply*>(msg));
+				} break;
+				case rofl::openflow13::OFPMP_METER_FEATURES: {
+					// no array in meter-features, so no need to fragment
+					if (rofsock) {
+						cwnd_size = rofsock->send_message(msg); // default behaviour for now: send message directly to rofsock
+					}
+				} break;
+				}
+
+			} break;
+			}
 		} break;
 		}
-	} break;
 	}
 
-	// should never be reached, though
-	assert(false);
-	throw eRofSockMsgTooLarge();
+	if (0 == cwnd_size) {
+		flags.set(FLAGS_CONGESTED);
+	} else {
+		flags.reset(FLAGS_CONGESTED);
+	}
+
+	return cwnd_size;
 }
 
 

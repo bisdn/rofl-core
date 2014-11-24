@@ -121,7 +121,8 @@ public:
 	/**
 	 *
 	 */
-	virtual ~crofsock();
+	virtual
+	~crofsock();
 
 public:
 
@@ -129,13 +130,18 @@ public:
 	 *
 	 */
 	void
-	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int sd);
+	accept(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params,
+			int sd);
 
 	/**
 	 *
 	 */
 	void
-	connect(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+	connect(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params);
 
 	/**
 	 *
@@ -168,7 +174,8 @@ public:
 	 *
 	 */
 	bool
-	is_established() const { return socket->is_established(); };
+	is_established() const
+	{ return socket->is_established(); };
 
 private:
 

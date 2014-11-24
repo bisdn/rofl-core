@@ -76,6 +76,12 @@ protected:
 	/**
 	 *
 	 */
+	virtual void
+	release_thread() {}; // to be overwritten by derived class
+
+	/**
+	 *
+	 */
 	void
 	start_thread(const pthread_attr_t* attr = (const pthread_attr_t*)0) {
 		int rc = pthread_create(&pid, attr, cthread::run_thread, (void*)this);
@@ -135,6 +141,8 @@ private:
 		thread.init_thread();
 
 		rofl::cioloop::run();
+
+		thread.release_thread();
 
 		return (void*)&(thread.get_result());
 	};

@@ -103,6 +103,7 @@ class crofconn :
 		FLAGS_CLOSED			= 4,
 		FLAGS_RECONNECTING		= 5,
 		FLAGS_RXQUEUE_CONSUMING = 6,
+		FLAGS_CONGESTED			= 7,
 	};
 
 public:
@@ -120,7 +121,7 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
 
 	/**
 	 *
@@ -133,19 +134,27 @@ public:
 	 *
 	 */
 	enum crofconn_flavour_t
-	get_flavour() const { return flavour; };
+	get_flavour() const
+	{ return flavour; };
 
 	/**
 	 *
 	 */
 	void
-	accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour);
+	accept(
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params,
+			int newsd,
+			enum crofconn_flavour_t flavour);
 
 	/**
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
 	 */
 	void
-	connect(const cauxid& aux_id, enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params);
+	connect(
+			const cauxid& aux_id,
+			enum rofl::csocket::socket_type_t socket_type,
+			const cparams& socket_params);
 
 	/**
 	 * @brief	Instruct crofsock instance to reconnect to previously connected peer.
@@ -164,63 +173,80 @@ public:
 	 * @brief	Returns whether this connection is established
 	 */
 	bool
-	is_established() const { return (STATE_ESTABLISHED == state); }
+	is_established() const
+	{ return (STATE_ESTABLISHED == state); }
 
 	/**
 	 * @brief	Returns true when this connection has been actively established
 	 */
 	bool
-	is_actively_established() const { return not flags.test(FLAGS_PASSIVE); };
+	is_actively_established() const
+	{ return not flags.test(FLAGS_PASSIVE); };
+
+	/**
+	 * @brief	Returns true, when the underlying TCP connection is congested
+	 */
+	bool
+	is_congested() const
+	{ return flags.test(FLAGS_CONGESTED); };
 
 	/**
 	 * @brief	Returns a reference to the versionbitmap announced by this entity
 	 */
 	rofl::openflow::cofhello_elem_versionbitmap&
-	get_versionbitmap() { return versionbitmap; };
+	get_versionbitmap()
+	{ return versionbitmap; };
 
 	/**
 	 * @brief	Returns a reference to the versionbitmap seen from the peer
 	 */
 	rofl::openflow::cofhello_elem_versionbitmap&
-	get_versionbitmap_peer() { return versionbitmap_peer; };
+	get_versionbitmap_peer()
+	{ return versionbitmap_peer; };
 
 	/**
 	 * @brief	Returns the negotiated OFP version (or OFP_UNKNOWN)
 	 */
 	uint8_t
-	get_version() const { return ofp_version; };
+	get_version() const
+	{ return ofp_version; };
 
 	/**
 	 * @brief	Returns data path id assigned to this connection
 	 */
 	uint64_t
-	get_dpid() const { return dpid; };
+	get_dpid() const
+	{ return dpid; };
 
 	/**
 	 * @brief	Return auxialiary_id
 	 */
 	cauxid const&
-	get_aux_id() const { return auxiliary_id; };
+	get_aux_id() const
+	{ return auxiliary_id; };
 
 	/**
 	 * @brief
 	 */
 	crofsock const&
-	get_rofsocket() const { return *rofsock; };
+	get_rofsocket() const
+	{ return *rofsock; };
 
 	/**
 	 * @brief	Send OFP message via socket
 	 */
 	unsigned int
-	send_message(rofl::openflow::cofmsg *msg) {
-		return fragment_and_send_message(msg);
-	};
+	send_message(
+			rofl::openflow::cofmsg *msg)
+	{ return fragment_and_send_message(msg); };
 
 	/**
 	 *
 	 */
 	void
-	set_env(crofconn_env* env) { this->env = env; };
+	set_env(
+			crofconn_env* env)
+	{ this->env = env; };
 
 	/**
 	 *
@@ -234,40 +260,50 @@ protected:
 	virtual void
 	init_thread();
 
+	virtual void
+	release_thread();
+
 private:
 
 	virtual void
-	handle_connect_refused(crofsock *rofsock) {
+	handle_connect_refused(
+			crofsock *rofsock) {
 		rofl::logging::warn << "[rofl-common][conn] transport connection: connect refused" << std::endl << *this;
 		ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
-	handle_connect_failed(crofsock *rofsock) {
+	handle_connect_failed(
+			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection: connect failed" << std::endl << *this;
 		ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
-	handle_connected (crofsock *rofsock) {
+	handle_connected (
+			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection established" << std::endl << *this;
 		ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
 	};
 
 	virtual void
-	handle_closed(crofsock *rofsock) {
+	handle_closed(
+			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection closed" << std::endl << *this;
 		ciosrv::notify(rofl::cevent(EVENT_CLOSED));
 	};
 
 	virtual void
-	handle_write(crofsock *rofsock) {
+	handle_write(
+			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection congested" << std::endl << *this;
 		ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
 	virtual void
-	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg) {
+	recv_message(
+			crofsock *rofsock,
+			rofl::openflow::cofmsg *msg) {
 		rxqueue.store(msg);
 		if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
 			ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
@@ -286,13 +322,16 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque, void *data = (void*)0);
+	handle_timeout(
+			int opaque,
+			void *data = (void*)0);
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_event(const cevent& ev) {
+	handle_event(
+			const cevent& ev) {
 		switch (ev.get_cmd()) {
 		case EVENT_RXQUEUE: {
 			handle_messages();
@@ -314,6 +353,7 @@ private:
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONGESTION_SOLVED: {
+			flags.reset(FLAGS_CONGESTED);
 			env->handle_write(this);
 		} break;
 		}
@@ -323,7 +363,8 @@ private:
 	 *
 	 */
 	void
-	run_engine(enum crofconn_event_t event = EVENT_NONE);
+	run_engine(
+			enum crofconn_event_t event = EVENT_NONE);
 
 	/**
 	 *
@@ -668,48 +709,56 @@ public:
 
 private:
 
-	crofconn_env* 					env;
-	uint64_t						dpid;
-	cauxid							auxiliary_id;
-	crofsock*						rofsock;
-	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
-	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
-	uint8_t							ofp_version;			// negotiated OFP version
-	std::bitset<32>					flags;
-	csegmentation					sar;					// segmentation and reassembly for multipart messages
-	size_t							fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
+	crofconn_env* 		env;
+	uint64_t			dpid;
+	cauxid				auxiliary_id;
+	crofsock*			rofsock;
+	rofl::openflow::cofhello_elem_versionbitmap
+						versionbitmap; 			// supported OFP versions by this entity
+	rofl::openflow::cofhello_elem_versionbitmap
+						versionbitmap_peer;		// supported OFP versions by peer entity
+	uint8_t				ofp_version;			// negotiated OFP version
+	std::bitset<32>		flags;
+	csegmentation		sar;					// segmentation and reassembly for multipart messages
+	size_t				fragmentation_threshold;// maximum number of bytes for a multipart message before being fragmented
 
-	static unsigned int const DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
-	static unsigned int const DEFAULT_ETHERNET_MTU_SIZE = 1500;
+	static unsigned int const
+						DEFAULT_FRAGMENTATION_THRESHOLD = 65535;
+	static unsigned int const
+						DEFAULT_ETHERNET_MTU_SIZE = 1500;
+	ctimespec			max_backoff;
+	ctimespec			reconnect_start_timeout;
+	ctimespec			reconnect_timespec; 	// reconnect in x seconds
+	ctimespec			reconnect_variance;
+	int 				reconnect_counter;
 
-	ctimespec						max_backoff;
-	ctimespec						reconnect_start_timeout;
-	ctimespec						reconnect_timespec; 	// reconnect in x seconds
-	ctimespec						reconnect_variance;
-	int 							reconnect_counter;
+	static const int 	CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS 	= 10000000;	// start reconnect timeout (default 10ms)
+	static const int 	CROFCONN_RECONNECT_VARIANCE_IN_NSECS 		= 10000000; // reconnect variance (default 10ms)
 
-	static int const CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS 	= 10000000;	// start reconnect timeout (default 10ms)
-	static int const CROFCONN_RECONNECT_VARIANCE_IN_NSECS 		= 10000000; // reconnect variance (default 10ms)
+	enum crofconn_flavour_t
+						flavour;
+	enum rofl::csocket::socket_type_t
+						socket_type;
+	rofl::cparams
+						socket_params;
+	int					newsd;
+	std::deque<enum crofconn_event_t>
+						events;
+	enum crofconn_state_t
+						state;
+	std::map<crofconn_timer_t, ctimerid>
+						timer_ids;				// timer-ids obtained from ciosrv
+	rofl::crofqueue		rxqueue;
 
-	enum crofconn_flavour_t					flavour;
-	enum rofl::csocket::socket_type_t 		socket_type;
-	rofl::cparams 							socket_params;
-	int										newsd;
-	std::deque<enum crofconn_event_t> 		events;
-	enum crofconn_state_t					state;
-	std::map<crofconn_timer_t, ctimerid>	timer_ids;				// timer-ids obtained from ciosrv
-	rofl::crofqueue							rxqueue;
-
-#define DEFAULT_HELLO_TIMEOUT	5
-#define DEFAULT_ECHO_TIMEOUT 	60
-#define DEFAULT_ECHO_INTERVAL	60
-
+	static const int 	DEFAULT_HELLO_TIMEOUT = 5;
+	static const int 	DEFAULT_ECHO_TIMEOUT = 60;
+	static const int 	DEFAULT_ECHO_INTERVAL = 60;
 
 public:
 
-	unsigned int					hello_timeout;
-	unsigned int					echo_timeout;
-	unsigned int					echo_interval;
+	unsigned int		hello_timeout;
+	unsigned int		echo_timeout;
+	unsigned int		echo_interval;
 
 };
 
