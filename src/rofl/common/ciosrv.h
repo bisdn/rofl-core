@@ -209,6 +209,9 @@ protected:
 	has_timer(ciosrv* iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = true;
+		if (tid != pthread_self()) {
+			pipe.writemsg('1'); // wakeup main loop, just in case
+		}
 	};
 
 	/**
@@ -227,7 +230,9 @@ protected:
 	has_event(ciosrv* iosrv) {
 		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 		events[iosrv] = true;
-		pipe.writemsg('1'); // wakeup main loop, just in case
+		if (tid != pthread_self()) {
+			pipe.writemsg('1'); // wakeup main loop, just in case
+		}
 	};
 
 	/**
@@ -601,7 +606,7 @@ protected:
 	 */
 	const ctimerid&
 	register_timer(int opaque, const ctimespec& timespec) {
-		if (timers.empty())
+		if (timers.empty() || (get_thread_id() != pthread_self()))
 			cioloop::get_loop().has_timer(this);
 		return timers.add_timer(ctimer(this, opaque, timespec));
 	};
@@ -617,6 +622,8 @@ protected:
 	 */
 	const ctimerid&
 	reset_timer(const ctimerid& timer_id, const ctimespec& timespec) {
+		if (timers.empty() || (get_thread_id() != pthread_self()))
+			cioloop::get_loop().has_timer(this);
 		return timers.reset(timer_id, timespec);
 	};
 
