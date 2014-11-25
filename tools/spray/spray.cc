@@ -65,7 +65,7 @@ main(int argc, char** argv)
 
 		//udpsend.stop_sending();
 
-		rofl::ciosrv::run();
+		rofl::cioloop::get_loop().run();
 
 	} else if (getopt.has_opt("receiver")) {
 
@@ -77,7 +77,7 @@ main(int argc, char** argv)
 
 		//udprecv.stop_receiving();
 
-		rofl::ciosrv::run();
+		rofl::cioloop::get_loop().run();
 
 	} else {
 		std::cerr << "unknown mode, aborting." << std::endl;

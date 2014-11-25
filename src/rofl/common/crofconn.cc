@@ -133,7 +133,7 @@ void
 crofconn::close()
 {
     if (rofsock) {
-            rofl::cioloop::get_loop().stop(rofsock->get_thread_id());
+            //rofl::cioloop::get_loop(rofsock->get_thread_id()).stop(); ???
             cthread::stop_thread();
             rofsock = NULL;
     }

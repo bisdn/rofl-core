@@ -101,7 +101,7 @@ csocket_impl::handle_event(
 			if (sockflags.test(FLAG_CLOSING)) {
 				//rofl::logging::info << "[rofl-common][csocket][impl] sending CLOSED NOTIFICATION." << std::endl;
 				sockflags.reset(FLAG_CLOSING);
-				events_clear();
+				cancel_all_events();
 				handle_closed();
 			}
 			return;

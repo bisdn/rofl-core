@@ -50,10 +50,10 @@ int main(int argc, char** argv){
 	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 
 	//Launch main I/O loop
-	rofl::cioloop::run();
+	rofl::cioloop::get_loop().run();
 
 	//This will never be called unless the main loop
-	rofl::cioloop::shutdown();
+	rofl::cioloop::get_loop().shutdown();
 
 	return EXIT_SUCCESS;
 }

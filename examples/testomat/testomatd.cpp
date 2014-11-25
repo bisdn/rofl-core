@@ -41,9 +41,9 @@ main(int argc, char** argv)
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
 	ctl.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 
-	rofl::cioloop::run();
+	rofl::cioloop::get_loop().run();
 
-	rofl::cioloop::shutdown();
+	rofl::cioloop::get_loop().shutdown();
 
 	return 0;
 }

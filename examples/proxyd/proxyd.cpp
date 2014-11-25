@@ -35,9 +35,9 @@ main(int argc, char** argv)
 ;
 	proxy::ccontrol ctl;
 
-	rofl::cioloop::run();
+	rofl::cioloop::get_loop().run();
 
-	rofl::cioloop::shutdown();
+	rofl::cioloop::get_loop().shutdown();
 
 	return 0;
 }

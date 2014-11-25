@@ -12,6 +12,7 @@
 
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/croflexception.h>
+#include <rofl/common/logging.h>
 
 namespace rofl {
 namespace common {
@@ -84,7 +85,9 @@ protected:
 	 */
 	void
 	start_thread(const pthread_attr_t* attr = (const pthread_attr_t*)0) {
+		rofl::logging::debug << "[rofl-common][cthread][start_thread] create" << std::endl;
 		int rc = pthread_create(&pid, attr, cthread::run_thread, (void*)this);
+		rofl::logging::debug << "[rofl-common][cthread][start_thread] create done tid: 0x" << pid << std::endl;
 		if (rc != 0) {
 			switch (rc) {
 			case EAGAIN: {
@@ -108,9 +111,12 @@ protected:
 	 */
 	void
 	stop_thread() {
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] cancel tid: 0x" << pid << std::endl;
 		pthread_cancel(pid);
 		void* retval;
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << pid << std::endl;
 		int rc = pthread_join(pid, &retval);
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join done tid: 0x" << pid << std::endl;
 		if (rc != 0) {
 			switch (rc) {
 			case EDEADLK: {
@@ -140,7 +146,7 @@ private:
 
 		thread.init_thread();
 
-		rofl::cioloop::run();
+		rofl::cioloop::get_loop(thread.get_pid()).run();
 
 		thread.release_thread();
 
