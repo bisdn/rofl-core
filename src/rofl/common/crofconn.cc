@@ -27,7 +27,7 @@ crofconn::crofconn(
 				flavour(FLAVOUR_UNSPECIFIED),
 				socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
 				newsd(0),
-				state(STATE_DISCONNECTED),
+				state(STATE_INIT),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
@@ -42,7 +42,7 @@ crofconn::~crofconn()
 	env = NULL;
 	//rofl::logging::debug << "[rofl][crofconn] destructor " << std::hex << this << std::dec << std::endl;
 	if (STATE_DISCONNECTED != state) {
-		close();
+		run_engine(EVENT_DISCONNECTED);
 	}
 }
 
@@ -89,13 +89,18 @@ crofconn::release_thread()
 void
 crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
+	flags.reset();
+	flags.set(FLAGS_PASSIVE);
+
+	state = STATE_ACCEPT_PENDING;
 	this->flavour = flavour;
 	this->socket_type = socket_type;
 	this->socket_params = socket_params;
 	this->newsd = newsd;
-	flags.set(FLAGS_PASSIVE);
 
-	cthread::start_thread();
+	if (not cthread::is_running()) {
+		cthread::start();
+	}
 }
 
 
@@ -113,18 +118,23 @@ void
 crofconn::connect(
 		const cauxid& aux_id,
 		enum rofl::csocket::socket_type_t socket_type,
-		cparams const& socket_params)
+		const cparams& socket_params)
 {
-	if (STATE_ESTABLISHED == state) {
+	if (STATE_CONNECTED == state) {
 		throw eRofConnBusy();
 	}
-	flags.reset(FLAGS_PASSIVE);
-	auxiliary_id = aux_id;
+
+	flags.reset();
+	//flags.reset(FLAGS_PASSIVE);
+
 	state = STATE_CONNECT_PENDING;
+	auxiliary_id = aux_id;
 	this->socket_type = socket_type;
 	this->socket_params = socket_params;
 
-	cthread::start_thread();
+	if (not cthread::is_running()) {
+		cthread::start();
+	}
 }
 
 
@@ -132,18 +142,8 @@ crofconn::connect(
 void
 crofconn::close()
 {
-    if (rofsock) {
-            //rofl::cioloop::get_loop(rofsock->get_thread_id()).stop(); ???
-            cthread::stop_thread();
-            rofsock = NULL;
-    }
-	if (STATE_DISCONNECTED == state) {
-		return;
-	}
-	state = STATE_DISCONNECTED;
-	while (not timer_ids.empty()) {
-		timer_stop(timer_ids.begin()->first);
-	}
+	flags.set(FLAGS_LOCAL_CLOSE);
+	run_engine(EVENT_DISCONNECTED);
 }
 
 
@@ -211,7 +211,7 @@ void
 crofconn::event_reconnect()
 {
 	switch (state) {
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		rofl::logging::debug << "[rofl-common][conn] connection in state -established-" << std::endl;
 		// do nothing
 	} return;
@@ -232,10 +232,12 @@ void
 crofconn::event_connected()
 {
 	switch (state) {
+	case STATE_INIT:
 	case STATE_DISCONNECTED:
 	case STATE_CONNECT_PENDING:
+	case STATE_ACCEPT_PENDING:
 	case STATE_WAIT_FOR_HELLO:
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		rofl::logging::debug << "[rofl-common][conn] TCP connection established." << std::endl;
 		state = STATE_WAIT_FOR_HELLO;
 		reconnect_timespec = reconnect_start_timeout;
@@ -254,12 +256,22 @@ crofconn::event_connected()
 void
 crofconn::event_disconnected()
 {
+	if (cthread::is_running()) {
+		cthread::stop();
+	}
+
+	while (not timer_ids.empty()) {
+		timer_stop(timer_ids.begin()->first);
+	}
+
 	switch (state) {
 	case STATE_DISCONNECTED: {
 		rofl::logging::debug << "[rofl-common][conn] connection in state -disconnected-" << std::endl;
 	} break;
 	case STATE_CONNECT_PENDING: {
 		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
+		state = STATE_DISCONNECTED;
+
 		if (flags.test(FLAGS_CONNECT_REFUSED)) {
 			if (env) env->handle_connect_refused(this); flags.reset(FLAGS_CONNECT_REFUSED);
 		}
@@ -268,18 +280,21 @@ crofconn::event_disconnected()
 		}
 
 	} break;
+	case STATE_ACCEPT_PENDING:
 	case STATE_WAIT_FOR_HELLO:
-	case STATE_ESTABLISHED:
+	case STATE_CONNECTED:
 	default: {
 		rofl::logging::debug << "[rofl-common][conn] entering state -disconnected-" << std::endl;
 		state = STATE_DISCONNECTED;
 		timer_stop_wait_for_echo();
 		timer_stop_wait_for_hello();
-		//rofsock.close();
-		//cthread::stop_thread();
 
-		if (flags.test(FLAGS_CLOSED)) {
-			flags.reset(FLAGS_CLOSED); if (env) env->handle_closed(this); return; // this object may have been destroyed here
+		if (flags.test(FLAGS_LOCAL_CLOSE)) {
+			flags.reset(FLAGS_LOCAL_CLOSE); //if (env) env->handle_closed(this); return; // this object may have been destroyed here
+		}
+
+		if (flags.test(FLAGS_PEER_CLOSE)) {
+			flags.reset(FLAGS_PEER_CLOSE); if (env) env->handle_closed(this); return; // this object may have been destroyed here
 		}
 	};
 	}
@@ -307,12 +322,12 @@ crofconn::event_hello_rcvd()
 			timer_start_wait_for_features();
 		} else {
 			rofl::logging::debug << "[rofl-common][conn] entering state -established-" << std::endl;
-			state = STATE_ESTABLISHED;
+			state = STATE_CONNECTED;
 			if (env) env->handle_connected(this, ofp_version);
 		}
 
 	} break;
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		rofl::logging::debug << "[rofl-common][conn] connection is in state -established-" << std::endl;
 		// do nothing
 	} break;
@@ -347,7 +362,7 @@ crofconn::event_features_rcvd()
 	switch (state) {
 	case STATE_WAIT_FOR_FEATURES: {
 		if (flags.test(FLAGS_PASSIVE)) {
-			state = STATE_ESTABLISHED;
+			state = STATE_CONNECTED;
 			cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
 			timer_ids.erase(TIMER_WAIT_FOR_FEATURES);
 
@@ -355,7 +370,7 @@ crofconn::event_features_rcvd()
 		}
 
 	} break;
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		// do nothing
 	} break;
 	default: {
@@ -386,7 +401,7 @@ void
 crofconn::event_echo_rcvd()
 {
 	switch (state) {
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		timer_stop_wait_for_echo();
 		rofl::logging::debug << "[rofl-common][conn] event-echo-rcvd: OFP transport connection is good." << std::endl << *this;
 		// do not restart TIMER_NEED_LIFE_CHECK here => ::recv()
@@ -404,9 +419,9 @@ void
 crofconn::event_echo_expired()
 {
 	switch (state) {
-	case STATE_ESTABLISHED: {
+	case STATE_CONNECTED: {
 		rofl::logging::warn << "[rofl-common][conn] event-echo-expired: OFP transport connection is congested or dead. Closing. " << std::endl << *this;
-		flags.set(FLAGS_CLOSED);
+		flags.set(FLAGS_LOCAL_CLOSE);
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
@@ -622,7 +637,7 @@ crofconn::handle_messages()
 
 		} break;
 		default: {
-			if (state != STATE_ESTABLISHED) {
+			if (state != STATE_CONNECTED) {
 				rofl::logging::warn << "[rofl-common][conn] dropping message, connection not fully established." << std::endl << *this;
 				delete msg; return;
 			}
@@ -860,7 +875,7 @@ crofconn::features_reply_rcvd(
 			delete msg; return;
 		}
 
-		if (STATE_ESTABLISHED != state) {
+		if (STATE_CONNECTED != state) {
 			rofl::logging::debug << "[rofl-common][conn] rcvd FEATURES.reply:" << std::endl << *reply;
 
 			dpid 			= reply->get_dpid();

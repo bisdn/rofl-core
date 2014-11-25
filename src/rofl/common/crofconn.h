@@ -76,16 +76,19 @@ class crofconn :
 		EVENT_RXQUEUE			= 11,
 		EVENT_CONNECT_FAILED	= 13,
 		EVENT_CONNECT_REFUSED	= 14,
-		EVENT_CLOSED			= 15,
+		EVENT_LOCAL_CLOSE		= 15,
 		EVENT_CONGESTION_SOLVED	= 16,
+		EVENT_PEER_CLOSE		= 17,	// socket was closed by peer entity
 	};
 
 	enum crofconn_state_t {
+		STATE_INIT				= 0,
 		STATE_DISCONNECTED 		= 1,
 		STATE_CONNECT_PENDING	= 2,
-		STATE_WAIT_FOR_HELLO	= 3,
-		STATE_WAIT_FOR_FEATURES = 4,
-		STATE_ESTABLISHED 		= 5,
+		STATE_ACCEPT_PENDING	= 3,
+		STATE_WAIT_FOR_HELLO	= 4,
+		STATE_WAIT_FOR_FEATURES = 5,
+		STATE_CONNECTED 		= 6,
 	};
 
 	enum crofconn_timer_t {
@@ -100,10 +103,11 @@ class crofconn :
 		FLAGS_PASSIVE			= 1,
 		FLAGS_CONNECT_REFUSED	= 2,
 		FLAGS_CONNECT_FAILED	= 3,
-		FLAGS_CLOSED			= 4,
+		FLAGS_LOCAL_CLOSE		= 4,
 		FLAGS_RECONNECTING		= 5,
 		FLAGS_RXQUEUE_CONSUMING = 6,
 		FLAGS_CONGESTED			= 7,
+		FLAGS_PEER_CLOSE		= 8,
 	};
 
 public:
@@ -174,7 +178,7 @@ public:
 	 */
 	bool
 	is_established() const
-	{ return (STATE_ESTABLISHED == state); }
+	{ return (STATE_CONNECTED == state); }
 
 	/**
 	 * @brief	Returns true when this connection has been actively established
@@ -269,35 +273,35 @@ private:
 	handle_connect_refused(
 			crofsock *rofsock) {
 		rofl::logging::warn << "[rofl-common][conn] transport connection: connect refused" << std::endl << *this;
-		ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
 	handle_connect_failed(
 			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection: connect failed" << std::endl << *this;
-		ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
 	handle_connected (
 			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection established" << std::endl << *this;
-		ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
 	};
 
 	virtual void
 	handle_closed(
 			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection closed" << std::endl << *this;
-		ciosrv::notify(rofl::cevent(EVENT_CLOSED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_CLOSE));
 	};
 
 	virtual void
 	handle_write(
 			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection congested" << std::endl << *this;
-		ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
 	virtual void
@@ -306,7 +310,7 @@ private:
 			rofl::openflow::cofmsg *msg) {
 		rxqueue.store(msg);
 		if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
-			ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
+			rofl::ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
 		}
 	};
 
@@ -348,13 +352,17 @@ private:
 			flags.set(FLAGS_CONNECT_REFUSED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
-		case EVENT_CLOSED: {
-			flags.set(FLAGS_CLOSED);
+		case EVENT_LOCAL_CLOSE: {
+			flags.set(FLAGS_LOCAL_CLOSE);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONGESTION_SOLVED: {
 			flags.reset(FLAGS_CONGESTED);
 			env->handle_write(this);
+		} break;
+		case EVENT_PEER_CLOSE: {
+			flags.set(FLAGS_PEER_CLOSE);
+			run_engine(EVENT_DISCONNECTED);
 		} break;
 		}
 	};
@@ -693,7 +701,7 @@ public:
 		else if (conn.state == STATE_WAIT_FOR_FEATURES) {
 			os << indent(2) << "<state: -WAIT-FOR-FEATURES- >" << std::endl;
 		}
-		else if (conn.state == STATE_ESTABLISHED) {
+		else if (conn.state == STATE_CONNECTED) {
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
 		}
 		{ os << rofl::indent(2) << "<current-backoff: >" << std::endl; rofl::indent i(4); os << conn.reconnect_timespec; };

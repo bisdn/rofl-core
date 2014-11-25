@@ -10,6 +10,8 @@
 
 #include <pthread.h>
 
+#include <bitset>
+
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/croflexception.h>
 #include <rofl/common/logging.h>
@@ -27,12 +29,17 @@ public:
 };
 
 class cthread {
+
+	enum cthread_flag_t {
+		FLAGS_THREAD_IS_RUNNING = 1,
+	};
+
 public:
 
 	/**
 	 *
 	 */
-	cthread() : pid(0), result(0) {};
+	cthread() : tid(0), result(0) {};
 
 	/**
 	 *
@@ -40,19 +47,26 @@ public:
 	virtual
 	~cthread() {};
 
-public:
+protected:
+
+	/**
+	 *
+	 */
+	bool
+	is_running() const
+	{ return flags.test(FLAGS_THREAD_IS_RUNNING); };
 
 	/**
 	 *
 	 */
 	void
-	set_pid(pthread_t pid) { this->pid = pid; };
+	set_thread_id(pthread_t tid) { this->tid = tid; };
 
 	/**
 	 *
 	 */
 	pthread_t
-	get_pid() const { return pid; };
+	get_thread_id() const { return tid; };
 
 	/**
 	 *
@@ -84,10 +98,10 @@ protected:
 	 *
 	 */
 	void
-	start_thread(const pthread_attr_t* attr = (const pthread_attr_t*)0) {
+	start(const pthread_attr_t* attr = (const pthread_attr_t*)0) {
 		rofl::logging::debug << "[rofl-common][cthread][start_thread] create" << std::endl;
-		int rc = pthread_create(&pid, attr, cthread::run_thread, (void*)this);
-		rofl::logging::debug << "[rofl-common][cthread][start_thread] create done tid: 0x" << pid << std::endl;
+		int rc = pthread_create(&tid, attr, cthread::run_thread, (void*)this);
+		rofl::logging::debug << "[rofl-common][cthread][start_thread] create done tid: 0x" << tid << std::endl;
 		if (rc != 0) {
 			switch (rc) {
 			case EAGAIN: {
@@ -103,20 +117,27 @@ protected:
 				throw eRofThreadFailed("cthread::start_thread() unknown error occured");
 			};
 			}
+		} else {
+			flags.set(FLAGS_THREAD_IS_RUNNING);
 		}
-	}
+	};
 
 	/**
 	 *
 	 */
 	void
-	stop_thread() {
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] cancel tid: 0x" << pid << std::endl;
-		pthread_cancel(pid);
+	stop() {
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] stop cioloop tid: 0x" << tid << std::endl;
+		rofl::cioloop::get_loop(get_thread_id()).stop();
+
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] cancel tid: 0x" << tid << std::endl;
+		pthread_cancel(tid);
+
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << tid << std::endl;
 		void* retval;
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << pid << std::endl;
-		int rc = pthread_join(pid, &retval);
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join done tid: 0x" << pid << std::endl;
+		int rc = pthread_join(tid, &retval);
+		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join done tid: 0x" << tid << std::endl;
+
 		if (rc != 0) {
 			switch (rc) {
 			case EDEADLK: {
@@ -133,6 +154,8 @@ protected:
 			};
 			}
 		}
+
+		flags.reset(FLAGS_THREAD_IS_RUNNING);
 	};
 
 private:
@@ -143,10 +166,11 @@ private:
 	static void*
 	run_thread(void* arg) {
 		cthread& thread = *(static_cast<cthread*>( arg ));
+		thread.set_thread_id(pthread_self());
 
 		thread.init_thread();
 
-		rofl::cioloop::get_loop(thread.get_pid()).run();
+		rofl::cioloop::get_loop(thread.get_thread_id()).run();
 
 		thread.release_thread();
 
@@ -155,7 +179,8 @@ private:
 
 protected:
 
-	pthread_t 		pid;
+	std::bitset<32>	flags;
+	pthread_t 		tid;
 	int				result;
 };
 
