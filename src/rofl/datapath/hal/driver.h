@@ -185,11 +185,13 @@ hal_result_t hal_driver_attach_port_to_switch(uint64_t dpid, const char* name, u
 * @ingroup hal_driver
 *
 * @param dpid_lsi1 Datapath ID of the LSI1
+* @param port_num1 If *port_num is non-zero, try to attach to port_num of the logical switch, otherwise try to attach to the first available port and return the result in port_num
 * @param port1 A pointer to a snapshot of the virtual port attached to the LS1 that MUST be destroyed using switch_port_destroy_snapshot()
 * @param dpid_lsi2 Datapath ID of the LSI2
+* @param port_num2 If *port_num is non-zero, try to attach to port_num of the logical switch, otherwise try to attach to the first available port and return the result in port_num
 * @param port1 A pointer to a snapshot of the virtual port attached to the LS2 that MUST be destroyed using switch_port_destroy_snapshot()
 */
-hal_result_t hal_driver_connect_switches(uint64_t dpid_lsi1, switch_port_snapshot_t** port1, uint64_t dpid_lsi2, switch_port_snapshot_t** port2);
+hal_result_t hal_driver_connect_switches(uint64_t dpid_lsi1, unsigned int* port_num1, switch_port_snapshot_t** port1, uint64_t dpid_lsi2, unsigned int* port_num2, switch_port_snapshot_t** port2);
 
 
 /**
