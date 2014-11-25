@@ -16,3 +16,6 @@ script:
   - ../configure $FLAGS
   - make -j 2
   - make -j 2 check
+notifications:
+  email:
+    - ci@bisdn.de
