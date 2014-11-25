@@ -311,6 +311,7 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 	} // FALLTHROUGH
+	case STATE_ACCEPT_PENDING:
 	case STATE_WAIT_FOR_HELLO: {
 		rofl::logging::debug << "[rofl-common][conn] negotiated OFP version:" << (int)ofp_version << std::endl;
 		timer_stop_wait_for_hello();
