@@ -73,6 +73,7 @@ crofconn::init_thread()
 		rofsock->connect(socket_type, socket_params);
 	}
 
+	// notify main thread about established passive TCP connection to peer
 	rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 }
 
@@ -220,10 +221,19 @@ crofconn::event_reconnect()
 	default: {
 		rofl::logging::debug << "[rofl-common][conn] reconnect: entering state -connect-pending-" << std::endl;
 		state = STATE_CONNECT_PENDING;
+
+		if (not cthread::is_running()) {
+			cthread::start();
+		} else {
+			rofsock->reconnect();
+			rofsock->notify(rofl::cevent());
+		}
+#if 0
 		if (rofsock) {
 			rofsock->reconnect();
 			rofsock->notify(rofl::cevent());
 		}
+#endif
 	};
 	}
 }
