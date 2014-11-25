@@ -38,13 +38,6 @@
 
 namespace rofl {
 
-/* error classes */
-class eIoSvcBase			: public RoflException {}; 	//< base error class for ciosrv
-class eIoSvcInitFailed 		: public eIoSvcBase {};	//< init of ciosrv instance failed
-class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
-class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer
-class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
-
 class ciosrv;
 
 class cioloop {
@@ -84,6 +77,9 @@ public:
 			return;
 		}
 		cioloop::threads[tid]->keep_on_running = false;
+		if (tid != pthread_self()) {
+			pipe.writemsg('1'); // wakeup main loop, just in case
+		}
 	};
 
 	/**
@@ -405,8 +401,7 @@ private:
  * - cancel_all_timer() cancel all timers
  *
  */
-class ciosrv : public ptrciosrv
-{
+class ciosrv : public ptrciosrv {
 public:
 
 	/**
