@@ -102,6 +102,7 @@ protected:
 		rofl::logging::debug << "[rofl-common][cthread][start_thread] create" << std::endl;
 		int rc = pthread_create(&tid, attr, cthread::run_thread, (void*)this);
 		rofl::logging::debug << "[rofl-common][cthread][start_thread] create done tid: 0x" << tid << std::endl;
+
 		if (rc != 0) {
 			switch (rc) {
 			case EAGAIN: {
@@ -129,10 +130,6 @@ protected:
 	stop() {
 		rofl::logging::debug << "[rofl-common][cthread][stop_thread] stop cioloop tid: 0x" << tid << std::endl;
 		rofl::cioloop::get_loop(get_thread_id()).stop();
-
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] cancel tid: 0x" << tid << std::endl;
-		pthread_cancel(tid);
-
 		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << tid << std::endl;
 		void* retval;
 		int rc = pthread_join(tid, &retval);
@@ -173,6 +170,8 @@ private:
 		rofl::cioloop::get_loop(thread.get_thread_id()).run();
 
 		thread.release_thread();
+
+		rofl::cioloop::drop_loop(thread.get_thread_id());
 
 		return (void*)&(thread.get_result());
 	};

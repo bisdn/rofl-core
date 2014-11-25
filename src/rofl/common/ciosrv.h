@@ -58,6 +58,18 @@ public:
 		return *(cioloop::threads[tid]);
 	};
 
+	/**
+	 * @brief	Drop
+	 */
+	static void
+	drop_loop(pthread_t tid) {
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			return;
+		}
+		delete cioloop::threads[tid];
+		cioloop::threads.erase(tid);
+	};
+
 public:
 
 	/**
@@ -77,6 +89,10 @@ public:
 			return;
 		}
 		cioloop::threads[tid]->keep_on_running = false;
+		rfds.clear();
+		wfds.clear();
+		events.clear();
+		timers.clear();
 		if (tid != pthread_self()) {
 			pipe.writemsg('1'); // wakeup main loop, just in case
 		}

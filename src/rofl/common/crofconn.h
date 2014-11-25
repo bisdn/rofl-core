@@ -683,17 +683,19 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, crofconn const& conn) {
-		bool is_established = false;
-		if (conn.rofsock && conn.rofsock->is_established()) {
-			is_established = true;
-		}
+	operator<< (std::ostream& os, const crofconn& conn) {
 		os << indent(0) << "<crofconn ofp-version:" << (int)conn.ofp_version
-				<< " OFP-transport-connection-established:" << is_established
+				<< " OFP-transport-connection-established: " << (bool)(conn.state == STATE_CONNECTED)
 				<< " >" << std::endl;
 		{ rofl::indent i(2); os << conn.get_aux_id(); }
 		if (conn.state == STATE_DISCONNECTED) {
 			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
+		}
+		else if (conn.state == STATE_CONNECT_PENDING) {
+			os << indent(2) << "<state: -CONNECT-PENDING- >" << std::endl;
+		}
+		else if (conn.state == STATE_ACCEPT_PENDING) {
+			os << indent(2) << "<state: -ACCEPT-PENDING- >" << std::endl;
 		}
 		else if (conn.state == STATE_WAIT_FOR_HELLO) {
 			os << indent(2) << "<state: -WAIT-FOR-HELLO- >" << std::endl;

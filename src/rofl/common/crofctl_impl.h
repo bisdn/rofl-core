@@ -119,7 +119,7 @@ public:
 	reconnect(
 			const rofl::cauxid& auxid = 0) {
 		rofchan.set_conn(auxid).close();
-		rofchan.set_conn(auxid).reconnect(true);
+		rofchan.set_conn(auxid).reconnect();
 	};
 
 

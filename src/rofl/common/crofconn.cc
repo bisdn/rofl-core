@@ -21,7 +21,7 @@ crofconn::crofconn(
 				fragmentation_threshold(DEFAULT_FRAGMENTATION_THRESHOLD),
 				max_backoff(ctimespec(16, 0)),
 				reconnect_start_timeout(ctimespec(0, CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS)),
-				reconnect_timespec(ctimespec(0, 0)),
+				reconnect_timespec(ctimespec(0, CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS)),
 				reconnect_variance(ctimespec(0, CROFCONN_RECONNECT_VARIANCE_IN_NSECS)),
 				reconnect_counter(0),
 				flavour(FLAVOUR_UNSPECIFIED),
@@ -67,14 +67,16 @@ crofconn::init_thread()
 	if (NULL == rofsock) {
 		rofsock = new crofsock(this);
 	}
+
+	//usleep(500000); // FIXME: do not ask why ...
+
 	if (flags.test(FLAGS_PASSIVE)) {
 		rofsock->accept(socket_type, socket_params, newsd);
+		// notify main thread about established passive TCP connection to peer
+		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 	} else {
 		rofsock->connect(socket_type, socket_params);
 	}
-
-	// notify main thread about established passive TCP connection to peer
-	rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 }
 
 
@@ -135,9 +137,7 @@ crofconn::connect(
 	this->socket_type = socket_type;
 	this->socket_params = socket_params;
 
-	if (not cthread::is_running()) {
-		cthread::start();
-	}
+	backoff_reconnect(false);
 }
 
 
@@ -219,21 +219,11 @@ crofconn::event_reconnect()
 		// do nothing
 	} return;
 	default: {
-		rofl::logging::debug << "[rofl-common][conn] reconnect: entering state -connect-pending-" << std::endl;
 		state = STATE_CONNECT_PENDING;
-
+		rofl::logging::debug << "[rofl-common][conn] reconnect: entering state -connect-pending-" << std::endl;
 		if (not cthread::is_running()) {
 			cthread::start();
-		} else {
-			rofsock->reconnect();
-			rofsock->notify(rofl::cevent());
 		}
-#if 0
-		if (rofsock) {
-			rofsock->reconnect();
-			rofsock->notify(rofl::cevent());
-		}
-#endif
 	};
 	}
 }
@@ -375,6 +365,7 @@ crofconn::event_features_rcvd()
 	switch (state) {
 	case STATE_WAIT_FOR_FEATURES: {
 		if (flags.test(FLAGS_PASSIVE)) {
+			rofl::logging::debug << "[rofl-common][conn] entering state -connected-" << std::endl;
 			state = STATE_CONNECTED;
 			cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
 			timer_ids.erase(TIMER_WAIT_FOR_FEATURES);
@@ -901,6 +892,8 @@ crofconn::features_reply_rcvd(
 			if (env) env->release_sync_xid(this, msg->get_xid());
 
 			delete msg;
+
+			reconnect_timespec = reconnect_start_timeout + reconnect_variance;
 
 			run_engine(EVENT_FEATURES_RCVD);
 		} else {
@@ -1598,7 +1591,8 @@ crofconn::backoff_reconnect(bool reset_timeout)
 {
 	timer_stop_next_reconnect();
 
-	if ((not flags.test(FLAGS_RECONNECTING)) || (reset_timeout)) {
+	//if ((not flags.test(FLAGS_RECONNECTING)) || (reset_timeout)) {
+	if (reset_timeout) {
 
 		reconnect_variance.set_timespec().tv_sec *= crandom::draw_random_number();
 		reconnect_variance.set_timespec().tv_nsec *= crandom::draw_random_number();
@@ -1619,7 +1613,7 @@ crofconn::backoff_reconnect(bool reset_timeout)
 
 	++reconnect_counter;
 
-	flags.set(FLAGS_RECONNECTING);
+	//flags.set(FLAGS_RECONNECTING);
 }
 
 

@@ -380,7 +380,7 @@ restart:
 			run_engine(EVENT_DISCONNECTED);
 
 			// try reconnecting main connection
-			conn->reconnect(true);
+			conn->reconnect(false);
 		}
 
 		return;
