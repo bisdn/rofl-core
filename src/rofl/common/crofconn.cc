@@ -101,6 +101,8 @@ crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& s
 	if (not cthread::is_running()) {
 		cthread::start();
 	}
+
+	run_engine(EVENT_TCP_CONNECTED);
 }
 
 
@@ -189,7 +191,7 @@ crofconn::run_engine(crofconn_event_t event)
 
 		switch (event) {
 		case EVENT_RECONNECT:		event_reconnect();			break;
-		case EVENT_CONNECTED: 		event_connected(); 			break;
+		case EVENT_TCP_CONNECTED: 	event_tcp_connected(); 		break;
 		case EVENT_DISCONNECTED:	event_disconnected();		return; // might call this object's destructor
 		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
 		case EVENT_HELLO_EXPIRED:	event_hello_expired();		return;
@@ -229,7 +231,7 @@ crofconn::event_reconnect()
 
 
 void
-crofconn::event_connected()
+crofconn::event_tcp_connected()
 {
 	switch (state) {
 	case STATE_INIT:
@@ -311,7 +313,7 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 	} // FALLTHROUGH
-	case STATE_ACCEPT_PENDING:
+	//case STATE_ACCEPT_PENDING:
 	case STATE_WAIT_FOR_HELLO: {
 		rofl::logging::debug << "[rofl-common][conn] negotiated OFP version:" << (int)ofp_version << std::endl;
 		timer_stop_wait_for_hello();

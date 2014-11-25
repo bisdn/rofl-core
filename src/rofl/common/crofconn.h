@@ -63,7 +63,7 @@ class crofconn :
 	enum crofconn_event_t {
 		EVENT_NONE				= 0,
 		EVENT_RECONNECT			= 1,
-		EVENT_CONNECTED 		= 2,
+		EVENT_TCP_CONNECTED 		= 2,
 		EVENT_DISCONNECTED 		= 3,
 		EVENT_HELLO_RCVD 		= 4,
 		EVENT_HELLO_EXPIRED		= 5,
@@ -287,7 +287,7 @@ private:
 	handle_connected (
 			crofsock *rofsock) {
 		rofl::logging::debug << "[rofl-common][conn] transport connection established" << std::endl << *this;
-		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECTED));
+		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 	};
 
 	virtual void
@@ -340,9 +340,9 @@ private:
 		case EVENT_RXQUEUE: {
 			handle_messages();
 		} break;
-		case EVENT_CONNECTED: {
+		case EVENT_TCP_CONNECTED: {
 			flags.reset(FLAGS_RECONNECTING);
-			run_engine(EVENT_CONNECTED);
+			run_engine(EVENT_TCP_CONNECTED);
 		} break;
 		case EVENT_CONNECT_FAILED: {
 			flags.set(FLAGS_CONNECT_FAILED);
@@ -384,7 +384,7 @@ private:
 	 *
 	 */
 	void
-	event_connected();
+	event_tcp_connected();
 
 	/**
 	 *
