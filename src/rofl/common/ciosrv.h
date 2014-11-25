@@ -89,10 +89,22 @@ public:
 			return;
 		}
 		cioloop::threads[tid]->keep_on_running = false;
-		rfds.clear();
-		wfds.clear();
-		events.clear();
-		timers.clear();
+		{
+			RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+			rfds.clear();
+		}
+		{
+			RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+			wfds.clear();
+		}
+		{
+			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+			events.clear();
+		}
+		{
+			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+			timers.clear();
+		}
 		if (tid != pthread_self()) {
 			pipe.writemsg('1'); // wakeup main loop, just in case
 		}
