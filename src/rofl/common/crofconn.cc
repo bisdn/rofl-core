@@ -72,6 +72,8 @@ crofconn::init_thread()
 	} else {
 		rofsock->connect(socket_type, socket_params);
 	}
+
+	rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 }
 
 
@@ -101,8 +103,6 @@ crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& s
 	if (not cthread::is_running()) {
 		cthread::start();
 	}
-
-	run_engine(EVENT_TCP_CONNECTED);
 }
 
 
