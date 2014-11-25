@@ -88,6 +88,11 @@ void platform_packet_set_wlan_address_2(datapacket_t* pkt, uint64_t address_2){}
 void platform_packet_set_wlan_address_3(datapacket_t* pkt, uint64_t address_3){};
 void platform_packet_pop_wlan(datapacket_t* pkt){};
 void platform_packet_push_wlan(datapacket_t* pkt){};
+void platform_packet_set_gre_version(datapacket_t* pkt, uint16_t version){};
+void platform_packet_set_gre_prot_type(datapacket_t* pkt, uint16_t prot_type){};
+void platform_packet_set_gre_key(datapacket_t* pkt, uint32_t key){};
+void platform_packet_pop_gre(datapacket_t* pkt, uint16_t ether_type){};
+void platform_packet_push_gre(datapacket_t* pkt, uint16_t ether_type){};
 #endif
 
 void platform_packet_set_tunnel_id(datapacket_t*pkt, uint64_t tunnel_id){}
@@ -263,6 +268,15 @@ uint64_t* platform_packet_get_wlan_address_2(datapacket_t *const pkt){
 uint64_t* platform_packet_get_wlan_address_3(datapacket_t *const pkt){
 	return (uint64_t*)&tmp_val;
 };
+uint16_t* platform_packet_get_gre_version(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+};
+uint16_t* platform_packet_get_gre_prot_type(datapacket_t *const pkt){
+	return (uint16_t*)&tmp_val;
+};
+uint32_t* platform_packet_get_gre_key(datapacket_t *const pkt){
+	return (uint32_t*)&tmp_val;
+}
 #endif
 bool platform_packet_has_vlan(datapacket_t *const pkt){
        return false;

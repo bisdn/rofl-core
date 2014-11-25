@@ -32,8 +32,8 @@ csocket_test::setUp()
 void
 csocket_test::tearDown()
 {
-	rofl::cioloop::stop();
-	rofl::cioloop::shutdown();
+	rofl::cioloop::get_loop().stop();
+	rofl::cioloop::get_loop().shutdown();
 }
 
 
@@ -76,7 +76,7 @@ csocket_test::testSocketImpl()
 #ifdef DEBUG
 		std::cerr << "testSocketImpl: init" << std::endl;
 #endif
-		rofl::cioloop::run();
+		rofl::cioloop::get_loop().run();
 #ifdef DEBUG
 		std::cerr << "testSocketImpl: shutdown" << std::endl;
 #endif
@@ -183,7 +183,7 @@ csocket_test::handle_timeout(int opaque, void* data)
 #ifdef DEBUG
 			std::cerr << "handle_closed stopping main loop" << std::endl;
 #endif
-			rofl::cioloop::stop();
+			rofl::cioloop::get_loop().stop();
 
 			dump_sockets();
 
