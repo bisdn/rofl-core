@@ -289,6 +289,8 @@ private:
 		if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
 			throw eSysCall("getrlimit()");
 		}
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		for (unsigned int i = 0; i < rlim.rlim_cur; i++) {
 			rfds.push_back(NULL);
 			wfds.push_back(NULL);
