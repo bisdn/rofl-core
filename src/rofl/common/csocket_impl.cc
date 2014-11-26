@@ -922,7 +922,7 @@ csocket_impl::reconnect()
 void
 csocket_impl::close()
 {
-	rofl::logging::info << "[rofl-common][csocket][impl] close()" << std::endl;
+	rofl::logging::info << "[rofl-common][csocket][impl] closing socket" << std::endl;
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 

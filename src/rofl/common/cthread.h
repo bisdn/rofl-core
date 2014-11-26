@@ -153,6 +153,8 @@ protected:
 			}
 		}
 
+		release_thread();
+
 		flags.reset(FLAGS_THREAD_IS_RUNNING);
 	};
 
@@ -169,8 +171,6 @@ private:
 		thread.init_thread();
 
 		rofl::cioloop::get_loop(thread.get_thread_id()).run();
-
-		thread.release_thread();
 
 		rofl::cioloop::drop_loop(thread.get_thread_id());
 
