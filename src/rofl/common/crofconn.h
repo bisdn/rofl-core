@@ -308,8 +308,10 @@ private:
 	recv_message(
 			crofsock *rofsock,
 			rofl::openflow::cofmsg *msg) {
+		bool notify = rxqueue.empty();
 		rxqueue.store(msg);
-		if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
+		//if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
+		if (notify) {
 			rofl::ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
 		}
 	};
