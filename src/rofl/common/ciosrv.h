@@ -345,37 +345,49 @@ public:
 		os << indent(0) << "<cioloop tid:0x"
 				<< std::hex << ioloop.get_tid() << std::dec << ">" << std::endl;
 
-		os << indent(2) << "<read-fds: ";
-		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
-			if (NULL != ioloop.rfds.at(i)) {
-				os << i << " ";
+		{
+			RwLock lock(ioloop.rfds_rwlock, RwLock::RWLOCK_READ);
+			os << indent(2) << "<read-fds: ";
+			for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
+				if (NULL != ioloop.rfds.at(i)) {
+					os << i << " ";
+				}
 			}
+			os << ">" << std::endl;
 		}
-		os << ">" << std::endl;
 
-		os << indent(2) << "<write-fds: ";
-		for (unsigned int i = 0; i < ioloop.wfds.size(); ++i) {
-			if (NULL != ioloop.wfds.at(i)) {
-				os << i << " ";
+		{
+			RwLock lock(ioloop.wfds_rwlock, RwLock::RWLOCK_READ);
+			os << indent(2) << "<write-fds: ";
+			for (unsigned int i = 0; i < ioloop.wfds.size(); ++i) {
+				if (NULL != ioloop.wfds.at(i)) {
+					os << i << " ";
+				}
 			}
+			os << ">" << std::endl;
 		}
-		os << ">" << std::endl;
 
-		os << indent(2) << "<instances with timer needs: ";
-		// locking?
-		for (std::map<ciosrv*, bool>::const_iterator
-				it = ioloop.timers.begin(); it != ioloop.timers.end(); ++it) {
-			os << it->first << ":" << it->second << " ";
+		{
+			RwLock lock(ioloop.timers_rwlock, RwLock::RWLOCK_READ);
+			os << indent(2) << "<instances with timer needs: ";
+			// locking?
+			for (std::map<ciosrv*, bool>::const_iterator
+					it = ioloop.timers.begin(); it != ioloop.timers.end(); ++it) {
+				os << it->first << ":" << it->second << " ";
+			}
+			os << ">" << std::endl;
 		}
-		os << ">" << std::endl;
 
-		os << indent(2) << "<instances with event needs: ";
-		// locking?
-		for (std::map<ciosrv*, bool>::const_iterator
-				it = ioloop.events.begin(); it != ioloop.events.end(); ++it) {
-			os << it->first << ":" << it->second << " ";
+		{
+			RwLock lock(ioloop.events_rwlock, RwLock::RWLOCK_READ);
+			os << indent(2) << "<instances with event needs: ";
+			// locking?
+			for (std::map<ciosrv*, bool>::const_iterator
+					it = ioloop.events.begin(); it != ioloop.events.end(); ++it) {
+				os << it->first << ":" << it->second << " ";
+			}
+			os << ">" << std::endl;
 		}
-		os << ">" << std::endl;
 
 		return os;
 	};
@@ -386,13 +398,13 @@ private:
 	static std::map<pthread_t, cioloop*> 	threads;
 
 	std::vector<ciosrv*>					rfds;
-	PthreadRwLock							rfds_rwlock;
+	mutable PthreadRwLock					rfds_rwlock;
 	std::vector<ciosrv*>					wfds;
-	PthreadRwLock							wfds_rwlock;
+	mutable PthreadRwLock					wfds_rwlock;
 	std::map<ciosrv*, bool>					timers;
-	PthreadRwLock							timers_rwlock;
+	mutable PthreadRwLock					timers_rwlock;
 	std::map<ciosrv*, bool>					events;
-	PthreadRwLock							events_rwlock;
+	mutable PthreadRwLock					events_rwlock;
 
 	cpipe									pipe;
 	pthread_t        			       		tid;
