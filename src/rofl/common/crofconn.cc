@@ -64,7 +64,9 @@ crofconn::set_max_backoff(
 void
 crofconn::init_thread()
 {
+	rofl::logging::debug << "[rofl-common][rofconn] init thread" << std::endl;
 	if (NULL == rofsock) {
+		rofl::logging::debug << "[rofl-common][rofconn] creating new crofsock instance" << std::endl;
 		rofsock = new crofsock(this);
 	}
 
@@ -84,7 +86,9 @@ crofconn::init_thread()
 void
 crofconn::release_thread()
 {
+	rofl::logging::debug << "[rofl-common][rofconn] release thread" << std::endl;
 	if (NULL != rofsock) {
+		rofl::logging::debug << "[rofl-common][rofconn] destroying crofsock instance" << std::endl;
 		delete rofsock; rofsock = NULL;
 	}
 }
