@@ -18,7 +18,9 @@ crofsock::crofsock(
 				msg_bytes_read(0),
 				max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND),
 				txqueues(QUEUE_MAX),
-				weights(QUEUE_MAX)
+				weights(QUEUE_MAX),
+				socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
+				sd(-1)
 {
 	for (unsigned int i = 0; i < QUEUE_MAX; i++) {
 		txqueues.push_back(crofqueue());
@@ -42,61 +44,6 @@ crofsock::~crofsock()
 		delete socket;
 }
 
-
-void
-crofsock::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int sd)
-{
-	state = STATE_CONNECTED;
-	if (socket)
-		delete socket;
-	socket = csocket::csocket_factory(socket_type, this);
-	socket->accept(socket_params, sd);
-}
-
-
-
-void
-crofsock::connect(
-		enum rofl::csocket::socket_type_t socket_type,
-		cparams const& socket_params)
-{
-	state = STATE_CONNECTING;
-	if (socket)
-		delete socket;
-	ciosrv::cancel_all_timers();
-	ciosrv::cancel_all_events();
-	(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
-}
-
-
-
-void
-crofsock::reconnect()
-{
-	state = STATE_CONNECTING;
-	ciosrv::cancel_all_timers();
-	ciosrv::cancel_all_events();
-	socket->reconnect();
-}
-
-
-
-void
-crofsock::close()
-{
-	socket->close();
-	if (fragment) {
-		delete fragment; fragment = NULL;
-	}
-	for (std::vector<crofqueue>::iterator
-			it = txqueues.begin(); it != txqueues.end(); ++it) {
-		(*it).clear();
-	}
-	if (STATE_CONNECTED == state) {
-		env->handle_closed(this);
-	}
-	state = STATE_CLOSED;
-}
 
 
 
@@ -130,7 +77,7 @@ crofsock::handle_read(
 
 			// sanity check: 8 <= msg_len <= 2^16
 			if (msg_len < sizeof(struct openflow::ofp_header)) {
-				rofl::logging::warn << "[rofl-common][sock] received message with invalid length field, closing socket." << std::endl;
+				rofl::logging::warn << "[rofl-common][rofsock] received message with invalid length field, closing socket." << std::endl;
 				socket.close();
 				return;
 			}
@@ -159,7 +106,7 @@ crofsock::handle_read(
 					pkts_rcvd_in_round++;
 					// read at most max_pkts_rcvd_per_round (default: 16) packets from socket, reschedule afterwards
 					if (pkts_rcvd_in_round >= max_pkts_rcvd_per_round) {
-						rofl::logging::debug << "[rofl-common][sock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
+						rofl::logging::debug << "[rofl-common][rofsock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
 						return;
 					}
 				}
@@ -169,32 +116,23 @@ crofsock::handle_read(
 	} catch (eSocketRxAgain& e) {
 
 		// more bytes are needed, keep pointer to msg in "fragment"
-		rofl::logging::debug << "[rofl-common][sock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
+		rofl::logging::debug << "[rofl-common][rofsock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
 
 	} catch (eSysCall& e) {
 
-		rofl::logging::warn << "[rofl-common][sock] failed to read from socket: " << e << std::endl;
+		rofl::logging::warn << "[rofl-common][rofsock] failed to read from socket: " << e << std::endl;
 
 		// close socket, as it seems, we are out of sync
-		close();
+		run_engine(EVENT_PEER_DISCONNECTED);
 
 	} catch (RoflException& e) {
 
-		rofl::logging::warn << "[rofl-common][sock] dropping invalid message: " << e << std::endl;
+		rofl::logging::warn << "[rofl-common][rofsock] dropping invalid message: " << e << std::endl;
 
 		// close socket, as it seems, we are out of sync
-		close();
+		run_engine(EVENT_PEER_DISCONNECTED);
 	}
 
-}
-
-
-
-
-rofl::csocket const&
-crofsock::get_socket() const
-{
-	return *socket;
 }
 
 
@@ -276,12 +214,12 @@ crofsock::send_message(
 		}
 	} break;
 	default: {
-		rofl::logging::alert << "[rofl-common][sock] dropping message with unsupported OpenFlow version" << std::endl;
+		rofl::logging::alert << "[rofl-common][rofsock] dropping message with unsupported OpenFlow version" << std::endl;
 		delete msg; return 0;
 	};
 	}
 
-	rofl::ciosrv::notify(EVENT_TXQUEUE);
+	rofl::ciosrv::notify(EVENT_CONGESTION_SOLVED);
 
 	if (flags.test(FLAGS_CONGESTED)) {
 		cwnd_size = 0;
@@ -310,10 +248,10 @@ crofsock::send_from_queue()
 				mem = new cmemory(msg->length());
 				msg->pack(mem->somem(), mem->memlen());
 
-				rofl::logging::debug << "[rofl-common][sock][send-from-queue] msg:"
+				rofl::logging::debug << "[rofl-common][rofsock][send-from-queue] msg:"
 						<< std::endl << *msg;
 
-				rofl::logging::debug << "[rofl-common][sock][send-from-queue] mem:"
+				rofl::logging::debug << "[rofl-common][rofsock][send-from-queue] mem:"
 						<< std::endl << *mem;
 
 				socket->send(mem); // may throw exception
@@ -323,7 +261,7 @@ crofsock::send_from_queue()
 
 
 			} catch (eSocketTxAgain& e) {
-				rofl::logging::error << "[rofl-common][sock][send-from-queue] transport "
+				rofl::logging::error << "[rofl-common][rofsock][send-from-queue] transport "
 						<< "connection congested, waiting." << std::endl;
 
 				flags.set(FLAGS_CONGESTED);
@@ -340,7 +278,7 @@ crofsock::send_from_queue()
 	}
 
 	if (reschedule && not flags.test(FLAGS_CONGESTED)) {
-		rofl::ciosrv::notify(EVENT_TXQUEUE);
+		rofl::ciosrv::notify(EVENT_CONGESTION_SOLVED);
 	}
 }
 
@@ -351,11 +289,11 @@ crofsock::handle_event(
 		cevent const &ev)
 {
 	switch (ev.cmd) {
-	case EVENT_TXQUEUE: {
+	case EVENT_CONGESTION_SOLVED: {
 		send_from_queue();
 	} break;
 	default:
-		rofl::logging::error << "[rofl-common][sock] unknown event type:" << (int)ev.cmd << std::endl;
+		rofl::logging::error << "[rofl-common][rofsock] unknown event type:" << (int)ev.cmd << std::endl;
 	}
 }
 
@@ -365,6 +303,10 @@ void
 crofsock::parse_message(
 		cmemory *mem)
 {
+	if (STATE_CLOSED == state) {
+		delete mem; return;
+	}
+
 	rofl::openflow::cofmsg *msg = (rofl::openflow::cofmsg*)0;
 	try {
 		assert(NULL != mem);
@@ -385,7 +327,7 @@ crofsock::parse_message(
 	} catch (eBadRequestBadType& e) {
 
 		if (msg) {
-			rofl::logging::error << "[rofl-common][sock] eBadRequestBadType: " << std::endl << *msg;
+			rofl::logging::error << "[rofl-common][rofsock] eBadRequestBadType: " << std::endl << *msg;
 			size_t len = (msg->framelen() > 64) ? 64 : msg->framelen();
 			rofl::openflow::cofmsg_error_bad_request_bad_type *error =
 					new rofl::openflow::cofmsg_error_bad_request_bad_type(
@@ -396,16 +338,16 @@ crofsock::parse_message(
 			send_message(error);
 			delete msg;
 		} else {
-			rofl::logging::error << "[rofl-common][sock] eBadRequestBadType " << std::endl;
+			rofl::logging::error << "[rofl-common][rofsock] eBadRequestBadType " << std::endl;
 		}
 
 	} catch (RoflException& e) {
 
 		if (msg) {
-			rofl::logging::error << "[rofl-common][sock] RoflException: " << std::endl << *msg;
+			rofl::logging::error << "[rofl-common][rofsock] RoflException: " << std::endl << *msg;
 			delete msg;
 		} else {
-			rofl::logging::error << "[rofl-common][sock] RoflException " << std::endl;
+			rofl::logging::error << "[rofl-common][rofsock] RoflException " << std::endl;
 		}
 
 	}
@@ -558,7 +500,7 @@ crofsock::parse_of10_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new rofl::openflow::cofmsg(mem))->validate();
-		rofl::logging::warn << "[rofl-common][sock] dropping unknown message " << **pmsg << std::endl;
+		rofl::logging::warn << "[rofl-common][rofsock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} break;
 	}
@@ -756,7 +698,7 @@ crofsock::parse_of12_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new rofl::openflow::cofmsg(mem))->validate();
-		rofl::logging::warn << "[rofl-common][sock] dropping unknown message " << **pmsg << std::endl;
+		rofl::logging::warn << "[rofl-common][rofsock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}
@@ -988,7 +930,7 @@ crofsock::parse_of13_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new rofl::openflow::cofmsg(mem))->validate();
-		rofl::logging::warn << "[rofl-common][sock] dropping unknown message " << **pmsg << std::endl;
+		rofl::logging::warn << "[rofl-common][rofsock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}
@@ -1005,17 +947,17 @@ void
 crofsock::log_message(
 		std::string const& text, rofl::openflow::cofmsg const& msg)
 {
-	rofl::logging::debug << "[rofl-common][sock] " << text << std::endl;
+	rofl::logging::debug << "[rofl-common][rofsock] " << text << std::endl;
 
 	try {
 	switch (msg.get_version()) {
 	case rofl::openflow10::OFP_VERSION: log_of10_message(msg); break;
 	case rofl::openflow12::OFP_VERSION: log_of12_message(msg); break;
 	case rofl::openflow13::OFP_VERSION: log_of13_message(msg); break;
-	default: rofl::logging::debug << "[rolf][sock] unknown OFP version found in msg" << std::endl << msg; break;
+	default: rofl::logging::debug << "[rolf][rofsock] unknown OFP version found in msg" << std::endl << msg; break;
 	}
 	} catch (...) {
-		rofl::logging::debug << "[rofl-common][sock] log-message" << std::endl;
+		rofl::logging::debug << "[rofl-common][rofsock] log-message" << std::endl;
 	}
 }
 
@@ -1145,7 +1087,7 @@ crofsock::log_of10_message(
 		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
 	} break;
 	default: {
-		rofl::logging::debug << "[rofl-common][sock]  unknown message " << msg << std::endl;
+		rofl::logging::debug << "[rofl-common][rofsock]  unknown message " << msg << std::endl;
 	} break;
 	}
 }
@@ -1313,7 +1255,7 @@ crofsock::log_of12_message(
     	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
     } break;
 	default: {
-		rofl::logging::debug << "[rofl-common][sock] unknown message " << msg << std::endl;
+		rofl::logging::debug << "[rofl-common][rofsock] unknown message " << msg << std::endl;
 	} break;
 	}
 }
@@ -1515,7 +1457,7 @@ crofsock::log_of13_message(
     	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_mod const&>( msg );
     } break;
 	default: {
-		rofl::logging::debug << "[rofl-common][sock] unknown message " << msg << std::endl;
+		rofl::logging::debug << "[rofl-common][rofsock] unknown message " << msg << std::endl;
 	} break;
 	}
 }

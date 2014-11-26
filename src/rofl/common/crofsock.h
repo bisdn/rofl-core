@@ -96,7 +96,17 @@ class crofsock :
 	};
 
 	enum crofsock_event_t {
-		EVENT_TXQUEUE		 	= 1,
+		EVENT_NONE				= 0,
+		EVENT_CONNECT			= 1,
+		EVENT_CONNECT_FAILED	= 2,
+		EVENT_CONNECT_REFUSED	= 3,
+		EVENT_CONNECTED			= 4,
+		EVENT_ACCEPT			= 5,
+		EVENT_ACCEPT_REFUSED	= 6,
+		EVENT_ACCEPTED			= 7,
+		EVENT_PEER_DISCONNECTED		= 8,
+		EVENT_LOCAL_DISCONNECT		= 9,
+		EVENT_CONGESTION_SOLVED	= 10,
 	};
 
 	enum crofsock_flag_t {
@@ -133,7 +143,12 @@ public:
 	accept(
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params,
-			int sd);
+			int sd) {
+		this->socket_type = socket_type;
+		this->socket_params = socket_params;
+		this->sd = sd;
+		run_engine(EVENT_ACCEPT);
+	};
 
 	/**
 	 *
@@ -141,27 +156,32 @@ public:
 	void
 	connect(
 			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& socket_params);
+			const cparams& socket_params) {
+		this->socket_type = socket_type;
+		this->socket_params = socket_params;
+		run_engine(EVENT_CONNECT);
+	};
 
 	/**
 	 *
 	 */
 	void
-	reconnect();
+	reconnect()
+	{ run_engine(EVENT_CONNECT); };
 
 	/**
 	 *
 	 */
 	void
-	close();
-
+	close()
+	{ run_engine(EVENT_LOCAL_DISCONNECT); };
 
 	/**
 	 *
 	 */
 	csocket const&
-	get_socket() const;
-
+	get_socket() const
+	{ return *socket; /* FIXME */ };
 
 	/**
 	 *
@@ -190,7 +210,9 @@ private:
 		state(STATE_INIT),
 		fragment(NULL),
 		msg_bytes_read(0),
-		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND)
+		max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND),
+		socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
+		sd(-1)
 	{};
 
 	/**
@@ -219,19 +241,7 @@ private:
 	handle_listen(
 			csocket& socket,
 			int newsd) {
-		rofl::logging::info << "[rofl-common][sock] new transport connection request received:" << std::endl << *this;
 		// this should never happen, as passively opened sockets are handled outside of crofsock
-	};
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_accepted(
-			csocket& socket) {
-		rofl::logging::info << "[rofl-common][sock] transport connection established (via accept):" << std::endl << *this;
-		state = STATE_CONNECTED;
-		// do not call handle_connected() here
 	};
 
 	/**
@@ -240,20 +250,16 @@ private:
 	virtual void
 	handle_accept_refused(
 			csocket& socket) {
-		rofl::logging::info << "[rofl-common][sock] accepted transport connection refused:" << std::endl << *this;
-		state = STATE_CLOSED;
-		// do nothing
+		run_engine(EVENT_ACCEPT_REFUSED);
 	};
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_connected(
+	handle_accepted(
 			csocket& socket) {
-		rofl::logging::info << "[rofl-common][sock] transport connection established (via connect):" << std::endl << *this;
-		state = STATE_CONNECTED;
-		env->handle_connected(this);
+		run_engine(EVENT_ACCEPTED);
 	};
 
 	/**
@@ -262,9 +268,7 @@ private:
 	virtual void
 	handle_connect_refused(
 			csocket& socket) {
-		rofl::logging::info << "[rofl-common][sock] transport connection refused:" << std::endl << *this;
-		state = STATE_CLOSED;
-		env->handle_connect_refused(this);
+		run_engine(EVENT_CONNECT_REFUSED);
 	};
 
 	/**
@@ -273,9 +277,34 @@ private:
 	virtual void
 	handle_connect_failed(
 			csocket& socket) {
-		rofl::logging::info << "[rofl-common][sock] transport connection failed:" << std::endl << *this;
-		state = STATE_CLOSED;
-		env->handle_connect_failed(this);
+		run_engine(EVENT_CONNECT_FAILED);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connected(
+			csocket& socket) {
+		run_engine(EVENT_CONNECTED);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_write(
+			csocket& socket) {
+		run_engine(EVENT_CONGESTION_SOLVED);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_closed(
+			csocket& socket) {
+		run_engine(EVENT_PEER_DISCONNECTED);
 	};
 
 	/**
@@ -285,26 +314,186 @@ private:
 	handle_read(
 			csocket& socket);
 
+private:
+
 	/**
 	 *
 	 */
-	virtual void
-	handle_write(
-			csocket& socket) {
-		flags.reset(FLAGS_CONGESTED);
-		rofl::ciosrv::notify(rofl::cevent(EVENT_TXQUEUE));
+	void
+	run_engine(crofsock_event_t event = EVENT_NONE) {
+		if (EVENT_NONE != event) {
+			events.push_back(event);
+		}
+
+		while (not events.empty()) {
+			enum crofsock_event_t event = events.front();
+			events.pop_front();
+
+			switch (event) {
+			case EVENT_CONNECT:				event_connect();			break;
+			case EVENT_CONNECT_FAILED:		event_connect_failed();		break;
+			case EVENT_CONNECT_REFUSED: 	event_connect_refused();	break;
+			case EVENT_CONNECTED: 			event_connected(); 			break;
+			case EVENT_ACCEPT:				event_accept();				break;
+			case EVENT_ACCEPT_REFUSED:		event_accept_refused();		break;
+			case EVENT_ACCEPTED:			event_accepted();			break;
+			case EVENT_PEER_DISCONNECTED:	event_peer_disconnected();	return;
+			case EVENT_LOCAL_DISCONNECT:	event_local_disconnect();	return;
+			case EVENT_CONGESTION_SOLVED:	event_congestion_solved();	break;
+
+			default: {
+				rofl::logging::error << "[rofl-common][rofsock] unknown event seen, internal error" << std::endl << *this;
+			};
+			}
+		}
+	}
+
+	/**
+	 *
+	 */
+	void
+	event_connect() {
+		switch (state) {
+		case STATE_INIT:
+		case STATE_CLOSED: {
+			rofl::logging::debug << "[rofl-common][rofsock] EVENT-CONNECT => entering state -connecting-" << std::endl;
+			state = STATE_CONNECTING;
+			if (socket)
+				delete socket;
+			ciosrv::cancel_all_timers();
+			ciosrv::cancel_all_events();
+			(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
+		} break;
+		case STATE_CONNECTING: {
+			// do nothing, we are already connecting ...
+		} break;
+		case STATE_CONNECTED: {
+			run_engine(EVENT_LOCAL_DISCONNECT);
+			run_engine(EVENT_CONNECT);
+		} break;
+		default: {
+
+		};
+		};
 	};
 
 	/**
 	 *
 	 */
-	virtual void
-	handle_closed(
-			csocket& socket) {
-		close();
+	void
+	event_connect_failed() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-CONNECT-FAILED => entering state -closed-" << std::endl;
+		state = STATE_CLOSED;
+		if (env) env->handle_connect_failed(this);
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_connect_refused() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-CONNECT-REFUSED => entering state -closed-" << std::endl;
+		state = STATE_CLOSED;
+		if (env) env->handle_connect_refused(this);
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_connected() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-CONNECTED => entering state -connected-" << std::endl;
+		state = STATE_CONNECTED;
+		if (env) env->handle_connected(this);
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_accept() {
+		switch (state) {
+		case STATE_INIT:
+		case STATE_CLOSED: {
+			rofl::logging::debug << "[rofl-common][rofsock] EVENT-ACCEPT => entering state -connected-" << std::endl;
+			state = STATE_CONNECTED;
+			if (socket)
+				delete socket;
+
+			(socket = csocket::csocket_factory(socket_type, this))->accept(socket_params, sd);
+		} break;
+		default: {
+
+		};
+		}
+	}
+
+	/**
+	 *
+	 */
+	void
+	event_accept_refused() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-ACCEPT-REFUSED => entering state -closed-" << std::endl;
+		state = STATE_CLOSED;
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_accepted() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-ACCEPTED => entering state -connected-" << std::endl;
+		state = STATE_CONNECTED;
+		// do not call handle_connected() here
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_peer_disconnected() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-PEER-DISCONNECTED => entering state -closed-" << std::endl;
+		__close();
+		if (env) env->handle_closed(this);
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_local_disconnect() {
+		rofl::logging::debug << "[rofl-common][rofsock] EVENT-LOCAL-DISCONNECT => entering state -closed-" << std::endl;
+		__close();
+		if (socket) socket->close();
+	};
+
+	/**
+	 *
+	 */
+	void
+	event_congestion_solved() {
+		flags.reset(FLAGS_CONGESTED);
+		rofl::ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
 private:
+
+	/**
+	 * @brief
+	 */
+	void
+	__close() {
+		state = STATE_CLOSED;
+		if (fragment) {
+			delete fragment; fragment = NULL;
+		}
+		for (std::vector<crofqueue>::iterator
+				it = txqueues.begin(); it != txqueues.end(); ++it) {
+			(*it).clear();
+		}
+		ciosrv::cancel_all_timers();
+		ciosrv::cancel_all_events();
+	};
 
 	/**
 	 *
@@ -409,6 +598,16 @@ private:
 	std::vector<crofqueue>		txqueues;
 	// relative scheduling weights for txqueues
 	std::vector<unsigned int>	weights;
+
+	enum rofl::csocket::socket_type_t
+								socket_type;
+
+	rofl::cparams 				socket_params;
+
+	int							sd;
+
+	std::deque<enum crofsock_event_t>
+								events;
 };
 
 } /* namespace rofl */
