@@ -106,7 +106,7 @@ public:
 			timers.clear();
 		}
 		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
+			//pipe.writemsg('1'); // wakeup main loop, just in case
 		}
 	};
 

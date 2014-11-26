@@ -758,7 +758,8 @@ private:
 						state;
 	std::map<crofconn_timer_t, ctimerid>
 						timer_ids;				// timer-ids obtained from ciosrv
-	rofl::crofqueue		rxqueue;
+	rofl::crofqueue		rxqueue;				// queue for receiving messages from crofsock instance
+	rofl::crofqueue		dlqueue;				// delay queue, used for storing asynchronous messages during our connection setup
 
 	static const int 	DEFAULT_HELLO_TIMEOUT = 5;
 	static const int 	DEFAULT_ECHO_TIMEOUT = 60;

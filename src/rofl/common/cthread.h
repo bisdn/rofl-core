@@ -131,6 +131,7 @@ protected:
 		rofl::logging::debug << "[rofl-common][cthread][stop_thread] stop cioloop tid: 0x" << tid << std::endl;
 		rofl::cioloop::get_loop(get_thread_id()).stop();
 		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << tid << std::endl;
+		pthread_cancel(tid);
 		void* retval;
 		int rc = pthread_join(tid, &retval);
 		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join done tid: 0x" << tid << std::endl;

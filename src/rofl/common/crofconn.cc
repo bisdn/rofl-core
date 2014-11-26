@@ -266,6 +266,9 @@ crofconn::event_disconnected()
 		timer_stop(timer_ids.begin()->first);
 	}
 
+	// purge delay queue
+	dlqueue.clear();
+
 	switch (state) {
 	case STATE_DISCONNECTED: {
 		rofl::logging::debug << "[rofl-common][conn] connection in state -disconnected-" << std::endl;
@@ -371,6 +374,11 @@ crofconn::event_features_rcvd()
 			timer_ids.erase(TIMER_WAIT_FOR_FEATURES);
 
 			if (env) env->handle_connected(this, ofp_version);
+		}
+
+		// send all postponed messages to higher layers
+		while (not dlqueue.empty()) {
+			if (env) env->recv_message(this, dlqueue.retrieve());
 		}
 
 	} break;
@@ -642,11 +650,11 @@ crofconn::handle_messages()
 		} break;
 		default: {
 			if (state != STATE_CONNECTED) {
-				rofl::logging::warn << "[rofl-common][conn] dropping message, connection not fully established." << std::endl << *this;
-				delete msg; return;
+				rofl::logging::warn << "[rofl-common][conn] delaying message, connection not fully established." << std::endl << *this;
+				dlqueue.store(msg); return;
+			} else {
+				if (env) env->recv_message(this, msg);
 			}
-
-			if (env) env->recv_message(this, msg);
 		} break;
 		}
 	}
