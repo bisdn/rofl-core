@@ -109,14 +109,20 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const crofqueue& queue) {
-
+		RwLock rwlock(queue.queuelock, RwLock::RWLOCK_READ);
+		os << rofl::indent(0) << "<crofqueue size #" << queue.queue.size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::list<rofl::openflow::cofmsg*>::const_iterator
+				it = queue.queue.begin(); it != queue.queue.end(); ++it) {
+			os << *(*it);
+		}
 		return os;
 	};
 
 private:
 
 	std::list<rofl::openflow::cofmsg*> 	queue;
-	PthreadRwLock						queuelock;
+	mutable PthreadRwLock				queuelock;
 };
 
 }; // end of namespace rofl
