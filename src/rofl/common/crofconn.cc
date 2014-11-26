@@ -125,7 +125,7 @@ crofconn::connect(
 		enum rofl::csocket::socket_type_t socket_type,
 		const cparams& socket_params)
 {
-	if (STATE_CONNECTED == state) {
+	if ((STATE_INIT != state) && (STATE_DISCONNECTED != state)) {
 		throw eRofConnBusy();
 	}
 
