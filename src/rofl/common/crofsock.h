@@ -144,6 +144,7 @@ public:
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params,
 			int sd) {
+		RwLock rwlock(rofsock_lock, RwLock::RWLOCK_WRITE);
 		this->socket_type = socket_type;
 		this->socket_params = socket_params;
 		this->sd = sd;
@@ -157,6 +158,7 @@ public:
 	connect(
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) {
+		RwLock rwlock(rofsock_lock, RwLock::RWLOCK_WRITE);
 		this->socket_type = socket_type;
 		this->socket_params = socket_params;
 		run_engine(EVENT_CONNECT);
@@ -166,15 +168,19 @@ public:
 	 *
 	 */
 	void
-	reconnect()
-	{ run_engine(EVENT_CONNECT); };
+	reconnect() {
+		RwLock rwlock(rofsock_lock, RwLock::RWLOCK_WRITE);
+		run_engine(EVENT_CONNECT);
+	};
 
 	/**
 	 *
 	 */
 	void
-	close()
-	{ run_engine(EVENT_LOCAL_DISCONNECT); };
+	close() {
+		RwLock rwlock(rofsock_lock, RwLock::RWLOCK_WRITE);
+		run_engine(EVENT_LOCAL_DISCONNECT);
+	};
 
 	/**
 	 *
@@ -608,6 +614,8 @@ private:
 
 	std::deque<enum crofsock_event_t>
 								events;
+
+	PthreadRwLock				rofsock_lock;
 };
 
 } /* namespace rofl */

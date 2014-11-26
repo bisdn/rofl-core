@@ -30,14 +30,14 @@ crofsock::crofsock(
 	weights[QUEUE_MGMT] = 8;
 	weights[QUEUE_FLOW] = 4;
 	weights[QUEUE_PKT ] = 2;
-	//rofl::logging::debug << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofsock::~crofsock()
 {
-	//rofl::logging::debug << "[rofl-common][crofsock] destructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug << "[rofl-common][crofsock] destructor " << std::hex << this << std::dec << std::endl;
 	if (fragment)
 		delete fragment;
 	if (socket)
