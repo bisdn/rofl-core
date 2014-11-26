@@ -247,7 +247,7 @@ protected:
 	 */
 	void
 	has_no_timer(ciosrv *iosrv) {
-		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = false;
 	};
 
@@ -268,7 +268,7 @@ protected:
 	 */
 	void
 	has_no_event(ciosrv* iosrv) {
-		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 		events[iosrv] = false;
 	};
 
