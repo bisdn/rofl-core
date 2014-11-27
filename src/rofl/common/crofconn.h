@@ -311,6 +311,7 @@ private:
 		rofl::logging::debug << "[rofl-common][rofconn][recv_message] received message" << std::endl << *msg;
 		bool notify = rxqueue.empty();
 		rxqueue.store(msg);
+		rofl::logging::debug << "[rofl-common][rofconn][recv_message] rxqueue:" << std::endl << rxqueue;
 		//if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
 		if (notify) {
 			rofl::logging::debug << "[rofl-common][rofconn][recv_message] -EVENT-RXQUEUE-" << std::endl;
