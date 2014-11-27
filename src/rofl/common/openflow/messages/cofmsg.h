@@ -281,7 +281,7 @@ public:
 			os << "version:" 				<< (int)msg.get_version() 			<< " ";
 			os << "type:" 					<< std::dec << (int)msg.get_type() 	<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";
-			os << "xid:0x" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
+			os << "xid:" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
 		os << ">" << std::endl;
 		return os;
 	};

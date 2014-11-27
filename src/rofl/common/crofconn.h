@@ -50,6 +50,14 @@ class crofconn :
 		public ciosrv,
 		public rofl::common::cthread
 {
+	enum outqueue_type_t {
+		QUEUE_OAM  = 0, // Echo.request/Echo.reply
+		QUEUE_MGMT = 1, // all remaining packets, except ...
+		QUEUE_FLOW = 2, // Flow-Mod/Flow-Removed
+		QUEUE_PKT  = 3, // Packet-In/Packet-Out
+		QUEUE_MAX,		// do not use
+	};
+
 	enum msg_type_t {
 		OFPT_HELLO = 0,
 		OFPT_ERROR = 1,
@@ -307,17 +315,7 @@ private:
 	virtual void
 	recv_message(
 			crofsock *rofsock,
-			rofl::openflow::cofmsg *msg) {
-		rofl::logging::debug << "[rofl-common][rofconn][recv_message] received message" << std::endl << *msg;
-		bool notify = rxqueue.empty();
-		rxqueue.store(msg);
-		rofl::logging::debug << "[rofl-common][rofconn][recv_message] rxqueue:" << std::endl << rxqueue;
-		//if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
-		if (notify) {
-			rofl::logging::debug << "[rofl-common][rofconn][recv_message] -EVENT-RXQUEUE-" << std::endl;
-			rofl::ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
-		}
-	};
+			rofl::openflow::cofmsg *msg);
 
 private:
 
@@ -770,8 +768,14 @@ private:
 						state;
 	std::map<crofconn_timer_t, ctimerid>
 						timer_ids;				// timer-ids obtained from ciosrv
-	rofl::crofqueue		rxqueue;				// queue for receiving messages from crofsock instance
-	rofl::crofqueue		dlqueue;				// delay queue, used for storing asynchronous messages during our connection setup
+
+	std::vector<crofqueue>
+						rxqueues;				// queues for receiving messages from crofsock instance => // QUEUE_MAX txqueues
+
+	std::vector<unsigned int>
+						weights;				// relative scheduling weights for txqueues
+
+	rofl::crofqueue		dlqueue;				// delay queue, used for storing asynchronous messages during connection setup
 
 	static const int 	DEFAULT_HELLO_TIMEOUT = 5;
 	static const int 	DEFAULT_ECHO_TIMEOUT = 60;
