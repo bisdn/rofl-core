@@ -20,6 +20,7 @@ v0.6.0
 [B][pipeline] Fixed issue #40 (bug) => set cookie field in Packet-In messages based on flow entry
 [+][common] All crofsock instances run in dedicated own thread
 [+][common] Revised thread support in ciosrv
+[+][common] Revised classes crofconn and crofsock => new scheduling for OpenFlow messages
 
 v0.5.3 
 
