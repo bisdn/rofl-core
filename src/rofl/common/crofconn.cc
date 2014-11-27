@@ -150,7 +150,7 @@ void
 crofconn::close()
 {
 
-	flags.set(FLAGS_LOCAL_CLOSE);
+	flags.set(FLAGS_LOCAL_DISCONNECT);
 	run_engine(EVENT_DISCONNECTED);
 }
 
@@ -300,12 +300,12 @@ crofconn::event_disconnected()
 		timer_stop_wait_for_echo();
 		timer_stop_wait_for_hello();
 
-		if (flags.test(FLAGS_LOCAL_CLOSE)) {
-			flags.reset(FLAGS_LOCAL_CLOSE); //if (env) env->handle_closed(this); return; // this object may have been destroyed here
+		if (flags.test(FLAGS_LOCAL_DISCONNECT)) {
+			flags.reset(FLAGS_LOCAL_DISCONNECT); //if (env) env->handle_closed(this); return; // this object may have been destroyed here
 		}
 
-		if (flags.test(FLAGS_PEER_CLOSE)) {
-			flags.reset(FLAGS_PEER_CLOSE); if (env) env->handle_closed(this); return; // this object may have been destroyed here
+		if (flags.test(FLAGS_PEER_DISCONNECTED)) {
+			flags.reset(FLAGS_PEER_DISCONNECTED); if (env) env->handle_closed(this); return; // this object may have been destroyed here
 		}
 	};
 	}
@@ -439,7 +439,7 @@ crofconn::event_echo_expired()
 	switch (state) {
 	case STATE_CONNECTED: {
 		rofl::logging::warn << "[rofl-common][rofconn] event-echo-expired: OFP transport connection is congested or dead. Closing. " << std::endl << *this;
-		flags.set(FLAGS_LOCAL_CLOSE);
+		flags.set(FLAGS_PEER_DISCONNECTED);
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
