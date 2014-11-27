@@ -308,10 +308,12 @@ private:
 	recv_message(
 			crofsock *rofsock,
 			rofl::openflow::cofmsg *msg) {
+		rofl::logging::debug << "[rofl-common][rofconn][recv_message] received message" << std::endl << *msg;
 		bool notify = rxqueue.empty();
 		rxqueue.store(msg);
 		//if (not flags.test(FLAGS_RXQUEUE_CONSUMING)) {
 		if (notify) {
+			rofl::logging::debug << "[rofl-common][rofconn][recv_message] -EVENT-RXQUEUE-" << std::endl;
 			rofl::ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
 		}
 	};
@@ -340,29 +342,36 @@ private:
 			const cevent& ev) {
 		switch (ev.get_cmd()) {
 		case EVENT_RXQUEUE: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-RXQUEUE" << std::endl;
 			handle_messages();
 		} break;
 		case EVENT_TCP_CONNECTED: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-TCP-CONNECTED" << std::endl;
 			flags.reset(FLAGS_RECONNECTING);
 			run_engine(EVENT_TCP_CONNECTED);
 		} break;
 		case EVENT_CONNECT_FAILED: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONNECT-FAILED" << std::endl;
 			flags.set(FLAGS_CONNECT_FAILED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONNECT_REFUSED: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONNECT-REFUSED" << std::endl;
 			flags.set(FLAGS_CONNECT_REFUSED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_LOCAL_DISCONNECT: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-LOCAL-DISCONNECT" << std::endl;
 			flags.set(FLAGS_LOCAL_DISCONNECT);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONGESTION_SOLVED: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONGESTION-SOLVED" << std::endl;
 			flags.reset(FLAGS_CONGESTED);
 			env->handle_write(this);
 		} break;
 		case EVENT_PEER_DISCONNECTED: {
+			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-PEER-DISCONNECTED" << std::endl;
 			flags.set(FLAGS_PEER_DISCONNECTED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
