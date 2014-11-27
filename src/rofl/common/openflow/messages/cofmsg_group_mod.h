@@ -184,8 +184,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_group_mod const& msg) {
-		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-		os << indent(2) << "<cofmsg_group_mod >" << std::endl;
+		os << rofl::indent(0) << "<cofmsg_group_mod >" << std::endl;
+		{ rofl::indent i(2); os << dynamic_cast<const cofmsg&>( msg ); };
 		switch (msg.get_command()) {
 			case rofl::openflow12::OFPGC_ADD: {
 				os << indent(4) << "<command: -ADD- >" << std::endl;
