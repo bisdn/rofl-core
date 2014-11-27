@@ -357,6 +357,7 @@ crofconn::event_hello_expired()
 	switch (state) {
 	case STATE_WAIT_FOR_HELLO: {
 		rofl::logging::debug << "[rofl-common][rofconn] event -HELLO-EXPIRED- occured in state -WAIT-FOR-HELLO-" << std::endl << *this;
+		flags.set(FLAGS_PEER_DISCONNECTED);
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
@@ -405,6 +406,7 @@ crofconn::event_features_expired()
 	switch (state) {
 	case STATE_WAIT_FOR_FEATURES: {
 		rofl::logging::warn << "[rofl-common][rofconn] event -FEATURES-EXPIRED- occured in state -WAIT-FOR-FEATURES-" << std::endl << *this;
+		flags.set(FLAGS_PEER_DISCONNECTED);
 		run_engine(EVENT_DISCONNECTED);
 
 	} break;
