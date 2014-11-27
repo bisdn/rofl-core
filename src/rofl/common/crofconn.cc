@@ -28,6 +28,8 @@ crofconn::crofconn(
 				socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
 				newsd(0),
 				state(STATE_INIT),
+				rxqueues(QUEUE_MAX),
+				weights(QUEUE_MAX),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
@@ -775,7 +777,7 @@ crofconn::handle_messages()
 			default: {
 				if (state != STATE_CONNECTED) {
 					rofl::logging::warn << "[rofl-common][rofconn] delaying message, connection not fully established." << std::endl << *this;
-					dlqueue.store(msg); return;
+					dlqueue.store(msg); continue;
 				} else {
 					if (env) env->recv_message(this, msg);
 				}
