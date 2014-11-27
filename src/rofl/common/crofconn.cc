@@ -580,7 +580,7 @@ crofconn::handle_messages()
 
 	while ((msg = rxqueue.retrieve()) != NULL) {
 
-		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] rxqueue:" << std::endl << rxqueue;
+		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] reading message from rxqueue:" << std::endl << *msg;
 
 		if (rofl::openflow::OFP_VERSION_UNKNOWN == msg->get_version()) {
 			send_message(new rofl::openflow::cofmsg_error_bad_request_bad_version(
