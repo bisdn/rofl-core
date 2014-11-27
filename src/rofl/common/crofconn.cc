@@ -680,7 +680,8 @@ crofconn::handle_messages()
 
 	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
 
-		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] rxqueue:" << std::endl << rxqueues[queue_id];
+		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] rxqueue[" << queue_id << "]:"
+				<< std::endl << rxqueues[queue_id];
 
 		for (unsigned int num = 0; num < weights[queue_id]; ++num) {
 
