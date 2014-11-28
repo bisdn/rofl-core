@@ -17,19 +17,16 @@ crofsock::crofsock(
 				fragment((cmemory*)0),
 				msg_bytes_read(0),
 				max_pkts_rcvd_per_round(DEFAULT_MAX_PKTS_RVCD_PER_ROUND),
-				txqueues(QUEUE_MAX),
-				weights(QUEUE_MAX),
+				txqueues(QUEUE_MAX, crofqueue()),
+				txweights(QUEUE_MAX, 1),
 				socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
 				sd(-1)
 {
-	for (unsigned int i = 0; i < QUEUE_MAX; i++) {
-		txqueues.push_back(crofqueue());
-	}
 	// scheduler weights for transmission
-	weights[QUEUE_OAM ] = 4;
-	weights[QUEUE_MGMT] = 8;
-	weights[QUEUE_FLOW] = 4;
-	weights[QUEUE_PKT ] = 2;
+	txweights[QUEUE_OAM ] = 4;
+	txweights[QUEUE_MGMT] = 8;
+	txweights[QUEUE_FLOW] = 4;
+	txweights[QUEUE_PKT ] = 2;
 	rofl::logging::debug << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
@@ -236,7 +233,7 @@ crofsock::send_from_queue()
 
 	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
 
-		for (unsigned int num = 0; num < weights[queue_id]; ++num) {
+		for (unsigned int num = 0; num < txweights[queue_id]; ++num) {
 
 			cmemory *mem = (cmemory*)0;
 

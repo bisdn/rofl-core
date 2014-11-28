@@ -28,20 +28,17 @@ crofconn::crofconn(
 				socket_type(rofl::csocket::SOCKET_TYPE_UNKNOWN),
 				newsd(0),
 				state(STATE_INIT),
-				rxqueues(QUEUE_MAX),
-				weights(QUEUE_MAX),
+				rxqueues(QUEUE_MAX, crofqueue()),
+				rxweights(QUEUE_MAX, 1),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL * (1 + crandom::draw_random_number()))
 {
-	for (unsigned int i = 0; i < QUEUE_MAX; i++) {
-		rxqueues.push_back(crofqueue());
-	}
 	// scheduler weights for transmission
-	weights[QUEUE_OAM ] = 4;
-	weights[QUEUE_MGMT] = 8;
-	weights[QUEUE_FLOW] = 4;
-	weights[QUEUE_PKT ] = 2;
+	rxweights[QUEUE_OAM ] = 4;
+	rxweights[QUEUE_MGMT] = 8;
+	rxweights[QUEUE_FLOW] = 4;
+	rxweights[QUEUE_PKT ] = 2;
 	//rofl::logging::debug << "[rofl][crofconn] constructor " << std::hex << this << std::dec << std::endl;
 }
 
@@ -280,6 +277,12 @@ crofconn::event_disconnected()
 
 	while (not timer_ids.empty()) {
 		timer_stop(timer_ids.begin()->first);
+	}
+
+	// remove all pending packets from rxqueues
+	for (std::vector<crofqueue>::iterator
+			it = rxqueues.begin(); it != rxqueues.end(); ++it) {
+		(*it).clear();
 	}
 
 	// purge delay queue
@@ -676,6 +679,8 @@ crofconn::recv_message(
 void
 crofconn::handle_messages()
 {
+	bool reschedule = false;
+
 	flags.set(FLAGS_RXQUEUE_CONSUMING);
 
 	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
@@ -687,7 +692,7 @@ crofconn::handle_messages()
 		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] rxqueue[" << queue_id << "]:"
 				<< std::endl << rxqueues[queue_id];
 
-		for (unsigned int num = 0; num < weights[queue_id]; ++num) {
+		for (unsigned int num = 0; num < rxweights[queue_id]; ++num) {
 
 			rofl::openflow::cofmsg* msg = (rofl::openflow::cofmsg*)0;
 
@@ -786,9 +791,18 @@ crofconn::handle_messages()
 			}
 
 		}
+
+		if (not rxqueues[queue_id].empty()) {
+			reschedule = true;
+		}
 	}
 
 	flags.reset(FLAGS_RXQUEUE_CONSUMING);
+
+	if (reschedule) {
+		rofl::logging::debug << "[rofl-common][rofconn][handle_messages] rescheduling -EVENT-RXQUEUE-" << std::endl;
+		rofl::ciosrv::notify(rofl::cevent(EVENT_RXQUEUE));
+	}
 }
 
 

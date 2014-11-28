@@ -773,7 +773,7 @@ private:
 						rxqueues;				// queues for receiving messages from crofsock instance => // QUEUE_MAX txqueues
 
 	std::vector<unsigned int>
-						weights;				// relative scheduling weights for txqueues
+						rxweights;				// relative scheduling weights for txqueues
 
 	rofl::crofqueue		dlqueue;				// delay queue, used for storing asynchronous messages during connection setup
 

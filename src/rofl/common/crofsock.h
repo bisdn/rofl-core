@@ -603,7 +603,7 @@ private:
 	// QUEUE_MAX txqueues
 	std::vector<crofqueue>		txqueues;
 	// relative scheduling weights for txqueues
-	std::vector<unsigned int>	weights;
+	std::vector<unsigned int>	txweights;
 
 	enum rofl::csocket::socket_type_t
 								socket_type;
