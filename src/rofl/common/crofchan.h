@@ -179,8 +179,8 @@ public:
 	 */
 	virtual void
 	handle_connect_refused(crofconn *conn) {
-		rofl::logging::warn << "[rofl-common][channel] OFP transport "
-				<< "connection refused." << std::endl << *conn;
+		rofl::logging::warn << "[rofl-common][crofchan] OFP transport "
+				<< "connection refused. " << conn->str() << std::endl;
 		conn->reconnect();
 	};
 
@@ -189,8 +189,8 @@ public:
 	 */
 	virtual void
 	handle_connect_failed(crofconn *conn) {
-		rofl::logging::warn << "[rofl-common][channel] OFP transport "
-				"connection failed." << std::endl << *conn;
+		rofl::logging::warn << "[rofl-common][crofchan] OFP transport "
+				"connection failed. " << conn->str() << std::endl;
 		conn->reconnect();
 	};
 

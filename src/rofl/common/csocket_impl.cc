@@ -54,14 +54,14 @@ csocket_impl::csocket_impl(
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
-	//rofl::logging::debug << "[rofl-common][csocket][impl] constructor " << std::hex << this << std::dec << std::endl;
+	//rofl::logging::debug3 << "[rofl-common][csocket][impl] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 csocket_impl::~csocket_impl()
 {
-	//rofl::logging::debug << "[rofl-common][csocket][impl] destructor " << std::hex << this << std::dec << std::endl;
+	//rofl::logging::debug3 << "[rofl-common][csocket][impl] destructor " << std::hex << this << std::dec << std::endl;
 	socket_owner = NULL;
 
 	close();
@@ -277,7 +277,7 @@ csocket_impl::listen(
 {
 	this->socket_params = params;
 
-	rofl::logging::debug << "[rofl-common][csocket][impl][listen] parameter set:" << std::endl << params;
+	rofl::logging::debug3 << "[rofl-common][csocket][impl][listen] parameter set:" << std::endl << params;
 
 	/*
 	 * local address and domain
@@ -591,7 +591,7 @@ csocket_impl::connect(
 	try {
 		this->socket_params = params;
 
-		rofl::logging::debug << "[rofl-common][csocket][impl][connect] parameter set:" << std::endl << params;
+		rofl::logging::debug3 << "[rofl-common][csocket][impl][connect] parameter set:" << std::endl << params;
 
 		/*
 		 * local, remote address and domain
@@ -801,7 +801,7 @@ csocket_impl::connect(
 	int protocol,
 	bool do_reconnect)
 {
-	rofl::logging::debug << "[rofl-common][csocket][impl][connect] connecting " << str() << std::endl;
+	rofl::logging::debug3 << "[rofl-common][csocket][impl][connect] connecting " << str() << std::endl;
 
 	int rc;
 	this->domain 	= domain;
@@ -864,20 +864,20 @@ csocket_impl::connect(
 		case EINPROGRESS: {		// connect is pending, register sd for write events
 			sockflags[FLAG_CONNECTING] = true;
 			register_filedesc_w(sd);
-			rofl::logging::debug << "[rofl-common][csocket][impl][connect] socket EINPROGRESS " << str() << std::endl;
+			rofl::logging::debug3 << "[rofl-common][csocket][impl][connect] socket EINPROGRESS " << str() << std::endl;
 
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
 			close();
 			backoff_reconnect(false);
-			rofl::logging::debug << "[rofl-common][csocket][impl][connect] ECONNREFUSED " << str() << std::endl;
+			rofl::logging::debug3 << "[rofl-common][csocket][impl][connect] ECONNREFUSED " << str() << std::endl;
 
 		} break;
 		default: {
 			//throw eSysCall("connect ");
 			close();
 			backoff_reconnect(false);
-			rofl::logging::debug << "[rofl-common][csocket][impl][connect] Unknown error:"
+			rofl::logging::debug3 << "[rofl-common][csocket][impl][connect] Unknown error:"
 					<< strerror(errno) <<"("<< errno <<") " << str() << std::endl;
 		};
 		}
@@ -998,7 +998,7 @@ csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 		return rc;
 
 	} else if (rc == 0) {
-		rofl::logging::debug << "[rofl-common][csocket][impl] peer closed connection: "
+		rofl::logging::debug3 << "[rofl-common][csocket][impl] peer closed connection: "
 				<< eSysCall("read") << " " << str() << std::endl;
 		close();
 

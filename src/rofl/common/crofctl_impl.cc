@@ -65,7 +65,7 @@ void
 crofctl_impl::handle_established(
 		crofchan *chan)
 {
-	rofl::logging::info << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::info << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection established:" << std::endl << *chan;
 
 	rofbase->handle_ctl_attached(*this);
@@ -77,7 +77,7 @@ void
 crofctl_impl::handle_disconnected(
 		crofchan *chan)
 {
-	rofl::logging::info << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::info << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection closed:" << std::endl << *chan;
 
 	transactions.clear();
@@ -288,194 +288,194 @@ crofctl_impl::recv_message(
 
 	} catch (eBadSyntaxTooShort& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadSyntaxTooShort " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadSyntaxTooShort " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadVersion& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadVersion " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadVersion " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_version(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadVersion& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadVersion " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadVersion " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_version(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadStat& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadStat " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadStat " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_stat(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadExperimenter& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadExperimenter " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadExperimenter " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_experimenter(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadExpType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadExpType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadExpType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_exp_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestEperm& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestEperm " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestEperm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_eperm(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadLen& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadLen " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadLen " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBufferEmpty& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBufferEmpty " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBufferEmpty " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_buffer_empty(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBufferUnknown& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBufferUnknown " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBufferUnknown " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_buffer_unknown(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadTableId& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadTableId " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadTableId " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_table_id(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestIsSlave& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestIsSlave " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestIsSlave " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_is_slave(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadPort& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadPort " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadPort " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_port(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBadPacket& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBadPacket " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBadPacket " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_bad_packet(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestMultipartBufferOverflow& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestMultipartBufferOverflow " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestMultipartBufferOverflow " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_request_multipart_buffer_overflow(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadRequestBase& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadRequestBase " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadRequestBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (eBadActionBadType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadLen& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadLen " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadLen " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadExperimenter& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadExperimenter " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadExperimenter " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_experimenter(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadExperimenterType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadExperimenterType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadExperimenterType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_experimenter_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadOutPort& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadOutPort " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadOutPort " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_out_port(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadArgument& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadArgument " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadArgument " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_argument(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionEperm& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionEperm " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionEperm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_eperm(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionTooMany& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionTooMany " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionTooMany " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_too_many(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadQueue& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadQueue " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadQueue " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_queue(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadOutGroup& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadOutGroup " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadOutGroup " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_out_group(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionMatchInconsistent& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionMatchInconsistent " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionMatchInconsistent " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_match_inconsistent(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 
@@ -483,136 +483,136 @@ crofctl_impl::recv_message(
 
 	} catch (eBadActionUnsupportedOrder& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionUnsuportedOrder " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionUnsuportedOrder " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_unsupported_order(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadTag& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBadTag " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBadTag " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_tag(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadSetType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionSetType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionSetType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_set_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadSetLen& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionSetLen " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionSetLen " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_set_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBadSetArgument& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionSetArgument " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionSetArgument " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_action_bad_set_argument(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadActionBase& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadActionBase " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadActionBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (eBadInstUnknownInst& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstUnknownInst " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstUnknownInst " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_unknown_inst(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstUnsupInst& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstUnsupInst " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstUnsupInst " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_unsup_inst(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstBadTableId& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstBadTableId " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstBadTableId " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_bad_table_id(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstUnsupMetadata& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstUnsupMetadata " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstUnsupMetadata " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_unsup_metadata(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstUnsupMetadataMask& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstUnsupMetadataMask " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstUnsupMetadataMask " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_unsup_metadata_mask(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstBadExperimenter& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstBadExperimenter " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstBadExperimenter " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_bad_experimenter(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstBadExpType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstBadExpType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstBadExpType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_bad_exp_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstBadLen& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstBadLen " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstBadLen " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_bad_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstEperm& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstEPerm " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_inst_eperm(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadInstBase& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadInstBase " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadInstBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (eBadMatchBadType& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadType " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadType " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_type(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadLen& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadLen " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadLen " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_len(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadTag& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadTag " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadTag " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_tag(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadDlAddrMask& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadDlAddrMask " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadDlAddrMask " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_dladdr_mask(
 
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
@@ -620,35 +620,35 @@ crofctl_impl::recv_message(
 
 	} catch (eBadMatchBadNwAddrMask& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadNwAddrMask " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadNwAddrMask " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_nwaddr_mask(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadWildcards& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadWildcards " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadWildcards " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_wildcards(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadField& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadField " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadField " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_field(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadValue& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadValue " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadValue " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_value(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBadMask& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadMask " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadMask " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_mask(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 
@@ -656,122 +656,122 @@ crofctl_impl::recv_message(
 
 	} catch (eBadMatchBadPrereq& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBadPrereq " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBadPrereq " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_bad_prereq(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchDupField& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchDupField " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchDupField " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_dup_field(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchEperm& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchEPerm " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchEPerm " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_bad_match_eperm(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eBadMatchBase& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eBadMatchBase " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eBadMatchBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (eMeterModUnknown& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModUnknown " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModUnknown " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModMeterExists& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModMeterExists " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModMeterExists " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_meter_exists(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModInvalidMeter& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModInvalidMeter " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModInvalidMeter " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_invalid_meter(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModUnknownMeter& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModUnknownMeter " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModUnknownMeter " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_unknown_meter(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadCommand& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadCommand " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadCommand " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_command(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadFlags& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadFlags " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadFlags " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_flags(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadRate& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadRate " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadRate " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_rate(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadBurst& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadBurst " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadBurst " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_burst(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadBand& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadBand " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadBand " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBadBandValue& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBadBandValue " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBadBandValue " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_bad_band_value(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModOutOfMeters& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModOutOfMeters " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModOutOfMeters " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_meters(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModOutOfBands& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModOutOfBands " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModOutOfBands " << *msg << std::endl;
 		rofchan.send_message(auxid, new rofl::openflow::cofmsg_error_meter_mod_out_of_bands(
 				rofchan.get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
 		delete msg;
 
 	} catch (eMeterModBase& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] eMeterModBase " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] eMeterModBase " << *msg << std::endl;
 		delete msg;
 
 	} catch (RoflException& e) {
 
-		rofl::logging::error << "[rofl-common][ctl] RoflException " << *msg << std::endl;
+		rofl::logging::error << "[rofl-common][crofctl] RoflException " << *msg << std::endl;
 		delete msg;
 	}
 }
@@ -792,7 +792,7 @@ crofctl_impl::send_features_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Features-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Features-Reply message" << std::endl;
 			return;
 		}
 
@@ -813,7 +813,7 @@ crofctl_impl::send_features_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Features-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Features-Reply message" << std::endl;
 
 	}
 
@@ -831,7 +831,7 @@ crofctl_impl::send_get_config_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Get-Config-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Get-Config-Reply message" << std::endl;
 			return;
 		}
 
@@ -847,7 +847,7 @@ crofctl_impl::send_get_config_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Get-Config-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Get-Config-Reply message" << std::endl;
 
 	}
 
@@ -866,7 +866,7 @@ crofctl_impl::send_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -884,7 +884,7 @@ crofctl_impl::send_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Stats-Reply message" << std::endl;
 
 	}
 
@@ -902,7 +902,7 @@ crofctl_impl::send_desc_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Desc-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Desc-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -918,7 +918,7 @@ crofctl_impl::send_desc_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Desc-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Desc-Stats-Reply message" << std::endl;
 
 	}
 
@@ -936,7 +936,7 @@ crofctl_impl::send_flow_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Flow-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Flow-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -953,7 +953,7 @@ crofctl_impl::send_flow_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Flow-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Flow-Stats-Reply message" << std::endl;
 
 	}
 
@@ -971,7 +971,7 @@ crofctl_impl::send_aggr_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Aggr-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Aggr-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -987,7 +987,7 @@ crofctl_impl::send_aggr_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Aggregate-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Aggregate-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1005,7 +1005,7 @@ crofctl_impl::send_table_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Table-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Table-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1021,7 +1021,7 @@ crofctl_impl::send_table_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Table-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Table-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1039,7 +1039,7 @@ crofctl_impl::send_port_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Port-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Port-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1055,7 +1055,7 @@ crofctl_impl::send_port_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Port-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Port-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1073,7 +1073,7 @@ crofctl_impl::send_queue_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Queue-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Queue-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1089,7 +1089,7 @@ crofctl_impl::send_queue_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Queue-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Queue-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1107,7 +1107,7 @@ crofctl_impl::send_group_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Group-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Group-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1123,7 +1123,7 @@ crofctl_impl::send_group_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Group-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Group-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1141,7 +1141,7 @@ crofctl_impl::send_group_desc_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Group-Desc-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Group-Desc-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1157,7 +1157,7 @@ crofctl_impl::send_group_desc_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Group-Desc-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Group-Desc-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1175,7 +1175,7 @@ crofctl_impl::send_group_features_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Group-Features-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Group-Features-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1191,7 +1191,7 @@ crofctl_impl::send_group_features_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Group-Features-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Group-Features-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1209,7 +1209,7 @@ crofctl_impl::send_table_features_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Table-Features-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Table-Features-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1225,7 +1225,7 @@ crofctl_impl::send_table_features_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Table-Features-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Table-Features-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1243,7 +1243,7 @@ crofctl_impl::send_port_desc_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Port-Desc-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Port-Desc-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1259,7 +1259,7 @@ crofctl_impl::send_port_desc_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Port-Desc-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Port-Desc-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1279,7 +1279,7 @@ crofctl_impl::send_experimenter_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Experimenter-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Experimenter-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1297,7 +1297,7 @@ crofctl_impl::send_experimenter_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Experimenter-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Experimenter-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1315,7 +1315,7 @@ crofctl_impl::send_meter_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Meter-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Meter-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1331,7 +1331,7 @@ crofctl_impl::send_meter_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Meter-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Meter-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1349,7 +1349,7 @@ crofctl_impl::send_meter_config_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Meter-Config-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Meter-Config-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1365,7 +1365,7 @@ crofctl_impl::send_meter_config_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Meter-Config-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Meter-Config-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1383,7 +1383,7 @@ crofctl_impl::send_meter_features_stats_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Meter-Features-Stats-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Meter-Features-Stats-Reply message" << std::endl;
 			return;
 		}
 
@@ -1399,7 +1399,7 @@ crofctl_impl::send_meter_features_stats_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Meter-Features-Stats-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Meter-Features-Stats-Reply message" << std::endl;
 
 	}
 
@@ -1423,7 +1423,7 @@ crofctl_impl::send_packet_in_message(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Packet-In message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Packet-In message" << std::endl;
 			return;
 		}
 
@@ -1446,7 +1446,7 @@ crofctl_impl::send_packet_in_message(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Packet-In message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Packet-In message" << std::endl;
 
 	}
 
@@ -1462,7 +1462,7 @@ crofctl_impl::send_barrier_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Barrier-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Barrier-Reply message" << std::endl;
 			return;
 		}
 
@@ -1476,7 +1476,7 @@ crofctl_impl::send_barrier_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Barrier-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Barrier-Reply message" << std::endl;
 
 	}
 
@@ -1493,7 +1493,7 @@ crofctl_impl::send_role_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Role-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Role-Reply message" << std::endl;
 			return;
 		}
 
@@ -1508,7 +1508,7 @@ crofctl_impl::send_role_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Role-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Role-Reply message" << std::endl;
 
 	}
 
@@ -1528,7 +1528,7 @@ crofctl_impl::send_error_message(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Error message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Error message" << std::endl;
 			return;
 		}
 
@@ -1545,7 +1545,7 @@ crofctl_impl::send_error_message(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Error message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Error message" << std::endl;
 
 	}
 
@@ -1565,7 +1565,7 @@ crofctl_impl::send_experimenter_message(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Experimenter message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Experimenter message" << std::endl;
 			return;
 		}
 
@@ -1583,7 +1583,7 @@ crofctl_impl::send_experimenter_message(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Experimenter message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Experimenter message" << std::endl;
 
 	}
 
@@ -1610,7 +1610,7 @@ crofctl_impl::send_flow_removed_message(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Flow-Removed message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Flow-Removed message" << std::endl;
 			return;
 		}
 
@@ -1635,7 +1635,7 @@ crofctl_impl::send_flow_removed_message(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Flow-Removed message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Flow-Removed message" << std::endl;
 
 	}
 
@@ -1652,7 +1652,7 @@ crofctl_impl::send_port_status_message(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Port-Status message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Port-Status message" << std::endl;
 			return;
 		}
 
@@ -1668,7 +1668,7 @@ crofctl_impl::send_port_status_message(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Port-Status message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Port-Status message" << std::endl;
 
 	}
 
@@ -1686,7 +1686,7 @@ crofctl_impl::send_queue_get_config_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Queue-Get-Config-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Queue-Get-Config-Reply message" << std::endl;
 			return;
 		}
 
@@ -1702,7 +1702,7 @@ crofctl_impl::send_queue_get_config_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Queue-Get-Config-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Queue-Get-Config-Reply message" << std::endl;
 
 	}
 
@@ -1719,7 +1719,7 @@ crofctl_impl::send_get_async_config_reply(
 {
 	try {
 		if (not is_established()) {
-			rofl::logging::warn << "[rofl-common][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
+			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
 			return;
 		}
 
@@ -1734,7 +1734,7 @@ crofctl_impl::send_get_async_config_reply(
 		return;
 
 	} catch (eRofSockTxAgain& e) {
-		rofl::logging::warn << "[rofl-common][ctl] control channel congested, dropping Get-Async-Config-Reply message" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofctl] control channel congested, dropping Get-Async-Config-Reply message" << std::endl;
 
 	}
 
@@ -1766,7 +1766,7 @@ crofctl_impl::features_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_
 {
 	rofl::openflow::cofmsg_features_request& request = dynamic_cast<rofl::openflow::cofmsg_features_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Features-Request message received" << std::endl << request;
 
 	rofbase->handle_features_request(*this, auxid, request);
@@ -1781,7 +1781,7 @@ crofctl_impl::get_config_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_get_config_request& request = dynamic_cast<rofl::openflow::cofmsg_get_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Config-Request message received" << std::endl << request;
 
 	check_role();
@@ -1798,7 +1798,7 @@ crofctl_impl::set_config_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_set_co
 {
 	rofl::openflow::cofmsg_set_config& message = dynamic_cast<rofl::openflow::cofmsg_set_config&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Config message received" << std::endl << message;
 
 	try {
@@ -1843,7 +1843,7 @@ crofctl_impl::packet_out_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_packet
 {
 	rofl::openflow::cofmsg_packet_out& message = dynamic_cast<rofl::openflow::cofmsg_packet_out&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Packet-Out message received" << std::endl << message;
 
 	check_role();
@@ -1860,7 +1860,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 {
 	rofl::openflow::cofmsg_flow_mod& message = dynamic_cast<rofl::openflow::cofmsg_flow_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Flow-Mod message received" << std::endl << message;
 
 	message.check_prerequisites();
@@ -1977,7 +1977,7 @@ crofctl_impl::group_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_group_m
 {
 	rofl::openflow::cofmsg_group_mod& message = dynamic_cast<rofl::openflow::cofmsg_group_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Mod message received" << std::endl << message;
 
 	message.check_prerequisites();
@@ -2108,7 +2108,7 @@ crofctl_impl::port_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_port_mod
 {
 	rofl::openflow::cofmsg_port_mod& message = dynamic_cast<rofl::openflow::cofmsg_port_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Mod message received" << std::endl << message;
 
 	try {
@@ -2167,7 +2167,7 @@ crofctl_impl::table_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_table_m
 {
 	rofl::openflow::cofmsg_table_mod& message = dynamic_cast<rofl::openflow::cofmsg_table_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Mod message received" << std::endl << message;
 
 	try {
@@ -2214,7 +2214,7 @@ crofctl_impl::meter_mod_rcvd(
 {
 	rofl::openflow::cofmsg_meter_mod& message = dynamic_cast<rofl::openflow::cofmsg_meter_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Mod message received" << std::endl << message;
 
 	try {
@@ -2322,7 +2322,7 @@ crofctl_impl::stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_sta
 {
 	rofl::openflow::cofmsg_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Stats-Request message received" << std::endl << request;
 
 	switch (msg->get_stats_type()) {
@@ -2383,7 +2383,7 @@ crofctl_impl::desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Desc-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_desc_stats_request(*this, auxid, request);
@@ -2398,7 +2398,7 @@ crofctl_impl::table_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_table_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_table_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_table_stats_request(*this, auxid, request);
@@ -2413,7 +2413,7 @@ crofctl_impl::port_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_port_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_port_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_port_stats_request(*this, auxid, request);
@@ -2428,7 +2428,7 @@ crofctl_impl::flow_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_flow_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_flow_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Flow-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_flow_stats_request(*this, auxid, request);
@@ -2443,7 +2443,7 @@ crofctl_impl::aggregate_stats_request_rcvd(const cauxid& auxid, rofl::openflow::
 {
 	rofl::openflow::cofmsg_aggr_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Aggregate-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_aggregate_stats_request(*this, auxid, request);
@@ -2458,7 +2458,7 @@ crofctl_impl::queue_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_queue_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_queue_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Queue-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_queue_stats_request(*this, auxid, request);
@@ -2473,7 +2473,7 @@ crofctl_impl::group_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_group_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_group_stats_request(*this, auxid, request);
@@ -2488,7 +2488,7 @@ crofctl_impl::group_desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_group_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Desc-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_group_desc_stats_request(*this, auxid, request);
@@ -2503,7 +2503,7 @@ crofctl_impl::group_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_group_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Features-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_group_features_stats_request(*this, auxid, request);
@@ -2518,7 +2518,7 @@ crofctl_impl::meter_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_meter_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_meter_stats_request(*this, auxid, request);
@@ -2533,7 +2533,7 @@ crofctl_impl::meter_config_stats_request_rcvd(const cauxid& auxid, rofl::openflo
 {
 	rofl::openflow::cofmsg_meter_config_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Config-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_meter_config_stats_request(*this, auxid, request);
@@ -2548,7 +2548,7 @@ crofctl_impl::meter_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_meter_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Features-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_meter_features_stats_request(*this, auxid, request);
@@ -2563,7 +2563,7 @@ crofctl_impl::table_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_table_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Features-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_table_features_stats_request(*this, auxid, request);
@@ -2578,7 +2578,7 @@ crofctl_impl::port_desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow::
 {
 	rofl::openflow::cofmsg_port_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Desc-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_port_desc_stats_request(*this, auxid, request);
@@ -2593,7 +2593,7 @@ crofctl_impl::experimenter_stats_request_rcvd(const cauxid& auxid, rofl::openflo
 {
 	rofl::openflow::cofmsg_experimenter_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_experimenter_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Experimenter-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_experimenter_stats_request(*this, auxid, request);
@@ -2609,7 +2609,7 @@ crofctl_impl::role_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_role
 	try {
 		rofl::openflow::cofmsg_role_request& request = dynamic_cast<rofl::openflow::cofmsg_role_request&>( *msg );
 
-		rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+		rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 				<< " Role-Request message received" << std::endl << request;
 
 		switch (msg->get_role().get_role()) {
@@ -2668,7 +2668,7 @@ crofctl_impl::barrier_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_b
 {
 	rofl::openflow::cofmsg_barrier_request& request = dynamic_cast<rofl::openflow::cofmsg_barrier_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Barrier-Request message received" << std::endl << request;
 
 	rofbase->handle_barrier_request(*this, auxid, request);
@@ -2683,7 +2683,7 @@ crofctl_impl::queue_get_config_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_queue_get_config_request& request = dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Queue-Get-Config-Request message received" << std::endl << request;
 
 	rofbase->handle_queue_get_config_request(*this, auxid, request);
@@ -2698,7 +2698,7 @@ crofctl_impl::experimenter_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_expe
 {
 	rofl::openflow::cofmsg_experimenter& message = dynamic_cast<rofl::openflow::cofmsg_experimenter&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Experimenter message received" << std::endl << message;
 
 	switch (msg->get_experimenter_id()) {
@@ -2717,7 +2717,7 @@ crofctl_impl::error_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_error *msg)
 {
 	rofl::openflow::cofmsg_error& error = dynamic_cast<rofl::openflow::cofmsg_error&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Error message received" << std::endl << error;
 
 	rofbase->handle_error_message(*this, auxid, error);
@@ -2732,7 +2732,7 @@ crofctl_impl::get_async_config_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_get_async_config_request& request = dynamic_cast<rofl::openflow::cofmsg_get_async_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Async-Config-Request message received" << std::endl << request;
 
 	send_get_async_config_reply(auxid, msg->get_xid(), async_config);
@@ -2747,7 +2747,7 @@ crofctl_impl::set_async_config_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_
 {
 	rofl::openflow::cofmsg_set_async_config& message = dynamic_cast<rofl::openflow::cofmsg_set_async_config&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][ctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Async-Config message received" << std::endl << message;
 
 	async_config = msg->get_async_config();

@@ -291,7 +291,7 @@ crofchan::handle_connected(
 	if (0 == aux_id.get_id()) {
 		this->ofp_version = ofp_version;
 		rofl::logging::info << "[rofl-common][crofchan] main connection established. Negotiated OFP version:"
-				<< (int) ofp_version << std::endl << *conn;
+				<< (int) ofp_version << " " << conn->str() << std::endl;
 		run_engine(EVENT_ESTABLISHED);
 
 		for (std::map<cauxid, crofconn*>::iterator
@@ -306,14 +306,14 @@ crofchan::handle_connected(
 	} else {
 		if (this->ofp_version != ofp_version) {
 			rofl::logging::warn << "[rofl-common][crofchan] auxiliary connection with invalid OFP version "
-					<< "negotiated, closing connection." << std::endl << *conn;
+					<< "negotiated, closing connection. " << conn->str() << std::endl;
 
 			drop_conn(conn->get_aux_id());
 			return;
 
 		} else {
 			rofl::logging::debug << "[rofl-common][crofchan] auxiliary connection with aux-id:" << aux_id
-					<< " established." << std::endl << *conn;
+					<< " established. " << conn->str() << std::endl;
 		}
 	}
 }

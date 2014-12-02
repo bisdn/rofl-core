@@ -99,9 +99,9 @@ protected:
 	 */
 	void
 	start(const pthread_attr_t* attr = (const pthread_attr_t*)0) {
-		rofl::logging::debug << "[rofl-common][cthread][start_thread] create" << std::endl;
+		rofl::logging::debug2 << "[rofl-common][cthread][start_thread] create" << std::endl;
 		int rc = pthread_create(&tid, attr, cthread::run_thread, (void*)this);
-		rofl::logging::debug << "[rofl-common][cthread][start_thread] create done tid: 0x" << tid << std::endl;
+		rofl::logging::debug2 << "[rofl-common][cthread][start_thread] create done tid: 0x" << tid << std::endl;
 
 		if (rc != 0) {
 			switch (rc) {
@@ -128,13 +128,13 @@ protected:
 	 */
 	void
 	stop() {
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] stop cioloop tid: 0x" << tid << std::endl;
+		rofl::logging::debug2 << "[rofl-common][cthread][stop_thread] stop cioloop tid: 0x" << tid << std::endl;
 		rofl::cioloop::get_loop(get_thread_id()).stop();
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join tid: 0x" << tid << std::endl;
+		rofl::logging::debug2 << "[rofl-common][cthread][stop_thread] join tid: 0x" << tid << std::endl;
 		pthread_cancel(tid);
 		void* retval;
 		int rc = pthread_join(tid, &retval);
-		rofl::logging::debug << "[rofl-common][cthread][stop_thread] join done tid: 0x" << tid << std::endl;
+		rofl::logging::debug2 << "[rofl-common][cthread][stop_thread] join done tid: 0x" << tid << std::endl;
 
 		if (rc != 0) {
 			switch (rc) {

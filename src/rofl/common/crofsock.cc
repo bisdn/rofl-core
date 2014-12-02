@@ -27,14 +27,14 @@ crofsock::crofsock(
 	txweights[QUEUE_MGMT] = 8;
 	txweights[QUEUE_FLOW] = 4;
 	txweights[QUEUE_PKT ] = 2;
-	rofl::logging::debug << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 crofsock::~crofsock()
 {
-	rofl::logging::debug << "[rofl-common][crofsock] destructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofsock] destructor " << std::hex << this << std::dec << std::endl;
 	if (fragment)
 		delete fragment;
 	if (socket)
@@ -103,7 +103,7 @@ crofsock::handle_read(
 					pkts_rcvd_in_round++;
 					// read at most max_pkts_rcvd_per_round (default: 16) packets from socket, reschedule afterwards
 					if (pkts_rcvd_in_round >= max_pkts_rcvd_per_round) {
-						rofl::logging::debug << "[rofl-common][crofsock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
+						rofl::logging::debug2 << "[rofl-common][crofsock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
 						return;
 					}
 				}
@@ -113,7 +113,7 @@ crofsock::handle_read(
 	} catch (eSocketRxAgain& e) {
 
 		// more bytes are needed, keep pointer to msg in "fragment"
-		rofl::logging::debug << "[rofl-common][crofsock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
+		rofl::logging::debug2 << "[rofl-common][crofsock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
 
 	} catch (eSysCall& e) {
 
@@ -245,10 +245,10 @@ crofsock::send_from_queue()
 				mem = new cmemory(msg->length());
 				msg->pack(mem->somem(), mem->memlen());
 
-				rofl::logging::debug << "[rofl-common][crofsock][send-from-queue] msg:"
+				rofl::logging::debug2 << "[rofl-common][crofsock][send-from-queue] msg:"
 						<< std::endl << *msg;
 
-				rofl::logging::debug << "[rofl-common][crofsock][send-from-queue] mem:"
+				rofl::logging::debug2 << "[rofl-common][crofsock][send-from-queue] mem:"
 						<< std::endl << *mem;
 
 				socket->send(mem); // may throw exception
@@ -711,7 +711,7 @@ crofsock::parse_of13_message(cmemory *mem, rofl::openflow::cofmsg **pmsg)
 	switch (header->type) {
 	case rofl::openflow13::OFPT_HELLO: {
 		(*pmsg = new rofl::openflow::cofmsg_hello(mem))->validate();
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_hello&>( **pmsg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_hello&>( **pmsg );
 	} break;
 
 	case rofl::openflow13::OFPT_ERROR: {
@@ -944,17 +944,17 @@ void
 crofsock::log_message(
 		std::string const& text, rofl::openflow::cofmsg const& msg)
 {
-	rofl::logging::debug << "[rofl-common][crofsock] " << text << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofsock] " << text << std::endl;
 
 	try {
 	switch (msg.get_version()) {
 	case rofl::openflow10::OFP_VERSION: log_of10_message(msg); break;
 	case rofl::openflow12::OFP_VERSION: log_of12_message(msg); break;
 	case rofl::openflow13::OFP_VERSION: log_of13_message(msg); break;
-	default: rofl::logging::debug << "[rolf][crofsock] unknown OFP version found in msg" << std::endl << msg; break;
+	default: rofl::logging::debug2 << "[rolf][crofsock] unknown OFP version found in msg" << std::endl << msg; break;
 	}
 	} catch (...) {
-		rofl::logging::debug << "[rofl-common][crofsock] log-message" << std::endl;
+		rofl::logging::debug2 << "[rofl-common][crofsock] log-message" << std::endl;
 	}
 }
 
@@ -969,77 +969,77 @@ crofsock::log_of10_message(
 {
 	switch (msg.get_type()) {
 	case rofl::openflow10::OFPT_HELLO: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_ERROR: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_ECHO_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_ECHO_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_VENDOR: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_FEATURES_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_FEATURES_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_SET_CONFIG: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_PACKET_OUT: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_PACKET_IN: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_FLOW_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_FLOW_REMOVED: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_PORT_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_PORT_STATUS: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_STATS_REQUEST: {
 		rofl::openflow::cofmsg_stats_request const& stats = dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow10::OFPST_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_PORT: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default:
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg ); break;
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg ); break;
 		}
 
 	} break;
@@ -1047,44 +1047,44 @@ crofsock::log_of10_message(
 		rofl::openflow::cofmsg_stats_reply const& stats = dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow10::OFPST_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_PORT: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow10::OFPST_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
 		} break;
 		}
 
 	} break;
 	case rofl::openflow10::OFPT_BARRIER_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_BARRIER_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
 	} break;
 	default: {
-		rofl::logging::debug << "[rofl-common][crofsock]  unknown message " << msg << std::endl;
+		rofl::logging::debug2 << "[rofl-common][crofsock]  unknown message " << msg << std::endl;
 	} break;
 	}
 }
@@ -1097,92 +1097,92 @@ crofsock::log_of12_message(
 {
 	switch (msg.get_type()) {
 	case rofl::openflow12::OFPT_HELLO: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_ERROR: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_ECHO_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_ECHO_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_EXPERIMENTER:	{
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_FEATURES_REQUEST:	{
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_FEATURES_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_SET_CONFIG: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_PACKET_OUT: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_PACKET_IN: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_FLOW_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_FLOW_REMOVED: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_GROUP_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_mod const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_PORT_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_PORT_STATUS: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_TABLE_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_mod const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_STATS_REQUEST: {
 		rofl::openflow::cofmsg_stats_request const& stats = dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow12::OFPST_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_PORT: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_stats_request const&>( msg );
 		} break;
 		}
 
@@ -1191,68 +1191,68 @@ crofsock::log_of12_message(
 		rofl::openflow::cofmsg_stats_reply const& stats = dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow12::OFPST_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_PORT: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow12::OFPST_GROUP_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_stats_reply const&>( msg );
 		} break;
 		}
 
 	} break;
 	case rofl::openflow12::OFPT_BARRIER_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_BARRIER_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_ROLE_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_role_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_role_request const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_ROLE_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_role_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_role_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_GET_ASYNC_REQUEST: {
-    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_async_config_request const&>( msg );
+    	rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_async_config_request const&>( msg );
     } break;
 	case rofl::openflow12::OFPT_GET_ASYNC_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_async_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_async_config_reply const&>( msg );
 	} break;
 	case rofl::openflow12::OFPT_SET_ASYNC: {
-    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
+    	rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
     } break;
 	default: {
-		rofl::logging::debug << "[rofl-common][crofsock] unknown message " << msg << std::endl;
+		rofl::logging::debug2 << "[rofl-common][crofsock] unknown message " << msg << std::endl;
 	} break;
 	}
 }
@@ -1265,103 +1265,103 @@ crofsock::log_of13_message(
 {
 	switch (msg.get_type()) {
 	case rofl::openflow13::OFPT_HELLO: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_hello const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_ERROR: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_error const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_ECHO_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_ECHO_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_echo_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_EXPERIMENTER:	{
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_experimenter const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_FEATURES_REQUEST:	{
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_FEATURES_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_features_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_config_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_SET_CONFIG: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_set_config const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_PACKET_OUT: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_out const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_PACKET_IN: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_packet_in const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_FLOW_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_mod const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_FLOW_REMOVED: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_removed const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_GROUP_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_mod const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_PORT_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_mod const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_PORT_STATUS: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_status const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_TABLE_MOD: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_mod const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_mod const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
 		rofl::openflow::cofmsg_multipart_request const& stats = dynamic_cast<rofl::openflow::cofmsg_multipart_request const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow13::OFPMP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_PORT_STATS: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_PORT_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
@@ -1374,46 +1374,46 @@ crofsock::log_of13_message(
 		rofl::openflow::cofmsg_multipart_reply const& stats = dynamic_cast<rofl::openflow::cofmsg_multipart_reply const&>( msg );
 		switch (stats.get_stats_type()) {
 		case rofl::openflow13::OFPMP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_FLOW: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_AGGREGATE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_PORT_STATS: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_QUEUE: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_GROUP_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_CONFIG: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_METER_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_TABLE_FEATURES: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply const&>( msg );
 		} break;
 		case rofl::openflow13::OFPMP_PORT_DESC: {
-			rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply const&>( msg );
+			rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
@@ -1424,37 +1424,37 @@ crofsock::log_of13_message(
 	} break;
 
 	case rofl::openflow13::OFPT_BARRIER_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_BARRIER_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_barrier_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_QUEUE_GET_CONFIG_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_queue_get_config_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_ROLE_REQUEST: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_role_request const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_role_request const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_ROLE_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_role_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_role_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_GET_ASYNC_REQUEST: {
-    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_async_config_request const&>( msg );
+    	rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_async_config_request const&>( msg );
     } break;
 	case rofl::openflow13::OFPT_GET_ASYNC_REPLY: {
-		rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_get_async_config_reply const&>( msg );
+		rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_get_async_config_reply const&>( msg );
 	} break;
 	case rofl::openflow13::OFPT_SET_ASYNC: {
-    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
+    	rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_set_async_config const&>( msg );
     } break;
 	case rofl::openflow13::OFPT_METER_MOD: {
-    	rofl::logging::debug << dynamic_cast<rofl::openflow::cofmsg_meter_mod const&>( msg );
+    	rofl::logging::debug2 << dynamic_cast<rofl::openflow::cofmsg_meter_mod const&>( msg );
     } break;
 	default: {
-		rofl::logging::debug << "[rofl-common][crofsock] unknown message " << msg << std::endl;
+		rofl::logging::debug2 << "[rofl-common][crofsock] unknown message " << msg << std::endl;
 	} break;
 	}
 }

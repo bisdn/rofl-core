@@ -27,6 +27,8 @@ public:
 	static std::ostream notice;
 	static std::ostream info;
 	static std::ostream debug;
+	static std::ostream debug2;
+	static std::ostream debug3;
 	static std::ostream trace;
 	static std::streamsize width;
 
@@ -45,7 +47,9 @@ public:
 	static const unsigned int NOTICE	= 5;
 	static const unsigned int INFO		= 6;
 	static const unsigned int DBG		= 7; //Prevent DEBUG macro expansion
-	static const unsigned int TRACE		= 8;
+	static const unsigned int DBG2		= 8; //Prevent DEBUG macro expansion
+	static const unsigned int DBG3		= 9; //Prevent DEBUG macro expansion
+	static const unsigned int TRACE		= 10;
 
 	/**
 	 * Initialize C++ logging facility
