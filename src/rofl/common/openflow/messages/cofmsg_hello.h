@@ -114,6 +114,13 @@ public:
 		os << indent(2) << msg.body;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Hello- " << cofmsg::str();
+		return ss.str();
+	};
 };
 
 } // end of namespace openflow

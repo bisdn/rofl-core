@@ -280,35 +280,35 @@ private:
 	virtual void
 	handle_connect_refused(
 			crofsock *rofsock) {
-		rofl::logging::warn << "[rofl-common][rofconn] transport connection: connect refused" << std::endl;
+		rofl::logging::warn << "[rofl-common][crofconn] transport connection: connect refused " << str() << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
 	handle_connect_failed(
 			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][rofconn] transport connection: connect failed" << std::endl;
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection: connect failed " << str() << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
 	handle_connected (
 			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][rofconn] transport connection established" << std::endl;
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection established " << str() << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 	};
 
 	virtual void
 	handle_closed(
 			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][rofconn] transport connection closed" << std::endl;
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << str() << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
 	};
 
 	virtual void
 	handle_write(
 			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][rofconn] transport connection congested" << std::endl;
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection congested " << str() << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
@@ -341,36 +341,36 @@ private:
 			const cevent& ev) {
 		switch (ev.get_cmd()) {
 		case EVENT_RXQUEUE: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-RXQUEUE" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-RXQUEUE" << std::endl;
 			handle_messages();
 		} break;
 		case EVENT_TCP_CONNECTED: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-TCP-CONNECTED" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-TCP-CONNECTED" << std::endl;
 			flags.reset(FLAGS_RECONNECTING);
 			run_engine(EVENT_TCP_CONNECTED);
 		} break;
 		case EVENT_CONNECT_FAILED: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONNECT-FAILED" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-CONNECT-FAILED" << std::endl;
 			flags.set(FLAGS_CONNECT_FAILED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONNECT_REFUSED: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONNECT-REFUSED" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-CONNECT-REFUSED" << std::endl;
 			flags.set(FLAGS_CONNECT_REFUSED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_LOCAL_DISCONNECT: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-LOCAL-DISCONNECT" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-LOCAL-DISCONNECT" << std::endl;
 			flags.set(FLAGS_LOCAL_DISCONNECT);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
 		case EVENT_CONGESTION_SOLVED: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-CONGESTION-SOLVED" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn] EVENT-CONGESTION-SOLVED" << std::endl;
 			flags.reset(FLAGS_CONGESTED);
 			env->handle_write(this);
 		} break;
 		case EVENT_PEER_DISCONNECTED: {
-			rofl::logging::debug << "[rofl-common][rofconn][handle_event] EVENT-PEER-DISCONNECTED" << std::endl;
+			rofl::logging::debug << "[rofl-common][crofconn][handle_event] EVENT-PEER-DISCONNECTED" << std::endl;
 			flags.set(FLAGS_PEER_DISCONNECTED);
 			run_engine(EVENT_DISCONNECTED);
 		} break;
@@ -725,6 +725,31 @@ public:
 		{ indent i(4); os << conn.versionbitmap_peer; }
 #endif
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		if (state == STATE_DISCONNECTED) {
+			ss << "state: -DISCONNECTED- ";
+		}
+		else if (state == STATE_CONNECT_PENDING) {
+			ss << "state: -CONNECT-PENDING- ";
+			ss << "backoff: " << reconnect_timespec.str();
+		}
+		else if (state == STATE_ACCEPT_PENDING) {
+			ss << "state: -ACCEPT-PENDING- ";
+		}
+		else if (state == STATE_WAIT_FOR_HELLO) {
+			ss << "state: -WAIT-FOR-HELLO- ";
+		}
+		else if (state == STATE_WAIT_FOR_FEATURES) {
+			ss << "state: -WAIT-FOR-FEATURES- ";
+		}
+		else if (state == STATE_CONNECTED) {
+			ss << "state: -ESTABLISHED- ";
+		}
+		return ss.str();
 	};
 
 private:

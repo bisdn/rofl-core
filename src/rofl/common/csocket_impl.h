@@ -562,6 +562,37 @@ public:
 		return os;
 	};
 
+	std::string
+	str() const {
+		std::stringstream sstr;
+		sstr << "sd:" << sd << " local:" << laddr.str() << " remote:" << raddr.str()
+				<< " #tx-queue:" << pout_squeue.size() << " flags: ";
+		if (sockflags.test(FLAG_LISTENING)) {
+			sstr << "LISTENING, ";
+		}
+		if (sockflags.test(FLAG_CONNECTING)) {
+			sstr << "CONNECTING, ";
+		}
+		if (sockflags.test(FLAG_RAW_SOCKET)) {
+			sstr << "RAW-SOCKET, ";
+		}
+		if (sockflags.test(FLAG_CONNECTED)) {
+			sstr << "CONNECTED, ";
+		}
+		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			sstr << "ACTIVE-SOCKET, ";
+		}
+		if (sockflags.test(FLAG_DO_RECONNECT)) {
+			sstr << "DO-RECONNECT, ";
+		}
+		if (sockflags.test(FLAG_CLOSING)) {
+			sstr << "CLOSING, ";
+		}
+		if (sockflags.test(FLAG_TX_WOULD_BLOCK)) {
+			sstr << "TX-WOULD-BLOCK, ";
+		}
+		return sstr.str();
+	};
 };
 
 }; // end of namespace

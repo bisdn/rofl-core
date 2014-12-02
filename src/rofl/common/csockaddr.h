@@ -159,6 +159,21 @@ public:
 		return os;
 	};
 
+	std::string
+	str() const {
+		std::stringstream sstr;
+		switch (ca_saddr->sa_family) {
+		case AF_INET: {
+			caddress_in4 addr; addr.set_addr_nbo(ca_s4addr->sin_addr.s_addr);
+			sstr << "inet4:" << addr.str() << ":" << (unsigned int)be16toh(ca_s4addr->sin_port);
+		} break;
+		case AF_INET6: {
+			caddress_in6 addr; addr.unpack(ca_s6addr->sin6_addr.s6_addr, 16);
+			sstr << "inet6:" << addr.str() << ":" << (unsigned int)be16toh(ca_s6addr->sin6_port);
+		} break;
+		}
+		return sstr.str();
+	};
 };
 
 

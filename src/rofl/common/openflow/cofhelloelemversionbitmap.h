@@ -149,6 +149,22 @@ public:
 		}
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "VersionBitmap ";
+		if (has_ofp_version(rofl::openflow10::OFP_VERSION)) {
+			ss << "1.0 ";
+		}
+		if (has_ofp_version(rofl::openflow12::OFP_VERSION)) {
+			ss << "1.2 ";
+		}
+		if (has_ofp_version(rofl::openflow13::OFP_VERSION)) {
+			ss << "1.3 ";
+		}
+		return ss.str();
+	};
 };
 
 }; /* namespace openflow */

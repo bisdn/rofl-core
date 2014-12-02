@@ -285,6 +285,31 @@ public:
 		os << ">" << std::endl;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "OFP:{";
+		switch (get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			ss << "version: unknown, ";
+		} break;
+		case rofl::openflow10::OFP_VERSION: {
+			ss << "version: 1.0, ";
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			ss << "version: 1.2, ";
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			ss << "version: 1.3, ";
+		} break;
+		}
+		ss << "type: " << (int)get_type() << ", ";
+		ss << "len: " << (int)get_length() << ", ";
+		ss << "xid: 0x" << std::hex << (unsigned int)get_xid() << std::dec;
+		ss << "} ";
+		return ss.str();
+	};
 };
 
 }; // end of namespace openflow

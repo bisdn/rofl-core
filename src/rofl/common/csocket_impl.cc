@@ -54,14 +54,16 @@ csocket_impl::csocket_impl(
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
-	//rofl::logging::debug << "[rofl-common][csocket_impl] constructor " << std::hex << this << std::dec << std::endl;
+	//rofl::logging::debug << "[rofl-common][csocket][impl] constructor " << std::hex << this << std::dec << std::endl;
 }
 
 
 
 csocket_impl::~csocket_impl()
 {
-	//rofl::logging::debug << "[rofl-common][csocket_impl] destructor " << std::hex << this << std::dec << std::endl;
+	//rofl::logging::debug << "[rofl-common][csocket][impl] destructor " << std::hex << this << std::dec << std::endl;
+	socket_owner = NULL;
+
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
@@ -163,7 +165,7 @@ csocket_impl::handle_revent(int fd)
 			}
 		}
 
-		rofl::logging::info << "[rofl-common][csocket][impl] socket accepted " << new_sd << std::endl << *this;
+		rofl::logging::info << "[rofl-common][csocket][impl] socket accepted " << str() << std::endl;
 
 		handle_listen(new_sd);
 
@@ -214,16 +216,16 @@ csocket_impl::handle_wevent(int fd)
 				cancel_timer(reconnect_timerid);
 			}
 
-			rofl::logging::info << "[rofl-common][csocket][impl] connection established." << std::endl << *this;
+			rofl::logging::info << "[rofl-common][csocket][impl][connect] connection established. " << str() << std::endl;
 
 			handle_connected();
 		} break;
 		case EINPROGRESS: {
-			rofl::logging::warn << "[rofl[csocket][impl] connection establishment is pending." << std::endl << *this;
+			rofl::logging::warn << "[rofl[csocket][impl][connect] connection establishment is pending. " << str() << std::endl;
 			// do nothing
 		} break;
 		case ECONNREFUSED: {
-			rofl::logging::warn << "[rofl-common][csocket][impl] connection failed." << std::endl << *this;
+			rofl::logging::warn << "[rofl-common][csocket][impl][connect] connection failed. " << str() << std::endl;
 			close();
 
 			if (sockflags.test(FLAG_DO_RECONNECT)) {
@@ -233,7 +235,7 @@ csocket_impl::handle_wevent(int fd)
 			}
 		} break;
 		default: {
-			rofl::logging::error << "[rofl-common][csocket][impl] error occured during connection establishment." << std::endl << *this;
+			rofl::logging::error << "[rofl-common][csocket][impl][connect] error occured during connection establishment. " << str() << std::endl;
 			//throw eSysCall(optval);
 
 			close();
@@ -264,7 +266,7 @@ csocket_impl::handle_wevent(int fd)
 void
 csocket_impl::handle_xevent(int fd)
 {
-	rofl::logging::error << "[rofl[csocket][impl] error occured on socket descriptor" << std::endl << *this;
+	rofl::logging::error << "[rofl[csocket][impl] error occured on socket descriptor" << str() << std::endl;
 }
 
 
@@ -403,7 +405,7 @@ csocket_impl::listen(
 	int backlog,
 	std::string devname)
 {
-	rofl::logging::debug << "[rofl-common][csocket][impl][listen] laddr:" << la << " domain:" << domain << std::endl;
+	rofl::logging::info << "[rofl-common][csocket][impl][listen] " << str() << std::endl;
 
 	int rc;
 	this->domain 	= domain;
@@ -799,7 +801,7 @@ csocket_impl::connect(
 	int protocol,
 	bool do_reconnect)
 {
-	rofl::logging::debug << "[rofl-common][csocket][impl][connect] raddr:" << ra << " laddr:" << la << " domain:" << domain << std::endl;
+	rofl::logging::debug << "[rofl-common][csocket][impl][connect] connecting " << str() << std::endl;
 
 	int rc;
 	this->domain 	= domain;
@@ -862,20 +864,21 @@ csocket_impl::connect(
 		case EINPROGRESS: {		// connect is pending, register sd for write events
 			sockflags[FLAG_CONNECTING] = true;
 			register_filedesc_w(sd);
-			rofl::logging::debug << "[rofl-common][csocket][impl] socket EINPROGRESS" << std::endl << *this;
+			rofl::logging::debug << "[rofl-common][csocket][impl][connect] socket EINPROGRESS " << str() << std::endl;
 
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
 			close();
 			backoff_reconnect(false);
-			rofl::logging::debug << "[rofl-common][csocket][impl] ECONNREFUSED" << std::endl << *this;
+			rofl::logging::debug << "[rofl-common][csocket][impl][connect] ECONNREFUSED " << str() << std::endl;
 
 		} break;
 		default: {
 			//throw eSysCall("connect ");
 			close();
 			backoff_reconnect(false);
-			rofl::logging::debug << "[rofl-common][csocket][impl] Unknown error:"<< strerror(errno) <<"("<< errno <<")"<< std::endl << *this;
+			rofl::logging::debug << "[rofl-common][csocket][impl][connect] Unknown error:"
+					<< strerror(errno) <<"("<< errno <<") " << str() << std::endl;
 		};
 		}
 	} else {
@@ -895,7 +898,7 @@ csocket_impl::connect(
 			throw eSysCall("getpeername");
 		}
 
-		rofl::logging::info << "[rofl-common][csocket][impl] socket connected" << std::endl << *this;
+		rofl::logging::info << "[rofl-common][csocket][impl][connect] socket connected " << str() << std::endl;
 
 		handle_connected();
 	}
@@ -922,7 +925,7 @@ csocket_impl::reconnect()
 void
 csocket_impl::close()
 {
-	rofl::logging::info << "[rofl-common][csocket][impl] closing socket" << std::endl;
+	rofl::logging::info << "[rofl-common][csocket][impl][close] closing socket " << str() << std::endl;
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
@@ -935,11 +938,13 @@ csocket_impl::close()
 	deregister_filedesc_w(sd);
 	if (not sockflags.test(FLAG_RAW_SOCKET) and sockflags.test(FLAG_CONNECTED)) {
 		if ((rc = shutdown(sd, SHUT_RDWR)) < 0) {
-			rofl::logging::error << "[rofl-common][csocket][impl] error occured during shutdown(): " << eSysCall("shutdown") << std::endl << *this;
+			rofl::logging::error << "[rofl-common][csocket][impl][close] error occured during shutdown(): "
+					<< eSysCall("shutdown") << std::endl << *this;
 		}
 	}
 	if ((rc = ::close(sd)) < 0) {
-		rofl::logging::error << "[rofl-common][csocket][impl] error occured during close():" << eSysCall("close") << std::endl << *this;
+		rofl::logging::error << "[rofl-common][csocket][impl][close] error occured during close():"
+				<< eSysCall("close") << std::endl << *this;
 	}
 
 	sd = -1;
@@ -949,7 +954,7 @@ csocket_impl::close()
 	sockflags.reset(FLAG_CONNECTED);
 	sockflags.set(FLAG_CLOSING);
 
-	rofl::logging::info << "[rofl-common][csocket][impl] cleaning-up socket." << std::endl << *this;
+	rofl::logging::info << "[rofl-common][csocket][impl][close] cleaning-up socket." << str() << std::endl;
 
 	// purge pout_squeue
 	while (not pout_squeue.empty()) {
@@ -968,63 +973,61 @@ csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 		throw eSocketNotConnected();
 	int rc;
 
-
-		// read from socket:
-		switch (type) {
-		case SOCK_STREAM:
-		case SOCK_SEQPACKET: {
-			rc = ::read(sd, (void*)buf, count);
-			from = raddr;
-		} break;
-		case SOCK_DGRAM:
-		case SOCK_RAW: {
-			switch (domain) {
-			case AF_INET:  from = csockaddr(caddress_in4("0.0.0.0"), 0); break;
-			case AF_INET6: from = csockaddr(caddress_in6("::"), 0); break;
-			}
-			rc = recvfrom(sd, (void*)buf, count, flags, from.ca_saddr, &from.salen);
-		} break;
-		default: {
-			return 0;
-		};
+	// read from socket:
+	switch (type) {
+	case SOCK_STREAM:
+	case SOCK_SEQPACKET: {
+		rc = ::read(sd, (void*)buf, count);
+		from = raddr;
+	} break;
+	case SOCK_DGRAM:
+	case SOCK_RAW: {
+		switch (domain) {
+		case AF_INET:  from = csockaddr(caddress_in4("0.0.0.0"), 0); break;
+		case AF_INET6: from = csockaddr(caddress_in6("::"), 0); break;
 		}
+		rc = recvfrom(sd, (void*)buf, count, flags, from.ca_saddr, &from.salen);
+	} break;
+	default: {
+		return 0;
+	};
+	}
 
 
-		if (rc > 0) {
-			return rc;
+	if (rc > 0) {
+		return rc;
 
-		} else if (rc == 0) {
-			rofl::logging::debug << "[rofl-common][csocket][impl] peer closed connection: "
-					<< eSysCall("read") << std::endl << *this;
+	} else if (rc == 0) {
+		rofl::logging::debug << "[rofl-common][csocket][impl] peer closed connection: "
+				<< eSysCall("read") << " " << str() << std::endl;
+		close();
+
+		notify(cevent(EVENT_CONN_RESET));
+		throw eSysCall("read()");
+
+	} else if (rc < 0) {
+
+		switch(errno) {
+		case EAGAIN:
+			throw eSocketRxAgain();
+		case ECONNRESET: {
+			rofl::logging::error << "[rofl-common][csocket][impl] connection reset on socket: "
+					<< eSysCall("read") << ", closing endpoint. " << str() << std::endl;
 			close();
 
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSysCall("read()");
+		} break;
+		default: {
+			rofl::logging::error << "[rofl-common][csocket][impl] error reading from socket: "
+					<< eSysCall("read") << ", closing endpoint. " << str() << std::endl;
+			close();
 
-		} else if (rc < 0) {
-
-			switch(errno) {
-			case EAGAIN:
-				throw eSocketRxAgain();
-			case ECONNRESET: {
-				rofl::logging::error << "[rofl-common][csocket][impl] connection reset on socket: "
-						<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
-				close();
-
-				notify(cevent(EVENT_CONN_RESET));
-				throw eSysCall("read()");
-			} break;
-			default: {
-				rofl::logging::error << "[rofl-common][csocket][impl] error reading from socket: "
-						<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
-				close();
-
-				notify(cevent(EVENT_DISCONNECTED));
-				throw eSysCall("read()");
-			} break;
-			}
+			notify(cevent(EVENT_DISCONNECTED));
+			throw eSysCall("read()");
+		} break;
 		}
-
+	}
 
 	return 0;
 }

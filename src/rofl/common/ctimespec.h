@@ -11,6 +11,7 @@
 #include <time.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
@@ -156,6 +157,13 @@ public:
 		os << "nsec:" << (long int)timespec.ts.tv_nsec << " ";
 		os << ">" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << (unsigned long int)ts.tv_sec << "s " << (unsigned long int)ts.tv_nsec << "ns ";
+		return ss.str();
 	};
 
 private:
