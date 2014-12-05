@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME 
 static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/ -DROFL_TEST=1
 

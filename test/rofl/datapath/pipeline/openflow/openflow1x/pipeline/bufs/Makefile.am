@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/monitoring.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \

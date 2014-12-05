@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 export AM_CPPFLAGS= -DROFL_TEST=1
 
 monitoring_unit_test_SOURCES= monitoring_test.c \

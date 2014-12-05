@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 SUBDIRS=loop
 
 SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
