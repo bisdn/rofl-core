@@ -8,6 +8,7 @@
 #include "../../of1x_match.h"
 #include "../../of1x_group_table.h"
 #include "../../of1x_instruction.h"
+#include "../../of1x_utils.h"
 #include "../../../of1x_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
 #include "../../../../../platform/likely.h"
@@ -175,7 +176,7 @@ rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *const tab
 
 	//Check overlapping
 	if(check_overlap && of1x_flow_table_loop_check_overlapping(table->entries, entry, false, OF1X_PORT_ANY, OF1X_GROUP_ANY)) //Why spec is saying not to match cookie only in flow_mod add??
-		return ROFL_OF1X_FM_OVERLAP;
+		return ROFL_OF1X_FM_OVERLAP_FAILURE;
 
 	//Look for existing entries (only if check_overlap is false)
 	if(!check_overlap)

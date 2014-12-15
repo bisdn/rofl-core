@@ -454,7 +454,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	if(unlikely(table_id >= pipeline->num_of_tables)){
 		ROFL_PIPELINE_ERR("[flowmod-add(%p)] ERROR: invalid table id %u > switch max table id: %u\n", *entry, table_id, pipeline->num_of_tables-1);
 		assert(0);
-		return ROFL_OF1X_FM_FAILURE;
+		return ROFL_OF1X_FM_BAD_TABLE_ID;
 	}
 
 	table = &pipeline->tables[table_id];
@@ -467,7 +467,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED validation. Ignoring...\n", *entry);
-		return ROFL_OF1X_FM_FAILURE;
+		return ROFL_OF1X_FM_VALIDATION_FAILURE;
 	}
 
 
@@ -477,7 +477,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	if(result != ROFL_OF1X_FM_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
-		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED, reason: %u\n", *entry, result);
+		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED (%d)\n", *entry, result);
 		return result;
 	}
 	
@@ -498,7 +498,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 }
 
 
-inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
+inline rofl_of1x_fm_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
 	rofl_result_t result;
 	of1x_flow_table_t* table;
 
@@ -513,7 +513,7 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	if(table_id >= pipeline->num_of_tables){
 		ROFL_PIPELINE_ERR("[flowmod-modify(%p)] ERROR: invalid table id %u > switch max table id: %u\n", *entry, table_id, pipeline->num_of_tables-1);
 		assert(0);
-		return ROFL_FAILURE;
+		return ROFL_OF1X_FM_BAD_TABLE_ID;
 	}
 
 	table = &pipeline->tables[table_id];
@@ -526,7 +526,7 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED validation. Ignoring...\n", *entry);
-		return ROFL_FAILURE;
+		return ROFL_OF1X_FM_VALIDATION_FAILURE;
 	}
 
 	//Perform insertion
@@ -535,8 +535,8 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	if(result != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
-		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED\n", *entry);
-		return result;
+		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED(%d)\n", *entry, result);
+		return (rofl_of1x_fm_result_t)result;
 	}
 	
 	ROFL_PIPELINE_INFO("[flowmod-modify(%p)] Succesful.\n", *entry);
@@ -553,7 +553,7 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	return result;
 }
 
-inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
+inline rofl_of1x_fm_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
 	
 	of1x_flow_table_t* table;
 	rofl_result_t result;	
@@ -581,13 +581,13 @@ inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipelin
 	if(table_id >= pipeline->num_of_tables){
 		ROFL_PIPELINE_ERR("[flowmod-remove(%p)] ERROR: invalid table id %u > switch max table id: %u\n", entry, table_id, pipeline->num_of_tables-1);
 		assert(0);
-		return ROFL_FAILURE;
+		return ROFL_OF1X_FM_BAD_TABLE_ID;
 	}
 
 	//Verify entry
 	if(__of1x_validate_flow_entry(entry, pipeline, table_id) != ROFL_SUCCESS){
 		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED validation. Ignoring...\n", entry);
-		return ROFL_FAILURE;
+		return ROFL_OF1X_FM_VALIDATION_FAILURE; 
 	}
 
 	//Recover table pointer
@@ -597,11 +597,11 @@ inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipelin
 	
 #ifdef DEBUG
 	if(result != ROFL_SUCCESS)
-		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED\n", entry);
+		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED(%d)\n", entry, result);
 	else
 		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] Succesful.\n", entry);
 #endif
-	return result;
+	return (rofl_of1x_fm_result_t)result;
 
 }
 
@@ -611,7 +611,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 	
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
-		return ROFL_FAILURE;
+		return ROFL_OF1X_FM_BAD_TABLE_ID;
 
 	//Recover table pointer
 	table = &pipeline->tables[table_id];

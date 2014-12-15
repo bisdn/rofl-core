@@ -342,7 +342,7 @@ void test_simple_idle_dynamic(of1x_pipeline_t * pipeline, uint32_t ito)
 	
 	of1x_flow_entry_t *entry=of1x_init_flow_entry(false);
 	of1x_fill_new_timer_entry_info(entry,0,ito);
-	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry, false, false)==ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry, false, false)==OF1X_FM_SUCCESS);
 	
 	//insert a timer
 	//CU_ASSERT(of1x_add_timer(table, entry)==EXIT_SUCCESS);
@@ -420,7 +420,7 @@ void test_incremental_insert_and_expiration_dynamic(of1x_pipeline_t * pipeline)
 		CU_ASSERT(entry_list[i]!=NULL);
 		of1x_fill_new_timer_entry_info(entry_list[i],timeout,0);
 		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(i));
-		CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false)==ROFL_OF1X_FM_SUCCESS);
+		CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false)==OF1X_FM_SUCCESS);
 		
 		//if(i==0)
 		//{

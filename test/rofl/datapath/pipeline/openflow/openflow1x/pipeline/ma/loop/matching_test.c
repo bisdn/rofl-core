@@ -45,7 +45,7 @@ void test_install_empty_flow_mod(){
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//Uninstall (specific)	
-	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
@@ -120,7 +120,7 @@ static void clean_pipeline(of1x_switch_t* sw){
 
 	CU_ASSERT(deleting_entry != NULL);
 
-	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
@@ -146,7 +146,7 @@ void test_uninstall_wildcard(){
 	CU_ASSERT(deleting_entry != NULL);
 	CU_ASSERT(of1x_add_match_to_entry(deleting_entry,of1x_init_port_in_match(1)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
@@ -163,7 +163,7 @@ void test_uninstall_wildcard(){
 	CU_ASSERT(deleting_entry != NULL);
 	CU_ASSERT(of1x_add_match_to_entry(deleting_entry,of1x_init_eth_src_match(0x012345678901, 0xFFFFFFFFFFFF)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
@@ -183,7 +183,7 @@ void test_uninstall_wildcard(){
 	CU_ASSERT(of1x_add_match_to_entry(deleting_entry,of1x_init_ip4_dst_match(rand()%0x11111111, 0x0000000)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(deleting_entry,of1x_init_ip4_dst_match(rand()%0x22222222, 0x0000000)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, deleting_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
@@ -269,7 +269,7 @@ void test_overlap(){
 	//Add match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP_FAILURE);
 	
 	clean_pipeline(sw);	
 
@@ -398,7 +398,7 @@ void test_overlap2(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_src_match(205)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_dst_match(88)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP); //Check overlap == 1 => MUST FAIL
+	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP_FAILURE); //Check overlap == 1 => MUST FAIL
 	
 	of_destroy_switch((of_switch_t*)sw10);
 }
@@ -446,7 +446,7 @@ void test_flow_modify(){
 	of1x_add_instruction_to_group(&entry2->inst_grp, OF1X_IT_APPLY_ACTIONS, group2, NULL, NULL, 0);
 
 	//MODIFY strict
-	CU_ASSERT(of1x_modify_flow_entry_table(&sw->pipeline, 0, &entry2, STRICT, true) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_modify_flow_entry_table(&sw->pipeline, 0, &entry2, STRICT, true) == ROFL_OF1X_FM_SUCCESS);
 
 	
 	//Check actions are first entry of the table

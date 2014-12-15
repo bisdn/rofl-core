@@ -63,7 +63,6 @@ typedef enum{
 	OF1X_TABLE_MISS_MASK       = 3
 }of1x_flow_table_miss_config_t; 
 
-
 //To str()
 #define __OF1X_TABLE_MISS_MAX OF1X_TABLE_MISS_MASK+1
 extern const char* __of1x_flow_table_miss_config_str[__OF1X_TABLE_MISS_MAX];
@@ -220,7 +219,7 @@ rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipe
 * @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL. 
 * or freed from outside the library.
 */
-rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
+rofl_of1x_fm_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
 	
 /**
 * @ingroup core_of1x 
@@ -243,7 +242,7 @@ rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline,
 * @param out_port Only remove the entries that contain out_port in the actions
 * @param out_group Only remove the entries that contain out_group in the actions
 */
-rofl_result_t of1x_remove_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
+rofl_of1x_fm_result_t of1x_remove_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
 
 //This API call is meant to ONLY be used internally within the pipeline library (timers)
 rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired);

@@ -13,7 +13,6 @@
 * @author Marc Sune<marc.sune (at) bisdn.de>
 */
 
-
 //
 // OpenFlow 1.X specific return values
 //
@@ -23,11 +22,17 @@
 * Extended flowmod return codes
 */
 typedef enum rofl_of1x_fm_result{
-	ROFL_OF1X_FM_SUCCESS	= EXIT_SUCCESS,
-	ROFL_OF1X_FM_FAILURE	= EXIT_FAILURE,
-	ROFL_OF1X_FM_OVERLAP
-}rofl_of1x_fm_result_t;
+	ROFL_OF1X_FM_SUCCESS			= EXIT_SUCCESS,
+	ROFL_OF1X_FM_FAILURE			= EXIT_FAILURE,
 
+	//Specific failures
+	ROFL_OF1X_FM_BAD_TABLE_ID,
+	ROFL_OF1X_FM_OVERLAP_FAILURE,
+	ROFL_OF1X_FM_TABLE_FULL_FAILURE,
+	ROFL_OF1X_FM_VALIDATION_FAILURE,
+	ROFL_OF1X_FM_BAD_TIMEOUT,
+	ROFL_OF1X_FM_BAD_FLAGS,
+}rofl_of1x_fm_result_t;
 
 //
 // Removal mutex management
