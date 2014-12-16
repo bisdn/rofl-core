@@ -10,7 +10,6 @@
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
 * @brief Extensions ops HAL definition
-* 
 */
 
 #include "../hal.h"
@@ -18,16 +17,18 @@
 
 //Extension specific includes
 #include "nf.h"
-
-//C++ extern C
-HAL_BEGIN_DECLS
+#include "frag.h"
 
 typedef struct hal_extension_ops{
-
 	//NF ports APIs
 	hal_nf_ext_ops_t nf_ports;
 
+	//IPv4 reassembly
+	hal_far_ext_ops_t ipv4_frag_reas;
 }hal_extension_ops_t;
+
+//C++ extern C
+HAL_BEGIN_DECLS
 
 //C++ extern C
 HAL_END_DECLS

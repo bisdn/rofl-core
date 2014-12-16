@@ -6,8 +6,9 @@
 #define NF_EXTENSIONS_H
 
 /**
-* @file nf_driver.h
+* @file nf.h
 * @author Ivano Cerrato<ivano.cerrato (at) polito.it>
+* @author Marc Sune<marc.sune (at) bisdn.de>
 *
 * @brief NF related operations exposed to the CMM by the driver
 * 
@@ -21,7 +22,6 @@ HAL_BEGIN_DECLS
 
 typedef struct hal_nf_ext_ops{
 	/**
-	 * @name    hal_result_t hal_driver_nf_create_nf_port
 	 * @brief   Instructs driver to create a new NF port
 	 *
 	 * @param nf_name	Name of the NF associated with the port to be created
@@ -32,7 +32,6 @@ typedef struct hal_nf_ext_ops{
 	hal_result_t (*create_nf_port)(const char *nf_name, const char *nf_port_name, port_type_t nf_port_type);
 
 	/**
-	 * @name    hal_result_t hal_driver_nf_destroy_nf_port
 	 * @brief   Instructs driver to destroy a NF port
 	 *
 	 * @param nf_port_name	Name of the NF port to be destroyed
