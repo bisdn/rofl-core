@@ -72,8 +72,8 @@ void test_install_overlapping_specific(){
 	//Uninstall all 
 	entry = of1x_init_flow_entry(false); 
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(1)) == ROFL_SUCCESS);
-	rofl_result_t specific_remove_result = of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY);
-	CU_ASSERT( specific_remove_result == ROFL_SUCCESS ); //First must succeeed
+	rofl_of1x_fm_result_t specific_remove_result = of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY);
+	CU_ASSERT( specific_remove_result == ROFL_OF1X_FM_SUCCESS ); //First must succeeed
 
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);	
@@ -81,7 +81,7 @@ void test_install_overlapping_specific(){
 	entry = of1x_init_flow_entry(false); 
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(1)) == ROFL_SUCCESS);
 	specific_remove_result = of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY);
-	CU_ASSERT( specific_remove_result == ROFL_SUCCESS ); //Second too according to spec (no entries)
+	CU_ASSERT( specific_remove_result == ROFL_OF1X_FM_SUCCESS ); //Second too according to spec (no entries)
 
 
 	//Check real size of the table

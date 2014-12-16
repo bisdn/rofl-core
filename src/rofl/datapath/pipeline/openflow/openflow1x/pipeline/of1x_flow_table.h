@@ -245,7 +245,7 @@ rofl_of1x_fm_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const p
 rofl_of1x_fm_result_t of1x_remove_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
 
 //This API call is meant to ONLY be used internally within the pipeline library (timers)
-rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired);
+rofl_of1x_fm_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired);
 
 /*
 * Table dumping. Not recommended to use it directly

@@ -550,7 +550,7 @@ inline rofl_of1x_fm_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const
 	*entry = NULL;
 
 	//Return value
-	return result;
+	return (rofl_of1x_fm_result_t)result;
 }
 
 inline rofl_of1x_fm_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
@@ -606,7 +606,7 @@ inline rofl_of1x_fm_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const
 }
 
 //This API call should NOT be called from outside pipeline library
-rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired){
+rofl_of1x_fm_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired){
 	of1x_flow_table_t* table;
 	
 	//Verify table_id
@@ -616,7 +616,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 	//Recover table pointer
 	table = &pipeline->tables[table_id];
 	
-	return of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY, reason, mutex_acquired);
+	return (rofl_of1x_fm_result_t) of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY, reason, mutex_acquired);
 }
 
 /* Dump methods */
