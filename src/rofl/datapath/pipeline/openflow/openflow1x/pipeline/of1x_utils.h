@@ -76,6 +76,7 @@ typedef struct of1x_ver_req_t{
 	//Non-multiple of byte masks
 	#define OF1X_48_BITS_MASK	0xFFFFFFFFFFFF0000ULL 
 	#define OF1X_20_BITS_MASK	0xFFFFF000
+	#define OF1X_14_BITS_MASK	0xFFFC
 	#define OF1X_13_BITS_MASK	0xFFF8
 	#define OF1X_12_BITS_MASK	0xFFF0
 	#define OF1X_9_BITS_MASK	0xFF80
@@ -104,6 +105,7 @@ typedef struct of1x_ver_req_t{
 	//Non-multiple of byte masks
 	#define OF1X_48_BITS_MASK	0x0000FFFFFFFFFFFFULL 
 	#define OF1X_20_BITS_MASK	0x0000000000F0FFFF
+	#define OF1X_14_BITS_MASK	0x0000000000003FFF
 	#define OF1X_13_BITS_MASK	0x0000000000001FFF
 	#define OF1X_12_BITS_MASK	0x000000000000FF0F
 	#define OF1X_9_BITS_MASK	0x00000000000001FF
