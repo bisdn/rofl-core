@@ -11,7 +11,8 @@ using namespace rofl;
 
 uint64_t crofdpt::next_dptid = 0;
 
-std::map<cdptid, crofdpt*> crofdpt::rofdpts;
+/*static*/std::set<crofdpt_env*> crofdpt_env::rofdpt_envs;
+/*static*/std::map<cdptid, crofdpt*> crofdpt::rofdpts;
 
 /*static*/crofdpt&
 crofdpt::get_dpt(

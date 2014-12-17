@@ -3,103 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "crofctl_impl.h"
+#include "crofbase.h"
 
 using namespace rofl;
 
 
 crofctl_impl::crofctl_impl(
-		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		enum rofl::crofctl::crofctl_flavour_t flavour) :
-				crofctl(flavour),
+		crofctl_env* env,
+		const cctlid& ctlid,
+		bool remove_on_channel_close,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
+				crofctl(env, ctlid, remove_on_channel_close),
 				ctid(0),
-				rofbase(rofbase),
-				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				cached_generation_id(0),
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
-	async_config = rofbase->async_config_role_default_template;
+	async_config = get_async_config_role_default_template();
 }
-
-
-
-crofctl_impl::crofctl_impl(
-		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		rofl::csocket::socket_type_t socket_type,
-		int newsd,
-		enum rofl::crofctl::crofctl_flavour_t flavour) :
-				crofctl(flavour),
-				ctid(0),
-				rofbase(rofbase),
-				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-				cached_generation_id(0),
-				rofchan(this, versionbitmap),
-				transactions(this)
-{
-	async_config = rofbase->async_config_role_default_template;
-	//rofchan.add_conn(/*aux-id=*/0, newsd);
-}
-
 
 
 crofctl_impl::~crofctl_impl()
-{
-
-}
-
-
-
-
-void
-crofctl_impl::handle_timeout(
-		int opaque, void *data)
-{
-
-}
-
-
-
-void
-crofctl_impl::handle_established(
-		crofchan *chan)
-{
-	rofl::logging::info << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " connection established:" << std::endl << *chan;
-
-	rofbase->handle_ctl_attached(*this);
-}
-
-
-
-void
-crofctl_impl::handle_disconnected(
-		crofchan *chan)
-{
-	rofl::logging::info << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " connection closed:" << std::endl << *chan;
-
-	transactions.clear();
-
-	rofbase->handle_ctl_detached(*this);
-}
-
-
-
-void
-crofctl_impl::handle_write(
-		rofl::crofchan *chan, const cauxid& auxid)
-{
-	rofbase->handle_write(*this, auxid);
-}
-
-
-
-void
-crofctl_impl::ta_expired(
-		ctransactions& tas,
-		ctransaction& ta)
 {
 
 }
@@ -126,7 +49,7 @@ crofctl_impl::is_slave() const
 
 void
 crofctl_impl::recv_message(
-		crofchan *chan,
+		crofchan& chan,
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)
 {
@@ -1766,10 +1689,10 @@ crofctl_impl::features_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_
 {
 	rofl::openflow::cofmsg_features_request& request = dynamic_cast<rofl::openflow::cofmsg_features_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Features-Request message received" << std::endl << request;
 
-	rofbase->handle_features_request(*this, auxid, request);
+	call_env().handle_features_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -1781,12 +1704,12 @@ crofctl_impl::get_config_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_get_config_request& request = dynamic_cast<rofl::openflow::cofmsg_get_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Config-Request message received" << std::endl << request;
 
 	check_role();
 
-	rofbase->handle_get_config_request(*this, auxid, request);
+	call_env().handle_get_config_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -1798,13 +1721,13 @@ crofctl_impl::set_config_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_set_co
 {
 	rofl::openflow::cofmsg_set_config& message = dynamic_cast<rofl::openflow::cofmsg_set_config&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Config message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_set_config(*this, auxid, message);
+		call_env().handle_set_config(*this, auxid, message);
 
 		delete msg;
 
@@ -1843,12 +1766,12 @@ crofctl_impl::packet_out_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_packet
 {
 	rofl::openflow::cofmsg_packet_out& message = dynamic_cast<rofl::openflow::cofmsg_packet_out&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Packet-Out message received" << std::endl << message;
 
 	check_role();
 
-	rofbase->handle_packet_out(*this, auxid, message);
+	call_env().handle_packet_out(*this, auxid, message);
 
 	delete msg;
 }
@@ -1860,7 +1783,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 {
 	rofl::openflow::cofmsg_flow_mod& message = dynamic_cast<rofl::openflow::cofmsg_flow_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Flow-Mod message received" << std::endl << message;
 
 	message.check_prerequisites();
@@ -1868,7 +1791,7 @@ crofctl_impl::flow_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_flow_mod
 	try {
 		check_role();
 
-		rofbase->handle_flow_mod(*this, auxid, message);
+		call_env().handle_flow_mod(*this, auxid, message);
 
 		delete msg;
 
@@ -1977,7 +1900,7 @@ crofctl_impl::group_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_group_m
 {
 	rofl::openflow::cofmsg_group_mod& message = dynamic_cast<rofl::openflow::cofmsg_group_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Mod message received" << std::endl << message;
 
 	message.check_prerequisites();
@@ -1985,7 +1908,7 @@ crofctl_impl::group_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_group_m
 	try {
 		check_role();
 
-		rofbase->handle_group_mod(*this, auxid, message);
+		call_env().handle_group_mod(*this, auxid, message);
 
 		delete msg;
 
@@ -2108,13 +2031,13 @@ crofctl_impl::port_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_port_mod
 {
 	rofl::openflow::cofmsg_port_mod& message = dynamic_cast<rofl::openflow::cofmsg_port_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_port_mod(*this, auxid, message);
+		call_env().handle_port_mod(*this, auxid, message);
 
 		delete msg;
 
@@ -2167,13 +2090,13 @@ crofctl_impl::table_mod_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_table_m
 {
 	rofl::openflow::cofmsg_table_mod& message = dynamic_cast<rofl::openflow::cofmsg_table_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_table_mod(*this, auxid, message);
+		call_env().handle_table_mod(*this, auxid, message);
 
 		delete msg;
 
@@ -2214,13 +2137,13 @@ crofctl_impl::meter_mod_rcvd(
 {
 	rofl::openflow::cofmsg_meter_mod& message = dynamic_cast<rofl::openflow::cofmsg_meter_mod&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_meter_mod(*this, auxid, message);
+		call_env().handle_meter_mod(*this, auxid, message);
 
 		delete msg;
 
@@ -2322,7 +2245,7 @@ crofctl_impl::stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_sta
 {
 	rofl::openflow::cofmsg_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Stats-Request message received" << std::endl << request;
 
 	switch (msg->get_stats_type()) {
@@ -2371,7 +2294,7 @@ crofctl_impl::stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_sta
 	// TODO: add remaining OF 1.3 statistics messages
 	// TODO: experimenter statistics
 	default: {
-		rofbase->handle_stats_request(*this, auxid, request);
+		call_env().handle_stats_request(*this, auxid, request);
 	} break;
 	}
 }
@@ -2383,10 +2306,10 @@ crofctl_impl::desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Desc-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_desc_stats_request(*this, auxid, request);
+	call_env().handle_desc_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2398,10 +2321,10 @@ crofctl_impl::table_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_table_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_table_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_table_stats_request(*this, auxid, request);
+	call_env().handle_table_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2413,10 +2336,10 @@ crofctl_impl::port_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_port_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_port_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_port_stats_request(*this, auxid, request);
+	call_env().handle_port_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2428,10 +2351,10 @@ crofctl_impl::flow_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofms
 {
 	rofl::openflow::cofmsg_flow_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_flow_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Flow-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_flow_stats_request(*this, auxid, request);
+	call_env().handle_flow_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2443,10 +2366,10 @@ crofctl_impl::aggregate_stats_request_rcvd(const cauxid& auxid, rofl::openflow::
 {
 	rofl::openflow::cofmsg_aggr_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_aggr_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Aggregate-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_aggregate_stats_request(*this, auxid, request);
+	call_env().handle_aggregate_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2458,10 +2381,10 @@ crofctl_impl::queue_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_queue_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_queue_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Queue-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_queue_stats_request(*this, auxid, request);
+	call_env().handle_queue_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2473,10 +2396,10 @@ crofctl_impl::group_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_group_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_group_stats_request(*this, auxid, request);
+	call_env().handle_group_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2488,10 +2411,10 @@ crofctl_impl::group_desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_group_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Desc-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_group_desc_stats_request(*this, auxid, request);
+	call_env().handle_group_desc_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2503,10 +2426,10 @@ crofctl_impl::group_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_group_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_group_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Features-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_group_features_stats_request(*this, auxid, request);
+	call_env().handle_group_features_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2518,10 +2441,10 @@ crofctl_impl::meter_stats_request_rcvd(const cauxid& auxid, rofl::openflow::cofm
 {
 	rofl::openflow::cofmsg_meter_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_meter_stats_request(*this, auxid, request);
+	call_env().handle_meter_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2533,10 +2456,10 @@ crofctl_impl::meter_config_stats_request_rcvd(const cauxid& auxid, rofl::openflo
 {
 	rofl::openflow::cofmsg_meter_config_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Config-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_meter_config_stats_request(*this, auxid, request);
+	call_env().handle_meter_config_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2548,10 +2471,10 @@ crofctl_impl::meter_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_meter_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Meter-Features-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_meter_features_stats_request(*this, auxid, request);
+	call_env().handle_meter_features_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2563,10 +2486,10 @@ crofctl_impl::table_features_stats_request_rcvd(const cauxid& auxid, rofl::openf
 {
 	rofl::openflow::cofmsg_table_features_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_table_features_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Features-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_table_features_stats_request(*this, auxid, request);
+	call_env().handle_table_features_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2578,10 +2501,10 @@ crofctl_impl::port_desc_stats_request_rcvd(const cauxid& auxid, rofl::openflow::
 {
 	rofl::openflow::cofmsg_port_desc_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Port-Desc-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_port_desc_stats_request(*this, auxid, request);
+	call_env().handle_port_desc_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2593,10 +2516,10 @@ crofctl_impl::experimenter_stats_request_rcvd(const cauxid& auxid, rofl::openflo
 {
 	rofl::openflow::cofmsg_experimenter_stats_request& request = dynamic_cast<rofl::openflow::cofmsg_experimenter_stats_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Experimenter-Stats-Request message received" << std::endl << request;
 
-	rofbase->handle_experimenter_stats_request(*this, auxid, request);
+	call_env().handle_experimenter_stats_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2609,7 +2532,7 @@ crofctl_impl::role_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_role
 	try {
 		rofl::openflow::cofmsg_role_request& request = dynamic_cast<rofl::openflow::cofmsg_role_request&>( *msg );
 
-		rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+		rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 				<< " Role-Request message received" << std::endl << request;
 
 		switch (msg->get_role().get_role()) {
@@ -2624,10 +2547,10 @@ crofctl_impl::role_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_role
 			throw eRoleRequestBadRole();
 		}
 
-		rofbase->role_request_rcvd(this, msg->get_role().get_role(), msg->get_role().get_generation_id());
+		call_env().role_request_rcvd(*this, msg->get_role().get_role(), msg->get_role().get_generation_id());
 
 		// necessary for proxy implementations
-		rofbase->handle_role_request(*this, auxid, request);
+		call_env().handle_role_request(*this, auxid, request);
 
 		send_role_reply(auxid, msg->get_xid(), role);
 
@@ -2668,10 +2591,10 @@ crofctl_impl::barrier_request_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_b
 {
 	rofl::openflow::cofmsg_barrier_request& request = dynamic_cast<rofl::openflow::cofmsg_barrier_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Barrier-Request message received" << std::endl << request;
 
-	rofbase->handle_barrier_request(*this, auxid, request);
+	call_env().handle_barrier_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2683,10 +2606,10 @@ crofctl_impl::queue_get_config_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_queue_get_config_request& request = dynamic_cast<rofl::openflow::cofmsg_queue_get_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Queue-Get-Config-Request message received" << std::endl << request;
 
-	rofbase->handle_queue_get_config_request(*this, auxid, request);
+	call_env().handle_queue_get_config_request(*this, auxid, request);
 
 	delete msg;
 }
@@ -2698,12 +2621,12 @@ crofctl_impl::experimenter_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_expe
 {
 	rofl::openflow::cofmsg_experimenter& message = dynamic_cast<rofl::openflow::cofmsg_experimenter&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Experimenter message received" << std::endl << message;
 
 	switch (msg->get_experimenter_id()) {
 	default: {
-		rofbase->handle_experimenter_message(*this, auxid, message);
+		call_env().handle_experimenter_message(*this, auxid, message);
 	};
 	}
 
@@ -2717,10 +2640,10 @@ crofctl_impl::error_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_error *msg)
 {
 	rofl::openflow::cofmsg_error& error = dynamic_cast<rofl::openflow::cofmsg_error&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Error message received" << std::endl << error;
 
-	rofbase->handle_error_message(*this, auxid, error);
+	call_env().handle_error_message(*this, auxid, error);
 
 	delete msg;
 }
@@ -2732,7 +2655,7 @@ crofctl_impl::get_async_config_request_rcvd(const cauxid& auxid, rofl::openflow:
 {
 	rofl::openflow::cofmsg_get_async_config_request& request = dynamic_cast<rofl::openflow::cofmsg_get_async_config_request&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Get-Async-Config-Request message received" << std::endl << request;
 
 	send_get_async_config_reply(auxid, msg->get_xid(), async_config);
@@ -2747,34 +2670,15 @@ crofctl_impl::set_async_config_rcvd(const cauxid& auxid, rofl::openflow::cofmsg_
 {
 	rofl::openflow::cofmsg_set_async_config& message = dynamic_cast<rofl::openflow::cofmsg_set_async_config&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Set-Async-Config message received" << std::endl << message;
 
 	async_config = msg->get_async_config();
 
-	rofbase->handle_set_async_config(*this, auxid, message);
+	call_env().handle_set_async_config(*this, auxid, message);
 
 	delete msg;
 }
 
-
-
-uint32_t
-crofctl_impl::get_async_xid(crofchan *chan)
-{
-	return transactions.get_async_xid();
-}
-
-uint32_t
-crofctl_impl::get_sync_xid(crofchan *chan, uint8_t msg_type, uint16_t msg_sub_type)
-{
-	return transactions.add_ta(cclock(/*secs=*/5), msg_type, msg_sub_type);
-}
-
-void
-crofctl_impl::release_sync_xid(crofchan *chan, uint32_t xid)
-{
-	transactions.drop_ta(xid);
-}
 
 

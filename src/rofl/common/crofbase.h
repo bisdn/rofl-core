@@ -27,67 +27,13 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/logging.h"
-#include "rofl/common/crofdpt.h"
 #include "rofl/common/crofdpt_impl.h"
-#include "rofl/common/crofctl.h"
 #include "rofl/common/crofctl_impl.h"
-#include "rofl/common/openflow/cofflowmod.h"
-#include "rofl/common/openflow/cofgroupmod.h"
-
 #include "rofl/common/openflow/openflow.h"
-
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
 
-#include "rofl/common/openflow/cofport.h"
-#include "rofl/common/openflow/cofinstruction.h"
-#include "rofl/common/openflow/cofinstructions.h"
-#include "rofl/common/openflow/cofaction.h"
-#include "rofl/common/openflow/cofactions.h"
-#include "rofl/common/openflow/cofpacketqueues.h"
-#include "rofl/common/openflow/cofmatch.h"
-#include "rofl/common/openflow/cofstats.h"
-#include "rofl/common/openflow/openflow_rofl_exceptions.h"
-#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
-#include "rofl/common/openflow/messages/cofmsg.h"
-#include "rofl/common/openflow/messages/cofmsg_hello.h"
-#include "rofl/common/openflow/messages/cofmsg_echo.h"
-#include "rofl/common/openflow/messages/cofmsg_error.h"
-#include "rofl/common/openflow/messages/cofmsg_features.h"
-#include "rofl/common/openflow/messages/cofmsg_config.h"
-#include "rofl/common/openflow/messages/cofmsg_packet_out.h"
-#include "rofl/common/openflow/messages/cofmsg_packet_in.h"
-#include "rofl/common/openflow/messages/cofmsg_flow_mod.h"
-#include "rofl/common/openflow/messages/cofmsg_flow_removed.h"
-#include "rofl/common/openflow/messages/cofmsg_group_mod.h"
-#include "rofl/common/openflow/messages/cofmsg_table_mod.h"
-#include "rofl/common/openflow/messages/cofmsg_port_mod.h"
-#include "rofl/common/openflow/messages/cofmsg_port_status.h"
-#include "rofl/common/openflow/messages/cofmsg_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_desc_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_flow_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_aggr_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_table_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_port_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_queue_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_group_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_group_desc_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_group_features_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_port_desc_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_experimenter_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_barrier.h"
-#include "rofl/common/openflow/messages/cofmsg_queue_get_config.h"
-#include "rofl/common/openflow/messages/cofmsg_role.h"
-#include "rofl/common/openflow/messages/cofmsg_experimenter.h"
-#include "rofl/common/openflow/messages/cofmsg_async_config.h"
-#include "rofl/common/openflow/messages/cofmsg_meter_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_meter_config_stats.h"
-#include "rofl/common/openflow/messages/cofmsg_meter_features_stats.h"
-#include "rofl/common/ctransactions.h"
-#include "rofl/common/openflow/cofasyncconfig.h"
-#include "rofl/common/openflow/cofrole.h"
-
-namespace rofl
-{
+namespace rofl {
 
 
 /* error classes */
@@ -110,11 +56,6 @@ class eRofBaseCongested				: public eRofBase {}; // control channel is congested
 
 
 
-
-class crofctl;
-class crofdpt;
-
-
 /**
  * \class crofbase
  * \brief Revised OpenFlow Library core class.
@@ -129,22 +70,44 @@ class crofbase :
 	public ciosrv,
 	public csocket_owner,
 	public crofconn_env,
-	public ctransactions_env
+	public ctransactions_env,
+	public crofctl_env,
+	public crofdpt_env
 {
-	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
+	/**
+	 * @enum crofbase::crofbase_rpc_t
+	 *
+	 * crofbase supports both controller and data path role and is
+	 * capable of hosting an arbitrary number of listening sockets
+	 * for ctl and dpt role.
+	 */
+	enum crofbase_rpc_t {
+		RPC_CTL 				= 0,
+		RPC_DPT 				= 1,
+	};
 
-protected:
+	/**
+	 * @enum rofl::crofbase::crofbase_event_t
+	 *
+	 * event types defined by crofbase for feeding the event-queue
+	 */
+	enum crofbase_event_t {
+		EVENT_NONE				= 0,
+		EVENT_CTL_DETACHED		= 1,
+		EVENT_DPT_DETACHED		= 2,
+	};
 
-	rofl::openflow::cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
-	std::map<cctlid, crofctl*>					rofctls;		/**< set of active controller connections */
-	std::map<cdptid, crofdpt*>					rofdpts;		/**< set of active data path connections */
-	ctransactions								transactions;
-	bool										generation_is_defined;		// generation_id used for roles initially defined?
-	uint64_t									cached_generation_id;
-	rofl::openflow::cofasync_config				async_config_role_default_template;
+	/**
+	 * @enum rofl::crofbase::crofbase_timer_t
+	 *
+	 * timer types defined by crofbase
+	 */
+	enum crofbase_timer_t {
+		TIMER_NONE				= 0,
+		TIMER_RUN_ENGINE		= 1,
+	};
 
 public:
-
 
 	/**
 	 * @fn		crofbase
@@ -160,8 +123,8 @@ public:
 	 * \see xid_start
 	 */
 	crofbase(
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap = rofl::openflow::cofhello_elem_versionbitmap());
-
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap =
+					rofl::openflow::cofhello_elem_versionbitmap());
 
 	/**
 	 * @fn		~crofbase
@@ -175,55 +138,11 @@ public:
 
 public:
 
-	/*
-	 * overloaded from rofl::openflow::crofconn_env
-	 */
-
-	virtual void
-	handle_connect_refused(crofconn *conn);
-
-	virtual void
-	handle_connect_failed(crofconn *conn);
-
-	virtual void
-	handle_connected(crofconn *conn, uint8_t ofp_version);
-
-	virtual void
-	handle_closed(crofconn *conn) {};
-
-	virtual void
-	handle_write(crofconn *conn) {};
-
-	virtual void
-	recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) { delete msg; };
-
-	virtual uint32_t
-	get_async_xid(crofconn *conn) { return transactions.get_async_xid(); };
-
-	virtual uint32_t
-	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) { return transactions.add_ta(cclock(5, 0), msg_type, msg_sub_type); };
-
-	virtual void
-	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };
-
-
-public:
-
-	/*
-	 * overloaded from rofl::openflow::ctransactions_env
-	 */
-
-	virtual void
-	ta_expired(ctransactions& tas, ctransaction& ta) {};
-
-public:
-
 	/**
 	 * @name	RPC related methods for opening/closing TCP connections and listening sockets
 	 */
 
 	/**@{*/
-
 
 	/**
 	 * @fn		rpc_listen_for_dpts
@@ -235,7 +154,7 @@ public:
 	virtual void
 	rpc_listen_for_dpts(
 			enum rofl::csocket::socket_type_t socket_type,
-			cparams const& params);
+			const cparams& params);
 
 	/**
 	 * @fn		rpc_listen_for_ctls
@@ -247,53 +166,7 @@ public:
 	virtual void
 	rpc_listen_for_ctls(
 			enum rofl::csocket::socket_type_t socket_type,
-			cparams const& params);
-
-
-	/**
-	 * @fn	 	rpc_connect_to_ctl
-	 * @brief	Connects to a remote controller in data path role.
-	 *
-	 * Establishes a socket connection to a remote controller entity.
-	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_ctl_open().
-	 *
-	 * \see{ handle_ctl_open() }
-	 *
-	 * @param ofp_version OpenFlow version to use for connecting to controller
-	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
-	 * @param socket_params set of parameters for creating connecting socket
-	 */
-	virtual rofl::crofctl&
-	rpc_connect_to_ctl(
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::csocket::socket_type_t socket_type,
-			rofl::cparams const& socket_params);
-
-
-
-	/**
-	 * @fn	 	rpc_connect_to_dpt
-	 * @brief	Connects to a remote data path.
-	 *
-	 * Establishes a socket connection to a remote controller entity.
-	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_ctl_open().
-	 *
-	 * \see{ handle_ctl_open() }
-	 *
-	 * @param ofp_version OpenFlow version to use for connecting to controller
-	 * @param socket_type socket type as defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
-	 * @param socket_params set of parameters for creating connecting socket
-	 */
-	virtual rofl::crofdpt&
-	rpc_connect_to_dpt(
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::csocket::socket_type_t socket_type,
-			rofl::cparams const& socket_params);
-
-
-
+			const cparams& params);
 
 	/**
 	 * @brief	Closes all open cofctl, cofdpt and listening socket instances.
@@ -302,26 +175,7 @@ public:
 	virtual void
 	rpc_close_all();
 
-
-	/**
-	 * @brief	Called by cofctl instance when connection establishment failed.
-	 *
-	 * To be overwritten by class deriving from crofbase.
-	 */
-	virtual void
-	rpc_ctl_failed(crofctl *ctl) {};
-
-	/**
-	 * @brief	Called by cofdpt instance when connection establishment failed.
-	 *
-	 * To be overwritten by class deriving from crofbase.
-	 */
-	virtual void
-	rpc_dpt_failed(crofdpt *dpt) {};
-
-
 	/**@}*/
-
 
 public:
 
@@ -331,6 +185,29 @@ public:
 
 	/**@{*/
 
+	/**
+	 *
+	 */
+	rofl::cdptid
+	get_idle_dptid() const {
+		uint64_t id = 0;
+		while (has_dpt(rofl::cdptid(id))) {
+			id++;
+		}
+		return rofl::cdptid(id);
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_dpts() {
+		for (std::map<rofl::cdptid, crofdpt*>::iterator
+				it = rofdpts.begin(); it != rofdpts.end(); ++it) {
+			delete it->second;
+		}
+		rofdpts.clear();
+	};
 
 	/**
 	 * @brief	returns reference to crofdpt instance
@@ -339,11 +216,56 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result reference to crofdpt instance
 	 */
-	cdptid const&
+	crofdpt&
 	add_dpt(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofdpt::crofdpt_flavour_t flavour);
+		const cdptid& dptid,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+		bool remove_on_channel_close = false) {
+		if (rofdpts.find(dptid) != rofdpts.end()) {
+			delete rofdpts[dptid];
+			rofdpts.erase(dptid);
+		}
+		rofdpts[dptid] = rofdpt_factory(dptid, remove_on_channel_close, versionbitmap);
+		return *(rofdpts[dptid]);
+	};
 
+	/**
+	 *
+	 */
+	crofdpt&
+	set_dpt(
+		const cdptid& dptid,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+		bool remove_on_channel_close = false) {
+		if (rofdpts.find(dptid) == rofdpts.end()) {
+			rofdpts[dptid] = rofdpt_factory(dptid, remove_on_channel_close, versionbitmap);
+		}
+		return *(rofdpts[dptid]);
+	};
 
+	/**
+	 *
+	 */
+	crofdpt&
+	set_dpt(
+			const cdptid& dptid) {
+		if (rofdpts.find(dptid) == rofdpts.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(rofdpts[dptid]);
+	};
+
+	/**
+	 *
+	 */
+	const crofdpt&
+	get_dpt(
+			const cdptid& dptid) const {
+		if (rofdpts.find(dptid) == rofdpts.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(rofdpts.at(dptid));
+	};
 
 	/**
 	 * @brief	returns reference to crofdpt instance
@@ -354,22 +276,13 @@ public:
 	 */
 	void
 	drop_dpt(
-		cdptid dptid); // make a copy here, do not use a const reference
-
-
-
-	/**
-	 * @brief	returns reference to crofdpt instance
-	 *
-	 * @param dptid data path identifier as uint64_t parameter
-	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
-	 * @result reference to crofdpt instance
-	 */
-	crofdpt&
-	set_dpt(
-		const cdptid& dptid);
-
-
+		cdptid dptid) { // make a copy here, do not use a const reference
+		if (rofdpts.find(dptid) == rofdpts.end()) {
+			return;
+		}
+		delete rofdpts[dptid];
+		rofdpts.erase(dptid);
+	};
 
 	/**
 	 * @brief	returns reference to crofdpt instance
@@ -380,9 +293,35 @@ public:
 	 */
 	bool
 	has_dpt(
-		const cdptid& dptid) const;
+		const cdptid& dptid) const {
+		return (not (rofdpts.find(dptid) == rofdpts.end()));
+	};
 
+public:
 
+	/**
+	 *
+	 */
+	rofl::cctlid
+	get_idle_ctlid() const {
+		uint64_t id = 0;
+		while (has_ctl(rofl::cctlid(id))) {
+			id++;
+		}
+		return rofl::cctlid(id);
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_ctls() {
+		for (std::map<rofl::cctlid, crofctl*>::iterator
+				it = rofctls.begin(); it != rofctls.end(); ++it) {
+			delete it->second;
+		}
+		rofctls.clear();
+	};
 
 	/**
 	 * @brief	returns reference to crofctl instance
@@ -391,11 +330,56 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofctl instance not found }
 	 * @result reference to crofctl instance
 	 */
-	cctlid const&
+	crofctl&
 	add_ctl(
-		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap, enum rofl::crofctl::crofctl_flavour_t flavour);
+		const cctlid& ctlid,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+		bool remove_on_channel_close = false) {
+		if (rofctls.find(ctlid) != rofctls.end()) {
+			delete rofctls[ctlid];
+			rofctls.erase(ctlid);
+		}
+		rofctls[ctlid] = rofctl_factory(ctlid, remove_on_channel_close, versionbitmap);
+		return *(rofctls[ctlid]);
+	};
 
+	/**
+	 *
+	 */
+	crofctl&
+	set_ctl(
+		const cctlid& ctlid,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+		bool remove_on_channel_close = false) {
+		if (rofctls.find(ctlid) == rofctls.end()) {
+			rofctls[ctlid] = rofctl_factory(ctlid, remove_on_channel_close, versionbitmap);
+		}
+		return *(rofctls[ctlid]);
+	};
 
+	/**
+	 *
+	 */
+	crofctl&
+	set_ctl(
+			const cctlid& ctlid) {
+		if (rofctls.find(ctlid) == rofctls.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(rofctls[ctlid]);
+	};
+
+	/**
+	 *
+	 */
+	const crofctl&
+	get_ctl(
+			const cctlid& ctlid) const {
+		if (rofctls.find(ctlid) == rofctls.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(rofctls.at(ctlid));
+	};
 
 	/**
 	 * @brief	returns reference to crofctl instance
@@ -406,22 +390,13 @@ public:
 	 */
 	void
 	drop_ctl(
-		cctlid ctlid); // make a copy here, do not use a const reference
-
-
-
-	/**
-	 * @brief	returns reference to crofctl instance
-	 *
-	 * @param ctlid data path identifier as uint64_t parameter
-	 * @throws eRofBaseNotFound { thrown when cofctl instance not found }
-	 * @result reference to crofctl instance
-	 */
-	crofctl&
-	set_ctl(
-		const cctlid& ctlid);
-
-
+		cctlid ctlid) { // make a copy here, do not use a const reference
+		if (rofctls.find(ctlid) == rofctls.end()) {
+			return;
+		}
+		delete rofctls[ctlid];
+		rofctls.erase(ctlid);
+	};
 
 	/**
 	 * @brief	returns reference to crofctl instance
@@ -432,16 +407,13 @@ public:
 	 */
 	bool
 	has_ctl(
-		const cctlid& ctlid) const;
-
-
-
+		const cctlid& ctlid) const {
+		return (not (rofctls.find(ctlid) == rofctls.end()));
+	};
 
 	/**@}*/
 
-
 public:
-
 
 	/**
 	 *
@@ -473,23 +445,34 @@ public:
 			const enum openflow::ofp_flow_mod_command& cmd);
 
 	/**
-	 *
+	 * @brief return versionbitmap defined for this crofbase instance
 	 */
 	rofl::openflow::cofhello_elem_versionbitmap&
-	get_versionbitmap() { return versionbitmap; };
+	get_versionbitmap()
+	{ return versionbitmap; };
 
+	/**
+	 * @brief get highest support OF protocol version
+	 */
+	uint8_t
+	get_highest_supported_ofp_version() const
+	{ return versionbitmap.get_highest_ofp_version(); };
 
+	/**
+	 * @brief check whether a specific ofp version is supported
+	 */
+	bool
+	is_ofp_version_supported(
+			uint8_t ofp_version) const
+	{ return versionbitmap.has_ofp_version(ofp_version); };
 
 protected:
-
 
 	/**
 	 * @name Methods for managing cofctl and cofdpt instances
 	 */
 
-
 	/**@{*/
-
 
 	/**
 	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
@@ -508,10 +491,10 @@ protected:
 	 */
 	virtual crofctl*
 	rofctl_factory(
-			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::crofctl::crofctl_flavour_t flavour);
-
+			const cctlid& ctlid,
+			bool remove_on_channel_close,
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
+	{ return new rofl::crofctl_impl(this, ctlid, remove_on_channel_close, versionbitmap); };
 
 	/**
 	 * @brief	creates a new cofdpt instance for an existing socket with sockfd newsd.
@@ -528,13 +511,12 @@ protected:
 	 */
 	virtual crofdpt*
 	rofdpt_factory(
-			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::crofdpt::crofdpt_flavour_t flavour);
-
+			const cdptid& dptid,
+			bool remove_on_channel_close,
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
+	{ return new rofl::crofdpt_impl(this, dptid, remove_on_channel_close, versionbitmap); };
 
 public:
-
 
 	/**
 	 * @brief	called once a new cofdpt instance has been created
@@ -545,8 +527,8 @@ public:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpt_open(rofl::crofdpt& dpt) {};
-
+	handle_dpt_open(rofl::crofdpt& dpt)
+	{};
 
 	/**
 	 * @brief	called once a cofdpt instance has been closed
@@ -565,9 +547,44 @@ public:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpt_close(rofl::crofdpt& dpt) {};
+	handle_dpt_close(rofl::crofdpt& dpt)
+	{};
 
+	/**
+	 * @brief Called upon establishment of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_established(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
 
+	/**
+	 * @brief Called upon a peer initiated termination of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_terminated(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection refused
+	 */
+	virtual void
+	handle_conn_refused(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection failed (except refused)
+	 */
+	virtual void
+	handle_conn_failed(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
 
 	/**
 	 * @brief	called once a new cofctl instance has been created
@@ -578,9 +595,8 @@ public:
 	 * @param ctl pointer to new cofctl instance
 	 */
 	virtual void
-	handle_ctl_open(crofctl& ctl) {};
-
-
+	handle_ctl_open(crofctl& ctl)
+	{};
 
 	/**
 	 * @brief	called once a cofctl instance has been closed
@@ -599,11 +615,46 @@ public:
 	 * @param ctl pointer to cofctl instance
 	 */
 	virtual void
-	handle_ctl_close(crofctl& ctl) {};
+	handle_ctl_close(crofctl& ctl)
+	{};
 
+	/**
+	 * @brief Called upon establishment of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_established(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called upon a peer initiated termination of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_terminated(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection refused
+	 */
+	virtual void
+	handle_conn_refused(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection failed (except refused)
+	 */
+	virtual void
+	handle_conn_failed(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
 
 	/**@}*/
-
 
 	/**
 	 * @brief	called once a cofctl instance has received a role request
@@ -611,8 +662,7 @@ public:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(crofctl *ctl, uint32_t role, uint64_t rcvd_generation_id);
-
+	role_request_rcvd(crofctl& ctl, uint32_t role, uint64_t rcvd_generation_id);
 
 protected:
 
@@ -635,8 +685,6 @@ protected:
 	virtual void
 	handle_write(rofl::crofctl& ctl, const rofl::cauxid& auxid) {};
 
-
-
 	/**
 	 *
 	 * @param ctl
@@ -644,8 +692,6 @@ protected:
 	 */
 	virtual void
 	handle_write(rofl::crofdpt& dpt, const rofl::cauxid& auxid) {};
-
-
 
 	/**
 	 * @brief	Called once a FEATURES.request message was received from a controller entity.
@@ -658,8 +704,6 @@ protected:
 	virtual void
 	handle_features_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_request& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a FEATURES.reply message was received from a data path element.
 	 *
@@ -671,8 +715,6 @@ protected:
 	virtual void
 	handle_features_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a timer expires for a FEATURES.reply message.
 	 *
@@ -682,8 +724,6 @@ protected:
 	 */
 	virtual void
 	handle_features_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a GET-CONFIG.request message was received from a controller entity.
@@ -696,8 +736,6 @@ protected:
 	virtual void
 	handle_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_request& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a GET-CONFIG.reply message was received from a data path element.
 	 *
@@ -709,8 +747,6 @@ protected:
 	virtual void
 	handle_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
 	 *
@@ -720,8 +756,6 @@ protected:
 	 */
 	virtual void
 	handle_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a STATS.request message was received from a controller entity.
@@ -749,8 +783,6 @@ protected:
 	void
 	handle_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a STATS.reply message was received from a data path element.
 	 *
@@ -762,8 +794,6 @@ protected:
 	virtual void
 	handle_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a timer has expired for a STATS.reply message.
 	 *
@@ -774,8 +804,6 @@ protected:
 	 */
 	virtual void
 	handle_multipart_reply_timeout(rofl::crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
-
-
 
 	/**
 	 * @brief	Called once a DESC-STATS.request message was received from a controller entity.
@@ -789,8 +817,6 @@ protected:
 	virtual void
 	handle_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a DESC-STATS.reply message was received.
 	 *
@@ -802,8 +828,6 @@ protected:
 	virtual void
 	handle_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a DESC-STATS.request expires.
 	 *
@@ -812,8 +836,6 @@ protected:
 	 */
 	virtual void
 	handle_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a TABLE-STATS.request message was received from a controller entity.
@@ -827,8 +849,6 @@ protected:
 	virtual void
 	handle_table_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a TABLE-STATS.reply message was received.
 	 *
@@ -840,8 +860,6 @@ protected:
 	virtual void
 	handle_table_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a TABLE-STATS.request expires.
 	 *
@@ -850,8 +868,6 @@ protected:
 	 */
 	virtual void
 	handle_table_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a PORT-STATS.request message was received from a controller entity.
@@ -865,8 +881,6 @@ protected:
 	virtual void
 	handle_port_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a PORT-STATS.reply message was received.
 	 *
@@ -878,8 +892,6 @@ protected:
 	virtual void
 	handle_port_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a PORT-STATS.request expires.
 	 *
@@ -888,8 +900,6 @@ protected:
 	 */
 	virtual void
 	handle_port_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a FLOW-STATS.request message was received from a controller entity.
@@ -903,8 +913,6 @@ protected:
 	virtual void
 	handle_flow_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a FLOW-STATS.reply message was received.
 	 *
@@ -916,8 +924,6 @@ protected:
 	virtual void
 	handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a FLOW-STATS.request expires.
 	 *
@@ -926,8 +932,6 @@ protected:
 	 */
 	virtual void
 	handle_flow_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once an AGGREGATE-STATS.request message was received from a controller entity.
@@ -941,8 +945,6 @@ protected:
 	virtual void
 	handle_aggregate_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once an AGGREGATE-STATS.reply message was received.
 	 *
@@ -955,8 +957,6 @@ protected:
 	virtual void
 	handle_aggregate_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a AGGREGATE-STATS.request expires.
 	 *
@@ -965,8 +965,6 @@ protected:
 	 */
 	virtual void
 	handle_aggregate_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a QUEUE-STATS.request message was received from a controller entity.
@@ -980,8 +978,6 @@ protected:
 	virtual void
 	handle_queue_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a QUEUE-STATS.reply message was received.
 	 *
@@ -993,8 +989,6 @@ protected:
 	virtual void
 	handle_queue_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a QUEUE-STATS.request expires.
 	 *
@@ -1003,8 +997,6 @@ protected:
 	 */
 	virtual void
 	handle_queue_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a GROUP-STATS.request message was received from a controller entity.
@@ -1018,8 +1010,6 @@ protected:
 	virtual void
 	handle_group_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a GROUP-STATS.reply message was received.
 	 *
@@ -1031,8 +1021,6 @@ protected:
 	virtual void
 	handle_group_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a GROUP-STATS.request expires.
 	 *
@@ -1041,8 +1029,6 @@ protected:
 	 */
 	virtual void
 	handle_group_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a GROUP-DESC-STATS.request message was received from a controller entity.
@@ -1056,8 +1042,6 @@ protected:
 	virtual void
 	handle_group_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a GROUP-DESC-STATS.reply message was received.
 	 *
@@ -1069,8 +1053,6 @@ protected:
 	virtual void
 	handle_group_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a GROUP-DESC-STATS.request expires.
 	 *
@@ -1079,8 +1061,6 @@ protected:
 	 */
 	virtual void
 	handle_group_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a GROUP-FEATURES-STATS.request message was received from a controller entity.
@@ -1094,8 +1074,6 @@ protected:
 	virtual void
 	handle_group_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a GROUP-FEATURES-STATS.reply message was received.
 	 *
@@ -1107,8 +1085,6 @@ protected:
 	virtual void
 	handle_group_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a GROUP-FEATURES-STATS.request expires.
 	 *
@@ -1117,8 +1093,6 @@ protected:
 	 */
 	virtual void
 	handle_group_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a METER-STATS.request message was received from a controller entity.
@@ -1132,8 +1106,6 @@ protected:
 	virtual void
 	handle_meter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a METER-STATS.reply message was received.
 	 *
@@ -1145,8 +1117,6 @@ protected:
 	virtual void
 	handle_meter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a METER-STATS.request expires.
 	 *
@@ -1155,8 +1125,6 @@ protected:
 	 */
 	virtual void
 	handle_meter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a METER-CONFIG-STATS.request message was received from a controller entity.
@@ -1170,8 +1138,6 @@ protected:
 	virtual void
 	handle_meter_config_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a METER-CONFIG-STATS.reply message was received.
 	 *
@@ -1183,8 +1149,6 @@ protected:
 	virtual void
 	handle_meter_config_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a METER-CONFIG-STATS.request expires.
 	 *
@@ -1193,8 +1157,6 @@ protected:
 	 */
 	virtual void
 	handle_meter_config_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a METER-FEATURES-STATS.request message was received from a controller entity.
@@ -1208,8 +1170,6 @@ protected:
 	virtual void
 	handle_meter_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a METER-FEATURES-STATS.reply message was received.
 	 *
@@ -1221,8 +1181,6 @@ protected:
 	virtual void
 	handle_meter_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a METER-FEATURES-STATS.request expires.
 	 *
@@ -1231,8 +1189,6 @@ protected:
 	 */
 	virtual void
 	handle_meter_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
@@ -1246,8 +1202,6 @@ protected:
 	virtual void
 	handle_table_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a TABLE-FEATURES-STATS.reply message was received.
 	 *
@@ -1259,8 +1213,6 @@ protected:
 	virtual void
 	handle_table_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a TABLE-FEATURES-STATS.request expires.
 	 *
@@ -1269,8 +1221,6 @@ protected:
 	 */
 	virtual void
 	handle_table_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
@@ -1284,8 +1234,6 @@ protected:
 	virtual void
 	handle_port_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once a PORT-DESC-STATS.reply message was received.
 	 *
@@ -1297,8 +1245,6 @@ protected:
 	virtual void
 	handle_port_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a PORT-DESC-STATS.request expires.
 	 *
@@ -1307,8 +1253,6 @@ protected:
 	 */
 	virtual void
 	handle_port_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
@@ -1322,8 +1266,6 @@ protected:
 	virtual void
 	handle_experimenter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_request& msg) { throw eBadRequestBadStat(); };
 
-
-
 	/**
 	 * @brief	Called once an EXPERIMENTER-STATS.reply message was received.
 	 *
@@ -1335,8 +1277,6 @@ protected:
 	virtual void
 	handle_experimenter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once an EXPERIMENTER-STATS.request expires.
 	 *
@@ -1345,8 +1285,6 @@ protected:
 	 */
 	virtual void
 	handle_experimenter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once a PACKET-OUT.message was received.
@@ -1359,8 +1297,6 @@ protected:
 	virtual void
 	handle_packet_out(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_out& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a PACKET-IN.message was received.
 	 *
@@ -1371,8 +1307,6 @@ protected:
 	 */
 	virtual void
 	handle_packet_in(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a BARRIER.request message was received from a controller entity.
@@ -1385,8 +1319,6 @@ protected:
 	virtual void
 	handle_barrier_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_request& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a BARRIER.reply message was received.
 	 *
@@ -1397,8 +1329,6 @@ protected:
 	 */
 	virtual void
 	handle_barrier_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_reply& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a timer has expired for a BARRIER.reply message.
@@ -1411,22 +1341,6 @@ protected:
 	virtual void
 	handle_barrier_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
-
-
-	/**
-	 * @brief	Called once an ERROR.message was received.
-	 *
-	 * To be overwritten by derived class. Default behavior: removes msg from heap.
-	 *
-	 * @param dpt pointer to cofdpt instance from which the ERROR.message was received.
-	 * @param msg pointer to rofl::openflow::cofmsg_error message containing the received message
-	 */
-#if 0
-	virtual void
-	handle_error(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
-#endif
-
-
 	/**
 	 * @brief	Called once a FLOW-MOD.message was received.
 	 *
@@ -1437,8 +1351,6 @@ protected:
 	 */
 	virtual void
 	handle_flow_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_mod& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a GROUP-MOD.message was received.
@@ -1451,8 +1363,6 @@ protected:
 	virtual void
 	handle_group_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_mod& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a TABLE-MOD.message was received.
 	 *
@@ -1463,8 +1373,6 @@ protected:
 	 */
 	virtual void
 	handle_table_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_mod& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a PORT-MOD.message was received.
@@ -1477,8 +1385,6 @@ protected:
 	virtual void
 	handle_port_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_mod& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a FLOW-REMOVED.message was received.
 	 *
@@ -1489,8 +1395,6 @@ protected:
 	 */
 	virtual void
 	handle_flow_removed(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_removed& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a PORT-STATUS.message was received.
@@ -1503,9 +1407,6 @@ protected:
 	virtual void
 	handle_port_status(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_status& msg) {};
 
-
-
-
 	/**
 	 * @brief	Called once a QUEUE-GET-CONFIG.request message was received from a controller entity.
 	 *
@@ -1516,8 +1417,6 @@ protected:
 	 */
 	virtual void
 	handle_queue_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_request& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a QUEUE-GET-CONFIG.reply message was received.
@@ -1530,7 +1429,6 @@ protected:
 	virtual void
 	handle_queue_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_reply& msg) {};
 
-
 	/**
 	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
 	 *
@@ -1540,8 +1438,6 @@ protected:
 	 */
 	virtual void
 	handle_queue_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
-
 
 	/**
 	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
@@ -1554,9 +1450,6 @@ protected:
 	virtual void
 	handle_set_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_config& msg) {};
 
-
-
-
 	/**
 	 * @brief	Called once an EXPERIMENTER.message was received from a data path element.
 	 *
@@ -1567,8 +1460,6 @@ protected:
 	 */
 	virtual void
 	handle_experimenter_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
-
-
 
 	/**
 	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
@@ -1581,9 +1472,6 @@ protected:
 	virtual void
 	handle_experimenter_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
 
-
-
-
 	/**
 	 * @brief	Called once an ERROR.message was received from a data path element.
 	 *
@@ -1594,8 +1482,6 @@ protected:
 	 */
 	virtual void
 	handle_error_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
-
-
 
 	/**
 	 * @brief	Called once an ERROR.message was received from a controller entity.
@@ -1608,8 +1494,6 @@ protected:
 	virtual void
 	handle_error_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
 	 *
@@ -1619,7 +1503,6 @@ protected:
 	 */
 	virtual void
 	handle_experimenter_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
 
 	/**
 	 * @brief	Called once a timer has expired for an EXPERIMENTER.message.
@@ -1632,8 +1515,6 @@ protected:
 	virtual void
 	handle_get_fsp_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
 
-
-
 	/**
 	 * @brief	Called once a ROLE.request message was received from a controller entity.
 	 *
@@ -1644,8 +1525,6 @@ protected:
 	 */
 	virtual void
 	handle_role_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_request& msg) {};
-
-
 
 	/**
 	 * @brief	Called once a ROLE.reply message was received.
@@ -1658,8 +1537,6 @@ protected:
 	virtual void
 	handle_role_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_reply& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a timer has expired for a ROLE.reply.
 	 *
@@ -1670,7 +1547,6 @@ protected:
 	 */
 	virtual void
 	handle_role_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
 
 	/**
 	 * @brief	Called once a GET-ASYNC-CONFIG.request message was received from a controller entity.
@@ -1683,8 +1559,6 @@ protected:
 	virtual void
 	handle_get_async_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_request& msg) {};
 
-
-
 	/**
 	 * @brief	Called once a GET-ASYNC-CONFIG.reply message was received from a data path element.
 	 *
@@ -1696,7 +1570,6 @@ protected:
 	virtual void
 	handle_get_async_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_reply& msg) {};
 
-
 	/**
 	 * @brief	Called once a timer expires for a GET-ASYNC-CONFIG.reply message.
 	 *
@@ -1706,7 +1579,6 @@ protected:
 	 */
 	virtual void
 	handle_get_async_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
-
 
 	/**
 	 * @brief	Called once an SET-ASYNC-CONFIG.message was received from a controller entity.
@@ -1719,7 +1591,6 @@ protected:
 	virtual void
 	handle_set_async_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_async_config& msg) {};
 
-
 	/**
 	 * @brief	Called once a METER-MOD.message was received.
 	 *
@@ -1731,11 +1602,7 @@ protected:
 	virtual void
 	handle_meter_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_mod& msg) {};
 
-
 	/**@}*/
-
-
-
 
 protected:
 
@@ -1783,183 +1650,6 @@ protected:
 			rofl::openflow::cofport const& port);
 
 
-private:
-
-	friend class crofdpt_impl;
-
-	friend class crofctl_impl;
-
-
-private:
-
-
-	/** \enum crofbase::crofbase_rpc_t
-	 *
-	 * crofbase supports both controller and data path role and is
-	 * capable of hosting an arbitrary number of listening sockets
-	 * for ctl and dpt role.
-	 *
-	 * \see rpc
-	 */
-	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
-		RPC_CTL = 0,	/**< index for std::set<csocket*> in \see{ rpc } for ctls */
-		RPC_DPT = 1,	/**< index for std::set<csocket*> in \see{ rpc } for dpts */
-	};
-
-	std::set<csocket*>			listening_sockets[2];	/**< two sets of listening sockets for ctl and dpt */
-
-
-private:
-
-	friend class csocket;
-
-
-	/*
-	 * methods overwritten from csocket_owner
-	 */
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_listen(
-			csocket& socket,
-			int newsd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_accepted(
-			csocket& socket) { /*  do nothing here */ };
-
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_accept_refused(
-			csocket& socket) { /*  do nothing here */ };
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connected(
-			csocket& socket) { /*  do nothing here */ };
-
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connect_refused(
-			csocket& socket) { /*  do nothing here */ };
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connect_failed(
-			csocket& socket) { /*  do nothing here */ };
-
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_read(
-			csocket& socket) { /*  do nothing here */ };
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_write(
-			csocket& socket) { /*  do nothing here */ };
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_closed(
-			csocket& socket);
-
-
-
-
-	/*
-	 * methods to be called from cofdpt and cofctl
-	 */
-
-
-	/** for use by cofdpt
-	 *
-	 */
-	void
-	handle_dpt_attached(crofdpt& dpt) {
-		handle_dpt_open(dpt);
-	};
-
-	/** for use by cofdpt
-	 *
-	 */
-	void
-	handle_dpt_detached(crofdpt& dpt) {
-		handle_dpt_close(dpt);
-		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
-		if (rofl::crofdpt::FLAVOUR_PASSIVE == dpt.get_flavour()) {
-			drop_dpt(dpt.get_dptid());
-		}
-	};
-
-	/** for use by cofctl
-	 *
-	 */
-	void
-	handle_ctl_attached(crofctl& ctl) {
-		handle_ctl_open(ctl);
-	};
-
-	/** for use by cofctl
-	 *
-	 */
-	void
-	handle_ctl_detached(crofctl& ctl) {
-		handle_ctl_close(ctl);
-		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
-		if (rofl::crofctl::FLAVOUR_PASSIVE == ctl.get_flavour()) {
-			drop_ctl(ctl.get_ctlid());
-		}
-	};
-
-	/** get highest support OF protocol version
-	 *
-	 */
-	uint8_t
-	get_highest_supported_ofp_version();
-
-	/** check whether a specific ofp version is supported
-	 *
-	 */
-	bool
-	is_ofp_version_supported(uint8_t ofp_version);
-
-	/**
-	 *
-	 */
-	void
-	set_async_config_role_default_template();
-
 public:
 
 	friend std::ostream&
@@ -1977,6 +1667,271 @@ public:
 		}
 		return os;
 	};
+
+
+protected:
+
+	virtual void
+	handle_connect_refused(
+			crofconn& conn);
+
+	virtual void
+	handle_connect_failed(
+			crofconn& conn);
+
+	virtual void
+	handle_connected(
+			crofconn& conn,
+			uint8_t ofp_version);
+
+	virtual void
+	handle_closed(
+			crofconn& conn)
+	{};
+
+	virtual void
+	handle_write(
+			crofconn& conn)
+	{};
+
+	virtual void
+	recv_message(
+			crofconn& conn,
+			rofl::openflow::cofmsg *msg)
+	{ delete msg; };
+
+	virtual uint32_t
+	get_async_xid(
+			crofconn& conn)
+	{ return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(
+			crofconn& conn,
+			uint8_t msg_type = 0,
+			uint16_t msg_sub_type = 0)
+	{ return transactions.add_ta(cclock(5, 0), msg_type, msg_sub_type); };
+
+	virtual void
+	release_sync_xid(
+			crofconn& conn,
+			uint32_t xid)
+	{ transactions.drop_ta(xid); };
+
+protected:
+
+	virtual void
+	ta_expired(ctransactions& tas, ctransaction& ta)
+	{};
+
+protected:
+
+	virtual void
+	handle_listen(
+			csocket& socket,
+			int newsd);
+
+	virtual void
+	handle_accepted(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_accept_refused(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_connected(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_connect_refused(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_connect_failed(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_read(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_write(
+			csocket& socket)
+	{ /*  do nothing here */ };
+
+	virtual void
+	handle_closed(
+			csocket& socket);
+
+private:
+
+	/**
+	 * @brief called from crofdpt instance, when peer entity has attached
+	 */
+	virtual void
+	handle_dpt_attached(crofdpt& dpt) {
+		handle_dpt_open(dpt);
+	};
+
+	/**
+	 * @brief called from crofdpt instance, when peer entity has detached
+	 */
+	virtual void
+	handle_dpt_detached(crofdpt& dpt) {
+		handle_dpt_close(dpt);
+		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
+		if (dpt.remove_upon_channel_termination()) {
+			dpts_detached.insert(dpt.get_dptid());
+			push_on_eventqueue(EVENT_DPT_DETACHED);
+		}
+	};
+
+	/**
+	 * @brief called from crofctl instance, when peer entity has attached
+	 */
+	virtual void
+	handle_ctl_attached(crofctl& ctl) {
+		handle_ctl_open(ctl);
+	};
+
+	/**
+	 * @brief called from crofctl instance, when peer entity has detached
+	 */
+	virtual void
+	handle_ctl_detached(crofctl& ctl) {
+		handle_ctl_close(ctl);
+		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
+		if (ctl.remove_upon_channel_termination()) {
+			ctls_detached.insert(ctl.get_ctlid());
+			push_on_eventqueue(EVENT_CTL_DETACHED);
+		}
+	};
+
+	/**
+	 * @brief handle timeout events from rofl::ciosrv
+	 */
+	virtual void
+	handle_timeout(
+			int opaque, void* data = (void*)0) {
+		switch (opaque) {
+		case TIMER_RUN_ENGINE: {
+			work_on_eventqueue();
+		} break;
+		default: {
+			// do nothing
+		};
+		}
+	};
+
+	/**
+	 * @brief register new event
+	 */
+	void
+	push_on_eventqueue(
+			enum crofbase_event_t event = EVENT_NONE) {
+		if (EVENT_NONE != event) {
+			eventqueue.push_back(event);
+		}
+		register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(/*second(s)=*/0));
+	};
+
+	/**
+	 * @brief run crofbase's internal state engine
+	 */
+	void
+	work_on_eventqueue() {
+		while (not eventqueue.empty()) {
+			crofbase_event_t event = eventqueue.front();
+			eventqueue.pop_front();
+			switch (event) {
+			case EVENT_CTL_DETACHED: {
+				event_ctls_detached();
+			} break;
+			case EVENT_DPT_DETACHED: {
+				event_dpts_detached();
+			} break;
+			default: {
+				// do nothing for unknown event types
+			};
+			}
+		}
+	};
+
+	/**
+	 * @brief handle events of type CTL-DETACHED
+	 */
+	void
+	event_ctls_detached() {
+		for (std::set<rofl::cctlid>::iterator
+				it = ctls_detached.begin(); it != ctls_detached.end(); ++it) {
+			handle_ctl_close(rofl::crofctl::get_ctl(*it));
+			rofl::logging::info << "[rofl-common][crofbase] "
+					<< "dropping crofctl instance, ctlid:" << it->str() << std::endl;
+			drop_ctl(*it);
+		}
+		ctls_detached.clear();
+	};
+
+	/**
+	 * @brief handle events of type DPT-DETACHED
+	 */
+	void
+	event_dpts_detached() {
+		for (std::set<rofl::cdptid>::iterator
+				it = dpts_detached.begin(); it != dpts_detached.end(); ++it) {
+			handle_dpt_close(rofl::crofdpt::get_dpt(*it));
+			rofl::logging::info << "[rofl-common][crofbase] "
+					<< "dropping crofdpt instance, dptid:" << it->str() << std::endl;
+			drop_dpt(*it);
+		}
+		dpts_detached.clear();
+	};
+
+protected:
+
+	/**< set of active controller connections */
+	std::map<cctlid, crofctl*>		rofctls;
+
+	/**< set of active data path connections */
+	std::map<cdptid, crofdpt*>		rofdpts;
+
+private:
+
+	/**< set of all active crofbase instances */
+	static std::set<crofbase*> 		rofbases;
+
+	/**< two sets of listening sockets for ctl and dpt */
+	std::set<csocket*>				listening_sockets[2];
+
+	// supported OpenFlow versions
+	rofl::openflow::cofhello_elem_versionbitmap
+									versionbitmap;
+
+	// pending OpenFlow transactions
+	ctransactions					transactions;
+
+	// generation_id used for roles initially defined?
+	bool							generation_is_defined;
+
+	// cached generation_id as defined by OpenFlow
+	uint64_t						cached_generation_id;
+
+	// event-queue
+	std::list<enum crofbase_event_t>
+									eventqueue;
+
+	// set of crofdpt instances in detached state
+	std::set<rofl::cdptid>			dpts_detached;
+
+	// set of crofctl instances in detached state
+	std::set<rofl::cctlid>			ctls_detached;
 };
 
 }; // end of namespace

@@ -26,8 +26,7 @@
 #include "rofl/common/openflow/cofpacketqueue.h"
 #include "rofl/common/openflow/cofmeterbands.h"
 
-namespace rofl
-{
+namespace rofl {
 
 /**
  * \class	cofdptImpl
@@ -81,29 +80,6 @@ private: // data structures
 			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 12,
 		};
 
-
-		rofl::crofchan							rofchan;		// OFP control channel
-
-		std::bitset<32>     		            flags;
-
-
-		cmacaddr 								hwaddr;			// datapath mac address
-		uint32_t 								n_buffers; 		// number of buffer lines
-		uint8_t 								n_tables;		// number of tables
-		uint32_t 								capabilities;	// capabilities flags
-
-		rofl::openflow::coftables				tables;			// list of tables
-		rofl::openflow::cofports				ports;			// list of ports
-		std::bitset<32> 						dptflags;		// 'fragmentation' flags
-		uint16_t								config;
-		uint16_t 								miss_send_len; 	// length of bytes sent to controller
-
-		crofbase 								*rofbase;		// layer-(n) entity
-		ctransactions							transactions;	// pending OFP transactions
-
-		unsigned int							state;
-		std::deque<enum crofdpt_impl_event_t> 	events;
-
 public:
 
 	/**
@@ -112,23 +88,10 @@ public:
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofdpt_impl(
-			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::crofdpt::crofdpt_flavour_t flavour);
-
-	/**
-	 * @brief 	Constructor for accepted incoming connection on socket.
-	 *
-	 * @param rofbase pointer to crofbase instance
-	 * @param newsd socket descriptor of new established control connection socket
-	 */
-	crofdpt_impl(
-			crofbase *rofbase,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			enum rofl::csocket::socket_type_t socket_type,
-			int newsd,
-			enum rofl::crofdpt::crofdpt_flavour_t flavour);
-
+			crofdpt_env* env,
+			const cdptid& dptid,
+			bool remove_on_channel_close,
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
 
 	/**
 	 * @brief	Destructor.
@@ -152,8 +115,9 @@ public:
 	/**
 	 *
 	 */
-	virtual rofl::cauxid
+	virtual void
 	connect(
+			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) {
 		rofchan.close();
@@ -162,7 +126,7 @@ public:
 		ports.clear();
 		state = STATE_DISCONNECTED;
 		/* establish main connection */
-		return rofchan.add_conn(rofchan.get_next_auxid(), socket_type, socket_params).get_aux_id();
+		rofchan.add_conn(auxid, socket_type, socket_params);
 	};
 
 	/**
@@ -170,7 +134,7 @@ public:
 	 */
 	virtual void
 	disconnect(
-			const rofl::cauxid& auxid = 0) {
+			const rofl::cauxid& auxid) {
 		rofchan.drop_conn(auxid);
 	};
 
@@ -179,82 +143,52 @@ public:
 	 */
 	virtual void
 	reconnect(
-			const rofl::cauxid& auxid = 0) {
+			const rofl::cauxid& auxid) {
 		rofchan.set_conn(auxid).close();
 		rofchan.set_conn(auxid).reconnect(true);
+	};
+
+	/**
+	 *
+	 */
+	virtual void
+	add_connection(
+			crofconn* conn) {
+		if (NULL == conn) {
+			return;
+		}
+		rofchan.add_conn(conn->get_aux_id(), conn);
 	};
 
 public:
 
 	/**
-	 * @brief	Returns a reference to the associated crofchan instance
+	 * @brief	Returns true, when the OFP control channel is up
 	 */
-	virtual crofchan&
-	set_channel() { return rofchan; };
-
-	/**
-	 * @brief	Returns a reference to the associated crofchan instance
-	 */
-	virtual crofchan const&
-	get_channel() const { return rofchan; };
-
-public:
+	virtual bool
+	is_established() const
+	{ return rofchan.is_established(); };
 
 	/**
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	virtual uint8_t
-	get_version() const { return rofchan.get_version(); };
+	get_version_negotiated() const
+	{ return rofchan.get_version(); };
 
 	/**
 	 * @brief	Returns a reference to rofchan's cofhello_elem_versionbitmap instance
 	 */
-	virtual rofl::openflow::cofhello_elem_versionbitmap&
-	get_versionbitmap() { return rofchan.get_versionbitmap(); };
-
-	/**
-	 * @brief	Returns true, when the OFP control channel is up
-	 */
-	virtual bool
-	is_established() const { return (rofchan.is_established()); };
+	virtual const rofl::openflow::cofhello_elem_versionbitmap&
+	get_versions_available() const
+	{ return rofchan.get_versionbitmap(); };
 
 	/**
 	 *
 	 */
 	virtual caddress
-	get_peer_addr() { return rofchan.get_conn(0).get_rofsocket().get_socket().get_raddr(); };
-
-public:
-
-	/* overloaded from crofchan_env */
-
-	virtual void
-	handle_established(crofchan *chan);
-
-	virtual void
-	handle_disconnected(crofchan *chan);
-
-	virtual void
-	handle_write(crofchan *chan, const cauxid& auxid);
-
-	virtual void
-	recv_message(crofchan *chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	virtual uint32_t
-	get_async_xid(crofchan *chan);
-
-	virtual uint32_t
-	get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
-
-	virtual void
-	release_sync_xid(crofchan *chan, uint32_t xid);
-
-public:
-
-	/* overloaded from ctransactions_env */
-
-	virtual void
-	ta_expired(rofl::ctransactions& tas, rofl::ctransaction& ta);
+	get_peer_addr(const rofl::cauxid& auxid) const
+	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
 
 public:
 
@@ -390,321 +324,6 @@ public:
 	group_mod_reset();
 
 	/**@}*/
-
-private:
-
-	/*
-	 * overloaded from ciosrv
-	 */
-
-	/**
-	 * @name 	handle_timeout
-	 * @brief	handler for timeout events
-	 *
-	 * This virtual method is overloaded from (@see ciosrv) and
-	 * is called upon expiration of a timer.
-	 *
-	 * @param[in] opaque The integer value specifying the type of the expired timer.
-	 */
-	void
-	handle_timeout(
-		int opaque, void *data = (void*)0);
-
-private:
-
-	/**
-	 *
-	 */
-	void
-	run_engine(
-			enum crofdpt_impl_event_t state = EVENT_NONE);
-
-	/**
-	 *
-	 */
-	void
-	event_disconnected();
-
-	/**
-	 *
-	 */
-	void
-	event_connected();
-
-	/**
-	 *
-	 */
-	void
-	event_features_reply_rcvd();
-
-	/**
-	 *
-	 */
-	void
-	event_features_request_expired(
-			uint32_t xid = 0);
-
-	/**
-	 *
-	 */
-	void
-	event_get_config_reply_rcvd();
-
-	/**
-	 *
-	 */
-	void
-	event_get_config_request_expired(
-			uint32_t xid = 0);
-
-
-	/**
-	 *
-	 */
-	void
-	event_table_stats_reply_rcvd();
-
-	/**
-	 *
-	 */
-	void
-	event_table_stats_request_expired(
-			uint32_t xid = 0);
-
-	/**
-	 *
-	 */
-	void
-	event_table_features_stats_reply_rcvd();
-
-	/**
-	 *
-	 */
-	void
-	event_table_features_stats_request_expired(
-			uint32_t xid = 0);
-
-	/**
-	 *
-	 */
-	void
-	event_port_desc_reply_rcvd();
-
-	/**
-	 *
-	 */
-	void
-	event_port_desc_request_expired(
-			uint32_t xid = 0);
-
-
-private:
-
-
-	/** handle incoming vendor message (ROFL extensions)
-	 */
-	void
-	experimenter_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-
-	/**
-	 *
-	 * @param msg
-	 * @param aux_id
-	 */
-	void
-	error_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-
-	/**
-	 * @name	features_reply_rcvd
-	 * @brief	Called by cfwdekem when a FEATURES-reply was received.
-	 *
-	 * Cancels the internal timer waiting for FEATURES-reply.
-	 * Stores parameters received in internal variables including ports.
-	 * Starts timer for sending a GET-CONFIG-request.
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	features_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/**
-	 * @name	get_config_reply_rcvd
-	 * @brief	Called by cfwdekem when a GET-CONFIG-reply was received.
-	 *
-	 * Cancels the internal timer waiting for GET-CONFIG-reply.
-	 * Stores parameters received in internal variables.
-	 * Starts timer for sending a TABLE-STATS-request.
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	get_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/**
-	 * @name	stats_reply_rcvd
-	 * @brief	Called by cfwdelem when a STATS-reply was received.
-	 *
-	 * Cancels the internal timer waiting for STATS-reply.
-	 * Stores parameters received in internal variables.
-	 * Calls method fwdelem->handle_dpath_open().
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	multipart_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-
-
-	void
-	desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	table_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	port_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	flow_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	aggregate_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	queue_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	group_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	group_desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	group_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	meter_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	meter_config_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	meter_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	table_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	port_desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	void
-	experimenter_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-
-	/**
-	 * @name	barrier_reply_rcvd
-	 * @brief	Called by cfwdekem when a BARRIER-reply was received.
-	 *
-	 * Cancels the internal timer waiting for STATS-reply.
-	 * Calls method fwdelem->handle_barrier_reply().
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	barrier_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/**
-	 * @name	port_mod_sent
-	 * @brief	Called by crofbase when a PORT-MOD-message was sent.
-	 *
-	 * Applies PortMod message to local rofl::openflow::cofport instance.
-	 *
-	 * @param[in] pack The OpenFlow message sent.
-	 */
-	void
-	port_mod_sent(
-			rofl::openflow::cofmsg *pack);
-
-	/** handle PACKET-IN message
-	 */
-	void
-	packet_in_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/** handle FlowRemoved message
-	 */
-	void
-	flow_removed_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/** handle PORT-STATUS message
-	 */
-	void
-	port_status_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/** handle ROLE-REPLY messages
-	 *
-	 */
-	void
-	role_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/**
-	 *
-	 */
-	void
-	queue_get_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-	/**
-	 * @name	get_async_config_reply_rcvd
-	 * @brief	Called by crofbase when a GET-ASYNC-CONFIG-reply was received.
-	 *
-	 * Cancels the internal timer waiting for GET-ASYNC-CONFIG-reply.
-	 * Stores parameters received in internal variables.
-	 * Starts timer for sending a TABLE-STATS-request.
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	get_async_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
-
-
-private:
-
-
-	/**
-	 *
-	 */
-	void
-	parse_message(
-			cmemory *mem);
-
 
 public:
 
@@ -1173,6 +792,303 @@ public:
 		os << dpt.transactions;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "dpid: " << get_dpid().str() << " ";
+		switch (state) {
+		case STATE_INIT: {
+			ss << indent(2) << "state: -init- " << std::endl;
+		} break;
+		case STATE_CONNECTED: {
+			ss << indent(2) << "state: -connected- >" << std::endl;
+		} break;
+		case STATE_DISCONNECTED: {
+			ss << indent(2) << "state: -disconnected- " << std::endl;
+		} break;
+		case STATE_ESTABLISHED: {
+			ss << indent(2) << "state: -established- " << std::endl;
+		} break;
+		case STATE_FEATURES_RCVD: {
+			ss << indent(2) << "state: -features-rcvd- " << std::endl;
+		} break;
+		case STATE_GET_CONFIG_RCVD: {
+			ss << indent(2) << "state: -get-config-rcvd- " << std::endl;
+		} break;
+		case STATE_TABLE_FEATURES_RCVD: {
+			ss << indent(2) << "state: -table-features-rcvd- " << std::endl;
+		} break;
+		default: {
+			ss << indent(2) << "state: -unknown- " << std::endl;
+		} break;
+		}
+		return ss.str();
+	};
+
+protected:
+
+	/**
+	 * @brief Called upon establishment of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_established(
+			crofchan& chan,
+			const rofl::cauxid& auxid) {
+		call_env().handle_conn_established(*this, auxid);
+		if (auxid == rofl::cauxid(0)) {
+			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+					<< " main connection established: " << chan.str() << std::endl;
+			run_engine(EVENT_CONNECTED);
+		}
+	};
+
+	virtual void
+	handle_conn_terminated(
+			crofchan& chan,
+			const rofl::cauxid& auxid) {
+		call_env().handle_conn_terminated(*this, auxid);
+		if (auxid == rofl::cauxid(0)) {
+			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+					<< " main connection terminated: " << chan.str() << std::endl;
+			transactions.clear();
+			run_engine(EVENT_DISCONNECTED);
+		}
+	};
+
+	/**
+	 * @brief Called in the event of a connection refused
+	 */
+	virtual void
+	handle_conn_refused(
+			crofchan& chan,
+			const rofl::cauxid& auxid)
+	{ call_env().handle_conn_refused(*this, auxid);	};
+
+	/**
+	 * @brief Called in the event of a connection failed (except refused)
+	 */
+	virtual void
+	handle_conn_failed(
+			crofchan& chan,
+			const rofl::cauxid& auxid)
+	{ call_env().handle_conn_failed(*this, auxid); };
+
+	virtual void
+	handle_write(crofchan& chan, const cauxid& auxid)
+	{ call_env().handle_write(*this, auxid); };
+
+	virtual void
+	recv_message(crofchan& chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	virtual uint32_t
+	get_async_xid(crofchan& chan)
+	{ return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(crofchan& chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0)
+	{ return transactions.add_ta(cclock(/*secs=*/5), msg_type, msg_sub_type); };
+
+	virtual void
+	release_sync_xid(crofchan& chan, uint32_t xid)
+	{ return transactions.drop_ta(xid); };
+
+protected:
+
+	virtual void
+	ta_expired(rofl::ctransactions& tas, rofl::ctransaction& ta);
+
+protected:
+
+	virtual void
+	handle_timeout(
+		int opaque, void *data = (void*)0);
+
+private:
+
+	void
+	run_engine(
+			enum crofdpt_impl_event_t state = EVENT_NONE);
+
+	void
+	event_disconnected();
+
+	void
+	event_connected();
+
+	void
+	event_features_reply_rcvd();
+
+	void
+	event_features_request_expired(
+			uint32_t xid = 0);
+
+	void
+	event_get_config_reply_rcvd();
+
+	void
+	event_get_config_request_expired(
+			uint32_t xid = 0);
+
+	void
+	event_table_stats_reply_rcvd();
+
+	void
+	event_table_stats_request_expired(
+			uint32_t xid = 0);
+
+	void
+	event_table_features_stats_reply_rcvd();
+
+	void
+	event_table_features_stats_request_expired(
+			uint32_t xid = 0);
+
+	void
+	event_port_desc_reply_rcvd();
+
+	void
+	event_port_desc_request_expired(
+			uint32_t xid = 0);
+
+private:
+
+	void
+	experimenter_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	error_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	features_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	get_config_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	multipart_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	desc_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	table_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	port_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	flow_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	aggregate_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	queue_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	group_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	group_desc_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	group_features_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	meter_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	meter_config_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	meter_features_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	table_features_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	port_desc_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	experimenter_stats_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	barrier_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	port_mod_sent(
+			rofl::openflow::cofmsg *pack);
+
+	void
+	packet_in_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	flow_removed_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	port_status_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	role_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	queue_get_config_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+	void
+	get_async_config_reply_rcvd(
+			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+
+private:
+
+
+	rofl::crofchan							rofchan;		// OFP control channel
+
+	std::bitset<32>     		            flags;
+
+
+	cmacaddr 								hwaddr;			// datapath mac address
+	uint32_t 								n_buffers; 		// number of buffer lines
+	uint8_t 								n_tables;		// number of tables
+	uint32_t 								capabilities;	// capabilities flags
+
+	rofl::openflow::coftables				tables;			// list of tables
+	rofl::openflow::cofports				ports;			// list of ports
+	std::bitset<32> 						dptflags;		// 'fragmentation' flags
+	uint16_t								config;
+	uint16_t 								miss_send_len; 	// length of bytes sent to controller
+
+	ctransactions							transactions;	// pending OFP transactions
+
+	unsigned int							state;
+	std::deque<enum crofdpt_impl_event_t> 	events;
+
 };
 
 }; // end of namespace

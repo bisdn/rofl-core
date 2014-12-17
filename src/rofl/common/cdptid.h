@@ -108,6 +108,13 @@ public:
 				<< " (" << dptid.s_id << ")" << " >" << std::endl;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << id;
+		return ss.str();
+	};
 };
 
 }; // end of namespace

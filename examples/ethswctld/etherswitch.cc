@@ -57,9 +57,9 @@ ethswitch::request_flow_stats()
 		cofflow_stats_request req;
 		
 		//Set version	
-		req.set_version(dpt->get_version());
+		req.set_version(dpt->get_version_negotiated());
 		req.set_table_id(OFPTT_ALL);
-		req.set_match(cofmatch(dpt->get_version()));
+		req.set_match(cofmatch(dpt->get_version_negotiated()));
 		
 		send_flow_stats_request(dpt, /*flags=*/0, req);
 	}
@@ -90,7 +90,7 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 	dpt.flow_mod_reset();
 	
 	//Remove all groupmods
-	if(dpt.get_version() > rofl::openflow10::OFP_VERSION) {
+	if(dpt.get_version_negotiated() > rofl::openflow10::OFP_VERSION) {
 		dpt.group_mod_reset();
 	}
 
@@ -99,7 +99,7 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 #endif
 
 	//Construct the ETH_TYPE ARP capture flowmod
-	rofl::openflow::cofflowmod fe(dpt.get_version());
+	rofl::openflow::cofflowmod fe(dpt.get_version_negotiated());
 	
 	//This is not necessary, it is done automatically by the constructor
 	//fe.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
@@ -111,7 +111,7 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 
 	//Now add action
 	//OF1.0 has no instructions, so the code here differs
-	switch (dpt.get_version()) {
+	switch (dpt.get_version_negotiated()) {
 		case rofl::openflow10::OFP_VERSION:
 			fe.set_actions().
 					add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
@@ -189,7 +189,7 @@ ethswitch::handle_packet_in(
 		rofl::caddress_ll eth_dst;
 		uint32_t in_port = 0;
 
-		switch (dpt.get_version()) {
+		switch (dpt.get_version_negotiated()) {
 		case rofl::openflow10::OFP_VERSION: {
 			struct eth_hdr_t {
 				uint8_t eth_dst[6];
@@ -231,8 +231,8 @@ ethswitch::handle_packet_in(
 
 		//Flood multicast and yet unknown frames (DST)
 		if (eth_dst.is_multicast() || (not fib.has_fib_entry(eth_dst))) {
-			rofl::openflow::cofactions actions(dpt.get_version());
-			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version()));
+			rofl::openflow::cofactions actions(dpt.get_version_negotiated());
+			actions.add_action_output(rofl::cindex(0)).set_port_no(rofl::crofbase::get_ofp_flood_port(dpt.get_version_negotiated()));
 			dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			return;
 		}
@@ -242,7 +242,7 @@ ethswitch::handle_packet_in(
 			ftb.set_flow_entry(eth_src, eth_dst, fib.get_fib_entry(eth_dst).get_port_no());
 
 			if (rofl::openflow::OFP_NO_BUFFER != msg.get_buffer_id()) {
-				rofl::openflow::cofactions actions(dpt.get_version());
+				rofl::openflow::cofactions actions(dpt.get_version_negotiated());
 				actions.add_action_output(rofl::cindex(0)).set_port_no(fib.get_fib_entry(eth_dst).get_port_no());
 				dpt.send_packet_out_message(auxid, msg.get_buffer_id(), in_port, actions);
 			}

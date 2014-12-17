@@ -37,14 +37,498 @@
 
 
 
-namespace rofl
-{
+namespace rofl {
 
 class eRofCtlBase 		: public RoflException {};
 class eRofCtlNotFound 	: public eRofCtlBase {};
 
+class crofctl;
 
-class crofbase;
+class crofctl_env {
+	friend class crofctl;
+	static std::set<crofctl_env*> rofctl_envs;
+public:
+
+	crofctl_env() {
+		crofctl_env::rofctl_envs.insert(this);
+	};
+
+	virtual
+	~crofctl_env() {
+		crofctl_env::rofctl_envs.erase(this);
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_ctl_attached(
+			crofctl& ctl)
+	{};
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_ctl_detached(
+			crofctl& ctl)
+	{};
+
+	/**
+	 * @brief Called upon establishment of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_established(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called upon a peer initiated termination of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_terminated(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection refused
+	 */
+	virtual void
+	handle_conn_refused(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection failed (except refused)
+	 */
+	virtual void
+	handle_conn_failed(
+			crofctl& ctl,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief	called once a cofctl instance has received a role request
+	 *
+	 *
+	 */
+	virtual void
+	role_request_rcvd(
+			rofl::crofctl& ctl, uint32_t role, uint64_t rcvd_generation_id)
+	{};
+
+public:
+
+	/**
+	 * @name Event handlers
+	 *
+	 * The following methods should be overwritten by a derived class
+	 * in order to get reception notifications for the various OF
+	 * packets. While crofbase handles most of the lower layer details,
+	 * a derived class must provide higher layer functionality.
+	 */
+
+	/**@{*/
+
+	/**
+	 *
+	 * @param ctl
+	 * @param auxid
+	 */
+	virtual void
+	handle_write(rofl::crofctl& ctl, const rofl::cauxid& auxid) {};
+
+	/**
+	 * @brief	Called once a FEATURES.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the FEATURES.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_features_request message containing the received message
+	 */
+	virtual void
+	handle_features_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_request& msg) {};
+
+	/**
+	 * @brief	Called once a GET-CONFIG.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GET-CONFIG.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_request message containing the received message
+	 */
+	virtual void
+	handle_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_request& msg) {};
+
+	/**
+	 * @brief	Called once a STATS.request message was received from a controller entity.
+	 *
+	 * This method dispatches the received STATS.request by calling individual statistics
+	 * handlers. The derived class should overwrite all specific handlers as required.
+	 * The non-overwritten ones will generate a proper error message for the controller entity.
+	 * Default behaviour: throws an exception of type eBadRequestbadStats.
+	 *
+	 * @see handle_desc_stats_request
+	 * @see handle_table_stats_request
+	 * @see handle_port_stats_request
+	 * @see handle_flow_stats_request
+	 * @see handle_aggregate_stats_request
+	 * @see handle_queue_stats_request
+	 * @see handle_group_stats_request
+	 * @see handle_group_desc_stats_request
+	 * @see handle_group_features_stats_request
+	 * @see handle_experimenter_stats_request
+	 *
+	 * @param ctl Pointer to cofctl instance from which the STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_request message containing the received message
+	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
+	 */
+	void
+	handle_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a TABLE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_table_stats_request message containing the received message
+	 */
+	virtual void
+	handle_table_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a PORT-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_port_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a FLOW-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the FLOW-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_flow_stats_request message containing the received message
+	 */
+	virtual void
+	handle_flow_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once an AGGREGATE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the AGGREGATE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_aggr_stats_request message containing the received message
+	 */
+	virtual void
+	handle_aggregate_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a QUEUE-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the QUEUE-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_queue_stats_request message containing the received message
+	 */
+	virtual void
+	handle_queue_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a GROUP-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a GROUP-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_features_stats_request message containing the received message
+	 */
+	virtual void
+	handle_group_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a METER-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-CONFIG-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_config_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_config_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_features_stats_request message containing the received message
+	 */
+	virtual void
+	handle_meter_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-FEATURES-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_table_features_request message containing the received message
+	 */
+	virtual void
+	handle_table_features_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-DESC-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_port_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER-STATS.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter_stats_request message containing the received message
+	 */
+	virtual void
+	handle_experimenter_stats_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_request& msg) { throw eBadRequestBadStat(); };
+
+	/**
+	 * @brief	Called once a PACKET-OUT.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PACKET-OUT.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_packet_out message containing the received message
+	 */
+	virtual void
+	handle_packet_out(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_out& msg) {};
+
+	/**
+	 * @brief	Called once a BARRIER.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the BARRIER.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_barrier_request message containing the received message
+	 */
+	virtual void
+	handle_barrier_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_request& msg) {};
+
+	/**
+	 * @brief	Called once a FLOW-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the FLOW-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_flow_mod message containing the received message
+	 */
+	virtual void
+	handle_flow_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_mod& msg) {};
+
+	/**
+	 * @brief	Called once a GROUP-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_group_mod message containing the received message
+	 */
+	virtual void
+	handle_group_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_mod& msg) {};
+
+	/**
+	 * @brief	Called once a TABLE-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_table_mod message containing the received message
+	 */
+	virtual void
+	handle_table_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_mod& msg) {};
+
+	/**
+	 * @brief	Called once a PORT-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_port_mod message containing the received message
+	 */
+	virtual void
+	handle_port_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_mod& msg) {};
+
+	/**
+	 * @brief	Called once a QUEUE-GET-CONFIG.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the QUEUE-GET-CONFIG.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_queue_get_config_request message containing the received message
+	 */
+	virtual void
+	handle_queue_get_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_request& msg) {};
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_set_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_config& msg) {};
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl pointer to cofctl instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_experimenter_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
+
+	/**
+	 * @brief	Called once an ERROR.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl pointer to cofctl instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_error_message(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
+
+	/**
+	 * @brief	Called once a ROLE.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the ROLE.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_role_request message containing the received message
+	 */
+	virtual void
+	handle_role_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_request& msg) {};
+
+	/**
+	 * @brief	Called once a GET-ASYNC-CONFIG.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GET-ASYNC-CONFIG.request was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_request message containing the received message
+	 */
+	virtual void
+	handle_get_async_config_request(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_request& msg) {};
+
+	/**
+	 * @brief	Called once an SET-ASYNC-CONFIG.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the SET-ASYNC-MESSAGE.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_set_async_config message containing the received message
+	 */
+	virtual void
+	handle_set_async_config(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_set_async_config& msg) {};
+
+	/**
+	 * @brief	Called once a METER-MOD.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the METER-MOD.message was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_meter_mod message containing the received message
+	 */
+	virtual void
+	handle_meter_mod(rofl::crofctl& ctl, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_mod& msg) {};
+
+	/**@}*/
+};
+
+
 
 
 class crofctl {
@@ -58,25 +542,17 @@ public: // methods
 
 public:
 
-	enum crofctl_flavour_t {
-		FLAVOUR_PASSIVE = 1,	// connection was established from peer entity
-		FLAVOUR_ACTIVE = 2,		// connection was established actively by us
-	};
-
-	/**
-	 *
-	 */
-	enum crofctl_flavour_t
-	get_flavour() const { return flavour; };
-
-
 	/**
 	 * @brief	Constructor for creating new cofctl instance from accepted socket.
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofctl(enum crofctl_flavour_t flavour) :
-			ctlid(cctlid(++crofctl::next_ctlid)), flavour(flavour) {
+	crofctl(crofctl_env* env, const cctlid& ctlid, bool remove_on_channel_close) :
+			env(env),
+			ctlid(ctlid),
+			remove_on_channel_close(remove_on_channel_close),
+			async_config_role_default_template(rofl::openflow13::OFP_VERSION) {
+		init_async_config_role_default_template();
 		crofctl::rofctls[ctlid] = this;
 		rofl::logging::debug << "[rofl-common][crofctl] instance creating, ctlid: "
 				<< (unsigned long long)ctlid.get_ctlid() << std::endl;
@@ -112,8 +588,9 @@ public:
 	/**
 	 *
 	 */
-	virtual rofl::cauxid
+	virtual void
 	connect(
+			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) = 0;
 
@@ -122,31 +599,21 @@ public:
 	 */
 	virtual void
 	disconnect(
-			const rofl::cauxid& auxid = 0) = 0;
+			const rofl::cauxid& auxid) = 0;
 
 	/**
 	 *
 	 */
 	virtual void
 	reconnect(
-			const rofl::cauxid& auxid = 0) = 0;
-
-public:
+			const rofl::cauxid& auxid) = 0;
 
 	/**
 	 *
-	 * @return
 	 */
-	virtual crofchan&
-	set_channel() = 0;
-
-
-	/**
-	 *
-	 * @return
-	 */
-	virtual crofchan const&
-	get_channel() const = 0;
+	virtual void
+	add_connection(
+			crofconn* conn) = 0;
 
 public:
 
@@ -203,19 +670,15 @@ public:
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	virtual uint8_t
-	get_version() const = 0;
+	get_version_negotiated() const = 0;
 
 
-
-
-#if 0
 	/**
 	 *
 	 */
-	virtual void
-	recv_message(
-			cofmsg *msg, uint8_t aux_id) = 0;
-#endif
+	virtual const rofl::openflow::cofhello_elem_versionbitmap&
+	get_versions_available() const = 0;
+
 
 	/**
 	 * @brief	Returns caddress of connected remote entity.
@@ -223,9 +686,8 @@ public:
 	 * @return caddress object obtained from this->socket
 	 */
 	virtual caddress
-	get_peer_addr() = 0;
-
-
+	get_peer_addr(
+			const rofl::cauxid& auxid) const = 0;
 
 public:
 
@@ -680,17 +1142,59 @@ public:
 		};
 	};
 
+	bool
+	remove_upon_channel_termination() const
+	{ return remove_on_channel_close; };
+
+protected:
+
+	crofctl_env&
+	call_env() {
+		if (crofctl_env::rofctl_envs.find(env) == crofctl_env::rofctl_envs.end()) {
+			throw eRofCtlNotFound();
+		}
+		return *env;
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	rofl::openflow::cofasync_config&
+	set_async_config_role_default_template() {
+		return async_config_role_default_template;
+	};
+
+	/**
+	 *
+	 */
+	const rofl::openflow::cofasync_config&
+	get_async_config_role_default_template() const {
+		return async_config_role_default_template;
+	};
+
 private:
 
-	static uint64_t 					next_ctlid;
-	static std::map<cctlid, crofctl*> 	rofctls;
-	cctlid   							ctlid;
-	enum crofctl_flavour_t 				flavour;
+	/**
+	 *
+	 */
+	void
+	init_async_config_role_default_template();
+
+private:
+
+	static uint64_t 		next_ctlid;
+	static std::map<cctlid, crofctl*>
+							rofctls;
+
+	crofctl_env*			env;
+	cctlid   				ctlid;
+	bool					remove_on_channel_close;
+	rofl::openflow::cofasync_config
+							async_config_role_default_template;
 };
 
-
 }; // end of namespace
-
-#include "crofbase.h"
 
 #endif

@@ -114,6 +114,13 @@ public:
 		os << indent(2) << msg.body;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Echo-Request- " << cofmsg::str() << " ";
+		return ss.str();
+	};
 };
 
 
@@ -218,6 +225,13 @@ public:
 		os << indent(2) << "<cofmsg_echo_reply >" << std::endl;
 		os << indent(2) << msg.body;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Echo-Reply- " << cofmsg::str() << " ";
+		return ss.str();
 	};
 };
 

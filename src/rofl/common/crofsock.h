@@ -71,12 +71,28 @@ class crofsock; // forward declaration
 class crofsock_env {
 public:
 	virtual ~crofsock_env() {};
-	virtual void handle_connect_refused(crofsock *endpnt) = 0;
-	virtual void handle_connect_failed(crofsock *endpnt) = 0;
-	virtual void handle_connected(crofsock *endpnt) = 0;
-	virtual void handle_closed(crofsock *endpnt) = 0;
-	virtual void handle_write(crofsock *endpnt) = 0;
-	virtual void recv_message(crofsock *endpnt, rofl::openflow::cofmsg *msg) { delete msg; };
+
+protected:
+
+	friend class crofsock;
+
+	virtual void
+	handle_connect_refused(crofsock& endpnt) = 0;
+
+	virtual void
+	handle_connect_failed(crofsock& endpnt) = 0;
+
+	virtual void
+	handle_connected(crofsock& endpnt) = 0;
+
+	virtual void
+	handle_closed(crofsock& endpnt) = 0;
+
+	virtual void
+	handle_write(crofsock& endpnt) = 0;
+
+	virtual void
+	recv_message(crofsock& endpnt, rofl::openflow::cofmsg *msg) = 0;
 };
 
 class eRofSockBase			: public RoflException {};
@@ -390,7 +406,7 @@ private:
 	event_connect_failed() {
 		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECT-FAILED => entering state -closed-" << std::endl;
 		state = STATE_CLOSED;
-		if (env) env->handle_connect_failed(this);
+		if (env) env->handle_connect_failed(*this);
 	};
 
 	/**
@@ -400,7 +416,7 @@ private:
 	event_connect_refused() {
 		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECT-REFUSED => entering state -closed-" << std::endl;
 		state = STATE_CLOSED;
-		if (env) env->handle_connect_refused(this);
+		if (env) env->handle_connect_refused(*this);
 	};
 
 	/**
@@ -410,7 +426,7 @@ private:
 	event_connected() {
 		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECTED => entering state -connected-" << std::endl;
 		state = STATE_CONNECTED;
-		if (env) env->handle_connected(this);
+		if (env) env->handle_connected(*this);
 	};
 
 	/**
@@ -460,7 +476,7 @@ private:
 	event_peer_disconnected() {
 		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-PEER-DISCONNECTED => entering state -closed-" << std::endl;
 		__close();
-		if (env) env->handle_closed(this);
+		if (env) env->handle_closed(*this);
 	};
 
 	/**

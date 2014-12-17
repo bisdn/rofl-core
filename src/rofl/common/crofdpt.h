@@ -34,15 +34,630 @@
 #include "rofl/common/cdpid.h"
 
 
-namespace rofl
-{
-
+namespace rofl {
 
 /* error classes */
 class eRofDptBase 					: public RoflException {};
 class eRofDptNotFound 				: public eRofDptBase {};
 
-class crofbase;
+class crofdpt;
+
+class crofdpt_env {
+	friend class crofdpt;
+	static std::set<crofdpt_env*> rofdpt_envs;
+public:
+
+	crofdpt_env() {
+		crofdpt_env::rofdpt_envs.insert(this);
+	};
+
+	virtual
+	~crofdpt_env() {
+		crofdpt_env::rofdpt_envs.erase(this);
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_dpt_attached(crofdpt& dpt)
+	{};
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_dpt_detached(crofdpt& dpt)
+	{};
+
+	/**
+	 * @brief Called upon establishment of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_established(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called upon a peer initiated termination of a control connection within the control channel
+	 */
+	virtual void
+	handle_conn_terminated(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection refused
+	 */
+	virtual void
+	handle_conn_refused(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+	/**
+	 * @brief Called in the event of a connection failed (except refused)
+	 */
+	virtual void
+	handle_conn_failed(
+			crofdpt& dpt,
+			const rofl::cauxid& auxid)
+	{};
+
+public:
+
+	/**
+	 * @name Event handlers
+	 *
+	 * The following methods should be overwritten by a derived class
+	 * in order to get reception notifications for the various OF
+	 * packets. While crofbase handles most of the lower layer details,
+	 * a derived class must provide higher layer functionality.
+	 */
+
+	/**@{*/
+
+	/**
+	 *
+	 * @param ctl
+	 * @param auxid
+	 */
+	virtual void
+	handle_write(rofl::crofdpt& dpt, const rofl::cauxid& auxid) {};
+
+	/**
+	 * @brief	Called once a FEATURES.reply message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt Pointer to cofdpt instance from which the FEATURES.reply was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_features_reply message containing the received message
+	 */
+	virtual void
+	handle_features_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_features_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer expires for a FEATURES.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_features_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a GET-CONFIG.reply message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt Pointer to cofdpt instance from which the GET-CONFIG.reply was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_get_config_reply message containing the received message
+	 */
+	virtual void
+	handle_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_config_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a STATS.reply message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer has expired for a STATS.reply message.
+	 *
+	 * To be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of STATS.request previously sent to data path element.
+	 */
+	virtual void
+	handle_multipart_reply_timeout(rofl::crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
+
+	/**
+	 * @brief	Called once a DESC-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the DESC-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_desc_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_desc_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a TABLE-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the TABLE-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_table_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_table_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a TABLE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_table_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a PORT-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_port_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_port_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a PORT-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_port_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a FLOW-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the FLOW-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_flow_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a FLOW-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_flow_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once an AGGREGATE-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the AGGREGATE-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_aggregate_stats_reply message containing the received message
+
+	 */
+	virtual void
+	handle_aggregate_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_aggr_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a AGGREGATE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_aggregate_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a QUEUE-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the QUEUE-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_queue_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_queue_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a QUEUE-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_queue_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a GROUP-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_group_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_group_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a GROUP-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a GROUP-DESC-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-DESC-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_group_desc_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_group_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_desc_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a GROUP-DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_group_features_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_group_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_group_features_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_group_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a METER-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a METER-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-CONFIG-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_config_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_config_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_config_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a METER-CONFIG-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_config_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the METER-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_meter_features_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_meter_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_meter_features_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a METER-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_meter_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the TABLE-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_table_features_reply message containing the received message
+	 */
+	virtual void
+	handle_table_features_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_table_features_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_table_features_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-DESC-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_port_desc_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_desc_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_port_desc_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once an EXPERIMENTER-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER-STATS.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_experimenter_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_experimenter_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter_stats_reply& msg) {};
+
+	/**
+	 * @brief	Called once an EXPERIMENTER-STATS.request expires.
+	 *
+	 * @param dpt data path handle
+	 * @param xid transaction id of associated request
+	 */
+	virtual void
+	handle_experimenter_stats_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a PACKET-IN.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PACKET-IN.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_packet_in message containing the received message
+	 */
+	virtual void
+	handle_packet_in(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_packet_in& msg) {};
+
+	/**
+	 * @brief	Called once a BARRIER.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the BARRIER.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_barrier_reply message containing the received message
+	 */
+	virtual void
+	handle_barrier_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_barrier_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer has expired for a BARRIER.reply message.
+	 *
+	 * To be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
+	 */
+	virtual void
+	handle_barrier_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a FLOW-REMOVED.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the FLOW-REMOVED.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_flow_removed message containing the received message
+	 */
+	virtual void
+	handle_flow_removed(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_removed& msg) {};
+
+	/**
+	 * @brief	Called once a PORT-STATUS.message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-STATUS.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_port_status message containing the received message
+	 */
+	virtual void
+	handle_port_status(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_port_status& msg) {};
+
+	/**
+	 * @brief	Called once a QUEUE-GET-CONFIG.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the QUEUE-GET-CONFIG.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_queue_get_config_reply message containing the received message
+	 */
+	virtual void
+	handle_queue_get_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_queue_get_config_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_queue_get_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_experimenter_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_experimenter& msg) {};
+
+	/**
+	 * @brief	Called once an ERROR.message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_error_message(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_error& msg) {};
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_experimenter_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a timer has expired for an EXPERIMENTER.message.
+	 *
+	 * To be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
+	 */
+	virtual void
+	handle_get_fsp_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a ROLE.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the ROLE.reply message was received.
+	 * @param msg pointer to rofl::openflow::cofmsg_role_reply message containing the received message
+	 */
+	virtual void
+	handle_role_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_role_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer has expired for a ROLE.reply.
+	 *
+	 * To be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
+	 */
+	virtual void
+	handle_role_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**
+	 * @brief	Called once a GET-ASYNC-CONFIG.reply message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt Pointer to cofdpt instance from which the GET-ASYNC-CONFIG.reply was received
+	 * @param msg Pointer to rofl::openflow::cofmsg_get_async_config_reply message containing the received message
+	 */
+	virtual void
+	handle_get_async_config_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_get_async_config_reply& msg) {};
+
+	/**
+	 * @brief	Called once a timer expires for a GET-ASYNC-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_get_async_config_reply_timeout(rofl::crofdpt& dpt, uint32_t xid) {};
+
+	/**@}*/
+};
 
 
 /**
@@ -83,23 +698,12 @@ public: // static
 
 public:
 
-	enum crofdpt_flavour_t {
-		FLAVOUR_PASSIVE = 1,	// connection was established from peer entity
-		FLAVOUR_ACTIVE = 2,		// connection was established actively by us
-	};
-
-	/**
-	 *
-	 */
-	enum crofdpt_flavour_t
-	get_flavour() const { return flavour; };
-
 	/**
 	 * @brief 	Creates new crofdpt instance.
 	 *
 	 */
-	crofdpt(enum crofdpt_flavour_t flavour) :
-		dptid(cdptid(++crofdpt::next_dptid)), dpid(0), flavour(flavour) {
+	crofdpt(crofdpt_env* env, const cdptid& dptid, bool remove_on_channel_close) :
+		env(env), dptid(dptid), remove_on_channel_close(remove_on_channel_close), dpid(0) {
 		crofdpt::rofdpts[dptid] = this;
 		rofl::logging::debug << "[rofl-common][crofdpt] instance creating, dptid: "
 				<< (unsigned long long)dptid.get_dptid() << std::endl;
@@ -148,8 +752,9 @@ public:
 	/**
 	 *
 	 */
-	virtual rofl::cauxid
+	virtual void
 	connect(
+			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) = 0;
 
@@ -158,34 +763,29 @@ public:
 	 */
 	virtual void
 	disconnect(
-			const rofl::cauxid& auxid = 0) = 0;
+			const rofl::cauxid& auxid) = 0;
 
 	/**
 	 *
 	 */
 	virtual void
 	reconnect(
-			const rofl::cauxid& auxid = 0) = 0;
+			const rofl::cauxid& auxid) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	add_connection(
+			crofconn* conn) = 0;
 
 public:
 
 	/**
-	 *
-	 * @return
+	 * @brief	Returns true, when the control handshake (HELLO) has been completed.
 	 */
-	virtual crofchan&
-	set_channel() = 0;
-
-
-	/**
-	 *
-	 * @return
-	 */
-	virtual crofchan const&
-	get_channel() const = 0;
-
-public:
-
+	virtual bool
+	is_established() const = 0;
 
 	/**
 	 * @brief 	Returns the OpenFlow protocol version used for this control connection.
@@ -193,8 +793,14 @@ public:
 	 * @return OpenFlow version used for this control connection
 	 */
 	virtual uint8_t
-	get_version() const = 0;
+	get_version_negotiated() const = 0;
 
+	/**
+	 *
+	 * @return
+	 */
+	virtual const rofl::openflow::cofhello_elem_versionbitmap&
+	get_versions_available() const = 0;
 
 	/**
 	 * @brief	Returns caddress of connected remote entity.
@@ -202,15 +808,8 @@ public:
 	 * @return caddress object obtained from this->socket
 	 */
 	virtual caddress
-	get_peer_addr() = 0;
-
-
-	/**
-	 *
-	 * @return
-	 */
-	virtual rofl::openflow::cofhello_elem_versionbitmap&
-	get_versionbitmap() = 0;
+	get_peer_addr(
+			const rofl::cauxid& auxid) const = 0;
 
 	/**
 	 *
@@ -383,7 +982,7 @@ public:
 	 */
 	virtual void
 	drop_buffer(const rofl::cauxid& auxid, uint32_t buffer_id, uint32_t inport = rofl::openflow::OFPP_CONTROLLER) {
-		rofl::openflow::cofactions actions(get_version());
+		rofl::openflow::cofactions actions(get_version_negotiated());
 		send_packet_out_message(auxid, buffer_id, inport, actions, NULL, 0);
 	};
 
@@ -832,32 +1431,44 @@ public:
 		};
 	};
 
+	bool
+	remove_upon_channel_termination() const
+	{ return remove_on_channel_close; };
+
 protected:
 
 	/**
 	 *
 	 */
 	void
-	set_dpid(const cdpid& dpid) {
+	set_dpid(
+			const cdpid& dpid) {
 		this->dpid = dpid;
 	};
 
+protected:
+
+	crofdpt_env&
+	call_env() {
+		if (crofdpt_env::rofdpt_envs.find(env) == crofdpt_env::rofdpt_envs.end()) {
+			throw eRofDptNotFound();
+		}
+		return *env;
+	};
 
 private:
 
-	static uint64_t 					next_dptid;
+	static uint64_t 		next_dptid;
+	static std::map<cdptid, crofdpt*>
+							rofdpts;
 
-	static std::map<cdptid, crofdpt*> 	rofdpts;
-
-	cdptid   							dptid;			// handle for this crofdpt instance
-	cdpid 								dpid;			// datapath id
-	std::set<uint32_t>					groupids;		// allocated groupids on datapath
-	enum crofdpt_flavour_t				flavour;		// connection mode (active/passive)
+	crofdpt_env*			env;
+	cdptid   				dptid;			// handle for this crofdpt instance
+	bool					remove_on_channel_close;
+	cdpid 					dpid;			// datapath id
+	std::set<uint32_t>		groupids;		// allocated groupids on datapath
 };
 
-
 }; // end of namespace
-
-#include "rofl/common/crofbase.h"
 
 #endif

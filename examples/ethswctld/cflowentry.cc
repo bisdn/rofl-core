@@ -72,7 +72,7 @@ cflowentry::flow_mod_add()
 	try {
 		rofl::crofdpt& dpt = rofl::crofdpt::get_dpt(dptid);
 
-		rofl::openflow::cofflowmod fe(dpt.get_version());
+		rofl::openflow::cofflowmod fe(dpt.get_version_negotiated());
 		rofl::cindex index(0);
 
 		fe.set_command(rofl::openflow::OFPFC_ADD);
@@ -81,7 +81,7 @@ cflowentry::flow_mod_add()
 		fe.set_match().set_eth_src(src);
 		fe.set_match().set_eth_dst(dst);
 
-		switch (dpt.get_version()) {
+		switch (dpt.get_version_negotiated()) {
 		case rofl::openflow10::OFP_VERSION: {
 			fe.set_actions().
 					add_action_output(index++).set_port_no(port_no);
@@ -109,7 +109,7 @@ cflowentry::flow_mod_modify()
 	try {
 		rofl::crofdpt& dpt = rofl::crofdpt::get_dpt(dptid);
 
-		rofl::openflow::cofflowmod fe(dpt.get_version());
+		rofl::openflow::cofflowmod fe(dpt.get_version_negotiated());
 		rofl::cindex index(0);
 
 		fe.set_command(rofl::openflow::OFPFC_MODIFY_STRICT);
@@ -118,7 +118,7 @@ cflowentry::flow_mod_modify()
 		fe.set_match().set_eth_src(src);
 		fe.set_match().set_eth_dst(dst);
 
-		switch (dpt.get_version()) {
+		switch (dpt.get_version_negotiated()) {
 		case rofl::openflow10::OFP_VERSION: {
 			fe.set_actions().
 					add_action_output(index++).set_port_no(port_no);
@@ -150,7 +150,7 @@ cflowentry::flow_mod_delete()
 	try {
 		rofl::crofdpt& dpt = rofl::crofdpt::get_dpt(dptid);
 
-		rofl::openflow::cofflowmod fe(dpt.get_version());
+		rofl::openflow::cofflowmod fe(dpt.get_version_negotiated());
 		rofl::cindex index(0);
 
 		fe.set_command(rofl::openflow::OFPFC_DELETE_STRICT);

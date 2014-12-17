@@ -3,15 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "crofdpt_impl.h"
+#include "crofbase.h"
 
 using namespace rofl;
 
 
 crofdpt_impl::crofdpt_impl(
-		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		enum rofl::crofdpt::crofdpt_flavour_t flavour) :
-				crofdpt(flavour),
+		crofdpt_env* env,
+		const cdptid& dptid,
+		bool remove_on_channel_close,
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
+				crofdpt(env, dptid, remove_on_channel_close),
 				rofchan(this, versionbitmap),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -19,36 +21,11 @@ crofdpt_impl::crofdpt_impl(
 				capabilities(0),
 				config(0),
 				miss_send_len(0),
-				rofbase(rofbase),
 				transactions(this),
 				state(STATE_INIT)
 {
 
 }
-
-
-
-crofdpt_impl::crofdpt_impl(
-		crofbase *rofbase,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		enum rofl::csocket::socket_type_t socket_type,
-		int newsd,
-		enum rofl::crofdpt::crofdpt_flavour_t flavour) :
-				crofdpt(flavour),
-				rofchan(this, versionbitmap),
-				hwaddr(cmacaddr("00:00:00:00:00:00")),
-				n_buffers(0),
-				n_tables(0),
-				capabilities(0),
-				config(0),
-				miss_send_len(0),
-				rofbase(rofbase),
-				transactions(this),
-				state(STATE_INIT)
-{
-	run_engine(EVENT_DISCONNECTED);
-}
-
 
 
 crofdpt_impl::~crofdpt_impl()
@@ -133,7 +110,7 @@ crofdpt_impl::event_connected()
 		 * and Port-Desc-Stats request. This is up to the derived controller logic.
 		 */
 		state = STATE_ESTABLISHED;
-		rofbase->handle_dpt_attached(*this);
+		call_env().handle_dpt_attached(*this);
 #endif
 	} break;
 	default: {
@@ -152,7 +129,8 @@ crofdpt_impl::event_disconnected()
 	tables.clear();
 	ports.clear();
 	state = STATE_DISCONNECTED;
-	register_timer(TIMER_SIGNAL_DISCONNECT, ctimespec(0));
+	//register_timer(TIMER_SIGNAL_DISCONNECT, ctimespec(0));
+	call_env().handle_dpt_detached(*this);
 }
 
 
@@ -162,7 +140,7 @@ crofdpt_impl::event_features_reply_rcvd()
 {
 	switch (state) {
 	case STATE_CONNECTED: {
-		rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
+		rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << str() << indent(2)
 				<< "Features-Reply rcvd (connected -> features-reply-rcvd)" << std::endl;
 		state = STATE_FEATURES_RCVD;
 		//send_get_config_request();
@@ -171,7 +149,7 @@ crofdpt_impl::event_features_reply_rcvd()
 		 * and Port-Desc-Stats request. This is up to the derived controller logic.
 		 */
 		state = STATE_ESTABLISHED;
-		rofbase->handle_dpt_attached(*this);
+		call_env().handle_dpt_attached(*this);
 
 	} break;
 	case STATE_ESTABLISHED: {
@@ -197,7 +175,7 @@ crofdpt_impl::event_features_request_expired(
 		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
-		rofbase->handle_features_reply_timeout(*this, xid);
+		call_env().handle_features_reply_timeout(*this, xid);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] event -FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -218,7 +196,7 @@ crofdpt_impl::event_get_config_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_attached(*this);
+			call_env().handle_dpt_attached(*this);
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
@@ -227,7 +205,7 @@ crofdpt_impl::event_get_config_reply_rcvd()
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
 			send_table_stats_request(0);
-			//rofbase->handle_dpath_open(*this);
+			//call_env().handle_dpath_open(*this);
 
 		} break;
 		case rofl::openflow13::OFP_VERSION:
@@ -237,7 +215,7 @@ crofdpt_impl::event_get_config_reply_rcvd()
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
 			send_table_features_stats_request(0, 0);
-			//rofbase->handle_dpath_open(*this);
+			//call_env().handle_dpath_open(*this);
 
 		} break;
 		}
@@ -268,7 +246,7 @@ crofdpt_impl::event_get_config_request_expired(
 		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
-		rofbase->handle_get_config_reply_timeout(*this, xid);
+		call_env().handle_get_config_reply_timeout(*this, xid);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -291,7 +269,7 @@ crofdpt_impl::event_table_stats_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 								<< "Table-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_attached(*this);
+			call_env().handle_dpt_attached(*this);
 		} break;
 		default: {
 			// do nothing
@@ -323,7 +301,7 @@ crofdpt_impl::event_table_stats_request_expired(
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
-		rofbase->handle_table_stats_reply_timeout(*this, xid);
+		call_env().handle_table_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -344,7 +322,7 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> table-features-rcvd)" << std::endl;
 			send_port_desc_stats_request(0, 0);
-			//rofbase->handle_dpt_attached(*this);
+			//call_env().handle_dpt_attached(*this);
 		} break;
 		default: {
 			// do nothing
@@ -376,7 +354,7 @@ crofdpt_impl::event_table_features_stats_request_expired(
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
-		rofbase->handle_table_features_stats_reply_timeout(*this, xid);
+		call_env().handle_table_features_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -398,7 +376,7 @@ crofdpt_impl::event_port_desc_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Port-Desc-Stats-Reply rcvd (table-features-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_attached(*this);
+			call_env().handle_dpt_attached(*this);
 
 		} break;
 		}
@@ -429,7 +407,7 @@ crofdpt_impl::event_port_desc_request_expired(
 		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
-		rofbase->handle_port_desc_stats_reply_timeout(*this, xid);
+		call_env().handle_port_desc_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] event -PORT-DESC-STATS-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -440,35 +418,7 @@ crofdpt_impl::event_port_desc_request_expired(
 
 
 void
-crofdpt_impl::handle_established(crofchan *chan)
-{
-	rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
-			<< " channel established:" << std::endl << *chan;
-	run_engine(EVENT_CONNECTED);
-}
-
-
-void
-crofdpt_impl::handle_disconnected(crofchan *chan)
-{
-	rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
-			<< " channel disconnected:" << std::endl << *chan;
-
-	transactions.clear();
-
-	run_engine(EVENT_DISCONNECTED);
-}
-
-
-void
-crofdpt_impl::handle_write(crofchan *chan, const cauxid& auxid)
-{
-	rofbase->handle_write(*this, auxid);
-}
-
-
-void
-crofdpt_impl::recv_message(crofchan *chan, const cauxid& auxid, rofl::openflow::cofmsg *msg)
+crofdpt_impl::recv_message(crofchan& chan, const cauxid& auxid, rofl::openflow::cofmsg *msg)
 {
 	try {
 		switch (msg->get_version()) {
@@ -605,23 +555,7 @@ crofdpt_impl::recv_message(crofchan *chan, const cauxid& auxid, rofl::openflow::
 	}
 }
 
-uint32_t
-crofdpt_impl::get_async_xid(crofchan *chan)
-{
-	return transactions.get_async_xid();
-}
 
-uint32_t
-crofdpt_impl::get_sync_xid(crofchan *chan, uint8_t msg_type, uint16_t msg_sub_type)
-{
-	return transactions.add_ta(cclock(/*secs=*/5), msg_type, msg_sub_type);
-}
-
-void
-crofdpt_impl::release_sync_xid(crofchan *chan, uint32_t xid)
-{
-	return transactions.drop_ta(xid);
-}
 
 
 void
@@ -641,40 +575,40 @@ crofdpt_impl::ta_expired(
 	case rofl::openflow::OFPT_MULTIPART_REQUEST: {
 		switch (ta.get_msg_sub_type()) {
 		case rofl::openflow::OFPMP_DESC: {
-			rofbase->handle_desc_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_desc_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_FLOW: {
-			rofbase->handle_flow_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_flow_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_AGGREGATE: {
-			rofbase->handle_aggregate_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_aggregate_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_TABLE: {
 			event_table_stats_request_expired(ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_PORT_STATS: {
-			rofbase->handle_port_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_port_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_QUEUE: {
-			rofbase->handle_queue_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_queue_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_GROUP: {
-			rofbase->handle_group_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_group_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_GROUP_DESC: {
-			rofbase->handle_group_desc_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_group_desc_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_GROUP_FEATURES: {
-			rofbase->handle_group_features_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_group_features_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER: {
-			rofbase->handle_meter_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_meter_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER_CONFIG: {
-			rofbase->handle_meter_config_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_meter_config_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_METER_FEATURES: {
-			rofbase->handle_meter_features_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_meter_features_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_TABLE_FEATURES: {
 			event_table_features_stats_request_expired(ta.get_xid());
@@ -683,28 +617,28 @@ crofdpt_impl::ta_expired(
 			event_port_desc_request_expired(ta.get_xid());
 		} break;
 		case rofl::openflow::OFPMP_EXPERIMENTER: {
-			rofbase->handle_experimenter_stats_reply_timeout(*this, ta.get_xid());
+			call_env().handle_experimenter_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		default: {
-			rofbase->handle_multipart_reply_timeout(*this, ta.get_xid(), ta.get_msg_sub_type());
+			call_env().handle_multipart_reply_timeout(*this, ta.get_xid(), ta.get_msg_sub_type());
 		};
 		}
 
 	} break;
 	case rofl::openflow::OFPT_BARRIER_REQUEST: {
-		rofbase->handle_barrier_reply_timeout(*this, ta.get_xid());
+		call_env().handle_barrier_reply_timeout(*this, ta.get_xid());
 	} break;
 	case rofl::openflow::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		rofbase->handle_queue_get_config_reply_timeout(*this, ta.get_xid());
+		call_env().handle_queue_get_config_reply_timeout(*this, ta.get_xid());
 	} break;
 	case rofl::openflow::OFPT_ROLE_REQUEST: {
-		rofbase->handle_role_reply_timeout(*this, ta.get_xid());
+		call_env().handle_role_reply_timeout(*this, ta.get_xid());
 	} break;
 	case rofl::openflow::OFPT_GET_ASYNC_REQUEST: {
-		rofbase->handle_get_async_config_reply_timeout(*this, ta.get_xid());
+		call_env().handle_get_async_config_reply_timeout(*this, ta.get_xid());
 	} break;
 	case rofl::openflow::OFPT_EXPERIMENTER: {
-		rofbase->handle_experimenter_timeout(*this, ta.get_xid());
+		call_env().handle_experimenter_timeout(*this, ta.get_xid());
 	} break;
 	default: {
 
@@ -719,7 +653,7 @@ crofdpt_impl::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_SIGNAL_DISCONNECT: {
-		rofbase->handle_dpt_detached(*this);
+		call_env().handle_dpt_detached(*this);
 	} break;
 	default: {
 		rofl::logging::error << "[rofl-common][crofdpt] dpid:"
@@ -1977,7 +1911,7 @@ crofdpt_impl::features_reply_rcvd(
 	rofl::openflow::cofmsg_features_reply *reply = dynamic_cast<rofl::openflow::cofmsg_features_reply*>( msg );
 	assert(reply != NULL);
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Features-Reply message received" << std::endl;
 
 	try {
@@ -2008,7 +1942,7 @@ crofdpt_impl::features_reply_rcvd(
 		hwaddr[0] &= 0xfc;
 
 		if (STATE_ESTABLISHED == state) {
-			rofbase->handle_features_reply(*this, auxid, *reply);
+			call_env().handle_features_reply(*this, auxid, *reply);
 		}
 
 		run_engine(EVENT_FEATURES_REPLY_RCVD);
@@ -2032,7 +1966,7 @@ crofdpt_impl::get_config_reply_rcvd(
 	rofl::openflow::cofmsg_get_config_reply *reply = dynamic_cast<rofl::openflow::cofmsg_get_config_reply*>( msg );
 	assert(reply != NULL);
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Get-Config-Reply message received" << std::endl;
 
 	transactions.drop_ta(msg->get_xid());
@@ -2041,7 +1975,7 @@ crofdpt_impl::get_config_reply_rcvd(
 	miss_send_len 	= reply->get_miss_send_len();
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_get_config_reply(*this, auxid, *reply);
+		call_env().handle_get_config_reply(*this, auxid, *reply);
 	}
 	delete msg;
 
@@ -2054,7 +1988,7 @@ crofdpt_impl::multipart_reply_rcvd(
 		const cauxid& auxid,
 		rofl::openflow::cofmsg *msg)
 {
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Multipart-Reply message received" << std::endl << *msg;
 
 	transactions.drop_ta(msg->get_xid());
@@ -2114,7 +2048,7 @@ crofdpt_impl::multipart_reply_rcvd(
 					"established, dropping message:" << std::endl << *reply;
 			return;
 		}
-		rofbase->handle_stats_reply(*this, auxid, dynamic_cast<rofl::openflow::cofmsg_stats_reply&>( *msg ));
+		call_env().handle_stats_reply(*this, auxid, dynamic_cast<rofl::openflow::cofmsg_stats_reply&>( *msg ));
 	};
 	}
 }
@@ -2128,11 +2062,11 @@ crofdpt_impl::desc_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_desc_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Desc-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_desc_stats_reply(*this, auxid, reply);
+		call_env().handle_desc_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2146,11 +2080,11 @@ crofdpt_impl::table_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_table_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_table_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Table-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_table_stats_reply(*this, auxid, reply);
+		call_env().handle_table_stats_reply(*this, auxid, reply);
 	} else {
 		run_engine(EVENT_TABLE_STATS_REPLY_RCVD);
 	}
@@ -2166,11 +2100,11 @@ crofdpt_impl::port_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_port_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_port_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Port-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_port_stats_reply(*this, auxid, reply);
+		call_env().handle_port_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2184,11 +2118,11 @@ crofdpt_impl::flow_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_flow_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_flow_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Flow-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_flow_stats_reply(*this, auxid, reply);
+		call_env().handle_flow_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2202,11 +2136,11 @@ crofdpt_impl::aggregate_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_aggr_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_aggr_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Aggregate-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_aggregate_stats_reply(*this, auxid, reply);
+		call_env().handle_aggregate_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2220,11 +2154,11 @@ crofdpt_impl::queue_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_queue_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_queue_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Queue-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_queue_stats_reply(*this, auxid, reply);
+		call_env().handle_queue_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2238,11 +2172,11 @@ crofdpt_impl::group_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_group_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_group_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Group-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_group_stats_reply(*this, auxid, reply);
+		call_env().handle_group_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2256,11 +2190,11 @@ crofdpt_impl::group_desc_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_group_desc_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_group_desc_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Group-Desc-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_group_desc_stats_reply(*this, auxid, reply);
+		call_env().handle_group_desc_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2274,11 +2208,11 @@ crofdpt_impl::group_features_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_group_features_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_group_features_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Group-Features-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_group_features_stats_reply(*this, auxid, reply);
+		call_env().handle_group_features_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2292,11 +2226,11 @@ crofdpt_impl::meter_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_meter_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Meter-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_meter_stats_reply(*this, auxid, reply);
+		call_env().handle_meter_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2310,11 +2244,11 @@ crofdpt_impl::meter_config_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_meter_config_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_config_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Meter-Config-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_meter_config_stats_reply(*this, auxid, reply);
+		call_env().handle_meter_config_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2328,11 +2262,11 @@ crofdpt_impl::meter_features_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_meter_features_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_meter_features_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Meter-Features-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_meter_features_stats_reply(*this, auxid, reply);
+		call_env().handle_meter_features_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2346,13 +2280,13 @@ crofdpt_impl::table_features_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_table_features_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_table_features_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Table-Features-Stats-Reply message received" << std::endl;
 
 	tables = reply.get_tables();
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_table_features_stats_reply(*this, auxid, reply);
+		call_env().handle_table_features_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 
@@ -2368,13 +2302,13 @@ crofdpt_impl::port_desc_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_port_desc_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Port-Desc-Stats-Reply message received" << std::endl;
 
 	ports = reply.get_ports();
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_port_desc_stats_reply(*this, auxid, reply);
+		call_env().handle_port_desc_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 
@@ -2390,11 +2324,11 @@ crofdpt_impl::experimenter_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_experimenter_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_experimenter_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Experimenter-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_experimenter_stats_reply(*this, auxid, reply);
+		call_env().handle_experimenter_stats_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2410,11 +2344,11 @@ crofdpt_impl::barrier_reply_rcvd(
 
 	transactions.drop_ta(msg->get_xid());
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Barrier-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_barrier_reply(*this, auxid, reply);
+		call_env().handle_barrier_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2429,11 +2363,11 @@ crofdpt_impl::flow_removed_rcvd(
 {
 	rofl::openflow::cofmsg_flow_removed& flow_removed = dynamic_cast<rofl::openflow::cofmsg_flow_removed&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Flow-Removed message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_flow_removed(*this, auxid, flow_removed);
+		call_env().handle_flow_removed(*this, auxid, flow_removed);
 	}
 	delete msg;
 }
@@ -2447,11 +2381,11 @@ crofdpt_impl::packet_in_rcvd(
 {
 	rofl::openflow::cofmsg_packet_in& packet_in = dynamic_cast<rofl::openflow::cofmsg_packet_in&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Packet-In message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_packet_in(*this, auxid, packet_in);
+		call_env().handle_packet_in(*this, auxid, packet_in);
 	}
 	delete msg;
 }
@@ -2465,7 +2399,7 @@ crofdpt_impl::port_status_rcvd(
 {
 	rofl::openflow::cofmsg_port_status& port_status = dynamic_cast<rofl::openflow::cofmsg_port_status&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Port-Status message received" << std::endl;
 
 	ports.set_version(rofchan.get_version());
@@ -2486,7 +2420,7 @@ crofdpt_impl::port_status_rcvd(
 	}
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_port_status(*this, auxid, port_status);
+		call_env().handle_port_status(*this, auxid, port_status);
 	}
 	delete msg;
 }
@@ -2501,11 +2435,11 @@ crofdpt_impl::experimenter_rcvd(
 
 	transactions.drop_ta(msg->get_xid());
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Experimenter message received" << std::endl << exp;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_experimenter_message(*this, auxid, exp);
+		call_env().handle_experimenter_message(*this, auxid, exp);
 	}
 	delete msg;
 }
@@ -2519,11 +2453,11 @@ crofdpt_impl::error_rcvd(
 {
 	rofl::openflow::cofmsg_error& error = dynamic_cast<rofl::openflow::cofmsg_error&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Error message received" << std::endl << error;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_error_message(*this, auxid, error);
+		call_env().handle_error_message(*this, auxid, error);
 	}
 	delete msg;
 }
@@ -2539,11 +2473,11 @@ crofdpt_impl::role_reply_rcvd(
 
 	transactions.drop_ta(msg->get_xid());
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Role-Reply message received" << std::endl << reply;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_role_reply(*this, auxid, reply);
+		call_env().handle_role_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2559,11 +2493,11 @@ crofdpt_impl::queue_get_config_reply_rcvd(
 
 	transactions.drop_ta(msg->get_xid());
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " Queue-Get-Config-Reply message received" << std::endl << reply;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_queue_get_config_reply(*this, auxid, reply);
+		call_env().handle_queue_get_config_reply(*this, auxid, reply);
 	}
 	delete msg;
 }
@@ -2579,11 +2513,11 @@ crofdpt_impl::get_async_config_reply_rcvd(
 
 	transactions.drop_ta(msg->get_xid());
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< "Get-Async-Config-Reply message received" << std::endl << reply;
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_get_async_config_reply(*this, auxid, reply);
+		call_env().handle_get_async_config_reply(*this, auxid, reply);
 	}
 	delete msg;
 }

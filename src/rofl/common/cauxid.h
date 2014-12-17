@@ -77,6 +77,15 @@ public:
 	/**
 	 *
 	 */
+	bool
+	operator== (
+			const cauxid& auxid) const {
+		return (id == auxid.id);
+	};
+
+	/**
+	 *
+	 */
 	uint8_t const&
 	get_id() const { return id; }
 
@@ -88,6 +97,16 @@ public:
 		return os;
 	};
 
+
+	/**
+	 *
+	 */
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << (int)get_id();
+		return ss.str();
+	};
 };
 
 }; // end of namespace rofl

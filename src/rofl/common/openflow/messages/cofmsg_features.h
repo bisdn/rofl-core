@@ -10,6 +10,8 @@
 
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofports.h"
+#include "rofl/common/cauxid.h"
+#include "rofl/common/cdpid.h"
 
 namespace rofl {
 namespace openflow {
@@ -99,6 +101,13 @@ public:
 		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_features_request >" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Features-Request- " << cofmsg::str();
+		return ss.str();
 	};
 };
 
@@ -337,6 +346,17 @@ public:
 		} break;
 		}
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Features-Reply- " << cofmsg::str() << " ";
+		ss << "dpid: " << cdpid(get_dpid()).str() << " ";
+		ss << "auxid: " << cauxid(get_auxiliary_id()).str() << " ";
+		ss << "#buffers: " << (int)get_n_buffers() << " ";
+		ss << "#tables: " << (int)get_n_tables() << " ";
+		return ss.str();
 	};
 };
 
