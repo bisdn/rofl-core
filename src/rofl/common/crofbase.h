@@ -160,7 +160,7 @@ public:
 	 * \see xid_start
 	 */
 	crofbase(
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap = rofl::openflow::cofhello_elem_versionbitmap());
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap = rofl::openflow::cofhello_elem_versionbitmap(), pthread_t tid = 0);
 
 
 	/**

@@ -11,7 +11,9 @@ using namespace rofl;
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
 crofbase::crofbase(
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		pthread_t tid) :
+				ciosrv(tid),
 				versionbitmap(versionbitmap),
 				transactions(this),
 				generation_is_defined(false),
