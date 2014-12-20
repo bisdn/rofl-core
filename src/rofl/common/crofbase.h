@@ -27,8 +27,8 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/logging.h"
-#include "rofl/common/crofdpt_impl.h"
-#include "rofl/common/crofctl_impl.h"
+#include "rofl/common/crofdpt.h"
+#include "rofl/common/crofctl.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crandom.h"
@@ -225,7 +225,7 @@ public:
 			delete rofdpts[dptid];
 			rofdpts.erase(dptid);
 		}
-		rofdpts[dptid] = rofdpt_factory(dptid, remove_on_channel_close, versionbitmap);
+		rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap);
 		return *(rofdpts[dptid]);
 	};
 
@@ -238,7 +238,7 @@ public:
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
-			rofdpts[dptid] = rofdpt_factory(dptid, remove_on_channel_close, versionbitmap);
+			rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap);
 		}
 		return *(rofdpts[dptid]);
 	};
@@ -339,7 +339,7 @@ public:
 			delete rofctls[ctlid];
 			rofctls.erase(ctlid);
 		}
-		rofctls[ctlid] = rofctl_factory(ctlid, remove_on_channel_close, versionbitmap);
+		rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap);
 		return *(rofctls[ctlid]);
 	};
 
@@ -352,7 +352,7 @@ public:
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofctls.find(ctlid) == rofctls.end()) {
-			rofctls[ctlid] = rofctl_factory(ctlid, remove_on_channel_close, versionbitmap);
+			rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap);
 		}
 		return *(rofctls[ctlid]);
 	};
@@ -473,48 +473,6 @@ protected:
 	 */
 
 	/**@{*/
-
-	/**
-	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
-	 *
-	 * This method constructs a new instance of class cofctl for actively establishing a single connection
-	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofctl and add additional functionality. cofctl will indefinitely attempt
-	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_ctl().
-	 * When connection setup and the initial HELLO message exchange in OpenFlow succeeds, method
-	 * crofbase::handle_ctl_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
-	 * @param ofp_version OpenFlow version to use for connecting to controller
-	 * @param ra Remote address to connect to
-	 * @param params set of parameters used for socket creation
-	 */
-	virtual crofctl*
-	rofctl_factory(
-			const cctlid& ctlid,
-			bool remove_on_channel_close,
-			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
-	{ return new rofl::crofctl_impl(this, ctlid, remove_on_channel_close, versionbitmap); };
-
-	/**
-	 * @brief	creates a new cofdpt instance for an existing socket with sockfd newsd.
-	 *
-	 * This method constructs a new instance of class cofdpt for managing a single connection
-	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofdpt and add additional functionality. When the initial handshake in OpenFlow
-	 * succeeds (FEATURES.request/reply, GET-CONFIG.request/reply, TABLE-STATS.request/reply), method
-	 * crofbase::handle_ctl_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
-	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
-	 *
-	 */
-	virtual crofdpt*
-	rofdpt_factory(
-			const cdptid& dptid,
-			bool remove_on_channel_close,
-			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap)
-	{ return new rofl::crofdpt_impl(this, dptid, remove_on_channel_close, versionbitmap); };
 
 public:
 

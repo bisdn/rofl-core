@@ -201,6 +201,9 @@ crofchan::drop_conn(
 	// main connection: close main and all auxiliary connections
 	if (0 == aux_id.get_id()) {
 		rofl::logging::debug << "[rofl-common][crofchan][drop-conn] dropping main connection and all auxiliary connections." << std::endl << *this;
+		delete conns[aux_id];
+		conns.erase(aux_id);
+
 		while (not conns.empty()) {
 			drop_conn(conns.rbegin()->first);
 		}
