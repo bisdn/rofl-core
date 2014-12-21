@@ -462,18 +462,22 @@ crofchan::event_conn_refused()
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_refused.begin(); it != conns_refused.end(); ++it) {
 
-		const cauxid& aux_id = *it;
+		const cauxid& auxid = *it;
 
-		if (conns.find(aux_id) == conns.end()) {
+		if (not has_conn(auxid)) {
 			continue;
 		}
 
 		rofl::logging::info << "[rofl-common][crofchan] "
 				<< "auxid: " << it->str() << " -conn-refused- " << str() << std::endl;
 
-		call_env().handle_conn_refused(*this, aux_id);
+		call_env().handle_conn_refused(*this, auxid);
 
-		conns[aux_id]->reconnect();
+		if (not has_conn(auxid)) {
+			continue;
+		}
+
+		set_conn(auxid).reconnect();
 	}
 
 	conns_refused.clear();
@@ -489,18 +493,22 @@ crofchan::event_conn_failed()
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_failed.begin(); it != conns_failed.end(); ++it) {
 
-		const cauxid& aux_id = *it;
+		const cauxid& auxid = *it;
 
-		if (conns.find(aux_id) == conns.end()) {
+		if (not has_conn(auxid)) {
 			continue;
 		}
 
 		rofl::logging::info << "[rofl-common][crofchan] "
 				<< "auxid: " << it->str() << " -conn-failed- " << str() << std::endl;
 
-		call_env().handle_conn_failed(*this, aux_id);
+		call_env().handle_conn_failed(*this, auxid);
 
-		conns[aux_id]->reconnect();
+		if (not has_conn(auxid)) {
+			continue;
+		}
+
+		set_conn(auxid).reconnect();
 	}
 
 	conns_failed.clear();

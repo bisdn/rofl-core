@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <bitset>
 
 #include "openflow/openflow.h"
 #include "croflexception.h"
@@ -549,6 +550,30 @@ class crofctl :
 		public rofl::ctransactions_env,
 		public ciosrv
 {
+private: // data structures
+
+	enum crofctl_timer_t {
+		TIMER_RUN_ENGINE							= 0,
+	};
+
+	enum crofctl_state_t {
+		STATE_INIT 									= 0,
+		STATE_DISCONNECTED							= 1,
+		STATE_ESTABLISHED							= 2,
+	};
+
+	enum crofctl_event_t {
+		EVENT_NONE									= 0,
+		EVENT_CHAN_TERMINATED						= 1,
+		EVENT_CONN_TERMINATED						= 3,
+		EVENT_CONN_REFUSED							= 4,
+		EVENT_CONN_FAILED							= 5,
+	};
+
+	enum crofctl_flag_t {
+		FLAG_ENGINE_IS_RUNNING 						= (1 << 0),
+	};
+
 public: // methods
 
 	/**
@@ -573,6 +598,7 @@ public:
 				ctlid(ctlid),
 				remove_on_channel_close(remove_on_channel_close),
 				async_config_role_default_template(rofl::openflow13::OFP_VERSION),
+				state(STATE_INIT),
 				rofchan(this, versionbitmap),
 				transactions(this) {
 		rofl::logging::debug << "[rofl-common][crofctl] "
@@ -596,14 +622,14 @@ public:
 	/**
 	 *
 	 */
-	virtual std::list<rofl::cauxid>
+	std::list<rofl::cauxid>
 	get_conn_index() const
 	{ return rofchan.get_conn_index(); };
 
 	/**
 	 *
 	 */
-	virtual void
+	void
 	connect(
 			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
@@ -613,7 +639,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	disconnect(
 			const rofl::cauxid& auxid)
 	{ rofchan.drop_conn(auxid); };
@@ -621,7 +647,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	reconnect(
 			const rofl::cauxid& auxid) {
 		rofchan.set_conn(auxid).close();
@@ -631,7 +657,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	add_connection(
 			crofconn* conn) {
 		if (NULL == conn) {
@@ -652,35 +678,35 @@ public:
 	/**
 	 * @brief	Returns true, when the OFP control channel is up
 	 */
-	virtual bool
+	bool
 	is_established() const
 	{ return rofchan.is_established(); };
 
 	/**
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
-	virtual uint8_t
+	uint8_t
 	get_version_negotiated() const
 	{ return rofchan.get_version(); };
 
 	/**
 	 * @brief	Returns a reference to rofchan's cofhello_elem_versionbitmap instance
 	 */
-	virtual const rofl::openflow::cofhello_elem_versionbitmap&
+	const rofl::openflow::cofhello_elem_versionbitmap&
 	get_versions_available() const
 	{ return rofchan.get_versionbitmap(); };
 
 	/**
 	 *
 	 */
-	virtual caddress
+	caddress
 	get_peer_addr(const rofl::cauxid& auxid) const
 	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
 
 	/**
 	 * @brief	Returns true, when the control entity is in role SLAVE
 	 */
-	virtual bool
+	bool
 	is_slave() const;
 
 	/**
@@ -693,28 +719,28 @@ public:
 	/**
 	 *
 	 */
-	virtual rofl::openflow::cofasync_config&
+	rofl::openflow::cofasync_config&
 	set_async_config()
 	{ return async_config; };
 
 	/**
 	 *
 	 */
-	virtual rofl::openflow::cofasync_config const&
+	const rofl::openflow::cofasync_config&
 	get_async_config() const
 	{ return async_config; };
 
 	/**
 	 *
 	 */
-	virtual rofl::openflow::cofrole&
+	rofl::openflow::cofrole&
 	set_role()
 	{ return role; };
 
 	/**
 	 *
 	 */
-	virtual rofl::openflow::cofrole const&
+	const rofl::openflow::cofrole&
 	get_role() const
 	{ return role; };
 
@@ -755,7 +781,7 @@ public:
 	 * @param of10_actions_bitmap bitmap of supported actions for OpenFlow 1.0, ignored in other versions
 	 * @param portlist list of rofl::openflow::cofports in this data path, ignored in OpenFlow 1.3
 	 */
-	virtual void
+	void
 	send_features_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -765,7 +791,7 @@ public:
 			uint32_t capabilities,
 			uint8_t of13_auxiliary_id = 0,
 			uint32_t of10_actions_bitmap = 0,
-			rofl::openflow::cofports const& ports = rofl::openflow::cofports());
+			const rofl::openflow::cofports& ports = rofl::openflow::cofports());
 
 	/**
 	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
@@ -774,7 +800,7 @@ public:
 	 * @param flags data path flags
 	 * @param miss_send_len default miss_send_len value
 	 */
-	virtual void
+	void
 	send_get_config_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -790,7 +816,7 @@ public:
 	 * @param bodylen length of STATS.reply body
 	 * @param more flag if multiple STATS.reply messages will be sent
 	 */
-	virtual void
+	void
 	send_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -806,11 +832,11 @@ public:
 	 * @param desc_stats body of DESC-STATS.reply
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_desc_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofdesc_stats_reply const& desc_stats,
+			const rofl::openflow::cofdesc_stats_reply& desc_stats,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -820,11 +846,11 @@ public:
 	 * @param flow_stats array of flow_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_flow_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofflowstatsarray const& flow_stats,
+			const rofl::openflow::cofflowstatsarray& flow_stats,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -834,11 +860,11 @@ public:
 	 * @param aggr_stats aggr_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_aggr_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofaggr_stats_reply const& aggr_stats,
+			const rofl::openflow::cofaggr_stats_reply& aggr_stats,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -848,11 +874,11 @@ public:
 	 * @param table_stats array of table_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_table_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::coftablestatsarray const& tablestatsarray,
+			const rofl::openflow::coftablestatsarray& tablestatsarray,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -862,11 +888,11 @@ public:
 	 * @param port_stats array of port_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_port_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofportstatsarray const& portstatsarray,
+			const rofl::openflow::cofportstatsarray& portstatsarray,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -876,11 +902,11 @@ public:
 	 * @param port_stats array of port_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_queue_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofqueuestatsarray const& queuestatsarray,
+			const rofl::openflow::cofqueuestatsarray& queuestatsarray,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -890,11 +916,11 @@ public:
 	 * @param group_stats array of group_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_group_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofgroupstatsarray const& groupstatsarray,
+			const rofl::openflow::cofgroupstatsarray& groupstatsarray,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -904,11 +930,11 @@ public:
 	 * @param group_desc_stats array of group_desc_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_group_desc_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofgroupdescstatsarray const& groupdescs,
+			const rofl::openflow::cofgroupdescstatsarray& groupdescs,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -918,11 +944,11 @@ public:
 	 * @param group_features_stats group_features_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_group_features_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
+			const rofl::openflow::cofgroup_features_stats_reply& group_features_stats,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -932,11 +958,11 @@ public:
 	 * @param tables tables body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_table_features_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::coftables const& tables,
+			const rofl::openflow::coftables& tables,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -946,11 +972,11 @@ public:
 	 * @param ports ports body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_port_desc_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofports const& ports,
+			const rofl::openflow::cofports& ports,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -963,13 +989,13 @@ public:
 	 * @param bodylen length of user defined body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	virtual void
+	void
 	send_experimenter_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t exp_id,
 			uint32_t exp_type,
-			cmemory const& body,
+			const cmemory& body,
 			uint16_t stats_flags = 0);
 
 	/**
@@ -980,7 +1006,7 @@ public:
 	 * @param meter_stats_array instance of type cofmeterstatsarray
 	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
 	 */
-	virtual void
+	void
 	send_meter_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -995,7 +1021,7 @@ public:
 	 * @param meter_config_array instance of type cofmeterconfigarray
 	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
 	 */
-	virtual void
+	void
 	send_meter_config_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -1010,7 +1036,7 @@ public:
 	 * @param meter_config_array instance of type cofmeterfeatures
 	 * @param stats_flags flags for OpenFlow statistics messages, if any (default: 0)
 	 */
-	virtual void
+	void
 	send_meter_features_stats_reply(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -1030,7 +1056,7 @@ public:
 	 * @param data data packet
 	 * @param datalen length of data packet
 	 */
-	virtual void
+	void
 	send_packet_in_message(
 			const cauxid& auxid,
 			uint32_t buffer_id,
@@ -1039,7 +1065,7 @@ public:
 			uint8_t table_id,
 			uint64_t cookie,
 			uint16_t in_port, // for OF1.0
-			rofl::openflow::cofmatch &match,
+			const rofl::openflow::cofmatch& match,
 			uint8_t *data,
 			size_t datalen);
 
@@ -1048,7 +1074,7 @@ public:
 	 *
 	 * @param xid transaction ID from received BARRIER.request
 	 */
-	virtual void
+	void
 	send_barrier_reply(
 			const cauxid& auxid,
 			uint32_t xid);
@@ -1062,7 +1088,7 @@ public:
 	 * @param data first (at least 64) bytes of failed request
 	 * @param datalen length of failed request appended to error message
 	 */
-	virtual void
+	void
 	send_error_message(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -1080,7 +1106,7 @@ public:
 	 * @param bodylen length of body (optional)
 	 * @result transaction ID assigned to this request
 	 */
-	virtual void
+	void
 	send_experimenter_message(
 			const cauxid& auxid,
 			uint32_t xid,
@@ -1104,10 +1130,10 @@ public:
 	 * @param packet_count number of packets handled by this flow mod
 	 * @param byte_count number of bytes handled by this flow mod
 	 */
-	virtual void
+	void
 	send_flow_removed_message(
 			const cauxid& auxid,
-			rofl::openflow::cofmatch& match,
+			const rofl::openflow::cofmatch& match,
 			uint64_t cookie,
 			uint16_t priority,
 			uint8_t reason,
@@ -1125,11 +1151,11 @@ public:
 	 * @param reason one of OpenFlow's OFPPR_* constants
 	 * @param port rofl::openflow::cofport instance that changed its status
 	 */
-	virtual void
+	void
 	send_port_status_message(
 			const cauxid& auxid,
 			uint8_t reason,
-			rofl::openflow::cofport const& port);
+			const rofl::openflow::cofport& port);
 
 	/**
 	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
@@ -1137,12 +1163,12 @@ public:
 	 * @param xid transaction ID from QUEUE-GET-CONFIG.request
 	 * @param portno OpenFlow number assigned to port
 	 */
-	virtual void
+	void
 	send_queue_get_config_reply(
 			const cauxid& auxid,
 			uint32_t xid,
 			uint32_t portno,
-			rofl::openflow::cofpacket_queues const& pql);
+			const rofl::openflow::cofpacket_queues& queues);
 
 
 	/**
@@ -1152,22 +1178,22 @@ public:
 	 * @param role defined role from data path
 	 * @param generation_id gen_id as defined by OpenFlow
 	 */
-	virtual void
+	void
 	send_role_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofrole const& role);
+			const rofl::openflow::cofrole& role);
 
 	/**
 	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
 	 *
 	 * @param xid transaction ID from GET-CONFIG.request
 	 */
-	virtual void
+	void
 	send_get_async_config_reply(
 			const cauxid& auxid,
 			uint32_t xid,
-			rofl::openflow::cofasync_config const& async_config);
+			const rofl::openflow::cofasync_config& async_config);
 
 	/**@}*/
 
@@ -1202,10 +1228,14 @@ protected:
 			const rofl::cauxid& auxid) {
 		rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 						<< " control connection established, auxid: " << auxid.str() << std::endl;
+
+		state = STATE_ESTABLISHED;
 		call_env().handle_conn_established(*this, auxid);
+
 		if (auxid == rofl::cauxid(0)) {
 			rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 							<< " OFP control channel established, " << chan.str() << std::endl;
+
 			call_env().handle_ctl_attached(*this); // main connection
 		}
 	};
@@ -1219,12 +1249,16 @@ protected:
 			const rofl::cauxid& auxid) {
 		rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 						<< " control connection terminated, auxid: " << auxid.str() << std::endl;
-		call_env().handle_conn_terminated(*this, auxid);
+
+		rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_terminated.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_TERMINATED);
+
 		if (auxid == rofl::cauxid(0)) {
 			rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
-			call_env().handle_ctl_detached(*this);
+			push_on_eventqueue(EVENT_CHAN_TERMINATED);
 		}
 	};
 
@@ -1234,8 +1268,11 @@ protected:
 	virtual void
 	handle_conn_refused(
 			crofchan& chan,
-			const rofl::cauxid& auxid)
-	{ call_env().handle_conn_refused(*this, auxid);	};
+			const rofl::cauxid& auxid) {
+		rofl::RwLock rwlock(conns_refused_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_refused.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_REFUSED);
+	};
 
 	/**
 	 * @brief Called in the event of a connection failed (except refused)
@@ -1243,8 +1280,11 @@ protected:
 	virtual void
 	handle_conn_failed(
 			crofchan& chan,
-			const rofl::cauxid& auxid)
-	{ call_env().handle_conn_failed(*this, auxid); };
+			const rofl::cauxid& auxid) {
+		rofl::RwLock rwlock(conns_failed_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_failed.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_FAILED);
+	};
 
 	virtual void
 	handle_write(
@@ -1288,8 +1328,38 @@ protected:
 
 	virtual void
 	handle_timeout(
-			int opaque, void *data = (void*)0)
-	{};
+			int opaque, void *data = (void*)0);
+
+private:
+
+	void
+	push_on_eventqueue(
+			enum crofctl_event_t event = EVENT_NONE) {
+		if (EVENT_NONE != event) {
+			events.push_back(event);
+		}
+		if (not flags.test(FLAG_ENGINE_IS_RUNNING)) {
+			register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(0));
+		}
+	};
+
+	void
+	work_on_eventqueue();
+
+	void
+	event_chan_terminated();
+
+	void
+	event_conn_established();
+
+	void
+	event_conn_terminated();
+
+	void
+	event_conn_refused();
+
+	void
+	event_conn_failed();
 
 private:
 
@@ -1504,11 +1574,24 @@ private:
 	rofl::openflow::cofasync_config
 							async_config_role_default_template;
 
+	crofctl_state_t			state;
 	crofchan				rofchan;
 	ctransactions			transactions;
 	rofl::openflow::cofasync_config
 							async_config;
 	rofl::openflow::cofrole	role;
+
+	std::deque<enum crofctl_event_t>
+							events;
+
+	PthreadRwLock			conns_terminated_rwlock;
+	std::list<rofl::cauxid> conns_terminated;
+	PthreadRwLock			conns_refused_rwlock;
+	std::list<rofl::cauxid> conns_refused;
+	PthreadRwLock			conns_failed_rwlock;
+	std::list<rofl::cauxid> conns_failed;
+
+	std::bitset<32>			flags;
 };
 
 }; // end of namespace

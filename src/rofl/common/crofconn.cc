@@ -41,7 +41,8 @@ crofconn::crofconn(
 	rxweights[QUEUE_MGMT] = 8;
 	rxweights[QUEUE_FLOW] = 4;
 	rxweights[QUEUE_PKT ] = 2;
-	//rofl::logging::debug << "[rofl][crofconn] constructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug << "[rofl-common][crofconn] "
+			<< "connection created, auxid: " << auxiliary_id.str() << std::endl;
 }
 
 
@@ -49,7 +50,8 @@ crofconn::crofconn(
 crofconn::~crofconn()
 {
 	env = NULL;
-	//rofl::logging::debug << "[rofl][crofconn] destructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug << "[rofl-common][crofconn] "
+			<< "connection destroyed, auxid: " << auxiliary_id.str() << std::endl;
 	if (STATE_DISCONNECTED != state) {
 		run_engine(EVENT_DISCONNECTED);
 	}
@@ -167,6 +169,8 @@ void
 crofconn::handle_timeout(
 		int opaque, void *data)
 {
+	rofl::logging::debug2 << "[rofl-common][crofconn] "
+			<< "timeout, type:" << opaque << " " << str() << std::endl;
 	switch (opaque) {
 	case TIMER_NEXT_RECONNECT: {
 		run_engine(EVENT_RECONNECT);

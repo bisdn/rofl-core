@@ -25,6 +25,103 @@ crofctl::get_ctl(
 
 
 
+void
+crofctl::handle_timeout(int opaque, void *data)
+{
+	switch (opaque) {
+	case TIMER_RUN_ENGINE: {
+		work_on_eventqueue();
+	} break;
+	default: {
+		rofl::logging::error << "[rofl-common][crofctl] "
+				<< "ctlid: " << ctlid.str() << " unknown timer event:"
+				<< opaque << std::endl;
+	};
+	}
+}
+
+
+
+void
+crofctl::work_on_eventqueue()
+{
+	flags.set(FLAG_ENGINE_IS_RUNNING);
+	while (not events.empty()) {
+		enum crofctl_event_t event = events.front();
+		events.pop_front();
+
+		switch (event) {
+		case EVENT_CHAN_TERMINATED: {
+			flags.reset(FLAG_ENGINE_IS_RUNNING);
+			event_chan_terminated();
+		} return;
+		case EVENT_CONN_TERMINATED: {
+			event_conn_terminated();
+		} break;
+		case EVENT_CONN_REFUSED: {
+			event_conn_refused();
+		} break;
+		case EVENT_CONN_FAILED: {
+			event_conn_failed();
+		} break;
+		default: {
+			rofl::logging::error << "[rofl-common][crofctl] unknown event seen, internal error" << std::endl << *this;
+		};
+		}
+	}
+	flags.reset(FLAG_ENGINE_IS_RUNNING);
+}
+
+
+
+void
+crofctl::event_chan_terminated()
+{
+	state = STATE_DISCONNECTED;
+	call_env().handle_ctl_detached(*this);
+}
+
+
+
+void
+crofctl::event_conn_terminated()
+{
+	rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
+	for (std::list<rofl::cauxid>::iterator
+			it = conns_terminated.begin(); it != conns_terminated.end(); ++it) {
+		call_env().handle_conn_terminated(*this, *it);
+	}
+	conns_terminated.clear();
+}
+
+
+
+void
+crofctl::event_conn_refused()
+{
+	rofl::RwLock rwlock(conns_refused_rwlock, rofl::RwLock::RWLOCK_WRITE);
+	for (std::list<rofl::cauxid>::iterator
+			it = conns_refused.begin(); it != conns_refused.end(); ++it) {
+		call_env().handle_conn_refused(*this, *it);
+	}
+	conns_refused.clear();
+}
+
+
+
+void
+crofctl::event_conn_failed()
+{
+	rofl::RwLock rwlock(conns_failed_rwlock, rofl::RwLock::RWLOCK_WRITE);
+	for (std::list<rofl::cauxid>::iterator
+			it = conns_failed.begin(); it != conns_failed.end(); ++it) {
+		call_env().handle_conn_failed(*this, *it);
+	}
+	conns_failed.clear();
+}
+
+
+
 bool
 crofctl::is_slave() const
 {
@@ -707,7 +804,7 @@ crofctl::send_features_reply(
 		uint32_t capabilities,
 		uint8_t of13_auxiliary_id,
 		uint32_t of10_actions_bitmap,
-		rofl::openflow::cofports const& ports)
+		const rofl::openflow::cofports& ports)
 {
 	try {
 		if (not is_established()) {
@@ -816,7 +913,7 @@ void
 crofctl::send_desc_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofdesc_stats_reply const& desc_stats,
+		const rofl::openflow::cofdesc_stats_reply& desc_stats,
 		uint16_t stats_flags)
 {
 	try {
@@ -850,7 +947,7 @@ void
 crofctl::send_flow_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofflowstatsarray const& flowstatsarray,
+		const rofl::openflow::cofflowstatsarray& flowstatsarray,
 		uint16_t stats_flags)
 {
 	try {
@@ -885,7 +982,7 @@ void
 crofctl::send_aggr_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofaggr_stats_reply const& aggr_stats,
+		const rofl::openflow::cofaggr_stats_reply& aggr_stats,
 		uint16_t stats_flags)
 {
 	try {
@@ -919,7 +1016,7 @@ void
 crofctl::send_table_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::coftablestatsarray const& tablestatsarray,
+		const rofl::openflow::coftablestatsarray& tablestatsarray,
 		uint16_t stats_flags)
 {
 	try {
@@ -953,7 +1050,7 @@ void
 crofctl::send_port_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofportstatsarray const& portstatsarray,
+		const rofl::openflow::cofportstatsarray& portstatsarray,
 		uint16_t stats_flags)
 {
 	try {
@@ -987,7 +1084,7 @@ void
 crofctl::send_queue_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofqueuestatsarray const& queuestatsarray,
+		const rofl::openflow::cofqueuestatsarray& queuestatsarray,
 		uint16_t stats_flags)
 {
 	try {
@@ -1021,7 +1118,7 @@ void
 crofctl::send_group_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofgroupstatsarray const& groupstatsarray,
+		const rofl::openflow::cofgroupstatsarray& groupstatsarray,
 		uint16_t stats_flags)
 {
 	try {
@@ -1055,7 +1152,7 @@ void
 crofctl::send_group_desc_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofgroupdescstatsarray const& groupdescs,
+		const rofl::openflow::cofgroupdescstatsarray& groupdescs,
 		uint16_t stats_flags)
 {
 	try {
@@ -1089,7 +1186,7 @@ void
 crofctl::send_group_features_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofgroup_features_stats_reply const& group_features_stats,
+		const rofl::openflow::cofgroup_features_stats_reply& group_features_stats,
 		uint16_t stats_flags)
 {
 	try {
@@ -1123,7 +1220,7 @@ void
 crofctl::send_table_features_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::coftables const& tables,
+		const rofl::openflow::coftables& tables,
 		uint16_t stats_flags)
 {
 	try {
@@ -1157,7 +1254,7 @@ void
 crofctl::send_port_desc_stats_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofports const& ports,
+		const rofl::openflow::cofports& ports,
 		uint16_t stats_flags)
 {
 	try {
@@ -1193,7 +1290,7 @@ crofctl::send_experimenter_stats_reply(
 		uint32_t xid,
 		uint32_t exp_id,
 		uint32_t exp_type,
-		cmemory const& body,
+		const cmemory& body,
 		uint16_t stats_flags)
 {
 	try {
@@ -1336,7 +1433,7 @@ crofctl::send_packet_in_message(
 		uint8_t table_id,
 		uint64_t cookie,
 		uint16_t in_port, // for OF 1.0
-		rofl::openflow::cofmatch& match,
+		const rofl::openflow::cofmatch& match,
 		uint8_t* data,
 		size_t datalen)
 {
@@ -1408,7 +1505,7 @@ void
 crofctl::send_role_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofrole const& role)
+		const rofl::openflow::cofrole& role)
 {
 	try {
 		if (not is_established()) {
@@ -1515,7 +1612,7 @@ crofctl::send_experimenter_message(
 void
 crofctl::send_flow_removed_message(
 		const cauxid& auxid,
-		rofl::openflow::cofmatch& ofmatch,
+		const rofl::openflow::cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
 		uint8_t reason,
@@ -1547,7 +1644,7 @@ crofctl::send_flow_removed_message(
 						hard_timeout,
 						packet_count,
 						byte_count,
-						ofmatch);
+						match);
 
 		rofchan.send_message(auxid, msg);
 
@@ -1567,7 +1664,7 @@ void
 crofctl::send_port_status_message(
 		const cauxid& auxid,
 		uint8_t reason,
-		rofl::openflow::cofport const& port)
+		const rofl::openflow::cofport& port)
 {
 	try {
 		if (not is_established()) {
@@ -1601,7 +1698,7 @@ crofctl::send_queue_get_config_reply(
 		const cauxid& auxid,
 		uint32_t xid,
 		uint32_t portno,
-		rofl::openflow::cofpacket_queues const& pql)
+		const rofl::openflow::cofpacket_queues& queues)
 {
 	try {
 		if (not is_established()) {
@@ -1614,7 +1711,7 @@ crofctl::send_queue_get_config_reply(
 						rofchan.get_version(),
 						xid,
 						portno,
-						pql);
+						queues);
 
 		rofchan.send_message(auxid, msg);
 
@@ -1634,7 +1731,7 @@ void
 crofctl::send_get_async_config_reply(
 		const cauxid& auxid,
 		uint32_t xid,
-		rofl::openflow::cofasync_config const& async_config)
+		const rofl::openflow::cofasync_config& async_config)
 {
 	try {
 		if (not is_established()) {

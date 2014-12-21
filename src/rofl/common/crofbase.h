@@ -514,8 +514,10 @@ public:
 	virtual void
 	handle_conn_established(
 			crofdpt& dpt,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection established, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called upon a peer initiated termination of a control connection within the control channel
@@ -523,8 +525,10 @@ public:
 	virtual void
 	handle_conn_terminated(
 			crofdpt& dpt,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection terminated, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called in the event of a connection refused
@@ -532,8 +536,10 @@ public:
 	virtual void
 	handle_conn_refused(
 			crofdpt& dpt,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection refused, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called in the event of a connection failed (except refused)
@@ -541,8 +547,10 @@ public:
 	virtual void
 	handle_conn_failed(
 			crofdpt& dpt,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection failed, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief	called once a new cofctl instance has been created
@@ -582,8 +590,10 @@ public:
 	virtual void
 	handle_conn_established(
 			crofctl& ctl,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection established, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called upon a peer initiated termination of a control connection within the control channel
@@ -591,8 +601,10 @@ public:
 	virtual void
 	handle_conn_terminated(
 			crofctl& ctl,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection terminated, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called in the event of a connection refused
@@ -600,8 +612,10 @@ public:
 	virtual void
 	handle_conn_refused(
 			crofctl& ctl,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection refused, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**
 	 * @brief Called in the event of a connection failed (except refused)
@@ -609,8 +623,10 @@ public:
 	virtual void
 	handle_conn_failed(
 			crofctl& ctl,
-			const rofl::cauxid& auxid)
-	{};
+			const rofl::cauxid& auxid) {
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "connection failed, auxid: " << auxid.str() << std::endl;
+	};
 
 	/**@}*/
 
@@ -1743,11 +1759,12 @@ private:
 	 */
 	virtual void
 	handle_dpt_detached(crofdpt& dpt) {
-		handle_dpt_close(dpt);
 		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
 		if (dpt.remove_upon_channel_termination()) {
 			dpts_detached.insert(dpt.get_dptid());
 			push_on_eventqueue(EVENT_DPT_DETACHED);
+		} else {
+			handle_dpt_close(dpt);
 		}
 	};
 
@@ -1764,11 +1781,12 @@ private:
 	 */
 	virtual void
 	handle_ctl_detached(crofctl& ctl) {
-		handle_ctl_close(ctl);
 		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
 		if (ctl.remove_upon_channel_termination()) {
 			ctls_detached.insert(ctl.get_ctlid());
 			push_on_eventqueue(EVENT_CTL_DETACHED);
+		} else {
+			handle_ctl_close(ctl);
 		}
 	};
 

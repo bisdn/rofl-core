@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <strings.h>
+#include <bitset>
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/csocket.h"
@@ -688,11 +689,11 @@ class crofdpt :
 {
 private: // data structures
 
-		enum crofdpt_impl_timer_t {
-			TIMER_SIGNAL_DISCONNECT						= 0,
+		enum crofdpt_timer_t {
+			TIMER_RUN_ENGINE							= 0,
 		};
 
-		enum crofdpt_impl_state_t {
+		enum crofdpt_state_t {
 			STATE_INIT 									= 0,
 			STATE_DISCONNECTED							= 1,
 			STATE_CONNECTED								= 2,
@@ -706,16 +707,23 @@ private: // data structures
 			EVENT_NONE									= 0,
 			EVENT_DISCONNECTED							= 1,
 			EVENT_CONNECTED								= 2,
-			EVENT_FEATURES_REPLY_RCVD					= 3,
-			EVENT_FEATURES_REQUEST_EXPIRED				= 4,
-			EVENT_GET_CONFIG_REPLY_RCVD					= 5,
-			EVENT_GET_CONFIG_REQUEST_EXPIRED			= 6,
-			EVENT_TABLE_STATS_REPLY_RCVD				= 7,
-			EVENT_TABLE_STATS_REQUEST_EXPIRED			= 8,
-			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 9,
-			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 10,
-			EVENT_PORT_DESC_STATS_REPLY_RCVD			= 11,
-			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 12,
+			EVENT_CONN_TERMINATED						= 3,
+			EVENT_CONN_REFUSED							= 4,
+			EVENT_CONN_FAILED							= 5,
+			EVENT_FEATURES_REPLY_RCVD					= 6,
+			EVENT_FEATURES_REQUEST_EXPIRED				= 7,
+			EVENT_GET_CONFIG_REPLY_RCVD					= 8,
+			EVENT_GET_CONFIG_REQUEST_EXPIRED			= 9,
+			EVENT_TABLE_STATS_REPLY_RCVD				= 10,
+			EVENT_TABLE_STATS_REQUEST_EXPIRED			= 11,
+			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 12,
+			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 13,
+			EVENT_PORT_DESC_STATS_REPLY_RCVD			= 14,
+			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 15,
+		};
+
+		enum crofdpt_flag_t {
+			FLAG_ENGINE_IS_RUNNING 						= (1 << 0),
 		};
 
 public: // static
@@ -810,14 +818,14 @@ public:
 	/**
 	 *
 	 */
-	virtual std::list<rofl::cauxid>
+	std::list<rofl::cauxid>
 	get_conn_index() const
 	{ return rofchan.get_conn_index(); };
 
 	/**
 	 *
 	 */
-	virtual void
+	void
 	connect(
 			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
@@ -826,7 +834,6 @@ public:
 		transactions.clear();
 		tables.clear();
 		ports.clear();
-		state = STATE_DISCONNECTED;
 		/* establish main connection */
 		rofchan.add_conn(auxid, socket_type, socket_params);
 	};
@@ -834,7 +841,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	disconnect(
 			const rofl::cauxid& auxid)
 	{ rofchan.drop_conn(auxid); };
@@ -842,7 +849,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	reconnect(
 			const rofl::cauxid& auxid)  {
 		rofchan.set_conn(auxid).close();
@@ -852,7 +859,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	void
 	add_connection(
 			crofconn* conn)  {
 		if (NULL == conn) {
@@ -866,7 +873,7 @@ public:
 	/**
 	 * @brief	Returns true, when the control handshake (HELLO) has been completed.
 	 */
-	virtual bool
+	bool
 	is_established() const
 	{ return rofchan.is_established(); };
 
@@ -875,7 +882,7 @@ public:
 	 *
 	 * @return OpenFlow version used for this control connection
 	 */
-	virtual uint8_t
+	uint8_t
 	get_version_negotiated() const
 	{ return rofchan.get_version(); };
 
@@ -883,7 +890,7 @@ public:
 	 *
 	 * @return
 	 */
-	virtual const rofl::openflow::cofhello_elem_versionbitmap&
+	const rofl::openflow::cofhello_elem_versionbitmap&
 	get_versions_available() const
 	{ return rofchan.get_versionbitmap(); };
 
@@ -899,7 +906,7 @@ public:
 	 *
 	 * @return caddress object obtained from this->socket
 	 */
-	virtual caddress
+	caddress
 	get_peer_addr(
 			const rofl::cauxid& auxid) const
 	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
@@ -936,7 +943,7 @@ public:
 	 *
 	 * @return hwaddr
 	 */
-	virtual cmacaddr
+	const caddress_ll&
 	get_hwaddr() const
 	{ return hwaddr; };
 
@@ -945,7 +952,7 @@ public:
 	 *
 	 * @return n_buffers
 	 */
-	virtual uint32_t
+	uint32_t
 	get_n_buffers() const
 	{ return n_buffers; };
 
@@ -954,7 +961,7 @@ public:
 	 *
 	 * @return n_tables
 	 */
-	virtual uint8_t
+	uint8_t
 	get_n_tables() const
 	{ return n_tables; };
 
@@ -963,7 +970,7 @@ public:
 	 *
 	 * @return capabilities
 	 */
-	virtual uint32_t
+	uint32_t
 	get_capabilities() const
 	{ return capabilities; };
 
@@ -972,7 +979,7 @@ public:
 	 *
 	 * @return config
 	 */
-	virtual uint16_t
+	uint16_t
 	get_config() const
 	{ return config; };
 
@@ -981,7 +988,7 @@ public:
 	 *
 	 * @return miss_send_len
 	 */
-	virtual uint16_t
+	uint16_t
 	get_miss_send_len() const
 	{ return miss_send_len; };
 
@@ -990,7 +997,7 @@ public:
 	 *
 	 * @return ports
 	 */
-	virtual rofl::openflow::cofports&
+	rofl::openflow::cofports&
 	set_ports()
 	{ return ports; };
 
@@ -999,7 +1006,7 @@ public:
 	 *
 	 * @return ports
 	 */
-	virtual rofl::openflow::cofports const&
+	const rofl::openflow::cofports&
 	get_ports() const
 	{ return ports; };
 
@@ -1008,7 +1015,7 @@ public:
 	 *
 	 * @return tables
 	 */
-	virtual rofl::openflow::coftables&
+	rofl::openflow::coftables&
 	set_tables()
 	{ return tables; };
 
@@ -1017,7 +1024,7 @@ public:
 	 *
 	 * @return tables
 	 */
-	virtual rofl::openflow::coftables const&
+	const rofl::openflow::coftables&
 	get_tables() const
 	{ return tables; };
 
@@ -1040,7 +1047,7 @@ public:
 	 * Sends a FlowMod-Delete message to the attached datapath element for removing
 	 * all flowtable entries.
 	 */
-	virtual void
+	void
 	flow_mod_reset();
 
 	/**
@@ -1049,7 +1056,7 @@ public:
 	 * Sends a GroupMod-Delete message to the attached datapath element for removing
 	 * all grouptable entries.
 	 */
-	virtual void
+	void
 	group_mod_reset();
 
 	/**
@@ -1057,7 +1064,7 @@ public:
 	 *
 	 * Drops a packet stored on the data path in the buffer identified by buffer-id
 	 */
-	virtual void
+	void
 	drop_buffer(
 			const rofl::cauxid& auxid,
 			uint32_t buffer_id,
@@ -1085,7 +1092,7 @@ public:
 	 *
 	 * @return transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_features_request(
 			const cauxid& aux_id);
 
@@ -1094,7 +1101,7 @@ public:
 	 *
 	 * @return transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_get_config_request(
 			const cauxid& aux_id);
 
@@ -1104,7 +1111,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this TABLE-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_table_features_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags);
@@ -1118,7 +1125,7 @@ public:
 	 * @param bodylen length of STATS.request body
 	 * @return transaction ID for this STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_type,
@@ -1132,7 +1139,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this DESC-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_desc_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags);
@@ -1144,11 +1151,11 @@ public:
 	 * @param flow_stats_request body of a FLOW-STATS.request
 	 * @return transaction ID for this FLOW-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_flow_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
-			rofl::openflow::cofflow_stats_request const& flow_stats_request);
+			const rofl::openflow::cofflow_stats_request& flow_stats_request);
 
 	/**
 	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
@@ -1157,11 +1164,11 @@ public:
 	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
 	 * @return transaction ID for this AGGREGATE-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_aggr_stats_request(
 			const cauxid& aux_id,
 			uint16_t flags,
-			rofl::openflow::cofaggr_stats_request const& aggr_stats_request);
+			const rofl::openflow::cofaggr_stats_request& aggr_stats_request);
 
 
 	/**
@@ -1170,7 +1177,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this TABLE-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_table_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags = 0);
@@ -1182,11 +1189,11 @@ public:
 	 * @param port_stats_request body of a PORT-STATS.request
 	 * @return transaction ID for this FLOW-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_port_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
-			rofl::openflow::cofport_stats_request const& port_stats_request);
+			const rofl::openflow::cofport_stats_request& port_stats_request);
 
 	/**
 	 * @brief	Sends a QUEUE-STATS.request to a data path element.
@@ -1195,11 +1202,11 @@ public:
 	 * @param queue_stats_request body of a QUEUE-STATS.request
 	 * @return transaction ID for this QUEUE-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_queue_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
-			rofl::openflow::cofqueue_stats_request const& queue_stats_request);
+			const rofl::openflow::cofqueue_stats_request& queue_stats_request);
 
 	/**
 	 * @brief	Sends a GROUP-STATS.request to a data path element.
@@ -1208,11 +1215,11 @@ public:
 	 * @param queue_stats_request body of a GROUP-STATS.request
 	 * @return transaction ID for this GROUP-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_group_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
-			rofl::openflow::cofgroup_stats_request const& group_stats_request);
+			const rofl::openflow::cofgroup_stats_request& group_stats_request);
 
 	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
@@ -1220,7 +1227,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this AGGREGATE-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_group_desc_stats_request(
 			const cauxid& aux_id,
 			uint16_t flags = 0);
@@ -1231,7 +1238,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this GROUP-FEATURES-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_group_features_stats_request(
 			const cauxid& aux_id,
 			uint16_t flags);
@@ -1242,7 +1249,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this PORT-DESC-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_port_desc_stats_request(
 			const cauxid& aux_id,
 			uint16_t flags);
@@ -1256,13 +1263,13 @@ public:
 	 * @param body user defined body
 	 * @return transaction ID for this EXPERIMENTER-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_experimenter_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
 			uint32_t exp_id,
 			uint32_t exp_type,
-			cmemory const& body);
+			const cmemory& body);
 
 	/**
 	 * @brief	Sends a METER-STATS.request to a data path element.
@@ -1271,7 +1278,7 @@ public:
 	 * @param mstats meter multipart request
 	 * @return transaction ID for this METER-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_meter_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
@@ -1284,7 +1291,7 @@ public:
 	 * @param mstats meter multipart request
 	 * @return transaction ID for this METER-CONFIG-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_meter_config_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags,
@@ -1296,7 +1303,7 @@ public:
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
 	 * @return transaction ID for this METER-FEATURES-STATS.request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_meter_features_stats_request(
 			const cauxid& aux_id,
 			uint16_t stats_flags);
@@ -1306,17 +1313,17 @@ public:
 	 *
 	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
 	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
-	 * @param aclist OpenFlow ActionList
+	 * @param actions OpenFlow ActionList
 	 * @param data data packet to be sent out (optional)
 	 * @param datalen length of data packet (optional)
 	 * @result transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_packet_out_message(
 			const cauxid& aux_id,
 			uint32_t buffer_id,
 			uint32_t in_port,
-			rofl::openflow::cofactions& aclist,
+			const rofl::openflow::cofactions& actions,
 			uint8_t *data = NULL,
 			size_t datalen = 0);
 
@@ -1325,7 +1332,7 @@ public:
 	 *
 	 * @result transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_barrier_request(
 			const cauxid& aux_id);
 
@@ -1335,30 +1342,30 @@ public:
 	 * @param role role as defined by OpenFlow
 	 * @param generation_id gen_id as defined by OpenFlow
 	 */
-	virtual uint32_t
+	uint32_t
 	send_role_request(
 			const cauxid& aux_id,
-			rofl::openflow::cofrole const& role);
+			const rofl::openflow::cofrole& role);
 
 	/**
 	 * @brief 	Sends a FLOW-MOD.message to a data path element.
 	 *
 	 * @param flowentry FlowMod entry
 	 */
-	virtual uint32_t
+	uint32_t
 	send_flow_mod_message(
 			const cauxid& aux_id,
-			rofl::openflow::cofflowmod const& flowentry);
+			const rofl::openflow::cofflowmod& flowmod);
 
 	/**
 	 * @brief 	Sends a GROUP-MOD.message to a data path element.
 	 *
 	 * @param groupentry GroupMod entry
 	 */
-	virtual uint32_t
+	uint32_t
 	send_group_mod_message(
 			const cauxid& aux_id,
-			rofl::openflow::cofgroupmod const& groupentry);
+			const rofl::openflow::cofgroupmod& groupmod);
 
 	/**
 	 * @brief	Sends a TABLE-MOD.message to a data path element.
@@ -1366,7 +1373,7 @@ public:
 	 * @param table_id ID of table to be reconfigured
 	 * @param config new configuration for table
 	 */
-	virtual uint32_t
+	uint32_t
 	send_table_mod_message(
 			const cauxid& aux_id,
 			uint8_t table_id,
@@ -1381,11 +1388,11 @@ public:
 	 * * @param mask OpenFlow mask parameter
 	 * * @param advertise OpenFlow advertise parameter
 	 */
-	virtual uint32_t
+	uint32_t
 	send_port_mod_message(
 			const cauxid& aux_id,
 			uint32_t port_no,
-			cmacaddr const& hwaddr,
+			const caddress_ll& hwaddr,
 			uint32_t config,
 			uint32_t mask,
 			uint32_t advertise);
@@ -1396,7 +1403,7 @@ public:
 	 * @param flags field of OpenFlow's OFPC_* flags
 	 * @param miss_send_len OpenFlow' miss_send_len parameter
 	 */
-	virtual uint32_t
+	uint32_t
 	send_set_config_message(
 			const cauxid& aux_id,
 			uint16_t flags,
@@ -1408,7 +1415,7 @@ public:
 	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
 	 * @result transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_queue_get_config_request(
 			const cauxid& aux_id,
 			uint32_t port);
@@ -1418,7 +1425,7 @@ public:
 	 *
 	 * @return transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_get_async_config_request(
 			const cauxid& aux_id);
 
@@ -1426,10 +1433,10 @@ public:
 	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
 	 *
 	 */
-	virtual uint32_t
+	uint32_t
 	send_set_async_config_message(
 			const cauxid& aux_id,
-			rofl::openflow::cofasync_config const& async_config);
+			const rofl::openflow::cofasync_config& async_config);
 
 	/**
 	 * @brief	Sends a METER-MOD.message to a data path element.
@@ -1437,7 +1444,7 @@ public:
 	 * @param table_id ID of table to be reconfigured
 	 * @param config new configuration for table
 	 */
-	virtual uint32_t
+	uint32_t
 	send_meter_mod_message(
 			const cauxid& auxid,
 			uint16_t command,
@@ -1457,7 +1464,7 @@ public:
 	 * @param data first (at least 64) bytes of failed reply/notification
 	 * @param datalen length of failed reply/notification appended to error message
 	 */
-	virtual void
+	void
 	send_error_message(
 			const cauxid& aux_id,
 			uint32_t xid,
@@ -1475,7 +1482,7 @@ public:
 	 * @param bodylen length of body (optional)
 	 * @result transaction ID assigned to this request
 	 */
-	virtual uint32_t
+	uint32_t
 	send_experimenter_message(
 			const cauxid& aux_id,
 			uint32_t experimenter_id,
@@ -1622,11 +1629,13 @@ protected:
 			const rofl::cauxid& auxid) {
 		rofl::logging::info << "[rofl-common][crofdpt] dptid:0x" << dptid.str()
 						<< " control connection established, auxid: " << auxid.str() << std::endl;
+
 		call_env().handle_conn_established(*this, auxid);
+
 		if (auxid == rofl::cauxid(0)) {
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 					<< " OFP control channel established, " << chan.str() << std::endl;
-			run_engine(EVENT_CONNECTED);
+			push_on_eventqueue(EVENT_CONNECTED);
 		}
 	};
 
@@ -1636,12 +1645,16 @@ protected:
 			const rofl::cauxid& auxid) {
 		rofl::logging::info << "[rofl-common][crofdpt] dptid:0x" << dptid.str()
 						<< " control connection terminated, auxid: " << auxid.str() << std::endl;
-		call_env().handle_conn_terminated(*this, auxid);
+
+		rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_terminated.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_TERMINATED);
+
 		if (auxid == rofl::cauxid(0)) {
 			rofl::logging::info << "[rofl-common][crofdpt] dptid:" << dptid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
-			run_engine(EVENT_DISCONNECTED);
+			push_on_eventqueue(EVENT_DISCONNECTED);
 		}
 	};
 
@@ -1651,8 +1664,11 @@ protected:
 	virtual void
 	handle_conn_refused(
 			crofchan& chan,
-			const rofl::cauxid& auxid)
-	{ call_env().handle_conn_refused(*this, auxid);	};
+			const rofl::cauxid& auxid) {
+		rofl::RwLock rwlock(conns_refused_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_refused.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_REFUSED);
+	};
 
 	/**
 	 * @brief Called in the event of a connection failed (except refused)
@@ -1660,8 +1676,11 @@ protected:
 	virtual void
 	handle_conn_failed(
 			crofchan& chan,
-			const rofl::cauxid& auxid)
-	{ call_env().handle_conn_failed(*this, auxid); };
+			const rofl::cauxid& auxid) {
+		rofl::RwLock rwlock(conns_failed_rwlock, rofl::RwLock::RWLOCK_WRITE);
+		conns_failed.push_back(auxid);
+		push_on_eventqueue(EVENT_CONN_FAILED);
+	};
 
 	virtual void
 	handle_write(crofchan& chan, const cauxid& auxid)
@@ -1696,14 +1715,33 @@ protected:
 private:
 
 	void
-	run_engine(
-			enum crofdpt_event_t state = EVENT_NONE);
+	push_on_eventqueue(
+			enum crofdpt_event_t event = EVENT_NONE) {
+		if (EVENT_NONE != event) {
+			events.push_back(event);
+		}
+		if (not flags.test(FLAG_ENGINE_IS_RUNNING)) {
+			register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(0));
+		}
+	};
+
+	void
+	work_on_eventqueue();
 
 	void
 	event_disconnected();
 
 	void
 	event_connected();
+
+	void
+	event_conn_terminated();
+
+	void
+	event_conn_refused();
+
+	void
+	event_conn_failed();
 
 	void
 	event_features_reply_rcvd();
@@ -1867,7 +1905,7 @@ private:
 
 	rofl::crofchan			rofchan;		// OFP control channel
 
-	cmacaddr 				hwaddr;			// datapath mac address
+	caddress_ll 			hwaddr;			// datapath mac address
 	uint32_t 				n_buffers; 		// number of buffer lines
 	uint8_t 				n_tables;		// number of tables
 	uint32_t 				capabilities;	// capabilities flags
@@ -1883,6 +1921,15 @@ private:
 	unsigned int			state;
 	std::deque<enum crofdpt_event_t>
 							events;
+
+	PthreadRwLock			conns_terminated_rwlock;
+	std::list<rofl::cauxid> conns_terminated;
+	PthreadRwLock			conns_refused_rwlock;
+	std::list<rofl::cauxid> conns_refused;
+	PthreadRwLock			conns_failed_rwlock;
+	std::list<rofl::cauxid> conns_failed;
+
+	std::bitset<32>			flags;
 };
 
 }; // end of namespace
