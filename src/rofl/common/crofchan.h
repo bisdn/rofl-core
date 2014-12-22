@@ -162,6 +162,10 @@ class crofchan :
 		TIMER_RUN_ENGINE		= 1,
 	};
 
+	enum crofchan_flag_t {
+		FLAG_ENGINE_IS_RUNNING	= 0,
+	};
+
 public:
 
 	/**

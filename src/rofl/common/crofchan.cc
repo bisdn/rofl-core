@@ -285,7 +285,9 @@ crofchan::push_on_eventqueue(
 	if (EVENT_NONE != event) {
 		events.push_back(event);
 	}
-	register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(/*second(s)=*/0));
+	if (not flags.test(FLAG_ENGINE_IS_RUNNING)) {
+		register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(/*second(s)=*/0));
+	}
 }
 
 
@@ -293,6 +295,7 @@ crofchan::push_on_eventqueue(
 void
 crofchan::work_on_eventqueue()
 {
+	flags.set(FLAG_ENGINE_IS_RUNNING);
 	while (not events.empty()) {
 		enum crofchan_event_t event = events.front();
 		events.pop_front();
@@ -302,6 +305,7 @@ crofchan::work_on_eventqueue()
 			event_conn_established();
 		} break;
 		case EVENT_CONN_TERMINATED: {
+			flags.reset(FLAG_ENGINE_IS_RUNNING);
 			event_conn_terminated();
 		} return; // might call this object's destructor
 		case EVENT_CONN_REFUSED: {
@@ -315,6 +319,7 @@ crofchan::work_on_eventqueue()
 		};
 		}
 	}
+	flags.reset(FLAG_ENGINE_IS_RUNNING);
 }
 
 
