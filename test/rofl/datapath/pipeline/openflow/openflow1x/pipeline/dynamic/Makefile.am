@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 dynamic_unit_test_CFLAGS= -DTIMERS_FAKE_TIME  -DOF1X_TIMER_DYNAMIC_ALLOCATION_SLOTS
 dynamic_unit_test_CPPFLAGS= -I$(top_srcdir)/src/ -DROFL_TEST=1
 
