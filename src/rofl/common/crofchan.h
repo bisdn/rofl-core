@@ -343,9 +343,30 @@ private:
 	virtual void
 	handle_connected(crofconn& conn, uint8_t ofp_version) {
 		rofl::logging::debug2 << "[rofl-common][crofchan] "
-				<< "connection established, auxid: " << conn.get_aux_id().str() << std::endl;
-		if (conn.get_aux_id() == rofl::cauxid(0)) {
+				<< "connection established, auxid: "
+				<< conn.get_aux_id().str() << std::endl;
+		if (rofl::cauxid(0) == conn.get_aux_id()) {
 			this->ofp_version = ofp_version;
+
+			for (std::map<cauxid, crofconn*>::iterator
+					it = conns.begin(); it != conns.end(); ++it) {
+				if (0 == it->first.get_id())
+					continue;
+				if (it->second->is_actively_established()) {
+					it->second->reconnect(true);
+				}
+			}
+
+		} else {
+			if (this->ofp_version != ofp_version) {
+				rofl::logging::warn << "[rofl-common][crofchan] "
+						<< "auxiliary connection with invalid OFP version "
+						<< "negotiated, closing connection. " << conn.str() << std::endl;
+
+				drop_conn(conn.get_aux_id());
+				return;
+
+			}
 		}
 		rofl::RwLock rwlock(conns_established_rwlock, rofl::RwLock::RWLOCK_WRITE);
 		conns_established.push_back(conn.get_aux_id());

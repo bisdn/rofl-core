@@ -600,10 +600,12 @@ public:
 				async_config_role_default_template(rofl::openflow13::OFP_VERSION),
 				state(STATE_INIT),
 				rofchan(this, versionbitmap),
-				transactions(this) {
+				transactions(this),
+				async_config(rofl::openflow13::OFP_VERSION) {
 		rofl::logging::debug << "[rofl-common][crofctl] "
 				<< "instance created, ctlid: " << ctlid.str() << std::endl;
 		init_async_config_role_default_template();
+		async_config = get_async_config_role_default_template();
 		crofctl::rofctls[ctlid] = this;
 	};
 

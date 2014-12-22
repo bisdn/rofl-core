@@ -225,7 +225,7 @@ crofchan::drop_conn(
 		}
 	} else {
 		rofl::logging::debug << "[rofl-common][crofchan][drop_conn] "
-				<< "dropping auxiliary connection, auxid: " << auxid << " " << str() << std::endl;
+				<< "dropping auxiliary connection, auxid: " << auxid.str() << " " << str() << std::endl;
 		delete conns[auxid];
 		conns.erase(auxid);
 	}
@@ -330,38 +330,16 @@ crofchan::event_conn_established()
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_established.begin(); it != conns_established.end(); ++it) {
 
-		rofl::logging::info << "[rofl-common][crofchan] "
-				<< "auxid: " << it->str() << " -conn-established- " << str() << std::endl;
+		const cauxid& auxid = *it;
 
-		const cauxid& aux_id = *it;
-
-		if (0 == aux_id.get_id()) {
-			this->ofp_version = conns[aux_id]->get_version();
-
-			for (std::map<cauxid, crofconn*>::iterator
-					it = conns.begin(); it != conns.end(); ++it) {
-				if (0 == it->first.get_id())
-					continue;
-				if (it->second->is_actively_established()) {
-					it->second->reconnect(true);
-				}
-			}
-
-		} else {
-			if (this->ofp_version != ofp_version) {
-				rofl::logging::warn << "[rofl-common][crofchan] auxiliary connection with invalid OFP version "
-						<< "negotiated, closing connection. " << conns[aux_id]->str() << std::endl;
-
-				drop_conn(aux_id);
-				return;
-
-			} else {
-				rofl::logging::debug << "[rofl-common][crofchan] auxiliary connection with auxid:" << aux_id
-						<< " established. " << conns[aux_id]->str() << std::endl;
-			}
+		if (not has_conn(auxid)) {
+			continue;
 		}
 
-		call_env().handle_conn_established(*this, aux_id);
+		rofl::logging::info << "[rofl-common][crofchan] "
+				<< "auxid: " << auxid.str() << " -conn-established- " << str() << std::endl;
+
+		call_env().handle_conn_established(*this, auxid);
 	}
 
 	conns_established.clear();
