@@ -14,7 +14,6 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cvastring.h"
 #include "rofl/common/openflow/cofmatch.h"
 
 namespace rofl {
@@ -289,7 +288,8 @@ public:
 		virtual const char*
 		c_str()
 		{
-			cvastring vas(256);
+#if 0
+			std::stringstream ss;
 			info.assign(vas("cofstats_aggregate_request(%p) table-id: %d out_port: 0x%x out_group: 0x%x "
 					"cookie: 0x%llx cookie-mask: 0x%llx ",
 					this,
@@ -299,6 +299,7 @@ public:
 					be64toh(ofs_aggr_stats_request->cookie),
 					be64toh(ofs_aggr_stats_request->cookie_mask)));
 			//info.append(match.c_str());
+#endif
 			return info.c_str();
 		};
 };

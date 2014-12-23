@@ -16,7 +16,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cvastring.h"
 #include "rofl/datapath/pipeline/common/large_types.h"
 
 
@@ -92,9 +91,11 @@ public:
 	};
 	const char*
 	c_str() {
+#if 0
 		cvastring vas(256);
 		info.assign(vas("[IPv6-ext-hdr(%p): nxthdr:%d hdrextlen:%d block-cnt:%d bytes-len:%d]",
 				exthdr, exthdr->nxthdr, exthdr->len, (exthdr->len + 1), (exthdr->len + 1) * 8));
+#endif
 		return info.c_str();
 	};
 };

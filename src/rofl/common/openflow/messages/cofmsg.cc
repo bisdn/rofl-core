@@ -84,8 +84,10 @@ cofmsg::typedesc_t typedesc_of12[] = {
 /*static*/const char*
 cofmsg::packet_info(uint8_t ofp_version)
 {
-	cvastring vas;
-	pinfo.assign(vas("cofpackets allocated: %d\n", cofmsg::cofpacket_list.size()));
+	std::stringstream ss;
+
+	ss << "cofpackets allocated: " << cofmsg::cofpacket_list.size() << std::endl;
+	pinfo = ss.str();
 
 	std::map<uint8_t, unsigned int> counter;
 	for (std::set<cofmsg*>::iterator
@@ -106,9 +108,10 @@ cofmsg::packet_info(uint8_t ofp_version)
 	for (std::map<uint8_t, unsigned int>::iterator
 			it = counter.begin(); it != counter.end(); ++it)
 	{
-		pinfo.append(vas("  %s => %lu",
-						cofmsg::type2desc(ofp_version, it->first),
-						it->second));
+		std::stringstream ss;
+		ss << "  " << cofmsg::type2desc(ofp_version, it->first) << " => "
+				<< it->second;
+		pinfo.append(ss.str());
 	}
 
 	return pinfo.c_str();

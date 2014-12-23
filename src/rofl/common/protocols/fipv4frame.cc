@@ -135,6 +135,7 @@ fipv4frame::validate(uint16_t total_len) const
 const char*
 fipv4frame::c_str()
 {
+#if 0
 	cvastring vas;
 #if 0
 	uint8_t ihlvers;        // IP header length in 32bit words,
@@ -165,7 +166,7 @@ fipv4frame::c_str()
 			get_ipv4_proto(),
 			get_ipv4_ttl()
 			));
-
+#endif
 	return info.c_str();
 }
 

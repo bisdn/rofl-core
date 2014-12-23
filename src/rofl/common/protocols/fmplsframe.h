@@ -13,7 +13,6 @@
 
 #include "../fframe.h"
 #include "../cmemory.h"
-#include "../cvastring.h"
 
 namespace rofl
 {

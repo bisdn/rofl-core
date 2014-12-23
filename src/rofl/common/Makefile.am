@@ -37,7 +37,6 @@ librofl_common_la_SOURCES = \
 		csocket.cc \
 		csocket_impl.h \
 		csocket_impl.cc \
-		cvastring.h \
 		fframe.h \
 		fframe.cc \
 		ctransaction.h \
@@ -117,7 +116,6 @@ library_include_HEADERS= \
 		cmemory.h \
 		csocket.h \
 		csocket_impl.h \
-		cvastring.h \
 		fframe.h \
 		thread_helper.h \
 		cthread.h \

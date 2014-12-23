@@ -20,7 +20,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cvastring.h"
 
 namespace rofl
 {
