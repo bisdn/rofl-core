@@ -16,7 +16,7 @@
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/csocket.h"
-#include "rofl/common/csocket_impl.h"
+#include "rofl/common/csocket_plain.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
 
@@ -86,7 +86,7 @@ class csocket_openssl :
 
 	static std::set<csocket_openssl*> openssl_sockets;
 
-	csocket_impl				socket;
+	csocket_plain				socket;
 	pthread_rwlock_t			ssl_lock;	/**< rwlock for access to pout_squeue */
 	std::list<rofl::cmemory*>	txqueue;
 

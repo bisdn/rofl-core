@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "csocket_impl.h"
+#include "csocket_plain.h"
 #include "csocket_strings.h"
 
 
 using namespace rofl;
 
 //Defaults
-bool const 			csocket_impl::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME(std::string("127.0.0.1"));
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_REMOTE_PORT(std::string("6653"));
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
-std::string const 	csocket_impl::PARAM_DEFAULT_VALUE_LOCAL_PORT;
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_DOMAIN(__PARAM_DOMAIN_VALUE_INET_ANY);
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_TYPE(__PARAM_TYPE_VALUE_STREAM);
-std::string const	csocket_impl::PARAM_DEFAULT_VALUE_PROTOCOL(__PARAM_PROTOCOL_VALUE_TCP);
+bool const 			csocket_plain::PARAM_DEFAULT_VALUE_DO_RECONNECT		= false;
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_HOSTNAME(std::string("127.0.0.1"));
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_REMOTE_PORT(std::string("6653"));
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_HOSTNAME;
+std::string const 	csocket_plain::PARAM_DEFAULT_VALUE_LOCAL_PORT;
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_DOMAIN(__PARAM_DOMAIN_VALUE_INET_ANY);
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_TYPE(__PARAM_TYPE_VALUE_STREAM);
+std::string const	csocket_plain::PARAM_DEFAULT_VALUE_PROTOCOL(__PARAM_PROTOCOL_VALUE_TCP);
 
-unsigned int const csocket_impl::DEFAULT_MAX_TXQUEUE_SIZE = 16;
+unsigned int const csocket_plain::DEFAULT_MAX_TXQUEUE_SIZE = 16;
 
 
 /*static*/cparams
-csocket_impl::get_default_params()
+csocket_plain::get_default_params()
 {
 	/*
 	 * fill in cparams structure and fill in default values
@@ -42,7 +42,7 @@ csocket_impl::get_default_params()
 
 
 
-csocket_impl::csocket_impl(
+csocket_plain::csocket_plain(
 		csocket_owner *owner) :
 				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN),
 				had_short_write(false),
@@ -59,7 +59,7 @@ csocket_impl::csocket_impl(
 
 
 
-csocket_impl::~csocket_impl()
+csocket_plain::~csocket_plain()
 {
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] destructor " << std::hex << this << std::dec << std::endl;
 	socket_owner = NULL;
@@ -72,7 +72,7 @@ csocket_impl::~csocket_impl()
 
 
 void
-csocket_impl::handle_timeout(
+csocket_plain::handle_timeout(
 		int opaque, void *data)
 {
 	switch (opaque) {
@@ -87,7 +87,7 @@ csocket_impl::handle_timeout(
 
 
 void
-csocket_impl::handle_event(
+csocket_plain::handle_event(
 		cevent const& ev)
 {
 	switch (ev.cmd) {
@@ -117,7 +117,7 @@ csocket_impl::handle_event(
 
 
 void
-csocket_impl::backoff_reconnect(bool reset_timeout)
+csocket_plain::backoff_reconnect(bool reset_timeout)
 {
 	if (pending_timer(reconnect_timerid)) {
 		return;
@@ -148,7 +148,7 @@ csocket_impl::backoff_reconnect(bool reset_timeout)
 
 
 void
-csocket_impl::handle_revent(int fd)
+csocket_plain::handle_revent(int fd)
 {
 	// handle socket when in listening state
 	if (sockflags[FLAG_LISTENING]) {
@@ -181,7 +181,7 @@ csocket_impl::handle_revent(int fd)
 
 
 void
-csocket_impl::handle_wevent(int fd)
+csocket_plain::handle_wevent(int fd)
 {
 	if (sockflags[FLAG_CONNECTING]) {
 		int rc;
@@ -264,7 +264,7 @@ csocket_impl::handle_wevent(int fd)
 
 
 void
-csocket_impl::handle_xevent(int fd)
+csocket_plain::handle_xevent(int fd)
 {
 	rofl::logging::error << "[rofl[csocket][plain] error occured on socket descriptor" << str() << std::endl;
 }
@@ -272,7 +272,7 @@ csocket_impl::handle_xevent(int fd)
 
 
 void
-csocket_impl::listen(
+csocket_plain::listen(
 		cparams const& params)
 {
 	this->socket_params = params;
@@ -397,7 +397,7 @@ csocket_impl::listen(
 
 
 void
-csocket_impl::listen(
+csocket_plain::listen(
 	const csockaddr& la,
 	int domain, 
 	int type, 
@@ -520,7 +520,7 @@ csocket_impl::listen(
 
 
 void
-csocket_impl::accept(cparams const& socket_params, int sd)
+csocket_plain::accept(cparams const& socket_params, int sd)
 {
 	this->socket_params = socket_params;
 
@@ -585,7 +585,7 @@ csocket_impl::accept(cparams const& socket_params, int sd)
 
 
 void
-csocket_impl::connect(
+csocket_plain::connect(
 		cparams const& params)
 {
 	try {
@@ -793,7 +793,7 @@ csocket_impl::connect(
 
 
 void
-csocket_impl::connect(
+csocket_plain::connect(
 	csockaddr ra,
 	csockaddr la,
 	int domain, 
@@ -907,7 +907,7 @@ csocket_impl::connect(
 
 
 void
-csocket_impl::reconnect()
+csocket_plain::reconnect()
 {
 	if (not sockflags.test(FLAG_ACTIVE_SOCKET)) {
 		throw eInval();
@@ -923,7 +923,7 @@ csocket_impl::reconnect()
 
 
 void
-csocket_impl::close()
+csocket_plain::close()
 {
 	rofl::logging::info << "[rofl-common][csocket][plain][close] closing socket " << str() << std::endl;
 
@@ -967,7 +967,7 @@ csocket_impl::close()
 
 
 ssize_t
-csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
+csocket_plain::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 {
 	if (sd == -1)
 		throw eSocketNotConnected();
@@ -1035,7 +1035,7 @@ csocket_impl::recv(void *buf, size_t count, int flags, rofl::csockaddr& from)
 
 
 void
-csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
+csocket_plain::send(cmemory* mem, const rofl::csockaddr& dest)
 {
 	assert(mem);
 
@@ -1078,7 +1078,7 @@ csocket_impl::send(cmemory* mem, const rofl::csockaddr& dest)
 
 
 void
-csocket_impl::dequeue_packet()
+csocket_plain::dequeue_packet()
 {
 	{
 		RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);

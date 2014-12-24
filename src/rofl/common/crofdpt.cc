@@ -685,7 +685,7 @@ crofdpt::ta_expired(
 			call_env().handle_experimenter_stats_reply_timeout(*this, ta.get_xid());
 		} break;
 		default: {
-			call_env().handle_multipart_reply_timeout(*this, ta.get_xid(), ta.get_msg_sub_type());
+			call_env().handle_stats_reply_timeout(*this, ta.get_xid(), ta.get_msg_sub_type());
 		};
 		}
 
@@ -762,7 +762,8 @@ crofdpt::group_mod_reset()
 
 uint32_t
 crofdpt::send_features_request(
-		const cauxid& auxid)
+		const cauxid& auxid,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -772,7 +773,7 @@ crofdpt::send_features_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_FEATURES_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_FEATURES_REQUEST);
 
 		rofl::openflow::cofmsg_features_request *msg =
 				new rofl::openflow::cofmsg_features_request(rofchan.get_version(), xid);
@@ -794,7 +795,8 @@ crofdpt::send_features_request(
 
 uint32_t
 crofdpt::send_get_config_request(
-		const cauxid& auxid)
+		const cauxid& auxid,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -804,7 +806,7 @@ crofdpt::send_get_config_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_GET_CONFIG_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_GET_CONFIG_REQUEST);
 
 		rofl::openflow::cofmsg_get_config_request *msg =
 				new rofl::openflow::cofmsg_get_config_request(rofchan.get_version(), xid);
@@ -830,7 +832,8 @@ crofdpt::send_stats_request(
 		uint16_t stats_type,
 		uint16_t stats_flags,
 		uint8_t* body,
-		size_t bodylen)
+		size_t bodylen,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -840,7 +843,7 @@ crofdpt::send_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST);
 
 		rofl::openflow::cofmsg_stats *msg =
 				new rofl::openflow::cofmsg_stats(
@@ -869,7 +872,8 @@ crofdpt::send_stats_request(
 uint32_t
 crofdpt::send_desc_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -879,7 +883,7 @@ crofdpt::send_desc_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_DESC);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_DESC);
 
 		rofl::openflow::cofmsg_desc_stats_request *msg =
 				new rofl::openflow::cofmsg_desc_stats_request(
@@ -906,7 +910,8 @@ uint32_t
 crofdpt::send_flow_stats_request(
 		const cauxid& auxid,
 		uint16_t flags,
-		const rofl::openflow::cofflow_stats_request& flow_stats_request)
+		const rofl::openflow::cofflow_stats_request& flow_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -916,7 +921,7 @@ crofdpt::send_flow_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_FLOW);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_FLOW);
 
 		rofl::openflow::cofmsg_flow_stats_request *msg =
 				new rofl::openflow::cofmsg_flow_stats_request(
@@ -944,7 +949,8 @@ uint32_t
 crofdpt::send_aggr_stats_request(
 		const cauxid& auxid,
 		uint16_t flags,
-		const rofl::openflow::cofaggr_stats_request& aggr_stats_request)
+		const rofl::openflow::cofaggr_stats_request& aggr_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -954,7 +960,7 @@ crofdpt::send_aggr_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_AGGREGATE);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_AGGREGATE);
 
 		rofl::openflow::cofmsg_aggr_stats_request *msg =
 				new rofl::openflow::cofmsg_aggr_stats_request(
@@ -981,7 +987,8 @@ crofdpt::send_aggr_stats_request(
 uint32_t
 crofdpt::send_table_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -991,7 +998,7 @@ crofdpt::send_table_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_TABLE);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_TABLE);
 
 		rofl::openflow::cofmsg_table_stats_request *msg =
 				new rofl::openflow::cofmsg_table_stats_request(
@@ -1018,7 +1025,8 @@ uint32_t
 crofdpt::send_port_stats_request(
 		const cauxid& auxid,
 		uint16_t flags,
-		const rofl::openflow::cofport_stats_request& port_stats_request)
+		const rofl::openflow::cofport_stats_request& port_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1028,7 +1036,7 @@ crofdpt::send_port_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_PORT_STATS);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_PORT_STATS);
 
 		rofl::openflow::cofmsg_port_stats_request *msg =
 				new rofl::openflow::cofmsg_port_stats_request(
@@ -1056,7 +1064,8 @@ uint32_t
 crofdpt::send_queue_stats_request(
 		const cauxid& auxid,
 		uint16_t flags,
-		const rofl::openflow::cofqueue_stats_request& queue_stats_request)
+		const rofl::openflow::cofqueue_stats_request& queue_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1066,7 +1075,7 @@ crofdpt::send_queue_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_QUEUE);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_QUEUE);
 
 		rofl::openflow::cofmsg_queue_stats_request *msg =
 				new rofl::openflow::cofmsg_queue_stats_request(
@@ -1094,7 +1103,8 @@ uint32_t
 crofdpt::send_group_stats_request(
 		const cauxid& auxid,
 		uint16_t flags,
-		const rofl::openflow::cofgroup_stats_request& group_stats_request)
+		const rofl::openflow::cofgroup_stats_request& group_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1104,7 +1114,7 @@ crofdpt::send_group_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP);
 
 		rofl::openflow::cofmsg_group_stats_request *msg =
 				new rofl::openflow::cofmsg_group_stats_request(
@@ -1131,7 +1141,8 @@ crofdpt::send_group_stats_request(
 uint32_t
 crofdpt::send_group_desc_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1141,7 +1152,7 @@ crofdpt::send_group_desc_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP_DESC);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP_DESC);
 
 		rofl::openflow::cofmsg_group_desc_stats_request *msg =
 				new rofl::openflow::cofmsg_group_desc_stats_request(
@@ -1168,7 +1179,8 @@ crofdpt::send_group_desc_stats_request(
 uint32_t
 crofdpt::send_group_features_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1178,7 +1190,7 @@ crofdpt::send_group_features_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP_FEATURES);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_GROUP_FEATURES);
 
 		rofl::openflow::cofmsg_group_features_stats_request *msg =
 				new rofl::openflow::cofmsg_group_features_stats_request(
@@ -1204,7 +1216,8 @@ crofdpt::send_group_features_stats_request(
 uint32_t
 crofdpt::send_table_features_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1240,7 +1253,8 @@ crofdpt::send_table_features_stats_request(
 uint32_t
 crofdpt::send_port_desc_stats_request(
 		const cauxid& auxid,
-		uint16_t flags)
+		uint16_t flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1250,7 +1264,7 @@ crofdpt::send_port_desc_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_PORT_DESC);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_PORT_DESC);
 
 		rofl::openflow::cofmsg_port_desc_stats_request *msg =
 				new rofl::openflow::cofmsg_port_desc_stats_request(
@@ -1279,7 +1293,8 @@ crofdpt::send_experimenter_stats_request(
 		uint16_t flags,
 		uint32_t exp_id,
 		uint32_t exp_type,
-		const cmemory& body)
+		const cmemory& body,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1289,7 +1304,7 @@ crofdpt::send_experimenter_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_EXPERIMENTER);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_EXPERIMENTER);
 
 		rofl::openflow::cofmsg_experimenter_stats_request *msg =
 				new rofl::openflow::cofmsg_experimenter_stats_request(
@@ -1319,7 +1334,8 @@ uint32_t
 crofdpt::send_meter_stats_request(
 		const cauxid& auxid,
 		uint16_t stats_flags,
-		const rofl::openflow::cofmeter_stats_request& meter_stats_request)
+		const rofl::openflow::cofmeter_stats_request& meter_stats_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1329,7 +1345,7 @@ crofdpt::send_meter_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER);
 
 		rofl::openflow::cofmsg_meter_stats_request *msg =
 				new rofl::openflow::cofmsg_meter_stats_request(
@@ -1357,7 +1373,8 @@ uint32_t
 crofdpt::send_meter_config_stats_request(
 		const cauxid& auxid,
 		uint16_t stats_flags,
-		const rofl::openflow::cofmeter_config_request& meter_config_request)
+		const rofl::openflow::cofmeter_config_request& meter_config_request,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1367,7 +1384,7 @@ crofdpt::send_meter_config_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_CONFIG);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_CONFIG);
 
 		rofl::openflow::cofmsg_meter_config_stats_request *msg =
 				new rofl::openflow::cofmsg_meter_config_stats_request(
@@ -1394,7 +1411,8 @@ crofdpt::send_meter_config_stats_request(
 uint32_t
 crofdpt::send_meter_features_stats_request(
 		const cauxid& auxid,
-		uint16_t stats_flags)
+		uint16_t stats_flags,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1404,7 +1422,7 @@ crofdpt::send_meter_features_stats_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_FEATURES);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_MULTIPART_REQUEST, rofl::openflow::OFPMP_METER_FEATURES);
 
 		rofl::openflow::cofmsg_meter_features_stats_request *msg =
 				new rofl::openflow::cofmsg_meter_features_stats_request(
@@ -1473,7 +1491,8 @@ crofdpt::send_packet_out_message(
 
 uint32_t
 crofdpt::send_barrier_request(
-		const cauxid& auxid)
+		const cauxid& auxid,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1483,7 +1502,7 @@ crofdpt::send_barrier_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_BARRIER_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_BARRIER_REQUEST);
 
 		rofl::openflow::cofmsg_barrier_request *msg =
 				new rofl::openflow::cofmsg_barrier_request(
@@ -1508,7 +1527,8 @@ crofdpt::send_barrier_request(
 uint32_t
 crofdpt::send_role_request(
 		const cauxid& auxid,
-		const rofl::openflow::cofrole& role)
+		const rofl::openflow::cofrole& role,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1518,7 +1538,7 @@ crofdpt::send_role_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_ROLE_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_ROLE_REQUEST);
 
 		rofl::openflow::cofmsg_role_request *msg =
 				new rofl::openflow::cofmsg_role_request(
@@ -1734,7 +1754,8 @@ crofdpt::send_set_config_message(
 uint32_t
 crofdpt::send_queue_get_config_request(
 		const cauxid& auxid,
-		uint32_t port)
+		uint32_t port,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1744,7 +1765,7 @@ crofdpt::send_queue_get_config_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_QUEUE_GET_CONFIG_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_QUEUE_GET_CONFIG_REQUEST);
 
 		rofl::openflow::cofmsg_queue_get_config_request *msg =
 				new rofl::openflow::cofmsg_queue_get_config_request(
@@ -1769,7 +1790,8 @@ crofdpt::send_queue_get_config_request(
 
 uint32_t
 crofdpt::send_get_async_config_request(
-		const cauxid& auxid)
+		const cauxid& auxid,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1779,7 +1801,7 @@ crofdpt::send_get_async_config_request(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_GET_ASYNC_REQUEST);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_GET_ASYNC_REQUEST);
 
 		rofl::openflow::cofmsg_get_async_config_request *msg =
 				new rofl::openflow::cofmsg_get_async_config_request(
@@ -1911,7 +1933,8 @@ crofdpt::send_experimenter_message(
 		uint32_t experimenter_id,
 		uint32_t exp_type,
 		uint8_t* body,
-		size_t bodylen)
+		size_t bodylen,
+		const cclock& timeout)
 {
 	uint32_t xid = 0;
 
@@ -1921,7 +1944,7 @@ crofdpt::send_experimenter_message(
 			throw eRofBaseNotConnected();
 		}
 
-		xid = transactions.add_ta(cclock(/*sec=*/5), rofl::openflow::OFPT_EXPERIMENTER);
+		xid = transactions.add_ta(timeout, rofl::openflow::OFPT_EXPERIMENTER);
 
 		rofl::openflow::cofmsg_experimenter *msg =
 				new rofl::openflow::cofmsg_experimenter(

@@ -36,17 +36,17 @@ crofbase::rpc_close_all()
 {
 	try {
 		// close the listening sockets
-		for (std::set<csocket*>::iterator it = listening_sockets[RPC_CTL].begin();
-				it != listening_sockets[RPC_CTL].end(); ++it) {
+		for (std::set<csocket*>::iterator
+				it = dpt_sockets.begin(); it != dpt_sockets.end(); ++it) {
 			delete (*it);
 		}
-		listening_sockets[RPC_CTL].clear();
+		dpt_sockets.clear();
 
-		for (std::set<csocket*>::iterator it = listening_sockets[RPC_DPT].begin();
-				it != listening_sockets[RPC_DPT].end(); ++it) {
+		for (std::set<csocket*>::iterator
+				it = ctl_sockets.begin(); it != ctl_sockets.end(); ++it) {
 			delete (*it);
 		}
-		listening_sockets[RPC_DPT].clear();
+		ctl_sockets.clear();
 
 		// detach from higher layer entities
 		while (not rofctls.empty()) {
@@ -124,7 +124,7 @@ crofbase::rpc_listen_for_dpts(
 		enum rofl::csocket::socket_type_t socket_type,
 		const cparams& params)
 {
-	(*(listening_sockets[RPC_DPT].insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
+	(*(dpt_sockets.insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
 }
 
 
@@ -135,7 +135,7 @@ crofbase::rpc_listen_for_ctls(
 		enum rofl::csocket::socket_type_t socket_type,
 		const cparams& params)
 {
-	(*(listening_sockets[RPC_CTL].insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
+	(*(ctl_sockets.insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
 }
 
 
@@ -144,13 +144,13 @@ void
 crofbase::handle_listen(
 		csocket& socket, int newsd)
 {
-	if (listening_sockets[RPC_CTL].find(&socket) != listening_sockets[RPC_CTL].end()) {
+	if (ctl_sockets.find(&socket) != ctl_sockets.end()) {
 		rofl::logging::debug << "[rofl-common][crofbase] "
 				<< "accept => creating new crofconn for ctl peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
 				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_CTL);
 	} else
-	if (listening_sockets[RPC_DPT].find(&socket) != listening_sockets[RPC_DPT].end()) {
+	if (dpt_sockets.find(&socket) != dpt_sockets.end()) {
 		rofl::logging::debug << "[rofl-common][crofbase] "
 						<< "accept => creating new crofconn for dpt peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
@@ -164,11 +164,11 @@ void
 crofbase::handle_closed(
 		csocket& socket)
 {
-	if (listening_sockets[RPC_CTL].find(&socket) != listening_sockets[RPC_CTL].end()) {
-		listening_sockets[RPC_CTL].erase(&socket);
+	if (ctl_sockets.find(&socket) != ctl_sockets.end()) {
+		ctl_sockets.erase(&socket); // FIXME: remove socket from heap?
 	} else
-	if (listening_sockets[RPC_DPT].find(&socket) != listening_sockets[RPC_DPT].end()) {
-		listening_sockets[RPC_DPT].erase(&socket);
+	if (dpt_sockets.find(&socket) != dpt_sockets.end()) {
+		dpt_sockets.erase(&socket); // FIXME: remove socket from heap?
 	}
 }
 
@@ -507,7 +507,7 @@ void
 crofbase::send_port_status_message(
 		const cauxid& auxid,
 		uint8_t reason,
-		rofl::openflow::cofport const& port)
+		const rofl::openflow::cofport& port)
 {
 	bool sent_out = false;
 

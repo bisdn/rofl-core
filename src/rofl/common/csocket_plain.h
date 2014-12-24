@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef CSOCKET_IMPL_H
-#define CSOCKET_IMPL_H
+#ifndef CSOCKET_PLAIN_H
+#define CSOCKET_PLAIN_H
 
 #include <list>
 #include <bitset>
@@ -48,7 +48,7 @@ namespace rofl {
  *
  * @see csocket_impl_owner
  */
-class csocket_impl :
+class csocket_plain :
 	public csocket
 {
 protected:
@@ -138,7 +138,7 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_impl(
+	csocket_plain(
 			csocket_owner *owner);
 
 
@@ -147,7 +147,7 @@ public:
 	 *
 	 */
 	virtual
-	~csocket_impl();
+	~csocket_plain();
 
 
 	/**
@@ -530,7 +530,7 @@ protected:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, csocket_impl const& sock) {
+	operator<< (std::ostream& os, csocket_plain const& sock) {
 		os << dynamic_cast<csocket const&>( sock );
 		os << rofl::indent(2) << "<csocket_impl #tx-queue:" << sock.pout_squeue.size() << ">" << std::endl;
 		os << rofl::indent(4) << "<flags: ";

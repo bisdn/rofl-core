@@ -21,7 +21,7 @@ std::string const	csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CIPHERS("EECDH+EC
 /*static*/cparams
 csocket_openssl::get_default_params()
 {
-	cparams p = rofl::csocket_impl::get_default_params();
+	cparams p = rofl::csocket_plain::get_default_params();
 	p.add_param(csocket::PARAM_SSL_KEY_CA_PATH).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH);
 	p.add_param(csocket::PARAM_SSL_KEY_CA_FILE).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CA_FILE);
 	p.add_param(csocket::PARAM_SSL_KEY_CERT).set_string(csocket_openssl::PARAM_DEFAULT_VALUE_SSL_KEY_CERT);
