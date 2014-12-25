@@ -26,27 +26,10 @@ crofbase::~crofbase()
 {
 	crofbase::rofbases.erase(this);
 
-	rpc_close_all();
-}
-
-
-
-void
-crofbase::rpc_close_all()
-{
 	try {
 		// close the listening sockets
-		for (std::set<csocket*>::iterator
-				it = dpt_sockets.begin(); it != dpt_sockets.end(); ++it) {
-			delete (*it);
-		}
-		dpt_sockets.clear();
-
-		for (std::set<csocket*>::iterator
-				it = ctl_sockets.begin(); it != ctl_sockets.end(); ++it) {
-			delete (*it);
-		}
-		ctl_sockets.clear();
+		close_dpt_listening();
+		close_ctl_listening();
 
 		// detach from higher layer entities
 		while (not rofctls.empty()) {
@@ -57,9 +40,7 @@ crofbase::rpc_close_all()
 			drop_dpt(rofdpts.begin()->first);
 		}
 
-	} catch (RoflException& e) {
-		rofl::logging::error << "[rofl-common][crofbase][rpc_close_all] exception:" << e << std::endl;
-	}
+	} catch (RoflException& e) {}
 }
 
 
@@ -120,37 +101,16 @@ crofbase::handle_connected(
 
 
 void
-crofbase::rpc_listen_for_dpts(
-		enum rofl::csocket::socket_type_t socket_type,
-		const cparams& params)
-{
-	(*(dpt_sockets.insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
-}
-
-
-
-
-void
-crofbase::rpc_listen_for_ctls(
-		enum rofl::csocket::socket_type_t socket_type,
-		const cparams& params)
-{
-	(*(ctl_sockets.insert(csocket::csocket_factory(socket_type, this)).first))->listen(params);
-}
-
-
-
-void
 crofbase::handle_listen(
 		csocket& socket, int newsd)
 {
-	if (ctl_sockets.find(&socket) != ctl_sockets.end()) {
+	if (is_ctl_listening(socket)) {
 		rofl::logging::debug << "[rofl-common][crofbase] "
 				<< "accept => creating new crofconn for ctl peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
 				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_CTL);
-	} else
-	if (dpt_sockets.find(&socket) != dpt_sockets.end()) {
+	}
+	if (is_dpt_listening(socket)) {
 		rofl::logging::debug << "[rofl-common][crofbase] "
 						<< "accept => creating new crofconn for dpt peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
@@ -164,11 +124,11 @@ void
 crofbase::handle_closed(
 		csocket& socket)
 {
-	if (ctl_sockets.find(&socket) != ctl_sockets.end()) {
-		ctl_sockets.erase(&socket); // FIXME: remove socket from heap?
+	if (is_ctl_listening(socket)) {
+		drop_ctl_listening(socket);
 	} else
-	if (dpt_sockets.find(&socket) != dpt_sockets.end()) {
-		dpt_sockets.erase(&socket); // FIXME: remove socket from heap?
+	if (is_dpt_listening(socket)) {
+		drop_dpt_listening(socket);
 	}
 }
 

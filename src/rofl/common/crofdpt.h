@@ -85,7 +85,7 @@ protected:
 	 */
 	virtual void
 	handle_chan_established(
-			crofdpt& dpt)
+			rofl::crofdpt& dpt)
 	{};
 
 	/**
@@ -99,7 +99,7 @@ protected:
 	 */
 	virtual void
 	handle_chan_terminated(
-			crofdpt& dpt)
+			rofl::crofdpt& dpt)
 	{};
 
 	/**
@@ -926,9 +926,9 @@ protected:
 
 
 /**
- * \class	rofl::openflow::cofdpt
+ * @brief	Class representing a remote datapath element
  *
- * This class stores state for an attached data path element
+ * This class stores state for an attached datapath element
  * including its ports (@see rofl::openflow::cofport). It is tightly bound to
  * class crofbase (@see crofbase). Created upon reception of an
  * OpenFlow HELLO message from the data path element, rofl::openflow::cofdpath
@@ -945,73 +945,76 @@ class crofdpt :
 {
 private: // data structures
 
-		enum crofdpt_timer_t {
-			TIMER_RUN_ENGINE							= 0,
-		};
+	enum crofdpt_timer_t {
+		TIMER_RUN_ENGINE							= 0,
+	};
 
-		enum crofdpt_state_t {
-			STATE_INIT 									= 0,
-			STATE_DISCONNECTED							= 1,
-			STATE_CONNECTED								= 2,
-			STATE_FEATURES_RCVD 						= 3,
-			STATE_GET_CONFIG_RCVD						= 4,
-			STATE_TABLE_FEATURES_RCVD					= 5,
-			STATE_ESTABLISHED							= 6,
-		};
+	enum crofdpt_state_t {
+		STATE_INIT 									= 0,
+		STATE_DISCONNECTED							= 1,
+		STATE_CONNECTED								= 2,
+		STATE_FEATURES_RCVD 						= 3,
+		STATE_GET_CONFIG_RCVD						= 4,
+		STATE_TABLE_FEATURES_RCVD					= 5,
+		STATE_ESTABLISHED							= 6,
+	};
 
-		enum crofdpt_event_t {
-			EVENT_NONE									= 0,
-			EVENT_DISCONNECTED							= 1,
-			EVENT_CONNECTED								= 2,
-			EVENT_CONN_TERMINATED						= 3,
-			EVENT_CONN_REFUSED							= 4,
-			EVENT_CONN_FAILED							= 5,
-			EVENT_FEATURES_REPLY_RCVD					= 6,
-			EVENT_FEATURES_REQUEST_EXPIRED				= 7,
-			EVENT_GET_CONFIG_REPLY_RCVD					= 8,
-			EVENT_GET_CONFIG_REQUEST_EXPIRED			= 9,
-			EVENT_TABLE_STATS_REPLY_RCVD				= 10,
-			EVENT_TABLE_STATS_REQUEST_EXPIRED			= 11,
-			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 12,
-			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 13,
-			EVENT_PORT_DESC_STATS_REPLY_RCVD			= 14,
-			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 15,
-		};
+	enum crofdpt_event_t {
+		EVENT_NONE									= 0,
+		EVENT_DISCONNECTED							= 1,
+		EVENT_CONNECTED								= 2,
+		EVENT_CONN_TERMINATED						= 3,
+		EVENT_CONN_REFUSED							= 4,
+		EVENT_CONN_FAILED							= 5,
+		EVENT_FEATURES_REPLY_RCVD					= 6,
+		EVENT_FEATURES_REQUEST_EXPIRED				= 7,
+		EVENT_GET_CONFIG_REPLY_RCVD					= 8,
+		EVENT_GET_CONFIG_REQUEST_EXPIRED			= 9,
+		EVENT_TABLE_STATS_REPLY_RCVD				= 10,
+		EVENT_TABLE_STATS_REQUEST_EXPIRED			= 11,
+		EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 12,
+		EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 13,
+		EVENT_PORT_DESC_STATS_REPLY_RCVD			= 14,
+		EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 15,
+	};
 
-		enum crofdpt_flag_t {
-			FLAG_ENGINE_IS_RUNNING 						= (1 << 0),
-		};
-
-public: // static
-
-	/**
-	 * @brief	Returns reference to crofdpt instance identified by cdptid object.
-	 *
-	 * @param	dptid - cdptid handle
-	 * @throw	eRofDptNotFound
-	 * @return	Reference to crofdpt instance
-	 */
-	static crofdpt&
-	get_dpt(const cdptid& dptid);
-
-	/**
-	 * @brief	Returns reference to crofdpt instance identified by OpenFlow dpid (uint64_t).
-	 *
-	 * @param	dpid - OpenFlow dpid
-	 * @throw	eRofDptNotFound
-	 * @return	Reference to crofdpt instance
-	 */
-	static crofdpt&
-	get_dpt(const cdpid& dpid);
+	enum crofdpt_flag_t {
+		FLAG_ENGINE_IS_RUNNING 						= (1 << 0),
+	};
 
 public:
 
 	/**
-	 * @brief 	Creates new crofdpt instance.
+	 * @brief	Returns reference to rofl::crofdpt instance identified by rofl-common's internal identifier.
 	 *
+	 * @param dptid rofl-common's internal datapath identifier
+	 * @throw eRofDptNotFound when no object matches the datapath identifier
+	 * @return reference to rofl::crofdpt instance for given identifier
+	 */
+	static rofl::crofdpt&
+	get_dpt(
+			const rofl::cdptid& dptid);
+
+	/**
+	 * @brief	Returns reference to rofl::crofdpt instance identified by OpenFlow's datapath identifier.
+	 *
+	 * @param dpid OpenFlow datapath identifier
+	 * @throw eRofDptNotFound when no object matches the datapath identifier
+	 * @return reference to rofl::crofdpt instance for given identifier
+	 */
+	static rofl::crofdpt&
+	get_dpt(
+			const rofl::cdpid& dpid);
+
+	/**
+	 * @brief 	crofdpt constructor
+	 *
+	 * @param env pointer to rofl::crofdpt_env instance defining the environment for this object
+	 * @param remove_on_channel_close when set to true, this indicates to remove this object after the control channel has been terminated
+	 * @param versionbitmap OpenFlow version bitmap
 	 */
 	crofdpt(
-			crofdpt_env* env,
+			rofl::crofdpt_env* env,
 			const cdptid& dptid,
 			bool remove_on_channel_close,
 			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
@@ -1033,10 +1036,10 @@ public:
 				<< "instance created, dptid: " << dptid.str() << std::endl;
 	};
 
-
 	/**
-	 * @brief	Destroys crofdpt instance.
+	 * @brief	crofdpt destructor
 	 *
+	 * Closes all control connections and does a general clean-up.
 	 */
 	virtual
 	~crofdpt() {
@@ -1047,23 +1050,19 @@ public:
 		transactions.clear();
 	};
 
-
-
-
 	/**
-	 * @brief	Returns cdptid handle for this crofdpt instance.
+	 * @brief	Returns rofl-common internal rofl::cdptid identifier for this instance
 	 *
-	 * @return dpid
+	 * @return internal datapath element identifier (not DPID)
 	 */
 	const cdptid&
 	get_dptid() const
 	{ return dptid; };
 
-
 	/**
-	 * @brief	Returns OpenFlow dpid for this crofdpt instance.
+	 * @brief	Returns OpenFlow datapath identifier for this instance
 	 *
-	 * @return dpid
+	 * @return OpenFlow datapath identifier
 	 */
 	const cdpid&
 	get_dpid() const
@@ -1072,48 +1071,86 @@ public:
 public:
 
 	/**
+	 * @name	Methods for connection management
 	 *
+	 * This is a group of methods for typical CRUD like operations on control
+	 * connections for the OpenFlow control channel. You may create an arbitrary
+	 * number of control connections to a datapath element in addition to those
+	 * created by the datapath element (as long as there is a listening socket
+	 * implemented on the datapath side). Control connections may be closed or
+	 * reconnected.
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Returns a list of connection identifiers of all existing control connections
+	 *
+	 * The list contains all connections independent from their current status.
+	 *
+	 * @return list of connection identifiers
 	 */
 	std::list<rofl::cauxid>
 	get_conn_index() const
 	{ return rofchan.get_conn_index(); };
 
 	/**
+	 * @brief	Establishes a new control connection to a remote
+	 * datapath element with the given control connection identifier
 	 *
+	 * An already existing control connection with the specified control
+	 * connection identifier is replaced by this new control connection
+	 * instance. If the main control connection (auxid: 0) is reconnected,
+	 * this rofl::crofdpt instance drops all collected state including
+	 * pending transactions. You may select any arbitrary control connection
+	 * identifier. However, care must be taken for the main connection (auxid: 0):
+	 * (Re-)Connecting the main connection leads to an implicit termination of
+	 * all existing control connections in OpenFlow.
+	 *
+	 * @param auxid control connection identifier
+	 * @param socket_type one of the socket types defined in @see rofl::csocket
+	 * @param socket_params a set of parameters for the selected socket type
 	 */
 	void
 	connect(
 			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
 			const cparams& socket_params) {
-		rofchan.close();
-		transactions.clear();
-		tables.clear();
-		ports.clear();
-		/* establish main connection */
+		if (rofl::cauxid(0) == auxid) {
+			rofchan.close();
+			transactions.clear();
+			tables.clear();
+			ports.clear();
+		}
 		rofchan.add_conn(auxid, socket_type, socket_params);
 	};
 
 	/**
+	 * @brief	Terminates an existing control connection with given identifier.
 	 *
+	 * When the main control connection (auxid: 0) is closed, this also terminates all
+	 * other existing control connections.
+	 *
+	 * @param auxid control connection identifier
 	 */
 	void
 	disconnect(
-			const rofl::cauxid& auxid)
-	{ rofchan.drop_conn(auxid); };
-
-	/**
-	 *
-	 */
-	void
-	reconnect(
-			const rofl::cauxid& auxid)  {
-		rofchan.set_conn(auxid).close();
-		rofchan.set_conn(auxid).reconnect(true);
+			rofl::cauxid auxid) { // make a copy here, rather than using a const-reference
+		rofchan.drop_conn(auxid);
+		call_env().handle_conn_terminated(*this, auxid);
+		if (rofl::cauxid(0) == auxid) {
+			call_env().handle_chan_terminated(*this);
+		}
 	};
 
 	/**
+	 * @brief	Add an existing rofl::crofconn instance created on heap to this object.
 	 *
+	 * This method is used for attaching an already existing rofl::crofconn instance
+	 * to this rofl::crofdpt instance. Do not call this method, unless you know what
+	 * you are doing.
+	 *
+	 * @param conn pointer to rofl::crofconn instance allocated on heap
 	 */
 	void
 	add_connection(
@@ -1124,7 +1161,15 @@ public:
 		rofchan.add_conn(conn->get_aux_id(), conn);
 	};
 
+	/**@}*/
+
 public:
+
+	/**
+	 * @name	Auxiliary methods
+	 */
+
+	/**@{*/
 
 	/**
 	 * @brief	Returns true, when the control handshake (HELLO) has been completed.
@@ -1166,33 +1211,6 @@ public:
 	get_peer_addr(
 			const rofl::cauxid& auxid) const
 	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_next_idle_group_id() {
-		uint32_t group_id = 1;
-		while (groupids.find(group_id) != groupids.end()) {
-			group_id++;
-		}
-		groupids.insert(group_id);
-		return group_id;
-	};
-
-	/**
-	 *
-	 */
-	void
-	release_group_id(uint32_t group_id)
-	{ groupids.erase(group_id); };
-
-	/**
-	 *
-	 */
-	void
-	clear_group_ids()
-	{ groupids.clear(); };
 
 	/**
 	 * @brief	Returns the data path element's hardware address.
@@ -1284,41 +1302,92 @@ public:
 	get_tables() const
 	{ return tables; };
 
+	/**@}*/
+
 public:
 
 	/**
-	 * @name	FlowMod management methods
+	 * @name	Methods for group table entry identifier management
 	 *
-	 * These methods provide a simple to use interface for managing FlowMod
-	 * entries.
-	 *
-	 * Please note: these methods are subject to change in future revisions.
+	 * This group of methods provides simple functionality for assigning
+	 * group table entry identifiers for various higher logic entities,
+	 * e.g., for creating new group table entries. This is a simple storage
+	 * for uint32_t values and does no pre-checks, whether a group table
+	 * identifier is already in use or can be actually used at all on the
+	 * datapath element.
 	 */
 
 	/**@{*/
 
 	/**
-	 * @brief	Removes all flowtable entries from the attached datapath element.
+	 * @brief	Returns the next idle group table identifier.
 	 *
-	 * Sends a FlowMod-Delete message to the attached datapath element for removing
-	 * all flowtable entries.
+	 * @todo There is no overflow checking implemented yet.
+	 * @return group table identifier
+	 */
+	uint32_t
+	get_next_idle_group_id() {
+		uint32_t group_id = 1;
+		while (groupids.find(group_id) != groupids.end()) {
+			group_id++;
+		}
+		groupids.insert(group_id);
+		return group_id;
+	};
+
+	/**
+	 * @brief	Releases a previously allocated group table identifier.
+	 *
+	 * @param group_id group table identifier to be returned to pool of idle identifiers
+	 */
+	void
+	release_group_id(uint32_t group_id)
+	{ groupids.erase(group_id); };
+
+	/**
+	 * @brief	Resets the pool of all previously allocated group table identifiers.
+	 */
+	void
+	clear_group_ids()
+	{ groupids.clear(); };
+
+	/**@}*/
+
+public:
+
+	/**
+	 * @name	Methods for purging and resetting a datapath element
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Removes all flow-table entries from the attached datapath element.
+	 *
+	 * Sends a Flow-Mod-Delete message to the attached datapath element for removing
+	 * all flow-table entries.
 	 */
 	void
 	flow_mod_reset();
 
 	/**
-	 * @brief	Removes all grouptable entries from the attached datapath element.
+	 * @brief	Removes all group-table entries from the attached datapath element.
 	 *
-	 * Sends a GroupMod-Delete message to the attached datapath element for removing
-	 * all grouptable entries.
+	 * Sends a Group-Mod-Delete message to the attached datapath element for removing
+	 * all group-table entries.
 	 */
 	void
 	group_mod_reset();
 
 	/**
-	 * @brief	Drops packet identified by buffer-id
+	 * @brief	Drops packet identified by buffer-id from the attached datapath element.
 	 *
-	 * Drops a packet stored on the data path in the buffer identified by buffer-id
+	 * Drops a packet stored on the datapath element identified by the given buffer-id
+	 * by sending a Packet-Out message with an empty action list.
+	 *
+	 * @param auxid control connection identifier
+	 * @param buffer_id identifier of the packet slot to be removed
+	 * @param inport field of the Packet-Out message sent to the datapath element
 	 */
 	void
 	drop_buffer(
@@ -1897,11 +1966,8 @@ public:
 		return ss.str();
 	};
 
-protected:
+private:
 
-	/**
-	 * @brief Called upon establishment of a control connection within the control channel
-	 */
 	virtual void
 	handle_conn_established(
 			crofchan& chan,
@@ -1937,9 +2003,6 @@ protected:
 		}
 	};
 
-	/**
-	 * @brief Called in the event of a connection refused
-	 */
 	virtual void
 	handle_conn_refused(
 			crofchan& chan,
@@ -1949,9 +2012,6 @@ protected:
 		push_on_eventqueue(EVENT_CONN_REFUSED);
 	};
 
-	/**
-	 * @brief Called in the event of a connection failed (except refused)
-	 */
 	virtual void
 	handle_conn_failed(
 			crofchan& chan,
@@ -1980,12 +2040,12 @@ protected:
 	release_sync_xid(crofchan& chan, uint32_t xid)
 	{ return transactions.drop_ta(xid); };
 
-protected:
+private:
 
 	virtual void
 	ta_expired(rofl::ctransactions& tas, rofl::ctransaction& ta);
 
-protected:
+private:
 
 	virtual void
 	handle_timeout(

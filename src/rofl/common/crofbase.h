@@ -131,42 +131,206 @@ public:
 public:
 
 	/**
-	 * @name	Methods for managing listening sockets for accepting incoming OpenFlow connections
+	 * @name	Methods for listening sockets accepting connections from datapath elements
 	 */
 
 	/**@{*/
 
 	/**
-	 * @brief	Opens a listening socket for accepting connection requests from datapath elements
-	 *
-	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
-	 * @param params set of parameters used for creating a listening socket
-	 *
-	 * @see csocket
+	 * @brief	Closes all listening csocket instances.
 	 */
 	void
-	rpc_listen_for_dpts(
-			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& params);
+	close_dpt_listening() {
+		while (not dpt_sockets.empty()) {
+			unsigned int sockid = dpt_sockets.begin()->first;
+			drop_dpt_listening(sockid);
+		}
+	};
 
 	/**
-	 * @brief	Opens a listening socket for accepting connection requests from controllers
+	 * @brief	Creates a new listening rofl::csocket instance for accepting incoming OpenFlow connections.
 	 *
+	 * @param sockid socket identifier
 	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
 	 * @param params set of parameters used for creating a listening socket
-	 * @see csocket
 	 */
-	void
-	rpc_listen_for_ctls(
+	rofl::csocket&
+	add_dpt_listening(
+			unsigned int sockid,
 			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& params);
+			const rofl::cparams& params) {
+		if (dpt_sockets.find(sockid) != dpt_sockets.end()) {
+			delete dpt_sockets[sockid];
+			dpt_sockets.erase(sockid);
+		}
+		dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+		dpt_sockets[sockid]->listen(params);
+		return *(dpt_sockets[sockid]);
+	};
 
 	/**
-	 * @brief	Closes all open crofctl, crofdpt and listening socket instances.
+	 * @brief	Returns a reference to the listening csocket object
+	 * specified by identifier sockid.
 	 *
+	 * @param sockid socket identifier
+	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param params set of parameters used for creating a listening socket
+	 */
+	rofl::csocket&
+	set_dpt_listening(
+			unsigned int sockid,
+			enum rofl::csocket::socket_type_t socket_type,
+			const rofl::cparams& params) {
+		if (dpt_sockets.find(sockid) == dpt_sockets.end()) {
+			dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+			dpt_sockets[sockid]->listen(params);
+		}
+		return *(dpt_sockets[sockid]);
+	};
+
+	/**
+	 * @brief	Returns a const reference to the listening csocket object
+	 * specified by identifier sockid.
+	 *
+	 * @param sockid socket identifier
+	 */
+	const rofl::csocket&
+	get_dpt_listening(
+			unsigned int sockid) const {
+		if (dpt_sockets.find(sockid) == dpt_sockets.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(dpt_sockets.at(sockid));
+	};
+
+	/**
+	 * @brief	Removes a listening socket identified by sockid.
+	 *
+	 * @param sockid socket identifier
 	 */
 	void
-	rpc_close_all();
+	drop_dpt_listening(
+			unsigned int sockid) {
+		if (dpt_sockets.find(sockid) == dpt_sockets.end()) {
+			return;
+		}
+		delete dpt_sockets[sockid];
+		dpt_sockets.erase(sockid);
+	};
+
+	/**
+	 * @brief	Checks for existence of a listening socket identified by sockid.
+	 *
+	 * @param sockid socket identifier
+	 */
+	bool
+	has_dpt_listening(
+			unsigned int sockid) {
+		return (not (dpt_sockets.find(sockid) == dpt_sockets.end()));
+	};
+
+	/**@}*/
+
+public:
+
+	/**
+	 * @name	Methods for listening sockets accepting connections from controller entities
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Closes all listening csocket instances.
+	 */
+	void
+	close_ctl_listening() {
+		while (not ctl_sockets.empty()) {
+			unsigned int sockid = ctl_sockets.begin()->first;
+			drop_ctl_listening(sockid);
+		}
+	};
+
+	/**
+	 * @brief	Creates a new listening rofl::csocket instance for accepting incoming OpenFlow connections.
+	 *
+	 * @param sockid socket identifier
+	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param params set of parameters used for creating a listening socket
+	 */
+	rofl::csocket&
+	add_ctl_listening(
+			unsigned int sockid,
+			enum rofl::csocket::socket_type_t socket_type,
+			const rofl::cparams& params) {
+		if (ctl_sockets.find(sockid) != ctl_sockets.end()) {
+			delete ctl_sockets[sockid];
+			ctl_sockets.erase(sockid);
+		}
+		ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+		ctl_sockets[sockid]->listen(params);
+		return *(ctl_sockets[sockid]);
+	};
+
+	/**
+	 * @brief	Returns a reference to the listening csocket object
+	 * specified by identifier sockid.
+	 *
+	 * @param sockid socket identifier
+	 * @param socket_type one of the constants defined in csocket.h, e.g. SOCKET_TYPE_PLAIN
+	 * @param params set of parameters used for creating a listening socket
+	 */
+	rofl::csocket&
+	set_ctl_listening(
+			unsigned int sockid,
+			enum rofl::csocket::socket_type_t socket_type,
+			const rofl::cparams& params) {
+		if (ctl_sockets.find(sockid) == ctl_sockets.end()) {
+			ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+			ctl_sockets[sockid]->listen(params);
+		}
+		return *(ctl_sockets[sockid]);
+	};
+
+	/**
+	 * @brief	Returns a const reference to the listening csocket object
+	 * specified by identifier sockid.
+	 *
+	 * @param sockid socket identifier
+	 */
+	const rofl::csocket&
+	get_ctl_listening(
+			unsigned int sockid) const {
+		if (ctl_sockets.find(sockid) == ctl_sockets.end()) {
+			throw eRofBaseNotFound();
+		}
+		return *(ctl_sockets.at(sockid));
+	};
+
+	/**
+	 * @brief	Removes a listening socket identified by sockid.
+	 *
+	 * @param sockid socket identifier
+	 */
+	void
+	drop_ctl_listening(
+			unsigned int sockid) {
+		if (ctl_sockets.find(sockid) == ctl_sockets.end()) {
+			return;
+		}
+		delete ctl_sockets[sockid];
+		ctl_sockets.erase(sockid);
+	};
+
+	/**
+	 * @brief	Checks for existence of a listening socket identified by sockid.
+	 *
+	 * @param sockid socket identifier
+	 */
+	bool
+	has_ctl_listening(
+			unsigned int sockid) {
+		return (not (ctl_sockets.find(sockid) == ctl_sockets.end()));
+	};
 
 	/**@}*/
 
@@ -224,9 +388,9 @@ public:
 	 * have been terminated
 	 * @result reference to new rofl::crofdpt instance
 	 */
-	crofdpt&
+	rofl::crofdpt&
 	add_dpt(
-		const cdptid& dptid,
+		const rofl::cdptid& dptid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofdpts.find(dptid) != rofdpts.end()) {
@@ -252,9 +416,9 @@ public:
 	 * have been terminated
 	 * @result reference to existing or new rofl::crofdpt instance
 	 */
-	crofdpt&
+	rofl::crofdpt&
 	set_dpt(
-		const cdptid& dptid,
+		const rofl::cdptid& dptid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
@@ -273,9 +437,9 @@ public:
 	 * @result reference to existing rofl::crofdpt instance
 	 * @throws eRofBaseNotFound
 	 */
-	crofdpt&
+	rofl::crofdpt&
 	set_dpt(
-			const cdptid& dptid) {
+			const rofl::cdptid& dptid) {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
 			throw eRofBaseNotFound();
 		}
@@ -292,9 +456,9 @@ public:
 	 * @result reference to existing rofl::crofdpt instance
 	 * @throws eRofBaseNotFound
 	 */
-	const crofdpt&
+	const rofl::crofdpt&
 	get_dpt(
-			const cdptid& dptid) const {
+			const rofl::cdptid& dptid) const {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
 			throw eRofBaseNotFound();
 		}
@@ -308,7 +472,7 @@ public:
 	 */
 	void
 	drop_dpt(
-		cdptid dptid) { // make a copy here, do not use a const reference
+		rofl::cdptid dptid) { // make a copy here, do not use a const reference
 		if (rofdpts.find(dptid) == rofdpts.end()) {
 			return;
 		}
@@ -324,7 +488,7 @@ public:
 	 */
 	bool
 	has_dpt(
-		const cdptid& dptid) const {
+		const rofl::cdptid& dptid) const {
 		return (not (rofdpts.find(dptid) == rofdpts.end()));
 	};
 
@@ -384,9 +548,9 @@ public:
 	 * have been terminated
 	 * @result reference to new rofl::crofctl instance
 	 */
-	crofctl&
+	rofl::crofctl&
 	add_ctl(
-		const cctlid& ctlid,
+		const rofl::cctlid& ctlid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofctls.find(ctlid) != rofctls.end()) {
@@ -412,9 +576,9 @@ public:
 	 * have been terminated
 	 * @result reference to existing or new rofl::crofctl instance
 	 */
-	crofctl&
+	rofl::crofctl&
 	set_ctl(
-		const cctlid& ctlid,
+		const rofl::cctlid& ctlid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofctls.find(ctlid) == rofctls.end()) {
@@ -433,9 +597,9 @@ public:
 	 * @result reference to existing rofl::crofctl instance
 	 * @throws eRofBaseNotFound
 	 */
-	crofctl&
+	rofl::crofctl&
 	set_ctl(
-			const cctlid& ctlid) {
+			const rofl::cctlid& ctlid) {
 		if (rofctls.find(ctlid) == rofctls.end()) {
 			throw eRofBaseNotFound();
 		}
@@ -452,9 +616,9 @@ public:
 	 * @result reference to existing rofl::crofctl instance
 	 * @throws eRofBaseNotFound
 	 */
-	const crofctl&
+	const rofl::crofctl&
 	get_ctl(
-			const cctlid& ctlid) const {
+			const rofl::cctlid& ctlid) const {
 		if (rofctls.find(ctlid) == rofctls.end()) {
 			throw eRofBaseNotFound();
 		}
@@ -468,7 +632,7 @@ public:
 	 */
 	void
 	drop_ctl(
-		cctlid ctlid) { // make a copy here, do not use a const reference
+		rofl::cctlid ctlid) { // make a copy here, do not use a const reference
 		if (rofctls.find(ctlid) == rofctls.end()) {
 			return;
 		}
@@ -484,7 +648,7 @@ public:
 	 */
 	bool
 	has_ctl(
-		const cctlid& ctlid) const {
+		const rofl::cctlid& ctlid) const {
 		return (not (rofctls.find(ctlid) == rofctls.end()));
 	};
 
@@ -2268,6 +2432,52 @@ private:
 
 private:
 
+	bool
+	is_dpt_listening(
+			csocket& socket) const {
+		for (std::map<unsigned int, csocket*>::const_iterator
+				it = dpt_sockets.begin(); it != dpt_sockets.end(); ++it) {
+			if (it->second == &socket) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	bool
+	is_ctl_listening(
+			csocket& socket) const {
+		for (std::map<unsigned int, csocket*>::const_iterator
+				it = ctl_sockets.begin(); it != ctl_sockets.end(); ++it) {
+			if (it->second == &socket) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	void
+	drop_dpt_listening(
+			csocket& socket) {
+		for (std::map<unsigned int, csocket*>::const_iterator
+				it = dpt_sockets.begin(); it != dpt_sockets.end(); ++it) {
+			if (it->second == &socket) {
+				drop_dpt_listening(it->first); return;
+			}
+		}
+	};
+
+	void
+	drop_ctl_listening(
+			csocket& socket) {
+		for (std::map<unsigned int, csocket*>::const_iterator
+				it = ctl_sockets.begin(); it != ctl_sockets.end(); ++it) {
+			if (it->second == &socket) {
+				drop_ctl_listening(it->first); return;
+			}
+		}
+	};
+
 	virtual void
 	handle_chan_established(
 			crofdpt& dpt) {
@@ -2380,9 +2590,11 @@ private:
 	/**< set of active data path connections */
 	std::map<cdptid, crofdpt*>		rofdpts;
 	/**< listening sockets for incoming connections from datapath elements */
-	std::set<csocket*>				dpt_sockets;
+	std::map<unsigned int, csocket*>
+									dpt_sockets;
 	/**< listening sockets for incoming connections from controller entities */
-	std::set<csocket*>				ctl_sockets;
+	std::map<unsigned int, csocket*>
+									ctl_sockets;
 	// supported OpenFlow versions
 	rofl::openflow::cofhello_elem_versionbitmap
 									versionbitmap;

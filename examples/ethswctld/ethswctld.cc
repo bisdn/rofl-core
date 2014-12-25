@@ -47,7 +47,7 @@ int main(int argc, char** argv){
 	//We must now specify the parameters for allowing datapaths to connect
 	rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
-	sw.rpc_listen_for_dpts(rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
+	sw.add_dpt_listening(0, rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 
 	//Launch main I/O loop
 	rofl::cioloop::get_loop().run();
