@@ -84,7 +84,7 @@ protected:
 	 * @param dpt datapath instance
 	 */
 	virtual void
-	handle_dpt_attached(
+	handle_chan_established(
 			crofdpt& dpt)
 	{};
 
@@ -98,7 +98,7 @@ protected:
 	 * @param dpt datapath instance
 	 */
 	virtual void
-	handle_dpt_detached(
+	handle_chan_terminated(
 			crofdpt& dpt)
 	{};
 

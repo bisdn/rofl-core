@@ -82,7 +82,7 @@ protected:
 	 * @param ctl controller instance
 	 */
 	virtual void
-	handle_ctl_attached(
+	handle_chan_established(
 			rofl::crofctl& ctl)
 	{};
 
@@ -98,7 +98,7 @@ protected:
 	 * @param ctl controller instance
 	 */
 	virtual void
-	handle_ctl_detached(
+	handle_chan_terminated(
 			rofl::crofctl& ctl)
 	{};
 
@@ -1368,7 +1368,7 @@ protected:
 			rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 							<< " OFP control channel established, " << chan.str() << std::endl;
 
-			call_env().handle_ctl_attached(*this); // main connection
+			call_env().handle_chan_established(*this); // main connection
 		}
 	};
 

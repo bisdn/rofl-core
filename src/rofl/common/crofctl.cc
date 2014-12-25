@@ -78,7 +78,7 @@ void
 crofctl::event_chan_terminated()
 {
 	state = STATE_DISCONNECTED;
-	call_env().handle_ctl_detached(*this);
+	call_env().handle_chan_terminated(*this);
 }
 
 

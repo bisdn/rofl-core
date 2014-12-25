@@ -137,7 +137,7 @@ crofdpt::event_connected()
 		 * and Port-Desc-Stats request. This is up to the derived controller logic.
 		 */
 		state = STATE_ESTABLISHED;
-		call_env().handle_dpt_attached(*this);
+		call_env().handle_chan_established(*this);
 #endif
 	} break;
 	default: {
@@ -156,7 +156,7 @@ crofdpt::event_disconnected()
 	tables.clear();
 	ports.clear();
 	state = STATE_DISCONNECTED;
-	call_env().handle_dpt_detached(*this);
+	call_env().handle_chan_terminated(*this);
 }
 
 
@@ -214,7 +214,7 @@ crofdpt::event_features_reply_rcvd()
 		 * and Port-Desc-Stats request. This is up to the derived controller logic.
 		 */
 		state = STATE_ESTABLISHED;
-		call_env().handle_dpt_attached(*this);
+		call_env().handle_chan_established(*this);
 
 	} break;
 	case STATE_ESTABLISHED: {
@@ -261,7 +261,7 @@ crofdpt::event_get_config_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> established)" << std::endl;
-			call_env().handle_dpt_attached(*this);
+			call_env().handle_chan_established(*this);
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
@@ -334,7 +334,7 @@ crofdpt::event_table_stats_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 								<< "Table-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
-			call_env().handle_dpt_attached(*this);
+			call_env().handle_chan_established(*this);
 		} break;
 		default: {
 			// do nothing
@@ -441,7 +441,7 @@ crofdpt::event_port_desc_reply_rcvd()
 			state = STATE_ESTABLISHED;
 			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec <<  "" << *this << indent(2)
 							<< "Port-Desc-Stats-Reply rcvd (table-features-rcvd -> established)" << std::endl;
-			call_env().handle_dpt_attached(*this);
+			call_env().handle_chan_established(*this);
 
 		} break;
 		}

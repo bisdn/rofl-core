@@ -104,27 +104,6 @@ class crofbase :
 	public crofctl_env,
 	public crofdpt_env
 {
-	/**
-	 * @enum rofl::crofbase::crofbase_event_t
-	 *
-	 * event types defined by crofbase for feeding the event-queue
-	 */
-	enum crofbase_event_t {
-		EVENT_NONE         = 0,
-		EVENT_CTL_DETACHED = 1,
-		EVENT_DPT_DETACHED = 2,
-	};
-
-	/**
-	 * @enum rofl::crofbase::crofbase_timer_t
-	 *
-	 * timer types defined by crofbase
-	 */
-	enum crofbase_timer_t {
-		TIMER_NONE         = 0,
-		TIMER_RUN_ENGINE   = 1,
-	};
-
 public:
 
 	/**
@@ -2276,13 +2255,28 @@ private:
 
 private:
 
+	enum crofbase_event_t {
+		EVENT_NONE         = 0,
+		EVENT_CTL_DETACHED = 1,
+		EVENT_DPT_DETACHED = 2,
+	};
+
+	enum crofbase_timer_t {
+		TIMER_NONE         = 0,
+		TIMER_RUN_ENGINE   = 1,
+	};
+
+private:
+
 	virtual void
-	handle_dpt_attached(crofdpt& dpt) {
+	handle_chan_established(
+			crofdpt& dpt) {
 		handle_dpt_open(dpt);
 	};
 
 	virtual void
-	handle_dpt_detached(crofdpt& dpt) {
+	handle_chan_terminated(
+			crofdpt& dpt) {
 		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
 		if (dpt.remove_on_channel_termination()) {
 			dpts_detached.insert(dpt.get_dptid());
@@ -2293,12 +2287,14 @@ private:
 	};
 
 	virtual void
-	handle_ctl_attached(crofctl& ctl) {
+	handle_chan_established(
+			crofctl& ctl) {
 		handle_ctl_open(ctl);
 	};
 
 	virtual void
-	handle_ctl_detached(crofctl& ctl) {
+	handle_chan_terminated(
+			crofctl& ctl) {
 		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
 		if (ctl.remove_on_channel_termination()) {
 			ctls_detached.insert(ctl.get_ctlid());
@@ -2310,7 +2306,8 @@ private:
 
 	virtual void
 	handle_timeout(
-			int opaque, void* data = (void*)0) {
+			int opaque,
+			void* data = (void*)0) {
 		switch (opaque) {
 		case TIMER_RUN_ENGINE: {
 			work_on_eventqueue();
