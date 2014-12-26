@@ -116,6 +116,13 @@ public:
 		os << indent(2) << "<cofmsg_table_stats_request >" << std::endl;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Table-Stats-Request- " << cofmsg::str() << " ";
+		return ss.str();
+	};
 };
 
 
@@ -246,6 +253,13 @@ public:
 		indent i(6);
 		os << msg.tablestatsarray;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Table-Stats-Reply- " << cofmsg::str() << " ";
+		return ss.str();
 	};
 };
 

@@ -1158,6 +1158,7 @@ public:
 		if (NULL == conn) {
 			return;
 		}
+		set_dpid(rofl::cdpid(conn->get_dpid()));
 		rofchan.add_conn(conn->get_aux_id(), conn);
 	};
 
@@ -1891,7 +1892,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, const crofdpt& dpt) {
-		os << indent(0) << "<cofdptImpl >";
+		os << indent(0) << "<crofdpt >";
 		{ rofl::indent i(2); os << dpt.get_dptid(); }
 		{ rofl::indent i(2); os << dpt.rofchan; }
 		switch (dpt.state) {
@@ -1939,28 +1940,28 @@ public:
 		ss << "dpid: " << get_dpid().str() << " ";
 		switch (state) {
 		case STATE_INIT: {
-			ss << indent(2) << "state: -init- " << std::endl;
+			ss << "state: -init- ";
 		} break;
 		case STATE_CONNECTED: {
-			ss << indent(2) << "state: -connected- >" << std::endl;
+			ss << "state: -connected- ";
 		} break;
 		case STATE_DISCONNECTED: {
-			ss << indent(2) << "state: -disconnected- " << std::endl;
+			ss << "state: -disconnected- ";
 		} break;
 		case STATE_ESTABLISHED: {
-			ss << indent(2) << "state: -established- " << std::endl;
+			ss << "state: -established- ";
 		} break;
 		case STATE_FEATURES_RCVD: {
-			ss << indent(2) << "state: -features-rcvd- " << std::endl;
+			ss << "state: -features-rcvd- ";
 		} break;
 		case STATE_GET_CONFIG_RCVD: {
-			ss << indent(2) << "state: -get-config-rcvd- " << std::endl;
+			ss << "state: -get-config-rcvd- ";
 		} break;
 		case STATE_TABLE_FEATURES_RCVD: {
-			ss << indent(2) << "state: -table-features-rcvd- " << std::endl;
+			ss << "state: -table-features-rcvd- ";
 		} break;
 		default: {
-			ss << indent(2) << "state: -unknown- " << std::endl;
+			ss << "state: -unknown- ";
 		} break;
 		}
 		return ss.str();
@@ -1972,13 +1973,13 @@ private:
 	handle_conn_established(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofdpt] dptid:0x" << dptid.str()
+		rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
 						<< " control connection established, auxid: " << auxid.str() << std::endl;
 
 		call_env().handle_conn_established(*this, auxid);
 
 		if (auxid == rofl::cauxid(0)) {
-			rofl::logging::info << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+			rofl::logging::info << "[rofl-common][crofdpt] dpid: " << std::hex << get_dpid().str() << std::dec
 					<< " OFP control channel established, " << chan.str() << std::endl;
 			push_on_eventqueue(EVENT_CONNECTED);
 		}
@@ -1988,7 +1989,7 @@ private:
 	handle_conn_terminated(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofdpt] dptid:0x" << dptid.str()
+		rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
 						<< " control connection terminated, auxid: " << auxid.str() << std::endl;
 
 		rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
@@ -1996,7 +1997,7 @@ private:
 		push_on_eventqueue(EVENT_CONN_TERMINATED);
 
 		if (auxid == rofl::cauxid(0)) {
-			rofl::logging::info << "[rofl-common][crofdpt] dptid:" << dptid.str()
+			rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
 			push_on_eventqueue(EVENT_DISCONNECTED);

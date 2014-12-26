@@ -139,6 +139,13 @@ public:
 		indent i(4); os << msg.tables;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Table-Features-Stats-Request- " << cofmsg::str() << " ";
+		return ss.str();
+	};
 };
 
 
@@ -270,6 +277,13 @@ public:
 		os << indent(2) << "<cofmsg_table_features_reply >" << std::endl;
 		indent i(4); os << msg.tables;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Table-Features-Stats-Reply- " << cofmsg::str() << " ";
+		return ss.str();
 	};
 };
 

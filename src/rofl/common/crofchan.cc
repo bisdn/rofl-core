@@ -328,7 +328,7 @@ void
 crofchan::event_conn_established()
 {
 	rofl::logging::info << "[rofl-common][crofchan] "
-			<< " -event-conn-established- " << str() << std::endl;
+			<< "-event-conn-established- " << str() << std::endl;
 
 	rofl::RwLock rwlock(conns_established_rwlock, rofl::RwLock::RWLOCK_WRITE);
 
@@ -392,7 +392,7 @@ void
 crofchan::event_conn_refused()
 {
 	rofl::logging::info << "[rofl-common][crofchan] "
-			<< " -event-conn-refused- " << str() << std::endl;
+			<< "-event-conn-refused- " << str() << std::endl;
 
 	rofl::RwLock rwlock(conns_refused_rwlock, rofl::RwLock::RWLOCK_WRITE);
 
@@ -428,7 +428,7 @@ void
 crofchan::event_conn_failed()
 {
 	rofl::logging::info << "[rofl-common][crofchan] "
-			<< " -event-conn-failed- " << str() << std::endl;
+			<< "-event-conn-failed- " << str() << std::endl;
 
 	rofl::RwLock rwlock(conns_failed_rwlock, rofl::RwLock::RWLOCK_WRITE);
 

@@ -743,8 +743,9 @@ protected:
 	virtual void
 	handle_dpt_open(
 			rofl::crofdpt& dpt) {
-		rofl::logging::info << "[rofl-common][crofbase] control channel established, "
-				<< "dptid: " << dpt.get_dptid().str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "dptid: " << dpt.get_dptid().str() << " "
+				<< "control channel established " << std::endl;
 	};
 
 	/**
@@ -761,8 +762,9 @@ protected:
 	virtual void
 	handle_dpt_close(
 			rofl::crofdpt& dpt) {
-		rofl::logging::info << "[rofl-common][crofbase] control channel terminated, "
-				<< "dptid: " << dpt.get_dptid().str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "dptid: " << dpt.get_dptid().str() << " "
+				<< "control channel terminated " << std::endl;
 	};
 
 	/**
@@ -775,8 +777,10 @@ protected:
 	handle_conn_established(
 			rofl::crofdpt& dpt,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofbase] connection established, "
-				<< "dptid: " << dpt.get_dptid().str()  << " auxid: " << auxid.str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "dptid: " << dpt.get_dptid().str() << " "
+				<< "control connection established, "
+				<< "auxid: " << auxid.str() << std::endl;
 	};
 
 	/**
@@ -789,8 +793,10 @@ protected:
 	handle_conn_terminated(
 			rofl::crofdpt& dpt,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofbase] connection terminated, "
-				<< "dptid: " << dpt.get_dptid().str()  << " auxid: " << auxid.str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "dptid: " << dpt.get_dptid().str() << " "
+				<< "control connection terminated, "
+				<< "auxid: " << auxid.str() << std::endl;
 	};
 
 	/**
@@ -876,8 +882,9 @@ protected:
 	virtual void
 	handle_ctl_open(
 			rofl::crofctl& ctl) {
-		rofl::logging::info << "[rofl-common][crofbase] control channel established, "
-				<< "ctlid: " << ctl.get_ctlid().str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "ctlid: " << ctl.get_ctlid().str() << " "
+				<< "control channel established " << std::endl;
 	};
 
 	/**
@@ -894,8 +901,9 @@ protected:
 	virtual void
 	handle_ctl_close(
 			rofl::crofctl& ctl) {
-		rofl::logging::info << "[rofl-common][crofbase] control channel terminated, "
-				<< "ctlid: " << ctl.get_ctlid().str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "ctlid: " << ctl.get_ctlid().str() << " "
+				<< "control channel terminated " << std::endl;
 	};
 
 	/**
@@ -908,8 +916,10 @@ protected:
 	handle_conn_established(
 			rofl::crofctl& ctl,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofbase] connection established, "
-				<< "ctlid: " << ctl.get_ctlid().str()  << " auxid: " << auxid.str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "ctlid: " << ctl.get_ctlid().str() << " "
+				<< "control connection established, "
+				<< "auxid: " << auxid.str() << std::endl;
 	};
 
 	/**
@@ -922,8 +932,10 @@ protected:
 	handle_conn_terminated(
 			rofl::crofctl& ctl,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofbase] connection terminated, "
-				<< "ctlid: " << ctl.get_ctlid().str()  << " auxid: " << auxid.str() << std::endl;
+		rofl::logging::info << "[rofl-common][crofbase] "
+				<< "ctlid: " << ctl.get_ctlid().str() << " "
+				<< "control connection terminated, "
+				<< "auxid: " << auxid.str() << std::endl;
 	};
 
 	/**

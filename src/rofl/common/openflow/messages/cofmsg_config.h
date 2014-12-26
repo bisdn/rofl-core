@@ -99,6 +99,13 @@ public:
 		os << indent(2) << "<cofmsg_get_config_request >" << std::endl;;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Get-Config-Request- " << cofmsg::str() << " ";
+		return ss.str();
+	};
 };
 
 
@@ -273,6 +280,47 @@ public:
 		os << "flags:" << s_flags << " ";
 		os << " >" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Get-Config-Reply- " << cofmsg::str() << " ";
+		ss << "miss_send_len: " << (unsigned int)get_miss_send_len() << ", ";
+		std::string s_flags;
+		switch (get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow10::OFPC_FRAG_DROP) == rofl::openflow10::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow10::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow10::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow12::OFPC_FRAG_DROP) == rofl::openflow12::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow12::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow12::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+			if (get_flags() & rofl::openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow13::OFPC_FRAG_DROP) == rofl::openflow13::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow13::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow13::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		default:
+			s_flags.append("unsupported OF version");
+			break;
+		}
+		ss << "flags: " << s_flags << " ";
+		return ss.str();
 	};
 };
 
@@ -449,6 +497,47 @@ public:
 		os << "flags:" << s_flags << " ";
 		os << " >" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Set-Config-Reply- " << cofmsg::str() << " ";
+		ss << "miss_send_len: " << (unsigned int)get_miss_send_len() << ", ";
+		std::string s_flags;
+		switch (get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow10::OFPC_FRAG_DROP) == rofl::openflow10::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow10::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow10::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow12::OFPC_FRAG_DROP) == rofl::openflow12::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow12::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow12::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+			if (get_flags() & rofl::openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			if ((get_flags() & rofl::openflow13::OFPC_FRAG_DROP) == rofl::openflow13::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (get_flags() & rofl::openflow13::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (get_flags() & rofl::openflow13::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		default:
+			s_flags.append("unsupported OF version");
+			break;
+		}
+		ss << "flags: " << s_flags << " ";
+		return ss.str();
 	};
 };
 
