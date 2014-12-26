@@ -13,43 +13,44 @@
 #include <strings.h>
 #include <bitset>
 
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/crofchan.h"
+#include "rofl/common/ctransactions.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cdptid.h"
+#include "rofl/common/cauxid.h"
+#include "rofl/common/cdpid.h"
+
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofflowmod.h"
 #include "rofl/common/openflow/cofgroupmod.h"
-#include "rofl/common/crofchan.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/openflow/cofasyncconfig.h"
 #include "rofl/common/openflow/cofrole.h"
 #include "rofl/common/openflow/cofmeterstats.h"
 #include "rofl/common/openflow/cofmeterconfig.h"
 #include "rofl/common/openflow/cofmeterfeatures.h"
-#include "rofl/common/cauxid.h"
-#include "rofl/common/cdpid.h"
-
-#include "rofl/common/ciosrv.h"
-#include "rofl/common/cmemory.h"
-#include "rofl/common/protocols/fetherframe.h"
-#include "rofl/common/logging.h"
-#include "rofl/common/crofdpt.h"
-#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
-#include "rofl/common/crofchan.h"
-#include "rofl/common/ctransactions.h"
 #include "rofl/common/openflow/cofpacketqueue.h"
 #include "rofl/common/openflow/cofmeterbands.h"
-
 
 namespace rofl {
 
 /* error classes */
-class eRofDptBase 					: public RoflException {};
-class eRofDptNotFound 				: public eRofDptBase {};
+class eRofDptBase      : public RoflException {
+public:
+	eRofDptBase(const std::string& __arg) : RoflException(__arg) {};
+};
+class eRofDptNotFound  : public eRofDptBase {
+public:
+	eRofDptNotFound(const std::string& __arg) : eRofDptBase(__arg) {};
+};
 
 class crofdpt;
 
@@ -928,14 +929,22 @@ protected:
 /**
  * @brief	Class representing a remote datapath element
  *
- * This class stores state for an attached datapath element
- * including its ports (@see rofl::openflow::cofport). It is tightly bound to
- * class crofbase (@see crofbase). Created upon reception of an
- * OpenFlow HELLO message from the data path element, rofl::openflow::cofdpath
- * acquires all state by sending FEATURES-request, GET-CONFIG-request,
- * and TABLE-STATS-request. It also provides a number of convenience
- * methods for controlling the datapath, e.g. clearing all flowtable
- * or grouptable entries.
+ * This class encapsulates properties of a single remote datapath element
+ * including the OpenFlow control channel, its lists of ports and tables,
+ * and general configuration. Its public API offers methods to manage
+ * the OpenFlow control channel, i.e. CRUD methods for individual control
+ * connections. Once the OpenFlow control channel has been established,
+ * rofl::crofdpt will query the datapath element for its internal configuration
+ * (ports, tables and general configuration) and exposes these data to any
+ * higher logic. Note that no periodic updates on these data is done by
+ * this instance and re-querying the datapath must be initiated by higher
+ * logic.
+ *
+ * rofl::crofdpt expects an instance of class rofl::crofdpt_env as surrounding
+ * environment and sends various notifications via this interface. Class
+ * rofl::crofbase implements this interface and may be used as base class
+ * for advanced applications. However, you may implement rofl::crofdpt_env
+ * directly as well.
  *
  */
 class crofdpt :
@@ -946,40 +955,40 @@ class crofdpt :
 private: // data structures
 
 	enum crofdpt_timer_t {
-		TIMER_RUN_ENGINE							= 0,
+		TIMER_RUN_ENGINE                            = 0,
 	};
 
 	enum crofdpt_state_t {
-		STATE_INIT 									= 0,
-		STATE_DISCONNECTED							= 1,
-		STATE_CONNECTED								= 2,
-		STATE_FEATURES_RCVD 						= 3,
-		STATE_GET_CONFIG_RCVD						= 4,
-		STATE_TABLE_FEATURES_RCVD					= 5,
-		STATE_ESTABLISHED							= 6,
+		STATE_INIT                                  = 0,
+		STATE_DISCONNECTED                          = 1,
+		STATE_CONNECTED                             = 2,
+		STATE_FEATURES_RCVD                         = 3,
+		STATE_GET_CONFIG_RCVD                       = 4,
+		STATE_TABLE_FEATURES_RCVD                   = 5,
+		STATE_ESTABLISHED                           = 6,
 	};
 
 	enum crofdpt_event_t {
-		EVENT_NONE									= 0,
-		EVENT_DISCONNECTED							= 1,
-		EVENT_CONNECTED								= 2,
-		EVENT_CONN_TERMINATED						= 3,
-		EVENT_CONN_REFUSED							= 4,
-		EVENT_CONN_FAILED							= 5,
-		EVENT_FEATURES_REPLY_RCVD					= 6,
-		EVENT_FEATURES_REQUEST_EXPIRED				= 7,
-		EVENT_GET_CONFIG_REPLY_RCVD					= 8,
-		EVENT_GET_CONFIG_REQUEST_EXPIRED			= 9,
-		EVENT_TABLE_STATS_REPLY_RCVD				= 10,
-		EVENT_TABLE_STATS_REQUEST_EXPIRED			= 11,
-		EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 12,
-		EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 13,
-		EVENT_PORT_DESC_STATS_REPLY_RCVD			= 14,
-		EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 15,
+		EVENT_NONE                                  = 0,
+		EVENT_DISCONNECTED                          = 1,
+		EVENT_CONNECTED                             = 2,
+		EVENT_CONN_TERMINATED                       = 3,
+		EVENT_CONN_REFUSED                          = 4,
+		EVENT_CONN_FAILED                           = 5,
+		EVENT_FEATURES_REPLY_RCVD                   = 6,
+		EVENT_FEATURES_REQUEST_EXPIRED              = 7,
+		EVENT_GET_CONFIG_REPLY_RCVD                 = 8,
+		EVENT_GET_CONFIG_REQUEST_EXPIRED            = 9,
+		EVENT_TABLE_STATS_REPLY_RCVD                = 10,
+		EVENT_TABLE_STATS_REQUEST_EXPIRED           = 11,
+		EVENT_TABLE_FEATURES_STATS_REPLY_RCVD       = 12,
+		EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED  = 13,
+		EVENT_PORT_DESC_STATS_REPLY_RCVD            = 14,
+		EVENT_PORT_DESC_STATS_REQUEST_EXPIRED       = 15,
 	};
 
 	enum crofdpt_flag_t {
-		FLAG_ENGINE_IS_RUNNING 						= (1 << 0),
+		FLAG_ENGINE_IS_RUNNING                      = (1 << 0),
 	};
 
 public:
@@ -1012,24 +1021,26 @@ public:
 	 * @param env pointer to rofl::crofdpt_env instance defining the environment for this object
 	 * @param remove_on_channel_close when set to true, this indicates to remove this object after the control channel has been terminated
 	 * @param versionbitmap OpenFlow version bitmap
+	 * @param dpid OpenFlow datapath element identifier (optional)
 	 */
 	crofdpt(
 			rofl::crofdpt_env* env,
-			const cdptid& dptid,
+			const rofl::cdptid& dptid,
 			bool remove_on_channel_close,
-			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+			const rofl::cdpid& dpid = rofl::cdpid(0)) :
 				env(env),
 				dptid(dptid),
-				remove_on_channel_close(remove_on_channel_close),
-				dpid(0),
 				rofchan(this, versionbitmap),
+				transactions(this),
+				remove_on_channel_close(remove_on_channel_close),
+				dpid(dpid),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
 				n_tables(0),
 				capabilities(0),
 				config(0),
 				miss_send_len(0),
-				transactions(this),
 				state(STATE_INIT) {
 		crofdpt::rofdpts[dptid] = this;
 		rofl::logging::debug << "[rofl-common][crofdpt] "
@@ -1051,22 +1062,13 @@ public:
 	};
 
 	/**
-	 * @brief	Returns rofl-common internal rofl::cdptid identifier for this instance
+	 * @brief	Returns rofl-common's internal rofl::cdptid identifier for this instance
 	 *
 	 * @return internal datapath element identifier (not DPID)
 	 */
-	const cdptid&
+	const rofl::cdptid&
 	get_dptid() const
 	{ return dptid; };
-
-	/**
-	 * @brief	Returns OpenFlow datapath identifier for this instance
-	 *
-	 * @return OpenFlow datapath identifier
-	 */
-	const cdpid&
-	get_dpid() const
-	{ return dpid; };
 
 public:
 
@@ -1158,7 +1160,9 @@ public:
 		if (NULL == conn) {
 			return;
 		}
-		set_dpid(rofl::cdpid(conn->get_dpid()));
+		if (rofl::cauxid(0) == conn->get_aux_id()) {
+			dpid = rofl::cdpid(conn->get_dpid());
+		}
 		rofchan.add_conn(conn->get_aux_id(), conn);
 	};
 
@@ -1167,7 +1171,7 @@ public:
 public:
 
 	/**
-	 * @name	Auxiliary methods
+	 * @name	Methods related to control channel state
 	 */
 
 	/**@{*/
@@ -1213,17 +1217,36 @@ public:
 			const rofl::cauxid& auxid) const
 	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
 
+	/**@}*/
+
+public:
+
 	/**
-	 * @brief	Returns the data path element's hardware address.
+	 * @name	Methods granting access to the datapath element's basic properties
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Returns OpenFlow datapath identifier for this instance
+	 *
+	 * @return OpenFlow datapath identifier
+	 */
+	const cdpid&
+	get_dpid() const
+	{ return dpid; };
+
+	/**
+	 * @brief	Returns the datapath element's hardware address.
 	 *
 	 * @return hwaddr
 	 */
-	const caddress_ll&
+	const rofl::caddress_ll&
 	get_hwaddr() const
 	{ return hwaddr; };
 
 	/**
-	 * @brief	Returns the data path element's number of buffers for storing data packets.
+	 * @brief	Returns the datapath element's number of buffers for storing data packets.
 	 *
 	 * @return n_buffers
 	 */
@@ -1232,7 +1255,7 @@ public:
 	{ return n_buffers; };
 
 	/**
-	 * @brief	Returns the data path element's number of tables in the OpenFlow pipeline.
+	 * @brief	Returns the datapath element's number of tables in the OpenFlow pipeline.
 	 *
 	 * @return n_tables
 	 */
@@ -1241,7 +1264,7 @@ public:
 	{ return n_tables; };
 
 	/**
-	 * @brief	Returns the data path element's capabilities.
+	 * @brief	Returns the datapath element's capabilities.
 	 *
 	 * @return capabilities
 	 */
@@ -1250,7 +1273,7 @@ public:
 	{ return capabilities; };
 
 	/**
-	 * @brief	Returns the data path element's configuration.
+	 * @brief	Returns the datapath element's configuration.
 	 *
 	 * @return config
 	 */
@@ -1259,7 +1282,7 @@ public:
 	{ return config; };
 
 	/**
-	 * @brief	Returns the data path element's current miss_send_len parameter.
+	 * @brief	Returns the datapath element's current miss_send_len parameter.
 	 *
 	 * @return miss_send_len
 	 */
@@ -1268,36 +1291,28 @@ public:
 	{ return miss_send_len; };
 
 	/**
-	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
+	 * @brief	Returns const reference to the datapath element's port list.
 	 *
-	 * @return ports
-	 */
-	rofl::openflow::cofports&
-	set_ports()
-	{ return ports; };
-
-	/**
-	 * @brief	Returns reference to the data path element's rofl::openflow::cofport list.
+	 * The ports list is updated by this rofl::crofdpt instance whenever a
+	 * Port-Status or Port-Desc-Stats-Reply message is received. However,
+	 * rofl-common won't send periodic Port-Desc-Stats-Request messages, so
+	 * it is up to the higher layer logic to emit such messages.
 	 *
-	 * @return ports
+	 * @return const reference to ports list
 	 */
 	const rofl::openflow::cofports&
 	get_ports() const
 	{ return ports; };
 
 	/**
-	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
+	 * @brief	Returns const reference to the datapath element's tables list.
 	 *
-	 * @return tables
-	 */
-	rofl::openflow::coftables&
-	set_tables()
-	{ return tables; };
-
-	/**
-	 * @brief	Returns reference to the data path element's rofl::openflow::coftable_stats_reply list.
+	 * The tables list is updated by this rofl::crofdpt instance whenever a
+	 * Table-Stats-Reply (OFP v1.2) or Table-Features-Stats-Reply (OFP v1.3)
+	 * message is received. However, rofl-common won't send periodic requests, so
+	 * it is up to the higher layer logic to emit such messages.
 	 *
-	 * @return tables
+	 * @return const reference to tables list
 	 */
 	const rofl::openflow::coftables&
 	get_tables() const
@@ -1408,263 +1423,337 @@ public:
 	 * @name	Methods for sending OpenFlow messages
 	 *
 	 * These methods may be called by a derived class for sending
-	 * a specific OF message.
+	 * a specific OpenFlow message.
 	 */
 
 	/**@{*/
 
 	/**
-	 * @brief	Sends a FEATURES.request to a data path element.
+	 * @brief	Sends OpenFlow Features-Request message to attached datapath element.
 	 *
-	 * @return transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_features_request(
-			const cauxid& aux_id,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a GET-CONFIG.request to a data path element.
+	 * @brief	Sends OpenFlow Get-Config-Request message to attached datapath element.
 	 *
-	 * @return transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_get_config_request(
-			const cauxid& aux_id,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Table-Features-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this TABLE-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_table_features_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_type one of the OFPMP_* constants
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param body body of STATS.request
-	 * @param bodylen length of STATS.request body
-	 * @return transaction ID for this STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_type OpenFlow statistics subtype
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param body start of message payload
+	 * @param bodylen length of message payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_type,
 			uint16_t stats_flags,
 			uint8_t *body = NULL,
 			size_t bodylen = 0,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a DESC-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Desc-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this DESC-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_desc_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a FLOW-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Flow-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param flow_stats_request body of a FLOW-STATS.request
-	 * @return transaction ID for this FLOW-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_flow_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
 			const rofl::openflow::cofflow_stats_request& flow_stats_request,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Aggregate-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
-	 * @return transaction ID for this AGGREGATE-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param aggr_stats_request OpenFlow Aggregate-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_aggr_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t flags,
 			const rofl::openflow::cofaggr_stats_request& aggr_stats_request,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 
 	/**
-	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Table-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this TABLE-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_table_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags = 0,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a FLOW-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Port-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param port_stats_request body of a PORT-STATS.request
-	 * @return transaction ID for this FLOW-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param port_stats_request OpenFlow Port-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_port_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
 			const rofl::openflow::cofport_stats_request& port_stats_request,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a QUEUE-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Queue-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param queue_stats_request body of a QUEUE-STATS.request
-	 * @return transaction ID for this QUEUE-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param queue_stats_request OpenFlow Queue-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_queue_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
 			const rofl::openflow::cofqueue_stats_request& queue_stats_request,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a GROUP-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Group-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param queue_stats_request body of a GROUP-STATS.request
-	 * @return transaction ID for this GROUP-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param group_stats_request OpenFlow Group-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_group_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
 			const rofl::openflow::cofgroup_stats_request& group_stats_request,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Group-Desc-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this AGGREGATE-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_group_desc_stats_request(
-			const cauxid& aux_id,
-			uint16_t flags = 0,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			uint16_t stats_flags = 0,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Group-Features-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this GROUP-FEATURES-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_group_features_stats_request(
-			const cauxid& aux_id,
-			uint16_t flags,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			uint16_t stats_flags,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a PORT-DESC-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Port-Desc-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this PORT-DESC-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_port_desc_stats_request(
-			const cauxid& aux_id,
-			uint16_t flags,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			uint16_t stats_flags,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends an EXPERIMENTER-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Experimenter-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param exp_id experimenter ID
-	 * @param exp_type user defined type
-	 * @param body user defined body
-	 * @return transaction ID for this EXPERIMENTER-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param exp_id OpenFlow experimenter identifier
+	 * @param exp_type OpenFlow experimenter type
+	 * @param body experimenter statistics payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_experimenter_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
 			uint32_t exp_id,
 			uint32_t exp_type,
 			const cmemory& body,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a METER-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Meter-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param mstats meter multipart request
-	 * @return transaction ID for this METER-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param meter_stats_request OpenFlow Meter-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_meter_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
-			const rofl::openflow::cofmeter_stats_request& mstats,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::openflow::cofmeter_stats_request& meter_stats_request,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a METER-CONFIG-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Meter-Config-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param mstats meter multipart request
-	 * @return transaction ID for this METER-CONFIG-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param meter_config_stats_request OpenFlow Meter-Config-Stats-Request payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_meter_config_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
-			const rofl::openflow::cofmeter_config_request& mstats,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::openflow::cofmeter_config_request& meter_config_stats_request,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a METER-FEATURES-STATS.request to a data path element.
+	 * @brief	Sends OpenFlow Meter-Features-Stats-Request message to attached datapath element.
 	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this METER-FEATURES-STATS.request
+	 * @param auxid controller connection identifier
+	 * @param stats_flags OpenFlow statistics flags
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_meter_features_stats_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t stats_flags,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a PACKET-OUT.message to a data path element.
+	 * @brief	Sends OpenFlow Packet-Out message to attached datapath element.
 	 *
-	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
-	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
-	 * @param actions OpenFlow ActionList
-	 * @param data data packet to be sent out (optional)
-	 * @param datalen length of data packet (optional)
-	 * @result transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param buffer_id OpenFlow packet buffer identifier
+	 * @param in_port incoming port for OpenFlow matches
+	 * @param actions OpenFlow actions list
+	 * @param data start of packet frame
+	 * @param datalen length of packet frame
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_packet_out_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint32_t buffer_id,
 			uint32_t in_port,
 			const rofl::openflow::cofactions& actions,
@@ -1672,149 +1761,196 @@ public:
 			size_t datalen = 0);
 
 	/**
-	 * @brief	Sends a BARRIER.request to a data path element.
+	 * @brief	Sends OpenFlow Barrier-Request message to attached datapath element.
 	 *
-	 * @result transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_barrier_request(
-			const cauxid& aux_id,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a ROLE.request to a data path element.
+	 * @brief	Sends OpenFlow Role-Request message to attached datapath element.
 	 *
-	 * @param role role as defined by OpenFlow
-	 * @param generation_id gen_id as defined by OpenFlow
+	 * @param auxid controller connection identifier
+	 * @param role OpenFlow role definition
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_role_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			const rofl::openflow::cofrole& role,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief 	Sends a FLOW-MOD.message to a data path element.
+	 * @brief	Sends OpenFlow Flow-Mod message to attached datapath element.
 	 *
-	 * @param flowentry FlowMod entry
+	 * @param auxid controller connection identifier
+	 * @param flowmod OpenFlow flow mod entry
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_flow_mod_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			const rofl::openflow::cofflowmod& flowmod);
 
 	/**
-	 * @brief 	Sends a GROUP-MOD.message to a data path element.
+	 * @brief	Sends OpenFlow Group-Mod message to attached datapath element.
 	 *
-	 * @param groupentry GroupMod entry
+	 * @param auxid controller connection identifier
+	 * @param groupmod OpenFlow group mod entry
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_group_mod_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			const rofl::openflow::cofgroupmod& groupmod);
 
 	/**
-	 * @brief	Sends a TABLE-MOD.message to a data path element.
+	 * @brief	Sends OpenFlow Table-Mod message to attached datapath element.
 	 *
-	 * @param table_id ID of table to be reconfigured
-	 * @param config new configuration for table
+	 * @param auxid controller connection identifier
+	 * @param table_id OpenFlow table identifier
+	 * @param config OpenFlow table configuration
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_table_mod_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint8_t table_id,
 			uint32_t config);
 
 	/**
-	 * @brief	Sends a PORT-MOD.message to a data path element.
+	 * @brief	Sends OpenFlow Port-Mod message to attached datapath element.
 	 *
-	 * @param port_no number of port to be updated
-	 * @param hwaddr MAC address assigned to port
-	 * @param config OpenFlow config parameter
-	 * * @param mask OpenFlow mask parameter
-	 * * @param advertise OpenFlow advertise parameter
+	 * @param auxid controller connection identifier
+	 * @param portno OpenFlow port number
+	 * @param hwaddr hardware address assigned to this port
+	 * @param config OpenFlow port configuration
+	 * @param mask OpenFlow port mask
+	 * @param OpenFlow port advertise field
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_port_mod_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint32_t port_no,
-			const caddress_ll& hwaddr,
+			const rofl::caddress_ll& hwaddr,
 			uint32_t config,
 			uint32_t mask,
 			uint32_t advertise);
 
 	/**
-	 * @brief	Sends a SET-CONFIG.message to a data path element.
+	 * @brief	Sends OpenFlow Set-Config message to attached datapath element.
 	 *
-	 * @param flags field of OpenFlow's OFPC_* flags
-	 * @param miss_send_len OpenFlow' miss_send_len parameter
+	 * @param auxid controller connection identifier
+	 * @param flags OpenFlow datapath element's flags
+	 * @param miss_send_len OpenFlow miss_send_len parameter
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_set_config_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint16_t flags,
 			uint16_t miss_send_len);
 
 	/**
-	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
+	 * @brief	Sends OpenFlow Queue-Get-Config-Request message to attached datapath element.
 	 *
-	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
-	 * @result transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param portno OpenFlow port number
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_queue_get_config_request(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint32_t port,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
+	 * @brief	Sends OpenFlow Get-Async-Config-Request message to attached datapath element.
 	 *
-	 * @return transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_get_async_config_request(
-			const cauxid& aux_id,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cauxid& auxid,
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**
-	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
+	 * @brief	Sends OpenFlow Set-Async-Config message to attached datapath element.
 	 *
+	 * @param auxid controller connection identifier
+	 * @param async_config OpenFlow async_config payload
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_set_async_config_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			const rofl::openflow::cofasync_config& async_config);
 
 	/**
-	 * @brief	Sends a METER-MOD.message to a data path element.
+	 * @brief	Sends OpenFlow Meter-Mod message to attached datapath element.
 	 *
-	 * @param table_id ID of table to be reconfigured
-	 * @param config new configuration for table
+	 * @param auxid controller connection identifier
+	 * @param command OpenFlow Meter-Mod command
+	 * @param flags OpenFlow Meter-Mod flags
+	 * @param meter_id OpenFlow Meter-Mod identifier
+	 * @param meter_bands OpenFlow meterbands
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_meter_mod_message(
-			const cauxid& auxid,
+			const rofl::cauxid& auxid,
 			uint16_t command,
 			uint16_t flags,
 			uint32_t meter_id,
 			const rofl::openflow::cofmeter_bands& meter_bands);
 
 	/**
-	 * @brief	Sends an ERROR.message to a data path element.
+	 * @brief	Sends OpenFlow Error message to attached datapath element.
 	 *
-	 * These messages are used for failed HELLO negotiations and
-	 * experimental extensions.
-	 *
-	 * @param xid transaction ID of reply/notification that generated this error message
-	 * @param type one of OpenFlow's OFPET_* flags
-	 * @param code one of OpenFlow's error codes
-	 * @param data first (at least 64) bytes of failed reply/notification
-	 * @param datalen length of failed reply/notification appended to error message
+	 * @param auxid controller connection identifier
+	 * @param xid OpenFlow transaction identifier
+	 * @param type OpenFlow error type
+	 * @param code OpenFlow error code
+	 * @param data start of error message payload
+	 * @param datalen length of error message payload
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	void
 	send_error_message(
-			const cauxid& aux_id,
+			const rofl::cauxid& auxid,
 			uint32_t xid,
 			uint16_t type,
 			uint16_t code,
@@ -1822,41 +1958,45 @@ public:
 			size_t datalen = 0);
 
 	/**
-	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
+	 * @brief	Sends OpenFlow Experimenter message to attached datapath element.
 	 *
-	 * @param experimenter_id exp_id as assigned by ONF
-	 * @param exp_type exp_type as defined by the ONF member
-	 * @param body pointer to opaque experimenter message body (optional)
-	 * @param bodylen length of body (optional)
-	 * @result transaction ID assigned to this request
+	 * @param auxid controller connection identifier
+	 * @param exp_id OpenFlow experimenter identifier
+	 * @param exp_type OpenFlow experimenter type
+	 * @param body start of experimenter message payload
+	 * @param bodylen length of experimenter message payload
+	 * @param timeout until this request expires
+	 * @return OpenFlow transaction ID assigned to this request
+	 * @exception rofl::eRofBaseNotConnected
+	 * @exception rofl::eRofBaseCongested
 	 */
 	uint32_t
 	send_experimenter_message(
-			const cauxid& aux_id,
-			uint32_t experimenter_id,
+			const rofl::cauxid& auxid,
+			uint32_t exp_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0,
-			const cclock& timeout = cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
+			const rofl::cclock& timeout = rofl::cclock(/*seconds=*/DEFAULT_REQUEST_TIMEOUT));
 
 	/**@}*/
 
 public:
 
 	/**
-	 *
+	 * @brief 	Predicate for finding a rofl::crofdpt instance by its rofl::cdptid.
 	 */
 	class crofdpt_find_by_dptid {
 		cdptid dptid;
 	public:
-		crofdpt_find_by_dptid(const cdptid& dptid) : dptid(dptid) {};
+		crofdpt_find_by_dptid(const rofl::cdptid& dptid) : dptid(dptid) {};
 		bool operator() (const crofdpt* rofdpt) {
 			return (rofdpt->get_dptid() == dptid);
 		};
 	};
 
 	/**
-	 *
+	 * @brief 	Predicate for finding a rofl::crofdpt instance by its rofl::cdpid.
 	 */
 	class crofdpt_find_by_dpid {
 		uint64_t dpid;
@@ -1865,27 +2005,6 @@ public:
 		bool operator() (const std::pair<cdptid, crofdpt*>& p) {
 			return (p.second->get_dpid().get_uint64_t() == dpid);
 		};
-	};
-
-protected:
-
-	/**
-	 *
-	 */
-	void
-	set_dpid(
-			const cdpid& dpid) {
-		this->dpid = dpid;
-	};
-
-protected:
-
-	crofdpt_env&
-	call_env() {
-		if (crofdpt_env::rofdpt_envs.find(env) == crofdpt_env::rofdpt_envs.end()) {
-			throw eRofDptNotFound();
-		}
-		return *env;
 	};
 
 public:
@@ -1934,6 +2053,9 @@ public:
 		return os;
 	};
 
+	/**
+	 * @brief	Returns a one-liner string with basic information about this instance.
+	 */
 	std::string
 	str() const {
 		std::stringstream ss;
@@ -1968,6 +2090,14 @@ public:
 	};
 
 private:
+
+	crofdpt_env&
+	call_env() {
+		if (crofdpt_env::rofdpt_envs.find(env) == crofdpt_env::rofdpt_envs.end()) {
+			throw eRofDptNotFound("rofl::crofdpt::call_env() environment not found");
+		}
+		return *env;
+	};
 
 	virtual void
 	handle_conn_established(
@@ -2023,11 +2153,11 @@ private:
 	};
 
 	virtual void
-	handle_write(crofchan& chan, const cauxid& auxid)
+	handle_write(crofchan& chan, const rofl::cauxid& auxid)
 	{ call_env().handle_conn_writable(*this, auxid); };
 
 	virtual void
-	recv_message(crofchan& chan, const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+	recv_message(crofchan& chan, const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	virtual uint32_t
 	get_async_xid(crofchan& chan)
@@ -2122,87 +2252,87 @@ private:
 
 	void
 	experimenter_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	error_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	features_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	get_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	multipart_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	table_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	port_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	flow_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	aggregate_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	queue_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	group_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	group_desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	group_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	meter_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	meter_config_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	meter_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	table_features_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	port_desc_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	experimenter_stats_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	barrier_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	port_mod_sent(
@@ -2210,68 +2340,76 @@ private:
 
 	void
 	packet_in_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	flow_removed_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	port_status_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	role_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	queue_get_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 	void
 	get_async_config_reply_rcvd(
-			const cauxid& aux_id, rofl::openflow::cofmsg *msg);
+			const rofl::cauxid& auxid, rofl::openflow::cofmsg *msg);
 
 private:
 
-	static std::map<cdptid, crofdpt*>
-							rofdpts;
+	static std::map<rofl::cdptid, crofdpt*> rofdpts;
 
-	crofdpt_env*			env;
-	cdptid   				dptid;			// handle for this crofdpt instance
-	bool					remove_on_channel_close;
-	cdpid 					dpid;			// datapath id
-	std::set<uint32_t>		groupids;		// allocated groupids on datapath
+	// environment
+	rofl::crofdpt_env*      env;
+	// handle for this crofdpt instance
+	rofl::cdptid            dptid;
+	// OFP control channel
+	rofl::crofchan          rofchan;
+	// pending OFP transactions
+	rofl::ctransactions     transactions;
 
-	rofl::crofchan			rofchan;		// OFP control channel
+	bool                    remove_on_channel_close;
+	// allocated groupids on datapath
+	std::set<uint32_t>      groupids;
 
-	caddress_ll 			hwaddr;			// datapath mac address
-	uint32_t 				n_buffers; 		// number of buffer lines
-	uint8_t 				n_tables;		// number of tables
-	uint32_t 				capabilities;	// capabilities flags
+	// datapath identifier
+	rofl::cdpid             dpid;
+	// datapath hardware address
+	rofl::caddress_ll       hwaddr;
+	// number of buffer lines
+	uint32_t                n_buffers;
+	// number of tables
+	uint8_t                 n_tables;
+	// capabilities field
+	uint32_t                capabilities;
+	// list of tables
+	rofl::openflow::coftables tables;
+	// list of ports
+	rofl::openflow::cofports ports;
+	uint16_t                config;
+	uint16_t                miss_send_len;
 
-	rofl::openflow::coftables
-							tables;			// list of tables
-	rofl::openflow::cofports
-							ports;			// list of ports
-	uint16_t				config;
-	uint16_t 				miss_send_len; 	// length of bytes sent to controller
-	ctransactions			transactions;	// pending OFP transactions
-
-	unsigned int			state;
+	unsigned int            state;
 	std::deque<enum crofdpt_event_t>
-							events;
+                            events;
 
-	PthreadRwLock			conns_terminated_rwlock;
+	PthreadRwLock           conns_terminated_rwlock;
 	std::list<rofl::cauxid> conns_terminated;
-	PthreadRwLock			conns_refused_rwlock;
+	PthreadRwLock           conns_refused_rwlock;
 	std::list<rofl::cauxid> conns_refused;
-	PthreadRwLock			conns_failed_rwlock;
+	PthreadRwLock           conns_failed_rwlock;
 	std::list<rofl::cauxid> conns_failed;
 
-	std::bitset<32>			flags;
+	std::bitset<32>         flags;
 
-	static const time_t		DEFAULT_REQUEST_TIMEOUT = 5; // seconds
+	static const time_t     DEFAULT_REQUEST_TIMEOUT = 5; // seconds
 };
 
 }; // end of namespace

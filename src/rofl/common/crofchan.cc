@@ -6,6 +6,7 @@
  */
 
 #include "rofl/common/crofchan.h"
+#include "rofl/common/crofbase.h"
 
 using namespace rofl;
 
@@ -258,7 +259,15 @@ crofchan::send_message(
 		throw eRofChanNotConnected();
 	}
 
-	return conns[aux_id]->send_message(msg);
+	unsigned int cwnd_size = 0;
+
+	cwnd_size = conns[aux_id]->send_message(msg);
+
+	if (cwnd_size == 0) {
+		throw eRofBaseCongested();
+	}
+
+	return cwnd_size;
 }
 
 

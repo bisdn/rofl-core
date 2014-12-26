@@ -392,12 +392,13 @@ public:
 	add_dpt(
 		const rofl::cdptid& dptid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
-		bool remove_on_channel_close = false) {
+		bool remove_on_channel_close = false,
+		const rofl::cdpid& dpid = rofl::cdpid(0)) {
 		if (rofdpts.find(dptid) != rofdpts.end()) {
 			delete rofdpts[dptid];
 			rofdpts.erase(dptid);
 		}
-		rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap);
+		rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid);
 		return *(rofdpts[dptid]);
 	};
 
@@ -420,9 +421,10 @@ public:
 	set_dpt(
 		const rofl::cdptid& dptid,
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
-		bool remove_on_channel_close = false) {
+		bool remove_on_channel_close = false,
+		const rofl::cdpid& dpid = rofl::cdpid(0)) {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
-			rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap);
+			rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid);
 		}
 		return *(rofdpts[dptid]);
 	};
