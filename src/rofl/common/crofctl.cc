@@ -18,7 +18,7 @@ crofctl::get_ctl(
 		const cctlid& ctlid)
 {
 	if (crofctl::rofctls.find(ctlid) == crofctl::rofctls.end()) {
-		throw eRofCtlNotFound();
+		throw eRofCtlNotFound("rofl::crofctl::get_ctl() ctlid not found");
 	}
 	return *(crofctl::rofctls[ctlid]);
 }
@@ -77,7 +77,6 @@ crofctl::work_on_eventqueue()
 void
 crofctl::event_chan_terminated()
 {
-	state = STATE_DISCONNECTED;
 	call_env().handle_chan_terminated(*this);
 }
 

@@ -156,6 +156,7 @@ crofdpt::event_disconnected()
 	tables.clear();
 	ports.clear();
 	state = STATE_DISCONNECTED;
+	dlqueue.clear();
 	call_env().handle_chan_terminated(*this);
 }
 
@@ -253,6 +254,11 @@ crofdpt::event_get_config_reply_rcvd()
 							<< "Get-Config-Reply rcvd, next state: -established- " << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
+			// send all postponed messages to higher layers
+			while (not dlqueue.empty()) {
+				recv_message(rofchan, rofl::cauxid(0), dlqueue.retrieve());
+			}
+
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
 			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
@@ -312,6 +318,11 @@ crofdpt::event_table_stats_reply_rcvd()
 							<< "Table-Stats-Reply rcvd, next state: -established- " << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
+			// send all postponed messages to higher layers
+			while (not dlqueue.empty()) {
+				recv_message(rofchan, rofl::cauxid(0), dlqueue.retrieve());
+			}
+
 		} break;
 		default: {
 			// do nothing
@@ -413,6 +424,11 @@ crofdpt::event_port_desc_reply_rcvd()
 							<< "Port-Desc-Stats-Reply rcvd, next state: -established- " << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
+			// send all postponed messages to higher layers
+			while (not dlqueue.empty()) {
+				recv_message(rofchan, rofl::cauxid(0), dlqueue.retrieve());
+			}
+
 		} break;
 		}
 	} break;
@@ -2407,8 +2423,10 @@ crofdpt::flow_removed_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		call_env().handle_flow_removed(*this, auxid, flow_removed);
+		delete msg;
+	} else {
+		dlqueue.store(msg);
 	}
-	delete msg;
 }
 
 
@@ -2425,8 +2443,10 @@ crofdpt::packet_in_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		call_env().handle_packet_in(*this, auxid, packet_in);
+		delete msg;
+	} else {
+		dlqueue.store(msg);
 	}
-	delete msg;
 }
 
 
@@ -2460,8 +2480,10 @@ crofdpt::port_status_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		call_env().handle_port_status(*this, auxid, port_status);
+		delete msg;
+	} else {
+		dlqueue.store(msg);
 	}
-	delete msg;
 }
 
 

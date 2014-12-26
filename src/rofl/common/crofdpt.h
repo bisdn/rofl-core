@@ -24,6 +24,7 @@
 #include "rofl/common/cdptid.h"
 #include "rofl/common/cauxid.h"
 #include "rofl/common/cdpid.h"
+#include "rofl/common/crofqueue.h"
 
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/coftables.h"
@@ -54,14 +55,35 @@ public:
 
 class crofdpt;
 
+/**
+ * @brief	Interface for an environment for rofl::crofdpt.
+ *
+ * This class defines the interface to the environment required
+ * by an instance of class rofl::crofdpt. Its API comprises two
+ * groups of methods:
+ *
+ * 1. Methods for receiving OpenFlow control channel and
+ * connections related notifications.
+ * 2. Methods for receiving OpenFlow messages, once the control
+ * channel has been established.
+ *
+ * Overwrite any of these methods for receiving certain event
+ * notifications from the associated rofl::crofdpt instance.
+ */
 class crofdpt_env {
 	friend class crofdpt;
 	static std::set<crofdpt_env*> rofdpt_envs;
 public:
 
+	/**
+	 * @brief	rofl::crofdpt_env constructor
+	 */
 	crofdpt_env()
 	{ crofdpt_env::rofdpt_envs.insert(this); };
 
+	/**
+	 * @brief	rofl::crofdpt_env destructor
+	 */
 	virtual
 	~crofdpt_env()
 	{ crofdpt_env::rofdpt_envs.erase(this); };
@@ -952,8 +974,6 @@ class crofdpt :
 		public rofl::ctransactions_env,
 		public ciosrv
 {
-private: // data structures
-
 	enum crofdpt_timer_t {
 		TIMER_RUN_ENGINE                            = 0,
 	};
@@ -1019,6 +1039,7 @@ public:
 	 * @brief 	crofdpt constructor
 	 *
 	 * @param env pointer to rofl::crofdpt_env instance defining the environment for this object
+	 * @param dptid rofl-common's internal identifier for this instance
 	 * @param remove_on_channel_close when set to true, this indicates to remove this object after the control channel has been terminated
 	 * @param versionbitmap OpenFlow version bitmap
 	 * @param dpid OpenFlow datapath element identifier (optional)
@@ -1117,7 +1138,7 @@ public:
 	connect(
 			const rofl::cauxid& auxid,
 			enum rofl::csocket::socket_type_t socket_type,
-			const cparams& socket_params) {
+			const rofl::cparams& socket_params) {
 		if (rofl::cauxid(0) == auxid) {
 			rofchan.close();
 			transactions.clear();
@@ -1193,8 +1214,9 @@ public:
 	{ return rofchan.get_version(); };
 
 	/**
+	 * @brief	Returns the defined OpenFlow version bitmap for this instance.
 	 *
-	 * @return
+	 * @return OpenFlow version bitmap
 	 */
 	const rofl::openflow::cofhello_elem_versionbitmap&
 	get_versions_available() const
@@ -1208,11 +1230,11 @@ public:
 	{ return remove_on_channel_close; };
 
 	/**
-	 * @brief	Returns caddress of connected remote entity.
+	 * @brief	Returns caddress of connected remote entity for given connection identifier.
 	 *
 	 * @return caddress object obtained from this->socket
 	 */
-	caddress
+	rofl::caddress
 	get_peer_addr(
 			const rofl::cauxid& auxid) const
 	{ return rofchan.get_conn(auxid).get_rofsocket().get_socket().get_raddr(); };
@@ -1417,7 +1439,6 @@ public:
 	/**@}*/
 
 public:
-
 
 	/**
 	 * @name	Methods for sending OpenFlow messages
@@ -2408,6 +2429,8 @@ private:
 	std::list<rofl::cauxid> conns_failed;
 
 	std::bitset<32>         flags;
+	// delay queue, used for storing asynchronous messages during connection setup
+	rofl::crofqueue         dlqueue;
 
 	static const time_t     DEFAULT_REQUEST_TIMEOUT = 5; // seconds
 };
