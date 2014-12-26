@@ -10,7 +10,7 @@
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/csocket.h"
-#include "rofl/common/csocket_impl.h"
+#include "rofl/common/csocket_plain.h"
 #ifdef ROFL_HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
 #endif
