@@ -1110,7 +1110,7 @@ public:
 	 * all existing control connections in OpenFlow.
 	 *
 	 * @param auxid control connection identifier
-	 * @param socket_type one of the socket types defined in @see rofl::csocket
+	 * @param socket_type one of the socket types defined in rofl::csocket
 	 * @param socket_params a set of parameters for the selected socket type
 	 */
 	void
@@ -1232,7 +1232,7 @@ public:
 	 *
 	 * @return OpenFlow datapath identifier
 	 */
-	const cdpid&
+	const rofl::cdpid&
 	get_dpid() const
 	{ return dpid; };
 

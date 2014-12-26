@@ -386,6 +386,7 @@ public:
 	 * @param remove_on_channel_close when true, automatically remove this
 	 * rofl::crofdpt instance, when all OpenFlow control channel connections
 	 * have been terminated
+	 * @param dpid OpenFlow datapath identifier (optional)
 	 * @result reference to new rofl::crofdpt instance
 	 */
 	rofl::crofdpt&
@@ -415,6 +416,7 @@ public:
 	 * @param remove_on_channel_close when true, automatically remove this
 	 * rofl::crofdpt instance, when all OpenFlow control channel connections
 	 * have been terminated
+	 * @param dpid OpenFlow datapath identifier (optional)
 	 * @result reference to existing or new rofl::crofdpt instance
 	 */
 	rofl::crofdpt&
