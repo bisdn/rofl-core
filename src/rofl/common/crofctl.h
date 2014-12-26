@@ -1752,7 +1752,7 @@ private:
 
 private:
 
-	static std::map<cctlid, crofctl*> rofctls;
+	static std::map<rofl::cctlid, rofl::crofctl*> rofctls;
 
 	// environment
 	rofl::crofctl_env*      env;
