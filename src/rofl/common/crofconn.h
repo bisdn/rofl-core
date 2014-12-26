@@ -32,6 +32,10 @@ class eRofConnNotFound				: public eRofConnBase {};
 
 class crofconn; // forward declaration
 
+/**
+ * @addtogroup common_workflow
+ * @brief	Environment expected by a rofl::crofconn object
+ */
 class crofconn_env {
 	static std::set<crofconn_env*> rofconn_envs;
 public:
@@ -133,7 +137,10 @@ protected:
 
 
 
-
+/**
+ * @addtogroup common_workflow
+ * @brief	A single OpenFlow control connection
+ */
 class crofconn :
 		public crofsock_env,
 		public ciosrv,

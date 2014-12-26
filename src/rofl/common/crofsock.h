@@ -68,6 +68,10 @@ namespace rofl {
 
 class crofsock; // forward declaration
 
+/**
+ * @addtogroup common_workflow
+ * @brief	Environment expected by a rofl::crofsock object
+ */
 class crofsock_env {
 public:
 	virtual ~crofsock_env() {};
@@ -99,6 +103,10 @@ class eRofSockBase			: public RoflException {};
 class eRofSockTxAgain		: public eRofSockBase {};
 class eRofSockMsgTooLarge 	: public eRofSockBase {};
 
+/**
+ * @addtogroup common_workflow
+ * @brief	A socket capable of talking OpenFlow via TCP and vice versa
+ */
 class crofsock :
 		public ciosrv,
 		public csocket_owner

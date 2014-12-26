@@ -30,23 +30,22 @@ namespace rofl {
 
 
 /**
- * @class csocket_impl
  * @brief 	A single unencrypted socket.
  *
  * This class provides basic support for socket based communication.
  * Its aim is to encapsulate functionality for establishing a socket
  * in active and passive mode. For using a socket, the owning class
- * must implement the interface defined in csocket_impl_owner.
+ * must implement the interface defined in csocket_plain_owner.
  *
  * The socket is set to non-blocking mode,
  * thus it does not block indefinitely during read or write operations,
  * rather it returns control to the calling entity asap.
  *
- * For listening sockets, method csocket_impl_owner::handle_accepted() will be
- * called. The socket owner should create a new csocket_impl instance and assigning
+ * For listening sockets, method csocket_plain_owner::handle_accepted() will be
+ * called. The socket owner should create a new csocket_plain instance and assigning
  * the new obtained socket descriptor to it.
  *
- * @see csocket_impl_owner
+ * @see csocket_plain_owner
  */
 class csocket_plain :
 	public csocket
@@ -111,11 +110,11 @@ private:
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
 
-	enum csocket_impl_timer_t {
+	enum csocket_plain_timer_t {
 		TIMER_RECONNECT 	= 1,
 	};
 
-	enum csocket_impl_event_t {
+	enum csocket_plain_event_t {
 		EVENT_CONN_RESET	= 1,
 		EVENT_DISCONNECTED	= 2,
 	};
@@ -134,9 +133,9 @@ public:
 
 
 	/**
-	 * @brief	Constructor for new empty csocket_impl instances.
+	 * @brief	Constructor for new empty csocket_plain instances.
 	 *
-	 * @param owner socket owning entity implementing interface csocket_impl_owner
+	 * @param owner socket owning entity implementing interface csocket_plain_owner
 	 */
 	csocket_plain(
 			csocket_owner *owner);
@@ -232,7 +231,7 @@ public:
 	 * the socket descriptor for a write operation and returns, giving the
 	 * calling entity back control.
 	 *
-	 * csocket_impl will call mem's destructor in order to remove the packet from heap
+	 * csocket_plain will call mem's destructor in order to remove the packet from heap
 	 * once it has been sent out. Make sure, that mem is pointing to a heap allocated
 	 * cmemory instance!
 	 *
@@ -422,7 +421,7 @@ protected:
 	/**
 	 * Read data from socket.
 	 *
-	 * This notification method is called from within csocket_impl::handle_revent().
+	 * This notification method is called from within csocket_plain::handle_revent().
 	 * A derived class should read data from the socket. This method
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
@@ -437,7 +436,7 @@ protected:
 	/**
 	 * Write data to socket.
 	 *
-	 * This notification method is called from within csocket_impl::handle_wevent().
+	 * This notification method is called from within csocket_plain::handle_wevent().
 	 * A derived class should write data to the socket. This method
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
@@ -485,7 +484,7 @@ private:
 	/**
 	 * Handle read events on socket descriptor.
 	 *
-	 * Implemented by csocket_impl, it either handles accept() in listening mode
+	 * Implemented by csocket_plain, it either handles accept() in listening mode
 	 * or read operations in non-listening mode. In listening mode and after
 	 * return of the accept() system call, the handle_accepted() method is called.
 	 * In non-listening mode the handle_read() method is called.
@@ -532,7 +531,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, csocket_plain const& sock) {
 		os << dynamic_cast<csocket const&>( sock );
-		os << rofl::indent(2) << "<csocket_impl #tx-queue:" << sock.pout_squeue.size() << ">" << std::endl;
+		os << rofl::indent(2) << "<csocket_plain #tx-queue:" << sock.pout_squeue.size() << ">" << std::endl;
 		os << rofl::indent(4) << "<flags: ";
 		if (sock.sockflags.test(FLAG_LISTENING)) {
 			os << "LISTENING ";

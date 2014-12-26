@@ -331,7 +331,7 @@ csocket_plain::listen(
 		addrinfos.resolve();
 
 		if (addrinfos.size() == 0) {
-			throw eInval("csocket_impl::listen() unable to resolve hostname");
+			throw eInval("csocket_plain::listen() unable to resolve hostname");
 		}
 
 		// we take simply the first result returned
@@ -362,7 +362,7 @@ csocket_plain::listen(
 				binding_addr = addr.str();
 			} break;
 			default:
-				throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+				throw eInval("csocket_plain::connect() unable to resolve remote hostname");
 			}
 		};
 		}
@@ -644,7 +644,7 @@ csocket_plain::connect(
 			addrinfos.resolve();
 
 			if (addrinfos.size() == 0) {
-				throw eInval("csocket_impl::connect() unable to resolve hostname");
+				throw eInval("csocket_plain::connect() unable to resolve hostname");
 			}
 
 			// we take simply the first result returned
@@ -675,7 +675,7 @@ csocket_plain::connect(
 					remote_addr = addr.str();
 				} break;
 				default:
-					throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+					throw eInval("csocket_plain::connect() unable to resolve remote hostname");
 				}
 			};
 			}
@@ -713,7 +713,7 @@ csocket_plain::connect(
 			addrinfos.resolve();
 
 			if (addrinfos.size() == 0) {
-				throw eInval("csocket_impl::connect() unable to resolve hostname");
+				throw eInval("csocket_plain::connect() unable to resolve hostname");
 			}
 
 			// we take simply the first result returned
@@ -733,20 +733,20 @@ csocket_plain::connect(
 				switch (addrinfos.get_addr_info(0).get_ai_family()) {
 				case PF_INET: {
 					if (domain != PF_INET)
-						throw eInval("csocket_impl::connect() unable to resolve local hostname in domain PF_INET");
+						throw eInval("csocket_plain::connect() unable to resolve local hostname in domain PF_INET");
 					caddress_in4 addr;
 					addr.set_addr_nbo(addrinfos.get_addr_info(0).get_ai_addr().ca_s4addr->sin_addr.s_addr);
 					local_addr = addr.str();
 				} break;
 				case PF_INET6: {
 					if (domain != PF_INET6)
-						throw eInval("csocket_impl::connect() unable to resolve local hostname in domain PF_INET6");
+						throw eInval("csocket_plain::connect() unable to resolve local hostname in domain PF_INET6");
 					caddress_in6 addr;
 					addr.unpack(addrinfos.get_addr_info(0).get_ai_addr().ca_s6addr->sin6_addr.s6_addr, 16);
 					local_addr = addr.str();
 				} break;
 				default:
-					throw eInval("csocket_impl::connect() unable to resolve remote hostname");
+					throw eInval("csocket_plain::connect() unable to resolve remote hostname");
 				}
 			};
 			}

@@ -37,7 +37,6 @@ class eOpenSSLVerify		: public eOpenSSL {};
 
 
 /**
- * @class csocket_impl
  * @brief 	A single unencrypted socket.
  *
  * This class provides basic support for socket based communication.

@@ -60,6 +60,7 @@ class eRofBaseCongested             : public eRofBase {}; // control channel is 
 
 
 /**
+ * @addtogroup common_workflow
  * @brief 	Base class for revised OpenFlow library
  *
  * Derive from this class in order to use ROFL's functionality.

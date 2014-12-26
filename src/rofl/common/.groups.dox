@@ -2,6 +2,99 @@
 // Doxygen group definition
 //
 
+/**
+ * @defgroup common An introduction to rofl-common
+ */
+
+/**
+ * @defgroup common_workflow Workflow and how messages traverse rofl-common
+ * @ingroup common
+ * 
+ * Have a look on the classes in rofl-common defining the actual workflow and how messages traverse the protocol stack.
+ * rofl-common defines a set of classes for implementing the protocol's core logic 
+ * actually building a hierarchy starting at a plain socket instance. All workflow
+ * related classes in rofl-common are associated to an environment class (e.g., rofl::crofsock_env 
+ * for rofl::crofsock) that defines the interface expected by a certain class.
+ *
+ * a) Class rofl::crofsock maps OpenFlow messages from their wire representation into 
+ * the associated OpenFlow classes defined by rofl-common and provides support 
+ * for basic message validation.
+ *
+ * b) Class rofl::crofconn provides the abstraction of an OpenFlow control connection
+ * as defined since OpenFlow v1.3. It negotiates the OpenFlow protocol version to be used
+ * with the connected peer entity and detects the datapath identifier when acting in 
+ * controller mode.
+ *
+ * c) Class rofl::crofchan binds multiple control connections into an OpenFlow control
+ * channel and defines the mutual dependencies between the main control connection 
+ * using control connection identifier 0 and the remaining auxiliary control connections.
+ *
+ * d) Class rofl::crofctl represents a remote controller entity and provides 
+ * various methods for sending OpenFlow messages to this controller entity over any
+ * of the defined control connections.
+ *
+ * e) Class rofl::crofdpt represents a remote datapath element and provides
+ * various methods for sending OpenFlow messages to this datapath element over any
+ * of the defined control connections.
+ *
+ * f) Class rofl::crofbase defines rofl-common's main class, as any advanced application
+ * logic requiring OpenFlow support should derive from this class. It implements all
+ * handlers for receiving various notification events from instances of classes 
+ * rofl::crofctl and rofl::crofdpt, respectively. 
+ * 
+ */
+
+/**
+ * @defgroup common_ioservice rofl-common's internal I/O service for dealing with socket descriptors, timers, events
+ * @ingroup common
+ */
+
+/**
+ * @defgroup common_exceptions How to deal with runtime errors in general
+ * @ingroup common
+ */
+
+/**
+ * @defgroup common_openflow Mapping of OpenFlow structures and concepts in rofl-common
+ */
+
+/**
+ * @defgroup common_openflow_structures C++ classes representing various C structures in OpenFlow
+ * @ingroup common_openflow
+ */
+
+/**
+ * @defgroup common_openflow_messages C++ classes representing OpenFlow messages
+ * @ingroup common_openflow
+ */
+
+/**
+ * @defgroup common_openflow_exceptions How to deal with OpenFlow related runtime errors 
+ * @ingroup common_openflow
+ */
+
+/**
+ * @defgroup common_openflow_experimental Experimental OpenFlow extensions
+ * @ingroup common_openflow
+ */
+
+/**
+ * @defgroup common_auxiliary Auxiliary classes providing glue towards the underlying operating system
+ */
+
+/**
+ * @defgroup common_auxiliary_logging rofl-common's logging facility
+ * @ingroup common_auxiliary
+ */
+
+/**
+ * @defgroup common_auxiliary_sockets Use of BSD style sockets in rofl-common including support for OpenSSL
+ * @ingroup common_auxiliary
+ */
+
+/**
+ * @defgroup common_protocols Protocol definitions for Ethernet, VLAN, MPLS, IPv4/v6, ICMPv4/v6/ARP, TCP, UDP, SCTP, ...
+ */
 
 // common
 /**

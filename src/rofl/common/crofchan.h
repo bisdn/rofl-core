@@ -32,7 +32,8 @@ class eRofChanNotConnected	: public eRofChanBase {};
 class crofchan; // forward declaration
 
 /**
- * @class Environment expected by a crofchan instance
+ * @addtogroup common_workflow
+ * @brief 	Environment expected by a crofchan instance
  *
  */
 class crofchan_env {
@@ -41,13 +42,13 @@ class crofchan_env {
 public:
 
 	/**
-	 *
+	 * @brief	crofchan_env constructor
 	 */
 	crofchan_env()
 	{ crofchan_env::rofchan_envs.insert(this); };
 
 	/**
-	 * @brief	destructor
+	 * @brief	crofchan_env destructor
 	 */
 	virtual
 	~crofchan_env()
@@ -145,6 +146,10 @@ protected:
 
 
 
+/**
+ * @addtogroup common_workflow
+ * @brief	An OpenFlow control channel grouping multiple control connections
+ */
 class crofchan :
 		public rofl::ciosrv,
 		public crofconn_env
