@@ -33,7 +33,7 @@ class eRofConnNotFound				: public eRofConnBase {};
 class crofconn; // forward declaration
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	Environment expected by a rofl::crofconn object
  */
 class crofconn_env {
@@ -138,7 +138,7 @@ protected:
 
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	A single OpenFlow control connection
  */
 class crofconn :

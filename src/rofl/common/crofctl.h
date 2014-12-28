@@ -58,7 +58,7 @@ public:
 class crofctl;
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	Interface for an environment for rofl::crofctl.
  *
  * This class defines the interface to the environment required
@@ -694,7 +694,7 @@ protected:
 
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	Class representing a remote controller entity
  *
  * This class encapsulates properties of a single remote controller entity

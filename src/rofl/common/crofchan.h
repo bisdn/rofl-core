@@ -32,7 +32,7 @@ class eRofChanNotConnected	: public eRofChanBase {};
 class crofchan; // forward declaration
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief 	Environment expected by a crofchan instance
  *
  */
@@ -147,7 +147,7 @@ protected:
 
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	An OpenFlow control channel grouping multiple control connections
  */
 class crofchan :

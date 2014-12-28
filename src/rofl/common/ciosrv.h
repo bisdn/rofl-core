@@ -559,6 +559,7 @@ protected:
 	 * To be overwritten by derived class. Default behaviour: event is ignored.
 	 *
 	 * @param opaque expired timer type
+	 * @param data pointer to opaque data
 	 */
 	virtual void
 	handle_timeout(int opaque, void *data = (void*)0) {};

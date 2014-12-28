@@ -42,7 +42,7 @@ int main(int argc, char** argv){
 	versionbitmap.add_ofp_version(rofl::openflow10::OFP_VERSION);
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
-	etherswitch::ethswitch sw(versionbitmap);
+	etherswitch::cetherswitch sw(versionbitmap);
 
 	//We must now specify the parameters for allowing datapaths to connect
 	rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);

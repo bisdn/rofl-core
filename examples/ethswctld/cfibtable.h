@@ -27,18 +27,94 @@ class eFibInval			: public eFibBase {};
 class eFibExists		: public eFibBase {};
 class eFibNotFound		: public eFibBase {};
 
-class cfibtable : public cfibenv {
+class cfibtable : public cfibentry_env {
 public:
 
 	/**
+	 * @brief	Returns reference to new or existing and resetted cfibtable instance.
 	 *
+	 * This method creates a new or resets an existing instance of
+	 * class cfibtable for the given datapath handle.
+	 *
+	 * @param dptid rofl-common's internal handle for datapath element
 	 */
-	static cfibtable&
-	get_fib(const rofl::cdptid& dptid) {
+	static
+	cfibtable&
+	add_fib(
+			const rofl::cdptid& dptid) {
+		if (cfibtable::fibtables.find(dptid) != cfibtable::fibtables.end()) {
+			delete cfibtable::fibtables[dptid];
+			cfibtable::fibtables.erase(dptid);
+		}
+		new cfibtable(dptid);
+		return *(cfibtable::fibtables[dptid]);
+	};
+
+	/**
+	 * @brief	Returns reference to existing cfibtable instance or creates a new empty one.
+	 *
+	 * This method returns a reference to an existing cfibtable instance.
+	 * If no instance for the given identifier is found, a new instance
+	 * is created.
+	 *
+	 * @param dptid rofl-common's internal handle for datapath element
+	 */
+	static
+	cfibtable&
+	set_fib(
+			const rofl::cdptid& dptid) {
 		if (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()) {
 			new cfibtable(dptid);
 		}
 		return *(cfibtable::fibtables[dptid]);
+	};
+
+	/**
+	 * @brief	Returns const reference to existing cfibtable instance or throws exception.
+	 *
+	 * This method returns a const reference to an existing cfibtable instance.
+	 * If no instance for the given identifier is found, an exception of type
+	 * eFibNotFound is thrown.
+	 *
+	 * @param dptid rofl-common's internal handle for datapath element
+	 * @exception eFibNotFound
+	 */
+	static
+	const cfibtable&
+	get_fib(
+			const rofl::cdptid& dptid) {
+		if (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()) {
+			throw eFibNotFound();
+		}
+		return *(cfibtable::fibtables.at(dptid));
+	};
+
+	/**
+	 * @brief	Removes an existing cfibtable instance.
+	 *
+	 * @param dptid rofl-common's internal handle for datapath element
+	 */
+	static
+	void
+	drop_fib(
+			const rofl::cdptid& dptid) {
+		if (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()) {
+			return;
+		}
+		delete cfibtable::fibtables[dptid];
+		cfibtable::fibtables.erase(dptid);
+	};
+
+	/**
+	 * @brief	Checks existence of cfibtable for fiven identifier.
+	 *
+	 * @param dptid rofl-common's internal handle for datapath element
+	 */
+	static
+	bool
+	has_fib(
+			const rofl::cdptid& dptid) {
+		return (not (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()));
 	};
 
 public:

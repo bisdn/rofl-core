@@ -3,14 +3,41 @@
 //
 
 /**
- * @defgroup common An introduction to rofl-common
+ * @defgroup common Revised OpenFlow Library Common Part
+ *
+ * The Revised OpenFlow Library common part (ROFL) is a library for implementing the OpenFlow
+ * protocol as defined by the Open Networking Foundation (ONF), see [1]. 
+ * Its basic task is to provide an OpenFlow communication abstraction for entities acting in datapath role, 
+ * controller role or both and implements besides a protocol parser, all logic to map OpenFlow 
+ * messages into corresponding C++ classes. rofl-common was build in a modular way for easy 
+ * extensibility and supports a number of OpenFlow versions: v1.0, v1.2, v1.3 at the time 
+ * of writing. 
+ *
+ * rofl-common is available under Mozilla Public License v2.0. 
+ * 
  */
 
 /**
- * @defgroup common_workflow Workflow and how messages traverse rofl-common
+ * @defgroup common_howto Howto: Using rofl-common for adding OpenFlow to an existing project
  * @ingroup common
+ *
+ * In this section we provide a brief walk-through, how to use rofl-common in 
+ * an existing project OpenFlow support.
+ */
+
+/**
+ * @defgroup common_devel rofl-common for developers
+ * @ingroup common
+ *
+ * This section discusses some internals of rofl-common and how the various pieces interact 
+ * with each other.
+ */
+
+/**
+ * @defgroup common_devel_workflow Workflow and how messages traverse rofl-common
+ * @ingroup common_devel
  * 
- * Have a look on the classes in rofl-common defining the actual workflow and how messages traverse the protocol stack.
+ * Let's have a look on the classes in rofl-common defining the actual workflow and how messages traverse the protocol stack.
  * rofl-common defines a set of classes for implementing the protocol's core logic 
  * actually building a hierarchy starting at a plain socket instance. All workflow
  * related classes in rofl-common are associated to an environment class (e.g., rofl::crofsock_env 
@@ -45,147 +72,58 @@
  */
 
 /**
- * @defgroup common_ioservice rofl-common's internal I/O service for dealing with socket descriptors, timers, events
- * @ingroup common
+ * @defgroup common_devel_ioservice rofl-common's internal I/O service for dealing with socket descriptors, timers, events
+ * @ingroup common_devel
  */
 
 /**
- * @defgroup common_exceptions How to deal with runtime errors in general
- * @ingroup common
+ * @defgroup common_devel_exceptions How to deal with runtime errors in general
+ * @ingroup common_devel
  */
 
 /**
- * @defgroup common_openflow Mapping of OpenFlow structures and concepts in rofl-common
+ * @defgroup common_devel_openflow Mapping of OpenFlow structures and concepts in rofl-common
+ * @ingroup common_devel
  */
 
 /**
- * @defgroup common_openflow_structures C++ classes representing various C structures in OpenFlow
- * @ingroup common_openflow
+ * @defgroup common_devel_openflow_structures C++ classes representing various C structures in OpenFlow
+ * @ingroup common_devel_openflow
  */
 
 /**
- * @defgroup common_openflow_messages C++ classes representing OpenFlow messages
- * @ingroup common_openflow
+ * @defgroup common_devel_openflow_messages C++ classes representing OpenFlow messages
+ * @ingroup common_devel_openflow
  */
 
 /**
- * @defgroup common_openflow_exceptions How to deal with OpenFlow related runtime errors 
- * @ingroup common_openflow
+ * @defgroup common_devel_openflow_exceptions How to deal with OpenFlow related runtime errors 
+ * @ingroup common_devel_openflow
  */
 
 /**
- * @defgroup common_openflow_experimental Experimental OpenFlow extensions
- * @ingroup common_openflow
+ * @defgroup common_devel_openflow_experimental Experimental OpenFlow extensions
+ * @ingroup common_devel_openflow
  */
 
 /**
- * @defgroup common_auxiliary Auxiliary classes providing glue towards the underlying operating system
+ * @defgroup common_devel_auxiliary Auxiliary classes providing glue towards the underlying operating system
+ * @ingroup common_devel
  */
 
 /**
- * @defgroup common_auxiliary_logging rofl-common's logging facility
- * @ingroup common_auxiliary
+ * @defgroup common_devel_auxiliary_logging rofl-common's logging facility
+ * @ingroup common_devel_auxiliary
  */
 
 /**
- * @defgroup common_auxiliary_sockets Use of BSD style sockets in rofl-common including support for OpenSSL
- * @ingroup common_auxiliary
+ * @defgroup common_devel_auxiliary_sockets Use of BSD style sockets in rofl-common including support for OpenSSL
+ * @ingroup common_devel_auxiliary
  */
 
 /**
- * @defgroup common_protocols Protocol definitions for Ethernet, VLAN, MPLS, IPv4/v6, ICMPv4/v6/ARP, TCP, UDP, SCTP, ...
+ * @defgroup common_devel_protocols Protocol definitions for Ethernet, VLAN, MPLS, IPv4/v6, ICMPv4/v6/ARP, TCP, UDP, SCTP, ...
+ * @ingroup common_devel
  */
-
-// common
-/**
-*
-* @defgroup common_main The Three Main Classes in ROFL
-* @brief This contains the main classes required for managing an OpenFlow protocol endpoint within ROFL.
-*
-* This includes class crofbase as main entry point and classes cofctl and cofdpt defining 
-* an abstraction for an attached controller or data path entity, respectively.
-* crofbase offers a number of helper methods for making sending OpenFlow messages an easy and intuitive task.
-* cofctl and cofdpt store all relevant information for a single control association.
-*
-*/
-
-// common (base)
-/**
-*
-* @defgroup common_base Helper Classes for Addresses, MAC-Addresses, etc.
-* @brief A number of inevitable base classes for making common things like a struct sockaddr easily managable.
-* 
-* Here, we gather a number of helper classes for hiding UN*X API complexity behind an easy to use interface,
-* e.g. for manging memory access via class cmemory. This also contains the main I/O service defined in ROFL
-* that distributes events throughout an OpenFlow protocol endpoint.
-* @ingroup common_main
-*
-*/
-
-// common/openflow
-/**
-* @defgroup common_openflow C++ mapped OpenFlow data structures
-* @brief C++ class representations of (almost all) C structures defined within the OpenFlow specification with getter/setter methods.
-*
-* In order to make the binary C data structures defined in OpenFlow easily managable, ROFL defines a C++ class representation for 
-* each of these structures including actions, matches, buckets, specific statistics, list of the beforementioned entities and so on. 
-* These classes provide an interface for manipulating the C structures in an OF version agnostic manner, i.e. ROFL aims to help 
-* in getting the right parameter for the right OF version.
-* @ingroup common_main
-*
-*/
-
-
-// common/openflow/extensions
-/**
-* @defgroup common_openflow_extensions OpenFlow Protocol Extensions
-* @brief ROFL contains a number of extensions to the base OpenFlow protocol, namely the flowspace registration as defined in EU FP7 project SPARC.
-*
-* This groups useful extensions to the base OpenFlow protocol. However, things may be added or removed, based on the experience made by using them.
-* Stay tuned for changes here.
-* @ingroup common_openflow
-*
-*/
-
-
-// common/openflow/messages
-/**
-* @defgroup common_openflow_messages OpenFlow Protocol Messages
-* @brief Here you find C++ abstractions for all protocol messages defined by OpenFlow.
-*
-* ROFL provides C++ abstractions for all protocol messages defined in OpenFlow, offering
-* access to the messages' parameters. Class crofbase defines a complete set of default handler
-* methods for receiving OpenFlow messages. Derived classes may overwrite any of these 
-* handler methods for getting direct access to the received message. Please note that 
-* ROFL creates all messages on the application's heap, i.e. you must destroy the message
-* once you are done with it.
-* @ingroup common_openflow
-*
-*/
-
-
-// common/openflow/experimental
-/**
-* @defgroup common_openflow_experimental OpenFlow Experimental Matches and Actions
-* @brief OpenFlow allows definition of experimental matches (and actions, well, more or less). 
-*
-* Based on its history in various research projects, ROFL contains a number of experimental matches 
-* and actions, namely for PPPoE/PPP and GTP.
-* @ingroup common_openflow
-*
-*/
-
-
-// common/protocols
-/**
-* @defgroup common_protocols Helper Classes for Various Network Protocols
-* @brief ROFL provides a set of helper classes for interpreting PDUs of various network protocols like Ethernet, VLAN, MPLS, IPv6/v6, etc.
-*
-* These helper classes are called frames in ROFL, as they are capable of interpreting any arbitrary memory section 
-* as the intended protocol frame. In that sense they behave like C structs, while extending the C struct with 
-* a convenient interface for accessing the protocol frame's fields in a safe way.
-* @ingroup common_base
-*
-*/
 
 

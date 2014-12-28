@@ -22,9 +22,9 @@ namespace etherswitch {
 
 class cfibentry; // forward declaration, see below
 
-class cfibenv {
+class cfibentry_env {
 public:
-	virtual ~cfibenv() {};
+	virtual ~cfibentry_env() {};
 	virtual void fib_timer_expired(const rofl::caddress_ll& hwaddr) = 0;
 	virtual void fib_port_update(const cfibentry& entry) = 0;
 };
@@ -36,7 +36,7 @@ public:
 	 *
 	 */
 	cfibentry(
-			cfibenv *fibenv,
+			cfibentry_env *fibenv,
 			const rofl::cdptid& dptid,
 			const rofl::caddress_ll& hwaddr,
 			uint32_t port_no);
@@ -95,7 +95,7 @@ private:
 		CFIBENTRY_ENTRY_EXPIRED = 1,
 	};
 
-	cfibenv						*fibenv;
+	cfibentry_env						*fibenv;
 	rofl::cdptid				dptid;
 	uint32_t					port_no;
 	rofl::caddress_ll			hwaddr;

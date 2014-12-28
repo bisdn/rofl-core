@@ -10,7 +10,7 @@
 using namespace etherswitch;
 
 cfibentry::cfibentry(
-		cfibenv *fibenv,
+		cfibentry_env *fibenv,
 		const rofl::cdptid& dptid,
 		const rofl::caddress_ll& hwaddr,
 		uint32_t port_no) :

@@ -56,7 +56,7 @@ public:
 class crofdpt;
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	Interface for an environment for rofl::crofdpt.
  *
  * This class defines the interface to the environment required
@@ -950,7 +950,7 @@ protected:
 
 
 /**
- * @addtogroup common_workflow
+ * @ingroup common_devel_workflow
  * @brief	Class representing a remote datapath element
  *
  * This class encapsulates properties of a single remote datapath element

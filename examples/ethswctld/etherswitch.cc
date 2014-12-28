@@ -1,90 +1,97 @@
 #include "etherswitch.h"
-#include <inttypes.h>
 
 using namespace etherswitch;
 
-//Uncomment this to enable periodic request of stats for all datapaths
-//#define REQUEST_STATS 1
-
-//Config defines
-#define IDLE_TIMEOUT 60
-#define HARD_TIMEOUT 0
-#define DEFAULT_PRIORITY 8000
-	
-ethswitch::ethswitch(rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+cetherswitch::cetherswitch(
+		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
 		crofbase(versionbitmap),
-		dump_fib_interval(DUMP_FIB_DEFAULT_INTERNAL)
+		dump_fib_interval(DUMP_FIB_DEFAULT_INTERVAL),
+		get_flow_stats_interval(GET_FLOW_STATS_DEFAULT_INTERVAL)
 {
-	//register timer for dumping ethswitch's internal state
-	timer_id_dump_fib = register_timer(TIMER_DUMP_FIB, rofl::ctimespec(dump_fib_interval));
+	// register timer for dumping ethswitch's internal state
+	timer_id_dump_fib =
+			register_timer(TIMER_DUMP_FIB,
+					rofl::ctimespec(dump_fib_interval));
 }
 
 
 
-ethswitch::~ethswitch()
+cetherswitch::~cetherswitch()
 {
 }
 
 
 
 void
-ethswitch::handle_timeout(int opaque, void* data)
+cetherswitch::handle_timeout(int opaque, void* data)
 {
-	switch (opaque) {
-	case TIMER_DUMP_FIB: {
-		rofl::logging::notice << "****************************************" << std::endl;
-		rofl::logging::notice << *this;
-		rofl::logging::notice << "****************************************" << std::endl;
-		//re-register timer for next round
-		timer_id_dump_fib = register_timer(TIMER_DUMP_FIB, rofl::ctimespec(dump_fib_interval));
-	} break;
-	default: {
-		assert(0);
-	};
+	try {
+		switch (opaque) {
+		case TIMER_DUMP_FIB: {
+
+			//re-register timer for next round
+			timer_id_dump_fib =
+					rofl::ciosrv::register_timer(TIMER_DUMP_FIB,
+							rofl::ctimespec(dump_fib_interval));
+
+			rofl::logging::notice << "****************************************" << std::endl;
+			rofl::logging::notice << *this;
+			rofl::logging::notice << "****************************************" << std::endl;
+
+		} break;
+		case TIMER_GET_FLOW_STATS: {
+
+			//re-register timer for next round
+			timer_id_get_flow_stats =
+					rofl::ciosrv::register_timer(TIMER_GET_FLOW_STATS,
+							rofl::ctimespec(get_flow_stats_interval));
+
+			rofl::crofdpt& dpt = rofl::crofdpt::get_dpt(dptid);
+
+			// you have to define the version for each OpenFlow element
+			rofl::openflow::cofflow_stats_request req(dpt.get_version_negotiated());
+
+			// since OpenFlow v1.2 => multi-table pipelines
+			if (rofl::openflow10::OFP_VERSION < dpt.get_version_negotiated()) {
+				req.set_table_id(rofl::openflow12::OFPTT_ALL);
+			}
+
+			// no matches specified => all wildcard
+
+			dpt.send_flow_stats_request(rofl::cauxid(0), 0, req);
+		} break;
+		default: {
+			// unhandled timer event
+		};
+		}
+
+	} catch (rofl::eRofDptNotFound& e) {
+		// datapath with internal identifier dptid not found
 	}
 }
 
 
-void
-ethswitch::request_flow_stats()
-{
-#ifdef REQUEST_STATS
-	std::map<crofdpt*, std::map<uint16_t, std::map<rofl::caddress_ll, struct fibentry_t> > >::iterator it;
-
-	for (it = fib.begin(); it != fib.end(); ++it) {
-		crofdpt *dpt = it->first;
-
-		cofflow_stats_request req;
-		
-		//Set version	
-		req.set_version(dpt->get_version_negotiated());
-		req.set_table_id(OFPTT_ALL);
-		req.set_match(cofmatch(dpt->get_version_negotiated()));
-		
-		send_flow_stats_request(dpt, /*flags=*/0, req);
-	}
-
-	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
-#endif
-}
-
-void
-ethswitch::handle_flow_stats_reply(rofl::crofdpt& dpt, const rofl::cauxid& auxid, rofl::openflow::cofmsg_flow_stats_reply& msg)
-{
-	rofl::logging::info << "Received flow-stats request:" << msg << std::endl;
-}
 
 /*
-* Methods inherited from crofbase
-*/ 
-
+ * Methods inherited from crofbase
+ */
 void
-ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
+cetherswitch::handle_dpt_open(
+		rofl::crofdpt& dpt)
 {
+	// start periodic timer for querying datapath for all flow table entries
+	timer_id_get_flow_stats =
+			rofl::ciosrv::register_timer(TIMER_GET_FLOW_STATS,
+					rofl::ctimespec(get_flow_stats_interval));
+
 	dptid = dpt.get_dptid();
 
-	//New connection => cleanup the RIB
-	cfibtable::get_fib(dpt.get_dptid()).clear();
+	//New connection => cleanup the RIB by re-creating the FIB table
+	cfibtable::add_fib(dpt.get_dptid());
+
+	rofl::logging::info << "[cetherswitch] datapath attached, dpid: "
+			<< dpt.get_dpid().str() << std::endl
+			<< cfibtable::get_fib(dpt.get_dptid());
 
 	//Remove all flows in the table
 	dpt.flow_mod_reset();
@@ -94,96 +101,57 @@ ethswitch::handle_dpt_open(rofl::crofdpt& dpt)
 		dpt.group_mod_reset();
 	}
 
-#if REQUEST_STATS
-	//TODO: fix
-#endif
-
-	//Construct the ETH_TYPE ARP capture flowmod
-	rofl::openflow::cofflowmod fe(dpt.get_version_negotiated());
-	
-	//This is not necessary, it is done automatically by the constructor
-	//fe.set_buffer_id(rofl::openflow::OFP_NO_BUFFER);
-	//fe.set_table_id(0);
-	fe.set_priority(0);
-
-	//Set command	
-	fe.set_command(rofl::openflow::OFPFC_ADD);
+	// redirect all traffic not matching any FIB entry to the control plane
+	rofl::openflow::cofflowmod flow_table_entry(dpt.get_version_negotiated());
+	flow_table_entry.set_command(rofl::openflow::OFPFC_ADD);
 
 	//Now add action
 	//OF1.0 has no instructions, so the code here differs
 	switch (dpt.get_version_negotiated()) {
-		case rofl::openflow10::OFP_VERSION:
-			fe.set_actions().
-					add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
-			break;
-		case rofl::openflow12::OFP_VERSION:
-		case rofl::openflow13::OFP_VERSION:
-			fe.set_instructions().set_inst_apply_actions().set_actions().
-					add_action_output(rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
-			break;
-		default:
-			assert(0);
-			throw rofl::eBadVersion();
+	case rofl::openflow10::OFP_VERSION: {
+		flow_table_entry.set_actions().
+				add_action_output(rofl::cindex(0)).
+						set_port_no(rofl::openflow::OFPP_CONTROLLER);
+	} break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		flow_table_entry.set_instructions().set_inst_apply_actions().set_actions().
+				add_action_output(rofl::cindex(0)).
+						set_port_no(rofl::openflow::OFPP_CONTROLLER);
+	} break;
+	default: {
+		throw rofl::eBadVersion();
+	};
 	}
 
-	//Send the flowmod
-	dpt.send_flow_mod_message(rofl::cauxid(0), fe);
+	dpt.send_flow_mod_message(rofl::cauxid(0), flow_table_entry);
 }
 
 
 
 void
-ethswitch::handle_dpt_close(
+cetherswitch::handle_dpt_close(
 		rofl::crofdpt& dpt)
 {
-	rofl::logging::info << "[ethsw][dpath-close]" << std::endl << cfibtable::get_fib(dpt.get_dptid());
-}
+	rofl::ciosrv::cancel_timer(timer_id_get_flow_stats);
 
-/*
-* End of methods inherited from crofbase
-*/ 
+	rofl::logging::info << "[cetherswitch] datapath detached, dpid: "
+			<< dpt.get_dpid().str() << std::endl
+			<< cfibtable::get_fib(dpt.get_dptid());
+
+	cfibtable::drop_fib(dpt.get_dptid());
+}
 
 
 
 void
-ethswitch::dump_packet_in(
-		rofl::crofdpt& dpt,
-		rofl::openflow::cofmsg_packet_in& msg)
-{
-	struct eth_hdr_t {
-		uint8_t eth_dst[6];
-		uint8_t eth_src[6];
-		uint16_t eth_type;
-	};
-
-	if (msg.get_packet().length() < sizeof(struct eth_hdr_t)) {
-		return;
-	}
-
-	struct eth_hdr_t* eth_hdr = (struct eth_hdr_t*)msg.get_packet().soframe();
-
-	rofl::caddress_ll eth_dst(eth_hdr->eth_dst, 6);
-	rofl::caddress_ll eth_src(eth_hdr->eth_src, 6);
-
-	//Dump some information
-	rofl::logging::info << "[ethsw][packet-in] PACKET-IN => frame seen, "
-						<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
-						<< "eth-src:" << eth_src << " "
-						<< "eth-dst:" << eth_dst << " "
-						<< "eth-type:0x" << std::hex << (int)be16toh(eth_hdr->eth_type) << std::dec << " "
-						<< std::endl;
-	rofl::logging::info << dpt.get_dpid();
-
-}
-
-void
-ethswitch::handle_packet_in(
+cetherswitch::handle_packet_in(
 		rofl::crofdpt& dpt,
 		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_packet_in& msg)
 {
 	try {
-		cfibtable& fib = cfibtable::get_fib(dpt.get_dptid());
+		cfibtable& fib = cfibtable::set_fib(dpt.get_dptid());
 		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
 		rofl::caddress_ll eth_src;
 		rofl::caddress_ll eth_dst;
@@ -213,7 +181,7 @@ ethswitch::handle_packet_in(
 
 		//Ignore multi-cast frames (SRC)
 		if (eth_src.is_multicast()) {
-			rofl::logging::warn << "[ethsw][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
+			rofl::logging::warn << "[cetherswitch][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
 			return;
 		}
 
@@ -250,11 +218,69 @@ ethswitch::handle_packet_in(
 
 
 	} catch (...) {
-		rofl::logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;
+		rofl::logging::error << "[cetherswitch][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;
 		assert(0);
 		throw;
 	}
 }
+
+
+
+void
+cetherswitch::handle_flow_stats_reply(
+		rofl::crofdpt& dpt,
+		const rofl::cauxid& auxid,
+		rofl::openflow::cofmsg_flow_stats_reply& msg)
+{
+	rofl::logging::info << "Flow-Stats-Reply rcvd:" << std::endl << msg;
+}
+
+
+
+void
+cetherswitch::handle_flow_stats_reply_timeout(
+		rofl::crofdpt& dpt,
+		uint32_t xid)
+{
+	rofl::logging::info << "Flow-Stats-Reply timeout" << std::endl;
+}
+/*
+ * End of methods inherited from crofbase
+ */
+
+
+
+
+void
+cetherswitch::dump_packet_in(
+		rofl::crofdpt& dpt,
+		rofl::openflow::cofmsg_packet_in& msg)
+{
+	struct eth_hdr_t {
+		uint8_t eth_dst[6];
+		uint8_t eth_src[6];
+		uint16_t eth_type;
+	};
+
+	if (msg.get_packet().length() < sizeof(struct eth_hdr_t)) {
+		return;
+	}
+
+	struct eth_hdr_t* eth_hdr = (struct eth_hdr_t*)msg.get_packet().soframe();
+
+	rofl::caddress_ll eth_dst(eth_hdr->eth_dst, 6);
+	rofl::caddress_ll eth_src(eth_hdr->eth_src, 6);
+
+	//Dump some information
+	rofl::logging::info << "[cetherswitch] PACKET-IN => frame seen, "
+						<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
+						<< "eth-src:" << eth_src << " "
+						<< "eth-dst:" << eth_dst << " "
+						<< "eth-type:0x" << std::hex << (int)be16toh(eth_hdr->eth_type) << std::dec << " "
+						<< std::endl;
+	rofl::logging::info << dpt.get_dpid();
+}
+
 
 
 
