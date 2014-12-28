@@ -7,7 +7,7 @@
 
 #include "cfibentry.h"
 
-using namespace etherswitch;
+using namespace rofl::examples::ethswctld;
 
 cfibentry::cfibentry(
 		cfibentry_env *fibenv,

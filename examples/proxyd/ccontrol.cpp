@@ -7,8 +7,7 @@
 
 #include "ccontrol.hpp"
 
-using namespace proxy;
-
+using namespace rofl::examples::proxy;
 
 ccontrol::ccontrol()
 {

@@ -8,11 +8,16 @@
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/crofdpt.h>
+#include <rofl/platform/unix/cunixenv.h>
+#include <rofl/platform/unix/cdaemon.h>
+#include <rofl/common/cparams.h>
 
 #include "cfibtable.h"
 #include "cflowtable.h"
 
-namespace etherswitch {
+namespace rofl {
+namespace examples {
+namespace ethswctld {
 
 /**
  * @brief	A very simple controller for forwarding Ethernet frames.
@@ -21,6 +26,16 @@ namespace etherswitch {
  * frames.
  */
 class cetherswitch : public rofl::crofbase {
+public:
+
+	/**
+	 * @brief	main routine of class cetherswitch
+	 */
+	static
+	int
+	run(
+			int argc, char** argv);
+
 public:
 
 	/**
@@ -35,7 +50,7 @@ public:
 	virtual
 	~cetherswitch();
 
-protected:
+private:
 
 	/**
 	 * @brief	Called after establishing the associated OpenFlow control channel.
@@ -145,7 +160,7 @@ public:
 
 private:
 
-	enum etherswitch_timer_t {
+	enum cetherswitch_timer_t {
 		TIMER_DUMP_FIB          = 1,
 		TIMER_GET_FLOW_STATS    = 2,
 	};
@@ -161,6 +176,8 @@ private:
 	static const unsigned int	GET_FLOW_STATS_DEFAULT_INTERVAL = 30; // seconds
 };
 
-}; // etherswitch namespace
+}; // namespace ethswctld
+}; // namespace examples
+}; // namespace rofl
 
 #endif

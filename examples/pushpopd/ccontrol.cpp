@@ -7,7 +7,7 @@
 
 #include "ccontrol.hpp"
 
-using namespace pushpop;
+using namespace rofl::examples::pushpop;
 
 void
 ccontrol::handle_dpt_open(

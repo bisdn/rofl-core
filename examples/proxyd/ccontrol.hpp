@@ -12,6 +12,8 @@
 #include <rofl/common/crofshim.h>
 #include <rofl/common/protocols/fvlanframe.h>
 
+namespace rofl {
+namespace examples {
 namespace proxy {
 
 class ccontrol : public rofl::common::crofshim {
@@ -50,6 +52,8 @@ private:
 	std::set<rofl::common::ctspaddress_in6> 	addrs_in6;	// addresses of all attached entities
 };
 
-}; // end of namespace testomat
+}; // namespace testomat
+}; // namespace examples
+}; // namespace rofl
 
 #endif /* CCONTROL_HPP_ */

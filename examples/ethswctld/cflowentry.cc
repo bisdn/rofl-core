@@ -7,10 +7,10 @@
 
 #include "cflowentry.h"
 
-using namespace etherswitch;
+using namespace rofl::examples::ethswctld;
 
 cflowentry::cflowentry(
-		cflowenv *flowenv,
+		cflowentry_env *flowenv,
 		const rofl::cdptid& dptid,
 		const rofl::caddress_ll& src,
 		const rofl::caddress_ll& dst,

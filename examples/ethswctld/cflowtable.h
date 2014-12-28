@@ -20,7 +20,9 @@
 
 #include "cflowentry.h"
 
-namespace etherswitch {
+namespace rofl {
+namespace examples {
+namespace ethswctld {
 
 class eFlowBase			: public std::exception {};
 class eFlowBusy			: public eFlowBase {};
@@ -28,7 +30,7 @@ class eFlowInval			: public eFlowBase {};
 class eFlowExists		: public eFlowBase {};
 class eFlowNotFound		: public eFlowBase {};
 
-class cflowtable : public cflowenv {
+class cflowtable : public cflowentry_env {
 public:
 
 	/**
@@ -196,6 +198,8 @@ private:
 	static std::map<rofl::cdptid, cflowtable*> 								flowtables;
 };
 
-}; // end of namespace
+}; // namespace ethswctld
+}; // namespace examples
+}; // namespace rofl
 
 #endif /* CFLOWTABLE_H_ */

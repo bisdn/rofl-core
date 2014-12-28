@@ -18,15 +18,28 @@
 #include <rofl/common/logging.h>
 #include <rofl/common/ctimerid.h>
 
-namespace etherswitch
-{
+namespace rofl {
+namespace examples {
+namespace ethswctld {
 
 class cflowentry; // forward declaration, see below
 
-class cflowenv {
+class cflowentry_env {
+	friend class cflowentry;
 public:
-	virtual ~cflowenv() {};
-	virtual void flow_timer_expired(const cflowentry& entry) = 0;
+	/**
+	 *
+	 */
+	virtual
+	~cflowentry_env()
+	{};
+protected:
+	/**
+	 *
+	 */
+	virtual void
+	flow_timer_expired(
+			const cflowentry& entry) = 0;
 };
 
 class cflowentry : public rofl::ciosrv {
@@ -36,7 +49,7 @@ public:
 	 *
 	 */
 	cflowentry(
-			cflowenv *flowenv,
+			cflowentry_env *flowenv,
 			const rofl::cdptid& dptid,
 			const rofl::caddress_ll& src,
 			const rofl::caddress_ll& dst,
@@ -120,7 +133,7 @@ private:
 		CFIBENTRY_ENTRY_EXPIRED = 1,
 	};
 
-	cflowenv					*flowenv;
+	cflowentry_env					*flowenv;
 	rofl::cdptid				dptid;
 	uint32_t					port_no;
 	rofl::caddress_ll			src;
@@ -129,6 +142,8 @@ private:
 	rofl::ctimerid				expiration_timer_id;
 };
 
-}; // end of namespace
+}; // namespace ethswctld
+}; // namespace examples
+}; // namespace rofl
 
 #endif /* CFLOW_H_ */

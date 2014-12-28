@@ -7,7 +7,7 @@
 
 #include "cflowtable.h"
 
-using namespace etherswitch;
+using namespace rofl::examples::ethswctld;
 
 std::map<rofl::cdptid, cflowtable*> cflowtable::flowtables;
 

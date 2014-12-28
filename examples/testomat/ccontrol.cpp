@@ -7,7 +7,7 @@
 
 #include "ccontrol.hpp"
 
-using namespace testomat;
+using namespace rofl::examples::testomat;
 
 void
 ccontrol::handle_dpt_open(

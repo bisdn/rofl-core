@@ -1,5 +1,5 @@
 /*
- * cfib.h
+ * cfibtable.h
  *
  *  Created on: 15.07.2013
  *      Author: andreas
@@ -19,14 +19,38 @@
 
 #include "cfibentry.h"
 
-namespace etherswitch {
+namespace rofl {
+namespace examples {
+namespace ethswctld {
 
-class eFibBase			: public std::exception {};
-class eFibBusy			: public eFibBase {};
-class eFibInval			: public eFibBase {};
-class eFibExists		: public eFibBase {};
-class eFibNotFound		: public eFibBase {};
+/**
+ * @brief	Base class for all exceptions thrown by class cfibtable.
+ */
+class eFibBase			: public std::runtime_error {
+public:
+	eFibBase(const std::string& __arg) : std::runtime_error(__arg) {};
+};
 
+/**
+ * @brief	Invalid parameter specified.
+ */
+class eFibInval			: public eFibBase {
+public:
+	eFibInval(const std::string& __arg) : eFibBase(__arg) {};
+};
+
+/**
+ * @brief	Element not found.
+ */
+class eFibNotFound		: public eFibBase {
+public:
+	eFibNotFound(const std::string& __arg) : eFibBase(__arg) {};
+};
+
+
+/**
+ * @brief	Forwarding Information Base
+ */
 class cfibtable : public cfibentry_env {
 public:
 
@@ -84,7 +108,7 @@ public:
 	get_fib(
 			const rofl::cdptid& dptid) {
 		if (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()) {
-			throw eFibNotFound();
+			throw eFibNotFound("cfibtable::get_fib() dptid not found");
 		}
 		return *(cfibtable::fibtables.at(dptid));
 	};
@@ -106,7 +130,7 @@ public:
 	};
 
 	/**
-	 * @brief	Checks existence of cfibtable for fiven identifier.
+	 * @brief	Checks existence of cfibtable for given identifier.
 	 *
 	 * @param dptid rofl-common's internal handle for datapath element
 	 */
@@ -120,7 +144,7 @@ public:
 public:
 
 	/**
-	 *
+	 * @brief	Deletes all entries stored in this cfibtable instance.
 	 */
 	void
 	clear() {
@@ -132,12 +156,21 @@ public:
 	};
 
 	/**
+	 * @brief	Returns reference to empty cfibentry instance for given hardware address.
 	 *
+	 * Creates a new cfibentry instance or resets an already existing one for the
+	 * given identifier.
+	 *
+	 * @param hwaddr ethernet hardware address
+	 * @param portno host is reachable via port using this OpenFlow port number
+	 * @exception eFibInval hardware address validation failed
 	 */
 	cfibentry&
-	add_fib_entry(const rofl::caddress_ll& hwaddr, uint32_t portno) {
+	add_fib_entry(
+			const rofl::caddress_ll& hwaddr,
+			uint32_t portno) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval();
+			throw eFibInval("cfibtable::add_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) != ftable.end()) {
 			drop_fib_entry(hwaddr);
@@ -147,12 +180,21 @@ public:
 	};
 
 	/**
+	 * @brief	Returns reference to existing cfibentry instance for given hardware address.
 	 *
+	 * Returns reference to existing cfibentry for given identifier or creates
+	 * new one if non exists yet.
+	 *
+	 * @param hwaddr ethernet hardware address
+	 * @param portno host is reachable via port using this OpenFlow port number
+	 * @exception eFibInval hardware address validation failed
 	 */
 	cfibentry&
-	set_fib_entry(const rofl::caddress_ll& hwaddr, uint32_t portno) {
+	set_fib_entry(
+			const rofl::caddress_ll& hwaddr,
+			uint32_t portno) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval();
+			throw eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) == ftable.end()) {
 			ftable[hwaddr] = new cfibentry(this, dptid, hwaddr, portno);
@@ -161,35 +203,57 @@ public:
 	};
 
 	/**
+	 * @brief	Returns reference to existing cfibentry instance for given hardware address.
 	 *
+	 * Returns reference to existing cfibentry for given identifier or
+	 * throw exception, if none exists.
+	 *
+	 * @param hwaddr ethernet hardware address
+	 * @exception eFibInval hardware address validation failed
+	 * @exception eFibNotFound no cfibentry for hardware address found
 	 */
 	cfibentry&
-	set_fib_entry(const rofl::caddress_ll& hwaddr) {
+	set_fib_entry(
+			const rofl::caddress_ll& hwaddr) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval();
+			throw eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) == ftable.end()) {
-			throw eFibNotFound();
+			throw eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
 		}
 		return *(ftable[hwaddr]);
 	};
 
 	/**
+	 * @brief	Returns const reference to existing cfibentry instance for given hardware address.
 	 *
+	 * Returns const reference to existing cfibentry for given identifier or
+	 * throw exception, if none exists.
+	 *
+	 * @param hwaddr ethernet hardware address
+	 * @exception eFibInval hardware address validation failed
+	 * @exception eFibNotFound no cfibentry for hardware address found
 	 */
 	const cfibentry&
-	get_fib_entry(const rofl::caddress_ll& hwaddr) const {
+	get_fib_entry(
+			const rofl::caddress_ll& hwaddr) const {
+		if (hwaddr.is_multicast() || hwaddr.is_null()) {
+			throw eFibInval("cfibtable::get_fib_entry() hwaddr validation failed");
+		}
 		if (ftable.find(hwaddr) == ftable.end()) {
-			throw eFibNotFound();
+			throw eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
 		}
 		return *(ftable.at(hwaddr));
 	};
 
 	/**
+	 * @brief 	Removes an existing cfibentry for given hardware address.
 	 *
+	 * @param hwaddr ethernet hardware address
 	 */
 	void
-	drop_fib_entry(const rofl::caddress_ll& hwaddr) {
+	drop_fib_entry(
+			const rofl::caddress_ll& hwaddr) {
 		if (ftable.find(hwaddr) == ftable.end()) {
 			return;
 		}
@@ -199,25 +263,29 @@ public:
 	};
 
 	/**
+	 * @brief	Checks whether a cfibentry exists for given hardware address.
 	 *
+	 * @param hwaddr ethernet hardware address
 	 */
 	bool
-	has_fib_entry(const rofl::caddress_ll& hwaddr) const {
+	has_fib_entry(
+			const rofl::caddress_ll& hwaddr) const {
 		return (not (ftable.find(hwaddr) == ftable.end()));
 	};
 
 private:
 
 	/**
-	 *
+	 * @brief	cfibtable constructor
 	 */
-	cfibtable(const rofl::cdptid& dptid) :
+	cfibtable(
+			const rofl::cdptid& dptid) :
 		dptid(dptid) {
 		cfibtable::fibtables[dptid] = this;
 	};
 
 	/**
-	 *
+	 * @brief	cfibtable destructor
 	 */
 	virtual
 	~cfibtable() {
@@ -225,25 +293,27 @@ private:
 		cfibtable::fibtables.erase(dptid);
 	};
 
+private:
 
-	friend class cfibentry;
+	/*
+	 * methods overwritten from cfibentry_env
+	 */
 
 	/**
-	 *
+	 * @brief	Called when a cfibentry's timer has expired.
 	 */
 	virtual void
-	fib_timer_expired(const rofl::caddress_ll& hwaddr) {
-		drop_fib_entry(hwaddr);
-	};
+	fib_timer_expired(
+			const rofl::caddress_ll& hwaddr)
+	{ drop_fib_entry(hwaddr); };
 
 	/**
-	 *
+	 * @brief	Called when a cfibentry's assigned port has changed.
 	 */
 	virtual void
-	fib_port_update(const cfibentry& entry) {
-
-	};
-
+	fib_port_update(
+			const cfibentry& entry)
+	{};
 
 public:
 
@@ -268,11 +338,14 @@ public:
 
 private:
 
+	static std::map<rofl::cdptid, cfibtable*> 	fibtables;
+
 	rofl::cdptid								dptid;
 	std::map<rofl::caddress_ll, cfibentry*>		ftable; // hwaddr => cfibentry
-	static std::map<rofl::cdptid, cfibtable*> 	fibtables;
 };
 
-}; // end of namespace
+}; // namespace ethswctld
+}; // namespace examples
+}; // namespace rofl
 
 #endif /* CFIB_H_ */

@@ -12,6 +12,8 @@
 #include <rofl/common/crofshim.h>
 #include <rofl/common/protocols/fvlanframe.h>
 
+namespace rofl {
+namespace examples {
 namespace testomat {
 
 class ccontrol : public rofl::crofbase, public rofl::common::crofshim {
@@ -55,6 +57,8 @@ protected:
 
 };
 
-}; // end of namespace testomat
+}; // namespace testomat
+}; // namespace examples
+}; // namespace rofl
 
 #endif /* CCONTROL_HPP_ */

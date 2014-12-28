@@ -598,7 +598,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = $(SRC_DIR)/src/rofl/common/.doxygen.dox $(SRC_DIR)/src/rofl/common/.groups.dox $(SRC_DIR)/src/rofl/common
+INPUT                  = $(SRC_DIR)/src/rofl/common/.doxygen.dox $(SRC_DIR)/src/rofl/common/.groups.dox $(SRC_DIR)/src/rofl/common $(SRC_DIR)/examples/.groups.dox $(SRC_DIR)/examples/ethswctld
 
 
 # This tag can be used to specify the character encoding of the source files
