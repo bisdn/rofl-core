@@ -35,7 +35,7 @@ main(int argc, char** argv)
 
 	rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
-	testomat::ccontrol ctl(versionbitmap);
+	rofl::examples::testomat::ccontrol ctl(versionbitmap);
 
 	rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");

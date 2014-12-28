@@ -32,8 +32,8 @@ main(int argc, char** argv)
 		rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
 		rofl::logging::notice << "[proxyd][main] daemonizing successful" << std::endl;
 	}
-;
-	proxy::ccontrol ctl;
+
+	rofl::examples::proxy::ccontrol ctl;
 
 	rofl::cioloop::get_loop().run();
 
