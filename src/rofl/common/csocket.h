@@ -41,6 +41,7 @@ class csocket; // forward declaration for csocket_owner, see below
 
 /**
  * @class csocket_owner
+ * @ingroup common_devel_bsd_sockets
  * @brief	An abstract interface defining the consumer side of a csocket.
  *
  * This class defines an abstract interface for interacting with instances of type csocket.
@@ -152,6 +153,7 @@ public:
 
 /**
  * @class csocket
+ * @ingroup common_devel_bsd_sockets
  * @brief 	A single socket.
  *
  * This class provides basic support for socket based communication.

@@ -14,7 +14,7 @@ cfibentry::cfibentry(
 		const rofl::cdptid& dptid,
 		const rofl::caddress_ll& hwaddr,
 		uint32_t port_no) :
-		fibenv(fibenv),
+		env(fibenv),
 		dptid(dptid),
 		port_no(port_no),
 		hwaddr(hwaddr),
@@ -38,7 +38,7 @@ cfibentry::handle_timeout(int opaque, void* data)
 {
 	switch (opaque) {
 	case CFIBENTRY_ENTRY_EXPIRED: {
-		fibenv->fib_timer_expired(hwaddr);
+		env->fib_timer_expired(hwaddr);
 	} return;
 	}
 }
@@ -50,7 +50,7 @@ cfibentry::set_port_no(uint32_t port_no)
 {
 	if (port_no != this->port_no) {
 		this->port_no = port_no;
-		fibenv->fib_port_update(*this);
+		env->fib_port_update(*this);
 	}
 
 	try {

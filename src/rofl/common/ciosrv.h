@@ -465,13 +465,13 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(ciosrv const& iosrv);
+	ciosrv(const ciosrv& iosrv);
 
 	/**
 	 *
 	 */
 	ciosrv&
-	operator= (ciosrv const& iosrv);
+	operator= (const ciosrv& iosrv);
 
 public:
 
@@ -518,10 +518,12 @@ protected:
 	 *
 	 * @see notify(cevent const& ev)
 	 *
-	 * @param ev cevent instance received
+	 * @param event rofl::cevent instance received
 	 */
 	virtual void
-	handle_event(cevent const& ev) {};
+	handle_event(
+			const rofl::cevent& event)
+	{};
 
 	/**
 	 * @brief	Handler for read events on file descriptors.
@@ -531,7 +533,9 @@ protected:
 	 * @param fd read event occured on file descriptor fd
 	 */
 	virtual void
-	handle_revent(int fd) {};
+	handle_revent(
+			int fd)
+	{};
 
 	/**
 	 * @brief	Handler for write events on file descriptors.
@@ -541,7 +545,8 @@ protected:
 	 * @param fd write event occured on file descriptor fd
 	 */
 	virtual void
-	handle_wevent(int fd) {};
+	handle_wevent(int fd)
+	{};
 
 	/**
 	 * @brief	Handler for exceptions on file descriptors.
@@ -551,7 +556,8 @@ protected:
 	 * @param fd exception occured on file descriptor fd
 	 */
 	virtual void
-	handle_xevent(int fd) {};
+	handle_xevent(int fd)
+	{};
 
 	/**
 	 * @brief	Handler for timer events.
@@ -562,7 +568,8 @@ protected:
 	 * @param data pointer to opaque data
 	 */
 	virtual void
-	handle_timeout(int opaque, void *data = (void*)0) {};
+	handle_timeout(int opaque, void *data = (void*)0)
+	{};
 
 	/**@}*/
 
@@ -647,8 +654,8 @@ protected:
 	 * @param ctimer object
 	 * @return timer handle
 	 */
-	const ctimerid&
-	register_timer(int opaque, const ctimespec& timespec) {
+	const rofl::ctimerid&
+	register_timer(int opaque, const rofl::ctimespec& timespec) {
 		if (timers.empty() || (get_thread_id() != pthread_self()))
 			cioloop::get_loop().has_timer(this);
 		return timers.add_timer(ctimer(this, opaque, timespec));
@@ -663,8 +670,8 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	const ctimerid&
-	reset_timer(const ctimerid& timer_id, const ctimespec& timespec) {
+	const rofl::ctimerid&
+	reset_timer(const rofl::ctimerid& timer_id, const rofl::ctimespec& timespec) {
 		if (timers.empty() || (get_thread_id() != pthread_self()))
 			cioloop::get_loop().has_timer(this);
 		return timers.reset(timer_id, timespec);
@@ -699,7 +706,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(ctimerid const& timer_id) {
+	pending_timer(const rofl::ctimerid& timer_id) {
 		return timers.pending(timer_id);
 	};
 
@@ -709,7 +716,7 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(ctimerid const& timer_id) {
+	cancel_timer(const rofl::ctimerid& timer_id) {
 		timers.cancel(timer_id);
 		if (timers.empty())
 			cioloop::get_loop().has_no_timer(this);
@@ -772,7 +779,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, ciosrv const& iosvc) {
+	operator<< (std::ostream& os, const ciosrv& iosvc) {
 		os << indent(0) << "<ciosrv >" << std::endl;
 			os << indent(2) << "<rfds: ";
 			for (std::set<int>::const_iterator it = iosvc.rfds.begin(); it != iosvc.rfds.end(); ++it) {

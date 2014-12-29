@@ -22,7 +22,7 @@ namespace rofl {
 namespace examples {
 namespace ethswctld {
 
-class cflowentry; // forward declaration, see below
+class cflowentry; // forward declaration
 
 class cflowentry_env {
 	friend class cflowentry;
@@ -65,7 +65,8 @@ public:
 	 *
 	 */
 	uint32_t
-	get_out_port_no() const { return port_no; };
+	get_out_port_no() const
+	{ return port_no; };
 
 	/**
 	 *
@@ -77,13 +78,15 @@ public:
 	 *
 	 */
 	const rofl::caddress_ll&
-	get_dst() const { return dst; };
+	get_dst() const
+	{ return dst; };
 
 	/**
 	 *
 	 */
 	const rofl::caddress_ll&
-	get_src() const { return src; };
+	get_src() const
+	{ return src; };
 
 	/**
 	 *
@@ -109,7 +112,9 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque, void* data = (void*)NULL);
+	handle_timeout(
+			int opaque,
+			void* data = (void*)NULL);
 
 public:
 
@@ -117,7 +122,7 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cflowentry const& entry) {
+	operator<< (std::ostream& os, const cflowentry& entry) {
 		os << rofl::indent(0) << "<cflowentry portno: " << (unsigned int)entry.port_no << " >" << std::endl;
 		rofl::indent i(2);
 		os << entry.src;
@@ -133,13 +138,13 @@ private:
 		CFIBENTRY_ENTRY_EXPIRED = 1,
 	};
 
-	cflowentry_env					*flowenv;
-	rofl::cdptid				dptid;
-	uint32_t					port_no;
-	rofl::caddress_ll			src;
-	rofl::caddress_ll			dst;
-	int							entry_timeout;
-	rofl::ctimerid				expiration_timer_id;
+	cflowentry_env*             flowenv;
+	rofl::cdptid                dptid;
+	uint32_t                    port_no;
+	rofl::caddress_ll           src;
+	rofl::caddress_ll           dst;
+	int                         entry_timeout;
+	rofl::ctimerid              expiration_timer_id;
 };
 
 }; // namespace ethswctld

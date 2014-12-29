@@ -31,6 +31,7 @@ namespace rofl {
 
 /**
  * @brief 	A single unencrypted socket.
+ * @ingroup common_devel_bsd_sockets
  *
  * This class provides basic support for socket based communication.
  * Its aim is to encapsulate functionality for establishing a socket

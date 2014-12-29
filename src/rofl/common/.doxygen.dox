@@ -79,7 +79,7 @@
 * @subsubsection doc_build_step1 Step 1: Grab a copy of the source code.
 * 
 * @code
-sh# git clone git://codebasin.net/rofl-core.git
+sh# git clone https://github.com/bisdn/rofl-core.git
 * @endcode
 *
 * @subsubsection doc_build_step2 Step 2: Enter the rofl-core directory and call the autogen.sh script

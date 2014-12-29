@@ -14,38 +14,51 @@
  * of writing. 
  *
  * rofl-common is available under Mozilla Public License v2.0. 
+ *
+ * [1] https://www.opennetworking.org
  * 
  */
 
 /**
- * @defgroup common_howto Howto: Using rofl-common for adding OpenFlow to an existing project
+ * @defgroup common_howto Howto: using rofl-common 
  * @ingroup common
  *
  * In this section we provide a brief walk-through, how to use rofl-common in 
- * an existing project OpenFlow support.
+ * an existing project for adding OpenFlow support.
  */
 
 /**
- * @defgroup common_devel rofl-common for developers
+ * @defgroup common_devel ROFL for developers
  * @ingroup common
  *
- * This section discusses some internals of rofl-common and how the various pieces interact 
- * with each other.
+ * This section discusses some internals of rofl-common and how the 
+ * various pieces interact with each other.
  */
 
 /**
- * @defgroup common_devel_workflow Workflow and how messages traverse rofl-common
+ * @defgroup common_devel_workflow Workflow
  * @ingroup common_devel
  * 
- * Let's have a look on the classes in rofl-common defining the actual workflow and how messages traverse the protocol stack.
- * rofl-common defines a set of classes for implementing the protocol's core logic 
- * actually building a hierarchy starting at a plain socket instance. All workflow
- * related classes in rofl-common are associated to an environment class (e.g., rofl::crofsock_env 
- * for rofl::crofsock) that defines the interface expected by a certain class.
+ * Let's have a look on the classes in rofl-common defining the actual 
+ * workflow and how messages traverse the protocol stack. rofl-common 
+ * defines a set of classes for implementing the protocol's core logic 
+ * actually building a hierarchy starting at a plain socket instance.
+ *  
+ * All workflow related classes in rofl-common come with their own 
+ * environment class (e.g., rofl::crofsock_env for rofl::crofsock) 
+ * that defines the interface expected. A class on layer n+1 implements
+ * the interface defined by the class locate on layer n.
  *
- * a) Class rofl::crofsock maps OpenFlow messages from their wire representation into 
- * the associated OpenFlow classes defined by rofl-common and provides support 
- * for basic message validation.
+ * a) Class rofl::csocket_plain provides an C++ abstraction for the 
+ * BSD sockets offered by the underlying operating system. ROFL allows
+ * building of various socket types and a common base class for all 
+ * sockets named rofl::csocket. Class csocket_plain provides support
+ * for UDP and TCP based unencrypted sockets. Class socket_openssl 
+ * uses the OpenSSL toolkit [1] to add TLS based encryption to TCP sockets.  
+ *
+ * a) Class rofl::crofsock maps OpenFlow messages from their wire 
+ * representation into the associated OpenFlow classes defined by 
+ * rofl-common and provides support for basic message validation.
  *
  * b) Class rofl::crofconn provides the abstraction of an OpenFlow control connection
  * as defined since OpenFlow v1.3. It negotiates the OpenFlow protocol version to be used
@@ -72,17 +85,22 @@
  */
 
 /**
- * @defgroup common_devel_ioservice rofl-common's internal I/O service for dealing with socket descriptors, timers, events
+ * @defgroup common_devel_ioservice I/O service
  * @ingroup common_devel
  */
 
 /**
- * @defgroup common_devel_exceptions How to deal with runtime errors in general
+ * @defgroup common_devel_bsd_sockets BSD sockets
  * @ingroup common_devel
  */
 
 /**
- * @defgroup common_devel_openflow Mapping of OpenFlow structures and concepts in rofl-common
+ * @defgroup common_devel_exceptions Runtime errors
+ * @ingroup common_devel
+ */
+
+/**
+ * @defgroup common_devel_openflow OpenFlow structures and concepts in rofl-common
  * @ingroup common_devel
  */
 
@@ -97,7 +115,7 @@
  */
 
 /**
- * @defgroup common_devel_openflow_exceptions How to deal with OpenFlow related runtime errors 
+ * @defgroup common_devel_openflow_exceptions OpenFlow runtime errors 
  * @ingroup common_devel_openflow
  */
 
