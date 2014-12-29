@@ -55,7 +55,7 @@ csocket_openssl::openssl_init()
 
 
 csocket_openssl::csocket_openssl(
-		csocket_owner *owner) :
+		csocket_env *owner) :
 				csocket(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
 				socket(this),
 				ctx(NULL),
@@ -270,7 +270,7 @@ csocket_openssl::handle_accept_refused(rofl::csocket& socket)
 {
 	socket.close();
 
-	if (socket_owner) socket_owner->handle_accept_refused(*this);
+	if (socket_env) socket_env->handle_accept_refused(*this);
 }
 
 
@@ -319,7 +319,7 @@ csocket_openssl::handle_connect_refused(rofl::csocket& socket)
 {
 	socket.close();
 
-	if (socket_owner) socket_owner->handle_connect_refused(*this);
+	if (socket_env) socket_env->handle_connect_refused(*this);
 }
 
 
@@ -329,7 +329,7 @@ csocket_openssl::handle_connect_failed(rofl::csocket& socket)
 {
 	socket.close();
 
-	if (socket_owner) socket_owner->handle_connect_failed(*this);
+	if (socket_env) socket_env->handle_connect_failed(*this);
 }
 
 
@@ -337,7 +337,7 @@ csocket_openssl::handle_connect_failed(rofl::csocket& socket)
 void
 csocket_openssl::handle_listen(rofl::csocket& socket, int newsd)
 {
-	if (socket_owner) socket_owner->handle_listen(*this, newsd);
+	if (socket_env) socket_env->handle_listen(*this, newsd);
 }
 
 
@@ -346,7 +346,7 @@ void
 csocket_openssl::handle_closed(rofl::csocket& socket)
 {
 	openssl_destroy_ssl();
-	if (socket_owner) socket_owner->handle_closed(*this);
+	if (socket_env) socket_env->handle_closed(*this);
 }
 
 
@@ -370,7 +370,7 @@ csocket_openssl::handle_read(rofl::csocket& socket)
 	} else
 	if (socket_flags.test(FLAG_SSL_ESTABLISHED)) {
 
-		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
+		if (socket_env) socket_env->handle_read(*this); // call socket owner => results in a call to this->recv()
 
 	} else
 	if (socket_flags.test(FLAG_SSL_CLOSING)) {
@@ -437,8 +437,8 @@ csocket_openssl::handle_write(rofl::csocket& socket)
 
 		dequeue_packet();
 
-		if (socket_owner) {
-			socket_owner->handle_write(*this);
+		if (socket_env) {
+			socket_env->handle_write(*this);
 		}
 	}
 }
@@ -465,13 +465,13 @@ csocket_openssl::handle_event(cevent const& e)
 	switch (e.get_cmd()) {
 	case EVENT_SEND_TXQUEUE: {
 		dequeue_packet();
-		if (socket_owner) socket_owner->handle_write(*this);
+		if (socket_env) socket_env->handle_write(*this);
 	} break;
 	case EVENT_RECV_RXQUEUE: {
-		if (socket_owner) socket_owner->handle_read(*this); // call socket owner => results in a call to this->recv()
+		if (socket_env) socket_env->handle_read(*this); // call socket owner => results in a call to this->recv()
 	} break;
 	case EVENT_CONN_RESET: {
-		if (socket_owner) socket_owner->handle_closed(*this);
+		if (socket_env) socket_env->handle_closed(*this);
 	} break;
 	default:
 		csocket::handle_event(e);
@@ -648,7 +648,7 @@ csocket_openssl::openssl_accept()
 		socket_flags.reset(FLAG_SSL_ACCEPTING);
 		socket_flags.set(FLAG_SSL_IDLE);
 
-		if (socket_owner) socket_owner->handle_accept_refused(*this);
+		if (socket_env) socket_env->handle_accept_refused(*this);
 
 	} else
 	if (rc == 1) {
@@ -663,7 +663,7 @@ csocket_openssl::openssl_accept()
 			socket_flags.reset(FLAG_SSL_ACCEPTING);
 			socket_flags.set(FLAG_SSL_IDLE);
 
-			if (socket_owner) socket_owner->handle_accept_refused(*this);
+			if (socket_env) socket_env->handle_accept_refused(*this);
 
 			return;
 		}
@@ -673,7 +673,7 @@ csocket_openssl::openssl_accept()
 		socket_flags.reset(FLAG_SSL_ACCEPTING);
 		socket_flags.set(FLAG_SSL_ESTABLISHED);
 
-		if (socket_owner) socket_owner->handle_accepted(*this);
+		if (socket_env) socket_env->handle_accepted(*this);
 	}
 }
 
@@ -732,7 +732,7 @@ csocket_openssl::openssl_connect()
 		socket_flags.reset(FLAG_SSL_CONNECTING);
 		socket_flags.set(FLAG_SSL_IDLE);
 
-		if (socket_owner) socket_owner->handle_connect_refused(*this);
+		if (socket_env) socket_env->handle_connect_refused(*this);
 
 	} else
 	if (rc == 1) {
@@ -747,7 +747,7 @@ csocket_openssl::openssl_connect()
 			socket_flags.reset(FLAG_SSL_CONNECTING);
 			socket_flags.set(FLAG_SSL_IDLE);
 
-			if (socket_owner) socket_owner->handle_connect_refused(*this);
+			if (socket_env) socket_env->handle_connect_refused(*this);
 
 			return;
 		}
@@ -757,7 +757,7 @@ csocket_openssl::openssl_connect()
 		socket_flags.reset(FLAG_SSL_CONNECTING);
 		socket_flags.set(FLAG_SSL_ESTABLISHED);
 
-		if (socket_owner) socket_owner->handle_connected(*this);
+		if (socket_env) socket_env->handle_connected(*this);
 	}
 }
 
@@ -785,7 +785,7 @@ csocket_openssl::openssl_verify_ok()
 			socket_flags.reset(FLAG_SSL_ACCEPTING);
 			socket_flags.set(FLAG_SSL_IDLE);
 
-			if (socket_owner) socket_owner->handle_accept_refused(*this);
+			if (socket_env) socket_env->handle_accept_refused(*this);
 
 			return false;
 		}

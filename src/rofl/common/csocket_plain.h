@@ -139,7 +139,7 @@ public:
 	 * @param owner socket owning entity implementing interface csocket_plain_owner
 	 */
 	csocket_plain(
-			csocket_owner *owner);
+			csocket_env *owner);
 
 
 	/**
@@ -329,8 +329,8 @@ protected:
 	 */
 	virtual void
 	handle_accepted() {
-		if (socket_owner) {
-			socket_owner->handle_accepted(*this);
+		if (socket_env) {
+			socket_env->handle_accepted(*this);
 		}
 	};
 
@@ -343,8 +343,8 @@ protected:
 	 */
 	virtual void
 	handle_accept_refused() {
-		if (socket_owner) {
-			socket_owner->handle_accept_refused(*this);
+		if (socket_env) {
+			socket_env->handle_accept_refused(*this);
 		}
 	};
 
@@ -357,8 +357,8 @@ protected:
 	 */
 	virtual void
 	handle_connected() {
-		if (socket_owner) {
-			socket_owner->handle_connected(*this);
+		if (socket_env) {
+			socket_env->handle_connected(*this);
 		}
 	};
 
@@ -371,8 +371,8 @@ protected:
 	 */
 	virtual void
 	handle_conn_refused() {
-		if (socket_owner) {
-			socket_owner->handle_connect_refused(*this);
+		if (socket_env) {
+			socket_env->handle_connect_refused(*this);
 		}
 	};
 
@@ -385,8 +385,8 @@ protected:
 	 */
 	virtual void
 	handle_conn_failed() {
-		if (socket_owner) {
-			socket_owner->handle_connect_failed(*this);
+		if (socket_env) {
+			socket_env->handle_connect_failed(*this);
 		}
 	};
 
@@ -401,8 +401,8 @@ protected:
 	 */
 	virtual void
 	handle_listen(int newsd) {
-		if (socket_owner) {
-			socket_owner->handle_listen(*this, newsd);
+		if (socket_env) {
+			socket_env->handle_listen(*this, newsd);
 		}
 	};
 
@@ -414,8 +414,8 @@ protected:
 	 */
 	virtual void
 	handle_closed() {
-		if (socket_owner) {
-			socket_owner->handle_closed(*this);
+		if (socket_env) {
+			socket_env->handle_closed(*this);
 		}
 	};
 
@@ -429,8 +429,8 @@ protected:
 	 */
 	virtual void
 	handle_read() {
-		if (socket_owner) {
-			socket_owner->handle_read(*this);
+		if (socket_env) {
+			socket_env->handle_read(*this);
 		}
 	};
 
@@ -444,8 +444,8 @@ protected:
 	 */
 	virtual void
 	handle_write() {
-		if (socket_owner) {
-			socket_owner->handle_write(*this);
+		if (socket_env) {
+			socket_env->handle_write(*this);
 		}
 	};
 

@@ -43,7 +43,7 @@ csocket_plain::get_default_params()
 
 
 csocket_plain::csocket_plain(
-		csocket_owner *owner) :
+		csocket_env *owner) :
 				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN),
 				had_short_write(false),
 				max_txqueue_size(DEFAULT_MAX_TXQUEUE_SIZE),
@@ -62,7 +62,7 @@ csocket_plain::csocket_plain(
 csocket_plain::~csocket_plain()
 {
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] destructor " << std::hex << this << std::dec << std::endl;
-	socket_owner = NULL;
+	socket_env = NULL;
 
 	close();
 

@@ -44,7 +44,7 @@ std::string const 	csocket::PARAM_PROTOCOL_VALUE_UDP("udp");
 
 csocket*
 csocket::csocket_factory(
-		enum csocket::socket_type_t socket_type, csocket_owner *owner)
+		enum csocket::socket_type_t socket_type, csocket_env *owner)
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {

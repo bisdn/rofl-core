@@ -21,6 +21,10 @@ namespace rofl {
 class eTimersBase 		: public RoflException {};
 class eTimersNotFound	: public eTimersBase {};
 
+/**
+ * @brief	List of timers objects of class rofl::ctimer
+ * @ingroup common_devel_ioservice
+ */
 class ctimers {
 
 	std::multiset<ctimer>	timers;

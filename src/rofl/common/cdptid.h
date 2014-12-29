@@ -17,6 +17,10 @@
 
 namespace rofl {
 
+/**
+ * @brief	rofl-common's internal datapath handle
+ * @ingroup common_devel_workflow
+ */
 class cdptid {
 
 	uint64_t 	id;

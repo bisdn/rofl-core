@@ -6,7 +6,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class crofconnTest : public CppUnit::TestFixture, public rofl::csocket_owner, public rofl::openflow::crofconn_env, public rofl::ciosrv {
+class crofconnTest : public CppUnit::TestFixture, public rofl::csocket_env, public rofl::openflow::crofconn_env, public rofl::ciosrv {
 
 	CPPUNIT_TEST_SUITE( crofconnTest );
 	CPPUNIT_TEST( testConnect );

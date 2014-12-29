@@ -23,6 +23,10 @@ namespace rofl {
 
 class ptrciosrv {};
 
+/**
+ * @brief	Single timer object in rofl-common
+ * @ingroup common_devel_ioservice
+ */
 class ctimer {
 
 

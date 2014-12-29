@@ -20,7 +20,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class csocket_test : public CppUnit::TestFixture, public rofl::ciosrv, public rofl::csocket_owner {
+class csocket_test : public CppUnit::TestFixture, public rofl::ciosrv, public rofl::csocket_env {
 
 	CPPUNIT_TEST_SUITE( csocket_test );
 	CPPUNIT_TEST( testSocketImpl );

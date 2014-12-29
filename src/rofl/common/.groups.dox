@@ -87,6 +87,14 @@
 /**
  * @defgroup common_devel_ioservice I/O service
  * @ingroup common_devel
+ *
+ * ROFL defines its own IO service for event handling, e.g., for 
+ * dealing with file or socket descriptors. This IO system is used
+ * internally by several classes in rofl-common, but may also be used
+ * by other external modules making use of rofl-common. Please note, this IO subsystem
+ * is not meant to be a high performance one for building packet IO systems, rather
+ * it aims towards a simple thread-safe framework for driving logic
+ * of OpenFlow management endpoints. 
  */
 
 /**

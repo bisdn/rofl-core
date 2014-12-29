@@ -109,7 +109,7 @@ class eRofSockMsgTooLarge 	: public eRofSockBase {};
  */
 class crofsock :
 		public ciosrv,
-		public csocket_owner
+		public csocket_env
 {
 	enum outqueue_type_t {
 		QUEUE_OAM  = 0, // Echo.request/Echo.reply

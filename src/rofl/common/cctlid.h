@@ -17,6 +17,10 @@
 
 namespace rofl {
 
+/**
+ * @brief	rofl-common's internal controller handle
+ * @ingroup common_devel_workflow
+ */
 class cctlid {
 
 	uint64_t 	id;

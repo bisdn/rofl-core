@@ -99,7 +99,7 @@ class eRofBaseCongested             : public eRofBase {}; // control channel is 
  */
 class crofbase :
 	public ciosrv,
-	public csocket_owner,
+	public csocket_env,
 	public crofconn_env,
 	public ctransactions_env,
 	public crofctl_env,

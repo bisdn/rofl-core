@@ -13,24 +13,36 @@
 
 namespace rofl {
 
-class cevent
-{
+/**
+ * @brief	Single event used internally by class crofl::cioloop
+ * @ingroup common_devel_ioservice
+ */
+class cevent {
 public:
 
 	/**
 	 *
 	 */
-	cevent() : cmd(-1) {};
+	cevent() :
+		cmd(-1)
+	{};
 
 	/**
 	 *
 	 */
-	cevent(int cmd) : cmd(cmd) {};
+	cevent(
+			int cmd) :
+				cmd(cmd)
+	{};
 
 	/**
 	 *
 	 */
-	cevent(int cmd, cmemory const& opaque) : cmd(cmd), opaque(opaque) {};
+	cevent(
+			int cmd,
+			const cmemory& opaque) :
+				cmd(cmd), opaque(opaque)
+	{};
 
 	/**
 	 *

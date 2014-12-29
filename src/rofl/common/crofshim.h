@@ -31,7 +31,7 @@ public:
 
 class crofshim :
 		public crofsock_env,
-		public csocket_owner
+		public csocket_env
 {
 public:
 

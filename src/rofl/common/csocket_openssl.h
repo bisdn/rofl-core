@@ -37,7 +37,7 @@ class eOpenSSLVerify		: public eOpenSSL {};
 
 
 /**
- * @brief 	A single unencrypted socket.
+ * @brief 	A single TLS encrypted socket.
  * @ingroup common_devel_bsd_sockets
  *
  * This class provides basic support for socket based communication.
@@ -57,7 +57,7 @@ class eOpenSSLVerify		: public eOpenSSL {};
  */
 class csocket_openssl :
 	public csocket,
-	public csocket_owner
+	public csocket_env
 {
 	//Defaults
 	static std::string const	PARAM_DEFAULT_VALUE_SSL_KEY_CA_PATH;
@@ -135,7 +135,7 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_openssl(csocket_owner *owner);
+	csocket_openssl(csocket_env *owner);
 
 
 

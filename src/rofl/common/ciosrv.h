@@ -40,6 +40,12 @@ namespace rofl {
 
 class ciosrv;
 
+/**
+ * @brief	Defines an IO service loop for a single thread.
+ * @ingroup common_devel_ioservice
+ *
+ *
+ */
 class cioloop {
 public:
 
@@ -422,31 +428,65 @@ private:
 
 
 /**
- * (Abstract) Base class for IO services.
- * This class is a base class that adds IO event support to a derived class.
- * ciosrv provides a static method for running an infinite loop of select()/poll()
- * to handle file/socket descriptors. Each instance adds methods for adding/removing
- * file descriptors to/from the set of monitored descriptors.
+ * @brief 	Base class for IO services.
  *
- * A derived class may overwrite event handlers for receiving the following event types:
- * - handle_revent() read events on file descriptors
- * - handle_wevent() write events on file descriptors
- * - handle_xevent() exceptions on file descriptors
- * - handle_timeout() timeout events
- * - handle_event() events emitted from external threads via cevent
+ * @ingroup common_devel_ioservice
+ *
+ * Derive from this class in order to get support for file/socket descriptor
+ * and timer management. rofl::ciosrv binds a higher layer class with the
+ * low layer IO loop defined inside class rofl::cioloop. This class provides
+ * two groups of methods:
+ *
+ * 1. Management methods for typical CRUD operations on timers and descriptors.
+ * 2. Event events for sending notifications towards deriving classes about
+ * read or write events or expiration of timers.
  *
  * Methods for file descriptor management:
- * - register_filedesc_r() register a descriptor for read IO
- * - deregister_filedesc_r() deregister a read descriptor
- * - register_filedesc_w() register a descriptor for write IO
- * - deregister_filedesc_w() deregister a write descriptor
+ *
+ * 1.a) register_filedesc_r() register a descriptor for read IO
+ *
+ * 1.b) deregister_filedesc_r() deregister a read descriptor
+ *
+ * 1.c) register_filedesc_w() register a descriptor for write IO
+ *
+ * 1.d) deregister_filedesc_w() deregister a write descriptor
  *
  * Methods for timer management:
- * - register_timer() register a timer
- * - reset_timer() reset a timer
- * - cancel_timer() cancel a timer
- * - cancel_all_timer() cancel all timers
  *
+ * 1.e) register_timer() register a timer
+ *
+ * 1.f) reset_timer() reset a timer
+ *
+ * 1.g) restart_timer() restart or create new timer
+ *
+ * 1.h) pending_timer() check for existence of timer
+ *
+ * 1.i) cancel_timer() cancel a timer
+ *
+ * 1.j) cancel_all_timer() cancel all timers
+ *
+ * Methods for event management:
+ *
+ * 1.k) notify() send an event to this rofl::ciosrv instance
+ *
+ * The following event handlers exist and may be overwritten by a class deriving
+ * from rofl::ciosrv:
+ *
+ * 2.a) handle_revent() read events on file descriptor(s)
+ *
+ * 2.b) handle_wevent() write events on file descriptor(s)
+ *
+ * 2.c) handle_xevent() exceptions on file descriptor(s)
+ *
+ * 2.d) handle_timeout() timeout event(s)
+ *
+ * 2.e) handle_event() events sent via notify() method
+ *
+ * This class utilizes timer handles based on class rofl::ctimerid
+ * for managing pending timers, e.g., cancel or restarting them.
+ *
+ * @see rofl::cevent
+ * @see rofl::ctimerid
  */
 class ciosrv : public ptrciosrv {
 public:

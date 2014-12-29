@@ -18,6 +18,10 @@
 
 namespace rofl {
 
+/**
+ * @brief	Time specification used by class rofl::ctimer object
+ * @ingroup common_devel_ioservice
+ */
 class ctimespec {
 public:
 
