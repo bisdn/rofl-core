@@ -23,9 +23,7 @@ librofl_common_la_SOURCES = \
 		ctimespec.h \
 		ctimespec.cc \
 		ctimer.h \
-		ctimer.cc \
 		ctimers.h \
-		ctimers.cc \
 		cevent.h \
 		cevents.h \
 		cevents.cc \

@@ -488,7 +488,7 @@ private:
  * @see rofl::cevent
  * @see rofl::ctimerid
  */
-class ciosrv : public ptrciosrv {
+class ciosrv : public ctimer_env {
 public:
 
 	/**
@@ -768,7 +768,7 @@ protected:
 	 */
 	void
 	cancel_all_timers() {
-		timers.cancel_all();
+		timers.clear();
 		cioloop::get_loop().has_no_timer(this);
 	};
 

@@ -172,8 +172,8 @@ public:
 
 private:
 
-#define CC_TIMER_ONE_SECOND_S 1
-#define CC_TIMER_ONE_SECOND_NS 1000000000
+	static const long CC_TIMER_ONE_SECOND_S = 1;
+	static const long CC_TIMER_ONE_SECOND_NS = 1000000000;
 
 	struct timespec		ts;
 };
