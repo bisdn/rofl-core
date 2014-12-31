@@ -92,9 +92,7 @@ public:
 protected:
 
 	/**
-	 * @name 	Event handlers for management notifications for datapath elements
-	 *
-	 * Overwrite any of these methods for receiving datapath related event notifications.
+	 * @name 	Event handlers for receiving datapath related event notifications.
 	 */
 
 	/**@{*/

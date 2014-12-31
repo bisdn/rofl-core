@@ -15,16 +15,16 @@ cflowentry::cflowentry(
 		const rofl::caddress_ll& src,
 		const rofl::caddress_ll& dst,
 		uint32_t port_no) :
-		flowenv(flowenv),
+		env(flowenv),
 		dptid(dptid),
 		port_no(port_no),
 		src(src),
 		dst(dst),
-		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT),
+		entry_timeout(CFLOWENTRY_DEFAULT_TIMEOUT),
 		expiration_timer_id()
 {
 	flow_mod_add();
-	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+	expiration_timer_id = register_timer(CFLOWENTRY_ENTRY_EXPIRED, entry_timeout);
 	rofl::logging::notice << "[cflowentry] created" << std::endl << *this;
 }
 
@@ -41,8 +41,8 @@ void
 cflowentry::handle_timeout(int opaque, void* data)
 {
 	switch (opaque) {
-	case CFIBENTRY_ENTRY_EXPIRED: {
-		flowenv->flow_timer_expired(*this);
+	case CFLOWENTRY_ENTRY_EXPIRED: {
+		env->flow_timer_expired(*this);
 	} break;
 	}
 }
@@ -50,7 +50,7 @@ cflowentry::handle_timeout(int opaque, void* data)
 
 
 void
-cflowentry::set_port_no(uint32_t port_no)
+cflowentry::set_out_port_no(uint32_t port_no)
 {
 	if (port_no != this->port_no) {
 		this->port_no = port_no;
@@ -60,7 +60,7 @@ cflowentry::set_port_no(uint32_t port_no)
 	try {
 		reset_timer(expiration_timer_id, entry_timeout);
 	} catch (rofl::eTimersBase& e) {
-		expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+		expiration_timer_id = register_timer(CFLOWENTRY_ENTRY_EXPIRED, entry_timeout);
 	}
 }
 

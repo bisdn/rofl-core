@@ -20,15 +20,84 @@
  */
 
 /**
- * @defgroup common_howto Howto: using rofl-common 
+ * @defgroup common_howto A brief introduction how to use rofl-common 
  * @ingroup common
  *
- * In this section we provide a brief walk-through, how to use rofl-common in 
- * an existing project for adding OpenFlow support.
+ * In this section we provide a few examples, how to use rofl-common  
+ * and OpenFlow protocol endpoints in a project and all classes and means 
+ * provided to manage OpenFlow control connections and how to handle incoming and
+ * send outgoing OpenFlow messages. ROFL supports various usage scenarios like 
+ * controller or datapath role and may also serve for building proxy entities.
+ * It provides a simple-to-use high level interface to OpenFlow mitigating OpenFlow's
+ * complexity in day-to-day operations, but its hierarchical design also allows 
+ * to replace one or multiple of the higher abstraction layers for getting direct 
+ * access to the low-level routines. See module @ref common_devel_workflow for a 
+ * more detailed view on ROFL's internal architecture. 
+ *
+ * a) We start with a simple controller application to demonstrate some core
+ * principles named ethswctld (see module above).
+ *
+ * b) An advanced datapath element build on top of rofl-common and rofl-pipeline
+ * is available as <a href="https://github.com/bisdn/xdpd">extensible datapath 
+ * daemon (xdpd)</a> 
+ *
+ * c) A more complete example of a controller application demonstrating some more
+ * advanced strategies for building a useful OpenFlow controller is the 
+ * <a href="https://github.com/bisdn/basebox">base box daemon</a>.
  */
 
 /**
- * @defgroup common_devel ROFL for developers
+ * @defgroup common_howto_ethswctld A simple controller application: ethswctld 
+ * @ingroup common_howto
+ *
+ * As previously outlined, rofl-common is a collection of C++ classes of
+ * OpenFlow data structures each capable of mapping its internal state
+ * to a simple-to-use C++ interface or the associated TCP wire representation
+ * required for sending OpenFlow messages to a peer entity. In addition, 
+ * rofl-common implements behaviour of OpenFlow endpoints in a set of 
+ * workflow and auxiliary classes. All workflow classes build on top of each
+ * other, effectively creating a hierarchy of functional layers. At its top, 
+ * class rofl::crofbase 
+ * provides a high level simple-to-use interface that serves as main class
+ * in rofl-common. Deriving from rofl::crofbase is the most simple and convenient
+ * way for adding OpenFlow support to an application.
+ *
+ * Class cetherswitch defines the main class of ethswctld and derives from 
+ * class rofl::crofbase. OpenFlow is a control protocol and requires support for 
+ * TCP/IP connectivity from the underlying operating system. rofl-common
+ * provides its own @ref common_devel_ioservice for driving associated socket
+ * or timer objects. The ethswctld control application uses ROFL's I/O subsystem
+ * as its main loop for running its discrete event loop. However, you may 
+ * build your own for your main function and run ROFL in a separate thread.
+ * ROFL's I/O subsystem supports multi-threaded operations and each class defined
+ * in ROFL may be assigned to any of the execution threads dedicated to ROFL. 
+ * Whatever strategy you
+ * adopt, when assigning a ROFL class instance to a specific thread, you must run ROFL's 
+ * I/O loop in this specific execution thread in order to work on the event queue. 
+ * See method rofl::cioloop::run() for details.
+ *
+ * The ethswctld control application supports an arbitrary number of datapath 
+ * elements. It defines two main classes: a) Class rofl::examples::ethswctld::cfibtable defines a Forwarding
+ * Information Base that stores mappings between individual Ethernet hosts 
+ * (to be precise: their ethernet hardware addresses) and the port to be used on 
+ * the datapath element for sending frames towards this station. Class rofl::examples::ethswctld::cfibentry
+ * stores individual FIB entries. b) Class rofl::examples::ethswctld::cflowtable defines an Active Flows Table
+ * for storing unidirectional flows between a pair of ethernet hosts. An active flow
+ * is characterized by an OpenFlow flow table entry installed on the datapath element
+ * and is represented by an instance of class rofl::examples::ethswctld::cflowentry.
+ *
+ * Both FIB and flow entries are soft-state entities and demonstrate use of the
+ * timer management methods provided by class rofl::ciosrv. They also demonstrate
+ * two recurring patterns frequently used in rofl-common:
+ *
+ * a) Interface definitions for organizing notification exchange between related classes
+ * using so-called environment classes.
+ *
+ * b) Naming of management methods for typical CRUD operations on various objects.    
+ */
+
+/**
+ * @defgroup common_devel rofl-common for developers
  * @ingroup common
  *
  * This section discusses some internals of rofl-common and how the 
@@ -85,7 +154,7 @@
  */
 
 /**
- * @defgroup common_devel_ioservice I/O service
+ * @defgroup common_devel_ioservice I/O subsystem
  * @ingroup common_devel
  *
  * ROFL defines its own IO service for event handling, e.g., for 

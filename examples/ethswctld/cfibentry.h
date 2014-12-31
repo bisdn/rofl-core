@@ -22,10 +22,48 @@ namespace rofl {
 namespace examples {
 namespace ethswctld {
 
+namespace exceptions {
+
+/**
+ * @ingroup common_howto_ethswctld
+ *
+ * @brief	Base class for all exceptions thrown by class cfibtable.
+ */
+class eFibBase			: public std::runtime_error {
+public:
+	eFibBase(const std::string& __arg) : std::runtime_error(__arg) {};
+};
+
+/**
+ * @ingroup common_howto_ethswctld
+ *
+ * @brief	Invalid parameter specified.
+ */
+class eFibInval			: public eFibBase {
+public:
+	eFibInval(const std::string& __arg) : eFibBase(__arg) {};
+};
+
+/**
+ * @ingroup common_howto_ethswctld
+ *
+ * @brief	Element not found.
+ */
+class eFibNotFound		: public eFibBase {
+public:
+	eFibNotFound(const std::string& __arg) : eFibBase(__arg) {};
+};
+
+}; // namespace exceptions
+
+
 class cfibentry; // forward declaration
 
 
 /**
+ * @ingroup common_howto_ethswctld
+ * @interface cfibentry_env
+ *
  * @brief	Defines the environment expected by an instance of class cfibentry.
  */
 class cfibentry_env {
@@ -59,6 +97,8 @@ protected:
 
 
 /**
+ * @ingroup common_howto_ethswctld
+ *
  * @brief	Stores a FIB entry mapping host hwaddr to switch port number.
  *
  * This class stores an entry for a Forwarding Information Base (FIB)
@@ -96,6 +136,12 @@ public:
 public:
 
 	/**
+	 * @name	Access to class parameters
+	 */
+
+	/**@{*/
+
+	/**
 	 * @brief	Returns port number stored for this host.
 	 *
 	 * @return OpenFlow port number of port pointing towards station
@@ -120,6 +166,8 @@ public:
 	const rofl::caddress_ll&
 	get_hwaddr() const
 	{ return hwaddr; };
+
+	/**@}*/
 
 private:
 

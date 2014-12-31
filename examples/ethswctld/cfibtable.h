@@ -24,35 +24,30 @@ namespace examples {
 namespace ethswctld {
 
 /**
- * @brief	Base class for all exceptions thrown by class cfibtable.
- */
-class eFibBase			: public std::runtime_error {
-public:
-	eFibBase(const std::string& __arg) : std::runtime_error(__arg) {};
-};
-
-/**
- * @brief	Invalid parameter specified.
- */
-class eFibInval			: public eFibBase {
-public:
-	eFibInval(const std::string& __arg) : eFibBase(__arg) {};
-};
-
-/**
- * @brief	Element not found.
- */
-class eFibNotFound		: public eFibBase {
-public:
-	eFibNotFound(const std::string& __arg) : eFibBase(__arg) {};
-};
-
-
-/**
+ * @ingroup common_howto_ethswctld
+ *
  * @brief	Forwarding Information Base
+ *
+ * This class stores all active mappings between a host ethernet address and
+ * its associated port on the switch for reaching this host on a given datapath element.
+ * Class cfibentry defines the container for an active FIB entry. Class cfibtable
+ * defines two groups of methods:
+ *
+ * 1. Static methods on CRUD operations for instances of class cfibtable
+ *
+ * 2. Methods on CRUD operations for instances of class cfibentry in a cfibtable instance
+ *
+ * @see cfibentry
+ * @see cfibentry_env
  */
 class cfibtable : public cfibentry_env {
 public:
+
+	/**
+	 * @name	Methods for managing Forwarding Information Bases
+	 */
+
+	/**@{*/
 
 	/**
 	 * @brief	Returns reference to new or existing and resetted cfibtable instance.
@@ -108,7 +103,7 @@ public:
 	get_fib(
 			const rofl::cdptid& dptid) {
 		if (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()) {
-			throw eFibNotFound("cfibtable::get_fib() dptid not found");
+			throw exceptions::eFibNotFound("cfibtable::get_fib() dptid not found");
 		}
 		return *(cfibtable::fibtables.at(dptid));
 	};
@@ -141,7 +136,15 @@ public:
 		return (not (cfibtable::fibtables.find(dptid) == cfibtable::fibtables.end()));
 	};
 
+	/**@}*/
+
 public:
+
+	/**
+	 * @name	Methods for CRUD operations on FIB entries
+	 */
+
+	/**@{*/
 
 	/**
 	 * @brief	Deletes all entries stored in this cfibtable instance.
@@ -170,7 +173,7 @@ public:
 			const rofl::caddress_ll& hwaddr,
 			uint32_t portno) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval("cfibtable::add_fib_entry() hwaddr validation failed");
+			throw exceptions::eFibInval("cfibtable::add_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) != ftable.end()) {
 			drop_fib_entry(hwaddr);
@@ -194,7 +197,7 @@ public:
 			const rofl::caddress_ll& hwaddr,
 			uint32_t portno) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
+			throw exceptions::eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) == ftable.end()) {
 			ftable[hwaddr] = new cfibentry(this, dptid, hwaddr, portno);
@@ -216,10 +219,10 @@ public:
 	set_fib_entry(
 			const rofl::caddress_ll& hwaddr) {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
+			throw exceptions::eFibInval("cfibtable::set_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) == ftable.end()) {
-			throw eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
+			throw exceptions::eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
 		}
 		return *(ftable[hwaddr]);
 	};
@@ -238,10 +241,10 @@ public:
 	get_fib_entry(
 			const rofl::caddress_ll& hwaddr) const {
 		if (hwaddr.is_multicast() || hwaddr.is_null()) {
-			throw eFibInval("cfibtable::get_fib_entry() hwaddr validation failed");
+			throw exceptions::eFibInval("cfibtable::get_fib_entry() hwaddr validation failed");
 		}
 		if (ftable.find(hwaddr) == ftable.end()) {
-			throw eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
+			throw exceptions::eFibNotFound("cfibtable::set_fib_entry() hwaddr not found");
 		}
 		return *(ftable.at(hwaddr));
 	};
@@ -272,6 +275,8 @@ public:
 			const rofl::caddress_ll& hwaddr) const {
 		return (not (ftable.find(hwaddr) == ftable.end()));
 	};
+
+	/**@}*/
 
 private:
 
@@ -338,10 +343,9 @@ public:
 
 private:
 
-	static std::map<rofl::cdptid, cfibtable*> 	fibtables;
-
-	rofl::cdptid								dptid;
-	std::map<rofl::caddress_ll, cfibentry*>		ftable; // hwaddr => cfibentry
+	static std::map<rofl::cdptid, cfibtable*> fibtables;
+	rofl::cdptid dptid;
+	std::map<rofl::caddress_ll, cfibentry*> ftable;
 };
 
 }; // namespace ethswctld

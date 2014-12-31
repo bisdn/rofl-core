@@ -19,36 +19,48 @@ namespace rofl {
 namespace examples {
 namespace ethswctld {
 
+
+
 /**
- * @brief	A very simple controller for forwarding Ethernet frames.
+ * @ingroup common_howto_ethswctld
+ *
+ * @brief	A very simple controller for forwarding Ethernet flows.
  *
  * A simple controller application capable of switching Ethernet
- * frames.
+ * frames in a flow-based manner.
  */
 class cetherswitch : public rofl::crofbase {
 public:
 
 	/**
-	 * @brief	main routine of class cetherswitch
+	 * @brief	Static main routine for class cetherswitch
+	 *
+	 * Runs main event loop. Does not return.
+	 *
+	 * @param argc number of arguments given to main function
+	 * @param argv array of pointers to arguments given to main function
 	 */
 	static
 	int
 	run(
 			int argc, char** argv);
 
-public:
+private:
 
 	/**
-	 * @brief	ethswitch constructor
+	 * @brief	cetherswitch constructor
 	 */
 	cetherswitch(
 			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
 
 	/**
-	 * @brief	ethswitch destructor
+	 * @brief	cetherswitch destructor
 	 */
 	virtual
 	~cetherswitch();
+
+
+	/** @cond EXAMPLES */
 
 private:
 
@@ -119,6 +131,8 @@ private:
 			rofl::crofdpt& dpt,
 			uint32_t xid);
 
+	/** @endcond */
+
 private:
 
 	/**
@@ -165,15 +179,15 @@ private:
 		TIMER_GET_FLOW_STATS    = 2,
 	};
 
-	rofl::cdptid				dptid;
+	rofl::cdptid                dptid;
 
-	rofl::ctimerid 				timer_id_dump_fib;
-	unsigned int				dump_fib_interval;
-	static const unsigned int	DUMP_FIB_DEFAULT_INTERVAL = 60; // seconds
+	rofl::ctimerid              timer_id_dump_fib;
+	unsigned int                dump_fib_interval;
+	static const unsigned int   DUMP_FIB_DEFAULT_INTERVAL = 60; // seconds
 
-	rofl::ctimerid				timer_id_get_flow_stats;
-	unsigned int				get_flow_stats_interval;
-	static const unsigned int	GET_FLOW_STATS_DEFAULT_INTERVAL = 30; // seconds
+	rofl::ctimerid              timer_id_get_flow_stats;
+	unsigned int                get_flow_stats_interval;
+	static const unsigned int   GET_FLOW_STATS_DEFAULT_INTERVAL = 30; // seconds
 };
 
 }; // namespace ethswctld

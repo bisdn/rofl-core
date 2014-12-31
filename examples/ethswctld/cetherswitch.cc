@@ -210,7 +210,7 @@ cetherswitch::handle_packet_in(
 {
 	try {
 		cfibtable& fib = cfibtable::set_fib(dpt.get_dptid());
-		cflowtable& ftb = cflowtable::get_flowtable(dpt.get_dptid());
+		cflowtable& ftb = cflowtable::set_flowtable(dpt.get_dptid());
 		rofl::caddress_ll eth_src;
 		rofl::caddress_ll eth_dst;
 		uint32_t in_port = 0;
@@ -274,7 +274,7 @@ cetherswitch::handle_packet_in(
 			}
 		}
 
-	} catch (eFibInval& e) {
+	} catch (exceptions::eFibInval& e) {
 		rofl::logging::error << "[cetherswitch] hwaddr validation failed" << std::endl << msg;
 
 	} catch (...) {
