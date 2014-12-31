@@ -33,6 +33,7 @@ class eRofConnNotFound				: public eRofConnBase {};
 class crofconn; // forward declaration
 
 /**
+ * @interface crofconn_env
  * @ingroup common_devel_workflow
  * @brief	Environment expected by a rofl::crofconn object
  */

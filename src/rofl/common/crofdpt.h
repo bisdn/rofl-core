@@ -56,6 +56,7 @@ public:
 class crofdpt;
 
 /**
+ * @interface crofdpt_env
  * @ingroup common_devel_workflow
  * @brief	Interface for an environment for rofl::crofdpt.
  *

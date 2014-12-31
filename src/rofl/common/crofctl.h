@@ -58,6 +58,7 @@ public:
 class crofctl;
 
 /**
+ * @interface crofctl_env
  * @ingroup common_devel_workflow
  * @brief	Interface for an environment for rofl::crofctl.
  *

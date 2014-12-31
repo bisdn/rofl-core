@@ -436,7 +436,7 @@ public:
 	 * @brief	Returns reference to existing rofl::crofdpt instance.
 	 *
 	 * Returns existing rofl::crofdpt instance specified by identifier dptid.
-	 * If the identifier does not exists, throws an exception eRofBaseNotFound.
+	 * If the identifier does not exist, throws an exception eRofBaseNotFound.
 	 *
 	 * @param dptid internal datapath handle (not DPID)
 	 * @result reference to existing rofl::crofdpt instance
@@ -455,7 +455,7 @@ public:
 	 * @brief	Returns const reference to existing rofl::crofdpt instance.
 	 *
 	 * Returns existing rofl::crofdpt instance specified by identifier dptid.
-	 * If the identifier does not exists, throws an exception eRofBaseNotFound.
+	 * If the identifier does not exist, throws an exception eRofBaseNotFound.
 	 *
 	 * @param dptid internal datapath handle (not DPID)
 	 * @result reference to existing rofl::crofdpt instance
@@ -596,7 +596,7 @@ public:
 	 * @brief	Returns reference to existing rofl::crofctl instance.
 	 *
 	 * Returns existing rofl::crofctl instance specified by identifier ctlid.
-	 * If the identifier does not exists, throws an exception eRofBaseNotFound.
+	 * If the identifier does not exist, throws an exception eRofBaseNotFound.
 	 *
 	 * @param ctlid internal controller handle
 	 * @result reference to existing rofl::crofctl instance
@@ -615,7 +615,7 @@ public:
 	 * @brief	Returns const reference to existing rofl::crofctl instance.
 	 *
 	 * Returns existing rofl::crofctl instance specified by identifier ctlid.
-	 * If the identifier does not exists, throws an exception eRofBaseNotFound.
+	 * If the identifier does not exist, throws an exception eRofBaseNotFound.
 	 *
 	 * @param ctlid internal controller handle
 	 * @result reference to existing rofl::crofctl instance

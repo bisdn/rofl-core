@@ -32,6 +32,7 @@ class eRofChanNotConnected	: public eRofChanBase {};
 class crofchan; // forward declaration
 
 /**
+ * @interface crofchan_env
  * @ingroup common_devel_workflow
  * @brief 	Environment expected by a crofchan instance
  *

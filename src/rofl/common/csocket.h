@@ -40,7 +40,7 @@ class eSocketParamNotFound			: public eSocketBase {};
 class csocket; // forward declaration
 
 /**
- * @class csocket_env
+ * @interface csocket_env
  * @ingroup common_devel_bsd_sockets
  * @brief	An abstract interface defining the consumer side of a csocket.
  *
