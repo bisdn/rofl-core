@@ -48,12 +48,12 @@ More information, documentation and support
 
 You can have a look on: 
 
-https://bisdn.github.io/rofl-core/rofl-common/index.html
-https://bisdn.github.io/rofl-core/rofl-common/modules.html
-https://bisdn.github.io/rofl-core/rofl-pipeline/index.html
-https://bisdn.github.io/rofl-core/rofl-hal/index.html
-http://www.roflibs.org/
-http://www.roflibs.org/doc/
+* https://bisdn.github.io/rofl-core/rofl-common/index.html
+* https://bisdn.github.io/rofl-core/rofl-common/modules.html
+* https://bisdn.github.io/rofl-core/rofl-pipeline/index.html
+* https://bisdn.github.io/rofl-core/rofl-hal/index.html
+* http://www.roflibs.org/
+* http://www.roflibs.org/doc/
 
 Documentation can be compiled via `make doc`. Documentation is generated in build/doc/ folder
 
