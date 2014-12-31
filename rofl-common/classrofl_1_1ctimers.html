@@ -93,7 +93,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#friends">Friends</a> &#124;
 <a href="classrofl_1_1ctimers-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">rofl::ctimers Class Reference<div class="ingroups"><a class="el" href="group__common__devel__ioservice.html">I/O service</a></div></div>  </div>
+<div class="title">rofl::ctimers Class Reference<div class="ingroups"><a class="el" href="group__common__devel__ioservice.html">I/O subsystem</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -104,58 +104,274 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1c6a7706166c938d265ef6c762cddc8e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c6a7706166c938d265ef6c762cddc8e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ctimers</b> (<a class="el" href="classrofl_1_1ctimers.html">ctimers</a> const &amp;timers)</td></tr>
-<tr class="separator:a1c6a7706166c938d265ef6c762cddc8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20602f78a0d9104930c9d4e35ebf2e1e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20602f78a0d9104930c9d4e35ebf2e1e"></a>
-<a class="el" href="classrofl_1_1ctimers.html">ctimers</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classrofl_1_1ctimers.html">ctimers</a> const &amp;timers)</td></tr>
-<tr class="separator:a20602f78a0d9104930c9d4e35ebf2e1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64d0963aed704f5771db78a77f033aec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64d0963aed704f5771db78a77f033aec"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>empty</b> ()</td></tr>
-<tr class="separator:a64d0963aed704f5771db78a77f033aec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa2eb23d2c833112d6506df2c9cc9694a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa2eb23d2c833112d6506df2c9cc9694a"></a>
-<a class="el" href="classrofl_1_1ctimer.html">ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_next_timer</b> ()</td></tr>
-<tr class="separator:aa2eb23d2c833112d6506df2c9cc9694a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd237c77ce37a8ed8c5be8994b82e9b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd237c77ce37a8ed8c5be8994b82e9b2"></a>
-const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>add_timer</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t)</td></tr>
-<tr class="separator:acd237c77ce37a8ed8c5be8994b82e9b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68de4b4efa9c4d7a621cf5a68bda181e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a68de4b4efa9c4d7a621cf5a68bda181e"></a>
-const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> (const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;timer_id, const <a class="el" href="classrofl_1_1ctimespec.html">ctimespec</a> &amp;t)</td></tr>
-<tr class="separator:a68de4b4efa9c4d7a621cf5a68bda181e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3930716c6a416f5efe93b2bdf9f28348"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3930716c6a416f5efe93b2bdf9f28348"></a>
-<a class="el" href="classrofl_1_1ctimer.html">ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_expired_timer</b> ()</td></tr>
-<tr class="separator:a3930716c6a416f5efe93b2bdf9f28348"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f34ed5be66826f10cfa205c10049b70"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f34ed5be66826f10cfa205c10049b70"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>pending</b> (const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;timer_id)</td></tr>
-<tr class="separator:a5f34ed5be66826f10cfa205c10049b70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac46ab4eec2f9f1416b7f010e866713a0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac46ab4eec2f9f1416b7f010e866713a0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>cancel</b> (const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;timer_id)</td></tr>
-<tr class="separator:ac46ab4eec2f9f1416b7f010e866713a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66a397685dd91cd5d0c69d05076d9685"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66a397685dd91cd5d0c69d05076d9685"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a66a397685dd91cd5d0c69d05076d9685">cancel_all</a> ()</td></tr>
-<tr class="memdesc:a66a397685dd91cd5d0c69d05076d9685"><td class="mdescLeft">&#160;</td><td class="mdescRight">cancel all timers <br/></td></tr>
-<tr class="separator:a66a397685dd91cd5d0c69d05076d9685"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac07f1a3706c0a9c1b0778daa50097d65"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac07f1a3706c0a9c1b0778daa50097d65"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ac07f1a3706c0a9c1b0778daa50097d65">clear</a> ()</td></tr>
-<tr class="memdesc:ac07f1a3706c0a9c1b0778daa50097d65"><td class="mdescLeft">&#160;</td><td class="mdescRight">cancel all timers <br/></td></tr>
-<tr class="separator:ac07f1a3706c0a9c1b0778daa50097d65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac62411f55639231b86b67b56e4773fe7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac62411f55639231b86b67b56e4773fe7"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ac62411f55639231b86b67b56e4773fe7">~ctimers</a> ()</td></tr>
+<tr class="memdesc:ac62411f55639231b86b67b56e4773fe7"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimers destructor <br/></td></tr>
+<tr class="separator:ac62411f55639231b86b67b56e4773fe7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4e38f4df08209349c27cb1a6a37aa05"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4e38f4df08209349c27cb1a6a37aa05"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ae4e38f4df08209349c27cb1a6a37aa05">ctimers</a> ()</td></tr>
+<tr class="memdesc:ae4e38f4df08209349c27cb1a6a37aa05"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimers default constructor <br/></td></tr>
+<tr class="separator:ae4e38f4df08209349c27cb1a6a37aa05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e7f1ea76edbded4af2fe85a9ba6c9d7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e7f1ea76edbded4af2fe85a9ba6c9d7"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a9e7f1ea76edbded4af2fe85a9ba6c9d7">ctimers</a> (const <a class="el" href="classrofl_1_1ctimers.html">rofl::ctimers</a> &amp;timers)</td></tr>
+<tr class="memdesc:a9e7f1ea76edbded4af2fe85a9ba6c9d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimers copy constructor <br/></td></tr>
+<tr class="separator:a9e7f1ea76edbded4af2fe85a9ba6c9d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operators</div></td></tr>
+<tr class="memitem:ab445743f7523f992cd3d538029960720"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab445743f7523f992cd3d538029960720"></a>
+<a class="el" href="classrofl_1_1ctimers.html">ctimers</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ab445743f7523f992cd3d538029960720">operator=</a> (const <a class="el" href="classrofl_1_1ctimers.html">rofl::ctimers</a> &amp;t)</td></tr>
+<tr class="memdesc:ab445743f7523f992cd3d538029960720"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator. <br/></td></tr>
+<tr class="separator:ab445743f7523f992cd3d538029960720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Managing timers</div></td></tr>
+<tr class="memitem:a70b1dd0fc185e6d4db9715dbd0cca772"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a70b1dd0fc185e6d4db9715dbd0cca772"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a70b1dd0fc185e6d4db9715dbd0cca772">empty</a> ()</td></tr>
+<tr class="memdesc:a70b1dd0fc185e6d4db9715dbd0cca772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes all timers in this timer list. <br/></td></tr>
+<tr class="separator:a70b1dd0fc185e6d4db9715dbd0cca772"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5d6d6e47a0ea5778908fbaa5bd575b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ad5d6d6e47a0ea5778908fbaa5bd575b5">get_next_timer</a> ()</td></tr>
+<tr class="memdesc:ad5d6d6e47a0ea5778908fbaa5bd575b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a copy of the next expiring timer in this timer list.  <a href="#ad5d6d6e47a0ea5778908fbaa5bd575b5">More...</a><br/></td></tr>
+<tr class="separator:ad5d6d6e47a0ea5778908fbaa5bd575b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade09d012505474f5d28a60f0f099ea40"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#ade09d012505474f5d28a60f0f099ea40">add_timer</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t)</td></tr>
+<tr class="memdesc:ade09d012505474f5d28a60f0f099ea40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a new timer into the timer list.  <a href="#ade09d012505474f5d28a60f0f099ea40">More...</a><br/></td></tr>
+<tr class="separator:ade09d012505474f5d28a60f0f099ea40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed08e8d6500d131ab850abd6c318dff7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#aed08e8d6500d131ab850abd6c318dff7">reset</a> (const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;timer_id, const <a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;timespec)</td></tr>
+<tr class="memdesc:aed08e8d6500d131ab850abd6c318dff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets an existing timer identifier by its handle with a new timeout value.  <a href="#aed08e8d6500d131ab850abd6c318dff7">More...</a><br/></td></tr>
+<tr class="separator:aed08e8d6500d131ab850abd6c318dff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8614d7d4d68066ea3198bda5e093f5d9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a8614d7d4d68066ea3198bda5e093f5d9">get_expired_timer</a> ()</td></tr>
+<tr class="memdesc:a8614d7d4d68066ea3198bda5e093f5d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the next timer from timer list, when it has already expired.  <a href="#a8614d7d4d68066ea3198bda5e093f5d9">More...</a><br/></td></tr>
+<tr class="separator:a8614d7d4d68066ea3198bda5e093f5d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f025165064386e6d2cf6080a2579acb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a6f025165064386e6d2cf6080a2579acb">pending</a> (const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;timer_id)</td></tr>
+<tr class="memdesc:a6f025165064386e6d2cf6080a2579acb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a certain timer identified by the given handle is still pending.  <a href="#a6f025165064386e6d2cf6080a2579acb">More...</a><br/></td></tr>
+<tr class="separator:a6f025165064386e6d2cf6080a2579acb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09fe2d47625e58e3a1d5235e90466eee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#a09fe2d47625e58e3a1d5235e90466eee">cancel</a> (const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;timer_id)</td></tr>
+<tr class="memdesc:a09fe2d47625e58e3a1d5235e90466eee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a timer identified by the given timer handle from this timer list.  <a href="#a09fe2d47625e58e3a1d5235e90466eee">More...</a><br/></td></tr>
+<tr class="separator:a09fe2d47625e58e3a1d5235e90466eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaddc4b04d6a19e36549a94b29d974e26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaddc4b04d6a19e36549a94b29d974e26"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimers.html#aaddc4b04d6a19e36549a94b29d974e26">clear</a> ()</td></tr>
+<tr class="memdesc:aaddc4b04d6a19e36549a94b29d974e26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all timers from this timer list. <br/></td></tr>
+<tr class="separator:aaddc4b04d6a19e36549a94b29d974e26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a48799fbad8e72d90ed7272e91a7c5b49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48799fbad8e72d90ed7272e91a7c5b49"></a>
-std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, <a class="el" href="classrofl_1_1ctimers.html">ctimers</a> const &amp;t)</td></tr>
-<tr class="separator:a48799fbad8e72d90ed7272e91a7c5b49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73447f755064e50321cd1e3f09826b97"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a73447f755064e50321cd1e3f09826b97"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classrofl_1_1ctimers.html">rofl::ctimers</a> &amp;t)</td></tr>
+<tr class="separator:a73447f755064e50321cd1e3f09826b97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>List of timers objects of class <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a>. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ade09d012505474f5d28a60f0f099ea40"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a>&amp; rofl::ctimers::add_timer </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Inserts a new timer into the timer list. </p>
+<dl class="section return"><dt>Returns</dt><dd>rofl-common's timer handle </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a09fe2d47625e58e3a1d5235e90466eee"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rofl::ctimers::cancel </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> &amp;&#160;</td>
+          <td class="paramname"><em>timer_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Removes a timer identified by the given timer handle from this timer list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer_id</td><td>timer handle </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a8614d7d4d68066ea3198bda5e093f5d9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> rofl::ctimers::get_expired_timer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the next timer from timer list, when it has already expired. </p>
+<p>This method is used for reading in a loop all timers that have already expired. If no or no further timers have expired, an exception is thrown.</p>
+<dl class="section return"><dt>Returns</dt><dd>copy of <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> instance that has expired </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classrofl_1_1eTimersNotFound.html">eTimersNotFound</a></td><td>no (or no further) expired timer in timer list </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ad5d6d6e47a0ea5778908fbaa5bd575b5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> rofl::ctimers::get_next_timer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a copy of the next expiring timer in this timer list. </p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classrofl_1_1eTimersNotFound.html">eTimersNotFound</a></td><td>timer list is empty </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a6f025165064386e6d2cf6080a2579acb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool rofl::ctimers::pending </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;&#160;</td>
+          <td class="paramname"><em>timer_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Checks whether a certain timer identified by the given handle is still pending. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer_id</td><td>timer handle </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true, when the timer still exists </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aed08e8d6500d131ab850abd6c318dff7"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a>&amp; rofl::ctimers::reset </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;&#160;</td>
+          <td class="paramname"><em>timer_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;&#160;</td>
+          <td class="paramname"><em>timespec</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Resets an existing timer identifier by its handle with a new timeout value. </p>
+<p>Please note, the returned timer handle differs from the one previously identifying the timer!</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timer_id</td><td>handle to existing timer </td></tr>
+    <tr><td class="paramname">timespec</td><td>new timeout value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>const reference to new timer handle</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classrofl_1_1eTimersNotFound.html">eTimersNotFound</a></td><td>timer handle not found </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>/home/andreas/git/rofl-core/src/rofl/common/<a class="el" href="ctimers_8h_source.html">ctimers.h</a></li>
-<li>/home/andreas/git/rofl-core/src/rofl/common/ctimers.cc</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:48:47 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:01 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

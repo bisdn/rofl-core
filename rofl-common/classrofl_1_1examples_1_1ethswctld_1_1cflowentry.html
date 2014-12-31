@@ -93,36 +93,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#friends">Friends</a> &#124;
 <a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">rofl::examples::ethswctld::cflowentry Class Reference</div>  </div>
+<div class="title">rofl::examples::ethswctld::cflowentry Class Reference<div class="ingroups"><a class="el" href="group__common__howto__ethswctld.html">A simple controller application: ethswctld</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Stores an active flow entry.  
+ <a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="cflowentry_8h_source.html">cflowentry.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7f314ad3f34d866d3b16f5ae3ce08b68"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7f314ad3f34d866d3b16f5ae3ce08b68"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>cflowentry</b> (<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> *flowenv, const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t port_no)</td></tr>
+<tr class="memitem:a7f314ad3f34d866d3b16f5ae3ce08b68"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a7f314ad3f34d866d3b16f5ae3ce08b68">cflowentry</a> (<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> *flowenv, const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t port_no)</td></tr>
+<tr class="memdesc:a7f314ad3f34d866d3b16f5ae3ce08b68"><td class="mdescLeft">&#160;</td><td class="mdescRight">cflowentry constructor  <a href="#a7f314ad3f34d866d3b16f5ae3ce08b68">More...</a><br/></td></tr>
 <tr class="separator:a7f314ad3f34d866d3b16f5ae3ce08b68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c411a4ec0f9f659cc0f3160990d6556"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c411a4ec0f9f659cc0f3160990d6556"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_out_port_no</b> () const </td></tr>
+<tr class="memitem:af21cb93edf1e2ea8e7ddc64fd4ac8ab6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af21cb93edf1e2ea8e7ddc64fd4ac8ab6"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#af21cb93edf1e2ea8e7ddc64fd4ac8ab6">~cflowentry</a> ()</td></tr>
+<tr class="memdesc:af21cb93edf1e2ea8e7ddc64fd4ac8ab6"><td class="mdescLeft">&#160;</td><td class="mdescRight">cflowentry destructor <br/></td></tr>
+<tr class="separator:af21cb93edf1e2ea8e7ddc64fd4ac8ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Access to class parameters</div></td></tr>
+<tr class="memitem:a9c411a4ec0f9f659cc0f3160990d6556"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a9c411a4ec0f9f659cc0f3160990d6556">get_out_port_no</a> () const </td></tr>
+<tr class="memdesc:a9c411a4ec0f9f659cc0f3160990d6556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns outgoing port number stored for this flow.  <a href="#a9c411a4ec0f9f659cc0f3160990d6556">More...</a><br/></td></tr>
 <tr class="separator:a9c411a4ec0f9f659cc0f3160990d6556"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4768ac6d2769aecce570418099efca7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4768ac6d2769aecce570418099efca7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_port_no</b> (uint32_t out_port_no)</td></tr>
-<tr class="separator:ae4768ac6d2769aecce570418099efca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6054b13896ee5f0207bc06906467195"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6054b13896ee5f0207bc06906467195"></a>
-const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_dst</b> () const </td></tr>
+<tr class="memitem:acf51ed4f8051d01719c8235a19c75dc1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#acf51ed4f8051d01719c8235a19c75dc1">set_out_port_no</a> (uint32_t out_port_no)</td></tr>
+<tr class="memdesc:acf51ed4f8051d01719c8235a19c75dc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update port number stored for this flow.  <a href="#acf51ed4f8051d01719c8235a19c75dc1">More...</a><br/></td></tr>
+<tr class="separator:acf51ed4f8051d01719c8235a19c75dc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6054b13896ee5f0207bc06906467195"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa6054b13896ee5f0207bc06906467195">get_dst</a> () const </td></tr>
+<tr class="memdesc:aa6054b13896ee5f0207bc06906467195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns ethernet hardware address identifying the destination host.  <a href="#aa6054b13896ee5f0207bc06906467195">More...</a><br/></td></tr>
 <tr class="separator:aa6054b13896ee5f0207bc06906467195"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0323d1ad8abdd44126b71d8d5f0c7a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0323d1ad8abdd44126b71d8d5f0c7a6"></a>
-const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_src</b> () const </td></tr>
+<tr class="memitem:aa0323d1ad8abdd44126b71d8d5f0c7a6"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa0323d1ad8abdd44126b71d8d5f0c7a6">get_src</a> () const </td></tr>
+<tr class="memdesc:aa0323d1ad8abdd44126b71d8d5f0c7a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns ethernet hardware address identifying the source host.  <a href="#aa0323d1ad8abdd44126b71d8d5f0c7a6">More...</a><br/></td></tr>
 <tr class="separator:aa0323d1ad8abdd44126b71d8d5f0c7a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1cb6c6dbfab886db6883c3aff59d02a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1cb6c6dbfab886db6883c3aff59d02a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>flow_mod_add</b> ()</td></tr>
-<tr class="separator:ac1cb6c6dbfab886db6883c3aff59d02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad196eaa7acf80f321d57e835867fae2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad196eaa7acf80f321d57e835867fae2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>flow_mod_delete</b> ()</td></tr>
-<tr class="separator:aad196eaa7acf80f321d57e835867fae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbf04770dfebaad8baa7e0f6edf59bd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abbf04770dfebaad8baa7e0f6edf59bd6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>flow_mod_modify</b> ()</td></tr>
-<tr class="separator:abbf04770dfebaad8baa7e0f6edf59bd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classrofl_1_1ciosrv"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classrofl_1_1ciosrv')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classrofl_1_1ciosrv.html">rofl::ciosrv</a></td></tr>
 <tr class="memitem:ab79c222b594eec9a0bab7ab29efd6f66 inherit pub_methods_classrofl_1_1ciosrv"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab79c222b594eec9a0bab7ab29efd6f66"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ciosrv.html#ab79c222b594eec9a0bab7ab29efd6f66">ciosrv</a> (pthread_t tid=0)</td></tr>
@@ -149,7 +150,8 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:a4bfcebef07ad1bbc20395b512dc1a47b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bfcebef07ad1bbc20395b512dc1a47b"></a>
-std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;entry)</td></tr>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a4bfcebef07ad1bbc20395b512dc1a47b">operator&lt;&lt;</a> (std::ostream &amp;os, const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;entry)</td></tr>
+<tr class="memdesc:a4bfcebef07ad1bbc20395b512dc1a47b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output operator. <br/></td></tr>
 <tr class="separator:a4bfcebef07ad1bbc20395b512dc1a47b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
@@ -206,16 +208,180 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memdesc:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels all pending events of this instance. <br/></td></tr>
 <tr class="separator:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<div class="dynheader">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Stores an active flow entry. </p>
+<p>This class stores and controls an active flow entry on the attached datapath element. A flow entry is unidirectional and consists of a source and a destination host identified by their respective ethernet hardware addresses. The installed flow entry on the datapath element forwards frames via the specified outgoing port. Class <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" title="Defines the environment expected by an instance of class cflowentry. ">cflowentry_env</a> defines the environment expected by an instance of class cflowentry. A flow entry is a soft-state entity and installs a timer upon creation</p>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" title="Defines the environment expected by an instance of class cflowentry. ">cflowentry_env</a> </dd></dl>
+</div><div class="dynheader">
 Inheritance diagram for rofl::examples::ethswctld::cflowentry:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.png" usemap="#rofl::examples::ethswctld::cflowentry_map" alt=""/>
   <map id="rofl::examples::ethswctld::cflowentry_map" name="rofl::examples::ethswctld::cflowentry_map">
 <area href="classrofl_1_1ciosrv.html" title="Base class for IO services. " alt="rofl::ciosrv" shape="rect" coords="0,56,212,80"/>
-<area href="classrofl_1_1ptrciosrv.html" alt="rofl::ptrciosrv" shape="rect" coords="0,0,212,24"/>
+<area href="classrofl_1_1ctimer__env.html" title="Environment expected by an instance of class rofl::ctimer. " alt="rofl::ctimer_env" shape="rect" coords="0,0,212,24"/>
 </map>
  </div></div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a7f314ad3f34d866d3b16f5ae3ce08b68"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cflowentry::cflowentry </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> *&#160;</td>
+          <td class="paramname"><em>flowenv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>port_no</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>cflowentry constructor </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">env</td><td>environment for this cflowentry instance </td></tr>
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal datapath handle </td></tr>
+    <tr><td class="paramname">src</td><td>ethernet hardware address used by source station </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address used by destination station </td></tr>
+    <tr><td class="paramname">port_no</td><td>OpenFlow port number of port pointing towards the station </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="aa6054b13896ee5f0207bc06906467195"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; rofl::examples::ethswctld::cflowentry::get_dst </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns ethernet hardware address identifying the destination host. </p>
+<dl class="section return"><dt>Returns</dt><dd>host ethernet hardware address of destination host </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9c411a4ec0f9f659cc0f3160990d6556"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t rofl::examples::ethswctld::cflowentry::get_out_port_no </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns outgoing port number stored for this flow. </p>
+<dl class="section return"><dt>Returns</dt><dd>OpenFlow port number of port pointing towards destination </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa0323d1ad8abdd44126b71d8d5f0c7a6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; rofl::examples::ethswctld::cflowentry::get_src </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns ethernet hardware address identifying the source host. </p>
+<dl class="section return"><dt>Returns</dt><dd>host ethernet hardware address of source host </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="acf51ed4f8051d01719c8235a19c75dc1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void cflowentry::set_out_port_no </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>out_port_no</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update port number stored for this flow. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">port_no</td><td>new OpenFlow port number of port pointing towards destination </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/andreas/git/rofl-core/examples/ethswctld/<a class="el" href="cflowentry_8h_source.html">cflowentry.h</a></li>
 <li>/home/andreas/git/rofl-core/examples/ethswctld/cflowentry.cc</li>
@@ -223,7 +389,7 @@ Inheritance diagram for rofl::examples::ethswctld::cflowentry:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:49:32 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:02 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

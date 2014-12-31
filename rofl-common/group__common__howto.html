@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Revised OpenFlow Library: Howto: using rofl-common</title>
+<title>Revised OpenFlow Library: A brief introduction how to use rofl-common</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -76,15 +76,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#groups">Modules</a>  </div>
   <div class="headertitle">
-<div class="title">Howto: using rofl-common<div class="ingroups"><a class="el" href="group__common.html">Revised OpenFlow Library Common Part</a></div></div>  </div>
+<div class="title">A brief introduction how to use rofl-common<div class="ingroups"><a class="el" href="group__common.html">Revised OpenFlow Library Common Part</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
-<p>In this section we provide a brief walk-through, how to use rofl-common in an existing project for adding OpenFlow support. </p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="groups"></a>
+Modules</h2></td></tr>
+<tr class="memitem:group__common__howto__ethswctld"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common__howto__ethswctld.html">A simple controller application: ethswctld</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<p>In this section we provide a few examples, how to use rofl-common and OpenFlow protocol endpoints in a project and all classes and means provided to manage OpenFlow control connections and how to handle incoming and send outgoing OpenFlow messages. ROFL supports various usage scenarios like controller or datapath role and may also serve for building proxy entities. It provides a simple-to-use high level interface to OpenFlow mitigating OpenFlow's complexity in day-to-day operations, but its hierarchical design also allows to replace one or multiple of the higher abstraction layers for getting direct access to the low-level routines. See module <a class="el" href="group__common__devel__workflow.html">Workflow</a> for a more detailed view on ROFL's internal architecture.</p>
+<p>a) We start with a simple controller application to demonstrate some core principles named ethswctld (see module above).</p>
+<p>b) An advanced datapath element build on top of rofl-common and rofl-pipeline is available as <a href="https://github.com/bisdn/xdpd">extensible datapath daemon (xdpd)</a></p>
+<p>c) A more complete example of a controller application demonstrating some more advanced strategies for building a useful OpenFlow controller is the <a href="https://github.com/bisdn/basebox">base box daemon</a>. </p>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:48:23 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:00 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

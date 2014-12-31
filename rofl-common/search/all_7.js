@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['howto_3a_20using_20rofl_2dcommon',['Howto: using rofl-common',['../group__common__howto.html',1,'']]],
   ['handle_5faccept_5frefused',['handle_accept_refused',['../classrofl_1_1csocket__env.html#ad01aba15371ec6817a299f6c9e3b4d0e',1,'rofl::csocket_env::handle_accept_refused()'],['../classrofl_1_1csocket__openssl.html#a8cfd649fb9682e8fae4bfab2e492e7d8',1,'rofl::csocket_openssl::handle_accept_refused()'],['../classrofl_1_1csocket__plain.html#a20366a1c7cc7bec6e775e99a18337335',1,'rofl::csocket_plain::handle_accept_refused()']]],
   ['handle_5faccepted',['handle_accepted',['../classrofl_1_1csocket__env.html#a6d65443da4761a1e5ef72e781dd43d2e',1,'rofl::csocket_env::handle_accepted()'],['../classrofl_1_1csocket__openssl.html#aecbab51012d0093c5fa9c03a5a40cfd5',1,'rofl::csocket_openssl::handle_accepted()'],['../classrofl_1_1csocket__plain.html#a576ad0db30911afdc4d6bc362e6b80db',1,'rofl::csocket_plain::handle_accepted()']]],
   ['handle_5faggregate_5fstats_5freply',['handle_aggregate_stats_reply',['../classrofl_1_1crofbase.html#aa535b98015418e3a025f27d31fa1529c',1,'rofl::crofbase::handle_aggregate_stats_reply()'],['../classrofl_1_1crofdpt__env.html#adc075d6aa0c3e2f1f932c788783db241',1,'rofl::crofdpt_env::handle_aggregate_stats_reply()']]],
@@ -111,5 +110,7 @@ var searchData=
   ['has_5fdpt',['has_dpt',['../classrofl_1_1crofbase.html#aa77418dad137d7afdb86792a12ad4337',1,'rofl::crofbase']]],
   ['has_5fdpt_5flistening',['has_dpt_listening',['../classrofl_1_1crofbase.html#a7d3c76950bffef90601f35a43d0e547d',1,'rofl::crofbase']]],
   ['has_5ffib',['has_fib',['../classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a07e4052ed5e65618b12bff53aec64ce4',1,'rofl::examples::ethswctld::cfibtable']]],
-  ['has_5ffib_5fentry',['has_fib_entry',['../classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a3a8075a084296552f99f460caf50ccd4',1,'rofl::examples::ethswctld::cfibtable']]]
+  ['has_5ffib_5fentry',['has_fib_entry',['../classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a3a8075a084296552f99f460caf50ccd4',1,'rofl::examples::ethswctld::cfibtable']]],
+  ['has_5fflow_5fentry',['has_flow_entry',['../classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#af1b45f2fa33100b0ce130accc33bf9a6',1,'rofl::examples::ethswctld::cflowtable']]],
+  ['has_5fflowtable',['has_flowtable',['../classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a54deb64ceb5b6599e40b155d59dbffa2',1,'rofl::examples::ethswctld::cflowtable']]]
 ];

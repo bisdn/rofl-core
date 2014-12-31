@@ -113,108 +113,149 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">namespace </span>examples {</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">namespace </span>ethswctld {</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">class </span>cflowentry; <span class="comment">// forward declaration</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">   27</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> {</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        ~<a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a>()</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        {};</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        flow_timer_expired(</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; entry) = 0;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;};</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">   45</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> : <span class="keyword">public</span> <a class="code" href="classrofl_1_1ciosrv.html">rofl::ciosrv</a> {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">namespace </span>exceptions {</div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">   32</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a>         : <span class="keyword">public</span> std::runtime_error {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a>(<span class="keyword">const</span> std::string&amp; __arg) : std::runtime_error(__arg) {};</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;};</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowInval.html">   43</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowInval.html">eFlowInval</a>        : <span class="keyword">public</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a> {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowInval.html">eFlowInval</a>(<span class="keyword">const</span> std::string&amp; __arg) : <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a>(__arg) {};</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;};</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>(</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> *flowenv,</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1cdptid.html">rofl::cdptid</a>&amp; dptid,</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; src,</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; dst,</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                        uint32_t port_no);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        ~<a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>();</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        uint32_t</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        get_out_port_no()<span class="keyword"> const</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> port_no; };</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        set_port_no(uint32_t out_port_no);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        get_dst()<span class="keyword"> const</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> dst; };</div>
+<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowNotFound.html">   54</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowNotFound.html">eFlowNotFound</a>     : <span class="keyword">public</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a> {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowNotFound.html">eFlowNotFound</a>(<span class="keyword">const</span> std::string&amp; __arg) : <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">eFlowBase</a>(__arg) {};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;};</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}; <span class="comment">// namespace exceptions</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>; <span class="comment">// forward declaration</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">   71</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <span class="keyword">virtual</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a0e3d0ff9f92bbd083c0764ed0dc993cd">   79</a></span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a0e3d0ff9f92bbd083c0764ed0dc993cd">~cflowentry_env</a>()</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        {};</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">protected</span>:</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        get_src()<span class="keyword"> const</span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> src; };</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        flow_mod_add();</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        flow_mod_delete();</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        flow_mod_modify();</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;        handle_timeout(</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;                        <span class="keywordtype">int</span> opaque,</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                        <span class="keywordtype">void</span>* data = (<span class="keywordtype">void</span>*)NULL);</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        <span class="keyword">friend</span> std::ostream&amp;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        operator&lt;&lt; (std::ostream&amp; os, <span class="keyword">const</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; entry) {</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                os &lt;&lt; <a class="code" href="classrofl_1_1indent.html">rofl::indent</a>(0) &lt;&lt; <span class="stringliteral">&quot;&lt;cflowentry portno: &quot;</span> &lt;&lt; (<span class="keywordtype">unsigned</span> int)entry.port_no &lt;&lt; <span class="stringliteral">&quot; &gt;&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                <a class="code" href="classrofl_1_1indent.html">rofl::indent</a> i(2);</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                os &lt;&lt; entry.src;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;                os &lt;&lt; entry.dst;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;                <span class="keywordflow">return</span> os;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        };</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor">#define CFIBENTRY_DEFAULT_TIMEOUT               60</span></div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;        <span class="keyword">enum</span> cflowentry_timer_t {</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                CFIBENTRY_ENTRY_EXPIRED = 1,</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        };</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a>*             flowenv;</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;        <a class="code" href="classrofl_1_1cdptid.html">rofl::cdptid</a>                dptid;</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;        uint32_t                    port_no;</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;        <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>           src;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;        <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>           dst;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;        <span class="keywordtype">int</span>                         entry_timeout;</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        <a class="code" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a>              expiration_timer_id;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;};</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;}; <span class="comment">// namespace ethswctld</span></div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;}; <span class="comment">// namespace examples</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;}; <span class="comment">// namespace rofl</span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* CFLOW_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a584480216bb05d3eb2d93df5b1911756">flow_timer_expired</a>(</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; entry) = 0;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;};</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">  109</a></span>&#160;<span class="keyword">class </span><a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> : <span class="keyword">public</span> <a class="code" href="classrofl_1_1ciosrv.html">rofl::ciosrv</a> {</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a7f314ad3f34d866d3b16f5ae3ce08b68">cflowentry</a>(</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">cflowentry_env</a> *flowenv,</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1cdptid.html">rofl::cdptid</a>&amp; dptid,</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; src,</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp; dst,</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                        uint32_t port_no);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        <span class="keyword">virtual</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#af21cb93edf1e2ea8e7ddc64fd4ac8ab6">~cflowentry</a>();</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        uint32_t</div>
+<div class="line"><a name="l00148"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a9c411a4ec0f9f659cc0f3160990d6556">  148</a></span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a9c411a4ec0f9f659cc0f3160990d6556">get_out_port_no</a>()<span class="keyword"> const</span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> port_no; };</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#acf51ed4f8051d01719c8235a19c75dc1">set_out_port_no</a>(</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;                        uint32_t out_port_no);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp;</div>
+<div class="line"><a name="l00166"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa6054b13896ee5f0207bc06906467195">  166</a></span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa6054b13896ee5f0207bc06906467195">get_dst</a>()<span class="keyword"> const</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> dst; };</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        <span class="keyword">const</span> <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>&amp;</div>
+<div class="line"><a name="l00175"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa0323d1ad8abdd44126b71d8d5f0c7a6">  175</a></span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa0323d1ad8abdd44126b71d8d5f0c7a6">get_src</a>()<span class="keyword"> const</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="keyword">        </span>{ <span class="keywordflow">return</span> src; };</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        flow_mod_add();</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        flow_mod_delete();</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        flow_mod_modify();</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;        <span class="keyword">virtual</span> <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;        handle_timeout(</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;                        <span class="keywordtype">int</span> opaque,</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;                        <span class="keywordtype">void</span>* data = (<span class="keywordtype">void</span>*)NULL);</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keyword">friend</span> std::ostream&amp;</div>
+<div class="line"><a name="l00204"></a><span class="lineno"><a class="line" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a4bfcebef07ad1bbc20395b512dc1a47b">  204</a></span>&#160;        <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a4bfcebef07ad1bbc20395b512dc1a47b">operator&lt;&lt; </a>(std::ostream&amp; os, <span class="keyword">const</span> <a class="code" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; entry) {</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                os &lt;&lt; <a class="code" href="classrofl_1_1indent.html">rofl::indent</a>(0) &lt;&lt; <span class="stringliteral">&quot;&lt;cflowentry portno: &quot;</span> &lt;&lt; (<span class="keywordtype">unsigned</span> int)entry.port_no &lt;&lt; <span class="stringliteral">&quot; &gt;&quot;</span> &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;                <a class="code" href="classrofl_1_1indent.html">rofl::indent</a> i(2);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;                os &lt;&lt; entry.src;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                os &lt;&lt; entry.dst;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;                <span class="keywordflow">return</span> os;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        };</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">long</span> CFLOWENTRY_DEFAULT_TIMEOUT = 60;</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        <span class="keyword">enum</span> cflowentry_timer_t {</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;                CFLOWENTRY_ENTRY_EXPIRED = 1,</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        };</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        cflowentry_env*     env;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;        <a class="code" href="classrofl_1_1cdptid.html">rofl::cdptid</a>        dptid;</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;        uint32_t            port_no;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;        <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>   src;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;        <a class="code" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a>   dst;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;        <span class="keywordtype">int</span>                 entry_timeout;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;        <a class="code" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a>      expiration_timer_id;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;};</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;}; <span class="comment">// namespace ethswctld</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;}; <span class="comment">// namespace examples</span></div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;}; <span class="comment">// namespace rofl</span></div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* CFLOW_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowNotFound_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowNotFound.html">rofl::examples::ethswctld::exceptions::eFlowNotFound</a></div><div class="ttdoc">Element not found. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:54</div></div>
 <div class="ttc" id="classrofl_1_1caddress__ll_html"><div class="ttname"><a href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a></div><div class="ttdef"><b>Definition:</b> caddress.h:152</div></div>
-<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">rofl::examples::ethswctld::cflowentry_env</a></div><div class="ttdef"><b>Definition:</b> cflowentry.h:27</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">rofl::examples::ethswctld::cflowentry_env</a></div><div class="ttdoc">Defines the environment expected by an instance of class cflowentry. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:71</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_a4bfcebef07ad1bbc20395b512dc1a47b"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a4bfcebef07ad1bbc20395b512dc1a47b">rofl::examples::ethswctld::cflowentry::operator&lt;&lt;</a></div><div class="ttdeci">friend std::ostream &amp; operator&lt;&lt;(std::ostream &amp;os, const cflowentry &amp;entry)</div><div class="ttdoc">Output operator. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:204</div></div>
 <div class="ttc" id="classrofl_1_1ctimerid_html"><div class="ttname"><a href="classrofl_1_1ctimerid.html">rofl::ctimerid</a></div><div class="ttdoc">Timer handle used by class rofl::cioloop. </div><div class="ttdef"><b>Definition:</b> ctimerid.h:21</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_acf51ed4f8051d01719c8235a19c75dc1"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#acf51ed4f8051d01719c8235a19c75dc1">rofl::examples::ethswctld::cflowentry::set_out_port_no</a></div><div class="ttdeci">void set_out_port_no(uint32_t out_port_no)</div><div class="ttdoc">Update port number stored for this flow. </div><div class="ttdef"><b>Definition:</b> cflowentry.cc:53</div></div>
 <div class="ttc" id="classrofl_1_1cdptid_html"><div class="ttname"><a href="classrofl_1_1cdptid.html">rofl::cdptid</a></div><div class="ttdoc">rofl-common&#39;s internal datapath handle </div><div class="ttdef"><b>Definition:</b> cdptid.h:24</div></div>
-<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">rofl::examples::ethswctld::cflowentry</a></div><div class="ttdef"><b>Definition:</b> cflowentry.h:45</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_af21cb93edf1e2ea8e7ddc64fd4ac8ab6"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#af21cb93edf1e2ea8e7ddc64fd4ac8ab6">rofl::examples::ethswctld::cflowentry::~cflowentry</a></div><div class="ttdeci">virtual ~cflowentry()</div><div class="ttdoc">cflowentry destructor </div><div class="ttdef"><b>Definition:</b> cflowentry.cc:32</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowInval_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowInval.html">rofl::examples::ethswctld::exceptions::eFlowInval</a></div><div class="ttdoc">Invalid parameter specified. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:43</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">rofl::examples::ethswctld::cflowentry</a></div><div class="ttdoc">Stores an active flow entry. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:109</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_a9c411a4ec0f9f659cc0f3160990d6556"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a9c411a4ec0f9f659cc0f3160990d6556">rofl::examples::ethswctld::cflowentry::get_out_port_no</a></div><div class="ttdeci">uint32_t get_out_port_no() const </div><div class="ttdoc">Returns outgoing port number stored for this flow. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:148</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase_html"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1exceptions_1_1eFlowBase.html">rofl::examples::ethswctld::exceptions::eFlowBase</a></div><div class="ttdoc">Base class for all exceptions thrown by class cflowtable. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:32</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_aa6054b13896ee5f0207bc06906467195"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa6054b13896ee5f0207bc06906467195">rofl::examples::ethswctld::cflowentry::get_dst</a></div><div class="ttdeci">const rofl::caddress_ll &amp; get_dst() const </div><div class="ttdoc">Returns ethernet hardware address identifying the destination host. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:166</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env_html_a0e3d0ff9f92bbd083c0764ed0dc993cd"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a0e3d0ff9f92bbd083c0764ed0dc993cd">rofl::examples::ethswctld::cflowentry_env::~cflowentry_env</a></div><div class="ttdeci">virtual ~cflowentry_env()</div><div class="ttdoc">cflowentry_env destructor </div><div class="ttdef"><b>Definition:</b> cflowentry.h:79</div></div>
 <div class="ttc" id="classrofl_1_1ciosrv_html"><div class="ttname"><a href="classrofl_1_1ciosrv.html">rofl::ciosrv</a></div><div class="ttdoc">Base class for IO services. </div><div class="ttdef"><b>Definition:</b> ciosrv.h:491</div></div>
 <div class="ttc" id="classrofl_1_1indent_html"><div class="ttname"><a href="classrofl_1_1indent.html">rofl::indent</a></div><div class="ttdef"><b>Definition:</b> logging.h:76</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_aa0323d1ad8abdd44126b71d8d5f0c7a6"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#aa0323d1ad8abdd44126b71d8d5f0c7a6">rofl::examples::ethswctld::cflowentry::get_src</a></div><div class="ttdeci">const rofl::caddress_ll &amp; get_src() const </div><div class="ttdoc">Returns ethernet hardware address identifying the source host. </div><div class="ttdef"><b>Definition:</b> cflowentry.h:175</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry_html_a7f314ad3f34d866d3b16f5ae3ce08b68"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a7f314ad3f34d866d3b16f5ae3ce08b68">rofl::examples::ethswctld::cflowentry::cflowentry</a></div><div class="ttdeci">cflowentry(cflowentry_env *flowenv, const rofl::cdptid &amp;dptid, const rofl::caddress_ll &amp;src, const rofl::caddress_ll &amp;dst, uint32_t port_no)</div><div class="ttdoc">cflowentry constructor </div><div class="ttdef"><b>Definition:</b> cflowentry.cc:12</div></div>
+<div class="ttc" id="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env_html_a584480216bb05d3eb2d93df5b1911756"><div class="ttname"><a href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a584480216bb05d3eb2d93df5b1911756">rofl::examples::ethswctld::cflowentry_env::flow_timer_expired</a></div><div class="ttdeci">virtual void flow_timer_expired(const cflowentry &amp;entry)=0</div><div class="ttdoc">Called once the timer for this flow entry has expired. </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:48:22 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:07:59 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

@@ -1,15 +1,15 @@
 var searchData=
 [
   ['c_5fstr',['c_str',['../classrofl_1_1fipv4frame.html#a99ed242c4a08d6c167b51e6016e740b8',1,'rofl::fipv4frame']]],
-  ['cancel_5fall',['cancel_all',['../classrofl_1_1ctimers.html#a66a397685dd91cd5d0c69d05076d9685',1,'rofl::ctimers']]],
+  ['cancel',['cancel',['../classrofl_1_1ctimers.html#a09fe2d47625e58e3a1d5235e90466eee',1,'rofl::ctimers']]],
   ['cancel_5fall_5fevents',['cancel_all_events',['../classrofl_1_1ciosrv.html#af3b99d81734d9ba5a743458311e2b481',1,'rofl::ciosrv']]],
   ['cancel_5fall_5ftimers',['cancel_all_timers',['../classrofl_1_1ciosrv.html#adee2e948b109f043340b31bca71412d7',1,'rofl::ciosrv']]],
   ['cancel_5ftimer',['cancel_timer',['../classrofl_1_1ciosrv.html#a2834e1b4145f65920fb0ff704e6d6ed2',1,'rofl::ciosrv']]],
   ['cclock',['cclock',['../classrofl_1_1cclock.html#a6c26e8d84a1c1c0dc162cdfa0466d5b6',1,'rofl::cclock::cclock(time_t delta_sec=0, time_t delta_nsec=0)'],['../classrofl_1_1cclock.html#ac68384511bb2be1d265ba5eda65346c4',1,'rofl::cclock::cclock(cclock const &amp;cc)']]],
-  ['cetherswitch',['cetherswitch',['../classrofl_1_1examples_1_1ethswctld_1_1cetherswitch.html#a271b37c2403a991fb70912be827aaa67',1,'rofl::examples::ethswctld::cetherswitch']]],
   ['cfibentry',['cfibentry',['../classrofl_1_1examples_1_1ethswctld_1_1cfibentry.html#a6db623709d04ec8f71c1b697be578d83',1,'rofl::examples::ethswctld::cfibentry']]],
+  ['cflowentry',['cflowentry',['../classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#a7f314ad3f34d866d3b16f5ae3ce08b68',1,'rofl::examples::ethswctld::cflowentry']]],
   ['ciosrv',['ciosrv',['../classrofl_1_1ciosrv.html#ab79c222b594eec9a0bab7ab29efd6f66',1,'rofl::ciosrv::ciosrv(pthread_t tid=0)'],['../classrofl_1_1ciosrv.html#ab5ead81c2989c741f77cb43767163676',1,'rofl::ciosrv::ciosrv(const ciosrv &amp;iosrv)']]],
-  ['clear',['clear',['../classrofl_1_1cmemory.html#a57f57e799ae60846322e0e6b1be747b3',1,'rofl::cmemory::clear()'],['../classrofl_1_1ctimers.html#ac07f1a3706c0a9c1b0778daa50097d65',1,'rofl::ctimers::clear()'],['../classrofl_1_1openflow_1_1cofgroupmod.html#ae8b4644b6d04c66f21012d648265c58b',1,'rofl::openflow::cofgroupmod::clear()'],['../classrofl_1_1openflow_1_1coftables.html#afc84d8ef2740dceb4f5f4c2e6699e50a',1,'rofl::openflow::coftables::clear()'],['../classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a7a485890e80e523e3a37b238690584be',1,'rofl::examples::ethswctld::cfibtable::clear()']]],
+  ['clear',['clear',['../classrofl_1_1cmemory.html#a57f57e799ae60846322e0e6b1be747b3',1,'rofl::cmemory::clear()'],['../classrofl_1_1ctimers.html#aaddc4b04d6a19e36549a94b29d974e26',1,'rofl::ctimers::clear()'],['../classrofl_1_1openflow_1_1cofgroupmod.html#ae8b4644b6d04c66f21012d648265c58b',1,'rofl::openflow::cofgroupmod::clear()'],['../classrofl_1_1openflow_1_1coftables.html#afc84d8ef2740dceb4f5f4c2e6699e50a',1,'rofl::openflow::coftables::clear()'],['../classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a7a485890e80e523e3a37b238690584be',1,'rofl::examples::ethswctld::cfibtable::clear()'],['../classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a1bde93f3b63d62b9cbaa24cb7c671759',1,'rofl::examples::ethswctld::cflowtable::clear()']]],
   ['clear_5fgroup_5fids',['clear_group_ids',['../classrofl_1_1crofdpt.html#a1f79a17a34198dc0d5d4a4db0f044034',1,'rofl::crofdpt']]],
   ['close',['close',['../classrofl_1_1crofconn.html#a4f6722eec999fa313084c7a632a62e2d',1,'rofl::crofconn::close()'],['../classrofl_1_1csocket.html#aaca33ff016243b4de9fbec3aabb75423',1,'rofl::csocket::close()'],['../classrofl_1_1csocket__openssl.html#a790329e97295764a01331a8eec623847',1,'rofl::csocket_openssl::close()'],['../classrofl_1_1csocket__plain.html#a1dd4591206123be4aa45021f868a30df',1,'rofl::csocket_plain::close()'],['../classrofl_1_1logging.html#af4e34ac714eb4e0e8d19df186d4fec68',1,'rofl::logging::close()']]],
   ['close_5fctl_5flistening',['close_ctl_listening',['../classrofl_1_1crofbase.html#a87d73f8e23e19c08c124f8c0979a75de',1,'rofl::crofbase']]],
@@ -97,5 +97,7 @@ var searchData=
   ['crofdpt_5fenv',['crofdpt_env',['../classrofl_1_1crofdpt__env.html#ace6ff5f751e6871e3415fb9b38ab1f61',1,'rofl::crofdpt_env']]],
   ['csocket',['csocket',['../classrofl_1_1csocket.html#a7c11c1012010fc382937722ac634f7e5',1,'rofl::csocket']]],
   ['csocket_5fopenssl',['csocket_openssl',['../classrofl_1_1csocket__openssl.html#ab1436b6d807e7adbe09d071674727331',1,'rofl::csocket_openssl']]],
-  ['csocket_5fplain',['csocket_plain',['../classrofl_1_1csocket__plain.html#a10129eb6228fc52b9a2044670cba4150',1,'rofl::csocket_plain']]]
+  ['csocket_5fplain',['csocket_plain',['../classrofl_1_1csocket__plain.html#a10129eb6228fc52b9a2044670cba4150',1,'rofl::csocket_plain']]],
+  ['ctimer',['ctimer',['../classrofl_1_1ctimer.html#a3e0cee1bb5cdd77060958384e60b2a56',1,'rofl::ctimer::ctimer()'],['../classrofl_1_1ctimer.html#ac7106099c33282a45fcbdabceaabc0de',1,'rofl::ctimer::ctimer(ctimer_env *env, int opaque, const rofl::ctimespec &amp;timespec, void *data=(void *) 0)'],['../classrofl_1_1ctimer.html#abd0cb34f16670d06325b310395007723',1,'rofl::ctimer::ctimer(const rofl::ctimer &amp;timer)']]],
+  ['ctimers',['ctimers',['../classrofl_1_1ctimers.html#ae4e38f4df08209349c27cb1a6a37aa05',1,'rofl::ctimers::ctimers()'],['../classrofl_1_1ctimers.html#a9e7f1ea76edbded4af2fe85a9ba6c9d7',1,'rofl::ctimers::ctimers(const rofl::ctimers &amp;timers)']]]
 ];

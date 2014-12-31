@@ -89,12 +89,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classrofl_1_1examples_1_1ethswctld_1_1cfibtable-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">rofl::examples::ethswctld::cfibtable Class Reference</div>  </div>
+<div class="title">rofl::examples::ethswctld::cfibtable Class Reference<div class="ingroups"><a class="el" href="group__common__howto__ethswctld.html">A simple controller application: ethswctld</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -105,6 +103,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Methods for CRUD operations on FIB entries</div></td></tr>
 <tr class="memitem:a7a485890e80e523e3a37b238690584be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a485890e80e523e3a37b238690584be"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a7a485890e80e523e3a37b238690584be">clear</a> ()</td></tr>
 <tr class="memdesc:a7a485890e80e523e3a37b238690584be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes all entries stored in this cfibtable instance. <br/></td></tr>
@@ -135,6 +134,7 @@ virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="c
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Methods for managing Forwarding Information Bases</div></td></tr>
 <tr class="memitem:a87930c599eb53210cd602c0a975f1356"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html">cfibtable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cfibtable.html#a87930c599eb53210cd602c0a975f1356">add_fib</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
 <tr class="memdesc:a87930c599eb53210cd602c0a975f1356"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to new or existing and resetted cfibtable instance.  <a href="#a87930c599eb53210cd602c0a975f1356">More...</a><br/></td></tr>
 <tr class="separator:a87930c599eb53210cd602c0a975f1356"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,6 +162,14 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forwarding Information Base. </p>
+<p>This class stores all active mappings between a host ethernet address and its associated port on the switch for reaching this host on a given datapath element. Class cfibentry defines the container for an active FIB entry. Class cfibtable defines two groups of methods:</p>
+<ol type="1">
+<li>Static methods on CRUD operations for instances of class cfibtable</li>
+<li>Methods on CRUD operations for instances of class cfibentry in a cfibtable instance</li>
+</ol>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cfibentry.html" title="Stores a FIB entry mapping host hwaddr to switch port number. ">cfibentry</a> </dd>
+<dd>
+<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cfibentry__env.html" title="Defines the environment expected by an instance of class cfibentry. ">cfibentry_env</a> </dd></dl>
 </div><div class="dynheader">
 Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 <div class="dyncontent">
@@ -248,7 +256,7 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibInval.html" title="Invalid parameter specified. ">eFibInval</a></td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFibInval</td><td>hardware address validation failed </td></tr>
   </table>
   </dd>
 </dl>
@@ -342,7 +350,7 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </div><div class="memdoc">
 
 <p>Returns const reference to existing cfibtable instance or throws exception. </p>
-<p>This method returns a const reference to an existing cfibtable instance. If no instance for the given identifier is found, an exception of type <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibNotFound.html" title="Element not found. ">eFibNotFound</a> is thrown.</p>
+<p>This method returns a const reference to an existing cfibtable instance. If no instance for the given identifier is found, an exception of type eFibNotFound is thrown.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
@@ -351,7 +359,7 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibNotFound.html" title="Element not found. ">eFibNotFound</a></td><td></td></tr>
+    <tr><td class="paramname">eFibNotFound</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -390,8 +398,8 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibInval.html" title="Invalid parameter specified. ">eFibInval</a></td><td>hardware address validation failed </td></tr>
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibNotFound.html" title="Element not found. ">eFibNotFound</a></td><td>no cfibentry for hardware address found </td></tr>
+    <tr><td class="paramname">eFibInval</td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFibNotFound</td><td>no cfibentry for hardware address found </td></tr>
   </table>
   </dd>
 </dl>
@@ -538,7 +546,7 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibInval.html" title="Invalid parameter specified. ">eFibInval</a></td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFibInval</td><td>hardware address validation failed </td></tr>
   </table>
   </dd>
 </dl>
@@ -577,8 +585,8 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibInval.html" title="Invalid parameter specified. ">eFibInval</a></td><td>hardware address validation failed </td></tr>
-    <tr><td class="paramname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1eFibNotFound.html" title="Element not found. ">eFibNotFound</a></td><td>no cfibentry for hardware address found </td></tr>
+    <tr><td class="paramname">eFibInval</td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFibNotFound</td><td>no cfibentry for hardware address found </td></tr>
   </table>
   </dd>
 </dl>
@@ -592,7 +600,7 @@ Inheritance diagram for rofl::examples::ethswctld::cfibtable:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:49:31 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:02 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

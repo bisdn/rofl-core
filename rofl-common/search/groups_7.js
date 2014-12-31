@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['protocol_20definitions_20for_20ethernet_2c_20vlan_2c_20mpls_2c_20ipv4_2fv6_2c_20icmpv4_2fv6_2farp_2c_20tcp_2c_20udp_2c_20sctp_2c_20_2e_2e_2e',['Protocol definitions for Ethernet, VLAN, MPLS, IPv4/v6, ICMPv4/v6/ARP, TCP, UDP, SCTP, ...',['../group__common__devel__protocols.html',1,'']]]
+  ['revised_20openflow_20library_20common_20part',['Revised OpenFlow Library Common Part',['../group__common.html',1,'']]],
+  ['rofl_2dcommon_20for_20developers',['rofl-common for developers',['../group__common__devel.html',1,'']]],
+  ['rofl_2dcommon_27s_20logging_20facility',['rofl-common&apos;s logging facility',['../group__common__devel__auxiliary__logging.html',1,'']]],
+  ['runtime_20errors',['Runtime errors',['../group__common__devel__exceptions.html',1,'']]]
 ];

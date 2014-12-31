@@ -89,50 +89,70 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">rofl::examples::ethswctld::cflowtable Class Reference</div>  </div>
+<div class="title">rofl::examples::ethswctld::cflowtable Class Reference<div class="ingroups"><a class="el" href="group__common__howto__ethswctld.html">A simple controller application: ethswctld</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Flow Table of active flows.  
+ <a href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="cflowtable_8h_source.html">cflowtable.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Methods for CRUD operations on active flow entries.</div></td></tr>
 <tr class="memitem:a1bde93f3b63d62b9cbaa24cb7c671759"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1bde93f3b63d62b9cbaa24cb7c671759"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a1bde93f3b63d62b9cbaa24cb7c671759">clear</a> ()</td></tr>
+<tr class="memdesc:a1bde93f3b63d62b9cbaa24cb7c671759"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes all entries stored in this cflowtable instance. <br/></td></tr>
 <tr class="separator:a1bde93f3b63d62b9cbaa24cb7c671759"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0f49951c9dfde25255b883747dfea60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0f49951c9dfde25255b883747dfea60"></a>
-<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>add_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t portno)</td></tr>
+<tr class="memitem:ac0f49951c9dfde25255b883747dfea60"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#ac0f49951c9dfde25255b883747dfea60">add_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t portno)</td></tr>
+<tr class="memdesc:ac0f49951c9dfde25255b883747dfea60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to empty cflowentry instance for given hardware address.  <a href="#ac0f49951c9dfde25255b883747dfea60">More...</a><br/></td></tr>
 <tr class="separator:ac0f49951c9dfde25255b883747dfea60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab779ff2a121bd6ce3a51294d4fa8d1bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab779ff2a121bd6ce3a51294d4fa8d1bb"></a>
-<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>set_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t portno)</td></tr>
+<tr class="memitem:ab779ff2a121bd6ce3a51294d4fa8d1bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#ab779ff2a121bd6ce3a51294d4fa8d1bb">set_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst, uint32_t portno)</td></tr>
+<tr class="memdesc:ab779ff2a121bd6ce3a51294d4fa8d1bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to existing cflowentry instance for given hardware address.  <a href="#ab779ff2a121bd6ce3a51294d4fa8d1bb">More...</a><br/></td></tr>
 <tr class="separator:ab779ff2a121bd6ce3a51294d4fa8d1bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15fb25c7254f8097888b82dbab4c9157"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a15fb25c7254f8097888b82dbab4c9157"></a>
-<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>set_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst)</td></tr>
+<tr class="memitem:a15fb25c7254f8097888b82dbab4c9157"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a15fb25c7254f8097888b82dbab4c9157">set_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst)</td></tr>
+<tr class="memdesc:a15fb25c7254f8097888b82dbab4c9157"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to existing cflowentry instance for given hardware address.  <a href="#a15fb25c7254f8097888b82dbab4c9157">More...</a><br/></td></tr>
 <tr class="separator:a15fb25c7254f8097888b82dbab4c9157"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1127d276ab7fdc030125a6bb83344750"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1127d276ab7fdc030125a6bb83344750"></a>
-const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst) const </td></tr>
+<tr class="memitem:a1127d276ab7fdc030125a6bb83344750"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a1127d276ab7fdc030125a6bb83344750">get_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst) const </td></tr>
+<tr class="memdesc:a1127d276ab7fdc030125a6bb83344750"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns const reference to existing cflowentry instance for given hardware address.  <a href="#a1127d276ab7fdc030125a6bb83344750">More...</a><br/></td></tr>
 <tr class="separator:a1127d276ab7fdc030125a6bb83344750"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a445c273f51e1632a6cdcd9a107ce0499"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a445c273f51e1632a6cdcd9a107ce0499"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drop_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst)</td></tr>
+<tr class="memitem:a445c273f51e1632a6cdcd9a107ce0499"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a445c273f51e1632a6cdcd9a107ce0499">drop_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst)</td></tr>
+<tr class="memdesc:a445c273f51e1632a6cdcd9a107ce0499"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an existing cflowentry for given source and destination hardware address.  <a href="#a445c273f51e1632a6cdcd9a107ce0499">More...</a><br/></td></tr>
 <tr class="separator:a445c273f51e1632a6cdcd9a107ce0499"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1b45f2fa33100b0ce130accc33bf9a6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1b45f2fa33100b0ce130accc33bf9a6"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>has_flow_entry</b> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst) const </td></tr>
+<tr class="memitem:af1b45f2fa33100b0ce130accc33bf9a6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#af1b45f2fa33100b0ce130accc33bf9a6">has_flow_entry</a> (const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;src, const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;dst) const </td></tr>
+<tr class="memdesc:af1b45f2fa33100b0ce130accc33bf9a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a cflowentry exists for given source and destination hardware address.  <a href="#af1b45f2fa33100b0ce130accc33bf9a6">More...</a><br/></td></tr>
 <tr class="separator:af1b45f2fa33100b0ce130accc33bf9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html">rofl::examples::ethswctld::cflowentry_env</a></td></tr>
+<tr class="memitem:a0e3d0ff9f92bbd083c0764ed0dc993cd inherit pub_methods_classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e3d0ff9f92bbd083c0764ed0dc993cd"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a0e3d0ff9f92bbd083c0764ed0dc993cd">~cflowentry_env</a> ()</td></tr>
+<tr class="memdesc:a0e3d0ff9f92bbd083c0764ed0dc993cd inherit pub_methods_classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" title="Defines the environment expected by an instance of class cflowentry. ">cflowentry_env</a> destructor <br/></td></tr>
+<tr class="separator:a0e3d0ff9f92bbd083c0764ed0dc993cd inherit pub_methods_classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a565688f888a40357a0d51a0f1fb18a64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a565688f888a40357a0d51a0f1fb18a64"></a>
-static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_flowtable</b> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
-<tr class="separator:a565688f888a40357a0d51a0f1fb18a64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Methods for managing Active Flow Tables</div></td></tr>
+<tr class="memitem:a8ee903eb21e15e9bde2e28a72ff6323b"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a8ee903eb21e15e9bde2e28a72ff6323b">add_flowtable</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
+<tr class="memdesc:a8ee903eb21e15e9bde2e28a72ff6323b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to new or existing and resetted cflowtable instance.  <a href="#a8ee903eb21e15e9bde2e28a72ff6323b">More...</a><br/></td></tr>
+<tr class="separator:a8ee903eb21e15e9bde2e28a72ff6323b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8829bacaf72dd502d783b9bdace6978f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a8829bacaf72dd502d783b9bdace6978f">set_flowtable</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
+<tr class="memdesc:a8829bacaf72dd502d783b9bdace6978f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to existing cflowtable instance or creates a new empty one.  <a href="#a8829bacaf72dd502d783b9bdace6978f">More...</a><br/></td></tr>
+<tr class="separator:a8829bacaf72dd502d783b9bdace6978f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52a3c542dc042b25ef1bccae9d3c3554"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a52a3c542dc042b25ef1bccae9d3c3554">get_flowtable</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
+<tr class="memdesc:a52a3c542dc042b25ef1bccae9d3c3554"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns const reference to existing cflowtable instance or throws exception.  <a href="#a52a3c542dc042b25ef1bccae9d3c3554">More...</a><br/></td></tr>
+<tr class="separator:a52a3c542dc042b25ef1bccae9d3c3554"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a772116e8b2bf3f890cebfbd7b0088f54"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a772116e8b2bf3f890cebfbd7b0088f54">drop_flowtable</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
+<tr class="memdesc:a772116e8b2bf3f890cebfbd7b0088f54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an existing cflowtable instance.  <a href="#a772116e8b2bf3f890cebfbd7b0088f54">More...</a><br/></td></tr>
+<tr class="separator:a772116e8b2bf3f890cebfbd7b0088f54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54deb64ceb5b6599e40b155d59dbffa2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html#a54deb64ceb5b6599e40b155d59dbffa2">has_flowtable</a> (const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;dptid)</td></tr>
+<tr class="memdesc:a54deb64ceb5b6599e40b155d59dbffa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks existence of cflowtable for given identifier.  <a href="#a54deb64ceb5b6599e40b155d59dbffa2">More...</a><br/></td></tr>
+<tr class="separator:a54deb64ceb5b6599e40b155d59dbffa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a06379f6ba028c8edc95cf78a4a28c6f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06379f6ba028c8edc95cf78a4a28c6f5"></a>
-class&#160;</td><td class="memItemRight" valign="bottom"><b>cflowentry</b></td></tr>
-<tr class="separator:a06379f6ba028c8edc95cf78a4a28c6f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf926a34ed36acb09fa3c0235eeb6ad0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abf926a34ed36acb09fa3c0235eeb6ad0"></a>
 std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a> const &amp;flowtable)</td></tr>
 <tr class="separator:abf926a34ed36acb09fa3c0235eeb6ad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,15 +160,497 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operato
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 </table>
-<div class="dynheader">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Flow Table of active flows. </p>
+<p>This class stores all active flows created on a given datapath element. Class cflowentry defines the container for an active flow. Class cflowtable defines two groups of methods:</p>
+<ol type="1">
+<li>Static methods on CRUD operations for instances of class cflowtable</li>
+<li>Methods on CRUD operations for instances of class cflowentry in a cflowtable instance</li>
+</ol>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html" title="Stores an active flow entry. ">cflowentry</a> </dd>
+<dd>
+<a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" title="Defines the environment expected by an instance of class cflowentry. ">cflowentry_env</a> </dd></dl>
+</div><div class="dynheader">
 Inheritance diagram for rofl::examples::ethswctld::cflowtable:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.png" usemap="#rofl::examples::ethswctld::cflowtable_map" alt=""/>
   <map id="rofl::examples::ethswctld::cflowtable_map" name="rofl::examples::ethswctld::cflowtable_map">
-<area href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" alt="rofl::examples::ethswctld::cflowentry_env" shape="rect" coords="0,0,240,24"/>
+<area href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html" title="Defines the environment expected by an instance of class cflowentry. " alt="rofl::examples::ethswctld::cflowentry_env" shape="rect" coords="0,0,240,24"/>
 </map>
  </div></div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ac0f49951c9dfde25255b883747dfea60"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; rofl::examples::ethswctld::cflowtable::add_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>portno</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns reference to empty cflowentry instance for given hardware address. </p>
+<p>Creates a new cflowentry instance or resets an already existing one for the given identifier.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+    <tr><td class="paramname">portno</td><td>outgoing port for this flow </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">eFlowInval</td><td>hardware address validation failed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a8ee903eb21e15e9bde2e28a72ff6323b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a>&amp; rofl::examples::ethswctld::cflowtable::add_flowtable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns reference to new or existing and resetted cflowtable instance. </p>
+<p>This method creates a new or resets an existing instance of class cflowtable for the given datapath handle.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a445c273f51e1632a6cdcd9a107ce0499"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void rofl::examples::ethswctld::cflowtable::drop_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Removes an existing cflowentry for given source and destination hardware address. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a772116e8b2bf3f890cebfbd7b0088f54"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void rofl::examples::ethswctld::cflowtable::drop_flowtable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Removes an existing cflowtable instance. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a1127d276ab7fdc030125a6bb83344750"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; rofl::examples::ethswctld::cflowtable::get_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns const reference to existing cflowentry instance for given hardware address. </p>
+<p>Returns reference to existing cflowentry for given identifier or throw exception, if none exists.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">eFlowInval</td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFlowNotFound</td><td>flow destination address not found </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a52a3c542dc042b25ef1bccae9d3c3554"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static const <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a>&amp; rofl::examples::ethswctld::cflowtable::get_flowtable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns const reference to existing cflowtable instance or throws exception. </p>
+<p>This method returns a const reference to an existing cflowtable instance. If no instance for the given identifier is found, an exception of type eFibNotFound is thrown.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">eFibNotFound</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="af1b45f2fa33100b0ce130accc33bf9a6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool rofl::examples::ethswctld::cflowtable::has_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Checks whether a cflowentry exists for given source and destination hardware address. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a54deb64ceb5b6599e40b155d59dbffa2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool rofl::examples::ethswctld::cflowtable::has_flowtable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Checks existence of cflowtable for given identifier. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ab779ff2a121bd6ce3a51294d4fa8d1bb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; rofl::examples::ethswctld::cflowtable::set_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>portno</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns reference to existing cflowentry instance for given hardware address. </p>
+<p>Returns reference to existing cflowentry for given identifier or creates new one if non exists yet.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+    <tr><td class="paramname">portno</td><td>outgoing port for this flow </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">eFlowInval</td><td>hardware address validation failed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a15fb25c7254f8097888b82dbab4c9157"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html">cflowentry</a>&amp; rofl::examples::ethswctld::cflowtable::set_flow_entry </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1caddress__ll.html">rofl::caddress_ll</a> &amp;&#160;</td>
+          <td class="paramname"><em>dst</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns reference to existing cflowentry instance for given hardware address. </p>
+<p>Returns reference to existing cflowentry for given identifier or throw exception, if none exists.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">src</td><td>ethernet hardware address for source station of flow </td></tr>
+    <tr><td class="paramname">dst</td><td>ethernet hardware address for destination station of flow </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">eFlowInval</td><td>hardware address validation failed </td></tr>
+    <tr><td class="paramname">eFlowNotFound</td><td>flow destination address not found </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a8829bacaf72dd502d783b9bdace6978f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classrofl_1_1examples_1_1ethswctld_1_1cflowtable.html">cflowtable</a>&amp; rofl::examples::ethswctld::cflowtable::set_flowtable </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1cdptid.html">rofl::cdptid</a> &amp;&#160;</td>
+          <td class="paramname"><em>dptid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns reference to existing cflowtable instance or creates a new empty one. </p>
+<p>This method returns a reference to an existing cflowtable instance. If no instance for the given identifier is found, a new instance is created.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dptid</td><td>rofl-common's internal handle for datapath element </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/andreas/git/rofl-core/examples/ethswctld/<a class="el" href="cflowtable_8h_source.html">cflowtable.h</a></li>
 <li>/home/andreas/git/rofl-core/examples/ethswctld/cflowtable.cc</li>
@@ -156,7 +658,7 @@ Inheritance diagram for rofl::examples::ethswctld::cflowtable:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:49:33 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:02 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

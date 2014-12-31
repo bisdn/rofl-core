@@ -95,7 +95,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#friends">Friends</a> &#124;
 <a href="classrofl_1_1ctimer-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">rofl::ctimer Class Reference<div class="ingroups"><a class="el" href="group__common__devel__ioservice.html">I/O service</a></div></div>  </div>
+<div class="title">rofl::ctimer Class Reference<div class="ingroups"><a class="el" href="group__common__devel__ioservice.html">I/O subsystem</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -111,74 +111,183 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a04ba0dbee8f1333a1fabd11f443fbf91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04ba0dbee8f1333a1fabd11f443fbf91"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ctimer</b> (<a class="el" href="classrofl_1_1ptrciosrv.html">ptrciosrv</a> *ptr, int opaque, const <a class="el" href="classrofl_1_1ctimespec.html">ctimespec</a> &amp;timespec, void *data=(void *) 0)</td></tr>
-<tr class="separator:a04ba0dbee8f1333a1fabd11f443fbf91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e2d98d6a026dbf65e189cdf8036cbd2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e2d98d6a026dbf65e189cdf8036cbd2"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ctimer</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;timer)</td></tr>
-<tr class="separator:a4e2d98d6a026dbf65e189cdf8036cbd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf32c0cc174c9060b15cad253de4db89"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abf32c0cc174c9060b15cad253de4db89"></a>
-<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;timer)</td></tr>
-<tr class="separator:abf32c0cc174c9060b15cad253de4db89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd52cf24af34b3383fce2473a1ac38a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd52cf24af34b3383fce2473a1ac38a7"></a>
-<a class="el" href="classrofl_1_1ptrciosrv.html">ptrciosrv</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_ptrciosrv</b> () const </td></tr>
-<tr class="separator:afd52cf24af34b3383fce2473a1ac38a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47ca1e78716be4cf4891babb3be56ddd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47ca1e78716be4cf4891babb3be56ddd"></a>
-<a class="el" href="classrofl_1_1ctimerid.html">ctimerid</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_timer_id</b> () const </td></tr>
-<tr class="separator:a47ca1e78716be4cf4891babb3be56ddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af01f8def06699e87c3ad343cf31322ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af01f8def06699e87c3ad343cf31322ed"></a>
+virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#af01f8def06699e87c3ad343cf31322ed">~ctimer</a> ()</td></tr>
+<tr class="memdesc:af01f8def06699e87c3ad343cf31322ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimer destructor <br/></td></tr>
+<tr class="separator:af01f8def06699e87c3ad343cf31322ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e0cee1bb5cdd77060958384e60b2a56"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e0cee1bb5cdd77060958384e60b2a56"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a3e0cee1bb5cdd77060958384e60b2a56">ctimer</a> ()</td></tr>
+<tr class="memdesc:a3e0cee1bb5cdd77060958384e60b2a56"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimer default constructor <br/></td></tr>
+<tr class="separator:a3e0cee1bb5cdd77060958384e60b2a56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7106099c33282a45fcbdabceaabc0de"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#ac7106099c33282a45fcbdabceaabc0de">ctimer</a> (<a class="el" href="classrofl_1_1ctimer__env.html">ctimer_env</a> *env, int opaque, const <a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;timespec, void *data=(void *) 0)</td></tr>
+<tr class="memdesc:ac7106099c33282a45fcbdabceaabc0de"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimer constructor  <a href="#ac7106099c33282a45fcbdabceaabc0de">More...</a><br/></td></tr>
+<tr class="separator:ac7106099c33282a45fcbdabceaabc0de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd0cb34f16670d06325b310395007723"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd0cb34f16670d06325b310395007723"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#abd0cb34f16670d06325b310395007723">ctimer</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;timer)</td></tr>
+<tr class="memdesc:abd0cb34f16670d06325b310395007723"><td class="mdescLeft">&#160;</td><td class="mdescRight">ctimer copy constructor <br/></td></tr>
+<tr class="separator:abd0cb34f16670d06325b310395007723"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Operators</div></td></tr>
+<tr class="memitem:abb0298cdfaf58742e2f812fbd32292c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb0298cdfaf58742e2f812fbd32292c6"></a>
+<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#abb0298cdfaf58742e2f812fbd32292c6">operator=</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;timer)</td></tr>
+<tr class="memdesc:abb0298cdfaf58742e2f812fbd32292c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator. <br/></td></tr>
+<tr class="separator:abb0298cdfaf58742e2f812fbd32292c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe82836ea26609e2283d01ace07a40c0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afe82836ea26609e2283d01ace07a40c0"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#afe82836ea26609e2283d01ace07a40c0">operator==</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:afe82836ea26609e2283d01ace07a40c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equality operator. <br/></td></tr>
+<tr class="separator:afe82836ea26609e2283d01ace07a40c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5fab756c30cb8d6bcd79f643f0d9248"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5fab756c30cb8d6bcd79f643f0d9248"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#ab5fab756c30cb8d6bcd79f643f0d9248">operator!=</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:ab5fab756c30cb8d6bcd79f643f0d9248"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inequality operator. <br/></td></tr>
+<tr class="separator:ab5fab756c30cb8d6bcd79f643f0d9248"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a690a29cd6f0e19b310bcb62fccfd7883"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a690a29cd6f0e19b310bcb62fccfd7883"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a690a29cd6f0e19b310bcb62fccfd7883">operator&lt;</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:a690a29cd6f0e19b310bcb62fccfd7883"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lesser operator. <br/></td></tr>
+<tr class="separator:a690a29cd6f0e19b310bcb62fccfd7883"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a538b7923c639989f754cb1cd929ab269"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a538b7923c639989f754cb1cd929ab269"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a538b7923c639989f754cb1cd929ab269">operator&lt;=</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:a538b7923c639989f754cb1cd929ab269"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lesser-or-equal operator. <br/></td></tr>
+<tr class="separator:a538b7923c639989f754cb1cd929ab269"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fdd50a311c3123d528eb4f1638ec6bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2fdd50a311c3123d528eb4f1638ec6bd"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a2fdd50a311c3123d528eb4f1638ec6bd">operator&gt;</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:a2fdd50a311c3123d528eb4f1638ec6bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Greater operator. <br/></td></tr>
+<tr class="separator:a2fdd50a311c3123d528eb4f1638ec6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd5c977d3dbc7d9cc1fbbec19978dd8d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd5c977d3dbc7d9cc1fbbec19978dd8d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#abd5c977d3dbc7d9cc1fbbec19978dd8d">operator&gt;=</a> (const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;t) const </td></tr>
+<tr class="memdesc:abd5c977d3dbc7d9cc1fbbec19978dd8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Greater-or-equal operator. <br/></td></tr>
+<tr class="separator:abd5c977d3dbc7d9cc1fbbec19978dd8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Methods to access data members</div></td></tr>
+<tr class="memitem:af196adb0a33dee216d9b4016625f4717"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af196adb0a33dee216d9b4016625f4717"></a>
+<a class="el" href="classrofl_1_1ctimer__env.html">ctimer_env</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#af196adb0a33dee216d9b4016625f4717">get_timer_env</a> () const </td></tr>
+<tr class="memdesc:af196adb0a33dee216d9b4016625f4717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns pointer to environment of this <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> instance. <br/></td></tr>
+<tr class="separator:af196adb0a33dee216d9b4016625f4717"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae74da3dee58e2241cca3a7f7cf9beeb8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae74da3dee58e2241cca3a7f7cf9beeb8"></a>
+const <a class="el" href="classrofl_1_1ctimerid.html">rofl::ctimerid</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#ae74da3dee58e2241cca3a7f7cf9beeb8">get_timer_id</a> () const </td></tr>
+<tr class="memdesc:ae74da3dee58e2241cca3a7f7cf9beeb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns const reference to rofl-common's internal handle assigned to this timer. <br/></td></tr>
+<tr class="separator:ae74da3dee58e2241cca3a7f7cf9beeb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a52047f68c03d809f6895e3d66ca780"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a52047f68c03d809f6895e3d66ca780"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>get_opaque</b> () const </td></tr>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a4a52047f68c03d809f6895e3d66ca780">get_opaque</a> () const </td></tr>
+<tr class="memdesc:a4a52047f68c03d809f6895e3d66ca780"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns opaque timer type chosen by user. <br/></td></tr>
 <tr class="separator:a4a52047f68c03d809f6895e3d66ca780"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5351047cda6a9259949400f61e9f8be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af5351047cda6a9259949400f61e9f8be"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>get_data</b> () const </td></tr>
+void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#af5351047cda6a9259949400f61e9f8be">get_data</a> () const </td></tr>
+<tr class="memdesc:af5351047cda6a9259949400f61e9f8be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns pointer to opaque data segment chosen by user. <br/></td></tr>
 <tr class="separator:af5351047cda6a9259949400f61e9f8be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a907c6d3732cbf7e13baeb4c8e8b17343"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a907c6d3732cbf7e13baeb4c8e8b17343"></a>
-<a class="el" href="classrofl_1_1ctimespec.html">ctimespec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>set_timespec</b> ()</td></tr>
-<tr class="separator:a907c6d3732cbf7e13baeb4c8e8b17343"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c1d52fabde614c478221a9e81d2102c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c1d52fabde614c478221a9e81d2102c"></a>
-const <a class="el" href="classrofl_1_1ctimespec.html">ctimespec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_timespec</b> () const </td></tr>
-<tr class="separator:a0c1d52fabde614c478221a9e81d2102c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93c13b5fe9cb6dfd02d35085ab41c8e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a93c13b5fe9cb6dfd02d35085ab41c8e3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:a93c13b5fe9cb6dfd02d35085ab41c8e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c4fd122d0afd8d302948f5a5f87f623"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c4fd122d0afd8d302948f5a5f87f623"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:a5c4fd122d0afd8d302948f5a5f87f623"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add78ef0ced59b24ea5a4dc46d9a46052"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add78ef0ced59b24ea5a4dc46d9a46052"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:add78ef0ced59b24ea5a4dc46d9a46052"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab92e9e167472c3dab17cb023e5ff6746"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab92e9e167472c3dab17cb023e5ff6746"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;=</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:ab92e9e167472c3dab17cb023e5ff6746"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc267d84fdb241eec957e26bc34aaec9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc267d84fdb241eec957e26bc34aaec9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:acc267d84fdb241eec957e26bc34aaec9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf241138568e92527cee2e51a8990a22"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf241138568e92527cee2e51a8990a22"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;=</b> (<a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;t) const </td></tr>
-<tr class="separator:acf241138568e92527cee2e51a8990a22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7df8381f9ede807c96e7242a0324908"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7df8381f9ede807c96e7242a0324908"></a>
+<a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#ac7df8381f9ede807c96e7242a0324908">set_timespec</a> ()</td></tr>
+<tr class="memdesc:ac7df8381f9ede807c96e7242a0324908"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns reference to <a class="el" href="classrofl_1_1ctimespec.html" title="Time specification used by class rofl::ctimer object. ">rofl::ctimespec</a> instance assigned to this timer. <br/></td></tr>
+<tr class="separator:ac7df8381f9ede807c96e7242a0324908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1df71f665d806fc48d14561ba74594d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1df71f665d806fc48d14561ba74594d9"></a>
+const <a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a1df71f665d806fc48d14561ba74594d9">get_timespec</a> () const </td></tr>
+<tr class="memdesc:a1df71f665d806fc48d14561ba74594d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns const reference to <a class="el" href="classrofl_1_1ctimespec.html" title="Time specification used by class rofl::ctimer object. ">rofl::ctimespec</a> instance assigned to this timer. <br/></td></tr>
+<tr class="separator:a1df71f665d806fc48d14561ba74594d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a21ec05dfb50c602137369e5a4181ed80"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21ec05dfb50c602137369e5a4181ed80"></a>
-static <a class="el" href="classrofl_1_1ctimer.html">ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>now</b> ()</td></tr>
-<tr class="separator:a21ec05dfb50c602137369e5a4181ed80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ae87aa24ba8d87e76ab9b8645edcf64"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ctimer.html#a1ae87aa24ba8d87e76ab9b8645edcf64">now</a> ()</td></tr>
+<tr class="memdesc:a1ae87aa24ba8d87e76ab9b8645edcf64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> object with internal timespec set to current time.  <a href="#a1ae87aa24ba8d87e76ab9b8645edcf64">More...</a><br/></td></tr>
+<tr class="separator:a1ae87aa24ba8d87e76ab9b8645edcf64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:a3257acf66fad4bb873a083eed30092e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3257acf66fad4bb873a083eed30092e4"></a>
-std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, <a class="el" href="classrofl_1_1ctimer.html">ctimer</a> const &amp;timer)</td></tr>
-<tr class="separator:a3257acf66fad4bb873a083eed30092e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d618a610c178a38c98fc8cbc56a211e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d618a610c178a38c98fc8cbc56a211e"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> &amp;timer)</td></tr>
+<tr class="separator:a8d618a610c178a38c98fc8cbc56a211e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Single timer object in rofl-common. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+<p>A single timer instance that binds together the timer value stored in an instance of class <a class="el" href="classrofl_1_1ctimespec.html" title="Time specification used by class rofl::ctimer object. ">rofl::ctimespec</a>, rofl-common's internal timer handle (<a class="el" href="classrofl_1_1ctimerid.html" title="Timer handle used by class rofl::cioloop. ">rofl::ctimerid</a>) and the user defined opaque values for timer type and data segment. Used by classes <a class="el" href="classrofl_1_1ciosrv.html" title="Base class for IO services. ">rofl::ciosrv</a> and <a class="el" href="classrofl_1_1cioloop.html" title="Defines an IO service loop for a single thread. ">rofl::cioloop</a>. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ac7106099c33282a45fcbdabceaabc0de"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">rofl::ctimer::ctimer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classrofl_1_1ctimer__env.html">ctimer_env</a> *&#160;</td>
+          <td class="paramname"><em>env</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>opaque</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrofl_1_1ctimespec.html">rofl::ctimespec</a> &amp;&#160;</td>
+          <td class="paramname"><em>timespec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em> = <code>(void*)0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>ctimer constructor </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">env</td><td>environment for this <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> instance </td></tr>
+    <tr><td class="paramname">opaque</td><td>arbitrary number ćhosen by user, not used by ctimer class </td></tr>
+    <tr><td class="paramname">timespec</td><td>absolute time when this timer expires </td></tr>
+    <tr><td class="paramname">data</td><td>arbitrary pointer chosen by user, not used by ctimer class </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a1ae87aa24ba8d87e76ab9b8645edcf64"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classrofl_1_1ctimer.html">rofl::ctimer</a> rofl::ctimer::now </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a <a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> object with internal timespec set to current time. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="classrofl_1_1ctimer.html" title="Single timer object in rofl-common. ">rofl::ctimer</a> object with current time </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>/home/andreas/git/rofl-core/src/rofl/common/<a class="el" href="ctimer_8h_source.html">ctimer.h</a></li>
-<li>/home/andreas/git/rofl-core/src/rofl/common/ctimer.cc</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 29 2014 18:48:47 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 31 2014 18:08:01 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

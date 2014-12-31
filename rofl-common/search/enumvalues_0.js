@@ -1,19 +1,9 @@
 var searchData=
 [
-  ['ppp_5fipcp_5fcode_5frej',['PPP_IPCP_CODE_REJ',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a2b5b44f8c3903d3abdb9f887157aea56',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fconf_5fack',['PPP_IPCP_CONF_ACK',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828afab9a7e1b3d6ca8b036452ab457f35ae',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fconf_5fnak',['PPP_IPCP_CONF_NAK',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a30f66b90b5363c5fa5034b08cc58a04b',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fconf_5frej',['PPP_IPCP_CONF_REJ',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828af1ed4e80f84a8f6e31d9544516e201d0',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fconf_5freq',['PPP_IPCP_CONF_REQ',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a747a445ba903b1e0a5b54b074d75ff70',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fip_5fcomp',['PPP_IPCP_OPT_IP_COMP',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479fada14a87e14dd63aca101f5ddb857ae43',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fipv4',['PPP_IPCP_OPT_IPV4',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479faf180436791f09a8facde0486477eaf8b',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fipv4_5fdep',['PPP_IPCP_OPT_IPV4_DEP',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479fa45de0d6faaa1898b262dcf60876575ac',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fmob_5fipv4',['PPP_IPCP_OPT_MOB_IPV4',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479facf963d92a1155abfb109cfcbd87e8667',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fprim_5fdns',['PPP_IPCP_OPT_PRIM_DNS',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479facc3be4d29c33d56887168e649bd69388',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fprim_5fmbns',['PPP_IPCP_OPT_PRIM_MBNS',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479faa6311e48350ea7cdaec9ae42f713d49f',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fsec_5fdns',['PPP_IPCP_OPT_SEC_DNS',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479fa40b786d48f5140a316e539aef2e35ff7',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fopt_5fsec_5fmbns',['PPP_IPCP_OPT_SEC_MBNS',['../classrofl_1_1fpppframe.html#a73b2dcc1cd666737c932afd14b89479fab4d4226ab3e5582cfbdd332d65e2eedd',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fterm_5fack',['PPP_IPCP_TERM_ACK',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a8ecc5e04be5dfe5f5961e094b8b026fe',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fterm_5freq',['PPP_IPCP_TERM_REQ',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a059f74dd94ed947f4546556ab6ae6fb8',1,'rofl::fpppframe']]],
-  ['ppp_5fipcp_5fvend_5fspc',['PPP_IPCP_VEND_SPC',['../classrofl_1_1fpppframe.html#ab3504767e684dc52337edb1ef8013828a601f74dfe9edf17b2e9aa3197c5fd228',1,'rofl::fpppframe']]]
+  ['flag_5fconnected',['FLAG_CONNECTED',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4ade85a5565382eb15c24223a4a2d76f20',1,'rofl::csocket_plain']]],
+  ['flag_5fconnecting',['FLAG_CONNECTING',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4ad8875df1983b4dff51c849971f34d63b',1,'rofl::csocket_plain']]],
+  ['flag_5flistening',['FLAG_LISTENING',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4af4ef0e2de104ec802b649202743fdc4d',1,'rofl::csocket_plain']]],
+  ['flag_5fraw_5fsocket',['FLAG_RAW_SOCKET',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4acf8e20a1e549d0abf236585b6408b720',1,'rofl::csocket_plain']]],
+  ['flag_5ftx_5fwould_5fblock',['FLAG_TX_WOULD_BLOCK',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4ab0a37fa73805da51fed8ecb2de5eb7ac',1,'rofl::csocket_plain']]],
+  ['flag_5ftx_5fwould_5fblock_5fnotified',['FLAG_TX_WOULD_BLOCK_NOTIFIED',['../classrofl_1_1csocket__plain.html#a23f9472068262c6b88513ba156678ba4aeeb451b4653174d2d590a9b336fb5169',1,'rofl::csocket_plain']]]
 ];

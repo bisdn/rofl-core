@@ -1,9 +1,10 @@
 var searchData=
 [
   ['_7ecclock',['~cclock',['../classrofl_1_1cclock.html#aaf43a9486c3d1e7da81b9eeb2a7aac08',1,'rofl::cclock']]],
-  ['_7ecetherswitch',['~cetherswitch',['../classrofl_1_1examples_1_1ethswctld_1_1cetherswitch.html#a8cf791dd1bab393c683d46f70568ab38',1,'rofl::examples::ethswctld::cetherswitch']]],
   ['_7ecfibentry',['~cfibentry',['../classrofl_1_1examples_1_1ethswctld_1_1cfibentry.html#aeb3cbbb195fc0d8d2b958e3c5f48b750',1,'rofl::examples::ethswctld::cfibentry']]],
   ['_7ecfibentry_5fenv',['~cfibentry_env',['../classrofl_1_1examples_1_1ethswctld_1_1cfibentry__env.html#aa0c23316eaef1f62d215fe38bd8d3846',1,'rofl::examples::ethswctld::cfibentry_env']]],
+  ['_7ecflowentry',['~cflowentry',['../classrofl_1_1examples_1_1ethswctld_1_1cflowentry.html#af21cb93edf1e2ea8e7ddc64fd4ac8ab6',1,'rofl::examples::ethswctld::cflowentry']]],
+  ['_7ecflowentry_5fenv',['~cflowentry_env',['../classrofl_1_1examples_1_1ethswctld_1_1cflowentry__env.html#a0e3d0ff9f92bbd083c0764ed0dc993cd',1,'rofl::examples::ethswctld::cflowentry_env']]],
   ['_7eciosrv',['~ciosrv',['../classrofl_1_1ciosrv.html#a4fdc8cdccc1bdece28a7c35dbb1a4e10',1,'rofl::ciosrv']]],
   ['_7ecmemory',['~cmemory',['../classrofl_1_1cmemory.html#a016d0147ab8e8ad334c2ed6d57406654',1,'rofl::cmemory']]],
   ['_7ecofactionset',['~cofactionset',['../classrofl_1_1openflow_1_1cofactionset.html#afffec1280ed06b626390f8029b9bb66f',1,'rofl::openflow::cofactionset']]],
@@ -83,6 +84,8 @@ var searchData=
   ['_7ecsocket_5fenv',['~csocket_env',['../classrofl_1_1csocket__env.html#afab20c4b7a1f1d5856ea1d8739d3a940',1,'rofl::csocket_env']]],
   ['_7ecsocket_5fopenssl',['~csocket_openssl',['../classrofl_1_1csocket__openssl.html#abbcf8a0b6cdadaad76afb08e12c12cea',1,'rofl::csocket_openssl']]],
   ['_7ecsocket_5fplain',['~csocket_plain',['../classrofl_1_1csocket__plain.html#a343f0783382075789d9644156d9b78f7',1,'rofl::csocket_plain']]],
+  ['_7ectimer',['~ctimer',['../classrofl_1_1ctimer.html#af01f8def06699e87c3ad343cf31322ed',1,'rofl::ctimer']]],
+  ['_7ectimers',['~ctimers',['../classrofl_1_1ctimers.html#ac62411f55639231b86b67b56e4773fe7',1,'rofl::ctimers']]],
   ['_7efarpv4frame',['~farpv4frame',['../classrofl_1_1farpv4frame.html#a681865b43546a1037aafa1feea11b08b',1,'rofl::farpv4frame']]],
   ['_7efetherframe',['~fetherframe',['../classrofl_1_1fetherframe.html#a401210ef2c95585e81ccbdddf6535446',1,'rofl::fetherframe']]],
   ['_7efframe',['~fframe',['../classrofl_1_1fframe.html#a51b520db383df32a291d177324e8a484',1,'rofl::fframe']]],
