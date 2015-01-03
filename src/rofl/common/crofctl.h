@@ -60,7 +60,7 @@ class crofctl;
 /**
  * @interface crofctl_env
  * @ingroup common_devel_workflow
- * @brief	Interface for an environment for rofl::crofctl.
+ * @brief Environment expected by a rofl::crofctl instance.
  *
  * This class defines the interface to the environment required
  * by an instance of class rofl::crofctl. Its API comprises two

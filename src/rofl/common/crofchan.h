@@ -34,7 +34,7 @@ class crofchan; // forward declaration
 /**
  * @interface crofchan_env
  * @ingroup common_devel_workflow
- * @brief 	Environment expected by a crofchan instance
+ * @brief 	Environment expected by a rofl::crofchan instance
  *
  */
 class crofchan_env {

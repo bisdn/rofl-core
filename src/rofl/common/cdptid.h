@@ -18,8 +18,8 @@
 namespace rofl {
 
 /**
- * @brief	rofl-common's internal datapath handle
  * @ingroup common_devel_workflow
+ * @brief	rofl-common's internal remote datapath handle.
  */
 class cdptid {
 

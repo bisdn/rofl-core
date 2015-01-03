@@ -71,7 +71,7 @@ class crofsock; // forward declaration
 /**
  * @interface crofsock_env
  * @ingroup common_devel_workflow
- * @brief	Environment expected by a rofl::crofsock object
+ * @brief Environment expected by a rofl::crofsock instance.
  */
 class crofsock_env {
 public:

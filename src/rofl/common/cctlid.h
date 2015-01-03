@@ -18,8 +18,8 @@
 namespace rofl {
 
 /**
- * @brief	rofl-common's internal controller handle
  * @ingroup common_devel_workflow
+ * @brief	rofl-common's internal remote controller handle.
  */
 class cctlid {
 

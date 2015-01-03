@@ -58,7 +58,7 @@ class crofdpt;
 /**
  * @interface crofdpt_env
  * @ingroup common_devel_workflow
- * @brief	Interface for an environment for rofl::crofdpt.
+ * @brief Environment expected by a rofl::crofdpt instance.
  *
  * This class defines the interface to the environment required
  * by an instance of class rofl::crofdpt. Its API comprises two

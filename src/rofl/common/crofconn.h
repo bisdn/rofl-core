@@ -35,7 +35,7 @@ class crofconn; // forward declaration
 /**
  * @interface crofconn_env
  * @ingroup common_devel_workflow
- * @brief	Environment expected by a rofl::crofconn object
+ * @brief Environment expected by a rofl::crofconn instance.
  */
 class crofconn_env {
 	static std::set<crofconn_env*> rofconn_envs;
