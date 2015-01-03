@@ -614,10 +614,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ciosrv.html#af3b99d81734d9ba5a743458311e2b481">cancel_all_events</a> ()</td></tr>
 <tr class="memdesc:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels all pending events of this instance. <br/></td></tr>
 <tr class="separator:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classrofl_1_1crofctl__env"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classrofl_1_1crofctl__env')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classrofl_1_1crofctl__env.html">rofl::crofctl_env</a></td></tr>
-<tr class="memitem:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1crofctl__env.html#af139d1522f2c5b4c6a974d88a3d0e542">handle_stats_request</a> (<a class="el" href="classrofl_1_1crofctl.html">rofl::crofctl</a> &amp;ctl, const <a class="el" href="classrofl_1_1cauxid.html">rofl::cauxid</a> &amp;auxid, <a class="el" href="classrofl_1_1openflow_1_1cofmsg__stats__request.html">rofl::openflow::cofmsg_stats_request</a> &amp;msg)</td></tr>
-<tr class="memdesc:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="mdescLeft">&#160;</td><td class="mdescRight">OpenFlow Stats-Request message received.  <a href="#af139d1522f2c5b4c6a974d88a3d0e542">More...</a><br/></td></tr>
-<tr class="separator:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Event handlers for management notifications for controller entities</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving controller related event notifications. </p>
+</div></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Event handlers for OpenFlow message notifications received from controller entities</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving messages from the attached controller entity. Once this method terminates, rofl will destroy the message object. If you want to save a message or parts of it, you must create a local copy. All messages are internally allocated on the heap and both allocation and deallocation is handled by rofl-common. Do not delete any of these messages or its internals.</p>
+<p>Higher logic implemented on top of crofbase and acting in datapath role should handle incoming requests, e.g., sending back a reply to the controller entity. rofl-common does not generate reply messages automatically. You may throw any of the OpenFlow related exceptions defined by rofl-common within these handler methods. rofl-common will detect such exceptions and generate appropriate error messages for transmission to the peer entity. </p>
+</div></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Event handlers for receiving datapath related event notifications.</div></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Event handlers for OpenFlow message notifications received from datapath elements</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving messages from the attached datapath element. Once this method terminates, rofl will destroy the message object. If you want to save a message or parts of it, you must create a local copy. All messages are internally allocated on the heap and both allocation and deallocation is handled by rofl-common. Do not delete any of these messages or its internals. </p>
@@ -1109,7 +1112,7 @@ Inheritance diagram for rofl::crofbase:</div>
 </div><div class="memdoc">
 
 <p>Returns const reference to existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance. </p>
-<p>Returns existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance specified by identifier ctlid. If the identifier does not exists, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
+<p>Returns existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance specified by identifier ctlid. If the identifier does not exist, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ctlid</td><td>internal controller handle </td></tr>
@@ -1181,7 +1184,7 @@ Inheritance diagram for rofl::crofbase:</div>
 </div><div class="memdoc">
 
 <p>Returns const reference to existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance. </p>
-<p>Returns existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance specified by identifier dptid. If the identifier does not exists, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
+<p>Returns existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance specified by identifier dptid. If the identifier does not exist, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dptid</td><td>internal datapath handle (not DPID) </td></tr>
@@ -1336,7 +1339,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#adc075d6aa0c3e2f1f932c788783db241">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#adc075d6aa0c3e2f1f932c788783db241">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1382,7 +1385,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a0d5440bc4f6a40332a45bcecde331cf8">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a0d5440bc4f6a40332a45bcecde331cf8">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1434,7 +1437,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a24544fb62cf92270039d013bada4ab88">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a24544fb62cf92270039d013bada4ab88">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1486,7 +1489,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a5ea1d155aa97a6281ccc023fdda0a1e8">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a5ea1d155aa97a6281ccc023fdda0a1e8">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1532,7 +1535,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a83f1a7e4c53c6bd844d094164bed23ff">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a83f1a7e4c53c6bd844d094164bed23ff">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1584,7 +1587,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ac75f3d2753c12277e953768450990ba5">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ac75f3d2753c12277e953768450990ba5">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1629,7 +1632,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a1795bcbf6a2d498b03178df70bef0b4b">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a1795bcbf6a2d498b03178df70bef0b4b">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1674,7 +1677,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ac52ac9c835e69735e2fc0f015317c921">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ac52ac9c835e69735e2fc0f015317c921">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1720,7 +1723,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ad8e0d004604b5aa0ba7d221e3d0fddbd">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ad8e0d004604b5aa0ba7d221e3d0fddbd">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1766,7 +1769,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a76bdf44f500558a2e1f4e82adcc15ceb">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a76bdf44f500558a2e1f4e82adcc15ceb">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1812,7 +1815,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a662821f57af486d959f1521f14aa495c">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a662821f57af486d959f1521f14aa495c">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1858,7 +1861,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ad9e8213a967ca689492137865ba2e0d1">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ad9e8213a967ca689492137865ba2e0d1">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1903,7 +1906,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#af2fdf7eece39b86fde35e0a1e65bf7b1">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#af2fdf7eece39b86fde35e0a1e65bf7b1">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -1948,7 +1951,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a346109bea2723a18dfb3e3789e07bd0e">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a346109bea2723a18dfb3e3789e07bd0e">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -1994,7 +1997,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a11a0bb799cc5a7883c125d8d9fabe372">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a11a0bb799cc5a7883c125d8d9fabe372">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2040,7 +2043,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ad36b1dc58d5a0dc4b12cdd36cf397d15">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ad36b1dc58d5a0dc4b12cdd36cf397d15">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2158,7 +2161,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a623dfcf7fe0e9c4d3bb3dbcd7f86b7bd">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a623dfcf7fe0e9c4d3bb3dbcd7f86b7bd">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2204,7 +2207,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#aaa48b9b436e735fc62a55fd8fd66ef25">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#aaa48b9b436e735fc62a55fd8fd66ef25">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2256,7 +2259,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#afbae3260dbfc21505cc4af2d5d4b66e8">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#afbae3260dbfc21505cc4af2d5d4b66e8">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2374,7 +2377,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a7d3048f1eafb5b657eada5d6e4a936da">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a7d3048f1eafb5b657eada5d6e4a936da">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2426,7 +2429,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a45afea35d9aa4e277f3de00b8e10b111">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a45afea35d9aa4e277f3de00b8e10b111">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2478,7 +2481,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a39f8dfe793271d10d762a77dc9dedbdc">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a39f8dfe793271d10d762a77dc9dedbdc">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2530,7 +2533,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ac2a95095ca2b1fcde77a9d941f2959a8">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ac2a95095ca2b1fcde77a9d941f2959a8">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2582,7 +2585,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a81f5679721d5e9f66b6ef6eef271e0f5">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a81f5679721d5e9f66b6ef6eef271e0f5">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2628,7 +2631,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#acf285221e1d1c86c697b5365d88e08b8">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#acf285221e1d1c86c697b5365d88e08b8">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2680,7 +2683,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a8e7a68960214b6b9b14c54c56e72b17f">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a8e7a68960214b6b9b14c54c56e72b17f">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2726,7 +2729,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ae6d1d42d6bcbe2463d656570dab9f898">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ae6d1d42d6bcbe2463d656570dab9f898">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2778,7 +2781,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a81220ad15258d5b524300ac68baafd3a">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a81220ad15258d5b524300ac68baafd3a">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2824,7 +2827,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a5ba24d1d383f75de726b61e9aa8106d0">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a5ba24d1d383f75de726b61e9aa8106d0">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -2876,7 +2879,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a369019dc3821fc8339d4e4ae6769e65a">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a369019dc3821fc8339d4e4ae6769e65a">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2928,7 +2931,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ad0ef13e07ed9d948cebd5c1d9e66efba">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ad0ef13e07ed9d948cebd5c1d9e66efba">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -2980,7 +2983,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#abc12c804994f61526b3fa1992d2a3c5a">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#abc12c804994f61526b3fa1992d2a3c5a">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3032,7 +3035,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a7d9f49e9f6388fc9e4e25ee3e9e77458">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a7d9f49e9f6388fc9e4e25ee3e9e77458">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3078,7 +3081,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a32594e2fc6156a990c89a79984eb8801">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a32594e2fc6156a990c89a79984eb8801">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3130,7 +3133,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a1fa3324855638daddea2b9a547de914d">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a1fa3324855638daddea2b9a547de914d">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3182,7 +3185,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a9138de00d87ae8ff3da8e12612695932">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a9138de00d87ae8ff3da8e12612695932">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3228,7 +3231,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#aee2b793cd6e206357c93416daf9592ba">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#aee2b793cd6e206357c93416daf9592ba">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3280,7 +3283,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a6f185015ee9e1c35d4e4b408512a8170">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a6f185015ee9e1c35d4e4b408512a8170">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3332,7 +3335,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ab01ec0ea07c804433d1d2e0c05c289bf">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ab01ec0ea07c804433d1d2e0c05c289bf">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3378,7 +3381,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a89286e587fa0dd60705037390c1539de">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a89286e587fa0dd60705037390c1539de">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3430,7 +3433,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a3ea2d5a54aded343d9dd9d5c44a8c7cc">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a3ea2d5a54aded343d9dd9d5c44a8c7cc">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3482,7 +3485,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a3b890e39db454ac1cb25f1407c283504">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a3b890e39db454ac1cb25f1407c283504">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3528,7 +3531,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ad34b4857c442258332e40ee641bea870">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ad34b4857c442258332e40ee641bea870">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3580,7 +3583,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a035a33f8bf154592cfa0bdcaad0c9ea4">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a035a33f8bf154592cfa0bdcaad0c9ea4">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3632,7 +3635,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ab3e32e750e8e82fd6b742c2e2d58a95b">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ab3e32e750e8e82fd6b742c2e2d58a95b">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3678,7 +3681,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a2f366b05e0e661e35b4ad13d89ee5638">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a2f366b05e0e661e35b4ad13d89ee5638">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3730,7 +3733,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#aa3c24f2d68732935832846ea2fcb6c30">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#aa3c24f2d68732935832846ea2fcb6c30">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3782,7 +3785,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ae7f7b895b2ba2dad83ed9439f71bbeab">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ae7f7b895b2ba2dad83ed9439f71bbeab">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3834,7 +3837,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a04cba8a81b9e3e45d074359ac9790f3d">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a04cba8a81b9e3e45d074359ac9790f3d">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3880,7 +3883,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#aea34b0f01cc444408a0571f531d441a5">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#aea34b0f01cc444408a0571f531d441a5">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -3932,7 +3935,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a97f5a57c2325156824a684b80e1e3c44">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a97f5a57c2325156824a684b80e1e3c44">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -3984,7 +3987,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a29fa0a3fd83cf75325d710abdfed14a9">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a29fa0a3fd83cf75325d710abdfed14a9">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4030,7 +4033,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a76fd3b918b549c885c77c7a0abd88847">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a76fd3b918b549c885c77c7a0abd88847">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4082,7 +4085,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a349a4f8c3fbb8a3cc3494d1bd29d812f">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a349a4f8c3fbb8a3cc3494d1bd29d812f">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4134,7 +4137,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ad13513063a49f0494d6ed4f41ef98ba0">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ad13513063a49f0494d6ed4f41ef98ba0">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4180,7 +4183,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a425ffd5da31b03fb977443613cfb5599">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a425ffd5da31b03fb977443613cfb5599">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4232,7 +4235,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a4097728f8d48636aeed8bc4c6456ee08">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a4097728f8d48636aeed8bc4c6456ee08">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4284,7 +4287,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#afc4a9650edc62c2523f6326d76d6c786">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#afc4a9650edc62c2523f6326d76d6c786">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4336,7 +4339,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a302548e34447df8d801ecff69840d8f4">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a302548e34447df8d801ecff69840d8f4">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4382,7 +4385,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a6ca9cc44412151e2d1effeb3f00e7bb3">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a6ca9cc44412151e2d1effeb3f00e7bb3">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4434,7 +4437,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ab2571bd65417976e1f548b7fa62f535a">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ab2571bd65417976e1f548b7fa62f535a">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4486,7 +4489,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#addfeda801ed675d367394d4c57ae98b5">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#addfeda801ed675d367394d4c57ae98b5">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4538,7 +4541,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#aa1d078765ec97fff7f3d5a7d7bc6a195">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#aa1d078765ec97fff7f3d5a7d7bc6a195">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4590,7 +4593,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a83128a504e41d48ccb9873918cbf0f7f">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a83128a504e41d48ccb9873918cbf0f7f">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4636,7 +4639,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a8d9494243222d9a746d3d1f227371536">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a8d9494243222d9a746d3d1f227371536">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4688,7 +4691,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a412eea99599c16d28ae4e496968e7d34">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a412eea99599c16d28ae4e496968e7d34">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4740,7 +4743,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a2d6056240cf6eba82b3fd376b288bed2">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a2d6056240cf6eba82b3fd376b288bed2">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4792,7 +4795,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a61b80c187f87c96b93e3807680912d8d">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a61b80c187f87c96b93e3807680912d8d">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4838,7 +4841,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a75276a203f341ba2555270c9eb937551">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a75276a203f341ba2555270c9eb937551">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4890,7 +4893,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#adb3a3d85281dbbf40243b89cf88b2c78">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#adb3a3d85281dbbf40243b89cf88b2c78">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -4942,7 +4945,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a16d378dca03d781975436eadf0d32089">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a16d378dca03d781975436eadf0d32089">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -4994,7 +4997,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a49a8382e1e499d782e474622ecd1edf5">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a49a8382e1e499d782e474622ecd1edf5">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5040,7 +5043,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a825170902c4357e2b48563015613182a">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a825170902c4357e2b48563015613182a">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5092,7 +5095,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a7694718a81988eedbe9b9486389795de">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a7694718a81988eedbe9b9486389795de">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5144,7 +5147,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a17401cf952350a5b699d2e49977f7d0a">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a17401cf952350a5b699d2e49977f7d0a">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5190,7 +5193,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a301f842ff68549da6368e4420375a60f">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a301f842ff68549da6368e4420375a60f">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5242,7 +5245,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a5ee928b1d4a9f2e6b2e5e39ae6341310">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a5ee928b1d4a9f2e6b2e5e39ae6341310">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5294,7 +5297,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#aa892dfe6f20e299fdae3828c0db5bd23">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#aa892dfe6f20e299fdae3828c0db5bd23">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5340,7 +5343,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#abd023b3270d836b42c18717b1df58a06">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#abd023b3270d836b42c18717b1df58a06">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5392,7 +5395,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#ac473a59e3dc7e4361bfcb82c663aed12">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#ac473a59e3dc7e4361bfcb82c663aed12">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5444,7 +5447,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a5273471cf776e5c4fedb077e5d081441">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a5273471cf776e5c4fedb077e5d081441">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5496,7 +5499,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a8869c548ef1b7bce00a4159fdd37a02e">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a8869c548ef1b7bce00a4159fdd37a02e">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5548,7 +5551,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a94c134c1c430e10c48ceeca7dfb8d576">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a94c134c1c430e10c48ceeca7dfb8d576">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5601,7 +5604,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a021dee48240a5b14faea68cf591a888e">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a021dee48240a5b14faea68cf591a888e">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5653,6 +5656,8 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#af139d1522f2c5b4c6a974d88a3d0e542">rofl::crofctl_env</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a1f86d131cf43c2cc1858595a9cba93db"></a>
@@ -5703,7 +5708,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a17dee9944d3990d300fdf1ffb2e32a3b">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a17dee9944d3990d300fdf1ffb2e32a3b">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5749,7 +5754,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a69989ca53af964dc1d70aaef534ab26f">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a69989ca53af964dc1d70aaef534ab26f">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5801,7 +5806,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a456873fc38443fff821657abeef80dfa">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a456873fc38443fff821657abeef80dfa">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5853,7 +5858,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#aaef6512aa7f1ae3231132d49c62556de">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#aaef6512aa7f1ae3231132d49c62556de">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -5905,7 +5910,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#ac386e58c61c925f9eca9ba3aac21ea22">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#ac386e58c61c925f9eca9ba3aac21ea22">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -5951,7 +5956,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofdpt__env.html#a8f8d14d629dadebed183b3de36d3f13d">rofl::crofdpt_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofdpt__env.html#a8f8d14d629dadebed183b3de36d3f13d">rofl::crofdpt_env</a>.</p>
 
 </div>
 </div>
@@ -6003,7 +6008,7 @@ Inheritance diagram for rofl::crofbase:</div>
   </dd>
 </dl>
 
-<p>Reimplemented from <a class="el" href="classrofl_1_1crofctl__env.html#a452abcab46bfb075a41de6920029ee9e">rofl::crofctl_env</a>.</p>
+<p>Implements <a class="el" href="classrofl_1_1crofctl__env.html#a452abcab46bfb075a41de6920029ee9e">rofl::crofctl_env</a>.</p>
 
 </div>
 </div>
@@ -6480,7 +6485,7 @@ Inheritance diagram for rofl::crofbase:</div>
 </div><div class="memdoc">
 
 <p>Returns reference to existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance. </p>
-<p>Returns existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance specified by identifier ctlid. If the identifier does not exists, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
+<p>Returns existing <a class="el" href="classrofl_1_1crofctl.html" title="Class representing a remote controller entity. ">rofl::crofctl</a> instance specified by identifier ctlid. If the identifier does not exist, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ctlid</td><td>internal controller handle </td></tr>
@@ -6629,7 +6634,7 @@ Inheritance diagram for rofl::crofbase:</div>
 </div><div class="memdoc">
 
 <p>Returns reference to existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance. </p>
-<p>Returns existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance specified by identifier dptid. If the identifier does not exists, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
+<p>Returns existing <a class="el" href="classrofl_1_1crofdpt.html" title="Class representing a remote datapath element. ">rofl::crofdpt</a> instance specified by identifier dptid. If the identifier does not exist, throws an exception <a class="el" href="classrofl_1_1eRofBaseNotFound.html">eRofBaseNotFound</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dptid</td><td>internal datapath handle (not DPID) </td></tr>
@@ -6703,7 +6708,7 @@ Inheritance diagram for rofl::crofbase:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 31 2014 18:08:00 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 3 2015 10:52:17 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

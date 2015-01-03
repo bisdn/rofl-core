@@ -631,10 +631,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1ciosrv.html#af3b99d81734d9ba5a743458311e2b481">cancel_all_events</a> ()</td></tr>
 <tr class="memdesc:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancels all pending events of this instance. <br/></td></tr>
 <tr class="separator:af3b99d81734d9ba5a743458311e2b481 inherit pro_methods_classrofl_1_1ciosrv"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classrofl_1_1crofctl__env"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classrofl_1_1crofctl__env')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classrofl_1_1crofctl__env.html">rofl::crofctl_env</a></td></tr>
-<tr class="memitem:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrofl_1_1crofctl__env.html#af139d1522f2c5b4c6a974d88a3d0e542">handle_stats_request</a> (<a class="el" href="classrofl_1_1crofctl.html">rofl::crofctl</a> &amp;ctl, const <a class="el" href="classrofl_1_1cauxid.html">rofl::cauxid</a> &amp;auxid, <a class="el" href="classrofl_1_1openflow_1_1cofmsg__stats__request.html">rofl::openflow::cofmsg_stats_request</a> &amp;msg)</td></tr>
-<tr class="memdesc:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="mdescLeft">&#160;</td><td class="mdescRight">OpenFlow Stats-Request message received.  <a href="#af139d1522f2c5b4c6a974d88a3d0e542">More...</a><br/></td></tr>
-<tr class="separator:af139d1522f2c5b4c6a974d88a3d0e542 inherit pro_methods_classrofl_1_1crofctl__env"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Event handlers for management notifications for controller entities</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving controller related event notifications. </p>
+</div></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Event handlers for OpenFlow message notifications received from controller entities</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving messages from the attached controller entity. Once this method terminates, rofl will destroy the message object. If you want to save a message or parts of it, you must create a local copy. All messages are internally allocated on the heap and both allocation and deallocation is handled by rofl-common. Do not delete any of these messages or its internals.</p>
+<p>Higher logic implemented on top of crofbase and acting in datapath role should handle incoming requests, e.g., sending back a reply to the controller entity. rofl-common does not generate reply messages automatically. You may throw any of the OpenFlow related exceptions defined by rofl-common within these handler methods. rofl-common will detect such exceptions and generate appropriate error messages for transmission to the peer entity. </p>
+</div></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Event handlers for receiving datapath related event notifications.</div></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Event handlers for OpenFlow message notifications received from datapath elements</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>Overwrite any of these methods for receiving messages from the attached datapath element. Once this method terminates, rofl will destroy the message object. If you want to save a message or parts of it, you must create a local copy. All messages are internally allocated on the heap and both allocation and deallocation is handled by rofl-common. Do not delete any of these messages or its internals. </p>
@@ -711,7 +714,7 @@ Inheritance diagram for rofl::examples::ethswctld::cetherswitch:</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Dec 31 2014 18:08:02 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jan 3 2015 10:52:19 for Revised OpenFlow Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
