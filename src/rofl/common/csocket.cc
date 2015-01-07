@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "rofl/common/csocket.h"
-#include "rofl/common/csocket_impl.h"
+#include "rofl/common/csocket_plain.h"
 #include "csocket_strings.h"
 #ifdef ROFL_HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
@@ -44,11 +44,11 @@ std::string const 	csocket::PARAM_PROTOCOL_VALUE_UDP("udp");
 
 csocket*
 csocket::csocket_factory(
-		enum csocket::socket_type_t socket_type, csocket_owner *owner)
+		enum csocket::socket_type_t socket_type, csocket_env *owner)
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return new csocket_impl(owner);
+		return new csocket_plain(owner);
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
@@ -68,7 +68,7 @@ csocket::get_default_params(
 {
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return csocket_impl::get_default_params();
+		return csocket_plain::get_default_params();
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {

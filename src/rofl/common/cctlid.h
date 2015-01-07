@@ -17,6 +17,10 @@
 
 namespace rofl {
 
+/**
+ * @ingroup common_devel_workflow
+ * @brief	rofl-common's internal remote controller handle.
+ */
 class cctlid {
 
 	uint64_t 	id;
@@ -107,6 +111,13 @@ public:
 		os << rofl::indent(0) << "<cctlid:" << std::hex << (unsigned long long)ctlid.id << std::dec
 				<< "(" << ctlid.s_id << ")" << " >" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << id;
+		return ss.str();
 	};
 };
 

@@ -1,5 +1,5 @@
 /*
- * csocket_impl_test.cc
+ * csocket_plain_test.cc
  *
  *  Created on: 07.04.2014
  *      Author: andreas
@@ -282,7 +282,7 @@ csocket_test::handle_accepted(
 	std::cerr << "handle_accepted" << std::endl;
 
 	try {
-		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_plain&>(*worker);
 	} catch (std::bad_cast& e) {};
 
 #ifdef ROFL_HAVE_OPENSSL 
@@ -315,7 +315,7 @@ csocket_test::handle_connected(
 	std::cerr << "handle_connected" << std::endl;
 
 	try {
-		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_plain&>(*client);
 	} catch (std::bad_cast& e) {};
 
 
@@ -415,9 +415,9 @@ csocket_test::dump_sockets()
 {
 #ifdef DEBUG
 	try {
-		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*server);
-		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*client);
-		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_impl&>(*worker);
+		std::cerr << "server:" << std::endl << dynamic_cast<rofl::csocket_plain&>(*server);
+		std::cerr << "client:" << std::endl << dynamic_cast<rofl::csocket_plain&>(*client);
+		std::cerr << "worker:" << std::endl << dynamic_cast<rofl::csocket_plain&>(*worker);
 	} catch (std::bad_cast& e) {};
 
 

@@ -7,7 +7,7 @@
 
 #include "cfibtable.h"
 
-using namespace etherswitch;
+using namespace rofl::examples::ethswctld;
 
 std::map<rofl::cdptid, cfibtable*> cfibtable::fibtables;
 

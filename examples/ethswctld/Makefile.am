@@ -8,10 +8,10 @@ sbin_PROGRAMS = ethswctld
 
 ethswctld_SOURCES = \
 	ethswctld.cc \
-	etherswitch.cc \
-	etherswitch.h \
-	cfibtable.cc \
+	cetherswitch.h \
+	cetherswitch.cc \
 	cfibtable.h \
+	cfibtable.cc \
 	cfibentry.h \
 	cfibentry.cc \
 	cflowtable.h \

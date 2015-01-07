@@ -16,7 +16,6 @@
 #include <map>
 #include <string>
 
-#include "rofl/common/cvastring.h"
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
 

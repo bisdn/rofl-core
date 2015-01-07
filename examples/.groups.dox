@@ -1,0 +1,19 @@
+//
+// Doxygen group definition
+//
+
+/**
+ * @defgroup common Revised OpenFlow Library Examples
+ *
+ * The Revised OpenFlow Library common part (ROFL) is a library for implementing the OpenFlow
+ * protocol as defined by the Open Networking Foundation (ONF), see [1]. 
+ * Its basic task is to provide an OpenFlow communication abstraction for entities acting in datapath role, 
+ * controller role or both and implements besides a protocol parser, all logic to map OpenFlow 
+ * messages into corresponding C++ classes. rofl-common was build in a modular way for easy 
+ * extensibility and supports a number of OpenFlow versions: v1.0, v1.2, v1.3 at the time 
+ * of writing. 
+ *
+ * rofl-common is available under Mozilla Public License v2.0. 
+ * 
+ */
+

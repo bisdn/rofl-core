@@ -40,6 +40,12 @@ namespace rofl {
 
 class ciosrv;
 
+/**
+ * @brief	Defines an IO service loop for a single thread.
+ * @ingroup common_devel_ioservice
+ *
+ *
+ */
 class cioloop {
 public:
 
@@ -422,33 +428,67 @@ private:
 
 
 /**
- * (Abstract) Base class for IO services.
- * This class is a base class that adds IO event support to a derived class.
- * ciosrv provides a static method for running an infinite loop of select()/poll()
- * to handle file/socket descriptors. Each instance adds methods for adding/removing
- * file descriptors to/from the set of monitored descriptors.
+ * @brief 	Base class for IO services.
  *
- * A derived class may overwrite event handlers for receiving the following event types:
- * - handle_revent() read events on file descriptors
- * - handle_wevent() write events on file descriptors
- * - handle_xevent() exceptions on file descriptors
- * - handle_timeout() timeout events
- * - handle_event() events emitted from external threads via cevent
+ * @ingroup common_devel_ioservice
+ *
+ * Derive from this class in order to get support for file/socket descriptor
+ * and timer management. rofl::ciosrv binds a higher layer class with the
+ * low layer IO loop defined inside class rofl::cioloop. This class provides
+ * two groups of methods:
+ *
+ * 1. Management methods for typical CRUD operations on timers and descriptors.
+ * 2. Event events for sending notifications towards deriving classes about
+ * read or write events or expiration of timers.
  *
  * Methods for file descriptor management:
- * - register_filedesc_r() register a descriptor for read IO
- * - deregister_filedesc_r() deregister a read descriptor
- * - register_filedesc_w() register a descriptor for write IO
- * - deregister_filedesc_w() deregister a write descriptor
+ *
+ * 1.a) register_filedesc_r() register a descriptor for read IO
+ *
+ * 1.b) deregister_filedesc_r() deregister a read descriptor
+ *
+ * 1.c) register_filedesc_w() register a descriptor for write IO
+ *
+ * 1.d) deregister_filedesc_w() deregister a write descriptor
  *
  * Methods for timer management:
- * - register_timer() register a timer
- * - reset_timer() reset a timer
- * - cancel_timer() cancel a timer
- * - cancel_all_timer() cancel all timers
  *
+ * 1.e) register_timer() register a timer
+ *
+ * 1.f) reset_timer() reset a timer
+ *
+ * 1.g) restart_timer() restart or create new timer
+ *
+ * 1.h) pending_timer() check for existence of timer
+ *
+ * 1.i) cancel_timer() cancel a timer
+ *
+ * 1.j) cancel_all_timer() cancel all timers
+ *
+ * Methods for event management:
+ *
+ * 1.k) notify() send an event to this rofl::ciosrv instance
+ *
+ * The following event handlers exist and may be overwritten by a class deriving
+ * from rofl::ciosrv:
+ *
+ * 2.a) handle_revent() read events on file descriptor(s)
+ *
+ * 2.b) handle_wevent() write events on file descriptor(s)
+ *
+ * 2.c) handle_xevent() exceptions on file descriptor(s)
+ *
+ * 2.d) handle_timeout() timeout event(s)
+ *
+ * 2.e) handle_event() events sent via notify() method
+ *
+ * This class utilizes timer handles based on class rofl::ctimerid
+ * for managing pending timers, e.g., cancel or restarting them.
+ *
+ * @see rofl::cevent
+ * @see rofl::ctimerid
  */
-class ciosrv : public ptrciosrv {
+class ciosrv : public ctimer_env {
 public:
 
 	/**
@@ -465,13 +505,13 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(ciosrv const& iosrv);
+	ciosrv(const ciosrv& iosrv);
 
 	/**
 	 *
 	 */
 	ciosrv&
-	operator= (ciosrv const& iosrv);
+	operator= (const ciosrv& iosrv);
 
 public:
 
@@ -518,10 +558,12 @@ protected:
 	 *
 	 * @see notify(cevent const& ev)
 	 *
-	 * @param ev cevent instance received
+	 * @param event rofl::cevent instance received
 	 */
 	virtual void
-	handle_event(cevent const& ev) {};
+	handle_event(
+			const rofl::cevent& event)
+	{};
 
 	/**
 	 * @brief	Handler for read events on file descriptors.
@@ -531,7 +573,9 @@ protected:
 	 * @param fd read event occured on file descriptor fd
 	 */
 	virtual void
-	handle_revent(int fd) {};
+	handle_revent(
+			int fd)
+	{};
 
 	/**
 	 * @brief	Handler for write events on file descriptors.
@@ -541,7 +585,8 @@ protected:
 	 * @param fd write event occured on file descriptor fd
 	 */
 	virtual void
-	handle_wevent(int fd) {};
+	handle_wevent(int fd)
+	{};
 
 	/**
 	 * @brief	Handler for exceptions on file descriptors.
@@ -551,7 +596,8 @@ protected:
 	 * @param fd exception occured on file descriptor fd
 	 */
 	virtual void
-	handle_xevent(int fd) {};
+	handle_xevent(int fd)
+	{};
 
 	/**
 	 * @brief	Handler for timer events.
@@ -559,9 +605,11 @@ protected:
 	 * To be overwritten by derived class. Default behaviour: event is ignored.
 	 *
 	 * @param opaque expired timer type
+	 * @param data pointer to opaque data
 	 */
 	virtual void
-	handle_timeout(int opaque, void *data = (void*)0) {};
+	handle_timeout(int opaque, void *data = (void*)0)
+	{};
 
 	/**@}*/
 
@@ -646,8 +694,8 @@ protected:
 	 * @param ctimer object
 	 * @return timer handle
 	 */
-	const ctimerid&
-	register_timer(int opaque, const ctimespec& timespec) {
+	const rofl::ctimerid&
+	register_timer(int opaque, const rofl::ctimespec& timespec) {
 		if (timers.empty() || (get_thread_id() != pthread_self()))
 			cioloop::get_loop().has_timer(this);
 		return timers.add_timer(ctimer(this, opaque, timespec));
@@ -662,8 +710,8 @@ protected:
 	 * @param t timeout in seconds of this timer
 	 * @return timer handle
 	 */
-	const ctimerid&
-	reset_timer(const ctimerid& timer_id, const ctimespec& timespec) {
+	const rofl::ctimerid&
+	reset_timer(const rofl::ctimerid& timer_id, const rofl::ctimespec& timespec) {
 		if (timers.empty() || (get_thread_id() != pthread_self()))
 			cioloop::get_loop().has_timer(this);
 		return timers.reset(timer_id, timespec);
@@ -698,7 +746,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(ctimerid const& timer_id) {
+	pending_timer(const rofl::ctimerid& timer_id) {
 		return timers.pending(timer_id);
 	};
 
@@ -708,7 +756,7 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(ctimerid const& timer_id) {
+	cancel_timer(const rofl::ctimerid& timer_id) {
 		timers.cancel(timer_id);
 		if (timers.empty())
 			cioloop::get_loop().has_no_timer(this);
@@ -720,7 +768,7 @@ protected:
 	 */
 	void
 	cancel_all_timers() {
-		timers.cancel_all();
+		timers.clear();
 		cioloop::get_loop().has_no_timer(this);
 	};
 
@@ -771,7 +819,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, ciosrv const& iosvc) {
+	operator<< (std::ostream& os, const ciosrv& iosvc) {
 		os << indent(0) << "<ciosrv >" << std::endl;
 			os << indent(2) << "<rfds: ";
 			for (std::set<int>::const_iterator it = iosvc.rfds.begin(); it != iosvc.rfds.end(); ++it) {

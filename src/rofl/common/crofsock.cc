@@ -43,106 +43,19 @@ crofsock::~crofsock()
 
 
 
-
-void
-crofsock::handle_read(
-		csocket& socket)
-{
-	if (STATE_CLOSED == state) {
-		return;
-	}
-	unsigned int pkts_rcvd_in_round = 0;
-
-	try {
-
-		while (true) {
-
-			if (0 == fragment) {
-				fragment = new cmemory(sizeof(struct openflow::ofp_header));
-				msg_bytes_read = 0;
-			}
-
-			uint16_t msg_len = 0;
-
-			// how many bytes do we have to read?
-			if (msg_bytes_read < sizeof(struct openflow::ofp_header)) {
-				msg_len = sizeof(struct openflow::ofp_header);
-			} else {
-				struct openflow::ofp_header *header = (struct openflow::ofp_header*)fragment->somem();
-				msg_len = be16toh(header->length);
-			}
-
-			// sanity check: 8 <= msg_len <= 2^16
-			if (msg_len < sizeof(struct openflow::ofp_header)) {
-				rofl::logging::warn << "[rofl-common][crofsock] received message with invalid length field, closing socket." << std::endl;
-				socket.close();
-				return;
-			}
-
-			// resize msg buffer, if necessary
-			if (fragment->memlen() < msg_len) {
-				fragment->resize(msg_len);
-			}
-
-			// read from socket more bytes, at most "msg_len - msg_bytes_read"
-			int rc = socket.recv((void*)(fragment->somem() + msg_bytes_read), msg_len - msg_bytes_read);
-
-			msg_bytes_read += rc;
-
-			// minimum message length received, check completeness of message
-			if (fragment->memlen() >= sizeof(struct openflow::ofp_header)) {
-				struct openflow::ofp_header *header = (struct openflow::ofp_header*)fragment->somem();
-				uint16_t msg_len = be16toh(header->length);
-
-				// ok, message was received completely
-				if (msg_len == msg_bytes_read) {
-					cmemory *mem = fragment;
-					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
-					msg_bytes_read = 0;
-					parse_message(mem);
-					pkts_rcvd_in_round++;
-					// read at most max_pkts_rcvd_per_round (default: 16) packets from socket, reschedule afterwards
-					if (pkts_rcvd_in_round >= max_pkts_rcvd_per_round) {
-						rofl::logging::debug2 << "[rofl-common][crofsock] received " << pkts_rcvd_in_round << " packet(s) from peer, rescheduling." << std::endl;
-						return;
-					}
-				}
-			}
-		}
-
-	} catch (eSocketRxAgain& e) {
-
-		// more bytes are needed, keep pointer to msg in "fragment"
-		rofl::logging::debug2 << "[rofl-common][crofsock] eSocketRxAgain: no further data available on socket, read " << pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
-
-	} catch (eSysCall& e) {
-
-		rofl::logging::warn << "[rofl-common][crofsock] failed to read from socket: " << e << std::endl;
-
-		// close socket, as it seems, we are out of sync
-		run_engine(EVENT_PEER_DISCONNECTED);
-
-	} catch (RoflException& e) {
-
-		rofl::logging::warn << "[rofl-common][crofsock] dropping invalid message: " << e << std::endl;
-
-		// close socket, as it seems, we are out of sync
-		run_engine(EVENT_PEER_DISCONNECTED);
-	}
-
-}
-
-
-
 unsigned int
 crofsock::send_message(
 		rofl::openflow::cofmsg *msg)
 {
+	unsigned int cwnd_size = 1;
+
+	if (NULL == msg) {
+		return cwnd_size;
+	}
+
 	if (not socket->is_established()) {
 		delete msg; return 0;
 	}
-
-	unsigned int cwnd_size = 1;
 
 	log_message(std::string("queueing message for sending:"), *msg);
 
@@ -271,7 +184,7 @@ crofsock::send_from_queue()
 	}
 
 	if (flags.test(FLAGS_CONGESTED)) {
-		env->handle_write(this);
+		env->handle_write(*this);
 	}
 
 	if (reschedule && not flags.test(FLAGS_CONGESTED)) {
@@ -286,6 +199,9 @@ crofsock::handle_event(
 		cevent const &ev)
 {
 	switch (ev.cmd) {
+	case EVENT_NONE: {
+
+	} break;
 	case EVENT_CONGESTION_SOLVED: {
 		send_from_queue();
 	} break;
@@ -296,30 +212,148 @@ crofsock::handle_event(
 
 
 
+
+void
+crofsock::handle_read(
+		csocket& socket)
+{
+	if (STATE_CLOSED == state) {
+		return;
+	}
+	unsigned int pkts_rcvd_in_round = 0;
+
+	try {
+
+		while (true) {
+
+			if (0 == fragment) {
+				fragment = new cmemory(sizeof(struct openflow::ofp_header));
+				msg_bytes_read = 0;
+			}
+
+			uint16_t msg_len = 0;
+
+			// how many bytes do we have to read?
+			if (msg_bytes_read < sizeof(struct openflow::ofp_header)) {
+				msg_len = sizeof(struct openflow::ofp_header);
+			} else {
+				struct openflow::ofp_header *header = (struct openflow::ofp_header*)fragment->somem();
+				msg_len = be16toh(header->length);
+			}
+
+			// sanity check: 8 <= msg_len <= 2^16
+			if (msg_len < sizeof(struct openflow::ofp_header)) {
+				rofl::logging::warn << "[rofl-common][crofsock] received message with invalid length field, closing socket." << std::endl;
+				socket.close();
+				return;
+			}
+
+			// resize msg buffer, if necessary
+			if (fragment->memlen() < msg_len) {
+				fragment->resize(msg_len);
+			}
+
+			// read from socket more bytes, at most "msg_len - msg_bytes_read"
+			int rc = socket.recv((void*)(fragment->somem() + msg_bytes_read), msg_len - msg_bytes_read);
+
+			msg_bytes_read += rc;
+
+			// minimum message length received, check completeness of message
+			if (fragment->memlen() >= sizeof(struct openflow::ofp_header)) {
+				struct openflow::ofp_header *header =
+						(struct openflow::ofp_header*)fragment->somem();
+				uint16_t msg_len = be16toh(header->length);
+
+				// ok, message was received completely
+				if (msg_len == msg_bytes_read) {
+					cmemory *mem = fragment;
+					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
+					msg_bytes_read = 0;
+
+					parse_message(mem);
+
+					pkts_rcvd_in_round++;
+					// read at most max_pkts_rcvd_per_round (default: 16) packets from socket, reschedule afterwards
+					if (pkts_rcvd_in_round >= max_pkts_rcvd_per_round) {
+						rofl::logging::debug2 << "[rofl-common][crofsock] "
+								<< "received " << pkts_rcvd_in_round
+								<< " packet(s) from peer, rescheduling." << std::endl;
+						return;
+					}
+				}
+			}
+		}
+
+	} catch (eSocketRxAgain& e) {
+
+		// more bytes are needed, keep pointer to msg in "fragment"
+		rofl::logging::debug2 << "[rofl-common][crofsock] eSocketRxAgain: "
+				<< "no further data available on socket, read "
+				<< pkts_rcvd_in_round << " packet(s) in this round." << std::endl;
+
+	} catch (eSysCall& e) {
+
+		rofl::logging::warn << "[rofl-common][crofsock] "
+				<< "eSysCall: failed to read from socket: " << e.what() << std::endl;
+
+		// close socket, as it seems, we are out of sync
+		run_engine(EVENT_PEER_DISCONNECTED);
+
+	} catch (RoflException& e) {
+
+		rofl::logging::warn << "[rofl-common][crofsock] "
+				<< "generic ROFL exception: " << e.what() << std::endl;
+
+		// close socket, as it seems, we are out of sync
+		run_engine(EVENT_PEER_DISCONNECTED);
+	}
+
+}
+
+
+
 void
 crofsock::parse_message(
 		cmemory *mem)
 {
+	if (mem == NULL) {
+		return;
+	}
+
 	if (STATE_CLOSED == state) {
 		delete mem; return;
 	}
 
 	rofl::openflow::cofmsg *msg = (rofl::openflow::cofmsg*)0;
 	try {
-		assert(NULL != mem);
+		struct openflow::ofp_header* header =
+				(struct openflow::ofp_header*)mem->somem();
 
-		struct openflow::ofp_header* header = (struct openflow::ofp_header*)mem->somem();
-
+		/* make sure to have a valid cofmsg* msg object after parsing */
 		switch (header->version) {
-		case rofl::openflow10::OFP_VERSION: parse_of10_message(mem, &msg); break;
-		case rofl::openflow12::OFP_VERSION: parse_of12_message(mem, &msg); break;
-		case rofl::openflow13::OFP_VERSION: parse_of13_message(mem, &msg); break;
-		default: msg = new rofl::openflow::cofmsg(mem); break;
+		case rofl::openflow10::OFP_VERSION: {
+			parse_of10_message(mem, &msg);
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			parse_of12_message(mem, &msg);
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			parse_of13_message(mem, &msg);
+		} break;
+		default: {
+			msg = new rofl::openflow::cofmsg(mem);
+		};
 		}
 
-		log_message(std::string("received message:"), *msg);
+		if (msg == NULL) {
+			return;
+		}
 
-		env->recv_message(this, msg);
+		//log_message(std::string("received message:"), *msg);
+
+		if (env) {
+			env->recv_message(*this, msg);
+		}
 
 	} catch (eBadRequestBadType& e) {
 

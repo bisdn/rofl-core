@@ -23,9 +23,7 @@ librofl_common_la_SOURCES = \
 		ctimespec.h \
 		ctimespec.cc \
 		ctimer.h \
-		ctimer.cc \
 		ctimers.h \
-		ctimers.cc \
 		cevent.h \
 		cevents.h \
 		cevents.cc \
@@ -35,9 +33,8 @@ librofl_common_la_SOURCES = \
 		cmemory.cc \
 		csocket.h \
 		csocket.cc \
-		csocket_impl.h \
-		csocket_impl.cc \
-		cvastring.h \
+		csocket_plain.h \
+		csocket_plain.cc \
 		fframe.h \
 		fframe.cc \
 		ctransaction.h \
@@ -48,12 +45,8 @@ librofl_common_la_SOURCES = \
 		crofbase.cc \
 		crofctl.h \
 		crofctl.cc \
-		crofctl_impl.h \
-		crofctl_impl.cc \
 		crofdpt.h \
 		crofdpt.cc \
-		crofdpt_impl.h \
-		crofdpt_impl.cc \
 		crofsock.h \
 		crofsock.cc \
 		crofconn.h \
@@ -105,9 +98,7 @@ library_include_HEADERS= \
 		rofcommon.h \
 		crofbase.h \
 		crofctl.h \
-		crofctl_impl.h \
 		crofdpt.h \
-		crofdpt_impl.h \
 		crofsock.h \
 		crofconn.h \
 		crofchan.h \
@@ -122,8 +113,7 @@ library_include_HEADERS= \
 		ciosrv.h \
 		cmemory.h \
 		csocket.h \
-		csocket_impl.h \
-		cvastring.h \
+		csocket_plain.h \
 		fframe.h \
 		thread_helper.h \
 		cthread.h \

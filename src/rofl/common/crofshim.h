@@ -31,7 +31,7 @@ public:
 
 class crofshim :
 		public crofsock_env,
-		public csocket_owner
+		public csocket_env
 {
 public:
 
@@ -402,94 +402,94 @@ private:
 	 *
 	 */
 	virtual void
-	handle_connect_refused(crofsock *rofsock) {
-		delete rofsock;
+	handle_connect_refused(crofsock& rofsock) {
+		delete &rofsock;
 	};
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_connect_failed(crofsock *rofsock) {
-		delete rofsock;
+	handle_connect_failed(crofsock& rofsock) {
+		delete &rofsock;
 	};
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_connected(crofsock *rofsock) {
-		std::cerr << "RADDR:" << rofsock->get_socket().get_raddr();
-		switch (rofsock->get_socket().get_domain()) {
+	handle_connected(crofsock& rofsock) {
+		std::cerr << "RADDR:" << rofsock.get_socket().get_raddr();
+		switch (rofsock.get_socket().get_domain()) {
 		case AF_INET: {
 			rofl::common::ctspaddress_in4 addr(
 					rofl::caddress_in4(
-							rofsock->get_socket().get_raddr().ca_s4addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s4addr->sin_port));
+							rofsock.get_socket().get_raddr().ca_s4addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s4addr->sin_port));
 			if (rofsockets_in4.find(addr) != rofsockets_in4.end()) {
 				delete rofsockets_in4[addr];
 			}
-			rofsockets_in4[addr] = rofsock;
+			rofsockets_in4[addr] = &rofsock;
 		} break;
 		case AF_INET6: {
 			rofl::common::ctspaddress_in6 addr(
 					rofl::caddress_in6(
-							rofsock->get_socket().get_raddr().ca_s6addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s6addr->sin6_port));
+							rofsock.get_socket().get_raddr().ca_s6addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s6addr->sin6_port));
 			if (rofsockets_in6.find(addr) != rofsockets_in6.end()) {
 				delete rofsockets_in6[addr];
 			}
-			rofsockets_in6[addr] = rofsock;
+			rofsockets_in6[addr] = &rofsock;
 		} break;
 		default: {
-			delete rofsock;
+			delete &rofsock;
 		};
 		}
 	};
 
 	virtual void
-	handle_closed(crofsock *rofsock) {
-		switch (rofsock->get_socket().get_domain()) {
+	handle_closed(crofsock& rofsock) {
+		switch (rofsock.get_socket().get_domain()) {
 		case AF_INET: {
 			rofl::common::ctspaddress_in4 addr(
 					rofl::caddress_in4(
-							rofsock->get_socket().get_raddr().ca_s4addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s4addr->sin_port));
+							rofsock.get_socket().get_raddr().ca_s4addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s4addr->sin_port));
 			rofsockets_in4.erase(addr);
 		} break;
 		case AF_INET6: {
 			rofl::common::ctspaddress_in6 addr(
 					rofl::caddress_in6(
-							rofsock->get_socket().get_raddr().ca_s6addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s6addr->sin6_port));
+							rofsock.get_socket().get_raddr().ca_s6addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s6addr->sin6_port));
 			rofsockets_in6.erase(addr);
 		} break;
 		default: {
 		};
 		}
-		delete rofsock;
+		delete &rofsock;
 	};
 
 	virtual void
-	handle_write(crofsock *rofsock) {
+	handle_write(crofsock& rofsock) {
 		/* TODO: handle situation after congestion */
 	};
 
 	virtual void
-	recv_message(crofsock *rofsock, rofl::openflow::cofmsg *msg) {
-		switch (rofsock->get_socket().get_domain()) {
+	recv_message(crofsock& rofsock, rofl::openflow::cofmsg *msg) {
+		switch (rofsock.get_socket().get_domain()) {
 		case AF_INET: {
 			rofl::common::ctspaddress_in4 addr(
 					rofl::caddress_in4(
-							rofsock->get_socket().get_raddr().ca_s4addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s4addr->sin_port));
+							rofsock.get_socket().get_raddr().ca_s4addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s4addr->sin_port));
 			handle_message(addr, msg);
 		} break;
 		case AF_INET6: {
 			rofl::common::ctspaddress_in6 addr(
 					rofl::caddress_in6(
-							rofsock->get_socket().get_raddr().ca_s6addr, rofsock->get_socket().get_raddr().salen),
-							be16toh(rofsock->get_socket().get_raddr().ca_s6addr->sin6_port));
+							rofsock.get_socket().get_raddr().ca_s6addr, rofsock.get_socket().get_raddr().salen),
+							be16toh(rofsock.get_socket().get_raddr().ca_s6addr->sin6_port));
 			handle_message(addr, msg);
 		} break;
 		default: {

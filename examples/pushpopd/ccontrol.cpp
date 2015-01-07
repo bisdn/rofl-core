@@ -7,7 +7,7 @@
 
 #include "ccontrol.hpp"
 
-using namespace pushpop;
+using namespace rofl::examples::pushpop;
 
 void
 ccontrol::handle_dpt_open(
@@ -52,7 +52,7 @@ ccontrol::handle_desc_stats_reply(
 
 	std::cout << "[ccontrol] sending push-vlan flow-mod: " << std::endl;
 
-	rofl::openflow::cofgroupmod gm(dpt.get_version());
+	rofl::openflow::cofgroupmod gm(dpt.get_version_negotiated());
 	gm.set_command(rofl::openflow::OFPGC_ADD);
 	gm.set_type(rofl::openflow::OFPGT_ALL);
 	gm.set_group_id(1);
@@ -77,7 +77,7 @@ ccontrol::handle_desc_stats_reply(
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
-	rofl::openflow::cofflowmod fm(dpt.get_version());
+	rofl::openflow::cofflowmod fm(dpt.get_version_negotiated());
 	fm.set_command(rofl::openflow::OFPFC_ADD);
 	fm.set_table_id(0);
 	fm.set_idle_timeout(0);

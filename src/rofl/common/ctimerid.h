@@ -14,6 +14,10 @@
 
 namespace rofl {
 
+/**
+ * @brief	Timer handle used by class rofl::cioloop
+ * @ingroup	common_devel_ioservice
+ */
 class ctimerid {
 
 	/*

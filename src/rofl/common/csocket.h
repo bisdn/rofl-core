@@ -37,10 +37,11 @@ class eSocketNotConnected			: public eSocketBase {};
 class eSocketTypeNotFound			: public eSocketBase {};
 class eSocketParamNotFound			: public eSocketBase {};
 
-class csocket; // forward declaration for csocket_owner, see below
+class csocket; // forward declaration
 
 /**
- * @class csocket_owner
+ * @interface csocket_env
+ * @ingroup common_devel_bsd_sockets
  * @brief	An abstract interface defining the consumer side of a csocket.
  *
  * This class defines an abstract interface for interacting with instances of type csocket.
@@ -50,20 +51,20 @@ class csocket; // forward declaration for csocket_owner, see below
  * - connect_refised
  * - read
  * - closed
- * All methods are pure abstract and must be implemented by a class deriving from csocket_owner.
+ * All methods are pure abstract and must be implemented by a class deriving from csocket_env.
  *
  * @see csocket
  */
-class csocket_owner
-{
-public:
+class csocket_env {
 	friend class csocket;
+public:
 
 	/**
 	 * @brief	Destructor.
 	 */
 	virtual
-	~csocket_owner() {};
+	~csocket_env()
+	{};
 
 	/**
 	 * @brief	Called once a listening socket has accepted a connection request from a remote peer entity.
@@ -74,7 +75,8 @@ public:
 	 */
 	virtual void
 	handle_listen(
-			csocket& socket, int newsd) = 0;
+			rofl::csocket& socket,
+			int newsd) = 0;
 
 	/**
 	 * @brief	Called once this csocket entity has succeeded its accept() method.
@@ -85,7 +87,7 @@ public:
 	 */
 	virtual void
 	handle_accepted(
-			csocket& socket) = 0;
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once accepting a request from a remote entity failed.
@@ -93,7 +95,8 @@ public:
 	 * @param socket pointer to csocket instance emitting the notification
 	 */
 	virtual void
-	handle_accept_refused(csocket& socket) = 0;
+	handle_accept_refused(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once a connection request has succeeded its connect() method.
@@ -101,7 +104,8 @@ public:
 	 * @param socket pointer to csocket instance emitting the notification
 	 */
 	virtual void
-	handle_connected(csocket& socket) = 0;
+	handle_connected(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity failed.
@@ -110,7 +114,8 @@ public:
 	 * @param sd socket descriptor used for connection
 	 */
 	virtual void
-	handle_connect_refused(csocket& socket) = 0;
+	handle_connect_refused(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity failed.
@@ -119,7 +124,8 @@ public:
 	 * @param sd socket descriptor used for connection
 	 */
 	virtual void
-	handle_connect_failed(csocket& socket) = 0;
+	handle_connect_failed(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once new data is available for reading from the socket.
@@ -128,7 +134,8 @@ public:
 	 * @param sd socket descriptor used by the connection
 	 */
 	virtual void
-	handle_read(csocket& socket) = 0;
+	handle_read(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once the socket accept additional data for sending.
@@ -137,7 +144,8 @@ public:
 	 * @param sd socket descriptor used by the connection
 	 */
 	virtual void
-	handle_write(csocket& socket) = 0;
+	handle_write(
+			rofl::csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once the socket has been shutdown and closed.
@@ -146,28 +154,30 @@ public:
 	 * @param sd socket descriptor used by the connection
 	 */
 	virtual void
-	handle_closed(csocket& socket) = 0;
+	handle_closed(
+			rofl::csocket& socket) = 0;
 };
 
 
 /**
  * @class csocket
+ * @ingroup common_devel_bsd_sockets
  * @brief 	A single socket.
  *
  * This class provides basic support for socket based communication.
  * Its aim is to encapsulate functionality for establishing a socket
  * in active and passive mode. For using a socket, the owning class
- * must implement the interface defined in csocket_owner.
+ * must implement the interface defined in csocket_env.
  *
  * The socket is set to non-blocking mode,
  * thus it does not block indefinitely during read or write operations,
  * rather it returns control to the calling entity asap.
  *
- * For listening sockets, method csocket_owner::handle_accepted() will be
+ * For listening sockets, method rofl::csocket_env::handle_accepted() will be
  * called. The socket owner should create a new csocket instance and assigning
  * the new obtained socket descriptor to it.
  *
- * @see csocket_owner
+ * @see csocket_env
  */
 class csocket :
 	public virtual ciosrv
@@ -181,19 +191,6 @@ public:
 		SOCKET_TYPE_OPENSSL 	= 2,
 	};
 
-protected:
-
-	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
-	enum socket_type_t			socket_type;
-	int 						sd; 				/**< the socket descriptor */
-	csockaddr 					laddr; 				/**< local address socket is bound to */
-	csockaddr 					raddr; 				/**< remote address of peer entity */
-	int 						domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
-	int 						type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
-	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
-	int 						backlog; 			/**< backlog value for listen() system call */
-	cparams						socket_params;		/**< parameters for a specific socket instance */
-
 public:
 
 	/**
@@ -201,7 +198,7 @@ public:
 	 */
 	static csocket*
 	csocket_factory(
-			enum socket_type_t socket_type, csocket_owner *owner);
+			enum socket_type_t socket_type, csocket_env *owner);
 
 	/**
 	 *
@@ -210,38 +207,31 @@ public:
 	get_default_params(
 			enum socket_type_t socket_type);
 
-
 public:
 
-
-
 	/**
-	 * @brief	Constructor for new empty csocket instances.
+	 * @brief	csocket constructor
 	 *
-	 * @param owner socket owning entity implementing interface csocket_owner
+	 * @param env environment for this csocket instance
 	 */
-	csocket(csocket_owner *owner, enum socket_type_t socket_type) :
-		socket_owner(owner),
-		socket_type(socket_type),
-		sd(-1),
-		domain(0),
-		type(0),
-		protocol(0),
-		backlog(0)
+	csocket(
+			csocket_env *env,
+			enum socket_type_t socket_type) :
+				socket_env(env),
+				socket_type(socket_type),
+				sd(-1),
+				domain(0),
+				type(0),
+				protocol(0),
+				backlog(0)
 	{};
 
-
-
-
 	/**
-	 * @brief 	Destructor.
-	 *
+	 * @brief 	csocket destructor
 	 */
 	virtual
 	~csocket()
 	{};
-
-
 
 	/**
 	 * @brief	Open socket in listening mode (server side).
@@ -253,17 +243,15 @@ public:
 	 */
 	virtual void
 	listen(
-			cparams const& params) = 0;
-
+			const rofl::cparams& params) = 0;
 
 	/**
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	virtual void
 	accept(
-			cparams const& socket_params, int sd) = 0;
-
-
+			const rofl::cparams& socket_params,
+			int sd) = 0;
 
 	/**
 	 * @brief	Open socket and connect to peer entity (client side).
@@ -274,8 +262,7 @@ public:
 	 */
 	virtual void
 	connect(
-			cparams const& params) = 0;
-
+			const rofl::cparams& params) = 0;
 
 	/**
 	 * @brief	Reconnect this socket.
@@ -347,79 +334,92 @@ public:
 	 *
 	 */
 	int
-	get_sd() const { return sd; };
+	get_sd() const
+	{ return sd; };
 
 	/**
 	 *
 	 */
 	enum rofl::csocket::socket_type_t
-	get_socket_type() const { return socket_type; };
+	get_socket_type() const
+	{ return socket_type; };
 
 	/**
 	 *
 	 */
-	cparams const&
-	get_socket_params() const { return socket_params; };
-
-	/**
-	 *
-	 */
-	rofl::csockaddr&
-	set_laddr() { return laddr; };
-
-	/**
-	 *
-	 */
-	rofl::csockaddr const&
-	get_laddr() const { return laddr; };
+	const rofl::cparams&
+	get_socket_params() const
+	{ return socket_params; };
 
 	/**
 	 *
 	 */
 	rofl::csockaddr&
-	set_raddr() { return raddr; };
+	set_laddr()
+	{ return laddr; };
 
 	/**
 	 *
 	 */
 	rofl::csockaddr const&
-	get_raddr() const { return raddr; };
+	get_laddr() const
+	{ return laddr; };
+
+	/**
+	 *
+	 */
+	rofl::csockaddr&
+	set_raddr()
+	{ return raddr; };
+
+	/**
+	 *
+	 */
+	rofl::csockaddr const&
+	get_raddr() const
+	{ return raddr; };
 
 	/**
 	 *
 	 */
 	void
-	set_domain(int domain) { this->domain = domain; };
+	set_domain(int domain)
+	{ this->domain = domain; };
 
 	/**
 	 *
 	 */
 	int
-	get_domain() const { return domain; };
+	get_domain() const
+	{ return domain; };
 
 	/**
 	 *
 	 */
 	void
-	set_type(int type) { this->type = type; };
+	set_type(int type)
+	{ this->type = type; };
 
 	/**
 	 *
 	 */
 	int
-	get_type() const { return type; };
+	get_type() const
+	{ return type; };
 
 	/**
 	 *
 	 */
 	void
-	set_protocol(int protocol) { this->protocol = protocol; };
+	set_protocol(int protocol)
+	{ this->protocol = protocol; };
 
 	/**
 	 *
 	 */
 	int
-	get_protocol() const { return protocol; };
+	get_protocol() const
+	{ return protocol; };
 
 
 	/**
@@ -474,6 +474,18 @@ public:
 		return os;
 	};
 
+protected:
+
+	csocket_env*        socket_env;			/**< environment of this csocket instance */
+	enum socket_type_t  socket_type;		/**< socket type (plain, ssl, ...) */
+	int                 sd; 				/**< the socket descriptor */
+	csockaddr           laddr; 				/**< local address socket is bound to */
+	csockaddr           raddr; 				/**< remote address of peer entity */
+	int                 domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
+	int                 type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
+	int                 protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
+	int                 backlog; 			/**< backlog value for listen() system call */
+	cparams             socket_params;		/**< parameters for a specific socket instance */
 };
 
 }; // end of namespace

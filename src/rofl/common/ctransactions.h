@@ -27,6 +27,8 @@ class ctransactions;
 class ctransactions_env {
 public:
 	virtual ~ctransactions_env() {};
+protected:
+	friend class ctransactions;
 	virtual void ta_expired(ctransactions& tas, ctransaction& ta) = 0;
 };
 

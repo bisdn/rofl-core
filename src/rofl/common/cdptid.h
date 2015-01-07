@@ -17,6 +17,10 @@
 
 namespace rofl {
 
+/**
+ * @ingroup common_devel_workflow
+ * @brief	rofl-common's internal remote datapath handle.
+ */
 class cdptid {
 
 	uint64_t 	id;
@@ -107,6 +111,13 @@ public:
 		os << rofl::indent(0) << "<cdptid: " << std::hex << (unsigned long long)dptid.id << std::dec
 				<< " (" << dptid.s_id << ")" << " >" << std::endl;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << id;
+		return ss.str();
 	};
 };
 

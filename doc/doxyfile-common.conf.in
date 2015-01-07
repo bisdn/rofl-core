@@ -25,7 +25,7 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = ROFL-common
+PROJECT_NAME           = "Revised OpenFlow Library"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
@@ -482,7 +482,7 @@ GENERATE_DEPRECATEDLIST= YES
 # The ENABLED_SECTIONS tag can be used to enable conditional
 # documentation sections, marked by \if sectionname ... \endif.
 
-ENABLED_SECTIONS       =
+ENABLED_SECTIONS       = EXAMPLES
 
 # The MAX_INITIALIZER_LINES tag determines the maximum number of lines
 # the initial value of a variable or macro consists of for it to appear in
@@ -598,7 +598,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = $(SRC_DIR)/src/rofl/common/.doxygen.dox $(SRC_DIR)/src/rofl/common/.groups.dox $(SRC_DIR)/src/rofl/common
+INPUT                  = $(SRC_DIR)/src/rofl/common/.doxygen.dox $(SRC_DIR)/src/rofl/common/.groups.dox $(SRC_DIR)/src/rofl/common $(SRC_DIR)/examples/.groups.dox $(SRC_DIR)/examples/ethswctld
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -1132,7 +1132,7 @@ SERVER_BASED_SEARCH    = NO
 # If the GENERATE_LATEX tag is set to YES (the default) Doxygen will
 # generate Latex output.
 
-GENERATE_LATEX         = YES
+GENERATE_LATEX         = NO
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be

@@ -10,6 +10,7 @@
 
 #include <inttypes.h>
 #include <bitset>
+#include <set>
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/crofsock.h"
@@ -27,24 +28,120 @@ namespace rofl {
 class eRofConnBase 					: public RoflException {};
 class eRofConnXidSpaceExhausted		: public eRofConnBase {};
 class eRofConnBusy					: public eRofConnBase {}; // connection already established
+class eRofConnNotFound				: public eRofConnBase {};
 
 class crofconn; // forward declaration
 
+/**
+ * @interface crofconn_env
+ * @ingroup common_devel_workflow
+ * @brief Environment expected by a rofl::crofconn instance.
+ */
 class crofconn_env {
+	static std::set<crofconn_env*> rofconn_envs;
 public:
-	virtual ~crofconn_env() {};
-	virtual void handle_connect_refused(crofconn *conn) = 0;
-	virtual void handle_connect_failed(crofconn *conn) = 0;
-	virtual void handle_connected(crofconn *conn, uint8_t ofp_version) = 0;
-	virtual void handle_closed(crofconn *conn) = 0;
-	virtual void handle_write(crofconn *conn) = 0;
-	virtual void recv_message(crofconn *conn, rofl::openflow::cofmsg *msg) = 0;
-	virtual uint32_t get_async_xid(crofconn *conn) = 0;
-	virtual uint32_t get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
-	virtual void release_sync_xid(crofconn *conn, uint32_t xid) = 0;
+
+	/**
+	 *
+	 */
+	static crofconn_env&
+	set_env(crofconn_env* env) {
+		if (crofconn_env::rofconn_envs.find(env) == crofconn_env::rofconn_envs.end()) {
+			throw eRofConnNotFound();
+		}
+		return *(env);
+	};
+
+	/**
+	 *
+	 */
+	static bool
+	has_env(crofconn_env* env) {
+		return (not (crofconn_env::rofconn_envs.find(env) == crofconn_env::rofconn_envs.end()));
+	};
+
+public:
+
+	/**
+	 *
+	 */
+	crofconn_env() {
+		crofconn_env::rofconn_envs.insert(this);
+	};
+
+	/**
+	 *
+	 */
+	virtual ~crofconn_env() {
+		crofconn_env::rofconn_envs.erase(this);
+	};
+
+protected:
+
+	friend class crofconn;
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_refused(crofconn& conn) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_failed(crofconn& conn) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connected(crofconn& conn, uint8_t ofp_version) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_closed(crofconn& conn) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_write(crofconn& conn) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	recv_message(crofconn& conn, rofl::openflow::cofmsg *msg) = 0;
+
+	/**
+	 *
+	 */
+	virtual uint32_t
+	get_async_xid(crofconn& conn) = 0;
+
+	/**
+	 *
+	 */
+	virtual uint32_t
+	get_sync_xid(crofconn& conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	release_sync_xid(crofconn& conn, uint32_t xid) = 0;
 };
 
 
+
+
+/**
+ * @ingroup common_devel_workflow
+ * @brief	A single OpenFlow control connection
+ */
 class crofconn :
 		public crofsock_env,
 		public ciosrv,
@@ -279,42 +376,42 @@ private:
 
 	virtual void
 	handle_connect_refused(
-			crofsock *rofsock) {
-		rofl::logging::warn << "[rofl-common][crofconn] transport connection: connect refused " << str() << std::endl;
+			crofsock& rofsock) {
+		rofl::logging::warn << "[rofl-common][crofconn] transport connection: connect refused " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
 	handle_connect_failed(
-			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection: connect failed " << str() << std::endl;
+			crofsock& rofsock) {
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection: connect failed " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
 	handle_connected (
-			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection established " << str() << std::endl;
+			crofsock& rofsock) {
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection established " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 	};
 
 	virtual void
 	handle_closed(
-			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << str() << std::endl;
+			crofsock& rofsock) {
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
 	};
 
 	virtual void
 	handle_write(
-			crofsock *rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection congested " << str() << std::endl;
+			crofsock& rofsock) {
+		rofl::logging::debug << "[rofl-common][crofconn] transport connection congested " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 
 	virtual void
 	recv_message(
-			crofsock *rofsock,
+			crofsock& rofsock,
 			rofl::openflow::cofmsg *msg);
 
 private:
@@ -324,6 +421,13 @@ private:
 	 */
 	void
 	handle_messages();
+
+	/**
+	 *
+	 */
+	void
+	send_message_to_env(
+			rofl::openflow::cofmsg* msg);
 
 	/**
 	 *
@@ -361,7 +465,7 @@ private:
 		} break;
 		case EVENT_CONGESTION_SOLVED: {
 			flags.reset(FLAGS_CONGESTED);
-			env->handle_write(this);
+			crofconn_env::set_env(env).handle_write(*this);
 		} break;
 		case EVENT_PEER_DISCONNECTED: {
 			flags.set(FLAGS_PEER_DISCONNECTED);

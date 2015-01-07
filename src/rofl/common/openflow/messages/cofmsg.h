@@ -18,7 +18,6 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
-#include "rofl/common/cvastring.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/cpacket.h"
 

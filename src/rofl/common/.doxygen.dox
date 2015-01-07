@@ -4,82 +4,93 @@
 *
 * @section doc Documentation
 *
-* @warning This documentation may not be up-to-date
-*
 * @subsection doc_intro Introduction
 *
 * @subsubsection doc_intro_what_is_it What is it?
 *
-* It helps you adding "OpenFlow":http://www.opennetworking.org support to your software to build 
-* control applications, controller frameworks, or data path elements. ROFL has served within a 
-* number of research projects around SDN/OpenFlow to study its applicability to carrier networks. 
-* Check out "OFELIA's":http://www.fp7-ofelia.eu website or the available information from project 
-* "SPARC":http://www.fp7-sparc.eu to read about some of the results and insights. Beyond producing 
-* papers and powerpoints, we made our hands dirty by developing a set of libraries and a tool box 
-* to build OpenFlow enabled software.
+* The Revised OpenFlow Library Common Part is a C++ library providing 
+* support for speaking the OpenFlow protocol as defined by the 
+* Open Networking Foundation (ONF) [1]. It aims towards multi-version
+* support including OpenFlow v1.0, v1.2 and v1.3. 
 *
-* _*Common*_ provides basic support for the OpenFlow protocol (protocol parsers, message mangling, 
-* etc.) and maps the protocol's wire representation to a set of C++ classes. It hides the nasty 
-* details of the protocol and provides a (hopefully) clean and easy to use API to software developers. 
-* We aim towards multi-version support under a common hood: currently, the core library supports 
-* OpenFlow 1.0 and "OpenFlow 1.2":https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.2.pdf. C
-* heck the "features list":http://www.roflibs.org to see the implementation status of various features. 
+* [1] http://www.opennetworking.org
 *
-* _*Datapath*_ contains building blocks for creating data path elements, most notably an OpenFlow pipeline for integration into hardware platforms, network processors, etc.
+* rofl-common provides basic support for the OpenFlow protocol (protocol 
+* parsers, message mangling, etc.) and maps the protocol's wire representation 
+* to a set of C++ classes. It hides the nasty details of the protocol and 
+* provides a simple-to-use API for adding OpenFlow endpoints to other software 
+* projects. rofl-common complements rofl-pipeline contains an OpenFlow v1.x 
+* compliant pipeline written in C. 
 *
 * @subsection doc_features Features
 *
 * - OpenFlow protocol library written in C++-98 (requires STL support)
-* - Seeking for supporting all features defined by "OpenFlow 1.2":https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.2.pdf 
+* - Seeking for supporting all features defined by OpenFlow v1.3.x 
 * - Supports management of multiple controller and data path entities in parallel
 * - OpenFlow session negotiation 
-* - Multi-version support (OpenFlow 1.0 and OpenFlow 1.2, OpenFlow 1.3 just around the corner ...)
+* - Multi-version support (OpenFlow v1.0, v1.2, v1.3)
 * - Ready-to-run I/O framework and event loop
 * - Full mapping of all OpenFlow's C structures into C++ classes
 * - Supports controller and data path role or may act in proxy mode
-* - Supports flowspace registration (experimental feature from project "SPARC":http://www.fp7-sparc.eu)
-* - OpenFlow 1.x compliant pipeline targeting ANSI-C as a nucleus for data path elements
 *
 * @subsection doc_license License
 *
-* All ROFL ingredients have been released under "Mozilla Public License 2.0":http://www.mozilla.org/MPL/2.0/.
+* All ROFL libraries have been released under "Mozilla Public License 2.0":http://www.mozilla.org/MPL/2.0/.
 *
 * @subsection doc_how_to_use_it How to use it, Documentation and Support
 *
 * The best source of information is this doxygen documentation you are currently reading.
+* The most up-to-date version can be found in the sources or under the following URL:
 *
-* There is work on a small *[[tutorial]]* ongoing to highlight some of the core concepts and that 
-* shows you how to build a simple controller application in a few minutes.
-* 
+* https://bisdn.github.io/rofl-core/rofl-common/index.html 
 *
-* If you find yourself with a bunch of unanswered questions after reading all available information here, 
-* feel free to send an e-mail to _rofl_ _(at)_ _bisdn.de_. We will try to help you and we have a huge number 
-* of the usual excuses (too busy, lots of projects running, too much administrative stuff to do, etc.) before 
-* generating an answer, so please be a little patient.
+* Use the <a href="https://bisdn.github.io/rofl-core/rofl-common/modules.html">Modules</a> page for details 
+* about rolf-common's internal architecture and how to use it.
 *
-* We would love to get a note from you if you intend to use ROFL in your project or if you need some help with 
-* implementing a new feature. Maybe it is already on our roadmap as well. Having said that, ROFL has been quite 
-* useful in a number of projects already, but we consider it still *alpha* software, i.e. there is a non-null 
-* probability to stumble across bugs. If you think you have found one (of course, this is impossible, but who 
-* knows), please send us a bug report to _rofl_ _(at)_ _bisdn.de_. 
+* just next to the documentation covering rofl-pipeline:
+*
+* https://bisdn.github.io/rofl-core/rofl-pipeline/index.html.
+*
+* If you find yourself with a bunch of unanswered questions after reading all 
+* available information here, feel free to send an e-mail to _rofl_ _(at)_ _bisdn.de_. 
+* We will try to help but the usual excuses apply to us as well (too busy, 
+* lots of projects running, lack of money, too much administrative stuff to do, etc.),
+* so please be patient.
+*
+* We highly appreciate to get a note from you if you intend to use ROFL in your project or 
+* if you need some help with implementing a new feature. Maybe it is already on our 
+* roadmap as well. Having said that, ROFL has been quite useful in a number of 
+* projects already, but we consider it still *alpha* software, i.e. there is a non-null 
+* probability to stumble across bugs. If you think you have found one (of course, this 
+* is impossible, but who knows), please send us a bug report to _rofl_ _(at)_ _bisdn.de_
+* or file a ticket under https://github.com/bisdn/rofl-core/issues. 
 * 
 * Many thanks!
 *
 * @subsection doc_build How to get it and Build Instructions
 *
-* You need one of the usual fairly modern Linux distributions. It works under Fedora and Debian, but should 
-* compile on other systems as well. You need a GNU build system ("autoconf":http://www.gnu.org/software/autoconf/, 
-* "automake":http://www.gnu.org/software/automake/, "libtool":http://www.gnu.org/software/libtool/, ...) for 
-* compiling the code. There is some support for a (rudimentary) command line available, which is based on 
-* "libCLI":https://github.com/dparrish/libcli, so you have to install its development files as well. 
+* You need one of the usual fairly modern Linux distributions. It works under Fedora 
+* and Debian, but should compile on other systems as well. You need a GNU build system 
+* (autoconf [2], automake [3], libtool [4], ...) for compiling the code. 
+* There is support for using the OpenSSL [5] library with rofl-common for 
+* encrypting plain sockets for the OpenFlow control channel, so you may want
+* this as well. Finally, CppUnit [6] is used for some unit tests if you want
+* to run make check. 
 *
-* WARNING! The libcli package included in most distributions (Debian based, RedHat based...) is outdated. 
-* Please download and install the library from here: "libCLI":https://github.com/dparrish/libcli
+* [2] <a href="http://www.gnu.org/software/autoconf/">autoconf</a>
+*
+* [3] <a href="http://www.gnu.org/software/automake/">automake</a>
+*
+* [4] <a href="http://www.gnu.org/software/libtool/">libtool</a>
+*
+* [5] <a href="https://www.openssl.org/">OpenSSL</a>
+*
+* [6] <a href="http://sourceforge.net/projects/cppunit/">CppUnit</a>
 * 
 * @subsubsection doc_build_step1 Step 1: Grab a copy of the source code.
 * 
 * @code
-sh# git clone git://codebasin.net/rofl-core.git
+sh# git clone https://github.com/bisdn/rofl-core.git
 * @endcode
 *
 * @subsubsection doc_build_step2 Step 2: Enter the rofl-core directory and call the autogen.sh script
@@ -115,11 +126,12 @@ sh# sudo make install
 *
 * @subsection doc_xdpd Extensible Data Path Daemon
 *
-* We have created a data path implementation on top of ROFL: the "extensible Data Path Daemon":http://www.xdpd.org.
+* We have created a data path implementation on top of ROFL: the "extensible Data Path Daemon".
 * 
 * xdpd is a modular framework for building your own data path seeking to help you in supporting various hardware platforms. 
 * 
-* More information can be found on the "xdpd project site":http://www.xdpd.org .
+* More information can be found on the <a href="http://www.xdpd.org">xdpd project site</a>
+* or at <a href="https://github.com/bisdn/xdpd">https://github.com/bisdn/xdpd</a>.
 *
 */
 
