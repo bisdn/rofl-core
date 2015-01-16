@@ -89,7 +89,7 @@ private:
 	 */
 	virtual void
 	handle_dpt_close(
-			rofl::crofdpt& dpt);
+			const rofl::cdptid& dptid);
 
 	/**
 	 * @brief	OpenFlow Packet-In message received.
@@ -167,8 +167,10 @@ public:
 			os << rofl::indent(0) << "<ethswitch dptid: " << sw.dptid << " >" << std::endl;
 		}
 		rofl::indent i(2);
-		os << cfibtable::set_fib(sw.dptid);
-		os << cflowtable::get_flowtable(sw.dptid);
+		try {
+			os << cfibtable::set_fib(sw.dptid);
+			os << cflowtable::get_flowtable(sw.dptid);
+		} catch (rofl::examples::ethswctld::exceptions::eFlowNotFound& e) {};
 		return os;
 	};
 

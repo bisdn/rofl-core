@@ -124,10 +124,11 @@ crofdpt::work_on_eventqueue()
 void
 crofdpt::event_connected()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] entering state -ofp-connected-" << std::endl;
 	switch (state) {
 	case STATE_INIT:
 	case STATE_DISCONNECTED: {
-		state = STATE_CONNECTED;
+		state = STATE_WAIT_FOR_FEATURES;
 		send_features_request(cauxid(0));
 		ports.set_version(rofchan.get_version());
 		tables.set_version(rofchan.get_version());
@@ -151,6 +152,8 @@ crofdpt::event_connected()
 void
 crofdpt::event_disconnected()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] entering state -ofp-disconnected-" << std::endl;
+	events.clear();
 	rofchan.close();
 	transactions.clear();
 	tables.clear();
@@ -165,6 +168,7 @@ crofdpt::event_disconnected()
 void
 crofdpt::event_conn_terminated()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -conn-terminated-" << std::endl;
 	rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_terminated.begin(); it != conns_terminated.end(); ++it) {
@@ -178,6 +182,7 @@ crofdpt::event_conn_terminated()
 void
 crofdpt::event_conn_refused()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -conn-refused-" << std::endl;
 	rofl::RwLock rwlock(conns_refused_rwlock, rofl::RwLock::RWLOCK_WRITE);
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_refused.begin(); it != conns_refused.end(); ++it) {
@@ -191,6 +196,7 @@ crofdpt::event_conn_refused()
 void
 crofdpt::event_conn_failed()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -conn-failed-" << std::endl;
 	rofl::RwLock rwlock(conns_failed_rwlock, rofl::RwLock::RWLOCK_WRITE);
 	for (std::list<rofl::cauxid>::iterator
 			it = conns_failed.begin(); it != conns_failed.end(); ++it) {
@@ -204,18 +210,17 @@ crofdpt::event_conn_failed()
 void
 crofdpt::event_features_reply_rcvd()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -features-reply-rcvd-" << std::endl;
 	switch (state) {
-	case STATE_CONNECTED: {
-		rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-				<< "Features-Reply rcvd, next state: -features-reply-rcvd-" << std::endl;
-		state = STATE_FEATURES_RCVD;
+	case STATE_WAIT_FOR_FEATURES: {
+		rofl::logging::debug << "[rofl-common][crofdpt] entering state -wait-for-get-config-" << std::endl;
+		state = STATE_WAIT_FOR_GET_CONFIG;
 		send_get_config_request(rofl::cauxid(0));
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing: Feature.requests may be sent by a derived class during state ESTABLISHED
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -FEATURES-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -226,17 +231,16 @@ void
 crofdpt::event_features_request_expired(
 		uint32_t xid)
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -features-request-expired-" << std::endl;
 	switch (state) {
-	case STATE_CONNECTED: {
+	case STATE_WAIT_FOR_FEATURES: {
 		//state = STATE_DISCONNECTED;
-		rofl::logging::error << "[rofl-common][crofdpt] event -FEATURES-REQUEST-EXPIRED- (connected -> disconnected)" << std::endl;
 		push_on_eventqueue(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 		call_env().handle_features_reply_timeout(*this, xid);
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -246,12 +250,12 @@ crofdpt::event_features_request_expired(
 void
 crofdpt::event_get_config_reply_rcvd()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -get-config-reply-rcvd-" << std::endl;
 	switch (state) {
-	case STATE_FEATURES_RCVD: {
+	case STATE_WAIT_FOR_GET_CONFIG: {
 		switch (rofchan.get_version()) {
 		case rofl::openflow10::OFP_VERSION: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Get-Config-Reply rcvd, next state: -established- " << std::endl;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -established-" << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
 			// send all postponed messages to higher layers
@@ -261,16 +265,14 @@ crofdpt::event_get_config_reply_rcvd()
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Get-Config-Reply rcvd, next state: -get-config-rcvd- " << std::endl;
-			state = STATE_GET_CONFIG_RCVD;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -wait-for-table-stats-" << std::endl;
+			state = STATE_WAIT_FOR_TABLE_STATS;
 			send_table_stats_request(rofl::cauxid(0));
 		} break;
 		case rofl::openflow13::OFP_VERSION:
 		default: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Get-Config-Reply rcvd, next state: -get-config-rcvd- " << std::endl;
-			state = STATE_GET_CONFIG_RCVD;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -wait-for-table-features-stats-" << std::endl;
+			state = STATE_WAIT_FOR_TABLE_FEATURES_STATS;
 			send_table_features_stats_request(rofl::cauxid(0), 0);
 		} break;
 		}
@@ -279,7 +281,6 @@ crofdpt::event_get_config_reply_rcvd()
 		// do nothing
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -290,17 +291,16 @@ void
 crofdpt::event_get_config_request_expired(
 		uint32_t xid)
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -get-config-request-expired-" << std::endl;
 	switch (state) {
-	case STATE_FEATURES_RCVD: {
+	case STATE_WAIT_FOR_GET_CONFIG: {
 		transactions.clear();
-		rofl::logging::error << "[rofl-common][crofdpt] event -GET-CONFIG-REQUEST-EXPIRED- (features-rcvd -> disconnected) " << str() << std::endl;
 		push_on_eventqueue(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 		call_env().handle_get_config_reply_timeout(*this, xid);
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -310,12 +310,12 @@ crofdpt::event_get_config_request_expired(
 void
 crofdpt::event_table_stats_reply_rcvd()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -get-table-stats-reply-rcvd-" << std::endl;
 	switch (state) {
-	case STATE_GET_CONFIG_RCVD: {
+	case STATE_WAIT_FOR_TABLE_STATS: {
 		switch (rofchan.get_version()) {
 		case rofl::openflow12::OFP_VERSION: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Table-Stats-Reply rcvd, next state: -established- " << std::endl;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -established-" << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
 			// send all postponed messages to higher layers
@@ -333,7 +333,6 @@ crofdpt::event_table_stats_reply_rcvd()
 		// do nothing
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-STATS-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -344,11 +343,11 @@ void
 crofdpt::event_table_stats_request_expired(
 		uint32_t xid)
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -table-stats-request-expired-" << std::endl;
 	switch (state) {
-	case STATE_GET_CONFIG_RCVD: {
+	case STATE_WAIT_FOR_TABLE_STATS: {
 		transactions.clear();
 		//state = STATE_DISCONNECTED;
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-STATS-REQUEST-EXPIRED- (get-config-rcvd -> disconnected)" << std::endl << *this;
 		push_on_eventqueue(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
@@ -356,7 +355,6 @@ crofdpt::event_table_stats_request_expired(
 		call_env().handle_table_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-STATS-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -365,13 +363,13 @@ crofdpt::event_table_stats_request_expired(
 void
 crofdpt::event_table_features_stats_reply_rcvd()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -get-table-features-stats-reply-rcvd-" << std::endl;
 	switch (state) {
-	case STATE_GET_CONFIG_RCVD: {
+	case STATE_WAIT_FOR_TABLE_FEATURES_STATS: {
 		switch (rofchan.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Table-Features-Stats-Reply rcvd, next state: -table-features-rcvd- " << std::endl;
-			state = STATE_TABLE_FEATURES_RCVD;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -wait-for-port-desc-stats-" << std::endl;
+			state = STATE_WAIT_FOR_PORT_DESC_STATS;
 			send_port_desc_stats_request(rofl::cauxid(0), 0);
 		} break;
 		default: {
@@ -383,7 +381,6 @@ crofdpt::event_table_features_stats_reply_rcvd()
 		// do nothing
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-FEATURES-STATS-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -394,10 +391,10 @@ void
 crofdpt::event_table_features_stats_request_expired(
 		uint32_t xid)
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -table-features-stats-request-expired-" << std::endl;
 	switch (state) {
-	case STATE_GET_CONFIG_RCVD: {
+	case STATE_WAIT_FOR_TABLE_FEATURES_STATS: {
 		transactions.clear();
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-FEATURES-STATS-REQUEST-EXPIRED- (get-config-rcvd -> disconnected)" << std::endl << *this;
 		push_on_eventqueue(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
@@ -405,7 +402,6 @@ crofdpt::event_table_features_stats_request_expired(
 		call_env().handle_table_features_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -TABLE-FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -415,13 +411,13 @@ crofdpt::event_table_features_stats_request_expired(
 void
 crofdpt::event_port_desc_reply_rcvd()
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -get-port-desc-stats-reply-rcvd-" << std::endl;
 	switch (state) {
-	case STATE_TABLE_FEATURES_RCVD: {
+	case STATE_WAIT_FOR_PORT_DESC_STATS: {
 		switch (rofchan.get_version()) {
 		case rofl::openflow13::OFP_VERSION:
 		default: {
-			rofl::logging::debug << "[rofl-common][crofdpt] " << str()
-							<< "Port-Desc-Stats-Reply rcvd, next state: -established- " << std::endl;
+			rofl::logging::debug << "[rofl-common][crofdpt] entering state -established-" << std::endl;
 			state = STATE_ESTABLISHED;
 			call_env().handle_chan_established(*this);
 			// send all postponed messages to higher layers
@@ -436,7 +432,6 @@ crofdpt::event_port_desc_reply_rcvd()
 		// do nothing
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -PORT-DESC-STATS-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -447,17 +442,16 @@ void
 crofdpt::event_port_desc_request_expired(
 		uint32_t xid)
 {
+	rofl::logging::debug << "[rofl-common][crofdpt] rcvd event -port-desc-request-expired-" << std::endl;
 	switch (state) {
-	case STATE_TABLE_FEATURES_RCVD: {
+	case STATE_WAIT_FOR_PORT_DESC_STATS: {
 		transactions.clear();
-		rofl::logging::error << "[rofl-common][crofdpt] event -PORT-DESC-STATS-REQUEST-EXPIRED- (table-features-rcvd -> disconnected)" << std::endl << *this;
 		push_on_eventqueue(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 		call_env().handle_port_desc_stats_reply_timeout(*this, xid);
 	} break;
 	default: {
-		rofl::logging::error << "[rofl-common][crofdpt] event -PORT-DESC-STATS-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -2117,7 +2111,7 @@ crofdpt::desc_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_desc_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_desc_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
 			<< " rcvd Desc-Stats-Reply: " << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
@@ -2135,7 +2129,7 @@ crofdpt::table_stats_reply_rcvd(
 {
 	rofl::openflow::cofmsg_table_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_table_stats_reply&>( *msg );
 
-	rofl::logging::debug << "[rofl-common][crofdpt] dpid:" << get_dpid().str()
+	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << get_dpid().str()
 			<< " rcvd Table-Stats-Reply: " << reply.str() << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
@@ -2358,7 +2352,7 @@ crofdpt::port_desc_stats_reply_rcvd(
 	rofl::openflow::cofmsg_port_desc_stats_reply& reply = dynamic_cast<rofl::openflow::cofmsg_port_desc_stats_reply&>( *msg );
 
 	rofl::logging::debug2 << "[rofl-common][crofdpt] dpid:" << std::hex << get_dpid().str() << std::dec
-			<< " Port-Desc-Stats-Reply message received" << std::endl;
+			<< " rcvd Port-Desc-Stats-Reply: " << reply.str() << std::endl;
 
 	ports = reply.get_ports();
 

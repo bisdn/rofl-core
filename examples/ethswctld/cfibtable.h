@@ -328,10 +328,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibtable const& fib) {
 		try {
-			os << rofl::indent(0) << "<cfibtable dpid:" << "dpid: "
+			os << rofl::indent(0) << "<cfibtable dpid: "
 					<< rofl::crofdpt::get_dpt(fib.dptid).get_dpid().str() << " >" << std::endl;
 		} catch (rofl::eRofDptNotFound& e) {
-			os << rofl::indent(0) << "<cfibtable dptid:" << "dpid: " << fib.dptid << " >" << std::endl;
+			os << rofl::indent(0) << "<cfibtable dptid:" << fib.dptid.str() << " >" << std::endl;
 		}
 		rofl::indent i(2);
 		for (std::map<rofl::caddress_ll, cfibentry*>::const_iterator

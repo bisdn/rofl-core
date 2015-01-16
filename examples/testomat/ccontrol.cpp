@@ -36,9 +36,9 @@ ccontrol::handle_dpt_open(
 
 void
 ccontrol::handle_dpt_close(
-		rofl::crofdpt& dpt)
+		const rofl::cdptid& dptid)
 {
-	std::cout << "[ccontrol] dpt close, dpid: " << dpt.get_dpid() << std::endl;
+	std::cout << "[ccontrol] dpt close, dpid: " << dptid << std::endl;
 }
 
 

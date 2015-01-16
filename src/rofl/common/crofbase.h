@@ -766,9 +766,9 @@ protected:
 	 */
 	virtual void
 	handle_dpt_close(
-			rofl::crofdpt& dpt) {
+			const rofl::cdptid& dptid) {
 		rofl::logging::info << "[rofl-common][crofbase] "
-				<< "dptid: " << dpt.get_dptid().str() << " "
+				<< "dptid: " << dptid.str() << " "
 				<< "control channel terminated " << std::endl;
 	};
 
@@ -905,9 +905,9 @@ protected:
 	 */
 	virtual void
 	handle_ctl_close(
-			rofl::crofctl& ctl) {
+			const rofl::cctlid& ctlid) {
 		rofl::logging::info << "[rofl-common][crofbase] "
-				<< "ctlid: " << ctl.get_ctlid().str() << " "
+				<< "ctlid: " << ctlid.str() << " "
 				<< "control channel terminated " << std::endl;
 	};
 
@@ -2436,19 +2436,6 @@ private:
 
 private:
 
-	enum crofbase_event_t {
-		EVENT_NONE         = 0,
-		EVENT_CTL_DETACHED = 1,
-		EVENT_DPT_DETACHED = 2,
-	};
-
-	enum crofbase_timer_t {
-		TIMER_NONE         = 0,
-		TIMER_RUN_ENGINE   = 1,
-	};
-
-private:
-
 	bool
 	is_dpt_listening(
 			csocket& socket) const {
@@ -2497,104 +2484,34 @@ private:
 
 	virtual void
 	handle_chan_established(
-			crofdpt& dpt) {
-		handle_dpt_open(dpt);
-	};
+			crofdpt& dpt)
+	{ handle_dpt_open(dpt); };
 
 	virtual void
 	handle_chan_terminated(
 			crofdpt& dpt) {
+		rofl::cdptid dptid = dpt.get_dptid();
 		// destroy crofdpt object, when is was created upon an incoming connection from a peer entity
 		if (dpt.remove_on_channel_termination()) {
-			dpts_detached.insert(dpt.get_dptid());
-			push_on_eventqueue(EVENT_DPT_DETACHED);
-		} else {
-			handle_dpt_close(dpt);
+			drop_dpt(dptid);
 		}
+		handle_dpt_close(dptid);
 	};
 
 	virtual void
 	handle_chan_established(
-			crofctl& ctl) {
-		handle_ctl_open(ctl);
-	};
+			crofctl& ctl)
+	{ handle_ctl_open(ctl); };
 
 	virtual void
 	handle_chan_terminated(
 			crofctl& ctl) {
+		rofl::cctlid ctlid = ctl.get_ctlid();
 		// destroy crofctl object, when is was created upon an incoming connection from a peer entity
 		if (ctl.remove_on_channel_termination()) {
-			ctls_detached.insert(ctl.get_ctlid());
-			push_on_eventqueue(EVENT_CTL_DETACHED);
-		} else {
-			handle_ctl_close(ctl);
+			drop_ctl(ctlid);
 		}
-	};
-
-	virtual void
-	handle_timeout(
-			int opaque,
-			void* data = (void*)0) {
-		switch (opaque) {
-		case TIMER_RUN_ENGINE: {
-			work_on_eventqueue();
-		} break;
-		default: {
-			// do nothing
-		};
-		}
-	};
-
-	void
-	push_on_eventqueue(
-			enum crofbase_event_t event = EVENT_NONE) {
-		if (EVENT_NONE != event) {
-			eventqueue.push_back(event);
-		}
-		register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(/*second(s)=*/0));
-	};
-
-	void
-	work_on_eventqueue() {
-		while (not eventqueue.empty()) {
-			crofbase_event_t event = eventqueue.front();
-			eventqueue.pop_front();
-			switch (event) {
-			case EVENT_CTL_DETACHED: {
-				event_ctls_detached();
-			} break;
-			case EVENT_DPT_DETACHED: {
-				event_dpts_detached();
-			} break;
-			default: {
-				// do nothing for unknown event types
-			};
-			}
-		}
-	};
-
-	void
-	event_ctls_detached() {
-		for (std::set<rofl::cctlid>::iterator
-				it = ctls_detached.begin(); it != ctls_detached.end(); ++it) {
-			handle_ctl_close(rofl::crofctl::get_ctl(*it));
-			rofl::logging::info << "[rofl-common][crofbase] "
-					<< "dropping crofctl instance, ctlid:" << it->str() << std::endl;
-			drop_ctl(*it);
-		}
-		ctls_detached.clear();
-	};
-
-	void
-	event_dpts_detached() {
-		for (std::set<rofl::cdptid>::iterator
-				it = dpts_detached.begin(); it != dpts_detached.end(); ++it) {
-			handle_dpt_close(rofl::crofdpt::get_dpt(*it));
-			rofl::logging::info << "[rofl-common][crofbase] "
-					<< "dropping crofdpt instance, dptid:" << it->str() << std::endl;
-			drop_dpt(*it);
-		}
-		dpts_detached.clear();
+		handle_ctl_close(ctlid);
 	};
 
 private:
@@ -2621,13 +2538,8 @@ private:
 	bool							generation_is_defined;
 	// cached generation_id as defined by OpenFlow
 	uint64_t						cached_generation_id;
-	// event-queue
-	std::list<enum crofbase_event_t>
-									eventqueue;
-	// ephemeral set of crofdpt instances in detached state
-	std::set<rofl::cdptid>			dpts_detached;
-	// ephemeral set of crofctl instances in detached state
-	std::set<rofl::cctlid>			ctls_detached;
+
+	std::bitset<32>					flags;
 };
 
 }; // end of namespace

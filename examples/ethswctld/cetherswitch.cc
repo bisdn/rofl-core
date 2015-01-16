@@ -66,10 +66,6 @@ cetherswitch::cetherswitch(
 		dump_fib_interval(DUMP_FIB_DEFAULT_INTERVAL),
 		get_flow_stats_interval(GET_FLOW_STATS_DEFAULT_INTERVAL)
 {
-	// register timer for dumping ethswitch's internal state
-	timer_id_dump_fib =
-			register_timer(TIMER_DUMP_FIB,
-					rofl::ctimespec(dump_fib_interval));
 }
 
 
@@ -125,6 +121,8 @@ cetherswitch::handle_timeout(int opaque, void* data)
 
 	} catch (rofl::eRofDptNotFound& e) {
 		// datapath with internal identifier dptid not found
+	} catch (rofl::eRofBaseNotConnected& e) {
+
 	}
 }
 
@@ -137,6 +135,11 @@ void
 cetherswitch::handle_dpt_open(
 		rofl::crofdpt& dpt)
 {
+	// register timer for dumping ethswitch's internal state
+	timer_id_dump_fib =
+			register_timer(TIMER_DUMP_FIB,
+					rofl::ctimespec(dump_fib_interval));
+
 	// start periodic timer for querying datapath for all flow table entries
 	timer_id_get_flow_stats =
 			rofl::ciosrv::register_timer(TIMER_GET_FLOW_STATS,
@@ -147,8 +150,8 @@ cetherswitch::handle_dpt_open(
 	//New connection => cleanup the RIB by re-creating the FIB table
 	cfibtable::add_fib(dpt.get_dptid());
 
-	rofl::logging::info << "[cetherswitch] datapath attached, dpid: "
-			<< dpt.get_dpid().str() << std::endl
+	rofl::logging::info << "[cetherswitch] datapath attached, dptid: "
+			<< dpt.get_dptid().str() << std::endl
 			<< cfibtable::get_fib(dpt.get_dptid());
 
 	//Remove all flows in the table
@@ -189,15 +192,17 @@ cetherswitch::handle_dpt_open(
 
 void
 cetherswitch::handle_dpt_close(
-		rofl::crofdpt& dpt)
+		const rofl::cdptid& dptid)
 {
+	rofl::ciosrv::cancel_timer(timer_id_dump_fib);
+
 	rofl::ciosrv::cancel_timer(timer_id_get_flow_stats);
 
-	rofl::logging::info << "[cetherswitch] datapath detached, dpid: "
-			<< dpt.get_dpid().str() << std::endl
-			<< cfibtable::get_fib(dpt.get_dptid());
+	rofl::logging::info << "[cetherswitch] datapath detached, dptid: "
+			<< dptid.str() << std::endl
+			<< cfibtable::get_fib(dptid);
 
-	cfibtable::drop_fib(dpt.get_dptid());
+	cfibtable::drop_fib(dptid);
 }
 
 

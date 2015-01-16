@@ -218,20 +218,28 @@ cioloop::run_loop()
 			}
 		}
 
+		rofl::logging::trace << "[rofl-common][cioloop][run] urgent timers and events:" << std::endl << *this;
 
 		std::pair<ciosrv*, ctimespec> next_timeout(NULL, ctimespec(60));
-		{
+		while (true) {
 			std::map<ciosrv*, int> urgent;
 			{
 				RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 				for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+#ifndef NDEBUG
+					try {
+						rofl::logging::trace << "[rofl-common][ciosrv][loop] registered timer:" << std::endl << (*it).first->get_next_timer();
+					} catch (eTimersNotFound& e) {}
+#endif
 					try {
 						ctimer timer((*it).first->get_next_timer());
 
 						if ((*it).first->get_next_timer().get_timespec() < ctimespec::now()) {
-							//logging::debug << "[rofl-common][ciosrv][loop] timer:" << (*it).first->get_next_timer();
-							//logging::debug << "[rofl-common][ciosrv][loop]   now:" << ctimer::now();
-							//logging::debug << "[rofl-common][ciosrv][loop] delta:" << timer;
+#ifndef NDEBUG
+							rofl::logging::trace << "[rofl-common][ciosrv][loop] timer:" << std::endl << (*it).first->get_next_timer();
+							rofl::logging::trace << "[rofl-common][ciosrv][loop]   now:" << std::endl << ctimer::now();
+							rofl::logging::trace << "[rofl-common][ciosrv][loop] delta:" << std::endl << timer;
+#endif
 							//(*it).first->handle_timeout(timer.get_opaque());
 							urgent[(*it).first] = timer.get_opaque();
 							continue;
@@ -254,6 +262,11 @@ cioloop::run_loop()
 					}
 				}
 				(*it).first->__handle_timeout();
+
+			}
+
+			if (urgent.empty()) {
+				break;
 			}
 		}
 
