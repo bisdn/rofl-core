@@ -353,7 +353,9 @@ public:
 		std::stringstream ss;
 		ss << "-Features-Reply- " << cofmsg::str() << " ";
 		ss << "dpid: " << cdpid(get_dpid()).str() << ", ";
-		ss << "auxid: " << cauxid(get_auxiliary_id()).str() << ", ";
+		if (get_version() >= rofl::openflow13::OFP_VERSION) {
+			ss << "auxid: " << cauxid(get_auxiliary_id()).str() << ", ";
+		}
 		ss << "#buffers: " << (int)get_n_buffers() << ", ";
 		ss << "#tables: " << (int)get_n_tables() << " ";
 		return ss.str();
