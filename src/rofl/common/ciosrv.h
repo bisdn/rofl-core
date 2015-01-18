@@ -58,6 +58,7 @@ public:
 		if (0 == tid) {
 			tid = pthread_self();
 		}
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			cioloop::threads[tid] = new cioloop(tid);
 		}
@@ -69,6 +70,7 @@ public:
 	 */
 	static void
 	drop_loop(pthread_t tid) {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
 		}
@@ -91,6 +93,7 @@ public:
 	 */
 	void
 	stop() {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
 		}
@@ -121,6 +124,7 @@ public:
 	 */
 	void
 	shutdown() {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
 		for (std::map<pthread_t, cioloop*>::iterator
 				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
 			delete it->second;
@@ -569,7 +573,7 @@ public:
 	void
 	notify(const cevent& event) {
 		events.add_event(event);
-		cioloop::get_loop(get_thread_id()).has_event(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_event(this);
 	};
 
 	/**
@@ -673,7 +677,7 @@ protected:
 	register_filedesc_r(int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.insert(fd);
-		cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
 	};
 
 	/**
@@ -685,7 +689,7 @@ protected:
 	deregister_filedesc_r(int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.erase(fd);
-		cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
 	};
 
 	/**
@@ -699,7 +703,7 @@ protected:
 	register_filedesc_w(int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.insert(fd);
-		cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
 	};
 
 	/**
@@ -711,7 +715,7 @@ protected:
 	deregister_filedesc_w(int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.erase(fd);
-		cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
 	};
 
 	/**@}*/
@@ -890,10 +894,6 @@ private:
 	ctimers							timers; // has its own locking
 	cevents							events; // has its own locking
 };
-
-
-
-
 
 }; // end of namespace
 
