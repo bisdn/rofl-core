@@ -143,6 +143,35 @@ protected:
 	 *
 	 */
 	void
+	register_ciosrv(ciosrv* elem) {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
+		ciolist.insert(elem);
+		wakeup();
+	};
+
+	/**
+	 *
+	 */
+	void
+	deregister_ciosrv(ciosrv* elem) {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
+		ciolist.erase(elem);
+		wakeup();
+	};
+
+	/**
+	 *
+	 */
+	bool
+	has_ciosrv(ciosrv* elem) const {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_READ);
+		return (not (ciolist.find(elem) == ciolist.end()));
+	};
+
+	/**
+	 *
+	 */
+	void
 	add_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
@@ -402,9 +431,11 @@ public:
 
 private:
 
-	static PthreadRwLock 					threads_rwlock;
 	static std::map<pthread_t, cioloop*> 	threads;
+	static PthreadRwLock 					threads_rwlock;
 
+	std::set<ciosrv*> 						ciolist;
+	mutable PthreadRwLock 					ciolist_rwlock;
 	std::vector<ciosrv*>					rfds;
 	mutable PthreadRwLock					rfds_rwlock;
 	std::vector<ciosrv*>					wfds;
@@ -495,7 +526,8 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(pthread_t tid = 0);
+	ciosrv(
+			pthread_t tid = 0);
 
 	/**
 	 * @brief	Deallocates resources for this ciosrv object.
@@ -506,13 +538,21 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(const ciosrv& iosrv);
+	ciosrv(
+			const ciosrv& svc)
+	{ *this = svc; };
 
 	/**
 	 *
 	 */
 	ciosrv&
-	operator= (const ciosrv& iosrv);
+	operator= (
+			const ciosrv& svc) {
+		if (this == &svc)
+			return *this;
+		throw eNotImplemented();
+		return *this;
+	};
 
 public:
 
@@ -839,9 +879,6 @@ public:
 	};
 
 private:
-
-	static PthreadRwLock 			ciolist_rwlock;
-	static std::set<ciosrv*> 		ciolist;
 
 	pthread_t						tid;
 	std::set<int>					rfds;

@@ -21,69 +21,36 @@ void sighandler(int sig)
 }
 #endif
 
-PthreadRwLock 					ciosrv::ciolist_rwlock;
-std::set<ciosrv*> 				ciosrv::ciolist;
-
 PthreadRwLock 					cioloop::threads_rwlock;
 std::map<pthread_t, cioloop*> 	cioloop::threads;
 
 
-ciosrv::ciosrv(pthread_t tid) :
-		tid(tid)
+ciosrv::ciosrv(
+		pthread_t tid) :
+				tid(tid)
 {
 	if (0 == tid) {
 		this->tid = pthread_self();
 	}
-	RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
-	ciosrv::ciolist.insert(this);
-	if (tid != pthread_self()) {
-		notify(cevent());
-	}
-	//rofl::logging::debug << "[rofl-common][ciosrv] constructor " << std::hex << this << std::dec << std::endl;
+	rofl::cioloop::get_loop(get_thread_id()).register_ciosrv(this);
 }
 
 
 ciosrv::~ciosrv()
 {
-	//rofl::logging::debug << "[rofl-common][ciosrv] destructor " << std::hex << this << std::dec << std::endl;
-	{
-		RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_WRITE);
-		ciosrv::ciolist.erase(this);
-	}
-	//logging::debug << "[rofl-common][ciosrv][destructor] -1-" << std::endl << *this;
-	//logging::debug << "[rofl-common][ciosrv][destructor] -1-" << std::endl << cioloop::get_loop();
-
 	timers.clear();
 	events.clear();
-	cioloop::get_loop().has_no_timer(this);
-	cioloop::get_loop().has_no_event(this);
-	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
-		cioloop::get_loop().drop_readfd(this, (*it));
+	rofl::cioloop::get_loop(get_thread_id()).has_no_timer(this);
+	rofl::cioloop::get_loop(get_thread_id()).has_no_event(this);
+	for (std::set<int>::iterator
+			it = rfds.begin(); it != rfds.end(); ++it) {
+		rofl::cioloop::get_loop(get_thread_id()).drop_readfd(this, (*it));
 	}
-	for (std::set<int>::iterator it = wfds.begin(); it != wfds.end(); ++it) {
-		cioloop::get_loop().drop_writefd(this, (*it));
+	for (std::set<int>::iterator
+			it = wfds.begin(); it != wfds.end(); ++it) {
+		rofl::cioloop::get_loop(get_thread_id()).drop_writefd(this, (*it));
 	}
-
-	//logging::debug << "[rofl-common][ciosrv][destructor] -2-" << std::endl << *this;
-	//logging::debug << "[rofl-common][ciosrv][destructor] -2-" << std::endl << cioloop::get_loop();
-}
-
-
-ciosrv::ciosrv(ciosrv const& iosrv)
-{
-	*this = iosrv;
-}
-
-
-ciosrv&
-ciosrv::operator= (ciosrv const& iosrv)
-{
-	if (this == &iosrv)
-		return *this;
-
-	throw eNotImplemented();
-
-	return *this;
+	rofl::cioloop::get_loop(get_thread_id()).deregister_ciosrv(this);
 }
 
 
@@ -93,29 +60,23 @@ ciosrv::__handle_event()
 {
 	try {
 
-		{
-			RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-				logging::trace << "[rofl-common][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
-				return;
-			}
+		if (not rofl::cioloop::get_loop(get_thread_id()).has_ciosrv(this)) {
+			rofl::logging::trace << "[rofl-common][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+			return;
 		}
-		logging::trace << "[rofl-common][ciosrv][event] entering event loop:" << std::endl << *this;
+		rofl::logging::trace << "[rofl-common][ciosrv][event] entering event loop:" << std::endl << *this;
 
 		cevents clone = events; events.clear();
 
 		while (not clone.empty()) {
-			logging::trace << "[rofl-common][ciosrv][event] inside event loop:" << std::endl << clone;
-			{
-				RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-					logging::trace << "[rofl-common][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
-					return;
-				}
+			rofl::logging::trace << "[rofl-common][ciosrv][event] inside event loop:" << std::endl << clone;
+			if (not rofl::cioloop::get_loop(get_thread_id()).has_ciosrv(this)) {
+				rofl::logging::trace << "[rofl-common][ciosrv][event] ciosrv instance deleted, returning from event loop" << std::endl;
+				return;
 			}
 			handle_event(clone.get_event());
 		}
-		logging::trace << "[rofl-common][ciosrv][event] leaving event loop:" << std::endl << clone;
+		rofl::logging::trace << "[rofl-common][ciosrv][event] leaving event loop:" << std::endl << clone;
 
 	} catch (eEventsNotFound& e) {
 		// do nothing
@@ -186,8 +147,6 @@ cioloop::run_loop()
 		unsigned int maxfd = 0;
 		int rc = 0;
 
-		//logging::error << "[rofl-common][ciosrv][loop] minrfd:" << minrfd << " maxrfd:" << maxrfd << " minwfd:" << minwfd << " maxwfd:" << maxwfd << std::endl << *this;
-
 		FD_ZERO(&exceptfds);
 
 		FD_ZERO(&readfds);
@@ -225,7 +184,10 @@ cioloop::run_loop()
 			std::map<ciosrv*, int> urgent;
 			{
 				RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
-				for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+				for (std::map<ciosrv*, bool>::iterator
+						it = timers.begin(); it != timers.end(); ++it) {
+					if (not has_ciosrv(it->first))
+						continue;
 #ifndef NDEBUG
 					try {
 						rofl::logging::trace << "[rofl-common][ciosrv][loop] registered timer:" << std::endl << (*it).first->get_next_timer();
@@ -254,15 +216,11 @@ cioloop::run_loop()
 				}
 			}
 			// conduct urgent timeouts (those with a timer expired before ctimer::now())
-			for (std::map<ciosrv*, int>::iterator it = urgent.begin(); it != urgent.end(); ++it) {
-				{
-					RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-					if (ciosrv::ciolist.find(it->first) == ciosrv::ciolist.end()) {
-						continue;
-					}
-				}
+			for (std::map<ciosrv*, int>::iterator
+					it = urgent.begin(); it != urgent.end(); ++it) {
+				if (not has_ciosrv(it->first))
+					continue;
 				(*it).first->__handle_timeout();
-
 			}
 
 			if (urgent.empty()) {
@@ -294,98 +252,80 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			if ((NULL != next_timeout.first)) {
-				{
-					RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-					if (ciosrv::ciolist.find(next_timeout.first) == ciosrv::ciolist.end()) {
-						continue;
-					}
-				}
-				rofl::logging::trace << "[rofl-common][cioloop][run] timeout event: " << next_timeout.first << std::endl;
+			if ((NULL != next_timeout.first) && has_ciosrv(next_timeout.first)) {
+				rofl::logging::trace << "[rofl-common][cioloop][run] timeout event: "
+						<< next_timeout.first << std::endl;
 				next_timeout.first->__handle_timeout();
 			}
 
 		} else { // rc > 0
 			try {
 
+				// exceptions
 				for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {
 					if (FD_ISSET(i, &exceptfds)) {
-						if(NULL != rfds[i]) {
-							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: " << std::hex << rfds[i] << std::dec << std::endl;
-							{
-								RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-								if (ciosrv::ciolist.find(rfds[i]) == ciosrv::ciolist.end()) {
-									continue;
-								}
-							}
+						if ((NULL != rfds[i]) && has_ciosrv(rfds[i])) {
+							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
+									<< std::hex << rfds[i] << std::dec << std::endl;
 							rfds[i]->handle_xevent(i);
-						} else if (NULL != wfds[i]) {
-							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: " << std::hex << rfds[i] << std::dec << std::endl;
-							{
-								RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-								if (ciosrv::ciolist.find(wfds[i]) == ciosrv::ciolist.end()) {
-									continue;
-								}
-							}
+						} else
+						if ((NULL != wfds[i]) && has_ciosrv(wfds[i])) {
+							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
+									<< std::hex << rfds[i] << std::dec << std::endl;
 							wfds[i]->handle_xevent(i);
 						}
-
 					}
 				}
 
+				// write events
 				for (unsigned int i = minwfd; i < maxwfd; i++) {
-					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for wfds: " << std::hex << wfds[i] << std::dec << std::endl;
-						{
-							RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-							if (ciosrv::ciolist.find(wfds[i]) == ciosrv::ciolist.end()) {
-								continue;
-							}
-						}
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for readfds before handle_wevent" << std::endl << *this;
+					if (FD_ISSET(i, &writefds) && (NULL != wfds[i]) && has_ciosrv(wfds[i])) {
+						rofl::logging::trace << "[rofl-common][cioloop][run] checking for wfds: "
+								<< std::hex << wfds[i] << std::dec << std::endl;
 						wfds[i]->handle_wevent(i);
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for readfds after handle_wevent" << std::endl << *this;
 					}
 				}
 
+				// read events
 				for (unsigned int i = minrfd; i < maxrfd; i++) {
-					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for rfds: " << std::hex << rfds[i] << std::dec << std::endl;
-						{
-							RwLock lock(ciosrv::ciolist_rwlock, RwLock::RWLOCK_READ);
-							if (ciosrv::ciolist.find(rfds[i]) == ciosrv::ciolist.end()) {
-								continue;
-							}
-						}
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for readfds before handle_revent" << std::endl << *this;
+					if (FD_ISSET(i, &readfds) && (NULL != rfds[i]) && has_ciosrv(rfds[i])) {
+						rofl::logging::trace << "[rofl-common][cioloop][run] checking for rfds: "
+								<< std::hex << rfds[i] << std::dec << std::endl;
 						rfds[i]->__handle_revent(i);
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for readfds after handle_revent" << std::endl << *this;
 					}
 				}
 
+				// pipe
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
-					logging::trace << "[rofl-common][cioloop][run] entering event loop:" << std::endl << *this;
+					rofl::logging::trace << "[rofl-common][cioloop][run] entering event loop:"
+							<< std::endl << *this;
 					pipe.recvmsg();
 
 					std::map<ciosrv*, bool> clone;
 					{
 						RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
-						for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+						for (std::map<ciosrv*, bool>::iterator
+								it = events.begin(); it != events.end(); ++it) {
 							clone[it->first] = it->second;
 						}
 					}
-					for (std::map<ciosrv*, bool>::iterator it = clone.begin(); it != clone.end(); ++it) {
+					for (std::map<ciosrv*, bool>::iterator
+							it = clone.begin(); it != clone.end(); ++it) {
 						cioloop::get_loop().has_no_event(it->first);
+						if (not has_ciosrv(it->first))
+							continue;
 						it->first->__handle_event();
 					}
 				}
 
 			} catch (rofl::RoflException& e) {
-				rofl::logging::error << "[rofl-common][cioloop][run] caught RoflException in main loop: " << e.what() << std::endl;
+				rofl::logging::error << "[rofl-common][cioloop][run] caught "
+						<< "RoflException in main loop: " << e.what() << std::endl;
 				rofl::indent::null();
 
 			} catch (std::exception& e) {
-				rofl::logging::error << "[rofl-common][cioloop][run] caught std::exception in main loop: " << e.what() << std::endl;
+				rofl::logging::error << "[rofl-common][cioloop][run] caught "
+						<< "std::exception in main loop: " << e.what() << std::endl;
 				rofl::indent::null();
 				keep_on_running = false;
 				throw;
@@ -396,7 +336,8 @@ cioloop::run_loop()
 		if (true) {
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 restartT:
-			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+			for (std::map<ciosrv*, bool>::iterator
+					it = timers.begin(); it != timers.end(); ++it) {
 				if ((*it).second == false) {
 					timers.erase(it);
 					goto restartT;
@@ -408,7 +349,8 @@ restartT:
 		if (true) {
 			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 restartE:
-			for (std::map<ciosrv*, bool>::iterator it = events.begin(); it != events.end(); ++it) {
+			for (std::map<ciosrv*, bool>::iterator
+					it = events.begin(); it != events.end(); ++it) {
 				if ((*it).second == false) {
 					events.erase(it);
 					goto restartE;
