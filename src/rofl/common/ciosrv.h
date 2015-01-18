@@ -671,6 +671,7 @@ protected:
 	 */
 	void
 	register_filedesc_r(int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.insert(fd);
 		cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
 	};
@@ -682,6 +683,7 @@ protected:
 	 */
 	void
 	deregister_filedesc_r(int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.erase(fd);
 		cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
 	};
@@ -695,6 +697,7 @@ protected:
 	 */
 	void
 	register_filedesc_w(int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.insert(fd);
 		cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
 	};
@@ -706,6 +709,7 @@ protected:
 	 */
 	void
 	deregister_filedesc_w(int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.erase(fd);
 		cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
 	};
@@ -737,8 +741,7 @@ protected:
 	 */
 	const rofl::ctimerid&
 	register_timer(int opaque, const rofl::ctimespec& timespec) {
-		if (timers.empty() || (get_thread_id() != pthread_self()))
-			cioloop::get_loop().has_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_timer(this);
 		return timers.add_timer(ctimer(this, opaque, timespec));
 	};
 
@@ -753,8 +756,7 @@ protected:
 	 */
 	const rofl::ctimerid&
 	reset_timer(const rofl::ctimerid& timer_id, const rofl::ctimespec& timespec) {
-		if (timers.empty() || (get_thread_id() != pthread_self()))
-			cioloop::get_loop().has_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_timer(this);
 		return timers.reset(timer_id, timespec);
 	};
 
@@ -800,7 +802,7 @@ protected:
 	cancel_timer(const rofl::ctimerid& timer_id) {
 		timers.cancel(timer_id);
 		if (timers.empty())
-			cioloop::get_loop().has_no_timer(this);
+			rofl::cioloop::get_loop(get_thread_id()).has_no_timer(this);
 	};
 
 	/**
@@ -810,7 +812,7 @@ protected:
 	void
 	cancel_all_timers() {
 		timers.clear();
-		cioloop::get_loop().has_no_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_no_timer(this);
 	};
 
 	/**
@@ -820,7 +822,7 @@ protected:
 	void
 	cancel_all_events() {
 		events.clear();
-		cioloop::get_loop().has_no_event(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_no_event(this);
 	};
 
 	/**@}*/
@@ -882,9 +884,11 @@ private:
 
 	pthread_t						tid;
 	std::set<int>					rfds;
+	mutable PthreadRwLock 			rfds_rwlock;
 	std::set<int>					wfds;
-	ctimers							timers;
-	cevents							events;
+	mutable PthreadRwLock 			wfds_rwlock;
+	ctimers							timers; // has its own locking
+	cevents							events; // has its own locking
 };
 
 
