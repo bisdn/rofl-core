@@ -278,7 +278,12 @@ cioloop::run_loop()
 		rofl::indent::null();
 
 		// blocking
-		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask)) < 0) {
+		wait_on_kernel = true;
+		rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask);
+		wait_on_kernel = false;
+
+		if (rc < 0) {
+
 			switch (errno) {
 			case EINTR:
 				break;
@@ -301,7 +306,6 @@ cioloop::run_loop()
 			}
 
 		} else { // rc > 0
-
 			try {
 
 				for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {

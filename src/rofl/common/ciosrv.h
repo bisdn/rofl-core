@@ -132,7 +132,8 @@ public:
 	 *
 	 */
 	pthread_t
-	get_tid() const { return tid; };
+	get_tid() const
+	{ return tid; };
 
 protected:
 
@@ -149,9 +150,7 @@ protected:
 		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
 		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -182,9 +181,7 @@ protected:
 			}
 		}
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -198,9 +195,7 @@ protected:
 		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
 		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -231,9 +226,7 @@ protected:
 			}
 		}
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -243,9 +236,7 @@ protected:
 	has_timer(ciosrv* iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = true;
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -264,9 +255,7 @@ protected:
 	has_event(ciosrv* iosrv) {
 		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 		events[iosrv] = true;
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -283,9 +272,11 @@ private:
 	/**
 	 *
 	 */
-	cioloop(pthread_t tid = 0) :
-		tid(tid),
-		keep_on_running(false) {
+	cioloop(
+			pthread_t tid = 0) :
+				tid(tid),
+				keep_on_running(false),
+				wait_on_kernel(false) {
 
 		if (0 == tid) {
 			this->tid = pthread_self();
@@ -311,14 +302,15 @@ private:
 	 *
 	 */
 	virtual
-	~cioloop() {};
+	~cioloop()
+	{};
 
 	/**
 	 *
 	 */
-	cioloop(cioloop const& t) {
-		*this = t;
-	};
+	cioloop(
+			const cioloop& t)
+	{ *this = t; };
 
 	/**
 	 *
@@ -344,7 +336,15 @@ private:
 	static void
 	child_sig_handler (int x);
 
-
+	/**
+	 * @brief	Wake up this loop from this or other thread.
+	 */
+	void
+	wakeup() {
+		if (wait_on_kernel || (get_tid() != pthread_self())) {
+			pipe.writemsg('1');
+		}
+	};
 
 public:
 
@@ -417,6 +417,7 @@ private:
 	cpipe									pipe;
 	pthread_t        			       		tid;
 	bool									keep_on_running;
+	bool									wait_on_kernel;
 
 	unsigned int							minrfd; // lowest set readfd
 	unsigned int							maxrfd; // highest set readfd
