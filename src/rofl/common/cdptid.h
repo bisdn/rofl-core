@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <ios>
 
 #include "rofl/common/logging.h"
@@ -35,13 +36,14 @@ public:
 			uint64_t dptid = 0) :
 				id(dptid) {
 		std::stringstream sstr; sstr << id;
-		s_id = sstr.str();
+		s_id.assign(sstr.str());
 	};
 
 	/**
 	 *
 	 */
-	~cdptid() {};
+	~cdptid()
+	{};
 
 	/**
 	 *

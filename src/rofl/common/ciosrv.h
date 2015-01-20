@@ -78,6 +78,49 @@ public:
 		cioloop::threads.erase(tid);
 	};
 
+	/**
+	 *
+	 */
+	static bool
+	has_loop(pthread_t tid) {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+		return (not (cioloop::threads.find(tid) == cioloop::threads.end()));
+	};
+
+	/**
+	 * @brief	Instructs all running cioloop instances to terminate.
+	 *
+	 * Safe to be used by signal handlers.
+	 */
+	static void
+	shutdown() {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+		for (std::map<pthread_t, cioloop*>::iterator
+				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+			it->second->keep_on_running = false;
+		}
+	};
+
+	/**
+	 * @brief	Instructs all running cioloop instances to terminate and waits for them to stop, then deletes them.
+	 */
+	static void
+	cleanup_on_exit() {
+		{
+			RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+			for (std::map<pthread_t, cioloop*>::iterator
+					it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+				it->second->keep_on_running = false;
+				if (it->first != pthread_self()) {
+					pthread_join(it->first, NULL);
+					delete it->second;
+				}
+			}
+		}
+		cioloop::drop_loop(pthread_self());
+		cioloop::threads.clear();
+	};
+
 public:
 
 	/**
@@ -93,43 +136,11 @@ public:
 	 */
 	void
 	stop() {
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
-		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+		if (not has_loop(get_tid())) {
 			return;
 		}
-		cioloop::threads[tid]->keep_on_running = false;
-		{
-			RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
-			rfds.clear();
-		}
-		{
-			RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
-			wfds.clear();
-		}
-		{
-			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
-			events.clear();
-		}
-		{
-			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-			timers.clear();
-		}
-		if (tid != pthread_self()) {
-			//pipe.writemsg('1'); // wakeup main loop, just in case
-		}
-	};
-
-	/**
-	 * @brief	Terminates all running cioloop instances.
-	 */
-	void
-	shutdown() {
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
-		for (std::map<pthread_t, cioloop*>::iterator
-				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
-			delete it->second;
-		}
-		cioloop::threads.clear();
+		cioloop::threads[get_tid()]->keep_on_running = false;
+		wakeup();
 	};
 
 	/**

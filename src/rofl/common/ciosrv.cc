@@ -91,6 +91,12 @@ void
 cioloop::child_sig_handler (int x) {
 	logging::debug <<  "[rofl-common][cioloop][child-sig-handler] got signal: " << x << std::endl;
     // signal(SIGCHLD, child_sig_handler);
+	switch (x) {
+	case SIGINT:
+	case SIGTERM: {
+		rofl::cioloop::get_loop().shutdown();
+	} break;
+	}
 }
 
 
@@ -120,6 +126,8 @@ cioloop::run_loop()
 #endif
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGCHLD);
+	sigaddset(&sigmask, SIGINT);
+	sigaddset(&sigmask, SIGTERM);
 
 	if (sigprocmask(SIG_BLOCK, &sigmask, NULL) == -1) {
 		perror("sigprocmask");
@@ -130,6 +138,16 @@ cioloop::run_loop()
 	sa.sa_handler = child_sig_handler;
 	sigemptyset(&sa.sa_mask);
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+		perror("sigaction");
+		exit(EXIT_FAILURE);
+	}
+	sigemptyset(&sa.sa_mask);
+	if (sigaction(SIGINT, &sa, NULL) == -1) {
+		perror("sigaction");
+		exit(EXIT_FAILURE);
+	}
+	sigemptyset(&sa.sa_mask);
+	if (sigaction(SIGTERM, &sa, NULL) == -1) {
 		perror("sigaction");
 		exit(EXIT_FAILURE);
 	}
@@ -362,6 +380,8 @@ restartE:
 	}
 
 	keep_on_running = false;
+
+	logging::debug << "[rofl-common][cioloop][run] terminating" << std::endl << *this;
 }
 
 
