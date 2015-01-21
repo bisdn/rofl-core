@@ -1080,6 +1080,7 @@ public:
 		rofl::logging::debug << "[rofl-common][crofdpt] "
 				<< "instance destroyed, dptid: " << dptid.str() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
+		events.clear();
 		rofchan.close();
 		transactions.clear();
 	};

@@ -5,10 +5,23 @@ using namespace rofl::examples::ethswctld;
 #define ETHSWCTLD_LOG_FILE "/var/log/ethswctld.log"
 #define ETHSWCTLD_PID_FILE "/var/run/ethswctld.pid"
 
+
+void
+signal_handler(int signal) {
+	switch (signal) {
+	case SIGINT: {
+		rofl::cioloop::get_loop().shutdown();
+	} break;
+	}
+}
+
+
 int
 cetherswitch::run(
 		int argc, char** argv)
 {
+	//Capture control+C
+	signal(SIGINT, signal_handler);
 
 	try {
 		/*
@@ -53,8 +66,7 @@ cetherswitch::run(
 		//Launch main I/O loop
 		rofl::cioloop::get_loop().run();
 
-		//This will never be called unless the main loop
-		rofl::cioloop::get_loop().shutdown();
+
 	} catch (...) {}
 
 	//Clean-up before exit
@@ -77,6 +89,8 @@ cetherswitch::cetherswitch(
 
 cetherswitch::~cetherswitch()
 {
+	//Stop listening sockets for datapath elements
+	rofl::crofbase::close_dpt_listening();
 }
 
 

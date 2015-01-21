@@ -127,9 +127,8 @@ public:
 	 *
 	 */
 	void
-	run() {
-		cioloop::get_loop().run_loop();
-	};
+	run()
+	{ cioloop::get_loop().run_loop(); };
 
 	/**
 	 * @brief	Terminates cioloop instance running in thread identified by this->tid.

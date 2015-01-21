@@ -2,6 +2,7 @@
 #define ETHERSWITCH_H 1
 
 #include <inttypes.h>
+#include <signal.h>
 #include <map>
 
 #include <rofl.h>

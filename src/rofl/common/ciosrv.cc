@@ -6,21 +6,6 @@
 
 using namespace rofl;
 
-#if 0
-bool cont = true;
-
-void sighandler(int sig)
-{
-	std::cerr << "signal caught " << sig << std::endl;
-	switch (sig) {
-	case SIGINT:
-	case SIGTERM:
-		cont = false;
-		break;
-	}
-}
-#endif
-
 PthreadRwLock 					cioloop::threads_rwlock;
 std::map<pthread_t, cioloop*> 	cioloop::threads;
 
@@ -120,14 +105,9 @@ cioloop::run_loop()
 	sigset_t sigmask, empty_mask;
 	struct sigaction sa;
 
-#if 0
-	signal(SIGINT, &sighandler);
-	signal(SIGTERM, &sighandler);
-#endif
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGCHLD);
-	sigaddset(&sigmask, SIGINT);
-	sigaddset(&sigmask, SIGTERM);
+
 
 	if (sigprocmask(SIG_BLOCK, &sigmask, NULL) == -1) {
 		perror("sigprocmask");
@@ -138,16 +118,6 @@ cioloop::run_loop()
 	sa.sa_handler = child_sig_handler;
 	sigemptyset(&sa.sa_mask);
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
-		perror("sigaction");
-		exit(EXIT_FAILURE);
-	}
-	sigemptyset(&sa.sa_mask);
-	if (sigaction(SIGINT, &sa, NULL) == -1) {
-		perror("sigaction");
-		exit(EXIT_FAILURE);
-	}
-	sigemptyset(&sa.sa_mask);
-	if (sigaction(SIGTERM, &sa, NULL) == -1) {
 		perror("sigaction");
 		exit(EXIT_FAILURE);
 	}
@@ -236,7 +206,7 @@ cioloop::run_loop()
 			// conduct urgent timeouts (those with a timer expired before ctimer::now())
 			for (std::map<ciosrv*, int>::iterator
 					it = urgent.begin(); it != urgent.end(); ++it) {
-				if (not has_ciosrv(it->first))
+				if (not keep_on_running || not has_ciosrv(it->first))
 					continue;
 				(*it).first->__handle_timeout();
 			}
@@ -246,6 +216,8 @@ cioloop::run_loop()
 			}
 		}
 
+		if (not keep_on_running)
+			return;
 
 		rofl::logging::trace << "[rofl-common][cioloop][run] before select:" << std::endl << *this;
 
