@@ -19,9 +19,9 @@
 * so that add/modify/remove and lookup operations can be performed.
 *
 * Matching algorithms may have specially tailored scopes (e.g. tailored to L2 forwarding), or
-* simply smart version of generic lookup algorithms, using advanced techniques 
+* simply smart version of generic lookup algorithms, using advanced techniques
 *
-* To fill in 
+* To fill in
 */
 
 #include "rofl.h"
@@ -42,7 +42,7 @@ enum of1x_mutex_acquisition_required;
 * Registers a matching algorithm
 */
 #define OF1X_REGISTER_MATCHING_ALGORITHM(NAME)\
-		struct of1x_matching_algorithm_functions of1x_matching_algorithm_##NAME##_maf 
+		struct of1x_matching_algorithm_functions of1x_matching_algorithm_##NAME##_maf
 
 
 /**
@@ -69,10 +69,10 @@ typedef struct of1x_matching_algorithm_functions{
 	*
 	* The algorithm MUST also destroy all the entries existing in the table, calling
 	* the appropiate of1x_destroy_flow_entry_with_reason() function. The matching algorithm does
-	* NOT need to care about statistics or timers. 
+	* NOT need to care about statistics or timers.
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
-	* 
+	*
 	* @ingroup core_ma_of1x
 	*/
 	rofl_result_t
@@ -85,17 +85,17 @@ typedef struct of1x_matching_algorithm_functions{
 	* @brief Adds a flow entry to the table
 	*
 	* The algorithm MUST implement the addition of the flow entry into the table. The
-	* addition must behave exactly as defined in the of1x_add_flow_entry_to_table() 
+	* addition must behave exactly as defined in the of1x_add_flow_entry_to_table()
 	*
 	* The matching algorithm may use internally a different representation of the flow
-	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance, 
-	* and call appropiately of1x_destroy_flow_entry_with_reason() or of1x_update_flow_entry(). 
-	* 
-	* The matching algorithm does NOT need to care about statistics or timers. 
+	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance,
+	* and call appropiately of1x_destroy_flow_entry_with_reason() or of1x_update_flow_entry().
+	*
+	* The matching algorithm does NOT need to care about statistics or timers.
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
 	* The addition MUST comply with the behaviour defined in the OpenFlow specifications for versions 1.0, 1.2 and 1.3.2
-	* 
+	*
 	*/
 	rofl_of1x_fm_result_t
 	(*add_flow_entry_hook)(struct of1x_flow_table *const table,
@@ -109,20 +109,20 @@ typedef struct of1x_matching_algorithm_functions{
 	* @brief Modifies a set of flow entries in the table
 	*
 	* The algorithm MUST implement the modification of the flow entry(ies) into the table. The
-	* modification must behave exactly as defined in the of1x_modify_flow_entry_table() 
+	* modification must behave exactly as defined in the of1x_modify_flow_entry_table()
 	*
 	* The matching algorithm may use internally a different representation of the flow
-	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance(s), 
-	* and call appropiately of1x_destroy_flow_entry_with_reason() or of1x_update_flow_entry(). 
-	* 
+	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance(s),
+	* and call appropiately of1x_destroy_flow_entry_with_reason() or of1x_update_flow_entry().
+	*
 	* The matching algorithm shall use of1x_update_flow_entry() when a modification must
 	* take place, regardless of the internal representation it is using.
 	*
-	* The matching algorithm does NOT need to care about statistics or timers. 
+	* The matching algorithm does NOT need to care about statistics or timers.
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
 	* The modify operation MUST comply with the behaviour defined in the OpenFlow specifications for versions 1.0, 1.2 and 1.3.2
-	* 
+	*
 	*/
 	rofl_result_t
 	(*modify_flow_entry_hook)(struct of1x_flow_table *const table,
@@ -136,24 +136,24 @@ typedef struct of1x_matching_algorithm_functions{
 	* @brief Removes one or more flow entries in the table
 	*
 	* The algorithm MUST implement the removal of the flow entry into the table. The
-	* remvoal must behave exactly as defined in the of1x_remove_flow_entry_table() 
+	* remvoal must behave exactly as defined in the of1x_remove_flow_entry_table()
 	*
 	* The matching algorithm may use internally a different representation of the flow
-	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance(s), 
+	* entry, but it MUST always maintain the reference to the of1x_flow_entry instance(s),
 	* and call appropiately of1x_destroy_flow_entry_with_reason().
-	* 
+	*
 	* The matching algorithm shall use of1x_destroy_flow_entry_with_reason() when deletion must
 	* take place, regardless of the internal representation it is using.
 	*
-	* The matching algorithm does NOT need to care about statistics or timers. 
+	* The matching algorithm does NOT need to care about statistics or timers.
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
 	* The remove operation MUST comply with the behaviour defined in the OpenFlow specifications for versions 1.0, 1.2 and 1.3.2.
-	* 
+	*
 	*/
 	rofl_result_t
 	(*remove_flow_entry_hook)(struct of1x_flow_table *const table,
-			of1x_flow_entry_t *const entry, 
+			of1x_flow_entry_t *const entry,
 			of1x_flow_entry_t *const specific_entry,
 			const enum of1x_flow_removal_strictness strict,
 			uint32_t out_port,
@@ -165,10 +165,10 @@ typedef struct of1x_matching_algorithm_functions{
 
 	//Packet matching lookup
 	/**
-	* @ingroup core_ma_of1x 
+	* @ingroup core_ma_of1x
 	* @ingroup core_pp
 	* @brief Finds the best match for the packet according the pkt_matches
-	* 
+	*
 	* The lookup of the best match may use the algorithm internal representation
 	* to speedup the process.
 	*
@@ -183,15 +183,15 @@ typedef struct of1x_matching_algorithm_functions{
 
 	// flow stats
 	/**
-	* @ingroup core_ma_of1x 
-	* Retrieves flow stats according to spec 
+	* @ingroup core_ma_of1x
+	* Retrieves flow stats according to spec
 	* The operation MUST comply with the behaviour defined in the OpenFlow specifications for versions 1.0, 1.2 and 1.3.2
 	*/
 	rofl_result_t
 	(*get_flow_stats_hook)(struct of1x_flow_table *const table,
 			uint64_t cookie,
 			uint64_t cookie_mask,
-			uint32_t out_port, 
+			uint32_t out_port,
 			uint32_t out_group,
 			of1x_match_group_t *const matches,
 			of1x_stats_flow_msg_t* msg);
@@ -199,22 +199,22 @@ typedef struct of1x_matching_algorithm_functions{
 
 
 	/**
-	* @ingroup core_ma_of1x 
-	* Retrieves aggregate flow stats according to spec 
+	* @ingroup core_ma_of1x
+	* Retrieves aggregate flow stats according to spec
 	* The operation MUST comply with the behaviour defined in the OpenFlow specifications for versions 1.0, 1.2 and 1.3.2
 	*/
-	rofl_result_t	
+	rofl_result_t
 	(*get_flow_aggregate_stats_hook)(struct of1x_flow_table *const table,
 			uint64_t cookie,
 			uint64_t cookie_mask,
-			uint32_t out_port, 
+			uint32_t out_port,
 			uint32_t out_group,
 			of1x_match_group_t *const matches,
 			of1x_stats_flow_aggregate_msg_t* msg);
 
 
 	/**
-	* @ingroup core_ma_of1x 
+	* @ingroup core_ma_of1x
 	* The find_entry_using_group_hook() must retrieve the first entry in the
 	* table that contain actions refering to group_id and return it.
 	*
@@ -230,20 +230,20 @@ typedef struct of1x_matching_algorithm_functions{
 
 	// dump flow table
 	/**
-	* @ingroup core_ma_of1x 
+	* @ingroup core_ma_of1x
 	* Dump hook. Optionally implement this hook to dump internal state of the
 	* flow table when of1x_dump_switch() is called.
 	*
-	* This is optional. 
-	* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
+	* This is optional.
+	* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned.
 	*/
 	void
 	(*dump_hook)(struct of1x_flow_table *const table, bool raw_nbo);
 
-	
+
 	/**
-	* @ingroup core_ma_of1x 
-	* Description of the matching algorithm. Use a precise description of the 
+	* @ingroup core_ma_of1x
+	* Description of the matching algorithm. Use a precise description of the
 	* matching algorith, including its strengths and weaknesses.
 	*/
 	char description[OF1X_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH];

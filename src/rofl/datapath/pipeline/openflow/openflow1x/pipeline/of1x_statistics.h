@@ -17,7 +17,7 @@
 /**
 * @file of1x_statistics.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
-* @brief OpenFlow v1.0, 1.2 and 1.3.2 statistics subsystem 
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 statistics subsystem
 */
 
 
@@ -52,9 +52,9 @@ typedef struct __of1x_stats_flow_tid{
 //Flow entry stats (internal entry state)
 typedef struct of1x_stats_flow{
 
-	union __of1x_stats_flow_tids{	
+	union __of1x_stats_flow_tids{
 		__of1x_stats_flow_tid_t counters;
-		
+
 		//array of counters per thread to be used internally
 		__of1x_stats_flow_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
 	}s;
@@ -76,12 +76,12 @@ typedef struct __of1x_stats_table_tid{
 //Table stats (table state)
 typedef struct of1x_stats_table{
 
-	union __of1x_stats_table_tids{ 
+	union __of1x_stats_table_tids{
 		/* Flow table counters */
 		__of1x_stats_table_tid_t counters;
-	
+
 		//array of counters per thread to be used internally
-		__of1x_stats_table_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];	
+		__of1x_stats_table_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
 	}s;
 
 	platform_mutex_t* mutex; //Mutual exclusion only for stats
@@ -98,12 +98,12 @@ typedef struct __of1x_stats_bucket_tid{
 typedef __of1x_stats_bucket_tid_t of1x_stats_bucket_t; //Used only for msgs
 
 typedef struct __of1x_stats_bucket{
-	union __of1x_stats_bucket_tids{ 
+	union __of1x_stats_bucket_tids{
 		/* Bucket counters */
 		__of1x_stats_bucket_tid_t counters;
-	
+
 		//array of counters per thread to be used internally
-		__of1x_stats_bucket_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];	
+		__of1x_stats_bucket_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
 	}s;
 
 	platform_mutex_t* mutex;
@@ -117,15 +117,15 @@ typedef struct __of1x_stats_group_tid{
 
 //Group stats
 typedef struct of1x_stats_group{
-	
+
 	uint32_t ref_count;
-	
-	union __of1x_stats_group_tids{ 
+
+	union __of1x_stats_group_tids{
 		/* Group counters */
 		__of1x_stats_group_tid_t counters;
-	
+
 		//array of counters per thread to be used internally
-		__of1x_stats_group_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];	
+		__of1x_stats_group_tid_t __internal[ROFL_PIPELINE_MAX_TIDS];
 	}s;
 
 	platform_mutex_t* mutex;
@@ -138,44 +138,44 @@ typedef struct of1x_stats_group{
 //
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Single flow entry stats message
 */
 typedef struct of1x_stats_single_flow_msg{
 	uint8_t table_id;
 	uint16_t priority;
 	uint64_t cookie;
-	
+
 	uint32_t duration_sec;
 	uint32_t duration_nsec;
-	
+
 	uint16_t idle_timeout;
 	uint16_t hard_timeout;
-	
+
 	uint16_t flags;
 
 	uint64_t packet_count;
 	uint64_t byte_count;
-	
+
 	struct of1x_match* matches;
 	struct of1x_instruction_group* inst_grp;
-	
+
 	struct of1x_stats_single_flow_msg* next;
 }of1x_stats_single_flow_msg_t;
 
 /**
-* @ingroup core_of1x 
-* Linked list containing all the individual flow stats 
+* @ingroup core_of1x
+* Linked list containing all the individual flow stats
 */
 typedef struct of1x_stats_flow_msg{
-	uint32_t 			num_of_entries; 
+	uint32_t 			num_of_entries;
 	of1x_stats_single_flow_msg_t* 	flows_head;
 	of1x_stats_single_flow_msg_t* 	flows_tail;
 }of1x_stats_flow_msg_t;
 
 /**
-* @ingroup core_of1x 
-* Aggregated flow stats message 
+* @ingroup core_of1x
+* Aggregated flow stats message
 */
 typedef struct of1x_stats_flow_aggregate_msg{
 	uint64_t packet_count;
@@ -223,7 +223,7 @@ void __of1x_destroy_stats_single_flow_msg(of1x_stats_single_flow_msg_t* msg);
 
 of1x_stats_flow_msg_t* __of1x_init_stats_flow_msg(void);
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Destroy a flow_stats message
 */
 void of1x_destroy_stats_flow_msg(of1x_stats_flow_msg_t* msg);
@@ -233,14 +233,14 @@ void of1x_destroy_stats_flow_msg(of1x_stats_flow_msg_t* msg);
 //Aggregate messages
 of1x_stats_flow_aggregate_msg_t* __of1x_init_stats_flow_aggregate_msg(void);
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Destroy aggreagated flow_stats message
 */
 void of1x_destroy_stats_flow_aggregate_msg(of1x_stats_flow_aggregate_msg_t* msg);
 
 /**
-* @ingroup core_of1x 
-* Get the duration of the flow_entry 
+* @ingroup core_of1x
+* Get the duration of the flow_entry
 */
 void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
 
@@ -249,14 +249,14 @@ void __of1x_stats_flow_reset_counts(struct of1x_flow_entry * entry);
 static inline void __of1x_stats_flow_consolidate(of1x_stats_flow_t* stats, __of1x_stats_flow_tid_t* c){
 	int i;
 	c->byte_count = c->packet_count = 0x0ULL;
-	
+
 	for(i=0;i<ROFL_PIPELINE_MAX_TIDS;i++){
 		c->packet_count += stats->s.__internal[i].packet_count;
 		c->byte_count += stats->s.__internal[i].byte_count;
 	}
 }
 static inline void __of1x_stats_copy_flow_stats(of1x_stats_flow_t* origin, of1x_stats_flow_t* copy){
-	memcpy(&copy->s.__internal,&origin->s.__internal, sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS); 
+	memcpy(&copy->s.__internal,&origin->s.__internal, sizeof(__of1x_stats_flow_tid_t)*ROFL_PIPELINE_MAX_TIDS);
 	copy->initial_time = origin->initial_time;
 }
 
@@ -266,7 +266,7 @@ void __of1x_stats_table_destroy(struct of1x_flow_table * table);
 static inline void __of1x_stats_table_consolidate(of1x_stats_table_t* stats, __of1x_stats_table_tid_t* c){
 	int i;
 	c->lookup_count = c->matched_count = 0x0ULL;
-	
+
 	for(i=0;i<ROFL_PIPELINE_MAX_TIDS;i++){
 		c->lookup_count += stats->s.__internal[i].lookup_count;
 		c->matched_count += stats->s.__internal[i].matched_count;
@@ -279,7 +279,7 @@ void __of1x_destroy_group_stats(of1x_stats_group_t* group_stats);
 static inline void __of1x_stats_group_consolidate(of1x_stats_group_t* stats, __of1x_stats_group_tid_t* c){
 	int i;
 	c->byte_count = c->packet_count = 0x0ULL;
-	
+
 	for(i=0;i<ROFL_PIPELINE_MAX_TIDS;i++){
 		c->packet_count += stats->s.__internal[i].packet_count;
 		c->byte_count += stats->s.__internal[i].byte_count;
@@ -289,7 +289,7 @@ static inline void __of1x_stats_group_consolidate(of1x_stats_group_t* stats, __o
 static inline void __of1x_stats_bucket_consolidate(__of1x_stats_bucket_t* stats, __of1x_stats_bucket_tid_t* c){
 	int i;
 	c->byte_count = c->packet_count = 0x0ULL;
-	
+
 	for(i=0;i<ROFL_PIPELINE_MAX_TIDS;i++){
 		c->packet_count += stats->s.__internal[i].packet_count;
 		c->byte_count += stats->s.__internal[i].byte_count;
@@ -302,7 +302,7 @@ void __of1x_stats_group_dec_reference(of1x_stats_group_t *gr_stats);
 /**
  * @brief Retrieves the statistics of a group
  * @ingroup core_of1x
- * 
+ *
  * Returns a structure with the statistics that needs to be freed by the calling element
  */
 of1x_stats_group_msg_t* of1x_get_group_stats(struct of1x_pipeline* pipeline,uint32_t id);
@@ -322,16 +322,16 @@ void __of1x_destroy_buckets_stats(__of1x_stats_bucket_t *bc_stats);
 * External interfaces
 */
 /**
-* @ingroup core_of1x 
-* Retrieves individual flow stats 
-* @return of1x_stats_flow_msg_t instance that must be destroyed using of1x_destroy_stats_flow_msg() 
+* @ingroup core_of1x
+* Retrieves individual flow stats
+* @return of1x_stats_flow_msg_t instance that must be destroyed using of1x_destroy_stats_flow_msg()
 */
 of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group* matchs);
 
 /**
-* @ingroup core_of1x 
-* Retrieves aggregated flow stats 
-* @return of1x_stats_flow_aggregate_msg_t instance that must be destroyed using of1x_destroy_stats_flow_aggregate_msg() 
+* @ingroup core_of1x
+* Retrieves aggregated flow stats
+* @return of1x_stats_flow_aggregate_msg_t instance that must be destroyed using of1x_destroy_stats_flow_aggregate_msg()
 */
 of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group* matchs);
 

@@ -19,10 +19,10 @@ for ALG in "$@"; do
 	echo "#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/${ALG}/of1x_${ALG}_ma.h>"
 done
 
-# print extern for matching algorithms 
+# print extern for matching algorithms
 for alg in "$@"; do
 echo "extern of1x_matching_algorithms_functions_t of1x_matching_algorithm_${alg}_maf;"
-done 
+done
 
 cat <<EOF
 /* Main matching algorithm array */
@@ -37,7 +37,7 @@ counter=0
 for alg in "$@"; do
 echo "of1x_matching_algorithms[${counter}] = of1x_matching_algorithm_${alg}_maf;"
 counter=`expr $counter + 1`
-done 
+done
 
 
 cat <<EOF

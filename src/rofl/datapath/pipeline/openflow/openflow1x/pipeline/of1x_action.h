@@ -5,8 +5,8 @@
 #ifndef __OF1X_ACTION_H__
 #define __OF1X_ACTION_H__
 
-#include <inttypes.h> 
-#include <string.h> 
+#include <inttypes.h>
+#include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "rofl.h"
@@ -17,7 +17,7 @@
 * @file of1x_action.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief OpenFlow v1.0, 1.2 and 1.3.2 actions 
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 actions
 *
 * Actions are a part of a of1x_flow_entry. The typical
 * workflow for creation of actions is:
@@ -32,7 +32,7 @@
 *   of1x_push_packet_action_to_group(group, action)
 *
 *   //Action can never be accessed or freed now!
-*   //This is forbidded 
+*   //This is forbidded
 *   //of1x_destroy_packet_action(action)
 *   //action->type = something; //R/W access is also forbidden
 *
@@ -50,7 +50,7 @@
 *   of1x_set_packet_action_on_write_actions(write_actions,action);
 *   //Action must be freed(set only copies the action)
 *   of1x_destroy_packet_action(action)
-*   
+*
 *
 * //To release resources
 * of1x_destroy_write_actions(group)
@@ -59,12 +59,12 @@
 * Note regarding endianness:
 * Conforming the convention that the pipeline works in Network Byte Order
 * the matches need to to be initialized in NBO (Big Endian).
-* This applies to the values comming from the packet (eth_src, eth_dst, ...) 
+* This applies to the values comming from the packet (eth_src, eth_dst, ...)
 * and NOT to the ones that are external to it:
 *  - port_in
 *  - port_phy_in
 *  - metadata
-* 
+*
 * There is an special alignment for non complete values as
 *  - mac addresses ( 6 bytes)
 *  - vlan vid      (12 bits )
@@ -79,15 +79,15 @@
 struct datapacket;
 struct of1x_flow_table;
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Actions over a packet as per defined in OF10, OF12, OF13. Set operations are converted to actions
-* for pipeline simplification. This is comming from of1x_action_type enum. 
+* for pipeline simplification. This is comming from of1x_action_type enum.
 *
 * @warning values are MODIFIED from OF specification and are reorder! Order matters,
 * as when write actions are executed are done in order.
 */
 typedef enum{
-	//No action. This MUST always exist and the value MUST be 0	
+	//No action. This MUST always exist and the value MUST be 0
 	OF1X_AT_NO_ACTION= 0,			/* NO action/EMPTY action. */
 
 	//Copy TTL inwards
@@ -132,7 +132,7 @@ typedef enum{
 	OF1X_AT_SET_FIELD_ETH_DST,   		/* Ethernet destination address. */
 	OF1X_AT_SET_FIELD_ETH_SRC,   		/* Ethernet source address. */
 	OF1X_AT_SET_FIELD_ETH_TYPE,  		/* Ethernet frame type. */
-		
+
 	OF1X_AT_SET_FIELD_MPLS_LABEL,		/* MPLS label. */
 	OF1X_AT_SET_FIELD_MPLS_TC,   	   	/* MPLS TC. */
 	OF1X_AT_SET_FIELD_MPLS_BOS,   	   	/* MPLS BoS flag */
@@ -140,12 +140,12 @@ typedef enum{
 	OF1X_AT_SET_FIELD_VLAN_VID,  		/* VLAN id. */
 	OF1X_AT_SET_FIELD_VLAN_PCP,  		/* VLAN priority. */
 	OF1X_AT_SET_FIELD_ARP_OPCODE,		/* ARP opcode */
-	
+
 	OF1X_AT_SET_FIELD_ARP_SHA,		/* ARP source hardware address */
 	OF1X_AT_SET_FIELD_ARP_SPA,		/* ARP source protocol address */
 	OF1X_AT_SET_FIELD_ARP_THA,		/* ARP target hardware address */
 	OF1X_AT_SET_FIELD_ARP_TPA,		/* ARP target protocol address */
-	
+
 	/* OF10 only */
 	OF1X_AT_SET_FIELD_NW_PROTO,		/* Network layer proto/arp code */
 	OF1X_AT_SET_FIELD_NW_SRC,		/* Source network address */
@@ -156,27 +156,27 @@ typedef enum{
 	OF1X_AT_SET_FIELD_IP_DSCP,   		/* IP DSCP (6 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_ECN,    		/* IP ECN (2 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_PROTO,  		/* IP protocol. */
-	
+
 	OF1X_AT_SET_FIELD_IPV4_SRC,  		/* IPv4 source address. */
 	OF1X_AT_SET_FIELD_IPV4_DST,  		/* IPv4 destination address. */
 	OF1X_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address */
-	
+
 	OF1X_AT_SET_FIELD_IPV6_DST,		/* IPv6 destination address */
 	OF1X_AT_SET_FIELD_IPV6_FLABEL,		/* IPv6 flow label */
 	OF1X_AT_SET_FIELD_IPV6_ND_TARGET,	/* IPv6 Neighbour Discovery target */
 	OF1X_AT_SET_FIELD_IPV6_ND_SLL,		/* IPv6 ND source link level */
 	OF1X_AT_SET_FIELD_IPV6_ND_TLL,		/* IPv6 ND target link level */
 	OF1X_AT_SET_FIELD_IPV6_EXTHDR,		/* IPv6 Extension pseudo header */
-	
+
 	OF1X_AT_SET_FIELD_TCP_SRC,   		/* TCP source port. */
 	OF1X_AT_SET_FIELD_TCP_DST,   		/* TCP destination port. */
-	
+
 	OF1X_AT_SET_FIELD_UDP_SRC,   		/* UDP source port. */
 	OF1X_AT_SET_FIELD_UDP_DST,   		/* UDP destination port. */
-	
+
 	OF1X_AT_SET_FIELD_SCTP_SRC,   		/* SCTP source port. */
 	OF1X_AT_SET_FIELD_SCTP_DST,   		/* SCTP destination port. */
-	
+
 	/* OF10 only */
 	OF1X_AT_SET_FIELD_TP_SRC,		/* Trans. protocol (TCP/UDP) src port */
 	OF1X_AT_SET_FIELD_TP_DST,		/* Trans. protocol (TCP/UDP) dst port */
@@ -184,13 +184,13 @@ typedef enum{
 
 	OF1X_AT_SET_FIELD_ICMPV4_TYPE,		/* ICMP type. */
 	OF1X_AT_SET_FIELD_ICMPV4_CODE,		/* ICMP code. */
-	
+
 	OF1X_AT_SET_FIELD_ICMPV6_TYPE,		/* ICMPv6 type */
 	OF1X_AT_SET_FIELD_ICMPV6_CODE,		/* ICMPv6 code */
-	
+
 	OF1X_AT_SET_FIELD_PBB_ISID,		/* PBB ISID field */
 	OF1X_AT_SET_FIELD_TUNNEL_ID,		/* Tunnel id */
-	
+
 	/*
 	* Extensions
 	*/
@@ -199,7 +199,7 @@ typedef enum{
 	OF1X_AT_SET_FIELD_PPPOE_TYPE,		/* PPPoE type */
 	OF1X_AT_SET_FIELD_PPPOE_SID, 	   	/* PPPoE session id */
 	OF1X_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
-    
+
 	OF1X_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
 	OF1X_AT_SET_FIELD_GTP_TEID,			/* GTP TEID */
 
@@ -221,16 +221,16 @@ typedef enum{
 
 	/* Add more set fields here... */
 
-	//Groups		
+	//Groups
 	OF1X_AT_GROUP,				/* Apply group. */
 
 	//Experimenter
-	OF1X_AT_EXPERIMENTER,	
+	OF1X_AT_EXPERIMENTER,
 
 	OF1X_AT_OUTPUT,			 	/* Output to switch port. */
 }of1x_packet_action_type_t;
 
-#define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1 
+#define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1
 
 //Make sure we are not exceeding the bitmap size
 #if OF1X_AT_NUMBER >= 128
@@ -238,7 +238,7 @@ typedef enum{
 #endif
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Special port numbers, according to OF1X (of1xp_port_no )
 */
 enum of1x_port_numbers {
@@ -272,8 +272,8 @@ enum of1x_port_numbers {
 struct of1x_group;
 
 /**
-* @ingroup core_of1x 
-* Packet action abstraction data structure 
+* @ingroup core_of1x
+* Packet action abstraction data structure
 */
 typedef struct of1x_packet_action{
 	//Type and value(for set fields and push)
@@ -287,17 +287,17 @@ typedef struct of1x_packet_action{
 
 	//group
 	struct of1x_group* group;
-	
+
 	//DLL
 	struct of1x_packet_action* next;
 
 	/* Fast validation flags */
 	//Bitmap of required OF versions
-	of1x_ver_req_t ver_req; 
+	of1x_ver_req_t ver_req;
 }of1x_packet_action_t;
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Action group (apply-actions) structure
 */
 typedef struct of1x_action_group{
@@ -306,42 +306,42 @@ typedef struct of1x_action_group{
 	bitmap128_t bitmap;
 
 	//Number of actions in the list
-	unsigned int num_of_actions;	
+	unsigned int num_of_actions;
 
 	//Double linked list
 	of1x_packet_action_t* head;
 	of1x_packet_action_t* tail;
-	
+
 	//Number of outputs in the action list
 	unsigned int num_of_output_actions;
-		
-	//Contains output to TABLE 
+
+	//Contains output to TABLE
 	bool has_output_table;
 
 	/* Fast validation flags */
 	//Bitmap of required OF versions
-	of1x_ver_req_t ver_req; 
+	of1x_ver_req_t ver_req;
 }of1x_action_group_t;
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Write actions structure
 */
 typedef struct{
 
 	//bitmap of actions
 	bitmap128_t bitmap;
-	
+
 	//Write actions 0...OF1X_AT_NUMBER-1 at the very beginning of the array
 	of1x_packet_action_t actions[OF1X_AT_NUMBER];
-	
-	//Number of output actions. 
+
+	//Number of output actions.
 	unsigned int num_of_actions;
 	unsigned int num_of_output_actions;
-	
+
 	/* Fast validation flags */
 	//Bitmap of required OF versions
-	of1x_ver_req_t ver_req; 
+	of1x_ver_req_t ver_req;
 }of1x_write_actions_t;
 
 //Fwd declaration
@@ -359,7 +359,7 @@ ROFL_BEGIN_DECLS
 
 //Action
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Initializes a packet action (OF action)
 *
 * @param field union containing 8, 16, 32, 64 and 128 bit action field (e.g. port_num in output actions, header value in set field actions). Put if not used in this action type.
@@ -369,15 +369,15 @@ ROFL_BEGIN_DECLS
 of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wrap_uint_t field, uint16_t output_send_len);
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Destroys packet action (OF action)
 */
 void of1x_destroy_packet_action(of1x_packet_action_t* action);
 
-//Getters for the values of the 
+//Getters for the values of the
 
 //8 bit
-static inline 
+static inline
 uint8_t __of1x_get_packet_action_field8(const of1x_packet_action_t* action, bool raw_nbo){
 
 	if(raw_nbo)
@@ -416,19 +416,19 @@ uint8_t __of1x_get_packet_action_field8(const of1x_packet_action_t* action, bool
 }
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Retrieve the action field for 8 bit values (or less) in HOST BYTE ORDER
 *
-* @retval The value of the field in host byte order 
+* @retval The value of the field in host byte order
 */
-static inline 
+static inline
 uint8_t of1x_get_packet_action_field8(const of1x_packet_action_t* action){
 	return __of1x_get_packet_action_field8(action, false);
 }
 
 
 //16 bit
-static inline 
+static inline
 uint16_t __of1x_get_packet_action_field16(const of1x_packet_action_t* action, bool raw_nbo){
 
 	if(raw_nbo)
@@ -468,18 +468,18 @@ uint16_t __of1x_get_packet_action_field16(const of1x_packet_action_t* action, bo
 }
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Retrieve the action field for 16 bit values (or less) in HOST BYTE ORDER
 *
-* @retval The value of the field in host byte order 
+* @retval The value of the field in host byte order
 */
-static inline 
+static inline
 uint16_t of1x_get_packet_action_field16(const of1x_packet_action_t* action){
 	return __of1x_get_packet_action_field16(action, false);
 }
 
 //32 bit
-static inline 
+static inline
 uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bool raw_nbo){
 
 	if(raw_nbo)
@@ -515,18 +515,18 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 }
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Retrieve the action field for 32 bit values (or less) in HOST BYTE ORDER
 *
-* @retval The value of the field in host byte order 
+* @retval The value of the field in host byte order
 */
-static inline 
+static inline
 uint32_t of1x_get_packet_action_field32(const of1x_packet_action_t* action){
 	return __of1x_get_packet_action_field32(action, false);
 }
 
 //64 bit
-static inline 
+static inline
 uint64_t __of1x_get_packet_action_field64(const of1x_packet_action_t* action, bool raw_nbo){
 
 	if(raw_nbo)
@@ -542,7 +542,7 @@ uint64_t __of1x_get_packet_action_field64(const of1x_packet_action_t* action, bo
 		case OF1X_AT_SET_FIELD_ETH_DST:
 		case OF1X_AT_SET_FIELD_ETH_SRC:
 		case OF1X_AT_SET_FIELD_ARP_SHA:
-		case OF1X_AT_SET_FIELD_ARP_THA:	
+		case OF1X_AT_SET_FIELD_ARP_THA:
 			return OF1X_MAC_VALUE(NTOHB64(action->__field.u64));
 			break;
 		default:
@@ -553,18 +553,18 @@ uint64_t __of1x_get_packet_action_field64(const of1x_packet_action_t* action, bo
 }
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Retrieve the action field for 64 bit values (or less) in HOST BYTE ORDER
 *
-* @retval The value of the field in host byte order 
+* @retval The value of the field in host byte order
 */
-static inline 
+static inline
 uint64_t of1x_get_packet_action_field64(const of1x_packet_action_t* action){
 	return __of1x_get_packet_action_field64(action, false);
 }
 
 //128 bit
-static inline 
+static inline
 uint128__t __of1x_get_packet_action_field128(const of1x_packet_action_t* action, bool raw_nbo){
 	uint128__t tmp= {{0x00}};
 
@@ -587,41 +587,41 @@ uint128__t __of1x_get_packet_action_field128(const of1x_packet_action_t* action,
 }
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Retrieve the action field for 128 bit values (or less) in HOST BYTE ORDER
 *
-* @retval The value of the field in host byte order 
+* @retval The value of the field in host byte order
 */
-static inline 
+static inline
 uint128__t of1x_get_packet_action_field128(const of1x_packet_action_t* action){
 	return __of1x_get_packet_action_field128(action, false);
 }
 
 //Action group
 /**
-* @ingroup core_of1x 
-* Create an action group (apply actions) 
+* @ingroup core_of1x
+* Create an action group (apply actions)
 */
 of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions);
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Destroy an action group. This also destroys actions contained
 */
 void of1x_destroy_action_group(of1x_action_group_t* group);
 
 //Push packet action
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Push an action to the group. The action can no longer be used or freed
-* from outside of the library. of1x_destroy_action_group() will destroy it. 
+* from outside of the library. of1x_destroy_action_group() will destroy it.
 */
 void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_action_t* action);
 
 
 /**
-* @ingroup core_of1x 
-* Create a write actions group 
+* @ingroup core_of1x
+* Create a write actions group
 */
 of1x_write_actions_t* of1x_init_write_actions(void);
 
@@ -632,9 +632,9 @@ of1x_write_actions_t* of1x_init_write_actions(void);
 void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Set (copy) the action to the write actions. The action pointer can safely used
-* outside the library, and released. 
+* outside the library, and released.
 */
 rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 

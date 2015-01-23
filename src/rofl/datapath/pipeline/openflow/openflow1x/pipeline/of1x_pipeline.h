@@ -6,7 +6,7 @@
 #define __OF1X_PIPELINE_H__
 
 #include <stdlib.h>
-#include "rofl.h" 
+#include "rofl.h"
 #include "of1x_flow_table.h"
 #include "of1x_group_table.h"
 #include "../../../common/bitmap.h"
@@ -25,7 +25,7 @@
 */
 
 /**
-* Capabilities supported by the datapath pipeline. WARNING: This is not a direct mapping of OFPC_XXX. 
+* Capabilities supported by the datapath pipeline. WARNING: This is not a direct mapping of OFPC_XXX.
 */
 enum of1x_capabilities {
 	OF1X_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
@@ -38,20 +38,20 @@ enum of1x_capabilities {
 	OF1X_CAP_PORT_BLOCKED   = 1 << 8,  /* Match IP addresses in ARP pkts. Added in OF1.3 */
 
 	//Deprecated (OF1.0)
-	OF1X_CAP_STP   		= 1 << 31  /* STP capable switch (OF1.0 ONLY) */ 
+	OF1X_CAP_STP   		= 1 << 31  /* STP capable switch (OF1.0 ONLY) */
 };
 
 //Fwd declaration
 struct of1x_switch;
 
-/** 
+/**
 * OpenFlow v1.0, 1.2 and 1.3.2 pipeline abstraction data structure
 */
 typedef struct of1x_pipeline{
-	
+
 	//Number of tables
 	unsigned int num_of_tables;
-	
+
 	//Number of buffers
 	unsigned int num_of_buffers;
 
@@ -61,17 +61,17 @@ typedef struct of1x_pipeline{
 	//Miss send length
 	uint16_t miss_send_len;
 
-	//Array of tables; 
+	//Array of tables;
 	of1x_flow_table_t* tables;
-	
+
 	//Group table
 	of1x_group_table_t* groups;
 
 	//Reference back
-	struct of1x_switch* sw;	
+	struct of1x_switch* sw;
 }of1x_pipeline_t;
 
-//Snapshot 
+//Snapshot
 typedef of1x_pipeline_t of1x_pipeline_snapshot_t;
 
 //C++ extern C
@@ -81,7 +81,7 @@ ROFL_BEGIN_DECLS
 rofl_result_t __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int num_of_tables, enum of1x_matching_algorithm_available* list);
 rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline);
 
-//Purge of all entries in the pipeline (reset)	
+//Purge of all entries in the pipeline (reset)
 rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline);
 
 //Set the default tables(flow and group tables) configuration according to the new version
@@ -91,7 +91,7 @@ rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_
 // Snapshots
 //
 
-//Creates a snapshot of the running pipeline of an LSI 
+//Creates a snapshot of the running pipeline of an LSI
 rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipeline_snapshot_t* snapshot);
 
 //Destroy a previously generated snapshot

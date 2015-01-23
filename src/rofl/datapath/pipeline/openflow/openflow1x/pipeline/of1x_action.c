@@ -29,17 +29,17 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 	if( unlikely(action==NULL) )
 		return NULL;
-	
+
 	//Set type
 	action->type = type;
 
-	//Set min max 
+	//Set min max
 	action->ver_req.min_ver = OF1X_MIN_VERSION;
 	action->ver_req.max_ver = OF1X_MAX_VERSION;
 
 	//Make valgrind happy
 	UINT128__T_HI(action->__field.u128) = UINT128__T_LO(action->__field.u128) = 0x0ULL;
-	
+
 	/*
 	* Setting the field (for set_field actions) and fast validation flags
 	*/
@@ -98,7 +98,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		/* Extensions end */
-	
+
 		//4 byte values
 		case OF1X_AT_SET_FIELD_NW_DST:
 			action->ver_req.min_ver = OF_VERSION_10;
@@ -147,7 +147,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u32 = field.u32&OF1X_3_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
-	
+
 		//20 bit values
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
 			field.u32 = HTONB32(OF1X_IP6_FLABEL_ALIGN(field.u32));
@@ -420,14 +420,14 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 			action->__field.u64 = 0x0;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-		
+
 		//Shall never happen
-		case OF1X_AT_NO_ACTION: 
+		case OF1X_AT_NO_ACTION:
 			assert(0);
 			action->__field.u64 = 0x0;
 			break;
 	}
-	
+
 	return action;
 }
 
@@ -441,15 +441,15 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 
 	unsigned int number_of_actions=0, number_of_output_actions=0;
 	of1x_action_group_t* action_group;
-	
+
 	action_group = platform_malloc_shared(sizeof(of1x_action_group_t));
 
 	if( unlikely(action_group==NULL) )
 		return NULL;
-	
+
 	if(actions){
 		action_group->head = actions;
-	
+
 		for(;actions;actions=actions->next, number_of_actions++){
 
 			if(actions->type == OF1X_AT_OUTPUT /*|| actions->type == OF1X_AT_GROUP*/)
@@ -458,7 +458,7 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 			if(!actions->next){
 				action_group->tail = actions;
 				break;
-			}	
+			}
 		}
 	}else{
 		action_group->head = NULL;
@@ -468,7 +468,7 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 	action_group->num_of_actions = number_of_actions;
 	action_group->num_of_output_actions = number_of_output_actions;
 
-	//Fast validation, set min max 
+	//Fast validation, set min max
 	action_group->ver_req.min_ver = OF1X_MIN_VERSION;
 	action_group->ver_req.max_ver = OF1X_MAX_VERSION;
 	bitmap128_clean(&action_group->bitmap);
@@ -485,10 +485,10 @@ void of1x_destroy_action_group(of1x_action_group_t* group){
 		return;
 
 	for(it=group->head;it;it=next){
-		next = it->next; 
+		next = it->next;
 		of1x_destroy_packet_action(it);
 	}
-	platform_free_shared(group);	
+	platform_free_shared(group);
 }
 
 /* Addition of an action to an action group */
@@ -507,25 +507,25 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 			assert(0);
 			return;
 		}
-		group->has_output_table = true; 
+		group->has_output_table = true;
 	}
 
 	if(!group->tail){
-		group->head = action; 
+		group->head = action;
 	}else{
 		group->tail->next = action;
-	}		
+	}
 
 	group->tail = action;
 	action->next = NULL;
-	
+
 	group->num_of_actions++;
 
-	//This cannot be done here, because the group might NOT exist yet; the sum will happen 
+	//This cannot be done here, because the group might NOT exist yet; the sum will happen
 	//during insertion validation (for both action and WRITE_ACTIONS instruction
 	//if(action->type == OF1X_AT_OUTPUT)
 	//	group->num_of_output_actions++;
-	
+
 	//if(action->type == OF1X_AT_GROUP)
 	//	group->num_of_output_actions+=action->group->num_of_output_actions;
 
@@ -541,7 +541,7 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 of1x_write_actions_t* of1x_init_write_actions(){
 
 	int i;
-	of1x_write_actions_t* write_actions = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
+	of1x_write_actions_t* write_actions = platform_malloc_shared(sizeof(of1x_write_actions_t));
 
 	if( unlikely(write_actions==NULL) )
 		return NULL;
@@ -550,13 +550,13 @@ of1x_write_actions_t* of1x_init_write_actions(){
 	bitmap128_clean(&write_actions->bitmap);
 
 	for(i=0;i<OF1X_AT_NUMBER;i++)
-		write_actions->actions[i].type = (of1x_packet_action_type_t)i;	
-	
+		write_actions->actions[i].type = (of1x_packet_action_type_t)i;
+
 	//num of actions and output actions
 	write_actions->num_of_actions = 0;
 	write_actions->num_of_output_actions = 0;
 
-	//Fast validation, set min max 
+	//Fast validation, set min max
 	write_actions->ver_req.min_ver = OF1X_MIN_VERSION;
 	write_actions->ver_req.max_ver = OF1X_MAX_VERSION;
 
@@ -564,7 +564,7 @@ of1x_write_actions_t* of1x_init_write_actions(){
 }
 
 void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions){
-	platform_free_shared(write_actions);	
+	platform_free_shared(write_actions);
 }
 
 rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
@@ -573,7 +573,7 @@ rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* writ
 		assert(0);
 		return ROFL_FAILURE;
 	}
-	
+
 	//Ignore write action output OF1X_PORT_TABLE
 	if(action->type == OF1X_AT_OUTPUT && action->__field.u32 == OF1X_PORT_TABLE)
 		return ROFL_FAILURE;
@@ -587,19 +587,19 @@ rofl_result_t of1x_set_packet_action_on_write_actions(of1x_write_actions_t* writ
 		bitmap128_set(&write_actions->bitmap, action->type);
 	}
 
-	//This cannot be done here, because the group might NOT exist yet; the sum will happen 
+	//This cannot be done here, because the group might NOT exist yet; the sum will happen
 	//during insertion validation (for both action and WRITE_ACTIONS instruction
 	//if (action->type == OF1X_AT_OUTPUT)
 	//	write_actions->num_of_output_actions++;
 	//if(action->type == OF1X_AT_GROUP)
 	//	write_actions->num_of_output_actions+=action->group->num_of_output_actions;
-	
+
 	//Update fast validation flags (required versions)
 	if(write_actions->ver_req.min_ver < action->ver_req.min_ver)
 		write_actions->ver_req.min_ver = action->ver_req.min_ver;
 	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
 		write_actions->ver_req.max_ver = action->ver_req.max_ver;
-		
+
 	return ROFL_SUCCESS;
 }
 
@@ -613,7 +613,7 @@ rofl_result_t __of1x_update_apply_actions(of1x_action_group_t** group, of1x_acti
 
 	//Release if necessary
 	if(old_group)
-		of1x_destroy_action_group(old_group);	
+		of1x_destroy_action_group(old_group);
 
 	return ROFL_SUCCESS;
 }
@@ -621,14 +621,14 @@ rofl_result_t __of1x_update_apply_actions(of1x_action_group_t** group, of1x_acti
 rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_write_actions_t* new_group){
 
 	of1x_write_actions_t* old_group = *group;
-	
+
 	//Transfer
 	*group = new_group;
-	
-	//Destroy old group	
+
+	//Destroy old group
 	if(old_group)
 		__of1x_destroy_write_actions(old_group);
-	
+
 	return ROFL_SUCCESS;
 }
 
@@ -636,7 +636,7 @@ rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_wri
 /*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_action_type_t type, uint64_t value){
 	if( unlikely(write_actions==NULL))
-		return false;	
+		return false;
 
 	return bitmap128_is_bit_set(&write_actions->bitmap, type);
 }
@@ -646,10 +646,10 @@ bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of
 	of1x_packet_action_t *it;
 
 	if( unlikely(apply_actions_group==NULL) )
-		return false;	
+		return false;
 
 	for(it=apply_actions_group->head; it; it=it->next){
-		
+
 		if(type != OF1X_AT_GROUP){
 			//Filter types where field cannot be 0
 			return (it->type == type) &&  (value != 0x0 && it->__field.u64 == value);
@@ -658,7 +658,7 @@ bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of
 			return (it->type == type) &&  (it->__field.u64 == value);
 		}
 	}
-	return false;	
+	return false;
 }
 
 //Copy (cloning) methods
@@ -679,7 +679,7 @@ of1x_packet_action_t* __of1x_copy_packet_action(of1x_packet_action_t* action){
 of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 
 	of1x_action_group_t* copy;
-	of1x_packet_action_t* it;	
+	of1x_packet_action_t* it;
 
 	if( unlikely(origin==NULL) )
 		return NULL;
@@ -697,21 +697,21 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 	//Copy al apply actions
 	for(it=origin->head;it;it=it->next){
 		of1x_packet_action_t* act;
-		
+
 		act = __of1x_copy_packet_action(it);
 
 		if(unlikely(act == NULL)){
 			of1x_destroy_action_group(copy);
 			return NULL;
-		}	
+		}
 
 
 		//Insert in the double linked-list
 		if(!copy->tail){
-			copy->head = act; 
+			copy->head = act;
 		}else{
 			copy->tail->next = act;
-		}				
+		}
 		act->next = NULL;
 		copy->tail = act;
 	}
@@ -720,20 +720,20 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 }
 
 of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin){
-	
-	of1x_write_actions_t* copy; 
+
+	of1x_write_actions_t* copy;
 
 	if( unlikely(origin==NULL) )
 		return NULL;
 
-	copy = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
+	copy = platform_malloc_shared(sizeof(of1x_write_actions_t));
 
 	if( unlikely(copy==NULL) )
 		return NULL;
-	
+
 	//Copy Values
 	*copy = *origin;
-	
+
 	return copy;
 }
 
@@ -778,7 +778,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_SET_QUEUE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_QUEUE: %u", __of1x_get_packet_action_field32(action, raw_nbo));
 			break;
 
-		case OF1X_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo)); 
+		case OF1X_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
 		case OF1X_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_INFO_NO_PREFIX("SET_ETH_SRC: 0x%"PRIx64, __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
@@ -864,7 +864,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 
 		case OF1X_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_INFO_NO_PREFIX("SET_PPP_PROT: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-			
+
 		case OF1X_AT_SET_FIELD_IPV6_SRC:
 			{
 				uint128__t addr = __of1x_get_packet_action_field128(action, raw_nbo);
@@ -897,7 +897,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:ROFL_PIPELINE_INFO_NO_PREFIX("SET_IPV6_EXTHDR: 0x%x", __of1x_get_packet_action_field16(action, raw_nbo));
 			break;
-			
+
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_ICMPV6_CODE: 0x%u", __of1x_get_packet_action_field8(action, raw_nbo));
@@ -910,7 +910,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 			break;
 		case OF1X_AT_SET_FIELD_TUNNEL_ID:ROFL_PIPELINE_INFO_NO_PREFIX("SET_TUNNEL_ID: 0x%u", __of1x_get_packet_action_field64(action, raw_nbo));
 			break;
-		
+
 
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:ROFL_PIPELINE_INFO_NO_PREFIX("SET_GTP_MSG_TYPE: 0x%x", __of1x_get_packet_action_field8(action, raw_nbo));
 			break;
@@ -971,25 +971,25 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool raw_nbo
 		case OF1X_AT_OUTPUT:
 				ROFL_PIPELINE_INFO_NO_PREFIX("OUTPUT port: ");
 				switch(__of1x_get_packet_action_field32(action, raw_nbo)){
-	
+
 					case OF1X_PORT_FLOOD:
 						ROFL_PIPELINE_INFO_NO_PREFIX("FLOOD");
 						break;
 					case OF1X_PORT_NORMAL:
 						ROFL_PIPELINE_INFO_NO_PREFIX("NORMAL");
-						break;	
+						break;
 					case OF1X_PORT_CONTROLLER:
 						ROFL_PIPELINE_INFO_NO_PREFIX("CONTROLLER");
-						break;	
+						break;
 					case OF1X_PORT_ALL:
 						ROFL_PIPELINE_INFO_NO_PREFIX("ALL");
-						break;	
+						break;
 					case OF1X_PORT_TABLE:
 						ROFL_PIPELINE_INFO_NO_PREFIX("TABLE");
-						break;	
+						break;
 					case OF1X_PORT_IN_PORT:
 						ROFL_PIPELINE_INFO_NO_PREFIX("IN-PORT");
-						break;	
+						break;
 					default:
 						ROFL_PIPELINE_INFO_NO_PREFIX("%u", __of1x_get_packet_action_field32(action, raw_nbo));
 						break;
@@ -1008,11 +1008,11 @@ void __of1x_dump_write_actions(of1x_write_actions_t* write_actions, bool raw_nbo
 		if( bitmap128_is_bit_set(&write_actions->bitmap, j) ){
 			//Process action
 			__of1x_dump_packet_action(&write_actions->actions[j], raw_nbo);
-			i++;		
+			i++;
 		}
 	}
 }
-	
+
 void __of1x_dump_action_group(of1x_action_group_t* action_group, bool raw_nbo){
 
 	of1x_packet_action_t* action;
@@ -1040,7 +1040,7 @@ rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_g
 		else if(pa_it->type == OF1X_AT_GROUP && gt){
 			if((pa_it->group=__of1x_group_search(gt,pa_it->__field.u64))==NULL)
 				return ROFL_FAILURE;
-			else{	
+			else{
 				//If there is a group, FORCE cloning of the packet; state between
 				//group num of actions and entry "num_of_output_actions cache"
 				ag->num_of_output_actions+=2;
@@ -1051,7 +1051,7 @@ rofl_result_t __of1x_validate_action_group(bitmap128_t* supported, of1x_action_g
 	//Only pkt_out action lists can have output to table
 	if(!is_pkt_out_al && ag->has_output_table)
 		return ROFL_FAILURE;
-	
+
 	return ROFL_SUCCESS;
 }
 
@@ -1065,10 +1065,10 @@ rofl_result_t __of1x_validate_write_actions(bitmap128_t* supported, of1x_write_a
 
 	if( !bitmap128_check_mask(&wa->bitmap, supported) )
 		return ROFL_FAILURE;
-	
+
 	if( bitmap128_is_bit_set(&wa->bitmap, OF1X_AT_OUTPUT) )
 		wa->num_of_output_actions++;
-	
+
 	if(gt && bitmap128_is_bit_set(&wa->bitmap, OF1X_AT_GROUP)){
 		if((wa->actions[OF1X_AT_GROUP].group=__of1x_group_search(gt,wa->actions[OF1X_AT_GROUP].__field.u64))==NULL )
 			return ROFL_FAILURE;
@@ -1078,6 +1078,6 @@ rofl_result_t __of1x_validate_write_actions(bitmap128_t* supported, of1x_write_a
 			wa->num_of_output_actions+=2;
 		}
 	}
-	
+
 	return ROFL_SUCCESS;
 }

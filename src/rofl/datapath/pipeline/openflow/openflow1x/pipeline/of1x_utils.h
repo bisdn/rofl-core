@@ -6,7 +6,7 @@
 #define __OF1X_UTILS_H__
 
 #include <inttypes.h>
-#include "../../of_switch.h" 
+#include "../../of_switch.h"
 
 /**
 * @file of1x_utils.h
@@ -19,7 +19,7 @@
 //
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Extended flowmod return codes
 */
 typedef enum rofl_of1x_fm_result{
@@ -34,7 +34,7 @@ typedef enum rofl_of1x_fm_result{
 //
 
 /*
-* Mutex state for flow_entry_removal 
+* Mutex state for flow_entry_removal
 */
 typedef enum of1x_mutex_acquisition_required{
 	MUTEX_NOT_ACQUIRED = 0, 			/*mutex has not been acquired and we must take it*/
@@ -66,15 +66,15 @@ typedef struct of1x_ver_req_t{
 	* Useful masks
 	*/
 	//Byte masks
-	#define OF1X_8_BYTE_MASK	0xFFFFFFFFFFFFFFFFULL 
+	#define OF1X_8_BYTE_MASK	0xFFFFFFFFFFFFFFFFULL
 	#define OF1X_6_BYTE_MASK	0xFFFFFFFFFFFF0000ULL
 	#define OF1X_4_BYTE_MASK	0xFFFFFFFF
 	#define OF1X_3_BYTE_MASK	0xFFFFFF00
 	#define OF1X_2_BYTE_MASK	0xFFFF
 	#define OF1X_1_BYTE_MASK	0xFF
-	  
+
 	//Non-multiple of byte masks
-	#define OF1X_48_BITS_MASK	0xFFFFFFFFFFFF0000ULL 
+	#define OF1X_48_BITS_MASK	0xFFFFFFFFFFFF0000ULL
 	#define OF1X_20_BITS_MASK	0xFFFFF000
 	#define OF1X_14_BITS_MASK	0xFFFC
 	#define OF1X_13_BITS_MASK	0xFFF8
@@ -86,24 +86,24 @@ typedef struct of1x_ver_req_t{
 
 	#define OF1X_VLAN_PRESENT_MASK	0x0008
 	#define OF1X_VLAN_ID_MASK	0x0FFF
-	
+
 	#define OF1X_8MIDDLE_BITS_MASK 0x0FF0 //ipv6 TC
 	#define OF1X_20_BITS_IPV6_FLABEL_MASK 0x0FFFFF00
-	
+
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	/*
 	* Useful masks
 	*/
 	//Byte masks
-	#define OF1X_8_BYTE_MASK	0xFFFFFFFFFFFFFFFFULL 
+	#define OF1X_8_BYTE_MASK	0xFFFFFFFFFFFFFFFFULL
 	#define OF1X_6_BYTE_MASK	0x0000FFFFFFFFFFFFULL
 	#define OF1X_4_BYTE_MASK	0x00000000FFFFFFFF
 	#define OF1X_3_BYTE_MASK	0x0000000000FFFFFF
 	#define OF1X_2_BYTE_MASK	0x000000000000FFFF
 	#define OF1X_1_BYTE_MASK	0x00000000000000FF
-	  
+
 	//Non-multiple of byte masks
-	#define OF1X_48_BITS_MASK	0x0000FFFFFFFFFFFFULL 
+	#define OF1X_48_BITS_MASK	0x0000FFFFFFFFFFFFULL
 	#define OF1X_20_BITS_MASK	0x0000000000F0FFFF
 	#define OF1X_14_BITS_MASK	0x0000000000003FFF
 	#define OF1X_13_BITS_MASK	0x0000000000001FFF
@@ -112,13 +112,13 @@ typedef struct of1x_ver_req_t{
 	#define OF1X_6_BITS_MASK	0x000000000000003F
 	#define OF1X_4_BITS_MASK	0x000000000000000F
 	#define OF1X_3_BITS_MASK	0x0000000000000007
-	
+
 	#define OF1X_VLAN_PRESENT_MASK	0x0010
 	#define OF1X_VLAN_ID_MASK	0xFF0F
-	
+
 	#define OF1X_8MIDDLE_BITS_MASK 0xF00F
 	#define OF1X_20_BITS_IPV6_FLABEL_MASK 0x00FFFF0F
-	
+
 #else
 	#error Unknwon endianness
 #endif

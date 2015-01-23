@@ -17,9 +17,9 @@
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-/* FLOW entry lookup entry point */ 
+/* FLOW entry lookup entry point */
 static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t *const table, datapacket_t *const pkt){
-	
+
 	of1x_match_t* it;
 	of1x_flow_entry_t *entry;
 
@@ -27,11 +27,11 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 	//Prevent writers to change structure during matching
 	platform_rwlock_rdlock(table->rwlock);
 #endif
-	
-	//Table is sorted out by nº of hits and priority N. First full match => best_match 
+
+	//Table is sorted out by nº of hits and priority N. First full match => best_match
 	for(entry = table->entries;entry!=NULL;entry = entry->next){
 		bool matched = true;
-		
+
 		for( it=entry->matches.head ; it ; it=it->next ){
 			if(!__of1x_check_match(pkt, it)){
 				matched = false;
@@ -50,13 +50,13 @@ static inline of1x_flow_entry_t* of1x_find_best_match_loop_ma(of1x_flow_table_t 
 			return entry;
 		}
 	}
-	
+
 #ifndef ROFL_PIPELINE_LOCKLESS
 	//No match
 	//Green light for writers
 	platform_rwlock_rdunlock(table->rwlock);
 #endif
-	return NULL; 
+	return NULL;
 }
 
 //C++ extern C

@@ -16,14 +16,14 @@ typedef struct l2hash_ht_bucket{
 
 	//Bucket fields
 	uint64_t eth_dst;
-	uint16_t vid;	
-	
+	uint16_t vid;
+
 	//Flow entry pointer
 	of1x_flow_entry_t* entry;
 
 	//Pointer back to the entry
 	struct l2hash_ht_entry* ht_entry;
-	
+
 	//Double linked list
 	struct l2hash_ht_bucket* prev;
 	struct l2hash_ht_bucket* next;
@@ -70,8 +70,8 @@ extern uint16_t l2hash_ht_T[L2HASH_MAX_ENTRIES];
 
 //Hashing functions
 static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
-	
-	uint16_t hash=0x0;	
+
+	uint16_t hash=0x0;
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[0])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[1])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[2])];
@@ -80,13 +80,13 @@ static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[5])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[6])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[7])];
-	return hash;	
+	return hash;
 }
 
 //Hashing functions
 static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
-	
-	uint16_t hash=0x0;	
+
+	uint16_t hash=0x0;
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[0])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[1])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[2])];
@@ -97,7 +97,7 @@ static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[7])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[8])];
 	hash = l2hash_ht_T[hash ^ (L2HASH_MAX_ENTRIES & key[9])];
-	return hash;	
+	return hash;
 }
 #else
 
@@ -117,15 +117,15 @@ static inline uint32_t l2hash_fnv1a(unsigned char c, uint32_t hash){
 static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
 
 	uint32_t hash = L2_HASH_FNV_SEED;
-	
-	hash = l2hash_fnv1a( key[0], hash); 
-	hash = l2hash_fnv1a( key[1], hash); 
-	hash = l2hash_fnv1a( key[2], hash); 
-	hash = l2hash_fnv1a( key[3], hash); 
-	hash = l2hash_fnv1a( key[4], hash); 
-	hash = l2hash_fnv1a( key[5], hash); 
-	hash = l2hash_fnv1a( key[6], hash); 
-	hash = l2hash_fnv1a( key[7], hash); 
+
+	hash = l2hash_fnv1a( key[0], hash);
+	hash = l2hash_fnv1a( key[1], hash);
+	hash = l2hash_fnv1a( key[2], hash);
+	hash = l2hash_fnv1a( key[3], hash);
+	hash = l2hash_fnv1a( key[4], hash);
+	hash = l2hash_fnv1a( key[5], hash);
+	hash = l2hash_fnv1a( key[6], hash);
+	hash = l2hash_fnv1a( key[7], hash);
 
 	//Fold
 	return  (hash>>16) ^ (hash & L2_HASH_FNV_MASK_16);
@@ -134,17 +134,17 @@ static inline uint16_t l2hash_ht_hash64(const char* key, unsigned int size){
 //96 bit
 static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
 	uint32_t hash = L2_HASH_FNV_SEED;
-	
-	hash = l2hash_fnv1a( key[0], hash); 
-	hash = l2hash_fnv1a( key[1], hash); 
-	hash = l2hash_fnv1a( key[2], hash); 
-	hash = l2hash_fnv1a( key[3], hash); 
-	hash = l2hash_fnv1a( key[4], hash); 
-	hash = l2hash_fnv1a( key[5], hash); 
-	hash = l2hash_fnv1a( key[6], hash); 
-	hash = l2hash_fnv1a( key[7], hash); 
-	hash = l2hash_fnv1a( key[8], hash); 
-	hash = l2hash_fnv1a( key[9], hash); 
+
+	hash = l2hash_fnv1a( key[0], hash);
+	hash = l2hash_fnv1a( key[1], hash);
+	hash = l2hash_fnv1a( key[2], hash);
+	hash = l2hash_fnv1a( key[3], hash);
+	hash = l2hash_fnv1a( key[4], hash);
+	hash = l2hash_fnv1a( key[5], hash);
+	hash = l2hash_fnv1a( key[6], hash);
+	hash = l2hash_fnv1a( key[7], hash);
+	hash = l2hash_fnv1a( key[8], hash);
+	hash = l2hash_fnv1a( key[9], hash);
 
 	//Fold
 	return (hash>>16) ^ (hash & L2_HASH_FNV_MASK_16);
@@ -154,7 +154,7 @@ static inline uint16_t l2hash_ht_hash96(const char* key, unsigned int size){
 //Platform state
 typedef struct l2hash_entry_ps{
 	bool has_vlan;
-	l2hash_ht_bucket_t* bucket;	
+	l2hash_ht_bucket_t* bucket;
 }l2hash_entry_ps_t;
 
 //C++  xtern C

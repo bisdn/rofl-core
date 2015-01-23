@@ -19,7 +19,7 @@ done
 
 cat <<-EOF
 	//matching algorithm count
-	of1x_matching_algorithm_count 
+	of1x_matching_algorithm_count
 };
 
 #define OF1X_MATCHING_ALGORITHM_NAMES \\

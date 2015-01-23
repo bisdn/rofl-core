@@ -8,7 +8,7 @@
 // This file is created to avoid cross dependency of header files
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Group type
 */
 typedef enum of1x_group_type{

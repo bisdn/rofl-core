@@ -5,7 +5,7 @@
 #ifndef __OF1X_INSTRUCTION_H__
 #define __OF1X_INSTRUCTION_H__
 
-#include <inttypes.h> 
+#include <inttypes.h>
 #include <stdbool.h>
 #include "rofl.h"
 #include "of1x_action.h"
@@ -15,11 +15,11 @@
 * @file of1x_instruction.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief OpenFlow v1.X instructions 
+* @brief OpenFlow v1.X instructions
 *
 * Instructions should never be used directly. Instructions
 * are arleady part of the of1x_flow_entry.
-* 
+*
 * How to add and remove instructions (pseudo-code):
 * @code
 *
@@ -39,7 +39,7 @@
 *
 * //GOTO_TABLE
 * of1x_add_instruction_to_group(&entry->inst_grp, OF1X_IT_GOTO_TABLE, NULL, NULL,10)
-* 
+*
 *
 * //To release resources
 * of1x_destroy_flow_entry(entry)
@@ -50,9 +50,9 @@
 
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Instruction type. From OF12: enum ofp_12_instruction_type.
-* 
+*
 * @warning values are MODIFIED from OF specification and are reorder!
 */
 typedef enum {
@@ -81,33 +81,33 @@ typedef struct of1x_instruction{
 	//Type and value(for set fields and push)
 	of1x_instruction_type_t type;
 
-	//Action group for APPLY_ACTIONS type only 
+	//Action group for APPLY_ACTIONS type only
 	of1x_action_group_t* apply_actions;
 
-	//WRITE_ACTIONS type only actions 	
+	//WRITE_ACTIONS type only actions
 	of1x_write_actions_t* write_actions;
- 
+
 	//WRITE_METADATA type only metadata
 	of1x_write_metadata_t write_metadata;
 
 	//GO-TO-TABLE
-	unsigned int go_to_table;	
+	unsigned int go_to_table;
 }of1x_instruction_t;
 
-/* Instruction group, using a double-linked-list */ 
+/* Instruction group, using a double-linked-list */
 typedef struct of1x_instruction_group{
 	//Number of actions in the list
 	unsigned int num_of_instructions;
 
 	of1x_instruction_t instructions[OF1X_IT_MAX]; //Latest must ALWAYS be MAX
-	
-	//Flag indicating that there are multiple 
-	//outputs in several instructions/in an apply 
+
+	//Flag indicating that there are multiple
+	//outputs in several instructions/in an apply
 	//actions group.
-	//Note: this does NOT reflect the exact number of output 
+	//Note: this does NOT reflect the exact number of output
 	//actions when groups are used
 	unsigned int num_of_outputs;
-	
+
 }of1x_instruction_group_t;
 
 //Fwd declaration
@@ -132,19 +132,19 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group);
 
 //Add/remove instructions to/from group
 /**
-* @brief Adds an instruction of the group 
-* @ingroup core_of1x 
-* @param type Instruction type (OF1X_IT_XX) 
-* @param apply_actions (For OF1X_IT_APPLY_ACTIONS only)Apply actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library 
+* @brief Adds an instruction of the group
+* @ingroup core_of1x
+* @param type Instruction type (OF1X_IT_XX)
+* @param apply_actions (For OF1X_IT_APPLY_ACTIONS only)Apply actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library
 * @param apply_actions (For OF1X_IT_WRITE_ACTIONS only) Write_actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library.
-* @param go_to_table (For OF1X_IT_GO_TO_TABLE only) Index of the table to go. 
+* @param go_to_table (For OF1X_IT_GO_TO_TABLE only) Index of the table to go.
 */
 void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table);
 /**
-* @brief Remove an instruction of the group 
-* @ingroup core_of1x 
-* @param group Instruction group 
-* @param type Instruction type (OF1X_IT_XX) 
+* @brief Remove an instruction of the group
+* @ingroup core_of1x
+* @param group Instruction group
+* @param type Instruction type (OF1X_IT_XX)
 */
 void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1x_instruction_type_t type);
 

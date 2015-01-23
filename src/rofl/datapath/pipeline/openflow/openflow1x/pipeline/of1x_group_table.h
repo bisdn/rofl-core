@@ -19,11 +19,11 @@
 /**
 * @file of1x_group_table.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
-* @brief OpenFlow v1.0, 1.2 and 1.3.2 group table subsystem 
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 group table subsystem
 */
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Group bucket
 */
 typedef struct of1x_bucket{
@@ -36,8 +36,8 @@ typedef struct of1x_bucket{
 }of1x_bucket_t;
 
 /**
-* @ingroup core_of1x 
-* Group bucket list 
+* @ingroup core_of1x
+* Group bucket list
 */
 typedef struct of1x_bucket_list{
 	unsigned int num_of_buckets;
@@ -48,22 +48,22 @@ typedef struct of1x_bucket_list{
 struct of1x_group_table;
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Group structure definition
-*/ 
+*/
 typedef struct of1x_group{
 	uint32_t id;
 	of1x_group_type_t type;
 	of1x_stats_group_t stats;
 	of1x_bucket_list_t *bc_list;
-	
+
 	struct of1x_group_table *group_table;
-	
+
 	platform_rwlock_t *rwlock;
-	
+
 	struct of1x_group *next;
 	struct of1x_group *prev;
-	
+
 	unsigned int num_of_output_actions;
 }of1x_group_t;
 
@@ -76,12 +76,12 @@ typedef struct of1x_group_table{
 
 	//Configuration
 	of1x_group_table_config_t config;
-	
+
 	uint32_t num_of_entries;
-	
+
 	platform_mutex_t *mutex;
 	platform_rwlock_t *rwlock;
-	
+
 	struct of1x_group *head;
 	struct of1x_group *tail;
 
@@ -120,7 +120,7 @@ ROFL_BEGIN_DECLS
 /**
  * @brief Initializes the group table.
  * @ingroup core_of1x
- * 
+ *
  * This is done during the  initialization of the pipeline
  */
 of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline *pipeline);
@@ -128,7 +128,7 @@ of1x_group_table_t* of1x_init_group_table(struct of1x_pipeline *pipeline);
 /**
  * @brief Destroys the group table.
  * @ingroup core_of1x
- * 
+ *
  * This is done during the reset of the pipeline
  */
 void of1x_destroy_group_table(of1x_group_table_t* gt);
@@ -136,7 +136,7 @@ void of1x_destroy_group_table(of1x_group_table_t* gt);
 /**
  * @brief Adds a group to the table.
  * @ingroup core_of1x
- * 
+ *
  * If a group with the ID already exists returns error
  */
 rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
@@ -144,7 +144,7 @@ rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t t
 /**
  * @brief Modifies a group on the table.
  * @ingroup core_of1x
- * 
+ *
  * Searches the group with the defined ID and modifies the bucket list and the type
  */
 rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
@@ -152,7 +152,7 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 /**
  * @brief Deletes a group of the table.
  * @ingroup core_of1x
- * 
+ *
  * Deletes the group structure. If id == OF1X_GROUP_ALL, all groups are deleted. If the group id is not found no error is send.
  */
 rofl_of1x_gm_result_t of1x_group_delete( struct of1x_pipeline *pipeline, of1x_group_table_t *gt, uint32_t id);
@@ -160,7 +160,7 @@ rofl_of1x_gm_result_t of1x_group_delete( struct of1x_pipeline *pipeline, of1x_gr
 /**
  * @brief Initializes a list of buckets.
  * @ingroup core_of1x
- * 
+ *
  * Allocates memory for a bucket list
  */
 of1x_bucket_list_t* of1x_init_bucket_list(void);
@@ -168,7 +168,7 @@ of1x_bucket_list_t* of1x_init_bucket_list(void);
 /**
  * @brief Destroys the bucket list.
  * @ingroup core_of1x
- * 
+ *
  * Frees memory of a bucket list
  */
 void of1x_destroy_bucket_list(of1x_bucket_list_t *bc_list);
@@ -176,7 +176,7 @@ void of1x_destroy_bucket_list(of1x_bucket_list_t *bc_list);
 /**
  * @brief Initializes a bucket.
  * @ingroup core_of1x
- * 
+ *
  * Allocates memory and sets the values for a bucket
  */
 of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of1x_action_group_t* actions);
@@ -184,7 +184,7 @@ of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 /**
  * @brief Inserts an initialized bucket in the list of buckets.
  * @ingroup core_of1x
- * 
+ *
  */
 rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket_t *bucket);
 
@@ -194,7 +194,7 @@ void __of13_set_group_table_defaults(of1x_group_table_t *gt);
 /*
 * Dump group table. Not recommended to use it directly
 *
-* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned.
 */
 void of1x_dump_group_table(of1x_group_table_t *gt, bool raw_nbo);
 

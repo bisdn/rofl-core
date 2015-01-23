@@ -18,7 +18,7 @@
 
 /**
 * @file of1x_flow_entry.h
-* @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
+* @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>
 *
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 flow entry abstraction
 *
@@ -32,7 +32,7 @@ struct of1x_group_table;
 
 /**
 * Flow removal operations strictness
-* @ingroup core_of1x 
+* @ingroup core_of1x
 */
 typedef enum of1x_flow_removal_strictness{
 	NOT_STRICT = 0,
@@ -41,7 +41,7 @@ typedef enum of1x_flow_removal_strictness{
 
 /**
 * Flow remove reasons (enum ofp_flow_removed_reason)
-* @ingroup core_of1x 
+* @ingroup core_of1x
 */
 typedef enum of1x_flow_remove_reason {
 	OF1X_FLOW_REMOVE_IDLE_TIMEOUT=0,		/* Flow idle time exceeded idle_timeout. */
@@ -66,26 +66,26 @@ typedef void of1x_flow_entry_platform_state_t;
 
 /**
 * OpenFlow v1.0, 1.2 and 1.3.2 flow entry structure
-* @ingroup core_of1x 
+* @ingroup core_of1x
 */
 typedef struct of1x_flow_entry{
-	
+
 	//Entry priority(lowest 16 bit is the OF priority)
-	//17th bit is only set to 1/0 for OF1.0 (is wildcarded or not) 
+	//17th bit is only set to 1/0 for OF1.0 (is wildcarded or not)
 	uint32_t priority;
-	
+
 	//Previous entry
 	struct of1x_flow_entry* prev;
-	
+
 	//Next entry
 	struct of1x_flow_entry* next;
 
 	//Table in which rule is inserted (for fast safety checkings)
 	struct of1x_flow_table* table;
-	
+
 	//Matches
 	of1x_match_group_t matches;
-	
+
 	//Instructions
 	of1x_instruction_group_t inst_grp;
 
@@ -101,10 +101,10 @@ typedef struct of1x_flow_entry{
 
 	//Opaque flags bitmap
 	//This is necessary for OF1.3 and beyond, since
-	//the insertion flags need to kept for future 
+	//the insertion flags need to kept for future
 	//flow_stats request... none-sense
 	uint32_t flags;
-	
+
 	//statistics
 	of1x_stats_flow_t stats;
 
@@ -119,24 +119,24 @@ typedef struct of1x_flow_entry{
 ROFL_BEGIN_DECLS
 
 /**
-* @brief Create an empty flow entry 
-* @ingroup core_of1x 
+* @brief Create an empty flow entry
+* @ingroup core_of1x
 */
 of1x_flow_entry_t* of1x_init_flow_entry(bool notify_removal);
 
 //This should never be used from outside the library
-rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of1x_flow_remove_reason_t reason); 
+rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of1x_flow_remove_reason_t reason);
 
 /**
-* @brief Destroy the flow entry, including stats, instructions and actions 
-* @ingroup core_of1x 
+* @brief Destroy the flow entry, including stats, instructions and actions
+* @ingroup core_of1x
 */
-rofl_result_t of1x_destroy_flow_entry(of1x_flow_entry_t* entry); 
+rofl_result_t of1x_destroy_flow_entry(of1x_flow_entry_t* entry);
 
 //Add match
 /**
 * @brief Adds a match to the flow_entry
-* @ingroup core_of1x 
+* @ingroup core_of1x
 */
 rofl_result_t of1x_add_match_to_entry(of1x_flow_entry_t* entry, of1x_match_t* match);
 
@@ -145,7 +145,7 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 
 //Fast validation against OF version
 rofl_result_t __of1x_validate_flow_entry(of1x_flow_entry_t* entry, struct of1x_pipeline* pipeline, unsigned int table_id);
-	
+
 //Flow comparison
 bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group, bool check_cookie);
 bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
@@ -153,10 +153,10 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 
 //Dump flow
 /**
-* @brief Dumps the flow entry for debugging purposes.  
-* @ingroup core_of1x 
+* @brief Dumps the flow entry for debugging purposes.
+* @ingroup core_of1x
 *
-* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned.
 */
 void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool raw_nbo);
 

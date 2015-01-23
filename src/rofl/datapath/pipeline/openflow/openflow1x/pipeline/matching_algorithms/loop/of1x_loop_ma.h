@@ -24,7 +24,7 @@ rofl_result_t of1x_remove_flow_entry_loop(of1x_flow_table_t *const table , of1x_
 rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		uint64_t cookie,
 		uint64_t cookie_mask,
-		uint32_t out_port, 
+		uint32_t out_port,
 		uint32_t out_group,
 		of1x_match_group_t *const matches,
 		of1x_stats_flow_msg_t* msg);
@@ -32,7 +32,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const table,
 		uint64_t cookie,
 		uint64_t cookie_mask,
-		uint32_t out_port, 
+		uint32_t out_port,
 		uint32_t out_group,
 		of1x_match_group_t *const matches,
 		of1x_stats_flow_aggregate_msg_t* msg);

@@ -34,13 +34,13 @@ bool __of1x_time_is_later(struct timeval *a, struct timeval *b){
 	if(a->tv_sec > b->tv_sec){
 		return true;
 	}
-	
+
 	if (a->tv_sec == b->tv_sec){
 		if(a->tv_usec > b->tv_usec){
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -68,7 +68,7 @@ void __of1x_dump_timers_structure(of1x_timer_group_t * timer_group){
 		for(et=tg[i].list.head; et; et=et->next)
 			ROFL_PIPELINE_DEBUG("	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);
 	}
-	
+
 #else
 	if(tg->prev)
 		ROFL_PIPELINE_DEBUG("NOT the first group!!\n");
@@ -139,7 +139,7 @@ rofl_result_t __of1x_timer_group_static_init(of1x_flow_table_t* table){
 		table->timers[i].list.head = table->timers[i].list.tail = NULL;
 	}
 	table->current_timer_group=0;
-	
+
 	return ROFL_SUCCESS;
 }
 
@@ -195,19 +195,19 @@ static of1x_timer_group_t* __of1x_timer_group_init(uint64_t timeout, of1x_timer_
 	new_group->list.num_of_timers=0;
 	new_group->list.head=NULL;
 	new_group->list.tail=NULL;
-	
+
 	// place the timer group
 	new_group->prev=tg_prev;
 	new_group->next=tg_next;
-	
+
 	//if there is a node afterwards we place the new one before
 	if (tg_next) tg_next->prev=new_group;
 	//if there is a node forewards we place the new one before
 	if (tg_prev) tg_prev->next=new_group;
-	
+
 	if(table->timers == tg_next)
 		table->timers = new_group;
-	
+
 	return new_group;
 }
 
@@ -244,10 +244,10 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 	}
 	new_entry->entry = entry;
 	new_entry->group = tg;
-	
+
 	// we add the new entries at the end
 	new_entry->next=NULL;
-	
+
 	// we check if it is the first entry.
 	if(tg->list.tail) //if it is not
 	{
@@ -262,19 +262,19 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 		if(!tg->list.head)
 			tg->list.head = new_entry;
 	}
-	
+
 	// update the pointer TO the last entry of the list
 	tg->list.tail = new_entry;
 	// update the entries counter
 	tg->list.num_of_timers++;
-	
+
 	new_entry->type=is_idle;
-	
+
 	if(is_idle)
 		entry->timer_info.idle_timer_entry=new_entry;
 	else
 		entry->timer_info.hard_timer_entry=new_entry;
-	
+
 	return new_entry;
 }
 
@@ -284,7 +284,7 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
  * This is ment to be used when a single entry is deleted.
  */
 static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t* entry, of1x_flow_table_t * table)
-{	
+{
 	if(likely(entry!=NULL))
 	{
 		if(!entry->next && !entry->prev) // this is the only entry
@@ -307,7 +307,7 @@ static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t*
 			entry->next->prev = entry->prev;
 			entry->prev->next = entry->next;
 		}
-		
+
 		entry->group->list.num_of_timers--;
 #if ! OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 		//we need to check if this entry was the last one and delete the timer group
@@ -343,17 +343,17 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 			return ROFL_FAILURE;
 		entry->timer_info.hard_timer_entry = NULL;
 	}
-		
+
 	if(entry->timer_info.idle_timeout){
 		if(__of1x_destroy_single_timer_entry_clean(entry->timer_info.idle_timer_entry, entry->table)!=ROFL_SUCCESS)
 			return ROFL_FAILURE;
 		entry->timer_info.idle_timer_entry = NULL;
 	}
-		
+
 #if DEBUG_NO_REAL_PIPE
 	__of1x_fill_new_timer_entry_info(entry,0,0);
 #endif
-		
+
 	return ROFL_SUCCESS;
 }
 
@@ -369,7 +369,7 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 
 	//Consolidate entry
 	__of1x_stats_flow_consolidate(&entry_timer->entry->stats, &consolidated_stats);
-	
+
 	if(consolidated_stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
 	{
 	// timeout expired so no need to reschedule !!! we have to delete the entry
@@ -383,21 +383,21 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 #endif
 		return ROFL_SUCCESS;
 	}
-	
+
 	entry_timer->entry->timer_info.last_packet_count = consolidated_stats.packet_count;
 
 	//NOTE we calculate the new time of expiration from the checking time and not from the last time it was used (less accurate and more efficient)
 	platform_gettimeofday(&system_time);
 	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &system_time);
-	
+
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-	
+
 	int slot_delta = expiration_time - pipeline->tables[id_table].timers[pipeline->tables[id_table].current_timer_group].timeout; //ms
 	int slot_position = (pipeline->tables[id_table].current_timer_group + slot_delta/OF1X_TIMER_SLOT_MS) % OF1X_TIMER_GROUPS_MAX;
 	if(__of1x_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, IDLE_TO)==NULL)
 		return ROFL_FAILURE;
 #else
-		
+
 	of1x_timer_group_t * tg_iterator = __of1x_dynamic_slot_search(pipeline->tables[id_table], expiration_time);
 	if(tg_iterator==NULL)
 		return ROFL_FAILURE;
@@ -405,10 +405,10 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 	if(__of1x_entry_timer_init(tg_iterator, entry_timer->entry, IDLE_TO) == NULL)
 		return ROFL_FAILURE;
 #endif
-		
+
 	//TODO delete timer_entry that has been rescheduled:
 	__of1x_destroy_single_timer_entry_clean(entry_timer, &pipeline->tables[id_table]);
-	
+
 	return ROFL_SUCCESS;
 }
 
@@ -425,7 +425,7 @@ static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_grou
 	if(tg->list.num_of_timers>0 && tg->list.head){
 		while( (entry_iterator = tg->list.head) != NULL){
 			//NOTE actual removal of timer_entries is done in the destruction of the entry
-			
+
 			if(entry_iterator->type == IDLE_TO){
 				if(__of1x_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS)
 					return ROFL_FAILURE;
@@ -458,7 +458,7 @@ static of1x_timer_group_t * of1x_dynamic_slot_search(of1x_flow_table_t* const ta
 	//We search the timer group with the timeout corresponding to the expiration_time calculated
 	for(tg_iterator = table->timers; tg_iterator && tg_iterator->timeout<expiration_time && tg_iterator->next; tg_iterator=tg_iterator->next);
 	// After that we expect 3 different situations:
-	
+
 	if(!tg_iterator)
 	{
 		//the list is empty, we sould create the first group
@@ -491,7 +491,7 @@ static of1x_timer_group_t * of1x_dynamic_slot_search(of1x_flow_table_t* const ta
 			return NULL;
 		}
 	}
-	
+
 	return tg_iterator;
 }
 #endif
@@ -509,10 +509,10 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 		ROFL_PIPELINE_DEBUG("Timeout value excedded maximum value (hto=%d, MAX=%d)\n", timeout,OF1X_TIMER_GROUPS_MAX);
 		return ROFL_FAILURE;
 	}
-	
-	
+
+
 	int slot_delta = expiration_time - table->timers[table->current_timer_group].timeout; //ms
-	
+
 	//NOTE we allocate the timer in the next slot rounding up:
 	//so the actual expiration time will be a value in [hard_timeout,hard_timeout+OF1X_TIMER_SLOT_MS)
 	int slot_position = (table->current_timer_group+(slot_delta/OF1X_TIMER_SLOT_MS))%(OF1X_TIMER_GROUPS_MAX);
@@ -520,15 +520,15 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 		return ROFL_FAILURE;
 
 #else
-	
+
 	of1x_timer_group_t* tg_iterator = __of1x_dynamic_slot_search(table, expiration_time);
 	if (tg_iterator==NULL)
 		return ROFL_FAILURE;
-	
+
 	// add entry to this group. new_group.list->num_of_timers++; ...
 	if(__of1x_entry_timer_init(tg_iterator, entry, is_idle, NULL) == NULL)
 		return ROFL_FAILURE;
-	
+
 #endif
 	return ROFL_SUCCESS;
 }
@@ -537,7 +537,7 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 rofl_result_t __of1x_add_timer(of1x_flow_table_t* const table, of1x_flow_entry_t* const entry){
 	rofl_result_t res;
 	//NOTE we don't use that lock because this is only called from of1x_add_flow_entry...()
-	
+
 	if(entry->timer_info.idle_timeout)
 	{
 		res = __of1x_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
@@ -554,14 +554,14 @@ rofl_result_t __of1x_add_timer(of1x_flow_table_t* const table, of1x_flow_entry_t
 			return ROFL_FAILURE;
 		}
 	}
-	
+
 	return ROFL_SUCCESS;
 }
 
 void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const pipeline){
 
 	unsigned int i;
-	
+
 	struct timeval system_time;
 	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
@@ -576,7 +576,7 @@ void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const p
 			//rotate the timers
 			__of1x_timer_group_rotate(pipeline,&(table->timers[table->current_timer_group]),i);
 		}
-#else	
+#else
 		of1x_timer_group_t* slot_it, *next;
 		for(slot_it=table->timers; slot_it; slot_it=next)
 		{
@@ -592,7 +592,7 @@ void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const p
 			next = slot_it->next;
 			if(slot_it)
 				__of1x_destroy_timer_group(slot_it, table);
-		}		
+		}
 #endif
 		platform_mutex_unlock(table->mutex);
 	}

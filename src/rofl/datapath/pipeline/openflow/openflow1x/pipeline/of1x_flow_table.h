@@ -20,7 +20,7 @@
 
 /**
 * @file of1x_flow_table.h
-* @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
+* @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>
 *
 * @brief OpenFlow v1.0, 1.2 and 1.3.2 flow table abstraction
 *
@@ -28,7 +28,7 @@
 * a flow entry table (or a flowmod table).
 *
 * The basic operations which one can perform over a table are:
-*  - Add a flow entry 
+*  - Add a flow entry
 *  - Update flow entries
 *  - Remove flow entries
 *
@@ -50,7 +50,7 @@
 struct of1x_timer_group;
 struct of1x_pipeline;
 
-//Agnostic auxiliary matching structures. 
+//Agnostic auxiliary matching structures.
 typedef void matching_auxiliary_t;
 
 /**
@@ -61,7 +61,7 @@ typedef enum{
 	OF1X_TABLE_MISS_CONTINUE   = 1 << 0, /* Continue to the next table in the */
 	OF1X_TABLE_MISS_DROP       = 1 << 1, /* Drop the packet. */
 	OF1X_TABLE_MISS_MASK       = 3
-}of1x_flow_table_miss_config_t; 
+}of1x_flow_table_miss_config_t;
 
 
 //To str()
@@ -94,11 +94,11 @@ typedef struct of1x_flow_table{
 
 	//Table name
 	char name[OF1X_MAX_TABLE_NAME_LEN];
-	
+
 	/**
 	* This pointer may or may not be used depending
 	* on the matching algorithm. If used, it points
-	* to the first entry of the table 
+	* to the first entry of the table
 	*/
 	of1x_flow_entry_t* entries;
 	unsigned int num_of_entries;
@@ -109,14 +109,14 @@ typedef struct of1x_flow_table{
 	unsigned int current_timer_group; /*in case of static allocation indicates the timer group*/
 #endif
 	struct of1x_timer_group* timers;
-	
+
 	//Table config
-	of1x_flow_table_miss_config_t default_action; 
+	of1x_flow_table_miss_config_t default_action;
 	of1x_flow_table_config_t config;
 
 	//statistics
 	of1x_stats_table_t stats;
-	
+
 	/**
 	* Place-holder to allow matching algorithms
 	* keep its own state
@@ -125,7 +125,7 @@ typedef struct of1x_flow_table{
 
 #ifdef ROFL_PIPELINE_LOCKLESS
 	tid_presence_t tid_presence_mask;
-#endif 
+#endif
 
 	//Mutexes
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
@@ -134,8 +134,8 @@ typedef struct of1x_flow_table{
 	//Reference back
 	struct of1x_pipeline* pipeline;
 
-	/* 
-	* Matching algorithm identifier 
+	/*
+	* Matching algorithm identifier
 	*/
 	enum of1x_matching_algorithm_available matching_algorithm;
 
@@ -172,7 +172,7 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table);
 */
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Add a flow_entry to a table.
 *
 * This method will add a flow_entry to the table. The flow entry shall already
@@ -187,59 +187,59 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table);
 *
 * On success, the library will instantiate the necessary state to handle timers and
 * statistics.
-* 
+*
 * @param pipeline Switch pipeline
 * @param table_id Table index
-* @param entry of1x_flow_entry_t previously initialized with of1x_init_flow_entry() 
+* @param entry of1x_flow_entry_t previously initialized with of1x_init_flow_entry()
 * @param check_overlap Do not install if there are overlapping entries (would match the same packet)
-* @param reset_counts If overlap flag is false, reset the counters on entry overwrite 
-* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL. 
+* @param reset_counts If overlap flag is false, reset the counters on entry overwrite
+* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL.
 * or freed from outside the library.
 */
 rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, bool check_overlap, bool reset_counts);
 
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Modify flow_entry(s) in the table
 *
 * The modify flow entry will modify any exisiting entry in the table that contains the
 * same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
-* table entry. 
+* table entry.
 *
 * If (and only if) the mod operation is successful (ROFL_OF1X_FM_SUCCESS) the contents of the pointer *entry are set to NULL. Any other
 * reference to the real entry (**entry) shall never be further used.
 *
 * On success, the library will modify the necessary state to correctly handle timers and
 * statistics of the modified entries.
-*    
+*
 * @param pipeline Switch pipeline
 * @param table_id Table index
-* @param entry of1x_flow_entry_t that will update the existing (entries that have the same matches will be modified). This is NOT the entry TO update. 
-* @param strict Strictness, check the matches in a strict way 
-* @param reset_counts If overlap flag is false, reset the counters on entry overwrite 
-* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL. 
+* @param entry of1x_flow_entry_t that will update the existing (entries that have the same matches will be modified). This is NOT the entry TO update.
+* @param strict Strictness, check the matches in a strict way
+* @param reset_counts If overlap flag is false, reset the counters on entry overwrite
+* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL.
 * or freed from outside the library.
 */
 rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
-	
+
 /**
-* @ingroup core_of1x 
+* @ingroup core_of1x
 * Removes a flow_entry from the table.
 *
 * The remove flow entry will remove and destroy any exisiting entry in the table that contains
 * the same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
-* table entry. 
+* table entry.
 *
 * The entry parameter will never be modified by the library, and can be safely used or destroyed
 * after the call of of1x_remove_flow_entry_table()
-*    
+*
 * On success, the timers and statistics of the removed entries are purged.
 
 * @param pipeline Switch pipeline
 * @param table_id Table index
 * @param entry All the entries having the same matches as "entry" will be removed. This is NOT
-* the existing table entry to remove. 
-* @param strict Strictness, check the matches in a strict way 
+* the existing table entry to remove.
+* @param strict Strictness, check the matches in a strict way
 * @param out_port Only remove the entries that contain out_port in the actions
 * @param out_group Only remove the entries that contain out_group in the actions
 */
@@ -251,7 +251,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *cons
 /*
 * Table dumping. Not recommended to use it directly
 *
-* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned. 
+* @param raw_nbo Show values in the pipeline internal byte order (NBO). Warning: some values are intentionally unaligned.
 */
 void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo);
 

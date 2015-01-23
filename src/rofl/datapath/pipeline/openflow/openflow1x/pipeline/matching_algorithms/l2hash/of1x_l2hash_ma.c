@@ -26,21 +26,21 @@ rofl_result_t of1x_init_l2hash(struct of1x_flow_table *const table){
 	//Allocate memory for the hash table
 	table->matching_aux[0] = (void*)platform_malloc_shared(sizeof(l2hash_state_t));
 	//Cleanup everything
-	memset(table->matching_aux[0], 0, sizeof(l2hash_state_t));	
+	memset(table->matching_aux[0], 0, sizeof(l2hash_state_t));
 
 	//Matches and wildcards support
 	bitmap128_clean(&table->config.match);
 	bitmap128_set(&table->config.match, OF1X_MATCH_ETH_DST);
 	bitmap128_set(&table->config.match, OF1X_MATCH_VLAN_VID);
-	
+
 	bitmap128_clean(&table->config.wildcards);
-	
-	return ROFL_SUCCESS; 
+
+	return ROFL_SUCCESS;
 }
 
 
 static void l2hash_destroy_ht(l2hash_ht_table_t* ht){
-	unsigned int i;	
+	unsigned int i;
 	l2hash_ht_bucket_t *bucket, *next_bucket;
 
 	if(ht->num_of_entries)
@@ -54,7 +54,7 @@ static void l2hash_destroy_ht(l2hash_ht_table_t* ht){
 				next_bucket = bucket->next;
 				platform_free_shared(bucket);
 				bucket = next_bucket;
-			}	
+			}
 		}
 	}
 }
@@ -66,7 +66,7 @@ void l2hash_ht_add_bucket(l2hash_ht_table_t* ht, uint16_t hash, l2hash_ht_bucket
 
 	//Insertion priority
 	uint32_t priority = bucket->entry->priority;
- 
+
 	//Assign HT entry to the buck
 	bucket->ht_entry = ht_e;
 
@@ -81,7 +81,7 @@ void l2hash_ht_add_bucket(l2hash_ht_table_t* ht, uint16_t hash, l2hash_ht_bucket
 
 		//Assign first the next and previous on our node
 		bucket->next = it;
-		bucket->prev = it->prev;	
+		bucket->prev = it->prev;
 		it->prev = bucket;
 
 		//Add before it
@@ -94,14 +94,14 @@ void l2hash_ht_add_bucket(l2hash_ht_table_t* ht, uint16_t hash, l2hash_ht_bucket
 		ht_e->bucket_list = bucket;
 		bucket->next = bucket->prev = NULL;
 	}
-	
+
 	ht_e->num_of_buckets++;
 }
 
 void l2hash_ht_remove_bucket(l2hash_ht_bucket_t* bucket){
-	
+
 	//Recover the entry from the bucket
-	l2hash_ht_entry_t* ht_e = bucket->ht_entry; 
+	l2hash_ht_entry_t* ht_e = bucket->ht_entry;
 
 	//Adjust prev and next pointers
 	if(bucket->next)
@@ -110,9 +110,9 @@ void l2hash_ht_remove_bucket(l2hash_ht_bucket_t* bucket){
 	if(bucket->prev){
 		bucket->prev->next = bucket->next;
 	}else{
-		ht_e->bucket_list = bucket->next; 
+		ht_e->bucket_list = bucket->next;
 	}
-	
+
 	ht_e->num_of_buckets--;
 }
 
@@ -125,8 +125,8 @@ rofl_result_t of1x_destroy_l2hash(struct of1x_flow_table *const table){
 	l2hash_destroy_ht(&((struct l2hash_state*)table->matching_aux[0])->vlan);
 	l2hash_destroy_ht(&((struct l2hash_state*)table->matching_aux[0])->no_vlan);
 	platform_free_shared(table->matching_aux[0]);
-	
-	return ROFL_FAILURE; 
+
+	return ROFL_FAILURE;
 }
 
 //
@@ -135,19 +135,19 @@ rofl_result_t of1x_destroy_l2hash(struct of1x_flow_table *const table){
 void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 
 	uint16_t hash;
-	of1x_match_t *vlan=NULL, *eth_dst=NULL, *match;	
+	of1x_match_t *vlan=NULL, *eth_dst=NULL, *match;
 	l2hash_entry_ps_t* ps;
 	l2hash_ht_bucket_t* bucket;
 	l2hash_state_t* state = (l2hash_state_t*)entry->table->matching_aux[0];
-		
+
 	for(match = entry->matches.head;match;){
 		of1x_match_t *next = match->next;
-		
+
 		if(match->type == OF1X_MATCH_VLAN_VID){
 			vlan = match;
 		}else if(match->type == OF1X_MATCH_ETH_DST){
 			eth_dst=match;
-		}	
+		}
 		match = next;
 	}
 
@@ -176,17 +176,17 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 	if(vlan){
 		//VLAN
 		l2hash_vlan_key_t key;
-		key.vid = vlan->__tern->value.u16 & vlan->__tern->mask.u16;	
+		key.vid = vlan->__tern->value.u16 & vlan->__tern->mask.u16;
 		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
-		//calculate hash	
-		hash = l2hash_ht_hash96((const char*)&key, sizeof(l2hash_vlan_key_t)); 		
+		//calculate hash
+		hash = l2hash_ht_hash96((const char*)&key, sizeof(l2hash_vlan_key_t));
 		//Fill in ps
 		ps->has_vlan = false;
 
 		//Fill-in bucket
-		bucket->eth_dst = key.eth_dst;	
-		bucket->vid = key.vid;	
-	
+		bucket->eth_dst = key.eth_dst;
+		bucket->vid = key.vid;
+
 		//Add to the bucket list
 		l2hash_ht_add_bucket(&state->vlan, hash, bucket);
 
@@ -196,38 +196,38 @@ void of1x_add_hook_l2hash(of1x_flow_entry_t *const entry){
 		//NO-VLAN
 		l2hash_novlan_key_t key;
 		key.eth_dst = eth_dst->__tern->value.u64 & eth_dst->__tern->mask.u64;
-		//calculate hash	
+		//calculate hash
 		hash = l2hash_ht_hash64((const char*)&key, sizeof(l2hash_novlan_key_t));
 
 		//Fill in ps
 		ps->has_vlan = false;
-	
+
 		//Fill-in bucket
-		bucket->eth_dst = key.eth_dst;	
-	
+		bucket->eth_dst = key.eth_dst;
+
 		//Add to the bucket list
 		l2hash_ht_add_bucket(&state->no_vlan, hash, bucket);
-		
+
 		//Increase the number of entries
 		state->no_vlan.num_of_entries++;
 	}
-	
-	//Store ps to entry	
-	ps->bucket = bucket;	
+
+	//Store ps to entry
+	ps->bucket = bucket;
 	entry->platform_state = (void*)ps;
 }
 void of1x_modify_hook_l2hash(of1x_flow_entry_t *const entry){
 	//We don't care
 }
 void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
-	
+
 	l2hash_state_t* state = (l2hash_state_t*)entry->table->matching_aux[0];
-	
+
 	if(unlikely(entry->platform_state == NULL)){
 		assert(0);
 		return;
 	}
-	
+
 	l2hash_entry_ps_t* ps = (l2hash_entry_ps_t*)entry->platform_state;
 
 	//Perform the remove
@@ -245,7 +245,7 @@ void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
 
 //
 // Main routines
-// 
+//
 
 
 /* Conveniently wraps call with mutex.  */
@@ -279,10 +279,10 @@ OF1X_REGISTER_MATCHING_ALGORITHM(l2hash) = {
 	.get_flow_stats_hook = of1x_get_flow_stats_loop,
 	.get_flow_aggregate_stats_hook = of1x_get_flow_aggregate_stats_loop,
 
-	//Find group related entries	
+	//Find group related entries
 	.find_entry_using_group_hook = of1x_find_entry_using_group_loop,
 
-	//Dumping	
+	//Dumping
 	.dump_hook = NULL,
 	.description = L2HASH_DESCRIPTION,
 };

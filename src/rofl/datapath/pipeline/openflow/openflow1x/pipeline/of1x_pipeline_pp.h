@@ -55,30 +55,30 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 	unsigned int i, table_to_go, num_of_outputs;
 	of1x_flow_table_t* table;
 	of1x_flow_entry_t* match;
-	
-	//Initialize packet for OF1.X pipeline processing 
+
+	//Initialize packet for OF1.X pipeline processing
 	__init_packet_metadata(pkt);
 	__of1x_init_packet_write_actions(&pkt->write_actions.of1x);
 
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
-	
-	ROFL_PIPELINE_INFO("Packet[%p] entering switch %s [%p] pipeline (1.X)\n",pkt,sw->name, sw);	
+
+	ROFL_PIPELINE_INFO("Packet[%p] entering switch %s [%p] pipeline (1.X)\n",pkt,sw->name, sw);
 
 	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline.num_of_tables ; i++){
 
 		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
 
 #ifdef ROFL_PIPELINE_LOCKLESS
-		//Mark core presence 
+		//Mark core presence
 		tid_mark_as_present(tid, &table->tid_presence_mask);
 #endif
 
 #ifdef DEBUG
 		dump_packet_matches(pkt, false);
 #endif
-	
-		//Perform lookup	
+
+		//Perform lookup
 		match = __of1x_find_best_match_table(tid, (of1x_flow_table_t* const)table, pkt);
 
 		if(likely(match != NULL)){
@@ -90,7 +90,7 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 
 			//Update table and entry statistics
 			__of1x_stats_table_update_match(tid, &table->stats);
-			
+
 			//Update flow statistics
 			__of1x_stats_flow_update_match(tid, &match->stats, platform_packet_get_size_bytes(pkt));
 
@@ -126,12 +126,12 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 			platform_rwlock_rdunlock(match->rwlock);
 #endif
 
-			//Drop packet Only if there has been copy(cloning of the packet) due to 
+			//Drop packet Only if there has been copy(cloning of the packet) due to
 			//multiple output actions
 			if(num_of_outputs != 1)
 				platform_packet_drop(pkt);
-							
-			return;	
+
+			return;
 		}else{
 #ifdef ROFL_PIPELINE_LOCKLESS
 			//Unmark core presence in the table
@@ -141,35 +141,35 @@ static inline void __of1x_process_packet_pipeline(const unsigned int tid, const 
 			//Update table statistics
 			__of1x_stats_table_update_no_match(tid, &table->stats);
 
-			//Not matched, look for table_miss behaviour 
+			//Not matched, look for table_miss behaviour
 			if(table->default_action == OF1X_TABLE_MISS_DROP){
 
-				ROFL_PIPELINE_INFO("Packet[%p] table MISS_DROP %u\n",pkt, i);	
+				ROFL_PIPELINE_INFO("Packet[%p] table MISS_DROP %u\n",pkt, i);
 				platform_packet_drop(pkt);
 				return;
 
 			}else if(table->default_action == OF1X_TABLE_MISS_CONTROLLER){
-			
+
 				ROFL_PIPELINE_INFO("Packet[%p] table MISS_CONTROLLER. Generating a PACKET_IN event towards the controller\n",pkt);
 
 				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, ((of1x_switch_t*)sw)->pipeline.miss_send_len, OF1X_PKT_IN_NO_MATCH);
 				return;
 			}
-			//else -> continue with the pipeline	
+			//else -> continue with the pipeline
 		}
 	}
-	
-	//No match/default table action -> DROP the packet	
+
+	//No match/default table action -> DROP the packet
 	platform_packet_drop(pkt);
 
 }
 
 /**
-* @brief Processes a packet-out through the OpenFlow pipeline.  
-* @ingroup core_pp 
+* @brief Processes a packet-out through the OpenFlow pipeline.
+* @ingroup core_pp
 */
 static inline void of1x_process_packet_out_pipeline(const unsigned int tid, const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
-	
+
 	bool has_multiple_outputs=false;
 	datapacket_t* reinject_pkt=NULL;
 	of1x_group_table_t *gt = sw->pipeline.groups;
@@ -182,16 +182,16 @@ static inline void of1x_process_packet_out_pipeline(const unsigned int tid, cons
 	__of1x_dump_action_group((of1x_action_group_t*)apply_actions_group, false);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 #endif
-	
+
 	if(apply_actions_group->num_of_output_actions == 0){
-		//No output actions or groups; drop and return	
+		//No output actions or groups; drop and return
 		ROFL_PIPELINE_INFO("Packet[%p] WARNING: dropping! No output/group actions.\n",pkt);
 		platform_packet_drop(pkt);
 		return;
 	}
-	
+
 	has_multiple_outputs = (apply_actions_group->num_of_output_actions > 1);
-	
+
 
 	//Just process the action group
 	__of1x_process_apply_actions(tid, (of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs, &reinject_pkt);

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <sys/time.h>
-#include "rofl.h" 
+#include "rofl.h"
 
 /**
 * @file of1x_timers.h
@@ -49,7 +49,7 @@ typedef struct of1x_entry_timer{
 	struct of1x_flow_entry* entry;
 	struct of1x_timer_group* group;
 
-	//linked list	
+	//linked list
 	struct of1x_entry_timer* prev;
 	struct of1x_entry_timer* next;
 	of1x_timer_timeout_type_t type;
@@ -64,7 +64,7 @@ typedef struct of1x_timers_info{
 	//checks the number of packets that hit the entry to implement a lazy expiration
 	// less accurate but more eficient
 	uint64_t last_packet_count;
-	
+
 	of1x_entry_timer_t * idle_timer_entry;
 	of1x_entry_timer_t * hard_timer_entry;
 
@@ -73,20 +73,20 @@ typedef struct of1x_timers_info{
 typedef struct of1x_timer_list{
 	unsigned int num_of_timers;
 	of1x_entry_timer_t* head;
-	of1x_entry_timer_t* tail;	
+	of1x_entry_timer_t* tail;
 }of1x_timer_list_t;
 
 
 
 typedef struct of1x_timer_group{
-	uint64_t timeout; //Expiration time in ms (slot)	
+	uint64_t timeout; //Expiration time in ms (slot)
 	of1x_timer_list_t list; //List of entries that expire at this timeout
-	
-#if ! OF1X_TIMER_STATIC_ALLOCATION_SLOTS	
+
+#if ! OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	struct of1x_timer_group* prev; //linked list
 	struct of1x_timer_group* next;
 #endif
-	
+
 }of1x_timer_group_t;
 
 //C++ extern C

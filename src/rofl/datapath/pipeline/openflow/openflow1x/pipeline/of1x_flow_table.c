@@ -14,26 +14,26 @@
 //Nice dumping strings
 const char* __of1x_flow_table_miss_config_str[__OF1X_TABLE_MISS_MAX]={"CONTROLLER", "CONTINUE", "DROP", "INVALID"};
 
-/* 
+/*
 * OpenFlow table operations
 *
 * Assumptions:
 * - A Table MUST always have entries ordered by Nº of OF hits first, and for the priority field in second place
 * - A Table contains no more than OF1X_MAX_NUMBER_OF_TABLE_ENTRIES
-* -  
+* -
 */
 
 /*
-* Table mgmt 
-*/ 
+* Table mgmt
+*/
 
 void __of10_set_table_defaults(of1x_flow_table_t* table){
 
-	//Set default behaviour MISS Controller	
+	//Set default behaviour MISS Controller
 	//XXX: Original of10 was not not handling more than one table, why does
-	//the spec now have it? 
+	//the spec now have it?
 	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
-	
+
 	/* Setting up basic characteristics of the table */
 	table->config.table_miss_config = 0x0; //No meaning in OF1.0
 
@@ -74,56 +74,56 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_clean(&table->config.apply_actions);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_ETH_DST);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_NW_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_NW_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_QUEUE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_DST);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_SRC);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_TYPE); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_VID); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_PCP); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_PROTO);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_SRC);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_DST);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_DSCP);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_ECN);   		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_PROTO); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_SRC); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_DST); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_NW_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_NW_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_QUEUE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_VID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_PCP);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_PROTO);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_DSCP);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_ECN);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_PROTO);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_VERSION);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_PROT_TYPE);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_KEY);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_OUTPUT);
-	
-	//Write actions	
-	bitmap128_clean(&table->config.write_actions); //Not supported in OF10 
+
+	//Write actions
+	bitmap128_clean(&table->config.write_actions); //Not supported in OF10
 
 	//METADATA
 	table->config.metadata_match = 0x0; //Not supported in OF10
 	table->config.metadata_write = 0x0; //Not supported in OF10
 
 	//Instructions
-	table->config.instructions = 0x0; //Not supported in OF10 
+	table->config.instructions = 0x0; //Not supported in OF10
 
 }
 
 void __of12_set_table_defaults(of1x_flow_table_t* table){
 
-	//Set default behaviour MISS Controller	
+	//Set default behaviour MISS Controller
 	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
-	
+
 	/* Setting up basic characteristics of the table */
 	table->config.table_miss_config = (1 << OF1X_TABLE_MISS_CONTROLLER) | (1 << OF1X_TABLE_MISS_CONTINUE) | (1 << OF1X_TABLE_MISS_DROP);
 
@@ -197,79 +197,79 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	//Apply actions
 	bitmap128_clean(&table->config.apply_actions);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_IN);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_VLAN);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_MPLS);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GRE);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GTP);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GTP);		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_GTP);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_POP_PPPOE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PPPOE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GTP);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_GRE);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_MPLS);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_OUT);			
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_NW_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_MPLS_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_MPLS_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_NW_TTL);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_QUEUE);		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_DST);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_SRC);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_TYPE); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_LABEL);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_TC);  	   	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_VID); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_PCP); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_OPCODE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_SHA);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_SPA);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_THA);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_TPA);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_PROTO);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_SRC);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_DST);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_DSCP);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_ECN);   		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_PROTO); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_SRC); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_DST); 		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_SRC);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_DST);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_FLABEL);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_MPLS);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_VLAN);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_COPY_TTL_OUT);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_NW_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_DEC_MPLS_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_MPLS_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_NW_TTL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_QUEUE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ETH_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_LABEL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_TC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_VID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_VLAN_PCP);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_OPCODE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_SHA);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_SPA);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_THA);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ARP_TPA);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_PROTO);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_NW_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_DSCP);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_ECN);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IP_PROTO);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV4_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_FLABEL);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_TARGET);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_SLL);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_TLL);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_SRC);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_DST);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_SRC);  		
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_DST);  		
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_SLL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_ND_TLL);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TCP_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_UDP_DST);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_SRC);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_SCTP_DST);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_CODE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_CODE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);	   	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT); 	   	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_SRC);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TP_DST);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV4_CODE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_ICMPV6_CODE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_CODE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_TYPE);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPPOE_SID);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PPP_PROT);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_MSG_TYPE);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GTP_TEID);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_VERSION);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_PROT_TYPE);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_GRE_KEY);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_GROUP);			
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_GROUP);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_EXPERIMENTER);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_OUTPUT);
-		
+
 	//Write actions
 	table->config.write_actions = table->config.apply_actions;
 
 	//METADATA (full metadata support)
-	table->config.metadata_match = 0xFFFFFFFFFFFFFFFFULL;  
-	table->config.metadata_write = 0xFFFFFFFFFFFFFFFFULL; 
+	table->config.metadata_match = 0xFFFFFFFFFFFFFFFFULL;
+	table->config.metadata_write = 0xFFFFFFFFFFFFFFFFULL;
 
 	//Instructions
 	table->config.instructions = 	(1 << OF1X_IT_APPLY_ACTIONS) |
@@ -280,22 +280,22 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 }
 
 void __of13_set_table_defaults(of1x_flow_table_t* table){
-	
+
 	//Being lazy...
 	__of12_set_table_defaults(table);
 
 	//Setting the default behaviour to drop accroding to the spec.
-	table->default_action = OF1X_TABLE_MISS_DROP; 
-	
+	table->default_action = OF1X_TABLE_MISS_DROP;
+
 	//Adding OF1.3 matches
-	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS); 
-	
+	bitmap128_set(&table->config.match, OF1X_MATCH_MPLS_BOS);
+
 	bitmap128_set(&table->config.match, OF1X_MATCH_IPV6_EXTHDR);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_IPV6_EXTHDR);
-	
+
 	bitmap128_set(&table->config.match, OF1X_MATCH_PBB_ISID);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_PBB_ISID);
-	
+
 	bitmap128_set(&table->config.match, OF1X_MATCH_TUNNEL_ID);
 	bitmap128_set(&table->config.wildcards, OF1X_MATCH_TUNNEL_ID);
 
@@ -305,8 +305,8 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_PUSH_PBB);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_MPLS_BOS);
 	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_PBB_ISID);
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);	
-	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);	
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_IPV6_EXTHDR);
+	bitmap128_set(&table->config.apply_actions, OF1X_AT_SET_FIELD_TUNNEL_ID);
 
 	//Write actions
 	table->config.write_actions = table->config.apply_actions;
@@ -316,7 +316,7 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 
 	//Instructions
 	table->config.instructions |= (1 << OF1X_IT_METER);
-	
+
 	table->config.table_miss_config = 0x0;
 }
 
@@ -326,7 +326,7 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 
 	//Safety checks
 	if( unlikely(pipeline==NULL) || unlikely(table==NULL) )
-		return ROFL_FAILURE;	
+		return ROFL_FAILURE;
 
 	//Initializing mutexes
 	table->mutex = platform_mutex_init(NULL);
@@ -339,7 +339,7 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 #ifdef ROFL_PIPELINE_LOCKLESS
 	tid_init_presence_mask(&table->tid_presence_mask);
 #endif
-	
+
 	table->pipeline = pipeline;
 	table->number = table_index;
 	table->entries = NULL;
@@ -348,8 +348,8 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 
 	//Set name
 	snprintf(table->name, OF1X_MAX_TABLE_NAME_LEN, "table%u", table_index);
-	
-	//Setting up the matching algorithm	
+
+	//Setting up the matching algorithm
 	if(! (algorithm < of1x_matching_algorithm_count)){
 		platform_mutex_destroy(table->mutex);
 		platform_rwlock_destroy(table->rwlock);
@@ -359,8 +359,8 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	//Set algorithm
 	table->matching_algorithm = algorithm;
 
-	//Auxiliary matching algorithm structs 
-	table->matching_aux[0] = NULL; 
+	//Auxiliary matching algorithm structs
+	table->matching_aux[0] = NULL;
 	table->matching_aux[1] = NULL;
 
 	//Initializing timers. NOTE does that need to be done here or somewhere else?
@@ -377,13 +377,13 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	switch(pipeline->sw->of_ver){
 		case OF_VERSION_10:
 			__of10_set_table_defaults(table);
-			break; 
+			break;
 		case OF_VERSION_12:
 			__of12_set_table_defaults(table);
-			break; 
+			break;
 		case OF_VERSION_13:
 			__of13_set_table_defaults(table);
-			break; 
+			break;
 		default:
 			platform_mutex_destroy(table->mutex);
 			platform_rwlock_destroy(table->rwlock);
@@ -393,12 +393,12 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 	//Init stats
 	__of1x_stats_table_init(table);
 
-	//Allow matching algorithms to do stuff	
+	//Allow matching algorithms to do stuff
 	if(of1x_matching_algorithms[table->matching_algorithm].init_hook){
 		rofl_result_t result;
 
 		result = of1x_matching_algorithms[table->matching_algorithm].init_hook(table);
-		
+
 		if(result != ROFL_SUCCESS){
 			platform_mutex_destroy(table->mutex);
 			platform_rwlock_destroy(table->rwlock);
@@ -411,7 +411,7 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 
 /* Destructor. Table object is freed by pipeline destructor */
 rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
-	
+
 	platform_mutex_lock(table->mutex);
 	platform_rwlock_wrlock(table->rwlock);
 
@@ -421,7 +421,7 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
 
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
-	
+
 	//Destroy timers
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	__of1x_timer_group_static_destroy(table);
@@ -429,13 +429,13 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
 	//Destroy stats
 	__of1x_stats_table_destroy(table);
 
-	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
+	//Do NOT free table, since it was allocated in a single buffer in pipeline.c
 	return ROFL_SUCCESS;
 }
 
 
-/* 
-* Interfaces for generic add/remove flow entry 
+/*
+* Interfaces for generic add/remove flow entry
 * Specific matchings may point them to their own routines, but they MUST always call
 * of1x_[whatever]_flow_entry_table_imp in order to update the main tables
 */
@@ -445,9 +445,9 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	of1x_flow_table_t* table;
 
 #ifdef DEBUG
-	//Dump entry	
+	//Dump entry
 	ROFL_PIPELINE_INFO("[flowmod-add(%p)] Starting operation at switch %s(%p), table %u, with flags: %s %s\n", *entry, pipeline->sw->name, pipeline->sw, table_id, check_overlap ? "CHK_OVERLAP ": "", (reset_counts)? "RESET_COUNTERS":"" );
-	ROFL_PIPELINE_INFO(""); 
+	ROFL_PIPELINE_INFO("");
 	of1x_dump_flow_entry(*entry, false);
 #endif
 	//Verify table_id
@@ -480,12 +480,12 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 		ROFL_PIPELINE_INFO("[flowmod-add(%p)] FAILED, reason: %u\n", *entry, result);
 		return result;
 	}
-	
+
 	//Add timer
 	__of1x_add_timer(table, *entry);
 
 	ROFL_PIPELINE_INFO("[flowmod-add(%p)] Succesful.\n", *entry);
-	
+
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
 
@@ -503,9 +503,9 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	of1x_flow_table_t* table;
 
 #ifdef DEBUG
-	//Dump entry	
+	//Dump entry
 	ROFL_PIPELINE_INFO("[flowmod-modify(%p)] Starting operation at switch %s(%p), table %u, with flags: %s %s\n", *entry, pipeline->sw->name, pipeline->sw, table_id, (strict) ? "STRICT ": "NOT STRICT", (reset_counts)? "RESET_COUNTERS":"" );
-	ROFL_PIPELINE_INFO(""); 
+	ROFL_PIPELINE_INFO("");
 	of1x_dump_flow_entry(*entry, false);
 #endif
 
@@ -538,12 +538,12 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 		ROFL_PIPELINE_INFO("[flowmod-modify(%p)] FAILED\n", *entry);
 		return result;
 	}
-	
+
 	ROFL_PIPELINE_INFO("[flowmod-modify(%p)] Succesful.\n", *entry);
-	
+
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
-		
+
 
 	//Was successful set the pointer to NULL
 	//so that is not further used outside the pipeline
@@ -554,26 +554,26 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 }
 
 inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t* entry, const enum of1x_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
-	
+
 	of1x_flow_table_t* table;
-	rofl_result_t result;	
+	rofl_result_t result;
 
 #ifdef DEBUG
-	//Dump entry	
+	//Dump entry
 	ROFL_PIPELINE_INFO("[flowmod-remove(%p)] Starting operation at switch %s(%p), table %u, %s, ", entry, pipeline->sw->name, pipeline->sw, table_id,  (strict) ? "STRICT ": "NOT STRICT");
 
 	if(out_port == OF1X_PORT_ANY){
 		ROFL_PIPELINE_INFO_NO_PREFIX("out_port: %s, ", "ANY");
 	}else{
 		ROFL_PIPELINE_INFO_NO_PREFIX("out_port: %u, ", out_port);
-	} 
+	}
 	if(out_group == OF1X_GROUP_ANY){
 		ROFL_PIPELINE_INFO_NO_PREFIX("out_group: %s", "ANY");
 	}else{
 		ROFL_PIPELINE_INFO_NO_PREFIX("out_group: %u", out_group);
 	}
-	ROFL_PIPELINE_INFO_NO_PREFIX("\n"); 
-	ROFL_PIPELINE_INFO(""); 
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
+	ROFL_PIPELINE_INFO("");
 	of1x_dump_flow_entry(entry, false);
 #endif
 
@@ -592,9 +592,9 @@ inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipelin
 
 	//Recover table pointer
 	table = &pipeline->tables[table_id];
-	
+
 	result = of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, OF1X_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
-	
+
 #ifdef DEBUG
 	if(result != ROFL_SUCCESS)
 		ROFL_PIPELINE_INFO("[flowmod-remove(%p)] FAILED\n", entry);
@@ -608,41 +608,41 @@ inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipelin
 //This API call should NOT be called from outside pipeline library
 rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason, of1x_mutex_acquisition_required_t mutex_acquired){
 	of1x_flow_table_t* table;
-	
+
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
 	//Recover table pointer
 	table = &pipeline->tables[table_id];
-	
+
 	return of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY, reason, mutex_acquired);
 }
 
 /* Dump methods */
 void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 	of1x_flow_entry_t* entry;
-	int i;	
+	int i;
 
 	__of1x_stats_table_tid_t c;
 
 	//Consolidate stats
 	__of1x_stats_table_consolidate(&table->stats, &c);
 
-	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
+	ROFL_PIPELINE_INFO("\n"); //This is done in purpose
 	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, ma: %u statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, table->matching_algorithm,  c.lookup_count, c.matched_count);
-	
+
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");
-		return;	
+		return;
 	}
 	for(entry=table->entries, i=0;entry!=NULL;entry=entry->next,i++){
 		ROFL_PIPELINE_INFO("\t[%d] ",i);
 		of1x_dump_flow_entry(entry, raw_nbo);
 	}
-	
+
 	ROFL_PIPELINE_INFO("\t[*] No more entries...\n");
-	
+
 	if(of1x_matching_algorithms[table->matching_algorithm].dump_hook){
 		ROFL_PIPELINE_INFO("\tMatching algorithm %u specific state\n", table->matching_algorithm);
 		of1x_matching_algorithms[table->matching_algorithm].dump_hook(table, raw_nbo);

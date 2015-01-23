@@ -39,7 +39,7 @@ static inline void l2_hash_check_all_buckets_vlan(l2hash_ht_bucket_t* bucket, l2
 	}
 }
 
-/* FLOW entry lookup entry point */ 
+/* FLOW entry lookup entry point */
 static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_t *const table, datapacket_t *const pkt){
 
 	l2hash_novlan_key_t key_novlan;
@@ -48,10 +48,10 @@ static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_
 	l2hash_ht_entry_t* ht_entry;
 	uint16_t* vid;
 
-	//Table hash table 
+	//Table hash table
 	l2hash_state_t* state = (l2hash_state_t*)table->matching_aux[0];
-	
-	//Recover keys	
+
+	//Recover keys
 	key_novlan.eth_dst = key_vlan.eth_dst = *platform_packet_get_eth_dst(pkt) & OF1X_6_BYTE_MASK;
 
 	vid = platform_packet_get_vlan_vid(pkt);
@@ -61,23 +61,23 @@ static inline of1x_flow_entry_t* of1x_find_best_match_l2hash_ma(of1x_flow_table_
 
 	//Check no-VLAN table-hash
 	if(state->no_vlan.num_of_entries > 0){
-		ht_entry = &state->no_vlan.table[l2hash_ht_hash64((const char*)&key_novlan, sizeof(key_novlan))];	
+		ht_entry = &state->no_vlan.table[l2hash_ht_hash64((const char*)&key_novlan, sizeof(key_novlan))];
 		//Check buckets
 		l2_hash_check_all_buckets_no_vlan(ht_entry->bucket_list, &key_novlan, &best_match);
-	}	
-	
+	}
+
 	//Check VLAN table-hash
 	if(state->vlan.num_of_entries > 0){
-		ht_entry = &state->vlan.table[l2hash_ht_hash96((const char*)&key_vlan, sizeof(key_vlan))];	
+		ht_entry = &state->vlan.table[l2hash_ht_hash96((const char*)&key_vlan, sizeof(key_vlan))];
 		if(best_match){
 			l2_hash_check_all_buckets_vlan(ht_entry->bucket_list, &key_vlan, &tmp);
 			if(tmp && (tmp->priority > best_match->priority))
 				best_match = tmp;
 		}else{
 			l2_hash_check_all_buckets_vlan(ht_entry->bucket_list, &key_vlan, &best_match);
-		}	
+		}
 	}
-	return best_match; 
+	return best_match;
 }
 
 //C++ extern C
