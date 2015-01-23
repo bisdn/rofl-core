@@ -97,6 +97,8 @@ rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of
 //This is the interface to be used when deleting entries used as
 //a message or not inserted in a table 
 rofl_result_t of1x_destroy_flow_entry(of1x_flow_entry_t* entry){
+	if(unlikely(!entry))
+		return ROFL_FAILURE;
 	return __of1x_destroy_flow_entry_with_reason(entry, OF1X_FLOW_REMOVE_NO_REASON);	
 }
 

@@ -117,7 +117,8 @@ hal_result_t hal_driver_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_i
  * When check_overlap is enabled, addition will fail if there is at least one entry
  * which may potentally match the same packet, and this entry has the same priority.
  *
- * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. Any other reference to the real entry (**entry) shall never be further used.
+ * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. If the result is failure, but the flow_entry is set to NULL, this indicates
+ * that the flowmods was successfully installed, but the buffer ID was invalid/expired.
  *
  *
  * On success, the driver will instantiate the necessary state to handle timers and
@@ -140,7 +141,8 @@ hal_result_t hal_driver_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_i
  * same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
  * table entry. 
  *
- * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. Any other reference to the real entry (**entry) shall never be further used.
+ * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. If the result is failure, but the flow_entry is set to NULL, this indicates
+ * that the flowmods was successfully installed, but the buffer ID was invalid/expired.
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id from which to modify the flowmod
