@@ -198,7 +198,7 @@ public:
 	 */
 	static csocket*
 	csocket_factory(
-			enum socket_type_t socket_type, csocket_env *owner);
+			enum socket_type_t socket_type, csocket_env *owner, pthread_t tid = 0);
 
 	/**
 	 *
@@ -216,7 +216,9 @@ public:
 	 */
 	csocket(
 			csocket_env *env,
-			enum socket_type_t socket_type) :
+			enum socket_type_t socket_type,
+			pthread_t tid = 0) :
+				ciosrv(tid),
 				socket_env(env),
 				socket_type(socket_type),
 				sd(-1),

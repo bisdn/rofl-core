@@ -55,8 +55,9 @@ csocket_openssl::openssl_init()
 
 
 csocket_openssl::csocket_openssl(
-		csocket_env *owner) :
-				csocket(owner, rofl::csocket::SOCKET_TYPE_OPENSSL),
+		csocket_env *owner,
+		pthread_t tid) :
+				csocket(owner, rofl::csocket::SOCKET_TYPE_OPENSSL, tid),
 				socket(this),
 				ctx(NULL),
 				ssl(NULL),

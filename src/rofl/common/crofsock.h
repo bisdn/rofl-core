@@ -151,7 +151,8 @@ public:
 	 *
 	 */
 	crofsock(
-			crofsock_env *env);
+			crofsock_env *env,
+			pthread_t tid);
 
 	/**
 	 *
@@ -393,7 +394,7 @@ private:
 				delete socket;
 			ciosrv::cancel_all_timers();
 			ciosrv::cancel_all_events();
-			(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
+			(socket = csocket::csocket_factory(socket_type, this, get_thread_id()))->connect(socket_params);
 		} break;
 		case STATE_CONNECTING: {
 			// do nothing, we are already connecting ...
@@ -451,7 +452,7 @@ private:
 			if (socket)
 				delete socket;
 
-			(socket = csocket::csocket_factory(socket_type, this))->accept(socket_params, sd);
+			(socket = csocket::csocket_factory(socket_type, this, get_thread_id()))->accept(socket_params, sd);
 		} break;
 		default: {
 

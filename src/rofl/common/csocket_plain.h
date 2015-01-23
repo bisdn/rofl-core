@@ -139,7 +139,7 @@ public:
 	 * @param owner socket owning entity implementing interface csocket_plain_owner
 	 */
 	csocket_plain(
-			csocket_env *owner);
+			csocket_env *owner, pthread_t tid = 0);
 
 
 	/**

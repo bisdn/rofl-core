@@ -135,7 +135,7 @@ public:
 	 *
 	 * @param owner socket owning entity implementing interface csocket_impl_owner
 	 */
-	csocket_openssl(csocket_env *owner);
+	csocket_openssl(csocket_env *owner, pthread_t tid = 0);
 
 
 

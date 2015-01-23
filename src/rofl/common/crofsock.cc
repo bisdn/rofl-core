@@ -10,7 +10,9 @@
 using namespace rofl;
 
 crofsock::crofsock(
-		crofsock_env *env) :
+		crofsock_env *env,
+		pthread_t tid) :
+				ciosrv(tid),
 				env(env),
 				socket(NULL),
 				state(STATE_INIT),

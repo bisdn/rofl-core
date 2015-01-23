@@ -43,8 +43,8 @@ csocket_plain::get_default_params()
 
 
 csocket_plain::csocket_plain(
-		csocket_env *owner) :
-				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN),
+		csocket_env *owner, pthread_t tid) :
+				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN, tid),
 				had_short_write(false),
 				max_txqueue_size(DEFAULT_MAX_TXQUEUE_SIZE),
 				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
