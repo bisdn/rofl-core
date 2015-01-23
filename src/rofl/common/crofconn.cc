@@ -43,6 +43,8 @@ crofconn::crofconn(
 	rxweights[QUEUE_PKT ] = 2;
 	rofl::logging::debug << "[rofl-common][crofconn] "
 			<< "connection created, auxid: " << auxiliary_id.str() << std::endl;
+
+	tid = rofl::cioloop::add_thread();
 }
 
 
@@ -55,6 +57,8 @@ crofconn::~crofconn()
 	if (STATE_DISCONNECTED != state) {
 		run_engine(EVENT_DISCONNECTED);
 	}
+
+	rofl::cioloop::drop_thread(tid);
 }
 
 

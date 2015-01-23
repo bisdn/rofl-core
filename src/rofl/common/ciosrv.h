@@ -50,18 +50,24 @@ class cioloop {
 private:
 
 	/**
-	 *
+	 * @brief	Static C function for running an io loop instance forever in a new thread.
 	 */
 	static void*
 	run_thread(void* arg) {
 
 		pthread_t tid = pthread_self();
 
+		logging::trace << "[rofl-common][thread] start tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
+
 		// run io loop for this thread until someone calls method rofl::cioloop::get_loop().stop()
 		rofl::cioloop::get_loop(tid).run();
 
+		logging::trace << "[rofl-common][thread] stop tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
+
 		// remove io loop structures for this thread
 		rofl::cioloop::drop_loop(tid);
+
+		logging::trace << "[rofl-common][thread] done tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
 
 		// set result code, usually just 0
 		rofl::cioloop::threads[tid] = 0;
@@ -75,7 +81,11 @@ private:
 public:
 
 	/**
+	 * @brief	Create a new POSIX thread running an instance of class rofl::cioloop.
 	 *
+	 * Add objects of classes deriving from rofl::ciosrv. Use the thread's identifier
+	 * (pthread_t) during its construction to assign the object to this particular
+	 * thread.
 	 */
 	static pthread_t
 	add_thread() {
@@ -90,7 +100,7 @@ public:
 	};
 
 	/**
-	 *
+	 * @brief	Stops a running rofl::cioloop instance and drops the previously created POSIX thread for this loop.
 	 */
 	static void
 	drop_thread(pthread_t tid) {
@@ -107,7 +117,7 @@ public:
 	};
 
 	/**
-	 *
+	 * @brief	Checks for existence of a certain pthread_t thread identifier.
 	 */
 	static bool
 	has_thread(pthread_t tid) {

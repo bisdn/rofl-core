@@ -854,6 +854,7 @@ private:
 	crofconn_env* 		env;
 	uint64_t			dpid;
 	cauxid				auxiliary_id;
+	pthread_t			tid;					// IO thread identifier
 	crofsock*			rofsock;
 	rofl::openflow::cofhello_elem_versionbitmap
 						versionbitmap; 			// supported OFP versions by this entity
