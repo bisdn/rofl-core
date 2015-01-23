@@ -6,8 +6,10 @@
 
 using namespace rofl;
 
-PthreadRwLock 					cioloop::threads_rwlock;
-std::map<pthread_t, cioloop*> 	cioloop::threads;
+/*static*/PthreadRwLock 				cioloop::threads_lock;
+/*static*/std::map<pthread_t, int> 		cioloop::threads;
+/*static*/PthreadRwLock 				cioloop::loops_rwlock;
+/*static*/std::map<pthread_t, cioloop*> cioloop::loops;
 
 
 ciosrv::ciosrv(

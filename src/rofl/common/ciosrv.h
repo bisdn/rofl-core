@@ -47,6 +47,79 @@ class ciosrv;
  *
  */
 class cioloop {
+private:
+
+	/**
+	 *
+	 */
+	static void*
+	run_thread(void* arg) {
+
+		pthread_t tid = pthread_self();
+
+		// run io loop for this thread until someone calls method rofl::cioloop::get_loop().stop()
+		rofl::cioloop::get_loop(tid).run();
+
+		// remove io loop structures for this thread
+		rofl::cioloop::drop_loop(tid);
+
+		// set result code, usually just 0
+		rofl::cioloop::threads[tid] = 0;
+
+		return &(rofl::cioloop::threads[tid]);
+	};
+
+	static PthreadRwLock 			threads_lock;
+	static std::map<pthread_t, int> threads; // including result code
+
+public:
+
+	/**
+	 *
+	 */
+	static pthread_t
+	add_thread() {
+		int rc = 0;
+		pthread_t tid = 0;
+		if ((rc = pthread_create(&tid, NULL, &cioloop::run_thread, NULL)) < 0) {
+			throw eSysCall("pthread_create() failed");
+		}
+		RwLock(cioloop::threads_lock, RwLock::RWLOCK_WRITE);
+		cioloop::threads[tid] = 0;
+		return tid;
+	};
+
+	/**
+	 *
+	 */
+	static void
+	drop_thread(pthread_t tid) {
+		int rc = 0;
+		RwLock(cioloop::threads_lock, RwLock::RWLOCK_WRITE);
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			return;
+		}
+		cioloop::get_loop(tid).stop();
+		if ((rc = pthread_join(tid, NULL)) < 0) {
+			pthread_cancel(tid);
+		}
+		cioloop::threads.erase(tid);
+	};
+
+	/**
+	 *
+	 */
+	static bool
+	has_thread(pthread_t tid) {
+		RwLock(cioloop::threads_lock, RwLock::RWLOCK_READ);
+		return (not (cioloop::threads.find(tid) == cioloop::threads.end()));
+	};
+
+private:
+
+	static std::map<pthread_t, cioloop*> 	loops;
+	static PthreadRwLock 					loops_rwlock;
+
 public:
 
 	/**
@@ -58,11 +131,11 @@ public:
 		if (0 == tid) {
 			tid = pthread_self();
 		}
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
-		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
-			cioloop::threads[tid] = new cioloop(tid);
+		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_WRITE);
+		if (cioloop::loops.find(tid) == cioloop::loops.end()) {
+			cioloop::loops[tid] = new cioloop(tid);
 		}
-		return *(cioloop::threads[tid]);
+		return *(cioloop::loops[tid]);
 	};
 
 	/**
@@ -70,12 +143,12 @@ public:
 	 */
 	static void
 	drop_loop(pthread_t tid) {
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
-		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_WRITE);
+		if (cioloop::loops.find(tid) == cioloop::loops.end()) {
 			return;
 		}
-		delete cioloop::threads[tid];
-		cioloop::threads.erase(tid);
+		delete cioloop::loops[tid];
+		cioloop::loops.erase(tid);
 	};
 
 	/**
@@ -83,8 +156,8 @@ public:
 	 */
 	static bool
 	has_loop(pthread_t tid) {
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
-		return (not (cioloop::threads.find(tid) == cioloop::threads.end()));
+		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
+		return (not (cioloop::loops.find(tid) == cioloop::loops.end()));
 	};
 
 	/**
@@ -94,9 +167,9 @@ public:
 	 */
 	static void
 	shutdown() {
-		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 		for (std::map<pthread_t, cioloop*>::iterator
-				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+				it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
 			it->second->keep_on_running = false;
 		}
 	};
@@ -107,9 +180,9 @@ public:
 	static void
 	cleanup_on_exit() {
 		{
-			RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+			RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<pthread_t, cioloop*>::iterator
-					it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+					it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
 				it->second->keep_on_running = false;
 				if (it->first != pthread_self()) {
 					pthread_join(it->first, NULL);
@@ -118,7 +191,7 @@ public:
 			}
 		}
 		cioloop::drop_loop(pthread_self());
-		cioloop::threads.clear();
+		cioloop::loops.clear();
 	};
 
 public:
@@ -138,7 +211,7 @@ public:
 		if (not has_loop(get_tid())) {
 			return;
 		}
-		cioloop::threads[get_tid()]->keep_on_running = false;
+		cioloop::loops[get_tid()]->keep_on_running = false;
 		wakeup();
 	};
 
@@ -444,9 +517,6 @@ public:
 	};
 
 private:
-
-	static std::map<pthread_t, cioloop*> 	threads;
-	static PthreadRwLock 					threads_rwlock;
 
 	std::set<ciosrv*> 						ciolist;
 	mutable PthreadRwLock 					ciolist_rwlock;
