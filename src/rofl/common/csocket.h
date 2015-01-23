@@ -180,7 +180,7 @@ public:
  * @see csocket_env
  */
 class csocket :
-	public virtual ciosrv
+	public ciosrv
 {
 public:
 
@@ -225,15 +225,26 @@ public:
 				domain(0),
 				type(0),
 				protocol(0),
-				backlog(0)
-	{};
+				backlog(0) {
+		rofl::logging::debug2 << "[rofl-common][csocket][base] "
+				<< "constructor " << std::hex << this << std::dec
+				<< ", parameter tid: " << std::hex << tid << std::dec
+				<< ", target tid: " << std::hex << get_thread_id() << std::dec
+				<< ", running tid: " << std::hex << pthread_self() << std::dec
+				<< std::endl;
+	};
 
 	/**
 	 * @brief 	csocket destructor
 	 */
 	virtual
-	~csocket()
-	{};
+	~csocket() {
+		rofl::logging::debug2 << "[rofl-common][csocket][base] "
+				<< "destructor " << std::hex << this << std::dec
+				<< ", target tid: " << std::hex << get_thread_id() << std::dec
+				<< ", running tid: " << std::hex << pthread_self() << std::dec
+				<< std::endl;
+	};
 
 	/**
 	 * @brief	Open socket in listening mode (server side).

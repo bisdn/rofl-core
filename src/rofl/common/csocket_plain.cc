@@ -55,12 +55,25 @@ csocket_plain::csocket_plain(
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] constructor " << std::hex << this << std::dec << std::endl;
+
+	rofl::logging::debug2 << "[rofl-common][csocket][plain] "
+			<< "constructor " << std::hex << this << std::dec
+			<< ", parameter tid: " << std::hex << tid << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 }
 
 
 
 csocket_plain::~csocket_plain()
 {
+	rofl::logging::debug2 << "[rofl-common][csocket][plain] "
+			<< "destructor " << std::hex << this << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
+
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] destructor " << std::hex << this << std::dec << std::endl;
 	socket_env = NULL;
 

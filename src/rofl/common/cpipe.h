@@ -53,18 +53,21 @@ public:
 	 *
 	 */
 	int
-	get_readfd() const { return pipefd[0]; };
+	get_readfd() const
+	{ return pipefd[0]; };
 
 	/**
 	 *
 	 */
 	int
-	get_writefd() const { return pipefd[1]; };
+	get_writefd() const
+	{ return pipefd[1]; };
 
 public:
 
-	int pipefd[2]; // pipefd[0]: read, pipefd[1]: write
-	pthread_mutex_t pipelock; // mutex for this pipe
+	int 			pipefd[2]; 	// pipefd[0]: read, pipefd[1]: write
+	pthread_mutex_t pipelock; 	// mutex for this pipe
+	bool 			signal_sent;
 
 };
 

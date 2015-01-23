@@ -152,7 +152,7 @@ public:
 	 */
 	crofsock(
 			crofsock_env *env,
-			pthread_t tid);
+			pthread_t tid = 0);
 
 	/**
 	 *
@@ -451,7 +451,10 @@ private:
 			state = STATE_CONNECTED;
 			if (socket)
 				delete socket;
-
+			rofl::logging::debug2 << "[rofl-common][crofsock][event_accept] "
+					<< "target tid: " << std::hex << get_thread_id() << std::dec
+					<< ", running tid: " << std::hex << pthread_self() << std::dec
+					<< std::endl;
 			(socket = csocket::csocket_factory(socket_type, this, get_thread_id()))->accept(socket_params, sd);
 		} break;
 		default: {

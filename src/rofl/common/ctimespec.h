@@ -86,14 +86,14 @@ public:
 	 */
 	ctimespec
 	operator+ (
-			const ctimespec& t);
+			const ctimespec& t) const;
 
 	/**
 	 *
 	 */
 	ctimespec
 	operator- (
-			const ctimespec& t);
+			const ctimespec& t) const;
 
 	/**
 	 *

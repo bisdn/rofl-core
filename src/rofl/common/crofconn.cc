@@ -17,6 +17,7 @@ crofconn::crofconn(
 				env(env),
 				dpid(0), // will be determined later via Features.request
 				auxiliary_id(0), // will be determined later via Features.request
+				rofsocktid(0),
 				rofsock(NULL),
 				versionbitmap(versionbitmap),
 				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
@@ -44,7 +45,7 @@ crofconn::crofconn(
 	rofl::logging::debug << "[rofl-common][crofconn] "
 			<< "connection created, auxid: " << auxiliary_id.str() << std::endl;
 
-	tid = rofl::cioloop::add_thread();
+	rofsocktid = rofl::cioloop::add_thread();
 }
 
 
@@ -58,7 +59,7 @@ crofconn::~crofconn()
 		run_engine(EVENT_DISCONNECTED);
 	}
 
-	rofl::cioloop::drop_thread(tid);
+	rofl::cioloop::drop_thread(rofsocktid);
 }
 
 
@@ -77,38 +78,6 @@ crofconn::set_max_backoff(
 
 
 void
-crofconn::init_thread()
-{
-	rofl::logging::debug2 << "[rofl-common][crofconn] init thread" << std::endl;
-	if (NULL == rofsock) {
-		rofl::logging::debug2 << "[rofl-common][crofconn] creating new crofsock instance" << std::endl;
-		rofsock = new crofsock(this);
-	}
-
-	if (flags.test(FLAGS_PASSIVE)) {
-		rofsock->accept(socket_type, socket_params, newsd);
-		// notify main thread about established passive TCP connection to peer
-		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
-	} else {
-		rofsock->connect(socket_type, socket_params);
-	}
-}
-
-
-
-void
-crofconn::release_thread()
-{
-	rofl::logging::debug2 << "[rofl-common][crofconn] release thread" << std::endl;
-	if (NULL != rofsock) {
-		rofl::logging::debug2 << "[rofl-common][crofconn] destroying crofsock instance" << std::endl;
-		delete rofsock; rofsock = NULL;
-	}
-}
-
-
-
-void
 crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
 	flags.reset();
@@ -120,9 +89,18 @@ crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& s
 	this->socket_params = socket_params;
 	this->newsd = newsd;
 
+#if 0
 	if (not cthread::is_running()) {
 		cthread::start();
 	}
+#endif
+	if (NULL == rofsock) {
+		rofl::logging::debug2 << "[rofl-common][crofconn] creating new crofsock instance" << std::endl;
+		rofsock = new crofsock(this, rofsocktid);
+	}
+	rofsock->accept(socket_type, socket_params, newsd);
+	// notify main thread about established passive TCP connection to peer
+	rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 }
 
 
@@ -241,9 +219,16 @@ crofconn::event_reconnect()
 	default: {
 		state = STATE_CONNECT_PENDING;
 		rofl::logging::debug << "[rofl-common][crofconn] entering state -connect-pending-" << std::endl;
+#if 0
 		if (not cthread::is_running()) {
 			cthread::start();
 		}
+#endif
+		if (NULL == rofsock) {
+			rofl::logging::debug2 << "[rofl-common][crofconn] creating new crofsock instance" << std::endl;
+			rofsock = new crofsock(this, rofsocktid);
+		}
+		rofsock->connect(socket_type, socket_params);
 	};
 	}
 }
@@ -278,9 +263,15 @@ crofconn::event_tcp_connected()
 void
 crofconn::event_disconnected()
 {
+#if 0
 	if (cthread::is_running()) {
 		if (rofsock) rofsock->close();
 		cthread::stop();
+	}
+#endif
+	if (NULL != rofsock) {
+		rofl::logging::debug2 << "[rofl-common][crofconn] destroying crofsock instance" << std::endl;
+		delete rofsock; rofsock = NULL;
 	}
 
 	while (not timer_ids.empty()) {

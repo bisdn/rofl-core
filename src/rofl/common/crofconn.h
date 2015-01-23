@@ -144,8 +144,7 @@ protected:
  */
 class crofconn :
 		public crofsock_env,
-		public ciosrv,
-		public rofl::common::cthread
+		public ciosrv
 {
 	enum outqueue_type_t {
 		QUEUE_OAM  = 0, // Echo.request/Echo.reply
@@ -363,14 +362,6 @@ public:
 	void
 	set_max_backoff(
 			const ctimespec& timespec);
-
-protected:
-
-	virtual void
-	init_thread();
-
-	virtual void
-	release_thread();
 
 private:
 
@@ -854,7 +845,7 @@ private:
 	crofconn_env* 		env;
 	uint64_t			dpid;
 	cauxid				auxiliary_id;
-	pthread_t			tid;					// IO thread identifier
+	pthread_t			rofsocktid;				// IO thread identifier
 	crofsock*			rofsock;
 	rofl::openflow::cofhello_elem_versionbitmap
 						versionbitmap; 			// supported OFP versions by this entity

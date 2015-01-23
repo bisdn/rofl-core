@@ -46,6 +46,10 @@ csocket*
 csocket::csocket_factory(
 		enum csocket::socket_type_t socket_type, csocket_env *env, pthread_t tid)
 {
+	rofl::logging::debug2 << "[rofl-common][csocket][factory] "
+			<< "target tid: " << std::hex << tid << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
 		return new csocket_plain(env, tid);

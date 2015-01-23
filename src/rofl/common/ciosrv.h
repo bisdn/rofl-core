@@ -57,17 +57,17 @@ private:
 
 		pthread_t tid = pthread_self();
 
-		logging::trace << "[rofl-common][thread] start tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
+		logging::debug << "[rofl-common][thread] start tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		// run io loop for this thread until someone calls method rofl::cioloop::get_loop().stop()
 		rofl::cioloop::get_loop(tid).run();
 
-		logging::trace << "[rofl-common][thread] stop tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
+		logging::debug << "[rofl-common][thread] stop tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		// remove io loop structures for this thread
 		rofl::cioloop::drop_loop(tid);
 
-		logging::trace << "[rofl-common][thread] done tid: 0x" << std::hex << (unsigned long)tid << std::dec << std::endl;
+		logging::debug << "[rofl-common][thread] done tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		// set result code, usually just 0
 		rofl::cioloop::threads[tid] = 0;
@@ -180,7 +180,7 @@ public:
 		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 		for (std::map<pthread_t, cioloop*>::iterator
 				it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
-			it->second->keep_on_running = false;
+			it->second->flags.reset(FLAG_KEEP_ON_RUNNING);
 		}
 	};
 
@@ -193,7 +193,7 @@ public:
 			RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<pthread_t, cioloop*>::iterator
 					it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
-				it->second->keep_on_running = false;
+				it->second->flags.reset(FLAG_KEEP_ON_RUNNING);
 				if (it->first != pthread_self()) {
 					pthread_join(it->first, NULL);
 					delete it->second;
@@ -221,7 +221,7 @@ public:
 		if (not has_loop(get_tid())) {
 			return;
 		}
-		cioloop::loops[get_tid()]->keep_on_running = false;
+		cioloop::loops[get_tid()]->flags.reset(FLAG_KEEP_ON_RUNNING);
 		wakeup();
 	};
 
@@ -241,6 +241,9 @@ protected:
 	 */
 	void
 	register_ciosrv(ciosrv* elem) {
+		logging::debug << "[rofl-common][cioloop][register_ciosrv] svc:"
+				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
+				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
 		ciolist.insert(elem);
 		wakeup();
@@ -251,6 +254,9 @@ protected:
 	 */
 	void
 	deregister_ciosrv(ciosrv* elem) {
+		logging::debug << "[rofl-common][cioloop][deregister_ciosrv] svc:"
+				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
+				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
 		ciolist.erase(elem);
 		wakeup();
@@ -270,6 +276,7 @@ protected:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
+		logging::debug << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
 
@@ -284,6 +291,7 @@ protected:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
+		logging::debug << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = NULL;
 
@@ -315,6 +323,7 @@ protected:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
+		logging::debug << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = iosrv;
 
@@ -329,6 +338,7 @@ protected:
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
+		logging::debug << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = NULL;
 
@@ -360,6 +370,7 @@ protected:
 	 */
 	void
 	has_timer(ciosrv* iosrv) {
+		flags.set(FLAG_HAS_TIMER);
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = true;
 		wakeup(); // wakeup main loop, just in case
@@ -379,6 +390,7 @@ protected:
 	 */
 	void
 	has_event(ciosrv* iosrv) {
+		flags.set(FLAG_HAS_EVENT);
 		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 		events[iosrv] = true;
 		wakeup(); // wakeup main loop, just in case
@@ -400,10 +412,7 @@ private:
 	 */
 	cioloop(
 			pthread_t tid = 0) :
-				tid(tid),
-				keep_on_running(false),
-				wait_on_kernel(false) {
-
+				tid(tid) {
 		if (0 == tid) {
 			this->tid = pthread_self();
 		}
@@ -467,10 +476,26 @@ private:
 	 */
 	void
 	wakeup() {
-		if (wait_on_kernel || (get_tid() != pthread_self())) {
+		if (flags.test(FLAG_WAIT_ON_KERNEL) || (get_tid() != pthread_self())) {
+			logging::debug << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
 			pipe.writemsg('1');
 		}
 	};
+
+private:
+
+	/**
+	 *
+	 */
+	bool
+	run_on_timers(
+			std::pair<ciosrv*, ctimespec>& next_timeout);
+
+	/**
+	 *
+	 */
+	bool
+	run_on_events();
 
 public:
 
@@ -528,6 +553,14 @@ public:
 
 private:
 
+	enum cioloop_flag_t {
+		FLAG_KEEP_ON_RUNNING    = (1 << 0),
+		FLAG_WAIT_ON_KERNEL	    = (1 << 1),
+		FLAG_HAS_EVENT          = (1 << 2),
+		FLAG_HAS_TIMER          = (1 << 3),
+	};
+
+	std::bitset<32>							flags;
 	std::set<ciosrv*> 						ciolist;
 	mutable PthreadRwLock 					ciolist_rwlock;
 	std::vector<ciosrv*>					rfds;
@@ -541,8 +574,6 @@ private:
 
 	cpipe									pipe;
 	pthread_t        			       		tid;
-	bool									keep_on_running;
-	bool									wait_on_kernel;
 
 	unsigned int							minrfd; // lowest set readfd
 	unsigned int							maxrfd; // highest set readfd
@@ -818,6 +849,30 @@ protected:
 	ctimer
 	get_next_timer() {
 		return timers.get_next_timer();
+	};
+
+	/**
+	 *
+	 */
+	bool
+	has_next_timer() const {
+		return (not (timers.empty()));
+	};
+
+	/**
+	 *
+	 */
+	ctimer
+	get_expired_timer() {
+		return timers.get_expired_timer();
+	};
+
+	/**
+	 *
+	 */
+	bool
+	has_expired_timer() const {
+		return timers.has_expired_timer();
 	};
 
 	/**

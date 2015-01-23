@@ -67,7 +67,7 @@ ctimespec::now()
 
 
 ctimespec
-ctimespec::operator+ (const ctimespec& t)
+ctimespec::operator+ (const ctimespec& t) const
 {
 	ctimespec timespec;
 
@@ -85,7 +85,7 @@ ctimespec::operator+ (const ctimespec& t)
 
 
 ctimespec
-ctimespec::operator- (const ctimespec& t)
+ctimespec::operator- (const ctimespec& t) const
 {
 	ctimespec timespec;
 
