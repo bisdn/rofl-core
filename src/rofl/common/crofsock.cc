@@ -206,7 +206,7 @@ crofsock::handle_event(
 		send_from_queue();
 	} break;
 	default:
-		rofl::logging::error << "[rofl-common][crofsock] unknown event type:" << (int)ev.cmd << std::endl;
+		rofl::logging::debug3 << "[rofl-common][crofsock] unknown event type:" << (int)ev.cmd << std::endl;
 	}
 }
 

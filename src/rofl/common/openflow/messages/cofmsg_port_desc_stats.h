@@ -112,6 +112,13 @@ public:
 		os << indent(2) << "<cofmsg_port_desc_stats_request >" << std::endl;
 		return os;
 	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Port-Desc-Stats-Request- " << cofmsg::str() << " ";
+		return ss.str();
+	};
 };
 
 
@@ -242,6 +249,13 @@ public:
 		indent i(4);
 		os << msg.ports;
 		return os;
+	};
+
+	std::string
+	str() const {
+		std::stringstream ss;
+		ss << "-Port-Desc-Stats-Reply- " << cofmsg::str() << " ";
+		return ss.str();
 	};
 };
 

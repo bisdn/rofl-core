@@ -58,6 +58,7 @@ public:
 		if (0 == tid) {
 			tid = pthread_self();
 		}
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			cioloop::threads[tid] = new cioloop(tid);
 		}
@@ -69,11 +70,55 @@ public:
 	 */
 	static void
 	drop_loop(pthread_t tid) {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_WRITE);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
 		}
 		delete cioloop::threads[tid];
 		cioloop::threads.erase(tid);
+	};
+
+	/**
+	 *
+	 */
+	static bool
+	has_loop(pthread_t tid) {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+		return (not (cioloop::threads.find(tid) == cioloop::threads.end()));
+	};
+
+	/**
+	 * @brief	Instructs all running cioloop instances to terminate.
+	 *
+	 * Safe to be used by signal handlers.
+	 */
+	static void
+	shutdown() {
+		RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+		for (std::map<pthread_t, cioloop*>::iterator
+				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+			it->second->keep_on_running = false;
+		}
+	};
+
+	/**
+	 * @brief	Instructs all running cioloop instances to terminate and waits for them to stop, then deletes them.
+	 */
+	static void
+	cleanup_on_exit() {
+		{
+			RwLock lock(rofl::cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+			for (std::map<pthread_t, cioloop*>::iterator
+					it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+				it->second->keep_on_running = false;
+				if (it->first != pthread_self()) {
+					pthread_join(it->first, NULL);
+					delete it->second;
+				}
+			}
+		}
+		cioloop::drop_loop(pthread_self());
+		cioloop::threads.clear();
 	};
 
 public:
@@ -82,61 +127,60 @@ public:
 	 *
 	 */
 	void
-	run() {
-		cioloop::get_loop().run_loop();
-	};
+	run()
+	{ cioloop::get_loop().run_loop(); };
 
 	/**
 	 * @brief	Terminates cioloop instance running in thread identified by this->tid.
 	 */
 	void
 	stop() {
-		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+		if (not has_loop(get_tid())) {
 			return;
 		}
-		cioloop::threads[tid]->keep_on_running = false;
-		{
-			RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
-			rfds.clear();
-		}
-		{
-			RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
-			wfds.clear();
-		}
-		{
-			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
-			events.clear();
-		}
-		{
-			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-			timers.clear();
-		}
-		if (tid != pthread_self()) {
-			//pipe.writemsg('1'); // wakeup main loop, just in case
-		}
-	};
-
-	/**
-	 * @brief	Terminates all running cioloop instances.
-	 */
-	void
-	shutdown() {
-		for (std::map<pthread_t, cioloop*>::iterator
-				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
-			delete it->second;
-		}
-		cioloop::threads.clear();
+		cioloop::threads[get_tid()]->keep_on_running = false;
+		wakeup();
 	};
 
 	/**
 	 *
 	 */
 	pthread_t
-	get_tid() const { return tid; };
+	get_tid() const
+	{ return tid; };
 
 protected:
 
 	friend class ciosrv;
+
+	/**
+	 *
+	 */
+	void
+	register_ciosrv(ciosrv* elem) {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
+		ciolist.insert(elem);
+		wakeup();
+	};
+
+	/**
+	 *
+	 */
+	void
+	deregister_ciosrv(ciosrv* elem) {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
+		ciolist.erase(elem);
+		wakeup();
+	};
+
+	/**
+	 *
+	 */
+	bool
+	has_ciosrv(ciosrv* elem) const {
+		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_READ);
+		return (not (ciolist.find(elem) == ciolist.end()));
+	};
 
 	/**
 	 *
@@ -149,9 +193,7 @@ protected:
 		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
 		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -182,9 +224,7 @@ protected:
 			}
 		}
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -198,9 +238,7 @@ protected:
 		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
 		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -231,9 +269,7 @@ protected:
 			}
 		}
 
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -243,9 +279,7 @@ protected:
 	has_timer(ciosrv* iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = true;
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -264,9 +298,7 @@ protected:
 	has_event(ciosrv* iosrv) {
 		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
 		events[iosrv] = true;
-		if (tid != pthread_self()) {
-			pipe.writemsg('1'); // wakeup main loop, just in case
-		}
+		wakeup(); // wakeup main loop, just in case
 	};
 
 	/**
@@ -283,9 +315,11 @@ private:
 	/**
 	 *
 	 */
-	cioloop(pthread_t tid = 0) :
-		tid(tid),
-		keep_on_running(false) {
+	cioloop(
+			pthread_t tid = 0) :
+				tid(tid),
+				keep_on_running(false),
+				wait_on_kernel(false) {
 
 		if (0 == tid) {
 			this->tid = pthread_self();
@@ -311,14 +345,15 @@ private:
 	 *
 	 */
 	virtual
-	~cioloop() {};
+	~cioloop()
+	{};
 
 	/**
 	 *
 	 */
-	cioloop(cioloop const& t) {
-		*this = t;
-	};
+	cioloop(
+			const cioloop& t)
+	{ *this = t; };
 
 	/**
 	 *
@@ -344,7 +379,15 @@ private:
 	static void
 	child_sig_handler (int x);
 
-
+	/**
+	 * @brief	Wake up this loop from this or other thread.
+	 */
+	void
+	wakeup() {
+		if (wait_on_kernel || (get_tid() != pthread_self())) {
+			pipe.writemsg('1');
+		}
+	};
 
 public:
 
@@ -402,9 +445,11 @@ public:
 
 private:
 
-	static PthreadRwLock 					threads_rwlock;
 	static std::map<pthread_t, cioloop*> 	threads;
+	static PthreadRwLock 					threads_rwlock;
 
+	std::set<ciosrv*> 						ciolist;
+	mutable PthreadRwLock 					ciolist_rwlock;
 	std::vector<ciosrv*>					rfds;
 	mutable PthreadRwLock					rfds_rwlock;
 	std::vector<ciosrv*>					wfds;
@@ -417,6 +462,7 @@ private:
 	cpipe									pipe;
 	pthread_t        			       		tid;
 	bool									keep_on_running;
+	bool									wait_on_kernel;
 
 	unsigned int							minrfd; // lowest set readfd
 	unsigned int							maxrfd; // highest set readfd
@@ -494,7 +540,8 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(pthread_t tid = 0);
+	ciosrv(
+			pthread_t tid = 0);
 
 	/**
 	 * @brief	Deallocates resources for this ciosrv object.
@@ -505,13 +552,21 @@ public:
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
-	ciosrv(const ciosrv& iosrv);
+	ciosrv(
+			const ciosrv& svc)
+	{ *this = svc; };
 
 	/**
 	 *
 	 */
 	ciosrv&
-	operator= (const ciosrv& iosrv);
+	operator= (
+			const ciosrv& svc) {
+		if (this == &svc)
+			return *this;
+		throw eNotImplemented();
+		return *this;
+	};
 
 public:
 
@@ -528,7 +583,7 @@ public:
 	void
 	notify(const cevent& event) {
 		events.add_event(event);
-		cioloop::get_loop(get_thread_id()).has_event(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_event(this);
 	};
 
 	/**
@@ -630,8 +685,9 @@ protected:
 	 */
 	void
 	register_filedesc_r(int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.insert(fd);
-		cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).add_readfd(this, fd);
 	};
 
 	/**
@@ -641,8 +697,9 @@ protected:
 	 */
 	void
 	deregister_filedesc_r(int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds.erase(fd);
-		cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).drop_readfd(this, fd);
 	};
 
 	/**
@@ -654,8 +711,9 @@ protected:
 	 */
 	void
 	register_filedesc_w(int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.insert(fd);
-		cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).add_writefd(this, fd);
 	};
 
 	/**
@@ -665,8 +723,9 @@ protected:
 	 */
 	void
 	deregister_filedesc_w(int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds.erase(fd);
-		cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
+		rofl::cioloop::get_loop(get_thread_id()).drop_writefd(this, fd);
 	};
 
 	/**@}*/
@@ -696,8 +755,7 @@ protected:
 	 */
 	const rofl::ctimerid&
 	register_timer(int opaque, const rofl::ctimespec& timespec) {
-		if (timers.empty() || (get_thread_id() != pthread_self()))
-			cioloop::get_loop().has_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_timer(this);
 		return timers.add_timer(ctimer(this, opaque, timespec));
 	};
 
@@ -712,8 +770,7 @@ protected:
 	 */
 	const rofl::ctimerid&
 	reset_timer(const rofl::ctimerid& timer_id, const rofl::ctimespec& timespec) {
-		if (timers.empty() || (get_thread_id() != pthread_self()))
-			cioloop::get_loop().has_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_timer(this);
 		return timers.reset(timer_id, timespec);
 	};
 
@@ -759,7 +816,7 @@ protected:
 	cancel_timer(const rofl::ctimerid& timer_id) {
 		timers.cancel(timer_id);
 		if (timers.empty())
-			cioloop::get_loop().has_no_timer(this);
+			rofl::cioloop::get_loop(get_thread_id()).has_no_timer(this);
 	};
 
 	/**
@@ -769,7 +826,7 @@ protected:
 	void
 	cancel_all_timers() {
 		timers.clear();
-		cioloop::get_loop().has_no_timer(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_no_timer(this);
 	};
 
 	/**
@@ -779,7 +836,7 @@ protected:
 	void
 	cancel_all_events() {
 		events.clear();
-		cioloop::get_loop().has_no_event(this);
+		rofl::cioloop::get_loop(get_thread_id()).has_no_event(this);
 	};
 
 	/**@}*/
@@ -839,19 +896,14 @@ public:
 
 private:
 
-	static PthreadRwLock 			ciolist_rwlock;
-	static std::set<ciosrv*> 		ciolist;
-
 	pthread_t						tid;
 	std::set<int>					rfds;
+	mutable PthreadRwLock 			rfds_rwlock;
 	std::set<int>					wfds;
-	ctimers							timers;
-	cevents							events;
+	mutable PthreadRwLock 			wfds_rwlock;
+	ctimers							timers; // has its own locking
+	cevents							events; // has its own locking
 };
-
-
-
-
 
 }; // end of namespace
 

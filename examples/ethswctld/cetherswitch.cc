@@ -5,55 +5,72 @@ using namespace rofl::examples::ethswctld;
 #define ETHSWCTLD_LOG_FILE "/var/log/ethswctld.log"
 #define ETHSWCTLD_PID_FILE "/var/run/ethswctld.pid"
 
+
+void
+signal_handler(int signal) {
+	switch (signal) {
+	case SIGINT: {
+		rofl::cioloop::get_loop().shutdown();
+	} break;
+	}
+}
+
+
 int
 cetherswitch::run(
 		int argc, char** argv)
 {
+	//Capture control+C
+	signal(SIGINT, signal_handler);
 
-	/*
-	* Parse parameters
-	*/
-	rofl::cunixenv env_parser(argc, argv);
+	try {
+		/*
+		* Parse parameters
+		*/
+		rofl::cunixenv env_parser(argc, argv);
 
-	/* update defaults */
-	env_parser.add_option(rofl::coption(true,REQUIRED_ARGUMENT,'l',"logfile","Log file used when daemonization", ETHSWCTLD_LOG_FILE));
-	env_parser.add_option(rofl::coption(true, REQUIRED_ARGUMENT, 'p', "pidfile", "set pid-file", std::string(ETHSWCTLD_PID_FILE)));
+		/* update defaults */
+		env_parser.add_option(rofl::coption(true,REQUIRED_ARGUMENT,'l',"logfile","Log file used when daemonization", ETHSWCTLD_LOG_FILE));
+		env_parser.add_option(rofl::coption(true, REQUIRED_ARGUMENT, 'p', "pidfile", "set pid-file", std::string(ETHSWCTLD_PID_FILE)));
 #ifdef ROFL_HAVE_OPENSSL
-	env_parser.add_option(rofl::coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
+		env_parser.add_option(rofl::coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
 #endif
-	//Parse
-	env_parser.parse_args();
+		//Parse
+		env_parser.parse_args();
 
-	if (not env_parser.is_arg_set("daemonize")) {
-		// only do this in non
-		std::string ident(env_parser.get_arg("logfile"));
+		if (not env_parser.is_arg_set("daemonize")) {
+			// only do this in non
+			std::string ident(env_parser.get_arg("logfile"));
 
-		rofl::logging::init();
-		rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
-	} else {
+			rofl::logging::init();
+			rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
+		} else {
 
-		rofl::cdaemon::daemonize(env_parser.get_arg("pidfile"), env_parser.get_arg("logfile"));
-		rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
-		rofl::logging::notice << "[ethswctld][main] daemonizing successful" << std::endl;
-	}
+			rofl::cdaemon::daemonize(env_parser.get_arg("pidfile"), env_parser.get_arg("logfile"));
+			rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
+			rofl::logging::notice << "[ethswctld][main] daemonizing successful" << std::endl;
+		}
 
-	//Initialize the instance of etherswitch (crofbase based)
-	rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
-	versionbitmap.add_ofp_version(rofl::openflow10::OFP_VERSION);
-	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
-	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
-	cetherswitch sw(versionbitmap);
+		//Initialize the instance of etherswitch (crofbase based)
+		rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
+		versionbitmap.add_ofp_version(rofl::openflow10::OFP_VERSION);
+		versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+		versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
+		cetherswitch sw(versionbitmap);
 
-	//We must now specify the parameters for allowing datapaths to connect
-	rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
-	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
-	sw.add_dpt_listening(0, rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
+		//We must now specify the parameters for allowing datapaths to connect
+		rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+		socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
+		sw.add_dpt_listening(0, rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
 
-	//Launch main I/O loop
-	rofl::cioloop::get_loop().run();
+		//Launch main I/O loop
+		rofl::cioloop::get_loop().run();
 
-	//This will never be called unless the main loop
-	rofl::cioloop::get_loop().shutdown();
+
+	} catch (...) {}
+
+	//Clean-up before exit
+	rofl::cioloop::cleanup_on_exit();
 
 	return EXIT_SUCCESS;
 }
@@ -66,16 +83,14 @@ cetherswitch::cetherswitch(
 		dump_fib_interval(DUMP_FIB_DEFAULT_INTERVAL),
 		get_flow_stats_interval(GET_FLOW_STATS_DEFAULT_INTERVAL)
 {
-	// register timer for dumping ethswitch's internal state
-	timer_id_dump_fib =
-			register_timer(TIMER_DUMP_FIB,
-					rofl::ctimespec(dump_fib_interval));
 }
 
 
 
 cetherswitch::~cetherswitch()
 {
+	//Stop listening sockets for datapath elements
+	rofl::crofbase::close_dpt_listening();
 }
 
 
@@ -125,6 +140,8 @@ cetherswitch::handle_timeout(int opaque, void* data)
 
 	} catch (rofl::eRofDptNotFound& e) {
 		// datapath with internal identifier dptid not found
+	} catch (rofl::eRofBaseNotConnected& e) {
+
 	}
 }
 
@@ -137,6 +154,11 @@ void
 cetherswitch::handle_dpt_open(
 		rofl::crofdpt& dpt)
 {
+	// register timer for dumping ethswitch's internal state
+	timer_id_dump_fib =
+			register_timer(TIMER_DUMP_FIB,
+					rofl::ctimespec(dump_fib_interval));
+
 	// start periodic timer for querying datapath for all flow table entries
 	timer_id_get_flow_stats =
 			rofl::ciosrv::register_timer(TIMER_GET_FLOW_STATS,
@@ -147,8 +169,8 @@ cetherswitch::handle_dpt_open(
 	//New connection => cleanup the RIB by re-creating the FIB table
 	cfibtable::add_fib(dpt.get_dptid());
 
-	rofl::logging::info << "[cetherswitch] datapath attached, dpid: "
-			<< dpt.get_dpid().str() << std::endl
+	rofl::logging::info << "[cetherswitch] datapath attached, dptid: "
+			<< dpt.get_dptid().str() << std::endl
 			<< cfibtable::get_fib(dpt.get_dptid());
 
 	//Remove all flows in the table
@@ -189,15 +211,17 @@ cetherswitch::handle_dpt_open(
 
 void
 cetherswitch::handle_dpt_close(
-		rofl::crofdpt& dpt)
+		const rofl::cdptid& dptid)
 {
+	rofl::ciosrv::cancel_timer(timer_id_dump_fib);
+
 	rofl::ciosrv::cancel_timer(timer_id_get_flow_stats);
 
-	rofl::logging::info << "[cetherswitch] datapath detached, dpid: "
-			<< dpt.get_dpid().str() << std::endl
-			<< cfibtable::get_fib(dpt.get_dptid());
+	rofl::logging::info << "[cetherswitch] datapath detached, dptid: "
+			<< dptid.str() << std::endl
+			<< cfibtable::get_fib(dptid);
 
-	cfibtable::drop_fib(dpt.get_dptid());
+	cfibtable::drop_fib(dptid);
 }
 
 

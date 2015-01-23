@@ -632,9 +632,12 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 	ROFL_PIPELINE_INFO("\n"); //This is done in purpose
 	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %s, num. of entries: %d, ma: %u statistics {looked up: %u, matched: %u}\n", table->number, table, __of1x_flow_table_miss_config_str[table->default_action],table->num_of_entries, table->matching_algorithm,  c.lookup_count, c.matched_count);
 
+	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
+	platform_rwlock_rdlock(table->rwlock);
+
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");
-		return;
+		goto DUMP_TABLE_END;
 	}
 	for(entry=table->entries, i=0;entry!=NULL;entry=entry->next,i++){
 		ROFL_PIPELINE_INFO("\t[%d] ",i);
@@ -648,4 +651,7 @@ void of1x_dump_table(of1x_flow_table_t* table, bool raw_nbo){
 		of1x_matching_algorithms[table->matching_algorithm].dump_hook(table, raw_nbo);
 	}
 	ROFL_PIPELINE_INFO("\n");
+
+DUMP_TABLE_END:
+	platform_rwlock_rdunlock(table->rwlock);
 }

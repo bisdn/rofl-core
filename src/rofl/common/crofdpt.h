@@ -982,11 +982,12 @@ class crofdpt :
 	enum crofdpt_state_t {
 		STATE_INIT                                  = 0,
 		STATE_DISCONNECTED                          = 1,
-		STATE_CONNECTED                             = 2,
-		STATE_FEATURES_RCVD                         = 3,
-		STATE_GET_CONFIG_RCVD                       = 4,
-		STATE_TABLE_FEATURES_RCVD                   = 5,
-		STATE_ESTABLISHED                           = 6,
+		STATE_WAIT_FOR_FEATURES                     = 2,
+		STATE_WAIT_FOR_GET_CONFIG                   = 3,
+		STATE_WAIT_FOR_TABLE_STATS                  = 4, // OFP1.2 only
+		STATE_WAIT_FOR_TABLE_FEATURES_STATS			= 5, // OFP1.3 and beyond
+		STATE_WAIT_FOR_PORT_DESC_STATS              = 6, // OFP1.3 and beyond
+		STATE_ESTABLISHED                           = 7,
 	};
 
 	enum crofdpt_event_t {
@@ -1079,6 +1080,7 @@ public:
 		rofl::logging::debug << "[rofl-common][crofdpt] "
 				<< "instance destroyed, dptid: " << dptid.str() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
+		events.clear();
 		rofchan.close();
 		transactions.clear();
 	};
@@ -2040,23 +2042,26 @@ public:
 		case STATE_INIT: {
 			os << indent(2) << "<state: -INIT- >" << std::endl;
 		} break;
-		case STATE_CONNECTED: {
-			os << indent(2) << "<state: -CONNECTED- >" << std::endl;
-		} break;
 		case STATE_DISCONNECTED: {
 			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
 		} break;
+		case STATE_WAIT_FOR_FEATURES: {
+			os << indent(2) << "<state: -WAIT-FOR-FEATURES- >" << std::endl;
+		} break;
+		case STATE_WAIT_FOR_GET_CONFIG: {
+			os << indent(2) << "<state: -WAIT-FOR-GET-CONFIG- >" << std::endl;
+		} break;
+		case STATE_WAIT_FOR_PORT_DESC_STATS: {
+			os << indent(2) << "<state: -WAIT-FOR-PORT-DESC-STATS- >" << std::endl;
+		} break;
+		case STATE_WAIT_FOR_TABLE_FEATURES_STATS: {
+			os << indent(2) << "<state: -WAIT-FOR-TABLE-FEATURES-STATS- >" << std::endl;
+		} break;
+		case STATE_WAIT_FOR_TABLE_STATS: {
+			os << indent(2) << "<state: -WAIT-FOR-TABLE-STATS- >" << std::endl;
+		} break;
 		case STATE_ESTABLISHED: {
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
-		} break;
-		case STATE_FEATURES_RCVD: {
-			os << indent(2) << "<state: -FEATURES-RCVD- >" << std::endl;
-		} break;
-		case STATE_GET_CONFIG_RCVD: {
-			os << indent(2) << "<state: -GET-CONFIG-RCVD- >" << std::endl;
-		} break;
-		case STATE_TABLE_FEATURES_RCVD: {
-			os << indent(2) << "<state: -TABLE-FEATURES-RCVD- >" << std::endl;
 		} break;
 		default: {
 			os << indent(2) << "<state: -UNKNOWN- >" << std::endl;
@@ -2086,23 +2091,26 @@ public:
 		case STATE_INIT: {
 			ss << "state: -init- ";
 		} break;
-		case STATE_CONNECTED: {
-			ss << "state: -connected- ";
-		} break;
 		case STATE_DISCONNECTED: {
 			ss << "state: -disconnected- ";
 		} break;
+		case STATE_WAIT_FOR_FEATURES: {
+			ss << "state: -wait-for-features- ";
+		} break;
+		case STATE_WAIT_FOR_GET_CONFIG: {
+			ss << "state: -wait-for-get-config- ";
+		} break;
+		case STATE_WAIT_FOR_PORT_DESC_STATS: {
+			ss << "state: -wait-for-port-desc-stats- ";
+		} break;
+		case STATE_WAIT_FOR_TABLE_FEATURES_STATS: {
+			ss << "state: -wait-for-table-features-stats- ";
+		} break;
+		case STATE_WAIT_FOR_TABLE_STATS: {
+			ss << "state: -wait-for-table-stats- ";
+		} break;
 		case STATE_ESTABLISHED: {
 			ss << "state: -established- ";
-		} break;
-		case STATE_FEATURES_RCVD: {
-			ss << "state: -features-rcvd- ";
-		} break;
-		case STATE_GET_CONFIG_RCVD: {
-			ss << "state: -get-config-rcvd- ";
-		} break;
-		case STATE_TABLE_FEATURES_RCVD: {
-			ss << "state: -table-features-rcvd- ";
 		} break;
 		default: {
 			ss << "state: -unknown- ";
@@ -2149,6 +2157,7 @@ private:
 		push_on_eventqueue(EVENT_CONN_TERMINATED);
 
 		if (auxid == rofl::cauxid(0)) {
+		//if (0 == auxid.get_id()) {
 			rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
@@ -2213,7 +2222,7 @@ private:
 			events.push_back(event);
 		}
 		if (not flags.test(FLAG_ENGINE_IS_RUNNING)) {
-			register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(0));
+			register_timer(TIMER_RUN_ENGINE, rofl::ctimespec(0, 100));
 		}
 	};
 
