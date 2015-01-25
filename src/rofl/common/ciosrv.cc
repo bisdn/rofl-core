@@ -115,7 +115,7 @@ cioloop::run_loop()
 	/*
 	 * signal masks, etc.
 	 */
-	sigset_t sigmask, empty_mask;
+	sigset_t sigmask;
 	struct sigaction sa;
 
 	sigemptyset(&sigmask);
@@ -134,160 +134,17 @@ cioloop::run_loop()
 		perror("sigaction");
 		exit(EXIT_FAILURE);
 	}
-	sigemptyset(&empty_mask);
 
 
 	/*
 	 * the infinite loop ...
 	 */
-
 	while (flags.test(FLAG_KEEP_ON_RUNNING)) {
-		fd_set readfds;
-		fd_set writefds;
-		fd_set exceptfds;
-		unsigned int maxfd = 0;
-		int rc = 0;
-
-		/*
-		 * timers and events
-		 */
-		rofl::logging::trace << "[rofl-common][cioloop][run] urgent timers and events:" << std::endl << *this;
-
 		std::pair<ciosrv*, ctimespec> next_timeout(NULL, ctimespec(3600));
 
 		run_on_events();
 		run_on_timers(next_timeout);
-
-
-		/*
-		 * file and socket descriptors
-		 */
-		FD_ZERO(&exceptfds);
-
-		FD_ZERO(&readfds);
-		{
-			RwLock lock(rfds_rwlock, RwLock::RWLOCK_READ);
-			for (unsigned int i = minrfd; i < maxrfd; i++) {
-				if (NULL != rfds[i]) {
-					FD_SET(i, &readfds);
-					FD_SET(i, &exceptfds);
-					maxfd = (i > maxfd) ? i : maxfd;
-				}
-			}
-		}
-		FD_SET(pipe.pipefd[0], &readfds);
-		FD_SET(pipe.pipefd[0], &exceptfds);
-
-		maxfd = ((unsigned int)pipe.pipefd[0] > maxfd) ? pipe.pipefd[0] : maxfd;
-
-		FD_ZERO(&writefds);
-		{
-			RwLock lock(wfds_rwlock, RwLock::RWLOCK_READ);
-			for (unsigned int i = minwfd; i < maxwfd; i++) {
-				if (NULL != wfds[i]) {
-					FD_SET(i, &writefds);
-					FD_SET(i, &exceptfds);
-					maxfd = (i > maxfd) ? i : maxfd;
-				}
-			}
-		}
-
-
-
-		if (not flags.test(FLAG_KEEP_ON_RUNNING))
-			return;
-
-		rofl::indent::null();
-
-		rofl::logging::trace << "[rofl-common][cioloop][run] before select,"
-				<< " next timeout: " << next_timeout.second.str()
-				<< " tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
-
-		// blocking
-		flags.set(FLAG_WAIT_ON_KERNEL);
-		rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask);
-		flags.reset(FLAG_WAIT_ON_KERNEL);
-
-		rofl::logging::trace << "[rofl-common][cioloop][run] after select,"
-				<< " tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
-
-		if (rc < 0) {
-
-			switch (errno) {
-			case EINTR:
-				break;
-			default:
-				rofl::logging::error << "[rofl-common][cioloop][run] " << eSysCall("pselect()") << std::endl;
-				break;
-			}
-
-		} else if ((0 == rc)/* || (EINTR == errno)*/) {
-
-			if ((NULL != next_timeout.first) && has_ciosrv(next_timeout.first)) {
-				rofl::logging::trace << "[rofl-common][cioloop][run] timeout event: "
-						<< next_timeout.first << std::endl;
-				next_timeout.first->__handle_timeout();
-			}
-
-		} else { // rc > 0
-			try {
-
-				// exceptions
-				for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {
-					if (FD_ISSET(i, &exceptfds)) {
-						if ((NULL != rfds[i]) && has_ciosrv(rfds[i])) {
-							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
-									<< std::hex << rfds[i] << std::dec << std::endl;
-							rfds[i]->handle_xevent(i);
-						} else
-						if ((NULL != wfds[i]) && has_ciosrv(wfds[i])) {
-							rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
-									<< std::hex << rfds[i] << std::dec << std::endl;
-							wfds[i]->handle_xevent(i);
-						}
-					}
-				}
-
-				// write events
-				for (unsigned int i = minwfd; i < maxwfd; i++) {
-					if (FD_ISSET(i, &writefds) && (NULL != wfds[i]) && has_ciosrv(wfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run]"
-								<< " checking for wfds: " << i << " on " << std::hex << wfds[i] << std::dec
-								<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
-						wfds[i]->handle_wevent(i);
-					}
-				}
-
-				// read events
-				for (unsigned int i = minrfd; i < maxrfd; i++) {
-					if (FD_ISSET(i, &readfds) && (NULL != rfds[i]) && has_ciosrv(rfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run]"
-								<< " checking for rfds: " << i << " on " << std::hex << rfds[i] << std::dec
-								<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
-						rfds[i]->__handle_revent(i);
-					}
-				}
-
-				// pipe
-				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
-					rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe"
-							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
-					pipe.recvmsg();
-				}
-
-			} catch (rofl::RoflException& e) {
-				rofl::logging::error << "[rofl-common][cioloop][run] caught "
-						<< "RoflException in main loop: " << e.what() << std::endl;
-				rofl::indent::null();
-
-			} catch (std::exception& e) {
-				rofl::logging::error << "[rofl-common][cioloop][run] caught "
-						<< "std::exception in main loop: " << e.what() << std::endl;
-				rofl::indent::null();
-				flags.reset(FLAG_KEEP_ON_RUNNING);
-				throw;
-			}
-		}
+		run_on_kernel(next_timeout);
 	}
 
 	flags.reset(FLAG_KEEP_ON_RUNNING);
@@ -301,7 +158,7 @@ bool
 cioloop::run_on_timers(
 		std::pair<ciosrv*, ctimespec>& next_timeout)
 {
-	logging::debug << "[rofl-common][cioloop][run_on_timers] looking for timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
+	logging::trace << "[rofl-common][cioloop][run_on_timers] looking for timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 	while (flags.test(FLAG_HAS_TIMER)) {
 
@@ -312,7 +169,7 @@ cioloop::run_on_timers(
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 			flags.reset(FLAG_HAS_TIMER);
 			if (timers.empty()) {
-				logging::debug << "[rofl-common][cioloop][run_on_timers] no timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
+				logging::trace << "[rofl-common][cioloop][run_on_timers] no timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
 				return false;
 			}
 			for (std::map<ciosrv*, bool>::iterator
@@ -322,7 +179,7 @@ cioloop::run_on_timers(
 			}
 		}
 
-		logging::debug << "[rofl-common][cioloop][run_on_timers] there are " << clone.size()
+		logging::trace << "[rofl-common][cioloop][run_on_timers] there are " << clone.size()
 							<< " active timer(s), tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		// iterate over all elements with active timer needs
@@ -342,7 +199,7 @@ cioloop::run_on_timers(
 				// extract next timeout for select
 				if (timer.get_timespec() < next_timeout.second) {
 					next_timeout = std::pair<ciosrv*, ctimespec>( svc, timer.get_timespec() );
-					logging::debug << "[rofl-common][cioloop][run_on_timers] normal timer found, "
+					logging::trace << "[rofl-common][cioloop][run_on_timers] normal timer found, "
 							<< "tid: 0x" << std::hex << tid << std::dec << ", timeout: " << (svc->get_next_timer().get_timespec() - ctimespec::now()).str() << std::endl;
 				}
 
@@ -350,7 +207,7 @@ cioloop::run_on_timers(
 			} else {
 
 				try {
-					logging::debug << "[rofl-common][cioloop][run_on_timers] urgent timer found, tid: 0x" << std::hex << tid << std::dec << std::endl;
+					logging::trace << "[rofl-common][cioloop][run_on_timers] urgent timer found, tid: 0x" << std::hex << tid << std::dec << std::endl;
 					// this may set again FLAG_HAS_TIMER
 					svc->__handle_timeout();
 				} catch (RoflException& e) {/* do nothing */};
@@ -358,7 +215,7 @@ cioloop::run_on_timers(
 		}
 	};
 
-	logging::debug << "[rofl-common][cioloop][run_on_timers] done with urgent timers,"
+	logging::trace << "[rofl-common][cioloop][run_on_timers] done with urgent timers,"
 			<< " next timeout: " << next_timeout.second.str()
 			<< " tid: 0x" << std::hex << tid << std::dec
 			<< std::endl;
@@ -371,7 +228,7 @@ bool
 cioloop::run_on_events()
 {
 	while (flags.test(FLAG_HAS_EVENT)) {
-		logging::debug << "[rofl-common][cioloop][run_on_events] looking for events, tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][run_on_events] looking for events, tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		std::list<ciosrv*> clone;
 
@@ -380,7 +237,7 @@ cioloop::run_on_events()
 			RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
 			flags.reset(FLAG_HAS_EVENT);
 			if (events.empty()) {
-				logging::debug << "[rofl-common][cioloop][run_on_events] no events, tid: 0x" << std::hex << tid << std::dec << std::endl;
+				logging::trace << "[rofl-common][cioloop][run_on_events] no events, tid: 0x" << std::hex << tid << std::dec << std::endl;
 				return false;
 			}
 			for (std::map<ciosrv*, bool>::iterator
@@ -391,7 +248,7 @@ cioloop::run_on_events()
 			events.clear();
 		}
 
-		logging::debug << "[rofl-common][cioloop][run_on_events] there are " << clone.size()
+		logging::trace << "[rofl-common][cioloop][run_on_events] there are " << clone.size()
 							<< " active event(s), tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		for (std::list<ciosrv*>::iterator
@@ -404,6 +261,147 @@ cioloop::run_on_events()
 	return false;
 }
 
+
+
+void
+cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
+{
+	sigset_t empty_mask;
+	sigemptyset(&empty_mask);
+
+	fd_set readfds;
+	fd_set writefds;
+	fd_set exceptfds;
+	unsigned int maxfd = 0;
+	int rc = 0;
+
+	FD_ZERO(&exceptfds);
+
+	FD_ZERO(&readfds);
+	{
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_READ);
+		for (unsigned int i = minrfd; i < maxrfd; i++) {
+			if (NULL != rfds[i]) {
+				FD_SET(i, &readfds);
+				FD_SET(i, &exceptfds);
+				maxfd = (i > maxfd) ? i : maxfd;
+			}
+		}
+	}
+	FD_SET(pipe.pipefd[0], &readfds);
+	FD_SET(pipe.pipefd[0], &exceptfds);
+
+	maxfd = ((unsigned int)pipe.pipefd[0] > maxfd) ? pipe.pipefd[0] : maxfd;
+
+	FD_ZERO(&writefds);
+	{
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_READ);
+		for (unsigned int i = minwfd; i < maxwfd; i++) {
+			if (NULL != wfds[i]) {
+				FD_SET(i, &writefds);
+				FD_SET(i, &exceptfds);
+				maxfd = (i > maxfd) ? i : maxfd;
+			}
+		}
+	}
+
+
+
+	if (not flags.test(FLAG_KEEP_ON_RUNNING))
+		return;
+
+	rofl::indent::null();
+
+	rofl::logging::trace << "[rofl-common][cioloop][run] before select,"
+			<< " next timeout: " << next_timeout.second.str()
+			<< " tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+
+	// blocking
+	flags.set(FLAG_WAIT_ON_KERNEL);
+	rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_timespec()), &empty_mask);
+	flags.reset(FLAG_WAIT_ON_KERNEL);
+
+	rofl::logging::trace << "[rofl-common][cioloop][run] after select,"
+			<< " tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+
+	if (rc < 0) {
+
+		switch (errno) {
+		case EINTR:
+			break;
+		default:
+			rofl::logging::error << "[rofl-common][cioloop][run] " << eSysCall("pselect()") << std::endl;
+			break;
+		}
+
+	} else if ((0 == rc)/* || (EINTR == errno)*/) {
+
+		if ((NULL != next_timeout.first) && has_ciosrv(next_timeout.first)) {
+			rofl::logging::trace << "[rofl-common][cioloop][run] timeout event: "
+					<< next_timeout.first << std::endl;
+			next_timeout.first->__handle_timeout();
+		}
+
+	} else { // rc > 0
+		try {
+
+			// exceptions
+			for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {
+				if (FD_ISSET(i, &exceptfds)) {
+					if ((NULL != rfds[i]) && has_ciosrv(rfds[i])) {
+						rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
+								<< std::hex << rfds[i] << std::dec << std::endl;
+						rfds[i]->handle_xevent(i);
+					} else
+					if ((NULL != wfds[i]) && has_ciosrv(wfds[i])) {
+						rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
+								<< std::hex << rfds[i] << std::dec << std::endl;
+						wfds[i]->handle_xevent(i);
+					}
+				}
+			}
+
+			// write events
+			for (unsigned int i = minwfd; i < maxwfd; i++) {
+				if (FD_ISSET(i, &writefds) && (NULL != wfds[i]) && has_ciosrv(wfds[i])) {
+					rofl::logging::trace << "[rofl-common][cioloop][run]"
+							<< " checking for wfds: " << i << " on " << std::hex << wfds[i] << std::dec
+							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
+					wfds[i]->handle_wevent(i);
+				}
+			}
+
+			// read events
+			for (unsigned int i = minrfd; i < maxrfd; i++) {
+				if (FD_ISSET(i, &readfds) && (NULL != rfds[i]) && has_ciosrv(rfds[i])) {
+					rofl::logging::trace << "[rofl-common][cioloop][run]"
+							<< " checking for rfds: " << i << " on " << std::hex << rfds[i] << std::dec
+							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
+					rfds[i]->__handle_revent(i);
+				}
+			}
+
+			// pipe
+			if (FD_ISSET(pipe.pipefd[0], &readfds)) {
+				rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe"
+						<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
+				pipe.recvmsg();
+			}
+
+		} catch (rofl::RoflException& e) {
+			rofl::logging::error << "[rofl-common][cioloop][run] caught "
+					<< "RoflException in main loop: " << e.what() << std::endl;
+			rofl::indent::null();
+
+		} catch (std::exception& e) {
+			rofl::logging::error << "[rofl-common][cioloop][run] caught "
+					<< "std::exception in main loop: " << e.what() << std::endl;
+			rofl::indent::null();
+			flags.reset(FLAG_KEEP_ON_RUNNING);
+			throw;
+		}
+	}
+}
 
 
 

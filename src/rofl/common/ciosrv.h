@@ -276,7 +276,7 @@ protected:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
 
@@ -291,7 +291,7 @@ protected:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = NULL;
 
@@ -323,7 +323,7 @@ protected:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = iosrv;
 
@@ -338,7 +338,7 @@ protected:
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = NULL;
 
@@ -477,25 +477,23 @@ private:
 	void
 	wakeup() {
 		if (flags.test(FLAG_WAIT_ON_KERNEL) || (get_tid() != pthread_self())) {
-			logging::debug << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
+			logging::trace << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
 			pipe.writemsg('1');
 		}
 	};
 
 private:
 
-	/**
-	 *
-	 */
 	bool
 	run_on_timers(
 			std::pair<ciosrv*, ctimespec>& next_timeout);
 
-	/**
-	 *
-	 */
 	bool
 	run_on_events();
+
+	void
+	run_on_kernel(
+			std::pair<ciosrv*, ctimespec>& next_timeout);
 
 public:
 
