@@ -166,7 +166,7 @@ public:
 	std::string
 	str() const {
 		std::stringstream ss;
-		ss << (unsigned long int)ts.tv_sec << "s " << (unsigned long int)ts.tv_nsec << "ns ";
+		ss << (unsigned long int)ts.tv_sec << "." << (unsigned long int)ts.tv_nsec << "s ";
 		return ss.str();
 	};
 
