@@ -270,7 +270,7 @@ cioloop::run_loop()
 
 				// pipe
 				if (FD_ISSET(pipe.pipefd[0], &readfds)) {
-					rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe"
+					rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe,"
 							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
 					pipe.recvmsg();
 				}
@@ -292,7 +292,8 @@ cioloop::run_loop()
 
 	flags.reset(FLAG_KEEP_ON_RUNNING);
 
-	logging::debug << "[rofl-common][cioloop][run] terminating" << std::endl << *this;
+	logging::debug << "[rofl-common][cioloop][run] terminating,"
+			<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
 }
 
 
