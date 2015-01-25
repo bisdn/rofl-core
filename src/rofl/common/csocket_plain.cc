@@ -1101,6 +1101,9 @@ csocket_plain::dequeue_packet()
 		while (not pout_squeue.empty()) {
 			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
 
+			rofl::logging::trace << "[rofl-common][csocket][plain] sending to socket, message: "
+					<< std::endl << *(entry.mem);
+
 			if (had_short_write) {
 				rofl::logging::warn << "[rofl-common][csocket][plain] resending due to short write: " << std::endl << entry;
 				had_short_write = false;

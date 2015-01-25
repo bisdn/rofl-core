@@ -149,7 +149,8 @@ cioloop::run_loop()
 
 	flags.reset(FLAG_KEEP_ON_RUNNING);
 
-	logging::debug << "[rofl-common][cioloop][run] terminating" << std::endl << *this;
+	logging::debug << "[rofl-common][cioloop][run] terminating,"
+			<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
 }
 
 
