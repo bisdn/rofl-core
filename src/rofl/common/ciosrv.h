@@ -241,7 +241,7 @@ protected:
 	 */
 	void
 	register_ciosrv(ciosrv* elem) {
-		logging::debug << "[rofl-common][cioloop][register_ciosrv] svc:"
+		logging::trace << "[rofl-common][cioloop][register_ciosrv] svc:"
 				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
 				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
@@ -254,7 +254,7 @@ protected:
 	 */
 	void
 	deregister_ciosrv(ciosrv* elem) {
-		logging::debug << "[rofl-common][cioloop][deregister_ciosrv] svc:"
+		logging::trace << "[rofl-common][cioloop][deregister_ciosrv] svc:"
 				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
 				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
@@ -276,7 +276,7 @@ protected:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
 
@@ -291,7 +291,7 @@ protected:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = NULL;
 
@@ -323,7 +323,7 @@ protected:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = iosrv;
 
@@ -338,7 +338,7 @@ protected:
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
-		logging::debug << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = NULL;
 
@@ -477,7 +477,7 @@ private:
 	void
 	wakeup() {
 		if (flags.test(FLAG_WAIT_ON_KERNEL) || (get_tid() != pthread_self())) {
-			logging::debug << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
+			logging::trace << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
 			pipe.writemsg('1');
 		}
 	};

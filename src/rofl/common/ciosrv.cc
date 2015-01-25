@@ -301,7 +301,7 @@ bool
 cioloop::run_on_timers(
 		std::pair<ciosrv*, ctimespec>& next_timeout)
 {
-	logging::debug << "[rofl-common][cioloop][run_on_timers] looking for timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
+	logging::trace << "[rofl-common][cioloop][run_on_timers] looking for timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 	while (flags.test(FLAG_HAS_TIMER)) {
 
@@ -312,7 +312,7 @@ cioloop::run_on_timers(
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 			flags.reset(FLAG_HAS_TIMER);
 			if (timers.empty()) {
-				logging::debug << "[rofl-common][cioloop][run_on_timers] no timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
+				logging::trace << "[rofl-common][cioloop][run_on_timers] no timers, tid: 0x" << std::hex << tid << std::dec << std::endl;
 				return false;
 			}
 			for (std::map<ciosrv*, bool>::iterator
@@ -322,7 +322,7 @@ cioloop::run_on_timers(
 			}
 		}
 
-		logging::debug << "[rofl-common][cioloop][run_on_timers] there are " << clone.size()
+		logging::trace << "[rofl-common][cioloop][run_on_timers] there are " << clone.size()
 							<< " active timer(s), tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		// iterate over all elements with active timer needs
@@ -342,7 +342,7 @@ cioloop::run_on_timers(
 				// extract next timeout for select
 				if (timer.get_timespec() < next_timeout.second) {
 					next_timeout = std::pair<ciosrv*, ctimespec>( svc, timer.get_timespec() );
-					logging::debug << "[rofl-common][cioloop][run_on_timers] normal timer found, "
+					logging::trace << "[rofl-common][cioloop][run_on_timers] normal timer found, "
 							<< "tid: 0x" << std::hex << tid << std::dec << ", timeout: " << (svc->get_next_timer().get_timespec() - ctimespec::now()).str() << std::endl;
 				}
 
@@ -350,7 +350,7 @@ cioloop::run_on_timers(
 			} else {
 
 				try {
-					logging::debug << "[rofl-common][cioloop][run_on_timers] urgent timer found, tid: 0x" << std::hex << tid << std::dec << std::endl;
+					logging::trace << "[rofl-common][cioloop][run_on_timers] urgent timer found, tid: 0x" << std::hex << tid << std::dec << std::endl;
 					// this may set again FLAG_HAS_TIMER
 					svc->__handle_timeout();
 				} catch (RoflException& e) {/* do nothing */};
@@ -358,7 +358,7 @@ cioloop::run_on_timers(
 		}
 	};
 
-	logging::debug << "[rofl-common][cioloop][run_on_timers] done with urgent timers,"
+	logging::trace << "[rofl-common][cioloop][run_on_timers] done with urgent timers,"
 			<< " next timeout: " << next_timeout.second.str()
 			<< " tid: 0x" << std::hex << tid << std::dec
 			<< std::endl;
@@ -371,7 +371,7 @@ bool
 cioloop::run_on_events()
 {
 	while (flags.test(FLAG_HAS_EVENT)) {
-		logging::debug << "[rofl-common][cioloop][run_on_events] looking for events, tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][run_on_events] looking for events, tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		std::list<ciosrv*> clone;
 
@@ -380,7 +380,7 @@ cioloop::run_on_events()
 			RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
 			flags.reset(FLAG_HAS_EVENT);
 			if (events.empty()) {
-				logging::debug << "[rofl-common][cioloop][run_on_events] no events, tid: 0x" << std::hex << tid << std::dec << std::endl;
+				logging::trace << "[rofl-common][cioloop][run_on_events] no events, tid: 0x" << std::hex << tid << std::dec << std::endl;
 				return false;
 			}
 			for (std::map<ciosrv*, bool>::iterator
@@ -391,7 +391,7 @@ cioloop::run_on_events()
 			events.clear();
 		}
 
-		logging::debug << "[rofl-common][cioloop][run_on_events] there are " << clone.size()
+		logging::trace << "[rofl-common][cioloop][run_on_events] there are " << clone.size()
 							<< " active event(s), tid: 0x" << std::hex << tid << std::dec << std::endl;
 
 		for (std::list<ciosrv*>::iterator
