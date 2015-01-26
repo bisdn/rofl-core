@@ -17,6 +17,7 @@ crofconn::crofconn(
 				env(env),
 				dpid(0), // will be determined later via Features.request
 				auxiliary_id(0), // will be determined later via Features.request
+				rofsocktid(0),
 				rofsock(NULL),
 				versionbitmap(versionbitmap),
 				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
@@ -43,6 +44,8 @@ crofconn::crofconn(
 	rxweights[QUEUE_PKT ] = 2;
 	rofl::logging::debug << "[rofl-common][crofconn] "
 			<< "connection created, auxid: " << auxiliary_id.str() << std::endl;
+
+	rofsock = new crofsock(this, rofsocktid = rofl::cioloop::add_thread());
 }
 
 
@@ -55,6 +58,12 @@ crofconn::~crofconn()
 	if (STATE_DISCONNECTED != state) {
 		run_engine(EVENT_DISCONNECTED);
 	}
+
+	if (NULL != rofsock) {
+		delete rofsock; rofsock = NULL;
+	}
+	rofl::cioloop::drop_thread(rofsocktid);
+	rofl::cioloop::drop_loop(rofsocktid);
 }
 
 
@@ -73,40 +82,10 @@ crofconn::set_max_backoff(
 
 
 void
-crofconn::init_thread()
-{
-	rofl::logging::debug2 << "[rofl-common][crofconn] init thread" << std::endl;
-	if (NULL == rofsock) {
-		rofl::logging::debug2 << "[rofl-common][crofconn] creating new crofsock instance" << std::endl;
-		rofsock = new crofsock(this);
-	}
-
-	if (flags.test(FLAGS_PASSIVE)) {
-		rofsock->accept(socket_type, socket_params, newsd);
-		// notify main thread about established passive TCP connection to peer
-		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
-	} else {
-		rofsock->connect(socket_type, socket_params);
-	}
-}
-
-
-
-void
-crofconn::release_thread()
-{
-	rofl::logging::debug2 << "[rofl-common][crofconn] release thread" << std::endl;
-	if (NULL != rofsock) {
-		rofl::logging::debug2 << "[rofl-common][crofconn] destroying crofsock instance" << std::endl;
-		delete rofsock; rofsock = NULL;
-	}
-}
-
-
-
-void
 crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& socket_params, int newsd, enum crofconn_flavour_t flavour)
 {
+	rofl::logging::debug2 << "[rofl-common][crofconn][accept] fd: " << newsd << std::endl;
+
 	flags.reset();
 	flags.set(FLAGS_PASSIVE);
 
@@ -116,9 +95,15 @@ crofconn::accept(enum rofl::csocket::socket_type_t socket_type, cparams const& s
 	this->socket_params = socket_params;
 	this->newsd = newsd;
 
-	if (not cthread::is_running()) {
-		cthread::start();
-	}
+	rofsock->accept(socket_type, socket_params, newsd);
+	// notify main thread about established passive TCP connection to peer
+	state = STATE_WAIT_FOR_HELLO;
+
+	rofl::logging::debug << "[rofl-common][crofconn] entering state -wait-for-hello- " << std::endl;
+	reconnect_timespec = reconnect_start_timeout;
+	timer_start_wait_for_hello();
+	timer_stop_next_reconnect();
+	action_send_hello_message();
 }
 
 
@@ -169,8 +154,9 @@ void
 crofconn::handle_timeout(
 		int opaque, void *data)
 {
-	rofl::logging::debug2 << "[rofl-common][crofconn] "
-			<< "timeout, type:" << opaque << " " << str() << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofconn][handle_timeout] "
+			<< "opaque:" << opaque << std::endl;
+
 	switch (opaque) {
 	case TIMER_NEXT_RECONNECT: {
 		run_engine(EVENT_RECONNECT);
@@ -202,6 +188,66 @@ crofconn::run_engine(crofconn_event_t event)
 		events.push_back(event);
 	}
 
+	for (std::deque<enum crofconn_event_t>::iterator
+			it = events.begin(); it != events.end(); ++it) {
+		switch (*it) {
+		case EVENT_NONE: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_NONE(" << EVENT_NONE << ")" << std::endl;
+		} break;
+		case EVENT_RECONNECT: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_RECONNECT(" << EVENT_RECONNECT << ")" << std::endl;
+		} break;
+		case EVENT_TCP_CONNECTED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_TCP_CONNECTED(" << EVENT_TCP_CONNECTED << ")" << std::endl;
+		} break;
+		case EVENT_DISCONNECTED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_DISCONNECTED(" << EVENT_DISCONNECTED << ")" << std::endl;
+		} break;
+		case EVENT_HELLO_RCVD: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_HELLO_RCVD(" << EVENT_HELLO_RCVD << ")" << std::endl;
+		} break;
+		case EVENT_HELLO_EXPIRED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_HELLO_EXPIRED(" << EVENT_HELLO_EXPIRED << ")" << std::endl;
+		} break;
+		case EVENT_FEATURES_RCVD: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_FEATURES_RCVD(" << EVENT_FEATURES_RCVD << ")" << std::endl;
+		} break;
+		case EVENT_FEATURES_EXPIRED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_FEATURES_EXPIRED(" << EVENT_FEATURES_EXPIRED << ")" << std::endl;
+		} break;
+		case EVENT_ECHO_RCVD: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_ECHO_RCVD(" << EVENT_ECHO_RCVD << ")" << std::endl;
+		} break;
+		case EVENT_ECHO_EXPIRED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_ECHO_EXPIRED(" << EVENT_ECHO_EXPIRED << ")" << std::endl;
+		} break;
+		case EVENT_NEED_LIFE_CHECK: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_NEED_LIFE_CHECK(" << EVENT_NEED_LIFE_CHECK << ")" << std::endl;
+		} break;
+		case EVENT_RXQUEUE: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_RXQUEUE(" << EVENT_RXQUEUE << ")" << std::endl;
+		} break;
+		case EVENT_CONNECT_FAILED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_CONNECT_FAILED(" << EVENT_CONNECT_FAILED << ")" << std::endl;
+		} break;
+		case EVENT_CONNECT_REFUSED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_CONNECT_REFUSED(" << EVENT_CONNECT_REFUSED << ")" << std::endl;
+		} break;
+		case EVENT_LOCAL_DISCONNECT: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_LOCAL_DISCONNECT(" << EVENT_LOCAL_DISCONNECT << ")" << std::endl;
+		} break;
+		case EVENT_CONGESTION_SOLVED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_CONGESTION_SOLVED(" << EVENT_CONGESTION_SOLVED << ")" << std::endl;
+		} break;
+		case EVENT_PEER_DISCONNECTED: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_PEER_DISCONNECTED(" << EVENT_PEER_DISCONNECTED << ")" << std::endl;
+		} break;
+		default: {
+			rofl::logging::debug2 << "[rofl-common][crofconn][run_engine] event list: EVENT_UNKNOWN(" << *it << ")" << std::endl;
+		};
+		}
+	}
+
 	while (not events.empty()) {
 		enum crofconn_event_t event = events.front();
 		events.pop_front();
@@ -229,6 +275,8 @@ crofconn::run_engine(crofconn_event_t event)
 void
 crofconn::event_reconnect()
 {
+	rofl::logging::debug2 << "[rofl-common][crofconn][event_reconnect]" << std::endl;
+
 	switch (state) {
 	case STATE_CONNECTED: {
 		rofl::logging::debug << "[rofl-common][crofconn] connection in state -established-" << std::endl;
@@ -237,9 +285,8 @@ crofconn::event_reconnect()
 	default: {
 		state = STATE_CONNECT_PENDING;
 		rofl::logging::debug << "[rofl-common][crofconn] entering state -connect-pending-" << std::endl;
-		if (not cthread::is_running()) {
-			cthread::start();
-		}
+
+		rofsock->connect(socket_type, socket_params);
 	};
 	}
 }
@@ -274,11 +321,6 @@ crofconn::event_tcp_connected()
 void
 crofconn::event_disconnected()
 {
-	if (cthread::is_running()) {
-		if (rofsock) rofsock->close();
-		cthread::stop();
-	}
-
 	while (not timer_ids.empty()) {
 		timer_stop(timer_ids.begin()->first);
 	}
@@ -354,7 +396,6 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 	} // FALLTHROUGH
-	//case STATE_ACCEPT_PENDING:
 	case STATE_WAIT_FOR_HELLO: {
 		timer_stop_wait_for_hello();
 

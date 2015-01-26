@@ -20,7 +20,6 @@
 #include "rofl/common/csegmentation.h"
 #include "rofl/common/ctimerid.h"
 #include "rofl/common/cauxid.h"
-#include "rofl/common/cthread.h"
 #include "rofl/common/crofqueue.h"
 
 namespace rofl {
@@ -144,8 +143,7 @@ protected:
  */
 class crofconn :
 		public crofsock_env,
-		public ciosrv,
-		public rofl::common::cthread
+		public ciosrv
 {
 	enum outqueue_type_t {
 		QUEUE_OAM  = 0, // Echo.request/Echo.reply
@@ -364,14 +362,6 @@ public:
 	set_max_backoff(
 			const ctimespec& timespec);
 
-protected:
-
-	virtual void
-	init_thread();
-
-	virtual void
-	release_thread();
-
 private:
 
 	virtual void
@@ -399,7 +389,9 @@ private:
 	handle_closed(
 			crofsock& rofsock) {
 		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << std::endl;
-		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
+		if (STATE_DISCONNECTED != state) {
+			rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
+		}
 	};
 
 	virtual void
@@ -854,6 +846,7 @@ private:
 	crofconn_env* 		env;
 	uint64_t			dpid;
 	cauxid				auxiliary_id;
+	pthread_t			rofsocktid;				// IO thread identifier
 	crofsock*			rofsock;
 	rofl::openflow::cofhello_elem_versionbitmap
 						versionbitmap; 			// supported OFP versions by this entity

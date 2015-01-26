@@ -51,6 +51,12 @@ public:
 	/**
 	 *
 	 */
+	ctimespec(
+			const struct timespec& timespec);
+
+	/**
+	 *
+	 */
 	ctimespec&
 	operator= (
 			const ctimespec& timespec);
@@ -86,14 +92,14 @@ public:
 	 */
 	ctimespec
 	operator+ (
-			const ctimespec& t);
+			const ctimespec& t) const;
 
 	/**
 	 *
 	 */
 	ctimespec
 	operator- (
-			const ctimespec& t);
+			const ctimespec& t) const;
 
 	/**
 	 *
@@ -166,7 +172,7 @@ public:
 	std::string
 	str() const {
 		std::stringstream ss;
-		ss << (unsigned long int)ts.tv_sec << "s " << (unsigned long int)ts.tv_nsec << "ns ";
+		ss << (unsigned long int)ts.tv_sec << "." << std::setfill('0') << std::setw(9) << (unsigned long int)ts.tv_nsec << "s ";
 		return ss.str();
 	};
 

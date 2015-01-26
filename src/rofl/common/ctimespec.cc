@@ -29,6 +29,13 @@ ctimespec::ctimespec(long tv_sec, long tv_nsec)
 }
 
 
+ctimespec::ctimespec(const struct timespec& timespec)
+{
+	ts.tv_sec	= timespec.tv_sec;
+	ts.tv_nsec	= timespec.tv_nsec;
+}
+
+
 ctimespec::ctimespec(const ctimespec& timespec)
 {
 	*this = timespec;
@@ -67,7 +74,7 @@ ctimespec::now()
 
 
 ctimespec
-ctimespec::operator+ (const ctimespec& t)
+ctimespec::operator+ (const ctimespec& t) const
 {
 	ctimespec timespec;
 
@@ -85,7 +92,7 @@ ctimespec::operator+ (const ctimespec& t)
 
 
 ctimespec
-ctimespec::operator- (const ctimespec& t)
+ctimespec::operator- (const ctimespec& t) const
 {
 	ctimespec timespec;
 

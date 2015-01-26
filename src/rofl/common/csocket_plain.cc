@@ -43,8 +43,8 @@ csocket_plain::get_default_params()
 
 
 csocket_plain::csocket_plain(
-		csocket_env *owner) :
-				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN),
+		csocket_env *owner, pthread_t tid) :
+				csocket(owner, rofl::csocket::SOCKET_TYPE_PLAIN, tid),
 				had_short_write(false),
 				max_txqueue_size(DEFAULT_MAX_TXQUEUE_SIZE),
 				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
@@ -55,12 +55,25 @@ csocket_plain::csocket_plain(
 
 	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] constructor " << std::hex << this << std::dec << std::endl;
+
+	rofl::logging::debug2 << "[rofl-common][csocket][plain] "
+			<< "constructor " << std::hex << this << std::dec
+			<< ", parameter tid: " << std::hex << tid << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 }
 
 
 
 csocket_plain::~csocket_plain()
 {
+	rofl::logging::debug2 << "[rofl-common][csocket][plain] "
+			<< "destructor " << std::hex << this << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
+
 	//rofl::logging::debug3 << "[rofl-common][csocket][plain] destructor " << std::hex << this << std::dec << std::endl;
 	socket_env = NULL;
 
@@ -852,6 +865,7 @@ csocket_plain::connect(
 		}
 	}
 
+	register_filedesc_r(sd);
 
 	// bind to local address
 	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {
@@ -1087,6 +1101,9 @@ csocket_plain::dequeue_packet()
 
 		while (not pout_squeue.empty()) {
 			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
+
+			rofl::logging::trace << "[rofl-common][csocket][plain] sending to socket, message: "
+					<< std::endl << *(entry.mem);
 
 			if (had_short_write) {
 				rofl::logging::warn << "[rofl-common][csocket][plain] resending due to short write: " << std::endl << entry;

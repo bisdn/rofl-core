@@ -10,7 +10,9 @@
 using namespace rofl;
 
 crofsock::crofsock(
-		crofsock_env *env) :
+		crofsock_env *env,
+		pthread_t tid) :
+				ciosrv(tid),
 				env(env),
 				socket(NULL),
 				state(STATE_INIT),
@@ -27,14 +29,22 @@ crofsock::crofsock(
 	txweights[QUEUE_MGMT] = 8;
 	txweights[QUEUE_FLOW] = 4;
 	txweights[QUEUE_PKT ] = 2;
-	rofl::logging::debug2 << "[rofl-common][crofsock] constructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofsock] "
+			<< "constructor " << std::hex << this << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 }
 
 
 
 crofsock::~crofsock()
 {
-	rofl::logging::debug2 << "[rofl-common][crofsock] destructor " << std::hex << this << std::dec << std::endl;
+	rofl::logging::debug2 << "[rofl-common][crofsock] "
+			<< "destructor " << std::hex << this << std::dec
+			<< ", target tid: " << std::hex << get_thread_id() << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 	if (fragment)
 		delete fragment;
 	if (socket)

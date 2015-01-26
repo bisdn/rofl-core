@@ -46,6 +46,14 @@ public:
 	run(
 			int argc, char** argv);
 
+	/**
+	 *
+	 */
+	static
+	void
+	stop()
+	{ cetherswitch::keep_on_running = false; };
+
 private:
 
 	/**
@@ -182,6 +190,7 @@ private:
 		TIMER_GET_FLOW_STATS    = 2,
 	};
 
+	static bool					keep_on_running;
 	rofl::cdptid                dptid;
 
 	rofl::ctimerid              timer_id_dump_fib;

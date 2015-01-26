@@ -44,15 +44,19 @@ std::string const 	csocket::PARAM_PROTOCOL_VALUE_UDP("udp");
 
 csocket*
 csocket::csocket_factory(
-		enum csocket::socket_type_t socket_type, csocket_env *owner)
+		enum csocket::socket_type_t socket_type, csocket_env *env, pthread_t tid)
 {
+	rofl::logging::debug2 << "[rofl-common][csocket][factory] "
+			<< "target tid: " << std::hex << tid << std::dec
+			<< ", running tid: " << std::hex << pthread_self() << std::dec
+			<< std::endl;
 	switch (socket_type) {
 	case SOCKET_TYPE_PLAIN: {
-		return new csocket_plain(owner);
+		return new csocket_plain(env, tid);
 	} break;
 #ifdef ROFL_HAVE_OPENSSL
 	case SOCKET_TYPE_OPENSSL: {
-		return new csocket_openssl(owner);
+		return new csocket_openssl(env, tid);
 	} break;
 #endif
 	default:

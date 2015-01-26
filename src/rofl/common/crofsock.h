@@ -151,7 +151,8 @@ public:
 	 *
 	 */
 	crofsock(
-			crofsock_env *env);
+			crofsock_env *env,
+			pthread_t tid = 0);
 
 	/**
 	 *
@@ -393,7 +394,7 @@ private:
 				delete socket;
 			ciosrv::cancel_all_timers();
 			ciosrv::cancel_all_events();
-			(socket = csocket::csocket_factory(socket_type, this))->connect(socket_params);
+			(socket = csocket::csocket_factory(socket_type, this, get_thread_id()))->connect(socket_params);
 		} break;
 		case STATE_CONNECTING: {
 			// do nothing, we are already connecting ...
@@ -450,8 +451,11 @@ private:
 			state = STATE_CONNECTED;
 			if (socket)
 				delete socket;
-
-			(socket = csocket::csocket_factory(socket_type, this))->accept(socket_params, sd);
+			rofl::logging::debug2 << "[rofl-common][crofsock][event_accept] "
+					<< "target tid: " << std::hex << get_thread_id() << std::dec
+					<< ", running tid: " << std::hex << pthread_self() << std::dec
+					<< std::endl;
+			(socket = csocket::csocket_factory(socket_type, this, get_thread_id()))->accept(socket_params, sd);
 		} break;
 		default: {
 

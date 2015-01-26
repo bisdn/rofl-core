@@ -6,7 +6,8 @@
 
 using namespace rofl;
 
-cpipe::cpipe()
+cpipe::cpipe() :
+		signal_sent(false)
 {
 	// create two pipes for connecting stdin and stdout
 	if (pipe(pipefd) < 0) {
@@ -43,18 +44,22 @@ cpipe::~cpipe()
 void
 cpipe::writemsg(unsigned char msg)
 {
+	//if (signal_sent)
+	//	return;
 	int rc = write(pipefd[1], &msg, sizeof(msg));
 	if (rc == 0) {
 
 	} else if (rc < 0) {
 		throw eSysCall("writemsg()");
 	}
+	signal_sent = true;
 }
 
 
 unsigned char
 cpipe::recvmsg()
 {
+	signal_sent = false;
 	unsigned char msg = 0;
 	int rc;
 	if ((rc = read(pipefd[0], &msg, sizeof(msg))) < 0) {

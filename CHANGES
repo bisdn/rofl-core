@@ -24,6 +24,7 @@ v0.6.0
 [+][common] Revised classes crofconn and crofsock => new scheduling for OpenFlow messages
 [+][common] Revised classes crofctl, crofdpt and crofchan => API updated
 [B][common] Doxygen documentation updated
+[+][common] New thread API added to rofl::cioloop
 
 v0.5.3
 

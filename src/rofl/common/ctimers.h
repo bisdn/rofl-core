@@ -82,12 +82,21 @@ public:
 	/**@{*/
 
 	/**
-	 * @brief	Deletes all timers in this timer list
+	 * @brief	Checks for an empty list.
 	 */
 	bool
-	empty() {
+	empty() const {
 		RwLock lock(rwlock, RwLock::RWLOCK_READ);
 		return (timers.empty());
+	};
+
+	/**
+	 * @brief	Returns number of timers.
+	 */
+	size_t
+	size() const {
+		RwLock lock(rwlock, RwLock::RWLOCK_READ);
+		return (timers.size());
 	};
 
 	/**
@@ -175,6 +184,23 @@ public:
 	};
 
 	/**
+	 * @brief	Returns a boolean value indicating whether this timers list has an urgent timer.
+	 *
+	 * @return boolean value
+	 */
+	bool
+	has_expired_timer() const {
+		RwLock lock(rwlock, RwLock::RWLOCK_READ);
+		if (timers.empty()) {
+			return false;
+		}
+		if (*(timers.begin()) < ctimer::now()) {
+			return true;
+		}
+		return false;
+	};
+
+	/**
 	 * @brief	Checks whether a certain timer identified by the given handle is still pending
 	 *
 	 * @param timer_id timer handle
@@ -233,7 +259,7 @@ public:
 private:
 
 	std::multiset<rofl::ctimer>	timers;
-	PthreadRwLock               rwlock;
+	mutable PthreadRwLock       rwlock;
 };
 
 };

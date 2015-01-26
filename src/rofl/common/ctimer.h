@@ -303,6 +303,13 @@ public:
 		return os;
 	};
 
+	std::string
+	str() const {
+		std::stringstream sstr;
+		sstr << timespec.str() << " opaque: " << opaque;
+		return sstr.str();
+	};
+
 private:
 
 	static const long CC_TIMER_ONE_SECOND_S  = 1;

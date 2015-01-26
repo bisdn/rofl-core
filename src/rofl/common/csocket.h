@@ -180,7 +180,7 @@ public:
  * @see csocket_env
  */
 class csocket :
-	public virtual ciosrv
+	public ciosrv
 {
 public:
 
@@ -198,7 +198,7 @@ public:
 	 */
 	static csocket*
 	csocket_factory(
-			enum socket_type_t socket_type, csocket_env *owner);
+			enum socket_type_t socket_type, csocket_env *owner, pthread_t tid = 0);
 
 	/**
 	 *
@@ -216,22 +216,35 @@ public:
 	 */
 	csocket(
 			csocket_env *env,
-			enum socket_type_t socket_type) :
+			enum socket_type_t socket_type,
+			pthread_t tid = 0) :
+				ciosrv(tid),
 				socket_env(env),
 				socket_type(socket_type),
 				sd(-1),
 				domain(0),
 				type(0),
 				protocol(0),
-				backlog(0)
-	{};
+				backlog(0) {
+		rofl::logging::debug2 << "[rofl-common][csocket][base] "
+				<< "constructor " << std::hex << this << std::dec
+				<< ", parameter tid: " << std::hex << tid << std::dec
+				<< ", target tid: " << std::hex << get_thread_id() << std::dec
+				<< ", running tid: " << std::hex << pthread_self() << std::dec
+				<< std::endl;
+	};
 
 	/**
 	 * @brief 	csocket destructor
 	 */
 	virtual
-	~csocket()
-	{};
+	~csocket() {
+		rofl::logging::debug2 << "[rofl-common][csocket][base] "
+				<< "destructor " << std::hex << this << std::dec
+				<< ", target tid: " << std::hex << get_thread_id() << std::dec
+				<< ", running tid: " << std::hex << pthread_self() << std::dec
+				<< std::endl;
+	};
 
 	/**
 	 * @brief	Open socket in listening mode (server side).
