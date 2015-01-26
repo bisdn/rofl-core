@@ -63,7 +63,6 @@ crofconn::~crofconn()
 		delete rofsock; rofsock = NULL;
 	}
 	rofl::cioloop::drop_thread(rofsocktid);
-	rofl::cioloop::drop_loop(rofsocktid);
 }
 
 

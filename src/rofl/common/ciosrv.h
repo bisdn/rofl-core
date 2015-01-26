@@ -111,6 +111,7 @@ public:
 			pthread_cancel(tid);
 		}
 		cioloop::threads.erase(tid);
+		cioloop::drop_loop(tid);
 	};
 
 	/**
