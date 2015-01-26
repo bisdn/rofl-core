@@ -181,8 +181,7 @@ public:
 		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 		for (std::map<pthread_t, cioloop*>::iterator
 				it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
-			it->second->flags.reset(FLAG_KEEP_ON_RUNNING);
-		}
+			it->second->flag_keep_on_running = false;		}
 	};
 
 	/**
@@ -194,7 +193,7 @@ public:
 			RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<pthread_t, cioloop*>::iterator
 					it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
-				it->second->flags.reset(FLAG_KEEP_ON_RUNNING);
+				it->second->flag_keep_on_running = false;
 				if (it->first != pthread_self()) {
 					pthread_join(it->first, NULL);
 					delete it->second;
@@ -222,7 +221,7 @@ public:
 		if (not has_loop(get_tid())) {
 			return;
 		}
-		cioloop::loops[get_tid()]->flags.reset(FLAG_KEEP_ON_RUNNING);
+		cioloop::loops[get_tid()]->flag_keep_on_running = false;
 		wakeup();
 	};
 
@@ -245,9 +244,21 @@ protected:
 		logging::trace << "[rofl-common][cioloop][register_ciosrv] svc:"
 				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
 				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
-		RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
-		ciolist.insert(elem);
-		wakeup();
+		{
+			RwLock lock(ciolist_rwlock, RwLock::RWLOCK_WRITE);
+			ciolist.insert(elem);
+			wakeup();
+		}
+		{
+			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+			if (timers.find(elem) == timers.end())
+				timers[elem] = false;
+		}
+		{
+			RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
+			if (events.find(elem) == events.end())
+				events[elem] = false;
+		}
 	};
 
 	/**
@@ -299,13 +310,15 @@ protected:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
-		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
-		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
-		rfds[fd] = iosrv;
+		{
+			RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+			rfds[fd] = iosrv;
 
-		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
-		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
-
+			minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
+			maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
+		}
+		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -314,30 +327,32 @@ protected:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
-		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
-		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
-		rfds[fd] = NULL;
+		{
+			RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+			rfds[fd] = NULL;
 
-		if (minrfd == (unsigned int)(fd+0)) {
-			minrfd = rfds.size();
-			for (unsigned int i = fd + 1; i < rfds.size(); i++) {
-				if (rfds[i] != NULL) {
-					minrfd = i;
-					break;
+			if (minrfd == (unsigned int)(fd+0)) {
+				minrfd = rfds.size();
+				for (unsigned int i = fd + 1; i < rfds.size(); i++) {
+					if (rfds[i] != NULL) {
+						minrfd = i;
+						break;
+					}
+				}
+			}
+
+			if (maxrfd == (unsigned int)(fd+1)) {
+				maxrfd = 0;
+				for (unsigned int i = fd; i > 0; i--) {
+					if (rfds[i] != NULL) {
+						maxrfd = (i+1);
+						break;
+					}
 				}
 			}
 		}
-
-		if (maxrfd == (unsigned int)(fd+1)) {
-			maxrfd = 0;
-			for (unsigned int i = fd; i > 0; i--) {
-				if (rfds[i] != NULL) {
-					maxrfd = (i+1);
-					break;
-				}
-			}
-		}
-
+		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -346,13 +361,15 @@ protected:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
-		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
-		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
-		wfds[fd] = iosrv;
+		{
+			RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+			wfds[fd] = iosrv;
 
-		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
-		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
-
+			minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
+			maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
+		}
+		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -361,30 +378,32 @@ protected:
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
-		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd << ", tid: 0x" << std::hex << tid << std::dec << std::endl;
-		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
-		wfds[fd] = NULL;
+		{
+			RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+			wfds[fd] = NULL;
 
-		if (minwfd == (unsigned int)(fd+0)) {
-			minwfd = wfds.size();
-			for (unsigned int i = fd + 1; i < wfds.size(); i++) {
-				if (wfds[i] != NULL) {
-					minwfd = i;
-					break;
+			if (minwfd == (unsigned int)(fd+0)) {
+				minwfd = wfds.size();
+				for (unsigned int i = fd + 1; i < wfds.size(); i++) {
+					if (wfds[i] != NULL) {
+						minwfd = i;
+						break;
+					}
+				}
+			}
+
+			if (maxwfd == (unsigned int)(fd+1)) {
+				maxwfd = 0;
+				for (unsigned int i = fd; i > 0; i--) {
+					if (wfds[i] != NULL) {
+						maxwfd = (i+1);
+						break;
+					}
 				}
 			}
 		}
-
-		if (maxwfd == (unsigned int)(fd+1)) {
-			maxwfd = 0;
-			for (unsigned int i = fd; i > 0; i--) {
-				if (wfds[i] != NULL) {
-					maxwfd = (i+1);
-					break;
-				}
-			}
-		}
-
+		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -393,9 +412,9 @@ protected:
 	 */
 	void
 	has_timer(ciosrv* iosrv) {
-		flags.set(FLAG_HAS_TIMER);
-		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-		timers[iosrv] = true;
+		flag_has_timer = true;
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+		timers[iosrv] = true; // already exists => previously created in register_ciosrv
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -404,8 +423,8 @@ protected:
 	 */
 	void
 	has_no_timer(ciosrv *iosrv) {
-		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-		timers[iosrv] = false;
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+		timers[iosrv] = false; // already exists => previously created in register_ciosrv
 	};
 
 	/**
@@ -413,9 +432,9 @@ protected:
 	 */
 	void
 	has_event(ciosrv* iosrv) {
-		flags.set(FLAG_HAS_EVENT);
-		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
-		events[iosrv] = true;
+		flag_has_event = true;
+		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+		events[iosrv] = true; // already exists => previously created in register_ciosrv
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -424,8 +443,8 @@ protected:
 	 */
 	void
 	has_no_event(ciosrv* iosrv) {
-		RwLock lock(events_rwlock, RwLock::RWLOCK_WRITE);
-		events[iosrv] = false;
+		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
+		events[iosrv] = false; // already exists => previously created in register_ciosrv
 	};
 
 private:
@@ -435,6 +454,11 @@ private:
 	 */
 	cioloop(
 			pthread_t tid = 0) :
+				flag_keep_on_running(false),
+				flag_wait_on_kernel(false),
+				flag_waking_up(false),
+				flag_has_event(false),
+				flag_has_timer(false),
 				tid(tid) {
 		if (0 == tid) {
 			this->tid = pthread_self();
@@ -499,8 +523,10 @@ private:
 	 */
 	void
 	wakeup() {
-		if (flags.test(FLAG_WAIT_ON_KERNEL) || (get_tid() != pthread_self())) {
-			logging::trace << "[rofl-common][cioloop][wakeup] waking up thread, tid: 0x" << std::hex << tid << std::dec << std::endl;
+		logging::trace << "[rofl-common][cioloop][wakeup] waking up thread, "
+				<< "tid: 0x" << std::hex << tid << std::dec << std::endl;
+		if (not flag_waking_up) {
+			flag_waking_up = true;
 			pipe.writemsg('1');
 		}
 	};
@@ -574,14 +600,14 @@ public:
 
 private:
 
-	enum cioloop_flag_t {
-		FLAG_KEEP_ON_RUNNING    = (1 << 0),
-		FLAG_WAIT_ON_KERNEL	    = (1 << 1),
-		FLAG_HAS_EVENT          = (1 << 2),
-		FLAG_HAS_TIMER          = (1 << 3),
-	};
+	/* use separate boolean values as flags:
+	 * bitset is not thread-safe and I am too lazy to write a wrapper ... */
+	bool									flag_keep_on_running;
+	bool									flag_wait_on_kernel;
+	bool									flag_waking_up;
+	bool									flag_has_event;
+	bool									flag_has_timer;
 
-	std::bitset<32>							flags;
 	std::set<ciosrv*> 						ciolist;
 	mutable PthreadRwLock 					ciolist_rwlock;
 	std::vector<ciosrv*>					rfds;
@@ -868,33 +894,29 @@ protected:
 	 *
 	 */
 	ctimer
-	get_next_timer() {
-		return timers.get_next_timer();
-	};
+	get_next_timer()
+	{ return timers.get_next_timer(); };
 
 	/**
 	 *
 	 */
 	bool
-	has_next_timer() const {
-		return (not (timers.empty()));
-	};
+	has_next_timer() const
+	{ return (not (timers.empty())); };
 
 	/**
 	 *
 	 */
 	ctimer
-	get_expired_timer() {
-		return timers.get_expired_timer();
-	};
+	get_expired_timer()
+	{ return timers.get_expired_timer(); };
 
 	/**
 	 *
 	 */
 	bool
-	has_expired_timer() const {
-		return timers.has_expired_timer();
-	};
+	has_expired_timer() const
+	{ return timers.has_expired_timer(); };
 
 	/**
 	 * @name Management methods for timers and events
@@ -1023,8 +1045,11 @@ private:
 	void
 	__handle_timeout() {
 		try {
+			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] #timers: "
+					<< timers.size() << std::endl << *this;
 			ctimer timer = timers.get_expired_timer();
-			logging::trace << "[rofl-common][ciosrv][handle-timeout] timer: " << std::endl << timer;
+			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] timer: "
+					<< (ctimer::now().get_timespec() - timer.get_timespec()).str() << std::endl;
 			handle_timeout(timer.get_opaque());
 		} catch (eTimersNotFound& e) {/*do nothing*/}
 	};

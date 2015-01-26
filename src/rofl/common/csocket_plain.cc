@@ -865,6 +865,7 @@ csocket_plain::connect(
 		}
 	}
 
+	register_filedesc_r(sd);
 
 	// bind to local address
 	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {

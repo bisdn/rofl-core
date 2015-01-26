@@ -91,6 +91,15 @@ public:
 	};
 
 	/**
+	 * @brief	Returns number of timers.
+	 */
+	size_t
+	size() const {
+		RwLock lock(rwlock, RwLock::RWLOCK_READ);
+		return (timers.size());
+	};
+
+	/**
 	 * @brief	Returns a copy of the next expiring timer in this timer list
 	 *
 	 * @exception eTimersNotFound timer list is empty

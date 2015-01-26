@@ -44,8 +44,8 @@ cpipe::~cpipe()
 void
 cpipe::writemsg(unsigned char msg)
 {
-	if (signal_sent)
-		return;
+	//if (signal_sent)
+	//	return;
 	int rc = write(pipefd[1], &msg, sizeof(msg));
 	if (rc == 0) {
 
@@ -59,6 +59,7 @@ cpipe::writemsg(unsigned char msg)
 unsigned char
 cpipe::recvmsg()
 {
+	signal_sent = false;
 	unsigned char msg = 0;
 	int rc;
 	if ((rc = read(pipefd[0], &msg, sizeof(msg))) < 0) {
@@ -70,7 +71,6 @@ cpipe::recvmsg()
 			break;
 		}
 	}
-	signal_sent = false;
 	return msg;
 }
 
