@@ -390,7 +390,9 @@ private:
 	handle_closed(
 			crofsock& rofsock) {
 		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << std::endl;
-		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
+		if (STATE_DISCONNECTED != state) {
+			rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
+		}
 	};
 
 	virtual void
