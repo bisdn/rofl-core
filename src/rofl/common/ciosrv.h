@@ -868,7 +868,7 @@ private:
 	__handle_timeout() {
 		try {
 			ctimer timer = timers.get_expired_timer();
-			logging::trace << "[rofl-common][ciosrv][handle-timeout] timer: " << std::endl << timer;
+			LOGGING_TRACE << "[rofl-common][ciosrv][handle-timeout] timer: " << std::endl << timer;
 			handle_timeout(timer.get_opaque());
 		} catch (eTimersNotFound& e) {/*do nothing*/}
 	};

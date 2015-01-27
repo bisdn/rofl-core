@@ -80,10 +80,10 @@ cdaemon::daemonize(
 			(void) tmp;
 			switch (a) {
 			case 0: // success
-				logging::error << "[rofl][cdaemon] daemonizing successful. PID: "<<pid1<< std::endl;
+				LOGGING_ERROR << "[rofl][cdaemon] daemonizing successful. PID: "<<pid1<< std::endl;
 				exit(EXIT_SUCCESS);
 			case 1: // failure
-				logging::error << "[rofl][cdaemon] daemonizing failed" << std::endl;
+				LOGGING_ERROR << "[rofl][cdaemon] daemonizing failed" << std::endl;
 				throw std::runtime_error("Unable to daemonize");
 			}
 		}

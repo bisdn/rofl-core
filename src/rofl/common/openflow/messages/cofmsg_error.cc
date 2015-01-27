@@ -115,7 +115,7 @@ cofmsg_error::length() const
 		return (sizeof(struct openflow13::ofp_error_msg) + body.memlen());
 	} break;
 	default:
-		logging::warn << "cofmsg_error::length() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::length() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -146,7 +146,7 @@ cofmsg_error::pack(uint8_t *buf, size_t buflen)
 		memcpy(buf + sizeof(struct openflow13::ofp_error_msg), body.somem(), body.memlen());
 	} break;
 	default:
-		logging::warn << "cofmsg_error::pack() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::pack() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -193,7 +193,7 @@ cofmsg_error::validate()
 		}
 	} break;
 	default:
-		logging::warn << "cofmsg_error::validate() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::validate() unsupported OFP version" << std::endl;
 		throw eBadRequestBadVersion();
 	}
 }
@@ -214,7 +214,7 @@ cofmsg_error::get_err_type() const
 		return be16toh(err13_msg->type);
 	} break;
 	default:
-		logging::warn << "cofmsg_error::get_err_type() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::get_err_type() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -235,7 +235,7 @@ cofmsg_error::set_err_type(uint16_t type)
 		err13_msg->type = htobe16(type);
 	} break;
 	default:
-		logging::warn << "cofmsg_error::set_err_type() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::set_err_type() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -256,7 +256,7 @@ cofmsg_error::get_err_code() const
 		return be16toh(err13_msg->code);
 	} break;
 	default:
-		logging::warn << "cofmsg_error::get_err_code() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::get_err_code() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -277,7 +277,7 @@ cofmsg_error::set_err_code(uint16_t code)
 		err13_msg->code = htobe16(code);
 	} break;
 	default:
-		logging::warn << "cofmsg_error::set_err_code() unsupported OFP version" << std::endl;
+		LOGGING_WARN << "cofmsg_error::set_err_code() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
 }

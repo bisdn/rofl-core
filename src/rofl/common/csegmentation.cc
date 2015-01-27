@@ -118,7 +118,7 @@ restart:
 		csegmsg& segmsg = it->second;
 
 		if (segmsg.has_expired()) {
-			rofl::logging::debug << "[rofl][csegmentation] dropping multipart segment:" << std::endl << segmsg;
+			LOGGING_DEBUG << "[rofl][csegmentation] dropping multipart segment:" << std::endl << segmsg;
 			segmsgs.erase(it);
 			goto restart;
 		}

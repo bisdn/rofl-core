@@ -104,7 +104,7 @@ clldpattrs::pack(uint8_t *buf, size_t buflen)
 
 	} catch (eLLDPAttrsNotFound& e) {
 
-		rofl::logging::error << "clldpattrs::pack => mandatory TLV not found" << std::endl;
+		LOGGING_ERROR << "clldpattrs::pack => mandatory TLV not found" << std::endl;
 	}
 }
 

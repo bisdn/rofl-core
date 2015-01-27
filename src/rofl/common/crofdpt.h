@@ -1066,7 +1066,7 @@ public:
 				miss_send_len(0),
 				state(STATE_INIT) {
 		crofdpt::rofdpts[dptid] = this;
-		rofl::logging::debug << "[rofl-common][crofdpt] "
+		LOGGING_DEBUG << "[rofl-common][crofdpt] "
 				<< "instance created, dptid: " << dptid.str() << std::endl;
 	};
 
@@ -1077,7 +1077,7 @@ public:
 	 */
 	virtual
 	~crofdpt() {
-		rofl::logging::debug << "[rofl-common][crofdpt] "
+		LOGGING_DEBUG << "[rofl-common][crofdpt] "
 				<< "instance destroyed, dptid: " << dptid.str() << std::endl;
 		crofdpt::rofdpts.erase(dptid);
 		events.clear();
@@ -2133,13 +2133,13 @@ private:
 	handle_conn_established(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
+		LOGGING_INFO << "[rofl-common][crofdpt] dptid: " << dptid.str()
 						<< " control connection established, auxid: " << auxid.str() << std::endl;
 
 		call_env().handle_conn_established(*this, auxid);
 
 		if (auxid == rofl::cauxid(0)) {
-			rofl::logging::info << "[rofl-common][crofdpt] dpid: " << std::hex << get_dpid().str() << std::dec
+			LOGGING_INFO << "[rofl-common][crofdpt] dpid: " << std::hex << get_dpid().str() << std::dec
 					<< " OFP control channel established, " << chan.str() << std::endl;
 			push_on_eventqueue(EVENT_CONNECTED);
 		}
@@ -2149,7 +2149,7 @@ private:
 	handle_conn_terminated(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
+		LOGGING_INFO << "[rofl-common][crofdpt] dptid: " << dptid.str()
 						<< " control connection terminated, auxid: " << auxid.str() << std::endl;
 
 		rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
@@ -2158,7 +2158,7 @@ private:
 
 		if (auxid == rofl::cauxid(0)) {
 		//if (0 == auxid.get_id()) {
-			rofl::logging::info << "[rofl-common][crofdpt] dptid: " << dptid.str()
+			LOGGING_INFO << "[rofl-common][crofdpt] dptid: " << dptid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
 			push_on_eventqueue(EVENT_DISCONNECTED);

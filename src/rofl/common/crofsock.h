@@ -373,7 +373,7 @@ private:
 			case EVENT_CONGESTION_SOLVED:	event_congestion_solved();	break;
 
 			default: {
-				rofl::logging::error << "[rofl-common][crofsock] unknown event seen, internal error" << std::endl << *this;
+				LOGGING_ERROR << "[rofl-common][crofsock] unknown event seen, internal error" << std::endl << *this;
 			};
 			}
 		}
@@ -387,7 +387,7 @@ private:
 		switch (state) {
 		case STATE_INIT:
 		case STATE_CLOSED: {
-			rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECT => entering state -connecting-" << std::endl;
+			LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-CONNECT => entering state -connecting-" << std::endl;
 			state = STATE_CONNECTING;
 			if (socket)
 				delete socket;
@@ -413,7 +413,7 @@ private:
 	 */
 	void
 	event_connect_failed() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECT-FAILED => entering state -closed-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-CONNECT-FAILED => entering state -closed-" << std::endl;
 		state = STATE_CLOSED;
 		if (env) env->handle_connect_failed(*this);
 	};
@@ -423,7 +423,7 @@ private:
 	 */
 	void
 	event_connect_refused() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECT-REFUSED => entering state -closed-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-CONNECT-REFUSED => entering state -closed-" << std::endl;
 		state = STATE_CLOSED;
 		if (env) env->handle_connect_refused(*this);
 	};
@@ -433,7 +433,7 @@ private:
 	 */
 	void
 	event_connected() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-CONNECTED => entering state -connected-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-CONNECTED => entering state -connected-" << std::endl;
 		state = STATE_CONNECTED;
 		if (env) env->handle_connected(*this);
 	};
@@ -446,7 +446,7 @@ private:
 		switch (state) {
 		case STATE_INIT:
 		case STATE_CLOSED: {
-			rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-ACCEPT => entering state -connected-" << std::endl;
+			LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-ACCEPT => entering state -connected-" << std::endl;
 			state = STATE_CONNECTED;
 			if (socket)
 				delete socket;
@@ -464,7 +464,7 @@ private:
 	 */
 	void
 	event_accept_refused() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-ACCEPT-REFUSED => entering state -closed-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-ACCEPT-REFUSED => entering state -closed-" << std::endl;
 		state = STATE_CLOSED;
 	};
 
@@ -473,7 +473,7 @@ private:
 	 */
 	void
 	event_accepted() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-ACCEPTED => entering state -connected-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-ACCEPTED => entering state -connected-" << std::endl;
 		state = STATE_CONNECTED;
 		// do not call handle_connected() here
 	};
@@ -483,7 +483,7 @@ private:
 	 */
 	void
 	event_peer_disconnected() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-PEER-DISCONNECTED => entering state -closed-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-PEER-DISCONNECTED => entering state -closed-" << std::endl;
 		__close();
 		if (env) env->handle_closed(*this);
 	};
@@ -493,7 +493,7 @@ private:
 	 */
 	void
 	event_local_disconnect() {
-		rofl::logging::debug2 << "[rofl-common][crofsock] EVENT-LOCAL-DISCONNECT => entering state -closed-" << std::endl;
+		LOGGING_DEBUG2 << "[rofl-common][crofsock] EVENT-LOCAL-DISCONNECT => entering state -closed-" << std::endl;
 		__close();
 		if (socket) socket->close();
 	};

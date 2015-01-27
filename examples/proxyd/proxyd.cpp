@@ -30,7 +30,7 @@ main(int argc, char** argv)
 
 		rofl::cdaemon::daemonize(env_parser.get_arg("pidfile"), env_parser.get_arg("logfile"));
 		rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
-		rofl::logging::notice << "[proxyd][main] daemonizing successful" << std::endl;
+		LOGGING_NOTICE << "[proxyd][main] daemonizing successful" << std::endl;
 	}
 
 	rofl::examples::proxy::ccontrol ctl;

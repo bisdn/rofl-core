@@ -25,13 +25,13 @@ cflowentry::cflowentry(
 {
 	flow_mod_add();
 	expiration_timer_id = register_timer(CFLOWENTRY_ENTRY_EXPIRED, entry_timeout);
-	rofl::logging::notice << "[cflowentry] created" << std::endl << *this;
+	LOGGING_NOTICE << "[cflowentry] created" << std::endl << *this;
 }
 
 
 cflowentry::~cflowentry()
 {
-	rofl::logging::notice << "[cflowentry] deleted" << std::endl << *this;
+	LOGGING_NOTICE << "[cflowentry] deleted" << std::endl << *this;
 	flow_mod_delete();
 }
 

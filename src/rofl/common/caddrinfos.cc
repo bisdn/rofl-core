@@ -38,11 +38,11 @@ caddrinfos::resolve()
 			case EAI_NONAME:
 			case EAI_SERVICE:
 			case EAI_SOCKTYPE: {
-					rofl::logging::error << "[rofl][caddrinfos] name resolution failed: " << std::string(gai_strerror(rc)) << std::endl;
+					LOGGING_ERROR << "[rofl][caddrinfos] name resolution failed: " << std::string(gai_strerror(rc)) << std::endl;
 			} break;
 			case EAI_SYSTEM:
 			default: {
-					rofl::logging::error << "[rofl][caddrinfos] name resolution failed: unknown error occured " << std::endl;
+					LOGGING_ERROR << "[rofl][caddrinfos] name resolution failed: unknown error occured " << std::endl;
 			};
 			}
 			throw eSysCall("getaddrinfo() "+std::string(gai_strerror(rc)));

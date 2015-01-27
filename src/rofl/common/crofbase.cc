@@ -49,7 +49,7 @@ void
 crofbase::handle_connect_refused(
 		crofconn& conn)
 {
-	rofl::logging::info << "[rofl-common][crofbase] connection refused: " << conn.str() << std::endl;
+	LOGGING_INFO << "[rofl-common][crofbase] connection refused: " << conn.str() << std::endl;
 }
 
 
@@ -58,7 +58,7 @@ void
 crofbase::handle_connect_failed(
 		crofconn& conn)
 {
-	rofl::logging::info << "[rofl-common][crofbase] connection failed: " << conn.str() << std::endl;
+	LOGGING_INFO << "[rofl-common][crofbase] connection failed: " << conn.str() << std::endl;
 }
 
 
@@ -81,14 +81,14 @@ crofbase::handle_connected(
 
 	switch (conn.get_flavour()) {
 	case rofl::crofconn::FLAVOUR_CTL: {
-		rofl::logging::info << "[rofl-common][crofbase] "
+		LOGGING_INFO << "[rofl-common][crofbase] "
 				<< "creating new crofctl instance for ctl peer" << std::endl;
 		add_ctl(get_idle_ctlid(), conn.get_versionbitmap(), /*remove_upon_channel_termination=*/true).add_connection(&conn);
 	} break;
 	case rofl::crofconn::FLAVOUR_DPT: try {
 		crofdpt::get_dpt(conn.get_dpid()).add_connection(&conn);
 	} catch (eRofDptNotFound& e) {
-		rofl::logging::info << "[rofl-common][crofbase] "
+		LOGGING_INFO << "[rofl-common][crofbase] "
 				<< "creating new crofdpt instance for dpt peer, dpid:" << conn.get_dpid() << std::endl;
 		add_dpt(get_idle_dptid(), conn.get_versionbitmap(), /*remove_upon_channel_termination=*/true).add_connection(&conn);
 	} break;
@@ -105,13 +105,13 @@ crofbase::handle_listen(
 		csocket& socket, int newsd)
 {
 	if (is_ctl_listening(socket)) {
-		rofl::logging::debug << "[rofl-common][crofbase] "
+		LOGGING_DEBUG << "[rofl-common][crofbase] "
 				<< "accept => creating new crofconn for ctl peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
 				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_CTL);
 	}
 	if (is_dpt_listening(socket)) {
-		rofl::logging::debug << "[rofl-common][crofbase] "
+		LOGGING_DEBUG << "[rofl-common][crofbase] "
 						<< "accept => creating new crofconn for dpt peer on sd: " << newsd << std::endl;
 		(new rofl::crofconn(this, versionbitmap))->accept(
 				socket.get_socket_type(), socket.get_socket_params(), newsd, rofl::crofconn::FLAVOUR_DPT);

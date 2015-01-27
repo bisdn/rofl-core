@@ -57,7 +57,7 @@ cofqueue_props::operator= (
 			add_queue_prop_experimenter() = props.get_queue_prop_experimenter();
 		} break;
 		default:
-			rofl::logging::warn << "[rofl][cofqueue-props] ignoring unknown queue property, property-type:"
+			LOGGING_WARN << "[rofl][cofqueue-props] ignoring unknown queue property, property-type:"
 						<< it->second->get_property() << std::endl;
 		}
 	}
@@ -329,7 +329,7 @@ cofqueue_props::unpack(
 				buflen -= set_queue_prop_experimenter().length();
 			} break;
 			default: {
-				rofl::logging::warn << "[rofl][cofqueue-props] ignoring unknown queue property, property-type:"
+				LOGGING_WARN << "[rofl][cofqueue-props] ignoring unknown queue property, property-type:"
 							<<(unsigned int)property << std::endl;
 				buf += len;
 				buflen -= len;

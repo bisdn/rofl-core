@@ -63,7 +63,7 @@ void
 cofactionset::actionset_clear(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
-	logging::debug << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
+	LOGGING_DEBUG << "[rofl]"<<this<<" actionset_clear()"<< std::endl;
 	acset.clear();
 
 	for (std::map<cindex, unsigned int>::const_iterator
@@ -96,7 +96,7 @@ void
 cofactionset::actionset_write_actions(const cofinstruction_actions& inst)
 {
 	//WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
-	logging::debug << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().get_actions_index().size() << std::endl;
+	LOGGING_DEBUG << "[rofl]"<<this<<" actionset_write_actions() inst->actions.elems.size()="<< inst.get_actions().get_actions_index().size() << std::endl;
 
 
 	for (std::map<cindex, unsigned int>::const_iterator

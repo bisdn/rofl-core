@@ -402,7 +402,7 @@ cofmeter_bands::unpack(
 				index_experimenter++;
 			} break;
 			default:
-				rofl::logging::warn << "[rofl][cofmeterbands][unpack] unknown meter band type:" << (int)type << std::endl;
+				LOGGING_WARN << "[rofl][cofmeterbands][unpack] unknown meter band type:" << (int)type << std::endl;
 				offset += len;
 			}
 		}

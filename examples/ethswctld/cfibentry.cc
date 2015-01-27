@@ -22,13 +22,13 @@ cfibentry::cfibentry(
 		expiration_timer_id()
 {
 	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
-	rofl::logging::notice << "[cfibentry] created" << std::endl << *this;
+	LOGGING_NOTICE << "[cfibentry] created" << std::endl << *this;
 }
 
 
 cfibentry::~cfibentry()
 {
-	rofl::logging::notice << "[cfibentry] deleted" << std::endl << *this;
+	LOGGING_NOTICE << "[cfibentry] deleted" << std::endl << *this;
 }
 
 

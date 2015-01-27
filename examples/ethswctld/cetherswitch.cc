@@ -42,13 +42,13 @@ cetherswitch::run(
 			// only do this in non
 			std::string ident(env_parser.get_arg("logfile"));
 
-			rofl::logging::init();
-			rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
+			logging::init();
+			logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
 		} else {
 
 			rofl::cdaemon::daemonize(env_parser.get_arg("pidfile"), env_parser.get_arg("logfile"));
-			rofl::logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
-			rofl::logging::notice << "[ethswctld][main] daemonizing successful" << std::endl;
+			logging::set_debug_level(atoi(env_parser.get_arg("debug").c_str()));
+			LOGGING_NOTICE << "[ethswctld][main] daemonizing successful" << std::endl;
 		}
 
 		//Initialize the instance of etherswitch (crofbase based)
@@ -107,9 +107,9 @@ cetherswitch::handle_timeout(int opaque, void* data)
 					rofl::ciosrv::register_timer(TIMER_DUMP_FIB,
 							rofl::ctimespec(dump_fib_interval));
 
-			rofl::logging::notice << "****************************************" << std::endl;
-			rofl::logging::notice << *this;
-			rofl::logging::notice << "****************************************" << std::endl;
+			LOGGING_NOTICE << "****************************************" << std::endl;
+			LOGGING_NOTICE << *this;
+			LOGGING_NOTICE << "****************************************" << std::endl;
 
 		} break;
 		case TIMER_GET_FLOW_STATS: {
@@ -169,7 +169,7 @@ cetherswitch::handle_dpt_open(
 	//New connection => cleanup the RIB by re-creating the FIB table
 	cfibtable::add_fib(dpt.get_dptid());
 
-	rofl::logging::info << "[cetherswitch] datapath attached, dptid: "
+	LOGGING_INFO << "[cetherswitch] datapath attached, dptid: "
 			<< dpt.get_dptid().str() << std::endl
 			<< cfibtable::get_fib(dpt.get_dptid());
 
@@ -217,7 +217,7 @@ cetherswitch::handle_dpt_close(
 
 	rofl::ciosrv::cancel_timer(timer_id_get_flow_stats);
 
-	rofl::logging::info << "[cetherswitch] datapath detached, dptid: "
+	LOGGING_INFO << "[cetherswitch] datapath detached, dptid: "
 			<< dptid.str() << std::endl
 			<< cfibtable::get_fib(dptid);
 
@@ -263,7 +263,7 @@ cetherswitch::handle_packet_in(
 
 		//Ignore multi-cast frames (SRC)
 		if (eth_src.is_multicast()) {
-			rofl::logging::warn << "[cetherswitch][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
+			LOGGING_WARN << "[cetherswitch][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
 			return;
 		}
 
@@ -299,10 +299,10 @@ cetherswitch::handle_packet_in(
 		}
 
 	} catch (exceptions::eFibInval& e) {
-		rofl::logging::error << "[cetherswitch] hwaddr validation failed" << std::endl << msg;
+		LOGGING_ERROR << "[cetherswitch] hwaddr validation failed" << std::endl << msg;
 
 	} catch (...) {
-		rofl::logging::error << "[cetherswitch] caught some exception, use debugger for getting more info" << std::endl << msg;
+		LOGGING_ERROR << "[cetherswitch] caught some exception, use debugger for getting more info" << std::endl << msg;
 		assert(0);
 		throw;
 	}
@@ -316,7 +316,7 @@ cetherswitch::handle_flow_stats_reply(
 		const rofl::cauxid& auxid,
 		rofl::openflow::cofmsg_flow_stats_reply& msg)
 {
-	rofl::logging::info << "Flow-Stats-Reply rcvd:" << std::endl << msg;
+	LOGGING_INFO << "Flow-Stats-Reply rcvd:" << std::endl << msg;
 }
 
 
@@ -326,7 +326,7 @@ cetherswitch::handle_flow_stats_reply_timeout(
 		rofl::crofdpt& dpt,
 		uint32_t xid)
 {
-	rofl::logging::info << "Flow-Stats-Reply timeout" << std::endl;
+	LOGGING_INFO << "Flow-Stats-Reply timeout" << std::endl;
 }
 /*
  * End of methods inherited from crofbase
@@ -356,13 +356,13 @@ cetherswitch::dump_packet_in(
 	rofl::caddress_ll eth_src(eth_hdr->eth_src, 6);
 
 	//Dump some information
-	rofl::logging::info << "[cetherswitch] PACKET-IN => frame seen, "
+	LOGGING_INFO << "[cetherswitch] PACKET-IN => frame seen, "
 						<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
 						<< "eth-src:" << eth_src << " "
 						<< "eth-dst:" << eth_dst << " "
 						<< "eth-type:0x" << std::hex << (int)be16toh(eth_hdr->eth_type) << std::dec << " "
 						<< std::endl;
-	rofl::logging::info << dpt.get_dpid();
+	LOGGING_INFO << dpt.get_dpid();
 }
 
 

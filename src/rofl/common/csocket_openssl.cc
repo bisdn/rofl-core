@@ -64,7 +64,7 @@ csocket_openssl::csocket_openssl(
 {
 	openssl_sockets.insert(this);
 
-	logging::debug << "[rofl][csocket][openssl] constructor:" << std::endl << *this;
+	LOGGING_DEBUG << "[rofl][csocket][openssl] constructor:" << std::endl << *this;
 
 	socket_flags.set(FLAG_SSL_IDLE);
 
@@ -77,7 +77,7 @@ csocket_openssl::csocket_openssl(
 
 csocket_openssl::~csocket_openssl()
 {
-	logging::debug << "[rofl][csocket][openssl] destructor:" << std::endl << *this;
+	LOGGING_DEBUG << "[rofl][csocket][openssl] destructor:" << std::endl << *this;
 	close();
 
 	openssl_destroy_ssl();
@@ -395,10 +395,10 @@ csocket_openssl::recv(void* buf, size_t count)
 	if ((rc = SSL_read(ssl, buf, count)) <= 0) {
 		switch (SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
-			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_READ" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_READ" << std::endl;
 		} throw eSocketRxAgain();
 		case SSL_ERROR_WANT_WRITE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_WRITE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][recv] receiving => SSL_ERROR_WANT_WRITE" << std::endl;
 		} throw eSocketRxAgain();
 		default:
 			openssl_destroy_ssl();
@@ -494,11 +494,11 @@ csocket_openssl::dequeue_packet()
 
 			switch (err_code = SSL_get_error(ssl, rc)) {
 			case SSL_ERROR_WANT_READ: {
-				rofl::logging::debug << "[rofl][csocket][openssl][dequeue] sending => SSL_ERROR_WANT_READ" << std::endl;
+				LOGGING_DEBUG << "[rofl][csocket][openssl][dequeue] sending => SSL_ERROR_WANT_READ" << std::endl;
 				notify(EVENT_SEND_TXQUEUE);
 			} return;
 			case SSL_ERROR_WANT_WRITE: {
-				rofl::logging::debug << "[rofl][csocket][openssl][dequeue] sending => SSL_ERROR_WANT_WRITE" << std::endl;
+				LOGGING_DEBUG << "[rofl][csocket][openssl][dequeue] sending => SSL_ERROR_WANT_WRITE" << std::endl;
 				notify(EVENT_SEND_TXQUEUE);
 			} return;
 			default: {
@@ -535,7 +535,7 @@ csocket_openssl::close()
 	if (socket_flags.test(FLAG_SSL_IDLE) || socket_flags.test(FLAG_SSL_CLOSING))
 		return;
 
-	logging::info << "[rofl][csocket][openssl] close()" << std::endl;
+	LOGGING_INFO << "[rofl][csocket][openssl] close()" << std::endl;
 
 	socket_flags.reset(FLAG_SSL_ESTABLISHED);
 	socket_flags.set(FLAG_SSL_CLOSING);
@@ -547,10 +547,10 @@ csocket_openssl::close()
 
 		switch (SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
-			rofl::logging::debug << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_READ" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_READ" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_WRITE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_WRITE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_WRITE" << std::endl;
 		} return;
 		default:
 			openssl_destroy_ssl();
@@ -564,10 +564,10 @@ csocket_openssl::close()
 		if ((rc = SSL_shutdown(ssl)) < 0) {
 			switch (SSL_get_error(ssl, rc)) {
 			case SSL_ERROR_WANT_READ: {
-				rofl::logging::debug << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_READ" << std::endl;
+				LOGGING_DEBUG << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_READ" << std::endl;
 			} return;
 			case SSL_ERROR_WANT_WRITE: {
-				rofl::logging::debug << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_WRITE" << std::endl;
+				LOGGING_DEBUG << "[rofl][csocket][openssl][close] closing => SSL_ERROR_WANT_WRITE" << std::endl;
 			} return;
 			default:
 				openssl_destroy_ssl();
@@ -599,7 +599,7 @@ csocket_openssl::openssl_accept()
 {
 	int rc = 0, err_code = 0;
 
-	rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL accepting..." << std::endl;
+	LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL accepting..." << std::endl;
 
 	if (NULL == ssl) {
 		notify(cevent(EVENT_CONN_RESET));
@@ -609,37 +609,37 @@ csocket_openssl::openssl_accept()
 	if ((rc = SSL_accept(ssl)) <= 0) {
 		switch (err_code = SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_READ" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_READ" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_WRITE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_WRITE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_WRITE" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_ACCEPT: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_ACCEPT" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_ACCEPT" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_CONNECT: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_CONNECT" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] accepting => SSL_ERROR_WANT_CONNECT" << std::endl;
 		} return;
 
 
 		case SSL_ERROR_NONE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_NONE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_NONE" << std::endl;
 		} break;
 		case SSL_ERROR_SSL: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SSL" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SSL" << std::endl;
 		} break;
 		case SSL_ERROR_SYSCALL: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SYSCALL" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_SYSCALL" << std::endl;
 		} break;
 		case SSL_ERROR_ZERO_RETURN: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_ZERO_RETURN" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed SSL_ERROR_ZERO_RETURN" << std::endl;
 		} break;
 		default: {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
 		};
 		}
 
-		rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
+		LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() failed " << std::endl;
 
 		ERR_print_errors_fp(stderr);
 
@@ -654,7 +654,7 @@ csocket_openssl::openssl_accept()
 	if (rc == 1) {
 
 		if (not openssl_verify_ok()) {
-			rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() peer verification failed " << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() peer verification failed " << std::endl;
 
 			ERR_print_errors_fp(stderr);
 
@@ -668,7 +668,7 @@ csocket_openssl::openssl_accept()
 			return;
 		}
 
-		rofl::logging::debug << "[rofl][csocket][openssl][accept] SSL_accept() succeeded " << std::endl;
+		LOGGING_DEBUG << "[rofl][csocket][openssl][accept] SSL_accept() succeeded " << std::endl;
 
 		socket_flags.reset(FLAG_SSL_ACCEPTING);
 		socket_flags.set(FLAG_SSL_ESTABLISHED);
@@ -684,7 +684,7 @@ csocket_openssl::openssl_connect()
 {
 	int rc = 0, err_code = 0;
 
-	rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL connecting..." << std::endl;
+	LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL connecting..." << std::endl;
 
 	if (NULL == ssl) {
 		notify(cevent(EVENT_CONN_RESET));
@@ -694,37 +694,37 @@ csocket_openssl::openssl_connect()
 	if ((rc = SSL_connect(ssl)) <= 0) {
 		switch (err_code = SSL_get_error(ssl, rc)) {
 		case SSL_ERROR_WANT_READ: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_READ" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_READ" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_WRITE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_WRITE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_WRITE" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_ACCEPT: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_ACCEPT" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_ACCEPT" << std::endl;
 		} return;
 		case SSL_ERROR_WANT_CONNECT: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_CONNECT" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] connecting => SSL_ERROR_WANT_CONNECT" << std::endl;
 		} return;
 
 
 		case SSL_ERROR_NONE: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_NONE" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_NONE" << std::endl;
 		} break;
 		case SSL_ERROR_SSL: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SSL" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SSL" << std::endl;
 		} break;
 		case SSL_ERROR_SYSCALL: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SYSCALL" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_SYSCALL" << std::endl;
 		} break;
 		case SSL_ERROR_ZERO_RETURN: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_ZERO_RETURN" << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed SSL_ERROR_ZERO_RETURN" << std::endl;
 		} break;
 		default: {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
 		};
 		}
 
-		rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
+		LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() failed " << std::endl;
 		ERR_print_errors_fp(stderr);
 
 		openssl_destroy_ssl();
@@ -738,7 +738,7 @@ csocket_openssl::openssl_connect()
 	if (rc == 1) {
 
 		if (not openssl_verify_ok()) {
-			rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() peer verification failed " << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() peer verification failed " << std::endl;
 
 			ERR_print_errors_fp(stderr);
 
@@ -752,7 +752,7 @@ csocket_openssl::openssl_connect()
 			return;
 		}
 
-		rofl::logging::debug << "[rofl][csocket][openssl][connect] SSL_connect() succeeded " << std::endl;
+		LOGGING_DEBUG << "[rofl][csocket][openssl][connect] SSL_connect() succeeded " << std::endl;
 
 		socket_flags.reset(FLAG_SSL_CONNECTING);
 		socket_flags.set(FLAG_SSL_ESTABLISHED);
@@ -778,7 +778,7 @@ csocket_openssl::openssl_verify_ok()
 		X509* cert = (X509*)NULL;
 		if ((cert = SSL_get_peer_certificate(ssl)) == NULL) {
 
-			rofl::logging::debug << "[rofl][csocket][openssl][verify] peer verification failed " << std::endl;
+			LOGGING_DEBUG << "[rofl][csocket][openssl][verify] peer verification failed " << std::endl;
 
 			openssl_destroy_ssl();
 			socket.close();
@@ -797,106 +797,106 @@ csocket_openssl::openssl_verify_ok()
 
 			switch (result) {
 			case X509_V_OK: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: ok" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: ok" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get issuer certificate" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get issuer certificate" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_GET_CRL: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get certificate CRL" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get certificate CRL" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decrypt certificate's signature" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decrypt certificate's signature" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decrypt CRL's signature" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decrypt CRL's signature" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decode issuer public key" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to decode issuer public key" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_SIGNATURE_FAILURE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate signature failure" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate signature failure" << std::endl;
 			} break;
 			case X509_V_ERR_CRL_SIGNATURE_FAILURE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL signature failure" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL signature failure" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_NOT_YET_VALID: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate is not yet valid" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate is not yet valid" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_HAS_EXPIRED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate has expired" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate has expired" << std::endl;
 			} break;
 			case X509_V_ERR_CRL_NOT_YET_VALID: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL is not yet valid" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL is not yet valid" << std::endl;
 			} break;
 			case X509_V_ERR_CRL_HAS_EXPIRED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL has expired" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: CRL has expired" << std::endl;
 			} break;
 			case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in certificate's notBefore field" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in certificate's notBefore field" << std::endl;
 			} break;
 			case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in certificate's notAfter field" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in certificate's notAfter field" << std::endl;
 			} break;
 			case X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in CRL's lastUpdate field" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in CRL's lastUpdate field" << std::endl;
 			} break;
 			case X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in CRL's nextUpdate field" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: format error in CRL's nextUpdate field" << std::endl;
 			} break;
 			case X509_V_ERR_OUT_OF_MEM: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: out of memory" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: out of memory" << std::endl;
 			} break;
 			case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: self signed certificate" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: self signed certificate" << std::endl;
 			} break;
 			case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: self signed certificate in certificate chain" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: self signed certificate in certificate chain" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get local issuer certificate" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to get local issuer certificate" << std::endl;
 			} break;
 			case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to verify the first certificate" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unable to verify the first certificate" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_CHAIN_TOO_LONG: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate chain too long" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate chain too long" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_REVOKED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate revoked" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate revoked" << std::endl;
 			} break;
 			case X509_V_ERR_INVALID_CA: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: invalid CA certificate" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: invalid CA certificate" << std::endl;
 			} break;
 			case X509_V_ERR_PATH_LENGTH_EXCEEDED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: path length constraint exceeded" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: path length constraint exceeded" << std::endl;
 			} break;
 			case X509_V_ERR_INVALID_PURPOSE: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unsupported certificate purpose" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unsupported certificate purpose" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_UNTRUSTED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate not trusted" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate not trusted" << std::endl;
 			} break;
 			case X509_V_ERR_CERT_REJECTED: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate rejected" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: certificate rejected" << std::endl;
 			} break;
 			case X509_V_ERR_SUBJECT_ISSUER_MISMATCH: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: subject issuer mismatch" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: subject issuer mismatch" << std::endl;
 			} break;
 			case X509_V_ERR_AKID_SKID_MISMATCH: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: authority and subject key identifier mismatch" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: authority and subject key identifier mismatch" << std::endl;
 			} break;
 			case X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: authority and issuer serial number mismatch" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: authority and issuer serial number mismatch" << std::endl;
 			} break;
 			case X509_V_ERR_KEYUSAGE_NO_CERTSIGN: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: key usage does not include certificate signing" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: key usage does not include certificate signing" << std::endl;
 			} break;
 			case X509_V_ERR_APPLICATION_VERIFICATION: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: application verification failure" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: application verification failure" << std::endl;
 			} break;
 			default: {
-				rofl::logging::info << "[rofl][csocket][openssl][verify] SSL certificate verification: unknown error" << std::endl;
+				LOGGING_INFO << "[rofl][csocket][openssl][verify] SSL certificate verification: unknown error" << std::endl;
 			};
 			}
 

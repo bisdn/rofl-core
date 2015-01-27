@@ -766,7 +766,7 @@ public:
 				remove_on_channel_close(remove_on_channel_close),
 				async_config_role_default_template(rofl::openflow13::OFP_VERSION),
 				async_config(rofl::openflow13::OFP_VERSION) {
-		rofl::logging::debug << "[rofl-common][crofctl] "
+		LOGGING_DEBUG << "[rofl-common][crofctl] "
 				<< "instance created, ctlid: " << ctlid.str() << std::endl;
 		init_async_config_role_default_template();
 		async_config = get_async_config_role_default_template();
@@ -780,7 +780,7 @@ public:
 	 */
 	virtual
 	~crofctl() {
-		rofl::logging::debug << "[rofl-common][crofctl] "
+		LOGGING_DEBUG << "[rofl-common][crofctl] "
 				<< "instance destroyed, ctlid: " << ctlid.str() << std::endl;
 		crofctl::rofctls.erase(ctlid);
 	};
@@ -1444,12 +1444,12 @@ private:
 	handle_conn_established(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
+		LOGGING_INFO << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 						<< " control connection established, auxid: " << auxid.str() << std::endl;
 		call_env().handle_conn_established(*this, auxid);
 
 		if (auxid == rofl::cauxid(0)) {
-			rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
+			LOGGING_INFO << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 							<< " OFP control channel established, " << chan.str() << std::endl;
 
 			call_env().handle_chan_established(*this); // main connection
@@ -1460,14 +1460,14 @@ private:
 	handle_conn_terminated(
 			crofchan& chan,
 			const rofl::cauxid& auxid) {
-		rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
+		LOGGING_INFO << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 						<< " control connection terminated, auxid: " << auxid.str() << std::endl;
 		rofl::RwLock rwlock(conns_terminated_rwlock, rofl::RwLock::RWLOCK_WRITE);
 		conns_terminated.push_back(auxid);
 		push_on_eventqueue(EVENT_CONN_TERMINATED);
 
 		if (auxid == rofl::cauxid(0)) {
-			rofl::logging::info << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
+			LOGGING_INFO << "[rofl-common][crofctl] ctlid:0x" << ctlid.str()
 					<< " OFP control channel terminated, " << chan.str() << std::endl;
 			transactions.clear();
 			push_on_eventqueue(EVENT_CHAN_TERMINATED);

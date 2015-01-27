@@ -377,35 +377,35 @@ private:
 	virtual void
 	handle_connect_refused(
 			crofsock& rofsock) {
-		rofl::logging::warn << "[rofl-common][crofconn] transport connection: connect refused " << std::endl;
+		LOGGING_WARN << "[rofl-common][crofconn] transport connection: connect refused " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_REFUSED));
 	};
 
 	virtual void
 	handle_connect_failed(
 			crofsock& rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection: connect failed " << std::endl;
+		LOGGING_DEBUG << "[rofl-common][crofconn] transport connection: connect failed " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONNECT_FAILED));
 	};
 
 	virtual void
 	handle_connected (
 			crofsock& rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection established " << std::endl;
+		LOGGING_DEBUG << "[rofl-common][crofconn] transport connection established " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_TCP_CONNECTED));
 	};
 
 	virtual void
 	handle_closed(
 			crofsock& rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection closed " << std::endl;
+		LOGGING_DEBUG << "[rofl-common][crofconn] transport connection closed " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_PEER_DISCONNECTED));
 	};
 
 	virtual void
 	handle_write(
 			crofsock& rofsock) {
-		rofl::logging::debug << "[rofl-common][crofconn] transport connection congested " << std::endl;
+		LOGGING_DEBUG << "[rofl-common][crofconn] transport connection congested " << std::endl;
 		rofl::ciosrv::notify(rofl::cevent(EVENT_CONGESTION_SOLVED));
 	};
 

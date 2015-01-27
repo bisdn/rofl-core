@@ -125,7 +125,7 @@ coftable_feature_props::pack(uint8_t *buf, size_t buflen)
 			it = tfprops.begin(); it != tfprops.end(); ++it) {
 		size_t prop_len = it->second->length();
 		if (sizeof(struct openflow13::ofp_table_feature_prop_header) > prop_len) {
-			logging::error << "[rofl][table-feature-props] internal error, tfp with invalid length" << std::endl;
+			LOGGING_ERROR << "[rofl][table-feature-props] internal error, tfp with invalid length" << std::endl;
 			assert(sizeof(struct openflow13::ofp_table_feature_prop_header) <= prop_len);
 			return;
 		}

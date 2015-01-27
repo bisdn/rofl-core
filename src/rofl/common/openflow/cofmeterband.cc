@@ -124,7 +124,7 @@ cofmeter_band::unpack(uint8_t *buf, size_t buflen)
 	switch (of_version) {
 	case openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct rofl::openflow13::ofp_meter_band_header)) {
-			rofl::logging::error << "[rofl][cofmeterband][unpack] buffer too short" << std::endl;
+			LOGGING_ERROR << "[rofl][cofmeterband][unpack] buffer too short" << std::endl;
 			throw eBadRequestBadLen();
 		}
 
@@ -137,7 +137,7 @@ cofmeter_band::unpack(uint8_t *buf, size_t buflen)
 		burst_size		= be32toh(mbh->burst_size);
 
 		if (len > buflen) {
-			rofl::logging::error << "[rofl][cofmeterband][unpack] invalid length field" << std::endl;
+			LOGGING_ERROR << "[rofl][cofmeterband][unpack] invalid length field" << std::endl;
 			throw eMeterModBadBand();
 		}
 
@@ -429,7 +429,7 @@ cofmeter_band_experimenter::pack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		if (buflen < length()) {
-			rofl::logging::error << "[rofl][cofmeterband_experimenter][pack] invalid length" << std::endl;
+			LOGGING_ERROR << "[rofl][cofmeterband_experimenter][pack] invalid length" << std::endl;
 			throw eMeterModBadBand();
 		}
 
@@ -459,7 +459,7 @@ cofmeter_band_experimenter::unpack(uint8_t *buf, size_t buflen)
 	case rofl::openflow13::OFP_VERSION: {
 
 		if (buflen < sizeof(struct openflow13::ofp_meter_band_experimenter)) {
-			rofl::logging::error << "[rofl][cofmeterband_experimenter][unpack] invalid length" << std::endl;
+			LOGGING_ERROR << "[rofl][cofmeterband_experimenter][unpack] invalid length" << std::endl;
 			throw eMeterModBadBand();
 		}
 

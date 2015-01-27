@@ -29,7 +29,7 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		//this->aggr_stats.pack(soframe() + sizeof(struct rofl::openflow13::ofp_multipart_request), sizeof(struct rofl::openflow13::ofp_aggregate_stats_request));
 	} break;
 	default:
-		logging::warn << "cofinst_aggr_stats_request: OFP version not supported" << std::endl;
+		LOGGING_WARN << "cofinst_aggr_stats_request: OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }

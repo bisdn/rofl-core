@@ -686,7 +686,7 @@ cofinstructions::unpack(
 			buf += get_inst_experimenter().length();
 		} break;
 		default:
-			rofl::logging::warn << "[rofl][instructions] unknown instruction type:" << type << std::endl;
+			LOGGING_WARN << "[rofl][instructions] unknown instruction type:" << type << std::endl;
 		}
 	}
 }

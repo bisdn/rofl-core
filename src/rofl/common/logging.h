@@ -17,20 +17,36 @@ class logging
 {
 public:
 
+#define __LOGGING_STR_PASTE(a, b) a ## b
+#define __LOGGING_COND_PRINT(LEVEL, DESC)\
+	 if(rofl::logging::curr_level >= rofl::logging::LEVEL ) DESC
+
 	static std::filebuf devnull;
 	static std::filebuf logfile;
-	static std::ostream emerg;
-	static std::ostream alert;
-	static std::ostream crit;
-	static std::ostream error;
-	static std::ostream warn;
-	static std::ostream notice;
-	static std::ostream info;
-	static std::ostream debug;
-	static std::ostream debug2;
-	static std::ostream debug3;
-	static std::ostream trace;
+	static std::ostream emerg_;
+#define LOGGING_EMERG __LOGGING_COND_PRINT(EMERG, rofl::logging::emerg_)
+	static std::ostream alert_;
+#define LOGGING_ALERT __LOGGING_COND_PRINT(ALERT, rofl::logging::alert_)
+	static std::ostream crit_;
+#define LOGGING_CRIT __LOGGING_COND_PRINT(CRIT, rofl::logging::crit_)
+	static std::ostream error_;
+#define LOGGING_ERROR __LOGGING_COND_PRINT(ERROR, rofl::logging::error_)
+	static std::ostream warn_;
+#define LOGGING_WARN __LOGGING_COND_PRINT(WARN, rofl::logging::warn_)
+	static std::ostream notice_;
+#define LOGGING_NOTICE __LOGGING_COND_PRINT(NOTICE, rofl::logging::notice_)
+	static std::ostream info_;
+#define LOGGING_INFO __LOGGING_COND_PRINT(INFO, rofl::logging::info_)
+	static std::ostream debug_;
+#define LOGGING_DEBUG __LOGGING_COND_PRINT(DBG, rofl::logging::debug_)
+	static std::ostream debug2_;
+#define LOGGING_DEBUG2 __LOGGING_COND_PRINT(DBG2, rofl::logging::debug2_)
+	static std::ostream debug3_;
+#define LOGGING_DEBUG3 __LOGGING_COND_PRINT(DBG3, rofl::logging::debug3_)
+	static std::ostream trace_;
+#define LOGGING_TRACE __LOGGING_COND_PRINT(TRACE, rofl::logging::trace_)
 	static std::streamsize width;
+
 
 public:
 
@@ -70,6 +86,8 @@ public:
 	static void
 	set_debug_level(
 			unsigned int debug_level);
+
+	static unsigned int curr_level;
 };
 
 
