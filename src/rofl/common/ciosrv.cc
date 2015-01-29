@@ -272,9 +272,6 @@ cioloop::run_on_events()
 void
 cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 {
-	sigset_t empty_mask;
-	sigemptyset(&empty_mask);
-
 	fd_set readfds;
 	fd_set writefds;
 	fd_set exceptfds;
@@ -326,7 +323,7 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 
 	// blocking
 	flag_wait_on_kernel = true;
-	rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(ts), &empty_mask);
+	rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(ts), NULL);
 	flag_wait_on_kernel = false;
 
 	rofl::logging::trace << "[rofl-common][cioloop][run] after select,"
