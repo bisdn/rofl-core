@@ -345,6 +345,10 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 			rofl::logging::trace << "[rofl-common][cioloop][run] timeout event: "
 					<< next_timeout.first << std::endl;
 			next_timeout.first->__handle_timeout();
+			if (not timers.empty()) {
+				// process the next timers
+				flag_has_timer = true;
+			}
 		}
 
 		next_timeout = std::pair<ciosrv*, ctimespec>(NULL, ctimespec::now() + ctimespec(3600));
