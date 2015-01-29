@@ -98,12 +98,12 @@ class eRofBaseCongested             : public eRofBase {}; // control channel is 
  * @see crofdpt
  */
 class crofbase :
-	public ciosrv,
-	public csocket_env,
-	public crofconn_env,
-	public ctransactions_env,
-	public crofctl_env,
-	public crofdpt_env
+	public rofl::ciosrv,
+	public rofl::csocket_env,
+	public rofl::crofconn_env,
+	public rofl::ctransactions_env,
+	public rofl::crofctl_env,
+	public rofl::crofdpt_env
 {
 public:
 
@@ -118,7 +118,8 @@ public:
 	 */
 	crofbase(
 			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap =
-					rofl::openflow::cofhello_elem_versionbitmap());
+					rofl::openflow::cofhello_elem_versionbitmap(),
+					pthread_t tid = 0);
 
 	/**
 	 * @brief	crofbase destructor
@@ -164,7 +165,7 @@ public:
 			delete dpt_sockets[sockid];
 			dpt_sockets.erase(sockid);
 		}
-		dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+		dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this, get_thread_id());
 		dpt_sockets[sockid]->listen(params);
 		return *(dpt_sockets[sockid]);
 	};
@@ -183,7 +184,7 @@ public:
 			enum rofl::csocket::socket_type_t socket_type,
 			const rofl::cparams& params) {
 		if (dpt_sockets.find(sockid) == dpt_sockets.end()) {
-			dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+			dpt_sockets[sockid] = csocket::csocket_factory(socket_type, this, get_thread_id());
 			dpt_sockets[sockid]->listen(params);
 		}
 		return *(dpt_sockets[sockid]);
@@ -267,7 +268,7 @@ public:
 			delete ctl_sockets[sockid];
 			ctl_sockets.erase(sockid);
 		}
-		ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+		ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this, get_thread_id());
 		ctl_sockets[sockid]->listen(params);
 		return *(ctl_sockets[sockid]);
 	};
@@ -286,7 +287,7 @@ public:
 			enum rofl::csocket::socket_type_t socket_type,
 			const rofl::cparams& params) {
 		if (ctl_sockets.find(sockid) == ctl_sockets.end()) {
-			ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this);
+			ctl_sockets[sockid] = csocket::csocket_factory(socket_type, this, get_thread_id());
 			ctl_sockets[sockid]->listen(params);
 		}
 		return *(ctl_sockets[sockid]);
@@ -400,7 +401,7 @@ public:
 			delete rofdpts[dptid];
 			rofdpts.erase(dptid);
 		}
-		rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid);
+		rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid, get_thread_id());
 		return *(rofdpts[dptid]);
 	};
 
@@ -427,7 +428,7 @@ public:
 		bool remove_on_channel_close = false,
 		const rofl::cdpid& dpid = rofl::cdpid(0)) {
 		if (rofdpts.find(dptid) == rofdpts.end()) {
-			rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid);
+			rofdpts[dptid] = new crofdpt(this, dptid, remove_on_channel_close, versionbitmap, dpid, get_thread_id());
 		}
 		return *(rofdpts[dptid]);
 	};
@@ -562,7 +563,7 @@ public:
 			delete rofctls[ctlid];
 			rofctls.erase(ctlid);
 		}
-		rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap);
+		rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap, get_thread_id());
 		return *(rofctls[ctlid]);
 	};
 
@@ -587,7 +588,7 @@ public:
 		const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
 		bool remove_on_channel_close = false) {
 		if (rofctls.find(ctlid) == rofctls.end()) {
-			rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap);
+			rofctls[ctlid] = new crofctl(this, ctlid, remove_on_channel_close, versionbitmap, get_thread_id());
 		}
 		return *(rofctls[ctlid]);
 	};

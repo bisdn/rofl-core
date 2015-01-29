@@ -12,7 +12,7 @@ using namespace rofl;
 ctransactions::ctransactions(
 		ctransactions_env *env,
 		pthread_t tid) :
-				rofl::ciosrv(0),
+				rofl::ciosrv(tid),
 				env(env),
 				nxid(crandom(sizeof(uint32_t)).uint32()),
 				work_interval(1),

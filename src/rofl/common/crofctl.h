@@ -715,7 +715,7 @@ protected:
 class crofctl :
 		public rofl::crofchan_env,
 		public rofl::ctransactions_env,
-		public ciosrv
+		public rofl::ciosrv
 {
 	enum crofctl_timer_t {
 		TIMER_RUN_ENGINE       = 0,
@@ -758,11 +758,13 @@ public:
 			crofctl_env* env,
 			const cctlid& ctlid,
 			bool remove_on_channel_close,
-			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap) :
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+			pthread_t tid = 0) :
+				rofl::ciosrv(tid),
 				env(env),
 				ctlid(ctlid),
-				rofchan(this, versionbitmap),
-				transactions(this),
+				rofchan(this, versionbitmap, tid),
+				transactions(this, tid),
 				remove_on_channel_close(remove_on_channel_close),
 				async_config_role_default_template(rofl::openflow13::OFP_VERSION),
 				async_config(rofl::openflow13::OFP_VERSION) {

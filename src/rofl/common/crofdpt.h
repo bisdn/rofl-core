@@ -973,7 +973,7 @@ protected:
 class crofdpt :
 		public rofl::crofchan_env,
 		public rofl::ctransactions_env,
-		public ciosrv
+		public rofl::ciosrv
 {
 	enum crofdpt_timer_t {
 		TIMER_RUN_ENGINE                            = 0,
@@ -1051,11 +1051,13 @@ public:
 			const rofl::cdptid& dptid,
 			bool remove_on_channel_close,
 			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
-			const rofl::cdpid& dpid = rofl::cdpid(0)) :
+			const rofl::cdpid& dpid = rofl::cdpid(0),
+			pthread_t tid = 0) :
+				rofl::ciosrv(tid),
 				env(env),
 				dptid(dptid),
-				rofchan(this, versionbitmap),
-				transactions(this),
+				rofchan(this, versionbitmap, tid),
+				transactions(this, tid),
 				remove_on_channel_close(remove_on_channel_close),
 				dpid(dpid),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),

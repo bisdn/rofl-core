@@ -100,7 +100,7 @@ crofchan::add_conn(
 		drop_conn(auxid); // drop old connection first
 	}
 
-	(conns[auxid] = new crofconn(this, vbitmap));
+	(conns[auxid] = new crofconn(this, vbitmap, get_thread_id()));
 
 	set_conn(auxid).connect(auxid, socket_type, socket_params);
 
@@ -184,7 +184,7 @@ crofchan::set_conn(
 		} else {
 			vbitmap.add_ofp_version(ofp_version);	// auxiliary connections: use OFP version negotiated for main connection
 		}
-		conns[auxid] = new crofconn(this, vbitmap);
+		conns[auxid] = new crofconn(this, vbitmap, get_thread_id());
 
 		rofl::logging::debug << "[rofl-common][crofchan][set_conn] "
 				<< "added connection, auxid: " << auxid << " " << str() << std::endl;

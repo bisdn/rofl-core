@@ -153,7 +153,7 @@ protected:
  */
 class crofchan :
 		public rofl::ciosrv,
-		public crofconn_env
+		public rofl::crofconn_env
 {
 	enum crofchan_event_t {
 		EVENT_NONE				= 0,
@@ -177,9 +177,11 @@ public:
 	/**
 	 *
 	 */
-	crofchan() :
-		env(NULL),
-		ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN)
+	crofchan(
+			pthread_t tid = 0) :
+				rofl::ciosrv(tid),
+				env(NULL),
+				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN)
 	{};
 
 	/**
@@ -187,7 +189,9 @@ public:
 	 */
 	crofchan(
 			crofchan_env *env,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+			pthread_t tid = 0) :
+				rofl::ciosrv(tid),
 				env(env),
 				versionbitmap(versionbitmap),
 				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN)
