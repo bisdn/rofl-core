@@ -315,7 +315,14 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 
 	rofl::indent::null();
 
-	struct timespec ts = (next_timeout.second - ctimespec::now()).get_timespec();
+	struct timespec ts;
+	ctimespec now(ctimespec::now());
+	if ( next_timeout.second < now ) {
+		ts.tv_nsec = 0;
+		ts.tv_sec = 0;
+	} else {
+		ts = (next_timeout.second - now).get_timespec();
+	}
 
 	rofl::logging::trace << "[rofl-common][cioloop][run] before select,"
 			<< " next timeout: " << ctimespec(ts).str()
