@@ -13,7 +13,8 @@ using namespace rofl;
 
 crofconn::crofconn(
 		crofconn_env *env,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		pthread_t tid) :
 				env(env),
 				dpid(0), // will be determined later via Features.request
 				auxiliary_id(0), // will be determined later via Features.request
@@ -21,6 +22,7 @@ crofconn::crofconn(
 				rofsock(NULL),
 				versionbitmap(versionbitmap),
 				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
+				sar(8/*seconds*/, tid),
 				fragmentation_threshold(DEFAULT_FRAGMENTATION_THRESHOLD),
 				max_backoff(ctimespec(16, 0)),
 				reconnect_start_timeout(ctimespec(0, CROFCONN_RECONNECT_START_TIMEOUT_IN_NSECS)),

@@ -10,8 +10,11 @@
 using namespace rofl;
 
 
-csegmentation::csegmentation(time_t check_expiration_interval) :
-		check_expiration_interval(check_expiration_interval)
+csegmentation::csegmentation(
+		time_t check_expiration_interval,
+		pthread_t tid) :
+				rofl::ciosrv(tid),
+				check_expiration_interval(check_expiration_interval)
 {
 	check_expiration_id = register_timer(TIMER_CHECK_EXPIRATION, ctimespec(check_expiration_interval));
 }
@@ -31,11 +34,13 @@ csegmentation::csegmentation(
 
 
 csegmentation&
-csegmentation::operator= (csegmentation const& seg)
+csegmentation::operator= (
+		csegmentation const& seg)
 {
 	if (this == &seg)
 		return *this;
 
+	// TODO
 
 	return *this;
 }

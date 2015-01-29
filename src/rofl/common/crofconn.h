@@ -228,7 +228,8 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap);
+			const rofl::openflow::cofhello_elem_versionbitmap& versionbitmap,
+			pthread_t tid = 0);
 
 	/**
 	 *

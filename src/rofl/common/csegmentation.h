@@ -46,7 +46,8 @@ public:
 	 *
 	 */
 	csegmentation(
-			time_t check_expiration_interval = DEFAULT_CHECK_EXPIRATION_INTERVAL);
+			time_t check_expiration_interval = DEFAULT_CHECK_EXPIRATION_INTERVAL,
+			pthread_t tid = 0);
 
 	/**
 	 *

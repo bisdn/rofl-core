@@ -51,7 +51,9 @@ public:
 	/**
 	 *
 	 */
-	ctransactions(ctransactions_env *env);
+	ctransactions(
+			ctransactions_env *env,
+			pthread_t tid = 0);
 
 	/**
 	 *
