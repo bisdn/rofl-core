@@ -176,11 +176,6 @@ cioloop::run_on_timers(
 		{
 			flag_has_timer = false;
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
-			if (timers.empty()) {
-				rofl::logging::trace << "[rofl-common][cioloop][run_on_timers] no timers,"
-						<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
-				return false;
-			}
 			for (std::map<ciosrv*, bool>::iterator
 					it = timers.begin(); it != timers.end(); ++it) {
 				if (true == it->second)
@@ -241,11 +236,6 @@ cioloop::run_on_events()
 		{
 			flag_has_event = false;
 			RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
-			if (events.empty()) {
-				rofl::logging::trace << "[rofl-common][cioloop][run_on_events] no events,"
-						<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
-				return false;
-			}
 			for (std::map<ciosrv*, bool>::iterator
 					it = events.begin(); it != events.end(); ++it) {
 				if (true == it->second)
