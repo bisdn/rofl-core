@@ -10,9 +10,10 @@ install:
 env:
   - FLAGS=--enable-debug
   - FLAGS=
-script: 
+  - FLAGS=--with-pipeline-lockless --with-pipeline-platform-funcs-inlined
+script:
   - mkdir -p build
-  - cd build 
+  - cd build
   - ../configure $FLAGS
   - make -j 2
   - make -j 2 check
