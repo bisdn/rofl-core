@@ -23,8 +23,8 @@ class eEventsNotFound	: public eEventsBase {};
 
 class cevents {
 
-	std::list<cevent> 	events;
-	PthreadRwLock		rwlock;
+	std::list<cevent> 			events;
+	mutable PthreadRwLock		rwlock;
 
 public:
 
@@ -68,7 +68,7 @@ public:
 	 *
 	 */
 	bool
-	empty();
+	empty() const;
 
 	/**
 	 *

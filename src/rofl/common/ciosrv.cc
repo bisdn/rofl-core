@@ -148,7 +148,7 @@ cioloop::run_loop()
 		do {
 			run_on_events();
 			run_on_timers(next_timeout);
-		} while (flag_has_timer || flag_has_event);
+		} while (flag_new_timer_installed || flag_new_event_installed);
 
 		run_on_kernel(next_timeout);
 	}
@@ -161,26 +161,31 @@ cioloop::run_loop()
 
 
 
-bool
+void
 cioloop::run_on_timers(
 		std::pair<ciosrv*, ctimespec>& next_timeout)
 {
 	rofl::logging::trace << "[rofl-common][cioloop][run_on_timers] looking for timers,"
 			<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
 
-	while (flag_has_timer) {
+	do {
 
 		std::list<ciosrv*> clone;
 
 		// make a copy of timers map
 		{
-			flag_has_timer = false;
+			flag_new_timer_installed = false;
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<ciosrv*, bool>::iterator
 					it = timers.begin(); it != timers.end(); ++it) {
-				if (true == it->second)
+				if ((true == it->second) || (it->first->has_next_timer()))
 					clone.push_back(it->first);
 			}
+		}
+
+		if (clone.empty()) {
+			next_timeout = std::pair<ciosrv*, ctimespec>(NULL, ctimespec::now() + ctimespec(3600));
+			return;
 		}
 
 		rofl::logging::trace << "[rofl-common][cioloop][run_on_timers] there are " << clone.size()
@@ -212,21 +217,20 @@ cioloop::run_on_timers(
 						<< (svc->get_next_timer().get_timespec() - ctimespec::now()).str() << std::endl;
 			}
 		}
-	};
+	} while (flag_new_timer_installed);
 
 	rofl::logging::trace << "[rofl-common][cioloop][run_on_timers] done with urgent timers,"
 			<< " next timeout: " << (next_timeout.second - ctimespec::now()).str()
 			<< " tid: 0x" << std::hex << tid << std::dec
 			<< std::endl;
-	return false;
 }
 
 
 
-bool
+void
 cioloop::run_on_events()
 {
-	while (flag_has_event) {
+	do {
 		rofl::logging::trace << "[rofl-common][cioloop][run_on_events] looking for events,"
 				<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
 
@@ -234,11 +238,11 @@ cioloop::run_on_events()
 
 		// make a copy of events map
 		{
-			flag_has_event = false;
+			flag_new_event_installed = false;
 			RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<ciosrv*, bool>::iterator
 					it = events.begin(); it != events.end(); ++it) {
-				if (true == it->second)
+				if ((true == it->second) || (it->first->has_next_event()))
 					clone.push_back(it->first);
 			}
 		}
@@ -252,9 +256,7 @@ cioloop::run_on_events()
 				continue;
 			(*(*it)).__handle_event();
 		}
-	}
-
-	return false;
+	} while (flag_new_event_installed);
 }
 
 

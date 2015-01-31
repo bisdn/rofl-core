@@ -413,7 +413,7 @@ protected:
 	 */
 	void
 	has_timer(ciosrv* iosrv) {
-		flag_has_timer = true;
+		flag_new_timer_installed = true;
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 		timers[iosrv] = true; // already exists => previously created in register_ciosrv
 		wakeup(); // wakeup main loop, just in case
@@ -433,7 +433,7 @@ protected:
 	 */
 	void
 	has_event(ciosrv* iosrv) {
-		flag_has_event = true;
+		flag_new_event_installed = true;
 		RwLock lock(events_rwlock, RwLock::RWLOCK_READ);
 		events[iosrv] = true; // already exists => previously created in register_ciosrv
 		wakeup(); // wakeup main loop, just in case
@@ -458,8 +458,8 @@ private:
 				flag_keep_on_running(false),
 				flag_wait_on_kernel(false),
 				flag_waking_up(false),
-				flag_has_event(false),
-				flag_has_timer(false),
+				flag_new_event_installed(false),
+				flag_new_timer_installed(false),
 				tid(tid) {
 		if (0 == tid) {
 			this->tid = pthread_self();
@@ -534,11 +534,11 @@ private:
 
 private:
 
-	bool
+	void
 	run_on_timers(
 			std::pair<ciosrv*, ctimespec>& next_timeout);
 
-	bool
+	void
 	run_on_events();
 
 	void
@@ -606,8 +606,8 @@ private:
 	bool									flag_keep_on_running;
 	bool									flag_wait_on_kernel;
 	bool									flag_waking_up;
-	bool									flag_has_event;
-	bool									flag_has_timer;
+	bool									flag_new_event_installed;
+	bool									flag_new_timer_installed;
 
 	std::set<ciosrv*> 						ciolist;
 	mutable PthreadRwLock 					ciolist_rwlock;
@@ -890,6 +890,13 @@ protected:
 	/**@}*/
 
 protected:
+
+	/**
+	 *
+	 */
+	bool
+	has_next_event() const
+	{ return (not events.empty()); };
 
 	/**
 	 *

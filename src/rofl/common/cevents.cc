@@ -63,7 +63,7 @@ cevents::get_event()
 
 
 bool
-cevents::empty()
+cevents::empty() const
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_READ);
 	return events.empty();
