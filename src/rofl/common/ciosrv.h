@@ -38,6 +38,15 @@
 
 namespace rofl {
 
+class eRofIoLoopBase : public std::runtime_error {
+public:
+	eRofIoLoopBase(const std::string& __arg) : std::runtime_error(__arg) {};
+};
+class eRofIoLoopBusy : public eRofIoLoopBase {
+public:
+	eRofIoLoopBusy(const std::string& __arg) : eRofIoLoopBase(__arg) {};
+};
+
 class ciosrv;
 
 /**
@@ -96,6 +105,10 @@ public:
 
 	/**
 	 * @brief	Stops a running rofl::cioloop instance and drops the previously created POSIX thread for this loop.
+	 *
+	 * @param tid identifier of thread to be removed
+	 * @throw throws exception eRofIoLoopBusy, when there are still active
+	 * elements assigned to this thread's IO loop
 	 */
 	static void
 	drop_thread(pthread_t tid) {
@@ -105,6 +118,9 @@ public:
 		RwLock(cioloop::threads_lock, RwLock::RWLOCK_WRITE);
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
+		}
+		if (cioloop::get_loop(tid).has_active_elements()) {
+			throw eRofIoLoopBusy("loop has still active elements");
 		}
 		cioloop::get_loop(tid).stop();
 		if ((rc = pthread_join(tid, NULL)) < 0) {
@@ -224,6 +240,15 @@ public:
 		}
 		cioloop::loops[get_tid()]->flag_keep_on_running = false;
 		wakeup();
+	};
+
+	/**
+	 *
+	 */
+	bool
+	has_active_elements() const {
+		RwLock(ciolist_rwlock, RwLock::RWLOCK_READ);
+		return (not ciolist.empty());
 	};
 
 	/**
