@@ -110,6 +110,99 @@ coxmatch::get_oxm_id() const {
 
 
 
+coxmatch::coxmatch(
+		uint32_t oxm_id, uint64_t value, enum coxmatch_bit_t bits) :
+				rofl::cmemory(0)
+{
+	switch (bits) {
+	case COXMATCH_8BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 1*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u8value(value);
+	} break;
+	case COXMATCH_16BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u16value(value);
+	} break;
+	case COXMATCH_24BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 3*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u24value(value);
+	} break;
+	case COXMATCH_32BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 4*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u32value(value);
+	} break;
+	case COXMATCH_48BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 6*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u48value(value);
+	} break;
+	case COXMATCH_64BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 8*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u64value(value);
+	} break;
+	}
+}
+
+
+
+
+coxmatch::coxmatch(
+		uint32_t oxm_id, uint64_t value, uint64_t mask, enum coxmatch_bit_t bits) :
+				rofl::cmemory(0)
+{
+	switch (bits) {
+	case COXMATCH_8BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 2*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u8value(value);
+		set_u8mask(mask);
+	} break;
+	case COXMATCH_16BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 4*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u16value(value);
+		set_u16mask(mask);
+	} break;
+	case COXMATCH_24BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 6*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u24value(value);
+		set_u24mask(mask);
+	} break;
+	case COXMATCH_32BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 8*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u32value(value);
+		set_u32mask(mask);
+	} break;
+	case COXMATCH_48BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 12*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u48value(value);
+		set_u48mask(mask);
+	} break;
+	case COXMATCH_64BIT: {
+		rofl::cmemory::resize(sizeof(struct rofl::openflow::ofp_oxm_hdr) + 16*sizeof(uint8_t));
+		set_oxm_id(oxm_id);
+		set_u64value(value);
+		set_u64mask(mask);
+	} break;
+	}
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -330,6 +423,65 @@ coxmatch::coxmatch(
 	set_u32value(value);
 	set_u32mask(mask);
 }
+
+
+void
+coxmatch::set_u24value(uint32_t value)
+{
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 3*sizeof(uint8_t))
+		throw eOxmInval();
+	struct rofl::openflow::ofp_oxm_ofb_uint24_t* oxm =
+			(struct rofl::openflow::ofp_oxm_ofb_uint24_t*)somem();
+	oxm->word[2] = (uint8_t)((value >>  0) & 0x000000ff);
+	oxm->word[1] = (uint8_t)((value >>  8) & 0x000000ff);
+	oxm->word[0] = (uint8_t)((value >> 16) & 0x000000ff);
+}
+
+
+void
+coxmatch::set_u24mask(uint32_t mask)
+{
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 6*sizeof(uint8_t))
+		throw eOxmInval();
+	struct rofl::openflow::ofp_oxm_ofb_uint24_t* oxm =
+			(struct rofl::openflow::ofp_oxm_ofb_uint24_t*)somem();
+	oxm->mask[2] = (uint8_t)((mask >>  0) & 0x000000ff);
+	oxm->mask[1] = (uint8_t)((mask >>  8) & 0x000000ff);
+	oxm->mask[0] = (uint8_t)((mask >> 16) & 0x000000ff);
+}
+
+
+uint32_t
+coxmatch::get_u24value() const {
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 3*sizeof(uint8_t))
+		throw eOxmInval();
+	struct rofl::openflow::ofp_oxm_ofb_uint24_t* oxm =
+			(struct rofl::openflow::ofp_oxm_ofb_uint24_t*)somem();
+	return ((oxm->word[0] << 16) | (oxm->word[1] << 8) | (oxm->word[2] << 0));
+}
+
+
+uint32_t
+coxmatch::get_u24mask() const {
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 6*sizeof(uint8_t))
+		return 0x00ffffff;
+	struct rofl::openflow::ofp_oxm_ofb_uint24_t* oxm =
+			(struct rofl::openflow::ofp_oxm_ofb_uint24_t*)somem();
+	return ((oxm->mask[0] << 16) | (oxm->mask[1] << 8) | (oxm->mask[2] << 0));
+}
+
+
+uint32_t
+coxmatch::get_u24masked_value() const {
+	if (memlen() < sizeof(struct rofl::openflow::ofp_oxm_hdr) + 6*sizeof(uint8_t))
+		return get_u32value();
+	struct rofl::openflow::ofp_oxm_ofb_uint24_t* oxm =
+			(struct rofl::openflow::ofp_oxm_ofb_uint24_t*)somem();
+	uint32_t word = ((oxm->word[0] << 16) | (oxm->word[1] << 8) | (oxm->word[2] << 0));
+	uint32_t mask = ((oxm->mask[0] << 16) | (oxm->mask[1] << 8) | (oxm->mask[2] << 0));
+	return (word & mask);
+}
+
 
 
 void

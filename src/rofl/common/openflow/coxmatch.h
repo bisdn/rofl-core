@@ -53,6 +53,15 @@ class coxmatch :
 
 public:
 
+	enum coxmatch_bit_t {
+		COXMATCH_8BIT	= (1 << 0),
+		COXMATCH_16BIT	= (1 << 1),
+		COXMATCH_24BIT	= (1 << 2),
+		COXMATCH_32BIT	= (1 << 3),
+		COXMATCH_48BIT	= (1 << 4),
+		COXMATCH_64BIT	= (1 << 5),
+	};
+
 	/**
 	 *
 	 */
@@ -69,6 +78,19 @@ public:
 	 */
 	coxmatch(
 			uint8_t* oxm_hdr, size_t oxm_len);
+
+	/**
+	 *
+	 */
+	coxmatch(
+			uint32_t oxm_id, uint64_t value, enum coxmatch_bit_t bits);
+
+	/**
+	 *
+	 */
+	coxmatch(
+			uint32_t oxm_id, uint64_t value, uint64_t mask, enum coxmatch_bit_t bits);
+
 
 	/**
 	 *
@@ -298,6 +320,10 @@ public:
 	uint16_t get_u16mask() const;
 	uint16_t get_u16masked_value() const;
 
+	uint32_t get_u24value() const;
+	uint32_t get_u24mask() const;
+	uint32_t get_u24masked_value() const;
+
 	uint32_t get_u32value() const;
 	uint32_t get_u32mask() const;
 	uint32_t get_u32masked_value() const;
@@ -323,6 +349,9 @@ public:
 
 	void set_u16value(uint16_t value);
 	void set_u16mask(uint16_t mask);
+
+	void set_u24value(uint32_t value);
+	void set_u24mask(uint32_t mask);
 
 	void set_u32value(uint32_t value);
 	void set_u32mask(uint32_t mask);
@@ -1426,17 +1455,17 @@ public:
 
 
 
-/** OXM_OF_PBB_ISID: TODO: uint24_t
+/** OXM_OF_PBB_ISID
  *
  */
 class coxmatch_ofb_pbb_isid : public coxmatch {
 public:
 	coxmatch_ofb_pbb_isid(
 			uint32_t pbb_isid) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID, pbb_isid) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID, (uint64_t)pbb_isid, COXMATCH_24BIT) {};
 	coxmatch_ofb_pbb_isid(
 			uint32_t pbb_isid, uint32_t mask) :
-				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID_MASK, pbb_isid, mask) {};
+				coxmatch(rofl::openflow::OXM_TLV_BASIC_PBB_ISID_MASK, (uint64_t)pbb_isid, (uint64_t)mask, COXMATCH_24BIT) {};
 	coxmatch_ofb_pbb_isid(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -1447,7 +1476,7 @@ public:
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<pbb_isid: "
 						<< std::hex
-						<< (unsigned int)oxm.get_u32value() << "/" << (unsigned int)oxm.get_u32mask()
+						<< (unsigned int)oxm.get_u24value() << "/" << (unsigned int)oxm.get_u24mask()
 						<< std::dec
 						<< " >" << std::endl;
 		return os;
