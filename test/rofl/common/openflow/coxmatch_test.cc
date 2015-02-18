@@ -31,7 +31,7 @@ coxmatch_test::test1Byte()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 & ~HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint8_t)0xb1);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint8_t)0xb1, rofl::openflow::coxmatch::COXMATCH_8BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 5);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -65,7 +65,7 @@ coxmatch_test::test1ByteHasMask()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 | HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint8_t)0xb1, (uint8_t)0xc1);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint8_t)0xb1, (uint8_t)0xc1, rofl::openflow::coxmatch::COXMATCH_8BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 6);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -103,7 +103,7 @@ coxmatch_test::test2Bytes()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 & ~HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint16_t)0xb1b2);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint16_t)0xb1b2, rofl::openflow::coxmatch::COXMATCH_16BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 6);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -138,7 +138,7 @@ coxmatch_test::test2BytesHasMask()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 | HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint16_t)0xb1b2, (uint16_t)0xc1c2);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint16_t)0xb1b2, (uint16_t)0xc1c2, rofl::openflow::coxmatch::COXMATCH_16BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 8);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -178,7 +178,7 @@ coxmatch_test::test4Bytes()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 & ~HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint32_t)0xb1b2b3b4);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint32_t)0xb1b2b3b4, rofl::openflow::coxmatch::COXMATCH_32BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 8);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -215,7 +215,7 @@ coxmatch_test::test4BytesHasMask()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 | HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint32_t)0xb1b2b3b4, (uint32_t)0xc1c2c3c4);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint32_t)0xb1b2b3b4, (uint32_t)0xc1c2c3c4, rofl::openflow::coxmatch::COXMATCH_32BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 12);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -282,13 +282,13 @@ coxmatch_test::test6Bytes()
 	test[9] = 0xb6;
 
 	CPPUNIT_ASSERT(mem == test);
-	CPPUNIT_ASSERT(oxm.get_u48value() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
-	CPPUNIT_ASSERT(oxm.get_u48mask() == rofl::cmacaddr("ff:ff:ff:ff:ff:ff"));
-	CPPUNIT_ASSERT(oxm.get_u48masked_value() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
+	CPPUNIT_ASSERT(oxm.get_u48value_as_lladdr() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
+	CPPUNIT_ASSERT(oxm.get_u48mask_as_lladdr() == rofl::cmacaddr("ff:ff:ff:ff:ff:ff"));
+	CPPUNIT_ASSERT(oxm.get_u48masked_value_as_lladdr() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
 
 	oxm.set_u48value(rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
 
-	CPPUNIT_ASSERT(oxm.get_u48value() == rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
+	CPPUNIT_ASSERT(oxm.get_u48value_as_lladdr() == rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
 }
 
 
@@ -327,16 +327,16 @@ coxmatch_test::test6BytesHasMask()
 	test[15] = 0xc6;
 
 	CPPUNIT_ASSERT(mem == test);
-	CPPUNIT_ASSERT(oxm.get_u48value() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
-	CPPUNIT_ASSERT(oxm.get_u48mask() == rofl::cmacaddr("c1:c2:c3:c4:c5:c6"));
-	CPPUNIT_ASSERT(oxm.get_u48masked_value() == (rofl::cmacaddr("b1:b2:b3:b4:b5:b6") & rofl::cmacaddr("c1:c2:c3:c4:c5:c6")));
+	CPPUNIT_ASSERT(oxm.get_u48value_as_lladdr() == rofl::cmacaddr("b1:b2:b3:b4:b5:b6"));
+	CPPUNIT_ASSERT(oxm.get_u48mask_as_lladdr() == rofl::cmacaddr("c1:c2:c3:c4:c5:c6"));
+	CPPUNIT_ASSERT(oxm.get_u48masked_value_as_lladdr() == (rofl::cmacaddr("b1:b2:b3:b4:b5:b6") & rofl::cmacaddr("c1:c2:c3:c4:c5:c6")));
 
 	oxm.set_u48value(rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
 	oxm.set_u48mask(rofl::cmacaddr("e1:e2:e3:e4:e5:e6"));
 
-	CPPUNIT_ASSERT(oxm.get_u48value() == rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
-	CPPUNIT_ASSERT(oxm.get_u48mask() == rofl::cmacaddr("e1:e2:e3:e4:e5:e6"));
-	CPPUNIT_ASSERT(oxm.get_u48masked_value() == (rofl::cmacaddr("d1:d2:d3:d4:d5:d6") & rofl::cmacaddr("e1:e2:e3:e4:e5:e6")));
+	CPPUNIT_ASSERT(oxm.get_u48value_as_lladdr() == rofl::cmacaddr("d1:d2:d3:d4:d5:d6"));
+	CPPUNIT_ASSERT(oxm.get_u48mask_as_lladdr() == rofl::cmacaddr("e1:e2:e3:e4:e5:e6"));
+	CPPUNIT_ASSERT(oxm.get_u48masked_value_as_lladdr() == (rofl::cmacaddr("d1:d2:d3:d4:d5:d6") & rofl::cmacaddr("e1:e2:e3:e4:e5:e6")));
 }
 
 
@@ -346,7 +346,7 @@ coxmatch_test::test8Bytes()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 & ~HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint64_t)0xb1b2b3b4b5b6b7b8);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint64_t)0xb1b2b3b4b5b6b7b8, rofl::openflow::coxmatch::COXMATCH_64BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 12);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
@@ -387,7 +387,7 @@ coxmatch_test::test8BytesHasMask()
 {
 	uint32_t oxm_id = 0xa1a2a3a4 | HAS_MASK_FLAG;
 
-	rofl::openflow::coxmatch oxm(oxm_id, (uint64_t)0xb1b2b3b4b5b6b7b8, (uint64_t)0xc1c2c3c4c5c6c7c8);
+	rofl::openflow::coxmatch oxm(oxm_id, (uint64_t)0xb1b2b3b4b5b6b7b8, (uint64_t)0xc1c2c3c4c5c6c7c8, rofl::openflow::coxmatch::COXMATCH_64BIT);
 
 	CPPUNIT_ASSERT(oxm.length() == 20);
 	CPPUNIT_ASSERT(oxm.get_oxm_class() == 0xa1a2);
