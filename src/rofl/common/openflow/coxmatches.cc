@@ -173,7 +173,7 @@ coxmatches::get_match(uint32_t oxm_id) const
 {
 	uint32_t oid = oxm_id & 0xfffffe00; // keep class and field, hide mask and length
 	if (matches.find(oid) == matches.end()) {
-		throw eOxmNotFound();
+		throw eOxmNotFound("coxmatches::get_match() oxm-id not found");
 	}
 	return matches.at(oid);
 }

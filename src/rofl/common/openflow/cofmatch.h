@@ -276,22 +276,22 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_METADATA).get_u64mask();
 	};
 	cmacaddr get_eth_dst() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48masked_value_as_lladdr();
 	};
 	cmacaddr get_eth_dst_addr() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48value();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48value_as_lladdr();
 	};
 	cmacaddr get_eth_dst_mask() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48mask();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48mask_as_lladdr();
 	};
 	cmacaddr get_eth_src() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48masked_value_as_lladdr();
 	};
 	cmacaddr get_eth_src_addr() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48value();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48value_as_lladdr();
 	};
 	cmacaddr get_eth_src_mask() const {
-	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48mask();
+	 return matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48mask_as_lladdr();
 	};
 	uint16_t get_eth_type() const {
 	 return matches.get_match(OXM_TLV_BASIC_ETH_TYPE).get_u16value();
@@ -336,22 +336,22 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_ARP_OP).get_u16value();
 	};
 	cmacaddr get_arp_sha() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48masked_value_as_lladdr();
 	};
 	cmacaddr get_arp_sha_addr() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48value();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48value_as_lladdr();
 	};
 	cmacaddr get_arp_sha_mask() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48mask();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_SHA).get_u48mask_as_lladdr();
 	};
 	cmacaddr get_arp_tha() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48masked_value_as_lladdr();
 	};
 	cmacaddr get_arp_tha_addr() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48value();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48value_as_lladdr();
 	};
 	cmacaddr get_arp_tha_mask() const {
-	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48mask();
+	 return matches.get_match(OXM_TLV_BASIC_ARP_THA).get_u48mask_as_lladdr();
 	};
 	caddress_in4 get_arp_spa() const {
 	 return matches.get_match(OXM_TLV_BASIC_ARP_SPA).get_u32masked_value_as_addr();
@@ -420,10 +420,10 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_FLABEL).get_u32mask();
 	};
 	cmacaddr get_ipv6_nd_sll() const {
-	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_SLL).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_SLL).get_u48masked_value_as_lladdr();
 	};
 	cmacaddr get_ipv6_nd_tll() const {
-	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TLL).get_u48masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TLL).get_u48masked_value_as_lladdr();
 	};
 	caddress_in6 get_ipv6_nd_target() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_ND_TARGET).get_u128masked_value();
@@ -461,13 +461,13 @@ public:
 	 return matches.get_match(OXM_TLV_BASIC_TUNNEL_ID).get_u64mask();
 	};
 	uint32_t get_pbb_isid() const {
-	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u32masked_value();
+	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u24masked_value();
 	};
 	uint32_t get_pbb_isid_value() const {
-	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u32value();
+	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u24value();
 	};
 	uint32_t get_pbb_isid_mask() const {
-	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u32mask();
+	 return matches.get_match(OXM_TLV_BASIC_PBB_ISID).get_u24mask();
 	};
 	uint16_t get_ipv6_exthdr() const {
 	 return matches.get_match(OXM_TLV_BASIC_IPV6_EXTHDR).get_u16masked_value();
@@ -486,16 +486,16 @@ public:
 	void set_nw_tos(uint8_t tos) {
 		matches.add_match(coxmatch_ofx_nw_tos(tos));
 	};
-	void set_nw_src(caddress_in4 const& src) {
+	void set_nw_src(const caddress_in4& src) {
 		matches.add_match(coxmatch_ofx_nw_src(src));
 	};
-	void set_nw_src(caddress_in4 const& src, caddress_in4 const& mask) {
+	void set_nw_src(const caddress_in4& src, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofx_nw_src(src, mask));
 	};
-	void set_nw_dst(caddress_in4 const& dst) {
+	void set_nw_dst(const caddress_in4& dst) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst));
 	};
-	void set_nw_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
+	void set_nw_dst(const caddress_in4& dst, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofx_nw_dst(dst, mask));
 	};
 	void set_tp_src(uint16_t src_port) {
@@ -518,16 +518,16 @@ public:
 	void set_metadata(uint64_t metadata, uint64_t mask) {
 		matches.add_match(coxmatch_ofb_metadata(metadata, mask));
 	};
-	void set_eth_dst(cmacaddr const& maddr) {
+	void set_eth_dst(const cmacaddr& maddr) {
 		matches.add_match(coxmatch_ofb_eth_dst(maddr));
 	};
-	void set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask) {
+	void set_eth_dst(const cmacaddr& maddr, const cmacaddr& mmask) {
 		matches.add_match(coxmatch_ofb_eth_dst(maddr, mmask));
 	};
-	void set_eth_src(cmacaddr const& maddr) {
+	void set_eth_src(const cmacaddr& maddr) {
 		matches.add_match(coxmatch_ofb_eth_src(maddr));
 	};
-	void set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask) {
+	void set_eth_src(const cmacaddr& maddr, const cmacaddr& mmask) {
 		matches.add_match(coxmatch_ofb_eth_src(maddr, mmask));
 	};
 	void set_eth_type( uint16_t dl_type) {
@@ -557,16 +557,16 @@ public:
 	void set_ip_proto(uint8_t proto) {
 		matches.add_match(coxmatch_ofb_ip_proto(proto));
 	};
-	void set_ipv4_src(caddress_in4 const& src) {
+	void set_ipv4_src(const caddress_in4& src) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src));
 	};
-	void set_ipv4_src(caddress_in4 const& src, caddress_in4 const& mask) {
+	void set_ipv4_src(const caddress_in4& src, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_src(src, mask));
 	};
-	void set_ipv4_dst(caddress_in4 const& dst) {
+	void set_ipv4_dst(const caddress_in4& dst) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst));
 	};
-	void set_ipv4_dst(caddress_in4 const& dst, caddress_in4 const& mask) {
+	void set_ipv4_dst(const caddress_in4& dst, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofb_ipv4_dst(dst, mask));
 	};
 	void set_tcp_src(uint16_t src_port) {
@@ -596,40 +596,40 @@ public:
 	void set_arp_opcode(uint16_t opcode) {
 		matches.add_match(coxmatch_ofb_arp_opcode(opcode));
 	};
-	void set_arp_spa(caddress_in4 const& spa) {
+	void set_arp_spa(const caddress_in4& spa) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa));
 	};
-	void set_arp_spa(caddress_in4 const& spa, caddress_in4 const& mask) {
+	void set_arp_spa(const caddress_in4& spa, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofb_arp_spa(spa, mask));
 	};
-	void set_arp_tpa(caddress_in4 const& tpa) {
+	void set_arp_tpa(const caddress_in4& tpa) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa));
 	};
-	void set_arp_tpa(caddress_in4 const& tpa, caddress_in4 const& mask) {
+	void set_arp_tpa(const caddress_in4& tpa, const caddress_in4& mask) {
 		matches.add_match(coxmatch_ofb_arp_tpa(tpa, mask));
 	};
-	void set_arp_sha(cmacaddr const& sha) {
+	void set_arp_sha(const cmacaddr& sha) {
 		matches.add_match(coxmatch_ofb_arp_sha(sha));
 	};
-	void set_arp_sha(cmacaddr const& sha, cmacaddr const& mmask) {
+	void set_arp_sha(const cmacaddr& sha, const cmacaddr& mmask) {
 		matches.add_match(coxmatch_ofb_arp_sha(sha, mmask));
 	};
-	void set_arp_tha(cmacaddr const& tha) {
+	void set_arp_tha(const cmacaddr& tha) {
 		matches.add_match(coxmatch_ofb_arp_tha(tha));
 	};
-	void set_arp_tha(cmacaddr const& tha, cmacaddr const& mmask) {
+	void set_arp_tha(const cmacaddr& tha, const cmacaddr& mmask) {
 		matches.add_match(coxmatch_ofb_arp_tha(tha, mmask));
 	};
-	void set_ipv6_src(caddress_in6 const& addr) {
+	void set_ipv6_src(const caddress_in6& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr));
 	};
-	void set_ipv6_src(caddress_in6 const& addr, caddress_in6 const& mask) {
+	void set_ipv6_src(const caddress_in6& addr, const caddress_in6& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_src(addr, mask));
 	};
-	void set_ipv6_dst(caddress_in6 const& addr) {
+	void set_ipv6_dst(const caddress_in6& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr));
 	};
-	void set_ipv6_dst(caddress_in6 const& addr, caddress_in6 const& mask) {
+	void set_ipv6_dst(const caddress_in6& addr, const caddress_in6& mask) {
 		matches.add_match(coxmatch_ofb_ipv6_dst(addr, mask));
 	};
 	void set_ipv6_flabel(uint32_t flabel) {
@@ -644,13 +644,13 @@ public:
 	void set_icmpv6_code(uint8_t code) {
 		matches.add_match(coxmatch_ofb_icmpv6_code(code));
 	};
-	void set_ipv6_nd_target(caddress_in6 const& addr) {
+	void set_ipv6_nd_target(const caddress_in6& addr) {
 		matches.add_match(coxmatch_ofb_ipv6_nd_target(addr));
 	};
-	void set_ipv6_nd_sll(cmacaddr const& maddr) {
+	void set_ipv6_nd_sll(const cmacaddr& maddr) {
 		matches.add_match(coxmatch_ofb_ipv6_nd_sll(maddr));
 	};
-	void set_ipv6_nd_tll(cmacaddr const& maddr) {
+	void set_ipv6_nd_tll(const cmacaddr& maddr) {
 		matches.add_match(coxmatch_ofb_ipv6_nd_tll(maddr));
 	};
 	void set_mpls_label(uint32_t label) {

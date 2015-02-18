@@ -126,14 +126,14 @@ cofmatch::pack_of10(uint8_t* buf, size_t buflen)
 
 	// dl_src
 	if (matches.has_match(OXM_TLV_BASIC_ETH_SRC)) {
-		memcpy(m->dl_src, matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48value().somem(), OFP_ETH_ALEN);
+		memcpy(m->dl_src, matches.get_match(OXM_TLV_BASIC_ETH_SRC).get_u48value_as_lladdr().somem(), OFP_ETH_ALEN);
 	} else {
 		wildcards |= rofl::openflow10::OFPFW_DL_SRC;
 	}
 
 	// dl_dst
 	if (matches.has_match(OXM_TLV_BASIC_ETH_DST)) {
-		memcpy(m->dl_dst, matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48value().somem(), OFP_ETH_ALEN);
+		memcpy(m->dl_dst, matches.get_match(OXM_TLV_BASIC_ETH_DST).get_u48value_as_lladdr().somem(), OFP_ETH_ALEN);
 	} else {
 		wildcards |= rofl::openflow10::OFPFW_DL_DST;
 	}

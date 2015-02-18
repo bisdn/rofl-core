@@ -668,7 +668,11 @@ crofconn::recv_message(
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_PKT]:" << std::endl << rxqueues[QUEUE_PKT];
 		} break;
 		case rofl::openflow10::OFPT_FLOW_MOD:
-		case rofl::openflow10::OFPT_FLOW_REMOVED: {
+		case rofl::openflow10::OFPT_FLOW_REMOVED:
+		case rofl::openflow10::OFPT_STATS_REQUEST:
+		case rofl::openflow10::OFPT_STATS_REPLY:
+		case rofl::openflow10::OFPT_BARRIER_REQUEST:
+		case rofl::openflow10::OFPT_BARRIER_REPLY: {
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
@@ -694,7 +698,11 @@ crofconn::recv_message(
 		case rofl::openflow12::OFPT_FLOW_REMOVED:
 		case rofl::openflow12::OFPT_GROUP_MOD:
 		case rofl::openflow12::OFPT_PORT_MOD:
-		case rofl::openflow12::OFPT_TABLE_MOD: {
+		case rofl::openflow12::OFPT_TABLE_MOD:
+		case rofl::openflow12::OFPT_STATS_REQUEST:
+		case rofl::openflow12::OFPT_STATS_REPLY:
+		case rofl::openflow12::OFPT_BARRIER_REQUEST:
+		case rofl::openflow12::OFPT_BARRIER_REPLY: {
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
@@ -720,7 +728,11 @@ crofconn::recv_message(
 		case rofl::openflow13::OFPT_FLOW_REMOVED:
 		case rofl::openflow13::OFPT_GROUP_MOD:
 		case rofl::openflow13::OFPT_PORT_MOD:
-		case rofl::openflow13::OFPT_TABLE_MOD: {
+		case rofl::openflow13::OFPT_TABLE_MOD:
+		case rofl::openflow13::OFPT_MULTIPART_REQUEST:
+		case rofl::openflow13::OFPT_MULTIPART_REPLY:
+		case rofl::openflow13::OFPT_BARRIER_REQUEST:
+		case rofl::openflow13::OFPT_BARRIER_REPLY: {
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
