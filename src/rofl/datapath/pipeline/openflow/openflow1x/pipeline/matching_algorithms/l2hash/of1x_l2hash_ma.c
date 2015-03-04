@@ -239,6 +239,10 @@ void of1x_remove_hook_l2hash(of1x_flow_entry_t *const entry){
 		state->no_vlan.num_of_entries--;
 	}
 
+#ifdef ROFL_PIPELINE_LOCKLESS
+	tid_wait_all_not_present(&entry->table->tid_presence_mask);
+#endif
+
 	platform_free_shared(entry->platform_state);
 	entry->platform_state = NULL;
 }
