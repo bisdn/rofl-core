@@ -14,23 +14,23 @@ static of1x_switch_t* sw=NULL;
 #define NUM_OF_ITERATONS 1000000
 //#define NUM_OF_ITERATONS 10000
 int set_up(){
-	
+
 	of1x_flow_entry_t* entry;
 	uint32_t port_in=1;
-	
+
 	physical_switch_init();
 
 	enum of1x_matching_algorithm_available ma_list[4]={of1x_loop_matching_algorithm, of1x_loop_matching_algorithm,
 	of1x_loop_matching_algorithm, of1x_loop_matching_algorithm};
 
-	//Create instance	
+	//Create instance
 	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101,4,ma_list);
-	
+
 	if(!sw)
 		return EXIT_FAILURE;
 
-	//Set PORT_IN_MATCH 
-	entry = of1x_init_flow_entry(false); 
+	//Set PORT_IN_MATCH
+	entry = of1x_init_flow_entry(false);
 	of1x_add_match_to_entry(entry,of1x_init_port_in_match(port_in));
 	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false);
 
@@ -41,7 +41,7 @@ int tear_down(){
 	//Destroy the switch
 	if(__of1x_destroy_switch(sw) != ROFL_SUCCESS)
 		return EXIT_FAILURE;
-	
+
 	return EXIT_SUCCESS;
 }
 
@@ -50,22 +50,23 @@ extern uint128__t tmp_val;
 
 
 //Force a lot of context swaps
-#define NUM_OF_IO_THREADS ROFL_PIPELINE_MAX_TIDS 
+#define NUM_OF_IO_THREADS ROFL_PIPELINE_MAX_TIDS
 #define NUM_OF_ITERATIONS 100000
 
 unsigned int ids[NUM_OF_IO_THREADS];
-pthread_t mgmt; 
+pthread_t mgmt;
 pthread_t threads[NUM_OF_IO_THREADS];
-bool mgmt_keep_on=true;
+bool keep_on=true;
 
 void* mgmt_thread(void* none){
 
+	unsigned int cnt = 0;
 	of1x_flow_entry_t* entry;
 	uint32_t port_in;
 
-	while(mgmt_keep_on){
-	
-		entry = of1x_init_flow_entry(false);		
+	while(cnt != NUM_OF_ITERATIONS){
+
+		entry = of1x_init_flow_entry(false);
 
 		if(rand() % 2)
 			port_in = 1;
@@ -73,17 +74,20 @@ void* mgmt_thread(void* none){
 			port_in = 2;
 
 		of1x_add_match_to_entry(entry,of1x_init_port_in_match(port_in));
-	
+
 		//First destroy
 		of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY);
 
 		//The add
 		of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false);
-			
-		usleep(100);
+
+		cnt++;
+		if(cnt%100 == 0)
+			fprintf(stderr, "Processed : %u\n", cnt);
 	}
 
-	return NULL;	
+
+	return NULL;
 }
 
 void* io_thread(void* id){
@@ -93,8 +97,8 @@ void* io_thread(void* id){
 	unsigned int cnt = 0;
 
 	fprintf(stderr, "Launching I/O thread: %d\n",tid);
-	
-	while(cnt !=NUM_OF_ITERATIONS){ 
+
+	while(keep_on){
 		//PKT
 		if(rand() % 2)
 			*((uint32_t*)&tmp_val) = 1;
@@ -104,17 +108,17 @@ void* io_thread(void* id){
 		//Process
 		of_process_packet_pipeline(tid, (const struct of_switch *)sw, &pkt);
 
-		
-		
+
+
 		//if(rand() % 100 > 40)
 		//	usleep(10);
-		
+
 		cnt++;
 	}
 
 	//Check our stats
-	CU_ASSERT(sw->pipeline.tables[0].stats.s.__internal[tid].lookup_count == NUM_OF_ITERATIONS);
-	
+	CU_ASSERT(sw->pipeline.tables[0].stats.s.__internal[tid].lookup_count == cnt);
+
 	return NULL;
 }
 
@@ -126,11 +130,11 @@ void lockless_basic(){
 	srand(time(NULL));
 
 	//launch mgmt_thread
-	int return_val = pthread_create(&mgmt, NULL, mgmt_thread, NULL); 
+	int return_val = pthread_create(&mgmt, NULL, mgmt_thread, NULL);
 	CU_ASSERT(return_val == 0);
-	
-	
-	//Launch workers	
+
+
+	//Launch workers
 	for(i=0;i<NUM_OF_IO_THREADS;i++){
 		int return_val;
 		ids[i] = i;
@@ -138,19 +142,19 @@ void lockless_basic(){
 		CU_ASSERT(return_val == 0);
 	}
 
-	//Wait for them	
+	//Stop mgmt core
+	keep_on=false;
+	pthread_join(mgmt, NULL);
+
+
+	//Wait for them
 	for(i=0;i<NUM_OF_IO_THREADS;i++){
-		pthread_join(threads[i], NULL);	
+		pthread_join(threads[i], NULL);
 	}
 
-	//Stop mgmt core
-	mgmt_keep_on=false;
-	pthread_join(mgmt, NULL);
-	
 	//Check all stats
 	__of1x_stats_table_tid_t c;
 	__of1x_stats_table_consolidate(&sw->pipeline.tables[0].stats, &c);
-	CU_ASSERT(c.lookup_count == NUM_OF_ITERATIONS*NUM_OF_IO_THREADS);
 }
 
 int main(int args, char** argv){
@@ -173,9 +177,9 @@ int main(int args, char** argv){
 
 	/* add the tests to the suite */
 	/* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-	if ( 
-		(NULL == CU_add_test(pSuite, "Lockless", lockless_basic) ) 
-			
+	if (
+		(NULL == CU_add_test(pSuite, "Lockless", lockless_basic) )
+
 	)
 	{
 		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
@@ -183,7 +187,7 @@ int main(int args, char** argv){
 		CU_cleanup_registry();
 		return return_code;
 	}
-	
+
 	/* Run all tests using the CUnit Basic interface */
 	CU_basic_set_mode(CU_BRM_VERBOSE);
 	CU_basic_run_tests();
