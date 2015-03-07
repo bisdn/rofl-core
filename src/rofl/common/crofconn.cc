@@ -676,6 +676,7 @@ crofconn::recv_message(
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
+		case rofl::openflow10::OFPT_HELLO:
 		case rofl::openflow10::OFPT_ECHO_REQUEST:
 		case rofl::openflow10::OFPT_ECHO_REPLY: {
 			rxqueues[QUEUE_OAM].store(msg);
@@ -706,6 +707,7 @@ crofconn::recv_message(
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
+		case rofl::openflow12::OFPT_HELLO:
 		case rofl::openflow12::OFPT_ECHO_REQUEST:
 		case rofl::openflow12::OFPT_ECHO_REPLY: {
 			rxqueues[QUEUE_OAM].store(msg);
@@ -736,6 +738,7 @@ crofconn::recv_message(
 			rxqueues[QUEUE_FLOW].store(msg);
 			rofl::logging::debug2 << "[rofl-common][crofconn][recv_message] rxqueues[QUEUE_FLOW]:" << std::endl << rxqueues[QUEUE_FLOW];
 		} break;
+		case rofl::openflow13::OFPT_HELLO:
 		case rofl::openflow13::OFPT_ECHO_REQUEST:
 		case rofl::openflow13::OFPT_ECHO_REPLY: {
 			rxqueues[QUEUE_OAM].store(msg);
