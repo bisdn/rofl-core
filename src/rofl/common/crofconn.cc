@@ -1029,7 +1029,7 @@ crofconn::echo_request_rcvd(
 
 			if (rofsock) rofsock->send_message(new rofl::openflow::cofmsg_error_bad_request_bad_version(
 					get_version(), request->get_xid(), request->soframe(), request->framelen()));
-			return;
+			delete msg; return;
 		}
 
 		rofl::openflow::cofmsg_echo_reply *reply =
