@@ -319,7 +319,7 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 		try {
 			ciosrv* iosrv = NULL;
 
-			for (unsigned int i = 0; i < rc; i++) {
+			for (int i = 0; i < rc; i++) {
 				{
 					RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
 
