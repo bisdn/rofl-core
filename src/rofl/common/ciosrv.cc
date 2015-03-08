@@ -10,6 +10,7 @@ using namespace rofl;
 /*static*/std::map<pthread_t, int> 		cioloop::threads;
 /*static*/PthreadRwLock 				cioloop::loops_rwlock;
 /*static*/std::map<pthread_t, cioloop*> cioloop::loops;
+/*static*/unsigned int					cioloop::DEFAULT_NUM_POLL_EVENTS = 1024;
 
 
 ciosrv::ciosrv(
@@ -264,43 +265,7 @@ cioloop::run_on_events()
 void
 cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 {
-	fd_set readfds;
-	fd_set writefds;
-	fd_set exceptfds;
-	unsigned int maxfd = 0;
 	int rc = 0;
-
-	FD_ZERO(&exceptfds);
-
-	FD_ZERO(&readfds);
-	{
-		RwLock lock(rfds_rwlock, RwLock::RWLOCK_READ);
-		for (unsigned int i = minrfd; i < maxrfd; i++) {
-			if (NULL != rfds[i]) {
-				rofl::logging::trace << "[rofl-common][cioloop][run_on_kernel] adding rfds: " << i << std::endl;
-				FD_SET(i, &readfds);
-				FD_SET(i, &exceptfds);
-				maxfd = (i > maxfd) ? i : maxfd;
-			}
-		}
-	}
-	FD_SET(pipe.pipefd[0], &readfds);
-	FD_SET(pipe.pipefd[0], &exceptfds);
-
-	maxfd = ((unsigned int)pipe.pipefd[0] > maxfd) ? pipe.pipefd[0] : maxfd;
-
-	FD_ZERO(&writefds);
-	{
-		RwLock lock(wfds_rwlock, RwLock::RWLOCK_READ);
-		for (unsigned int i = minwfd; i < maxwfd; i++) {
-			if (NULL != wfds[i]) {
-				rofl::logging::trace << "[rofl-common][cioloop][run_on_kernel] adding wfds: " << i << std::endl;
-				FD_SET(i, &writefds);
-				FD_SET(i, &exceptfds);
-				maxfd = (i > maxfd) ? i : maxfd;
-			}
-		}
-	}
 
 	if (not flag_keep_on_running)
 		return;
@@ -322,7 +287,9 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 
 	// blocking
 	flag_wait_on_kernel = true;
-	rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(ts), NULL);
+	std::vector<struct epoll_event> events(128);
+	int timeout = ts.tv_sec * 1000 + (ts.tv_nsec / 1e6);
+	rc = epoll_pwait(epollfd, &events[0], events.size(), timeout, NULL);
 	flag_wait_on_kernel = false;
 
 	rofl::logging::trace << "[rofl-common][cioloop][run] after select,"
@@ -334,7 +301,7 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 		case EINTR:
 			break;
 		default:
-			rofl::logging::error << "[rofl-common][cioloop][run] " << eSysCall("pselect()") << std::endl;
+			rofl::logging::error << "[rofl-common][cioloop][run] " << eSysCall("epoll_wait()") << std::endl;
 			break;
 		}
 
@@ -350,49 +317,47 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 
 	} else { // rc > 0
 		try {
+			ciosrv* iosrv = NULL;
 
-			// exceptions
-			for (unsigned int i = std::min(minrfd, minwfd); i < maxfd; i++) {
-				if (FD_ISSET(i, &exceptfds)) {
-					if ((NULL != rfds[i]) && has_ciosrv(rfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
-								<< std::hex << rfds[i] << std::dec << std::endl;
-						rfds[i]->handle_xevent(i);
-					} else
-					if ((NULL != wfds[i]) && has_ciosrv(wfds[i])) {
-						rofl::logging::trace << "[rofl-common][cioloop][run] checking for exceptfds: "
-								<< std::hex << rfds[i] << std::dec << std::endl;
-						wfds[i]->handle_xevent(i);
+			for (unsigned int i = 0; i < rc; i++) {
+				{
+					RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+
+					if (poll_iosrvs.find(events[i].data.fd) == poll_iosrvs.end()) {
+
+						// pipe
+						if ((events[i].events & EPOLLIN) && (events[i].data.fd == pipe.pipefd[0])) {
+							rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe"
+									<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
+							flag_waking_up = false;
+							pipe.recvmsg();
+						}
+
+						continue;
 					}
-				}
-			}
 
-			// write events
-			for (unsigned int i = minwfd; i < maxwfd; i++) {
-				if (FD_ISSET(i, &writefds) && (NULL != wfds[i]) && has_ciosrv(wfds[i])) {
+					iosrv = poll_iosrvs[events[i].data.fd];
+				}
+
+				if ((events[i].events & EPOLLERR) && has_ciosrv(iosrv)) {
 					rofl::logging::trace << "[rofl-common][cioloop][run]"
-							<< " checking for wfds: " << i << " on " << std::hex << wfds[i] << std::dec
+							<< " error event: " << events[i].data.fd << " on " << std::hex << iosrv << std::dec
 							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
-					wfds[i]->handle_wevent(i);
+					iosrv->handle_xevent(events[i].data.fd);
 				}
-			}
-
-			// read events
-			for (unsigned int i = minrfd; i < maxrfd; i++) {
-				if (FD_ISSET(i, &readfds) && (NULL != rfds[i]) && has_ciosrv(rfds[i])) {
+				if ((events[i].events & EPOLLOUT) && has_ciosrv(iosrv)) {
 					rofl::logging::trace << "[rofl-common][cioloop][run]"
-							<< " checking for rfds: " << i << " on " << std::hex << rfds[i] << std::dec
+							<< " write event: " << events[i].data.fd << " on " << std::hex << iosrv << std::dec
 							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
-					rfds[i]->__handle_revent(i);
+					iosrv->handle_wevent(events[i].data.fd);
 				}
-			}
+				if ((events[i].events & EPOLLIN ) && has_ciosrv(iosrv)) {
+					rofl::logging::trace << "[rofl-common][cioloop][run]"
+							<< " read event: " << events[i].data.fd << " on " << std::hex << iosrv << std::dec
+							<< " tid: 0x" << std::hex << tid << std::dec << std::endl;;
+					iosrv->handle_revent(events[i].data.fd);
+				}
 
-			// pipe
-			if (FD_ISSET(pipe.pipefd[0], &readfds)) {
-				rofl::logging::trace << "[rofl-common][cioloop][run] wakeup signal received via pipe"
-						<< " tid: 0x" << std::hex << tid << std::dec << std::endl;
-				flag_waking_up = false;
-				pipe.recvmsg();
 			}
 
 		} catch (rofl::RoflException& e) {

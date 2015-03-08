@@ -40,7 +40,9 @@ public:
 class eSysCall : public RoflException {
 public:
 	eSysCall(std::string const& syscall = std::string("unknown")) :
-		RoflException("syscall: "+syscall+" "+std::string(__FILE__)+std::string(":")+std::string(__func__)),
+		RoflException("syscall: "+syscall+
+				" error: "+std::string(strerror(errno))+" "+
+				std::string(__FILE__)+std::string(":")+std::string(__func__)),
 		n_err(errno), s_err(strerror(errno)) {};
 	virtual ~eSysCall() throw() {};
 public:
