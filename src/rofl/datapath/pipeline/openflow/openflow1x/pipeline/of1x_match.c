@@ -1033,8 +1033,8 @@ of1x_match_t* of1x_init_pbb_isid_match(uint32_t value, uint32_t mask){
 		return NULL;
 	
 	// Align to pipeline convention (NBO, lower memory address)
-	value = HTONB32(value);
-	mask = HTONB32(mask);
+	value = HTONB32(OF1X_PBB_ISID_ALIGN(value));
+	mask = HTONB32(OF1X_PBB_ISID_ALIGN(mask));
 
 	match->type = OF1X_MATCH_PBB_ISID;
 	match->__tern = __init_utern32(value&OF1X_3_BYTE_MASK, mask&OF1X_3_BYTE_MASK); //no wildcard 

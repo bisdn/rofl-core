@@ -525,7 +525,7 @@ uint8_t packet_matches_get_icmpv6_code_value(packet_matches_t *const pkt_matches
  */
 static inline
 uint32_t packet_matches_get_pbb_isid_value(packet_matches_t *const pkt_matches){
-	return NTOHB32(pkt_matches->__pbb_isid);
+	return OF1X_PBB_ISID_VALUE(NTOHB32(pkt_matches->__pbb_isid));
 };
 
 /**
