@@ -40,7 +40,7 @@ Documentation can be compiled via `make doc`. Documentation is generated in buil
 Known issues
 ================================
 
-* Certain GCC 4.8.X family versions are buggy and don't properly compile ROFL with -O3 optimizations. Please use GCC 4.8.3 or another version family.
+* Certain GCC 4.8.X family versions are buggy and don't properly compile ROFL with -O3 optimizations. Please use GCC 4.8.3 or higher, or another version family.
 
 FAQ
 ===
