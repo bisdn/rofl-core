@@ -498,7 +498,7 @@ uint64_t packet_matches_get_ipv6_nd_tll_value(packet_matches_t *const pkt_matche
  */
 static inline
 uint16_t packet_matches_get_ipv6_exthdr_value(packet_matches_t *const pkt_matches){
-	return NTOHB16(pkt_matches->__ipv6_exthdr); //TODO align?
+	return NTOHB16(pkt_matches->__ipv6_exthdr);
 };
 
 //ICMPv6
@@ -525,7 +525,7 @@ uint8_t packet_matches_get_icmpv6_code_value(packet_matches_t *const pkt_matches
  */
 static inline
 uint32_t packet_matches_get_pbb_isid_value(packet_matches_t *const pkt_matches){
-	return NTOHB32(pkt_matches->__pbb_isid); //TODO align?
+	return OF1X_PBB_ISID_VALUE(NTOHB32(pkt_matches->__pbb_isid));
 };
 
 /**

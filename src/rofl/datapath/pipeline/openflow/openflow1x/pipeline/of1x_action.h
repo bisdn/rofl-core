@@ -490,7 +490,8 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 			return OF1X_MPLS_LABEL_VALUE(NTOHB32(action->__field.u32));
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
 			return OF1X_IP6_FLABEL_VALUE(NTOHB32(action->__field.u32));
-			break;
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+			return OF1X_PBB_ISID_VALUE(NTOHB32(action->__field.u32));
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
 		case OF1X_AT_SET_FIELD_IPV4_DST:
 		case OF1X_AT_SET_FIELD_NW_SRC:
@@ -498,7 +499,6 @@ uint32_t __of1x_get_packet_action_field32(const of1x_packet_action_t* action, bo
 		case OF1X_AT_SET_FIELD_ARP_SPA:
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 		case OF1X_AT_SET_FIELD_GTP_TEID:
-		case OF1X_AT_SET_FIELD_PBB_ISID:
 		case OF1X_AT_SET_FIELD_GRE_KEY:
 			return NTOHB32(action->__field.u32);
 			break;

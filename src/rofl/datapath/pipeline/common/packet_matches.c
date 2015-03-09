@@ -305,7 +305,7 @@ void dump_packet_matches(datapacket_t *const pkt, bool raw_nbo){
 
 	//PBB
 	if(m->__pbb_isid)
-		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:%u,", COND_NTOHB32(raw_nbo,m->__pbb_isid));
+		ROFL_PIPELINE_INFO_NO_PREFIX("PBB_ISID:0x%x,", OF1X_PBB_ISID_VALUE(COND_NTOHB32(raw_nbo,m->__pbb_isid)));
 	//Tunnel id
 	if(m->__tunnel_id)
 		ROFL_PIPELINE_INFO_NO_PREFIX("TUNNEL ID:0x%"PRIx64", ", COND_NTOHB64(raw_nbo,m->__tunnel_id));

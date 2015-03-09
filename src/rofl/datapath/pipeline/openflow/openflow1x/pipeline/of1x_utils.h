@@ -180,6 +180,9 @@ typedef struct of1x_ver_req_t{
 
 #define OF1X_IP6_FLABEL_ALIGN(x) OF1X_SHIFT_LEFT(x, 8)
 #define OF1X_IP6_FLABEL_VALUE(x) OF1X_SHIFT_RIGHT(x, 8)
+
+#define OF1X_PBB_ISID_ALIGN(x) OF1X_SHIFT_LEFT(x, 8)
+#define OF1X_PBB_ISID_VALUE(x) OF1X_SHIFT_RIGHT(x, 8)
 /*
 * Align to 64bit
 */
