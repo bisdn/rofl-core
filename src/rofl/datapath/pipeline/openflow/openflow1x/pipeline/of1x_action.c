@@ -143,7 +143,7 @@ of1x_packet_action_t* of1x_init_packet_action(of1x_packet_action_type_t type, wr
 
 		//3 byte
 		case OF1X_AT_SET_FIELD_PBB_ISID:
-			//TODO Align value
+			field.u32 = HTONB32(OF1X_PBB_ISID_ALIGN(field.u32));
 			action->__field.u32 = field.u32&OF1X_3_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;

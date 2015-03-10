@@ -26,7 +26,10 @@ AC_ENABLE_STATIC
 CFLAGS="-std=gnu89 -Werror -Wall $CFLAGS"
 CXXFLAGS="-Werror -Wall $CXXFLAGS"
 AC_DEFINE([__STDC_FORMAT_MACROS], [], [Description])
-	
+
+
+# Perform GCC checkings
+m4_include([config/gcc.m4])
 
 # Debug
 m4_include([config/debug.m4])
