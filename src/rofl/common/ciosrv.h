@@ -348,7 +348,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -360,7 +360,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -370,7 +370,7 @@ protected:
 			}
 		}
 		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd
-				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -389,7 +389,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -401,7 +401,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -411,7 +411,7 @@ protected:
 			}
 		}
 		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd
-				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -431,7 +431,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -443,7 +443,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -453,7 +453,7 @@ protected:
 			}
 		}
 		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd
-				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -472,7 +472,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -484,7 +484,7 @@ protected:
 					switch (errno) {
 					case EEXIST:
 					case ENOENT: {
-						rofl::logging::debug << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+						rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
 					} break;
 					default: {
 						throw eSysCall("epoll_ctl()");
@@ -495,7 +495,7 @@ protected:
 
 		}
 		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd
-				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl << *this;
+				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
 
@@ -1163,7 +1163,7 @@ private:
 	__handle_timeout() {
 		try {
 			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] #timers: "
-					<< timers.size() << std::endl << *this;
+					<< timers.size() << std::endl;
 			ctimer timer = timers.get_expired_timer();
 			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] timer: "
 					<< (ctimer::now().get_timespec() - timer.get_timespec()).str() << std::endl;
