@@ -738,6 +738,8 @@ private:
 	mutable PthreadRwLock					poll_rwlock;
 	std::vector<struct epoll_event>			poll_events;
 	std::map<int, ciosrv*>					poll_iosrvs;
+
+	sigset_t 								sigmask;
 };
 
 

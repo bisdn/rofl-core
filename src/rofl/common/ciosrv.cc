@@ -125,15 +125,14 @@ cioloop::run_loop()
 	/*
 	 * signal masks, etc.
 	 */
-	sigset_t sigmask;
 	struct sigaction sa;
 
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGCHLD);
 
 
-	if (sigprocmask(SIG_BLOCK, &sigmask, NULL) == -1) {
-		perror("sigprocmask");
+	if (pthread_sigmask(SIG_BLOCK, &sigmask, NULL) == -1) {
+		perror("pthread_sigmask");
 		exit(EXIT_FAILURE);
 	}
 
@@ -311,7 +310,7 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 	flag_wait_on_kernel = true;
 	std::vector<struct epoll_event> events(max_num_poll_events);
 	int timeout = ts.tv_sec * 1000 + (ts.tv_nsec / 1e6);
-	rc = epoll_pwait(epollfd, &events[0], events.size(), timeout, NULL);
+	rc = epoll_pwait(epollfd, &events[0], events.size(), timeout, &sigmask);
 	flag_wait_on_kernel = false;
 
 #ifndef NDEBUG
