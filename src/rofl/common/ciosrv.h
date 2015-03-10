@@ -152,7 +152,8 @@ public:
 	 * 		    or if none is specified, cioloop of local thread.
 	 */
 	static cioloop&
-	get_loop(pthread_t tid = 0) {
+	get_loop(pthread_t tid = 0,
+			unsigned int max_num_poll_events = DEFAULT_NUM_POLL_EVENTS) {
 		if (0 == tid) {
 			tid = pthread_self();
 		}
@@ -160,7 +161,7 @@ public:
 		if (cioloop::loops.find(tid) == cioloop::loops.end()) {
 			logging::debug << "[rofl-common][cioloop][loop] creating loop, tid: 0x"
 					<< std::hex << tid << std::dec << std::endl;
-			cioloop::loops[tid] = new cioloop(tid);
+			cioloop::loops[tid] = new cioloop(tid, max_num_poll_events);
 		}
 		return *(cioloop::loops[tid]);
 	};
