@@ -338,10 +338,11 @@ protected:
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
 		check_poll_set(fd);
+
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events |= EPOLLIN;
 
-		if (NULL == poll_iosrvs[fd]) {
-			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+		if (poll_iosrvs.find(fd) == poll_iosrvs.end()) {
 			poll_iosrvs[fd] = iosrv;
 			if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -378,10 +379,11 @@ protected:
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
 		check_poll_set(fd);
+
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events &= ~EPOLLIN;
 
 		if (EPOLLET == poll_events[fd].events) {
-			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
 			poll_iosrvs[fd] = NULL;
 			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -395,6 +397,7 @@ protected:
 				}
 			}
 			poll_events.erase(fd);
+			poll_iosrvs.erase(fd);
 		} else {
 			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -419,10 +422,11 @@ protected:
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
 		check_poll_set(fd);
+
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events |= EPOLLOUT;
 
-		if (NULL == poll_events[fd].data.ptr) {
-			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+		if (poll_iosrvs.find(fd) == poll_iosrvs.end()) {
 			poll_iosrvs[fd] = iosrv;
 			if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -459,10 +463,11 @@ protected:
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
 		check_poll_set(fd);
+
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events &= ~EPOLLOUT;
 
 		if (EPOLLET == poll_events[fd].events) {
-			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
 			poll_iosrvs[fd] = NULL;
 			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -476,6 +481,7 @@ protected:
 				}
 			}
 			poll_events.erase(fd);
+			poll_iosrvs.erase(fd);
 		} else {
 			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
