@@ -152,8 +152,7 @@ public:
 	 * 		    or if none is specified, cioloop of local thread.
 	 */
 	static cioloop&
-	get_loop(pthread_t tid = 0,
-			unsigned int max_num_poll_events = DEFAULT_NUM_POLL_EVENTS) {
+	get_loop(pthread_t tid = 0) {
 		if (0 == tid) {
 			tid = pthread_self();
 		}
@@ -161,7 +160,7 @@ public:
 		if (cioloop::loops.find(tid) == cioloop::loops.end()) {
 			logging::debug << "[rofl-common][cioloop][loop] creating loop, tid: 0x"
 					<< std::hex << tid << std::dec << std::endl;
-			cioloop::loops[tid] = new cioloop(tid, max_num_poll_events);
+			cioloop::loops[tid] = new cioloop(tid);
 		}
 		return *(cioloop::loops[tid]);
 	};
@@ -338,34 +337,33 @@ protected:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
-		{
-			poll_events[fd].events |= EPOLLIN;
+		check_poll_set(fd);
+		poll_events[fd].events |= EPOLLIN;
 
-			if (NULL == poll_iosrvs[fd]) {
-				RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
-				poll_iosrvs[fd] = iosrv;
-				if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+		if (NULL == poll_iosrvs[fd]) {
+			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+			poll_iosrvs[fd] = iosrv;
+			if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
 				}
-			} else {
-				if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+				}
+			}
+		} else {
+			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
+				}
 				}
 			}
 		}
@@ -379,37 +377,37 @@ protected:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
-		{
-			poll_events[fd].events &= ~EPOLLIN;
+		check_poll_set(fd);
+		poll_events[fd].events &= ~EPOLLIN;
 
-			if (EPOLLET == poll_events[fd].events) {
-				RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
-				poll_iosrvs[fd] = NULL;
-				if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+		if (EPOLLET == poll_events[fd].events) {
+			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+			poll_iosrvs[fd] = NULL;
+			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
 				}
-			} else {
-				if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
 				}
 			}
-		}
+			poll_events.erase(fd);
+		} else {
+			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
+				}
+				}
+			}
+			}
 		rofl::logging::debug << "[rofl-common][cioloop][drop_readfd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
@@ -420,35 +418,33 @@ protected:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
-		{
-			RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
+		check_poll_set(fd);
+		poll_events[fd].events |= EPOLLOUT;
 
-			poll_events[fd].events |= EPOLLOUT;
-
-			if (NULL == poll_events[fd].data.ptr) {
-				poll_iosrvs[fd] = iosrv;
-				if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+		if (NULL == poll_events[fd].data.ptr) {
+			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+			poll_iosrvs[fd] = iosrv;
+			if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
 				}
-			} else {
-				if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+				}
+			}
+		} else {
+			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
+				}
 				}
 			}
 		}
@@ -462,37 +458,36 @@ protected:
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
-		{
-			poll_events[fd].events &= ~EPOLLOUT;
+		check_poll_set(fd);
+		poll_events[fd].events &= ~EPOLLOUT;
 
-			if (EPOLLET == poll_events[fd].events) {
-				RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
-				poll_iosrvs[fd] = NULL;
-				if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
+		if (EPOLLET == poll_events[fd].events) {
+			RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+			poll_iosrvs[fd] = NULL;
+			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
 				}
-			} else {
-				if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
-					switch (errno) {
-					case EEXIST:
-					case ENOENT: {
-						rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
-					} break;
-					default: {
-						throw eSysCall("epoll_ctl()");
-					}
-					}
 				}
 			}
-
+			poll_events.erase(fd);
+		} else {
+			if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &poll_events[fd]) < 0) {
+				switch (errno) {
+				case EEXIST:
+				case ENOENT: {
+					rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+				} break;
+				default: {
+					throw eSysCall("epoll_ctl()");
+				}
+				}
+			}
 		}
 		rofl::logging::debug << "[rofl-common][cioloop][drop_writefd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
@@ -545,16 +540,14 @@ private:
 	 *
 	 */
 	cioloop(
-			pthread_t tid = 0,
-			unsigned int max_num_poll_events = DEFAULT_NUM_POLL_EVENTS) :
+			pthread_t tid = 0) :
 				flag_keep_on_running(false),
 				flag_wait_on_kernel(false),
 				flag_waking_up(false),
 				flag_new_event_installed(false),
 				flag_new_timer_installed(false),
 				tid(tid),
-				epollfd(-1),
-				max_num_poll_events(max_num_poll_events) {
+				epollfd(-1) {
 		if (0 == tid) {
 			this->tid = pthread_self();
 		}
@@ -564,23 +557,8 @@ private:
 			throw eSysCall("getrlimit()");
 		}
 
-		for (unsigned int i = 0; i < this->max_num_poll_events; i++) {
-			struct epoll_event event;
-			memset(&event, 0, sizeof(event));
-			event.data.fd = i;
-			event.events |= EPOLLET; // edge triggered
-			poll_events.push_back(event);
-		}
-
-		if ((epollfd = epoll_create(max_num_poll_events)) < 0) {
+		if ((epollfd = epoll_create(1)) < 0) {
 			throw eSysCall("epoll_create()");
-		}
-
-		poll_events[pipe.pipefd[0]].events |= (EPOLLET | EPOLLIN);
-		poll_events[pipe.pipefd[0]].data.fd = pipe.pipefd[0];
-		if ((epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe.pipefd[0],
-				&poll_events[pipe.pipefd[0]])) < 0) {
-			throw eSysCall("epoll_ctl()");
 		}
 	};
 
@@ -650,6 +628,21 @@ private:
 	run_on_kernel(
 			std::pair<ciosrv*, ctimespec>& next_timeout);
 
+	bool
+	poll_set_has_fd(int fd) const {
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+		return (not (poll_events.find(fd) == poll_events.end()));
+	};
+
+	void
+	check_poll_set(int fd) {
+		if (poll_set_has_fd(fd))
+			return;
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
+		poll_events[fd].events = EPOLLET;
+		poll_events[fd].data.fd = fd;
+	};
+
 public:
 
 	friend std::ostream&
@@ -660,13 +653,13 @@ public:
 		{
 			RwLock lock(ioloop.poll_rwlock, RwLock::RWLOCK_READ);
 			os << indent(2) << "<instances with rfds: ";
-			for (std::vector<struct epoll_event>::const_iterator
+			for (std::map<int, struct epoll_event>::const_iterator
 					it = ioloop.poll_events.begin(); it != ioloop.poll_events.end(); ++it) {
-				if (ioloop.poll_iosrvs.find(it->data.fd) == ioloop.poll_iosrvs.end()) {
+				if (ioloop.poll_iosrvs.find(it->first) == ioloop.poll_iosrvs.end()) {
 					continue;
 				}
-				if (it->events & EPOLLIN) {
-					os << ioloop.poll_iosrvs.at(it->data.fd) << ":" << it->data.fd << " ";
+				if (it->second.events & EPOLLIN) {
+					os << ioloop.poll_iosrvs.at(it->first) << ":" << it->first << " ";
 				}
 			}
 			os << ">" << std::endl;
@@ -675,13 +668,13 @@ public:
 		{
 			RwLock lock(ioloop.poll_rwlock, RwLock::RWLOCK_READ);
 			os << indent(2) << "<instances with wfds: ";
-			for (std::vector<struct epoll_event>::const_iterator
+			for (std::map<int, struct epoll_event>::const_iterator
 					it = ioloop.poll_events.begin(); it != ioloop.poll_events.end(); ++it) {
-				if (ioloop.poll_iosrvs.find(it->data.fd) == ioloop.poll_iosrvs.end()) {
+				if (ioloop.poll_iosrvs.find(it->first) == ioloop.poll_iosrvs.end()) {
 					continue;
 				}
-				if (it->events & EPOLLOUT) {
-					os << ioloop.poll_iosrvs.at(it->data.fd) << ":" << it->data.fd << " ";
+				if (it->second.events & EPOLLOUT) {
+					os << ioloop.poll_iosrvs.at(it->first) << ":" << it->first << " ";
 				}
 			}
 			os << ">" << std::endl;
@@ -733,10 +726,8 @@ private:
 	pthread_t        			       		tid;
 
 	int										epollfd;
-	static unsigned int						DEFAULT_NUM_POLL_EVENTS;
-	unsigned int							max_num_poll_events;
 	mutable PthreadRwLock					poll_rwlock;
-	std::vector<struct epoll_event>			poll_events;
+	std::map<int, struct epoll_event>		poll_events;
 	std::map<int, ciosrv*>					poll_iosrvs;
 
 	sigset_t 								sigmask;

@@ -10,7 +10,6 @@ using namespace rofl;
 /*static*/std::map<pthread_t, int> 		cioloop::threads;
 /*static*/PthreadRwLock 				cioloop::loops_rwlock;
 /*static*/std::map<pthread_t, cioloop*> cioloop::loops;
-/*static*/unsigned int					cioloop::DEFAULT_NUM_POLL_EVENTS = 1024;
 
 
 ciosrv::ciosrv(
@@ -142,6 +141,18 @@ cioloop::run_loop()
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
 		perror("sigaction");
 		exit(EXIT_FAILURE);
+	}
+
+	// register pipe read file descriptor
+	{
+		check_poll_set(pipe.pipefd[0]);
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_READ);
+		poll_events[pipe.pipefd[0]].events |= (EPOLLET | EPOLLIN);
+		poll_events[pipe.pipefd[0]].data.fd = pipe.pipefd[0];
+		if ((epoll_ctl(epollfd, EPOLL_CTL_ADD, pipe.pipefd[0],
+				&poll_events[pipe.pipefd[0]])) < 0) {
+			throw eSysCall("epoll_ctl()");
+		}
 	}
 
 	std::pair<ciosrv*, ctimespec> next_timeout(NULL, ctimespec::now() + ctimespec(3600));
@@ -308,7 +319,7 @@ cioloop::run_on_kernel(std::pair<ciosrv*, ctimespec>& next_timeout)
 
 	// blocking
 	flag_wait_on_kernel = true;
-	std::vector<struct epoll_event> events(max_num_poll_events);
+	std::vector<struct epoll_event> events(poll_events.size());
 	int timeout = ts.tv_sec * 1000 + (ts.tv_nsec / 1e6);
 	rc = epoll_pwait(epollfd, &events[0], events.size(), timeout, &sigmask);
 	flag_wait_on_kernel = false;
