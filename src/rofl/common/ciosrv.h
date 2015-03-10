@@ -199,7 +199,9 @@ public:
 		RwLock lock(rofl::cioloop::loops_rwlock, RwLock::RWLOCK_READ);
 		for (std::map<pthread_t, cioloop*>::iterator
 				it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
-			it->second->flag_keep_on_running = false;		}
+			it->second->flag_keep_on_running = false;
+			it->second->pipe.writemsg('1');
+		}
 	};
 
 	/**
@@ -212,6 +214,7 @@ public:
 			for (std::map<pthread_t, cioloop*>::iterator
 					it = cioloop::loops.begin(); it != cioloop::loops.end(); ++it) {
 				it->second->flag_keep_on_running = false;
+				it->second->pipe.writemsg('1');
 				if (it->first != pthread_self()) {
 					pthread_join(it->first, NULL);
 					delete it->second;
@@ -348,7 +351,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -360,7 +363,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::add_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -389,7 +392,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -403,7 +406,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::drop_readfd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -432,7 +435,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -444,7 +447,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::add_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -473,7 +476,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
@@ -487,7 +490,7 @@ protected:
 				switch (errno) {
 				case EEXIST:
 				case ENOENT: {
-					rofl::logging::error << "rofl::cioloop::drop_writefd() " << eSysCall("epoll_ctl()") << std::endl;
+					// ignore
 				} break;
 				default: {
 					throw eSysCall("epoll_ctl()");
