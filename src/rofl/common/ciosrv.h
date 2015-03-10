@@ -269,7 +269,7 @@ protected:
 	 */
 	void
 	register_ciosrv(ciosrv* elem) {
-		logging::trace << "[rofl-common][cioloop][register_ciosrv] svc:"
+		rofl::logging::debug << "[rofl-common][cioloop][register_ciosrv] svc:"
 				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
 				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		{
@@ -294,7 +294,7 @@ protected:
 	 */
 	void
 	deregister_ciosrv(ciosrv* elem) {
-		logging::trace << "[rofl-common][cioloop][deregister_ciosrv] svc:"
+		rofl::logging::debug << "[rofl-common][cioloop][deregister_ciosrv] svc:"
 				<< elem << ", target tid: 0x" << std::hex << tid << std::dec
 				<< ", running tid: 0x" << std::hex << pthread_self() << std::dec << std::endl;
 		{
@@ -369,7 +369,7 @@ protected:
 				}
 			}
 		}
-		logging::trace << "[rofl-common][cioloop][add_readfd] fd:" << fd
+		rofl::logging::debug << "[rofl-common][cioloop][add_readfd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
@@ -410,7 +410,7 @@ protected:
 				}
 			}
 		}
-		logging::trace << "[rofl-common][cioloop][drop_readfd] fd:" << fd
+		rofl::logging::debug << "[rofl-common][cioloop][drop_readfd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
@@ -452,7 +452,7 @@ protected:
 				}
 			}
 		}
-		logging::trace << "[rofl-common][cioloop][add_writefd] fd:" << fd
+		rofl::logging::debug << "[rofl-common][cioloop][add_writefd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
@@ -494,7 +494,7 @@ protected:
 			}
 
 		}
-		logging::trace << "[rofl-common][cioloop][drop_writefd] fd:" << fd
+		rofl::logging::debug << "[rofl-common][cioloop][drop_writefd] fd:" << fd
 				<< ", tid: 0x" << std::hex << tid << std::dec << std::endl;
 		wakeup(); // wakeup main loop, just in case
 	};
@@ -627,8 +627,10 @@ private:
 	 */
 	void
 	wakeup() {
+#ifndef NDEBUG
 		logging::trace << "[rofl-common][cioloop][wakeup] waking up thread, "
 				<< "tid: 0x" << std::hex << tid << std::dec << std::endl;
+#endif
 		if (not flag_waking_up) {
 			flag_waking_up = true;
 			pipe.writemsg('1');
@@ -1162,11 +1164,15 @@ private:
 	void
 	__handle_timeout() {
 		try {
+#ifndef NDEBUG
 			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] #timers: "
 					<< timers.size() << std::endl;
+#endif
 			ctimer timer = timers.get_expired_timer();
+#ifndef NDEBUG
 			rofl::logging::trace << "[rofl-common][ciosrv][handle_timeout] timer: "
 					<< (ctimer::now().get_timespec() - timer.get_timespec()).str() << std::endl;
+#endif
 			handle_timeout(timer.get_opaque());
 		} catch (eTimersNotFound& e) {/*do nothing*/}
 	};
