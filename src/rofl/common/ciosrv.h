@@ -386,7 +386,7 @@ protected:
 		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events &= ~EPOLLIN;
 
-		if (EPOLLET == poll_events[fd].events) {
+		if ((unsigned int)EPOLLET == poll_events[fd].events) {
 			poll_iosrvs[fd] = NULL;
 			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
@@ -470,7 +470,7 @@ protected:
 		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
 		poll_events[fd].events &= ~EPOLLOUT;
 
-		if (EPOLLET == poll_events[fd].events) {
+		if ((unsigned int)EPOLLET == poll_events[fd].events) {
 			poll_iosrvs[fd] = NULL;
 			if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &poll_events[fd]) < 0) {
 				switch (errno) {
