@@ -170,6 +170,18 @@ cioloop::run_loop()
 		run_on_kernel(next_timeout);
 	}
 
+	// deregister pipe read file descriptor
+	{
+		RwLock lock(poll_rwlock, RwLock::RWLOCK_WRITE);
+		if (poll_events.find(pipe.pipefd[0]) != poll_events.end()) {
+			if ((epoll_ctl(epollfd, EPOLL_CTL_DEL, pipe.pipefd[0],
+					&poll_events[pipe.pipefd[0]])) < 0) {
+				// do nothing
+			}
+			poll_events.erase(pipe.pipefd[0]);
+		}
+	}
+
 	flag_keep_on_running = false;
 
 	rofl::logging::debug << "[rofl-common][cioloop][run] terminating,"
