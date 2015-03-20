@@ -397,6 +397,9 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 	} // FALLTHROUGH
+	case STATE_CONNECT_PENDING: {
+		event_tcp_connected();
+	} // FALLTHROUGH
 	case STATE_WAIT_FOR_HELLO: {
 		timer_stop_wait_for_hello();
 

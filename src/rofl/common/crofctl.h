@@ -951,7 +951,24 @@ public:
 	 * @brief	Returns true, when the control entity is in role -slave-.
 	 */
 	bool
-	is_slave() const;
+	is_slave() const
+	{
+		switch (rofchan.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+			return (rofl::openflow12::OFPCR_ROLE_SLAVE == role.get_role());
+		case rofl::openflow13::OFP_VERSION:
+			return (rofl::openflow13::OFPCR_ROLE_SLAVE == role.get_role());
+		default:
+			return false;
+		}
+	};
+
+	/**
+	 * @brief	Throws exception, when control entity is in role -slave-.
+	 */
+	void
+	check_role() const
+	{ if (is_slave()) throw eBadRequestIsSlave(); };
 
 	/**
 	 * @brief	Returns a reference to the current asynchronous event configuration of this controller entity.
@@ -1455,6 +1472,19 @@ private:
 							<< " OFP control channel established, " << chan.str() << std::endl;
 
 			call_env().handle_chan_established(*this); // main connection
+
+			switch (chan.get_version()) {
+			case rofl::openflow12::OFP_VERSION: {
+				role.set_role(rofl::openflow12::OFPCR_ROLE_EQUAL);
+			} break;
+			case rofl::openflow13::OFP_VERSION: {
+				role.set_role(rofl::openflow13::OFPCR_ROLE_EQUAL);
+			} break;
+			default: {
+				// do nothing
+			};
+			}
+
 		}
 	};
 
@@ -1560,9 +1590,6 @@ private:
 
 	void
 	init_async_config_role_default_template();
-
-	void
-	check_role();
 
 	void
 	push_on_eventqueue(

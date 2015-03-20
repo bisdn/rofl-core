@@ -309,48 +309,6 @@ crofbase::send_packet_in_message(
 			continue;
 		}
 
-		switch (ctl.get_version_negotiated()) {
-		case rofl::openflow::OFP_VERSION_UNKNOWN: {
-			// channel lost?
-			continue;
-		} break;
-		case rofl::openflow12::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-					continue;
-			} break;
-			default: {
-				// master/equal/unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		case rofl::openflow13::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_EQUAL:
-			case rofl::openflow13::OFPCR_ROLE_MASTER: {
-				if (not (ctl.get_async_config().get_packet_in_mask_master() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-				if (not (ctl.get_async_config().get_packet_in_mask_slave() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			default: {
-				// unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		default: {
-			// unknown version: send packet-in to controller
-		};
-		}
-
 		ctl.send_packet_in_message(
 				auxid,
 				buffer_id,
@@ -399,48 +357,6 @@ crofbase::send_flow_removed_message(
 			continue;
 		}
 
-		switch (ctl.get_version_negotiated()) {
-		case rofl::openflow::OFP_VERSION_UNKNOWN: {
-			// channel lost?
-			continue;
-		} break;
-		case rofl::openflow12::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-					continue;
-			} break;
-			default: {
-				// master/equal/unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		case rofl::openflow13::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_EQUAL:
-			case rofl::openflow13::OFPCR_ROLE_MASTER: {
-				if (not (ctl.get_async_config().get_flow_removed_mask_master() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-				if (not (ctl.get_async_config().get_flow_removed_mask_slave() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			default: {
-				// unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		default: {
-			// unknown version: send packet-in to controller
-		};
-		}
-
 		ctl.send_flow_removed_message(
 				auxid,
 				match,
@@ -482,49 +398,10 @@ crofbase::send_port_status_message(
 			continue;
 		}
 
-		switch (ctl.get_version_negotiated()) {
-		case rofl::openflow::OFP_VERSION_UNKNOWN: {
-			// channel lost?
-			continue;
-		} break;
-		case rofl::openflow12::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-					continue;
-			} break;
-			default: {
-				// master/equal/unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		case rofl::openflow13::OFP_VERSION: {
-
-			switch (ctl.get_role().get_role()) {
-			case rofl::openflow13::OFPCR_ROLE_EQUAL:
-			case rofl::openflow13::OFPCR_ROLE_MASTER: {
-				if (not (ctl.get_async_config().get_port_status_mask_master() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
-				if (not (ctl.get_async_config().get_port_status_mask_slave() & (1 << reason))) {
-					continue;
-				}
-			} break;
-			default: {
-				// unknown role: send packet-in to controller
-			};
-			}
-
-		} break;
-		default: {
-			// unknown version: send packet-in to controller
-		};
-		}
-
-		ctl.send_port_status_message(auxid, reason, port);
+		ctl.send_port_status_message(
+				auxid,
+				reason,
+				port);
 
 		sent_out = true;
 	}

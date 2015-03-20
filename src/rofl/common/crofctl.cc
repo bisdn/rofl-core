@@ -121,23 +121,6 @@ crofctl::event_conn_failed()
 
 
 
-bool
-crofctl::is_slave() const
-{
-#if 0
-	switch (rofchan.get_version()) {
-	case openflow12::OFP_VERSION: return (openflow12::OFPCR_ROLE_SLAVE == role);
-	case openflow13::OFP_VERSION: return (openflow13::OFPCR_ROLE_SLAVE == role);
-	default: return false;
-	}
-#endif
-	return false;
-}
-
-
-
-
-
 
 void
 crofctl::recv_message(
@@ -1442,6 +1425,36 @@ crofctl::send_packet_in_message(
 			return;
 		}
 
+		switch (rofchan.get_version()) {
+		case rofl::openflow12::OFP_VERSION: {
+			if (is_slave()) {
+				return;
+			}
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			switch (role.get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (async_config.get_packet_in_mask_master() & (1 << reason))) {
+					return;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (async_config.get_packet_in_mask_slave() & (1 << reason))) {
+					return;
+				}
+			} break;
+			default: {
+				// unknown role: send packet-in to controller
+			};
+			}
+		} break;
+		default: {
+			// send packet-in
+		};
+		}
+
+
 		rofl::openflow::cofmsg_packet_in *msg =
 				new rofl::openflow::cofmsg_packet_in(
 						rofchan.get_version(),
@@ -1629,6 +1642,36 @@ crofctl::send_flow_removed_message(
 			return;
 		}
 
+		switch (rofchan.get_version()) {
+		case rofl::openflow12::OFP_VERSION: {
+			if (is_slave()) {
+				return;
+			}
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			switch (role.get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (async_config.get_flow_removed_mask_master() & (1 << reason))) {
+					return;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (async_config.get_flow_removed_mask_slave() & (1 << reason))) {
+					return;
+				}
+			} break;
+			default: {
+				// unknown role: send flow-removed to controller
+			};
+			}
+		} break;
+		default: {
+			// send flow-removed
+		};
+		}
+
+
 		rofl::openflow::cofmsg_flow_removed *msg =
 				new rofl::openflow::cofmsg_flow_removed(
 						rofchan.get_version(),
@@ -1669,6 +1712,31 @@ crofctl::send_port_status_message(
 		if (not is_established()) {
 			rofl::logging::warn << "[rofl-common][crofctl] not connected, dropping Port-Status message" << std::endl;
 			return;
+		}
+
+		switch (rofchan.get_version()) {
+		// OFP 1.2 => send port-status to controller entity in slave mode
+		case rofl::openflow13::OFP_VERSION: {
+			switch (role.get_role()) {
+			case rofl::openflow13::OFPCR_ROLE_EQUAL:
+			case rofl::openflow13::OFPCR_ROLE_MASTER: {
+				if (not (async_config.get_port_status_mask_master() & (1 << reason))) {
+					return;
+				}
+			} break;
+			case rofl::openflow13::OFPCR_ROLE_SLAVE: {
+				if (not (async_config.get_port_status_mask_slave() & (1 << reason))) {
+					return;
+				}
+			} break;
+			default: {
+				// unknown role: send port-status to controller
+			};
+			}
+		} break;
+		default: {
+			// send port-status
+		};
 		}
 
 		rofl::openflow::cofmsg_port_status *msg =
@@ -1756,22 +1824,6 @@ crofctl::send_get_async_config_reply(
 	throw eRofBaseCongested();
 }
 
-
-
-
-
-
-void
-crofctl::check_role()
-{
-	switch (rofchan.get_version()) {
-	case rofl::openflow12::OFP_VERSION:
-	case rofl::openflow13::OFP_VERSION: {
-		if (rofl::openflow13::OFPCR_ROLE_SLAVE == role.get_role())
-			throw eBadRequestIsSlave();
-	} break;
-	}
-}
 
 
 
