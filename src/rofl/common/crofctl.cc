@@ -1715,7 +1715,9 @@ crofctl::send_port_status_message(
 		}
 
 		switch (rofchan.get_version()) {
-		// OFP 1.2 => send port-status to controller entity in slave mode
+		case rofl::openflow12::OFP_VERSION: {
+			// OFP 1.2 => send port-status to controller entity in slave mode
+		} break;
 		case rofl::openflow13::OFP_VERSION: {
 			switch (role.get_role()) {
 			case rofl::openflow13::OFPCR_ROLE_EQUAL:
