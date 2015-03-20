@@ -2834,7 +2834,8 @@ crofctl::init_async_config_role_default_template()
 {
 	async_config_role_default_template.set_packet_in_mask_master() =
 			(1 << rofl::openflow13::OFPR_NO_MATCH) |
-			(1 << rofl::openflow13::OFPR_ACTION);
+			(1 << rofl::openflow13::OFPR_ACTION) |
+			(1 << rofl::openflow13::OFPR_INVALID_TTL);
 
 	async_config_role_default_template.set_packet_in_mask_slave(0);
 
