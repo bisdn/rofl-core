@@ -36,7 +36,7 @@ enum rofl_debug_levels {
 enum rofl_debug_class {
 	UNDEF_DEBUG_CLASS	= -1,	/* Undefined debug level */
 	DEFAULT				= 0,	/* todo name it correct */
-	PIPELINE			= 1,	/* rofl pipeline */
+	PIPELINE,					/* rofl pipeline */
 	ALL,						/* DO NOT USE */
 	MAX_DEBUG_CLASS		= ALL	/* DO NOT USE */
 
@@ -58,43 +58,43 @@ extern int (*rofl_debug_print)(const char *format, ...);
 //Define macros
 #define ROFL_DEBUG_CHECK(cn, level)  \
     ( rofl_debug_level[cn] >= level )
-#define ROFL_DEBUG_PRINT(cn, level, format, ...)  \
+#define ROFL_LOGGER_PRINT(cn, level, format, ...)  \
     do{\
 	if (ROFL_DEBUG_CHECK(cn, level) && *rofl_debug_print != NULL){ \
 		rofl_debug_print(format, ##__VA_ARGS__);\
 	}\
     }while(0)
 
-#define ROFL_WARN(classname, format, ...) \
-	ROFL_DEBUG_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
-
 #define ROFL_ERR(classname, format, ...)          \
-	ROFL_DEBUG_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
+	ROFL_LOGGER_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
+
+#define ROFL_WARN(classname, format, ...) \
+	ROFL_LOGGER_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
 
 #define ROFL_INFO(classname, format, ...) \
-	ROFL_DEBUG_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
+	ROFL_LOGGER_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
 
 #define ROFL_DEBUG(classname, format, ...)        \
-	ROFL_DEBUG_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
+	ROFL_LOGGER_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
 
 #define ROFL_DEBUG_VERBOSE(classname, format, ...)        \
-	ROFL_DEBUG_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
+	ROFL_LOGGER_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 
 #ifdef DEBUG
 	#define ROFL_ERR_STRIP(classname, format, ...)          \
-		ROFL_DEBUG_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
+		ROFL_LOGGER_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
 
 	#define ROFL_WARN_STRIP(classname, format, ...) \
-		ROFL_DEBUG_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
+		ROFL_LOGGER_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
 
 	#define ROFL_INFO_STRIP(classname, format, ...) \
-		ROFL_DEBUG_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
+		ROFL_LOGGER_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
 
 	#define ROFL_DEBUG_STRIP(classname, format, ...)        \
-		ROFL_DEBUG_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
+		ROFL_LOGGER_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
 
 	#define ROFL_DEBUG_VERBOSE_STRIP(classname, format, ...)        \
-		ROFL_DEBUG_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
+		ROFL_LOGGER_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 #else
 	// No logging
 	#define ROFL_ERR_STRIP(classname, format, ...) do{}while(0)
