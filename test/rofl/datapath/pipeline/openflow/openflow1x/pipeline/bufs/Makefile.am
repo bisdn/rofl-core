@@ -2,11 +2,11 @@ MAINTAINERCLEANFILES = Makefile.in
 
 AUTOMAKE_OPTIONS = no-dependencies
 
-SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
+SHARED_SRC= \
+	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/monitoring.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/port_queue.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
@@ -35,7 +35,7 @@ unit_test_SOURCES= $(SHARED_SRC)\
 			unit_test.c
 		
 
-unit_test_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread
+unit_test_LDADD = -lcunit -lpthread $(top_builddir)/src/rofl/librofl.la
 
-check_PROGRAMS= unit_test
-TESTS = unit_test
+check_PROGRAMS = unit_test
+TESTS = $(check_PROGRAMS)

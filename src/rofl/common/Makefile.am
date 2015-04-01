@@ -89,7 +89,7 @@ librofl_common_la_SOURCES += \
 		csocket_openssl.cc
 endif
 
-librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils/librofl_common_utils.la -lrt
+librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la -lrt
 
 library_includedir=$(includedir)/rofl/common
 library_include_HEADERS= \

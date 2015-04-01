@@ -12,7 +12,6 @@ monitoring_unit_test_SOURCES= monitoring_test.c \
 	../openflow/openflow1x/pipeline/output_actions.c\
 	../openflow/openflow1x/pipeline/memory.c\
 	../openflow/openflow1x/pipeline/empty_packet.c\
-	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c\
 	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/monitoring.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
@@ -34,7 +33,7 @@ monitoring_unit_test_SOURCES= monitoring_test.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c
 
-monitoring_unit_test_LDADD= -lcunit -lpthread 
+monitoring_unit_test_LDADD= -lcunit -lpthread $(top_builddir)/src/rofl/librofl.la
 
 #-lrofl_pipeline -lrofl
 # we need to link to the local libraries, not the installed ones

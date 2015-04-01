@@ -36,10 +36,9 @@ static_unit_test_SOURCES=../unit_test.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_statistics.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_timers.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c
+	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c
 
-static_unit_test_LDADD= -lcunit -lpthread
+static_unit_test_LDADD = -lcunit -lpthread $(top_builddir)/src/rofl/librofl.la
 
 #-lrofl_pipeline -lrofl
 # we need to link to the local libraries, not the installed ones

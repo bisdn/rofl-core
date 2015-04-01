@@ -52,50 +52,50 @@ enum rofl_debug_class {
 
 //Fwd declarations
 extern enum rofl_debug_levels rofl_debug_level[MAX_DEBUG_CLASS];
-extern int (*rofl_debug_print)(FILE *stream, const char *format, ...);
+extern int (*rofl_debug_print)(const char *format, ...);
 
 //Define macros
 #define ROFL_DEBUG_CHECK(cn, level)  \
     ( rofl_debug_level[cn] >= level )
-#define ROFL_DEBUG_PRINT(fd, cn, level, stuff, ...)  \
+#define ROFL_DEBUG_PRINT(cn, level, format, ...)  \
     do{\
 	if (ROFL_DEBUG_CHECK(cn, level) && *rofl_debug_print != NULL){ \
-		rofl_debug_print(fd,stuff, ##__VA_ARGS__);\
+		rofl_debug_print(format, ##__VA_ARGS__);\
 	}\
     }while(0)
 
-#define ROFL_WARN(stuff,...) \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, WARN_LEVEL, stuff, ##__VA_ARGS__)
+#define ROFL_WARN(format, ...) \
+	ROFL_DEBUG_PRINT(DEFAULT, WARN_LEVEL, format, ##__VA_ARGS__)
 
-#define ROFL_ERR(stuff, ...)          \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, ERROR_LEVEL, stuff, ##__VA_ARGS__)
+#define ROFL_ERR(format, ...)          \
+	ROFL_DEBUG_PRINT(DEFAULT, ERROR_LEVEL, format, ##__VA_ARGS__)
 
-#define ROFL_INFO(stuff,...) \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, INFO_LEVEL, stuff, ##__VA_ARGS__)
+#define ROFL_INFO(format, ...) \
+	ROFL_DEBUG_PRINT(DEFAULT, INFO_LEVEL, format, ##__VA_ARGS__)
 
 
 #ifdef DEBUG
-	#define ROFL_DEBUG(stuff, ...)        \
-		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG_LEVEL, stuff, ##__VA_ARGS__)
+	#define ROFL_DEBUG(format, ...)        \
+		ROFL_DEBUG_PRINT(DEFAULT, DBG_LEVEL, format, ##__VA_ARGS__)
 
-	#define ROFL_DEBUG_VERBOSE(stuff, ...)        \
-		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG_VERBOSE_LEVEL, stuff, ##__VA_ARGS__)
+	#define ROFL_DEBUG_VERBOSE(format, ...)        \
+		ROFL_DEBUG_PRINT(DEFAULT, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 #else
 	//No logging
-	//#define ROFL_DEBUG_CHECK(stuff, ...) do{}while(0)
-	//#define ROFL_DEBUG_PRINT(stuff, ...) do{}while(0)             /* ROFL_DEBUG_CHECK */
-	//#define ROFL_WARN(stuff, ...) do{}while(0)
-	//#define ROFL_ERR(stuff, ...) do{}while(0)
-	//#define ROFL_INFO(stuff,...) do{}while(0)
-	#define ROFL_DEBUG(stuff, ...) do{}while(0)
-	#define ROFL_DEBUG_VERBOSE(stuff, ...) do{}while(0)
+	//#define ROFL_DEBUG_CHECK(format, ...) do{}while(0)
+	//#define ROFL_DEBUG_PRINT(format, ...) do{}while(0)             /* ROFL_DEBUG_CHECK */
+	//#define ROFL_WARN(format, ...) do{}while(0)
+	//#define ROFL_ERR(format, ...) do{}while(0)
+	//#define ROFL_INFO(format,...) do{}while(0)
+	#define ROFL_DEBUG(format, ...) do{}while(0)
+	#define ROFL_DEBUG_VERBOSE(format, ...) do{}while(0)
 #endif //ROFL_NO_LOGGING
 
 //C++ extern C
 ROFL_BEGIN_DECLS
 
 //API to capture logging events of the logger 
-void rofl_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
+void rofl_set_logging_function(int (*logging_func)(const char *format, ...));
 
 //API to capture logging events of the logger 
 void rofl_set_logging_level(enum rofl_debug_class c, enum rofl_debug_levels level);
