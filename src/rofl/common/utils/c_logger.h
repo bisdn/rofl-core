@@ -81,15 +81,27 @@ extern int (*rofl_debug_print)(const char *format, ...);
 	ROFL_DEBUG_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 
 #ifdef DEBUG
+	#define ROFL_ERR_STRIP(classname, format, ...)          \
+		ROFL_DEBUG_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
+
+	#define ROFL_WARN_STRIP(classname, format, ...) \
+		ROFL_DEBUG_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
+
+	#define ROFL_INFO_STRIP(classname, format, ...) \
+		ROFL_DEBUG_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
+
+	#define ROFL_DEBUG_STRIP(classname, format, ...)        \
+		ROFL_DEBUG_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
+
+	#define ROFL_DEBUG_VERBOSE_STRIP(classname, format, ...)        \
+		ROFL_DEBUG_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 #else
-	//No logging
-	//#define ROFL_DEBUG_CHECK(format, ...) do{}while(0)
-	//#define ROFL_DEBUG_PRINT(format, ...) do{}while(0)             /* ROFL_DEBUG_CHECK */
-	//#define ROFL_WARN(format, ...) do{}while(0)
-	//#define ROFL_ERR(format, ...) do{}while(0)
-	//#define ROFL_INFO(format,...) do{}while(0)
-	#define ROFL_DEBUG(format, ...) do{}while(0)
-	#define ROFL_DEBUG_VERBOSE(format, ...) do{}while(0)
+	// No logging
+	#define ROFL_ERR_STRIP(classname, format, ...) do{}while(0)
+	#define ROFL_WARN_STRIP(classname, format, ...) do{}while(0)
+	#define ROFL_INFO_STRIP(classname, format,...) do{}while(0)
+	#define ROFL_DEBUG_STRIP(classname, format, ...) do{}while(0)
+	#define ROFL_DEBUG_VERBOSE_STRIP(classname, format, ...) do{}while(0)
 #endif //ROFL_NO_LOGGING
 
 //C++ extern C
