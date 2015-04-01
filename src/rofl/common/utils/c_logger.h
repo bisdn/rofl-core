@@ -36,6 +36,7 @@ enum rofl_debug_levels {
 enum rofl_debug_class {
 	UNDEF_DEBUG_CLASS	= -1,	/* Undefined debug level */
 	DEFAULT				= 0,	/* todo name it correct */
+	PIPELINE			= 1,	/* rofl pipeline */
 	ALL,						/* DO NOT USE */
 	MAX_DEBUG_CLASS		= ALL	/* DO NOT USE */
 
@@ -64,22 +65,22 @@ extern int (*rofl_debug_print)(const char *format, ...);
 	}\
     }while(0)
 
-#define ROFL_WARN(format, ...) \
-	ROFL_DEBUG_PRINT(DEFAULT, WARN_LEVEL, format, ##__VA_ARGS__)
+#define ROFL_WARN(classname, format, ...) \
+	ROFL_DEBUG_PRINT(classname, WARN_LEVEL, format, ##__VA_ARGS__)
 
-#define ROFL_ERR(format, ...)          \
-	ROFL_DEBUG_PRINT(DEFAULT, ERROR_LEVEL, format, ##__VA_ARGS__)
+#define ROFL_ERR(classname, format, ...)          \
+	ROFL_DEBUG_PRINT(classname, ERROR_LEVEL, format, ##__VA_ARGS__)
 
-#define ROFL_INFO(format, ...) \
-	ROFL_DEBUG_PRINT(DEFAULT, INFO_LEVEL, format, ##__VA_ARGS__)
+#define ROFL_INFO(classname, format, ...) \
+	ROFL_DEBUG_PRINT(classname, INFO_LEVEL, format, ##__VA_ARGS__)
 
+#define ROFL_DEBUG(classname, format, ...)        \
+	ROFL_DEBUG_PRINT(classname, DBG_LEVEL, format, ##__VA_ARGS__)
+
+#define ROFL_DEBUG_VERBOSE(classname, format, ...)        \
+	ROFL_DEBUG_PRINT(classname, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 
 #ifdef DEBUG
-	#define ROFL_DEBUG(format, ...)        \
-		ROFL_DEBUG_PRINT(DEFAULT, DBG_LEVEL, format, ##__VA_ARGS__)
-
-	#define ROFL_DEBUG_VERBOSE(format, ...)        \
-		ROFL_DEBUG_PRINT(DEFAULT, DBG_VERBOSE_LEVEL, format, ##__VA_ARGS__)
 #else
 	//No logging
 	//#define ROFL_DEBUG_CHECK(format, ...) do{}while(0)
