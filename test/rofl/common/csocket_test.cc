@@ -12,6 +12,8 @@
 
 #include "csocket_test.h"
 
+#undef ROFL_HAVE_OPENSSL
+
 
 CPPUNIT_TEST_SUITE_REGISTRATION( csocket_test );
 
