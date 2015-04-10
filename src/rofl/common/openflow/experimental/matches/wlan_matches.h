@@ -48,10 +48,10 @@ class coxmatch_ofx_wlan_fc : public coxmatch {
 public:
 	coxmatch_ofx_wlan_fc(
 			uint16_t fc) :
-				coxmatch(OXM_TLV_EXPR_WLAN_FC, fc) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_FC, fc, COXMATCH_16BIT) {};
 	coxmatch_ofx_wlan_fc(
 			uint16_t fc, uint16_t mask) :
-				coxmatch(OXM_TLV_EXPR_WLAN_FC_MASK, fc, mask) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_FC_MASK, fc, mask, COXMATCH_16BIT) {};
 	coxmatch_ofx_wlan_fc(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -76,10 +76,10 @@ class coxmatch_ofx_wlan_type : public coxmatch {
 public:
 	coxmatch_ofx_wlan_type(
 			uint8_t type) :
-				coxmatch(OXM_TLV_EXPR_WLAN_TYPE, type) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_TYPE, type, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_type(
 			uint8_t type, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_WLAN_TYPE_MASK, type, mask) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_TYPE_MASK, type, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_type(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -104,10 +104,10 @@ class coxmatch_ofx_wlan_subtype : public coxmatch {
 public:
 	coxmatch_ofx_wlan_subtype(
 			uint8_t subtype) :
-				coxmatch(OXM_TLV_EXPR_WLAN_SUBTYPE, subtype) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_SUBTYPE, subtype, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_subtype(
 			uint8_t subtype, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_WLAN_SUBTYPE_MASK, subtype, mask) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_SUBTYPE_MASK, subtype, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_subtype(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -132,10 +132,10 @@ class coxmatch_ofx_wlan_direction : public coxmatch {
 public:
 	coxmatch_ofx_wlan_direction(
 			uint8_t direction) :
-				coxmatch(OXM_TLV_EXPR_WLAN_DIRECTION, direction) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_DIRECTION, direction, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_direction(
 			uint8_t direction, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_WLAN_DIRECTION_MASK, direction, mask) {};
+				coxmatch(OXM_TLV_EXPR_WLAN_DIRECTION_MASK, direction, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_wlan_direction(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};

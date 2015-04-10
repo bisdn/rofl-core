@@ -35,7 +35,7 @@ class coxmatch_ofx_pppoe_code : public coxmatch {
 public:
 	coxmatch_ofx_pppoe_code(
 			uint8_t code) :
-				coxmatch(OXM_TLV_EXPR_PPPOE_CODE, code) {};
+				coxmatch(OXM_TLV_EXPR_PPPOE_CODE, code, COXMATCH_8BIT) {};
 	coxmatch_ofx_pppoe_code(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -59,7 +59,7 @@ class coxmatch_ofx_pppoe_type : public coxmatch {
 public:
 	coxmatch_ofx_pppoe_type(
 			uint8_t type) :
-				coxmatch(OXM_TLV_EXPR_PPPOE_TYPE, type) {};
+				coxmatch(OXM_TLV_EXPR_PPPOE_TYPE, type, COXMATCH_8BIT) {};
 	coxmatch_ofx_pppoe_type(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -83,7 +83,7 @@ class coxmatch_ofx_pppoe_sid : public coxmatch {
 public:
 	coxmatch_ofx_pppoe_sid(
 			uint16_t sid) :
-				coxmatch(OXM_TLV_EXPR_PPPOE_SID, sid) {};
+				coxmatch(OXM_TLV_EXPR_PPPOE_SID, sid, COXMATCH_16BIT) {};
 	coxmatch_ofx_pppoe_sid(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -107,7 +107,7 @@ class coxmatch_ofx_ppp_prot : public coxmatch {
 public:
 	coxmatch_ofx_ppp_prot(
 			uint16_t prot) :
-				coxmatch(OXM_TLV_EXPR_PPP_PROT, prot) {};
+				coxmatch(OXM_TLV_EXPR_PPP_PROT, prot, COXMATCH_16BIT) {};
 	coxmatch_ofx_ppp_prot(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};

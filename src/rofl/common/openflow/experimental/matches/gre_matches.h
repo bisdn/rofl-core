@@ -43,10 +43,10 @@ class coxmatch_ofx_gre_version : public coxmatch {
 public:
 	coxmatch_ofx_gre_version(
 			uint16_t version) :
-				coxmatch(OXM_TLV_EXPR_GRE_VERSION, version) {};
+				coxmatch(OXM_TLV_EXPR_GRE_VERSION, version, COXMATCH_16BIT) {};
 	coxmatch_ofx_gre_version(
 			uint16_t version, uint16_t mask) :
-				coxmatch(OXM_TLV_EXPR_GRE_VERSION_MASK, version, mask) {};
+				coxmatch(OXM_TLV_EXPR_GRE_VERSION_MASK, version, mask, COXMATCH_16BIT) {};
 	coxmatch_ofx_gre_version(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -70,10 +70,10 @@ class coxmatch_ofx_gre_prot_type : public coxmatch {
 public:
 	coxmatch_ofx_gre_prot_type(
 			uint16_t prot_type) :
-				coxmatch(OXM_TLV_EXPR_GRE_PROT_TYPE, prot_type) {};
+				coxmatch(OXM_TLV_EXPR_GRE_PROT_TYPE, prot_type, COXMATCH_16BIT) {};
 	coxmatch_ofx_gre_prot_type(
 			uint16_t prot_type, uint16_t mask) :
-				coxmatch(OXM_TLV_EXPR_GRE_PROT_TYPE_MASK, prot_type, mask) {};
+				coxmatch(OXM_TLV_EXPR_GRE_PROT_TYPE_MASK, prot_type, mask, COXMATCH_16BIT) {};
 	coxmatch_ofx_gre_prot_type(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -97,10 +97,10 @@ class coxmatch_ofx_gre_key : public coxmatch {
 public:
 	coxmatch_ofx_gre_key(
 			uint32_t key) :
-				coxmatch(OXM_TLV_EXPR_GRE_KEY, key) {};
+				coxmatch(OXM_TLV_EXPR_GRE_KEY, key, COXMATCH_32BIT) {};
 	coxmatch_ofx_gre_key(
 			uint32_t key, uint32_t mask) :
-				coxmatch(OXM_TLV_EXPR_GRE_KEY_MASK, key, mask) {};
+				coxmatch(OXM_TLV_EXPR_GRE_KEY_MASK, key, mask, COXMATCH_32BIT) {};
 	coxmatch_ofx_gre_key(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};

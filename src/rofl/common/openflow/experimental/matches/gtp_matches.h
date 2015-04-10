@@ -33,10 +33,10 @@ class coxmatch_ofx_gtp_teid : public coxmatch {
 public:
 	coxmatch_ofx_gtp_teid(
 			uint32_t teid) :
-				coxmatch(OXM_TLV_EXPR_GTP_TEID, teid) {};
+				coxmatch(OXM_TLV_EXPR_GTP_TEID, teid, COXMATCH_32BIT) {};
 	coxmatch_ofx_gtp_teid(
 			uint32_t teid, uint32_t mask) :
-				coxmatch(OXM_TLV_EXPR_GTP_TEID_MASK, teid, mask) {};
+				coxmatch(OXM_TLV_EXPR_GTP_TEID_MASK, teid, mask, COXMATCH_32BIT) {};
 	coxmatch_ofx_gtp_teid(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -60,10 +60,10 @@ class coxmatch_ofx_gtp_msg_type : public coxmatch {
 public:
 	coxmatch_ofx_gtp_msg_type(
 			uint8_t msg_type) :
-				coxmatch(OXM_TLV_EXPR_GTP_MSGTYPE, msg_type) {};
+				coxmatch(OXM_TLV_EXPR_GTP_MSGTYPE, msg_type, COXMATCH_8BIT) {};
 	coxmatch_ofx_gtp_msg_type(
 			uint8_t msg_type, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_GTP_MSGTYPE_MASK, msg_type, mask) {};
+				coxmatch(OXM_TLV_EXPR_GTP_MSGTYPE_MASK, msg_type, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_gtp_msg_type(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
