@@ -24,6 +24,7 @@
 #include "rofl/common/csockaddr.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/cparams.h"
+#include "rofl_config.h"
 
 namespace rofl {
 

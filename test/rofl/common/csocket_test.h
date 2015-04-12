@@ -11,6 +11,7 @@
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/csocket.h"
 #include "rofl/common/csocket_plain.h"
+#undef ROFL_HAVE_OPENSSL
 #ifdef ROFL_HAVE_OPENSSL
 #include "rofl/common/csocket_openssl.h"
 #endif

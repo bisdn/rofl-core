@@ -36,10 +36,10 @@ class coxmatch_ofx_capwap_wbid : public coxmatch {
 public:
 	coxmatch_ofx_capwap_wbid(
 			uint8_t wbid) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_WBID, wbid) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_WBID, wbid, COXMATCH_8BIT) {};
 	coxmatch_ofx_capwap_wbid(
 			uint8_t wbid, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_WBID_MASK, wbid, mask) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_WBID_MASK, wbid, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_capwap_wbid(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -64,10 +64,10 @@ class coxmatch_ofx_capwap_rid : public coxmatch {
 public:
 	coxmatch_ofx_capwap_rid(
 			uint8_t rid) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_RID, rid) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_RID, rid, COXMATCH_8BIT) {};
 	coxmatch_ofx_capwap_rid(
 			uint8_t rid, uint8_t mask) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_RID_MASK, rid, mask) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_RID_MASK, rid, mask, COXMATCH_8BIT) {};
 	coxmatch_ofx_capwap_rid(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};
@@ -92,10 +92,10 @@ class coxmatch_ofx_capwap_flags : public coxmatch {
 public:
 	coxmatch_ofx_capwap_flags(
 			uint16_t flags) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_FLAGS, flags) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_FLAGS, flags, COXMATCH_16BIT) {};
 	coxmatch_ofx_capwap_flags(
 			uint16_t flags, uint16_t mask) :
-				coxmatch(OXM_TLV_EXPR_CAPWAP_FLAGS_MASK, flags, mask) {};
+				coxmatch(OXM_TLV_EXPR_CAPWAP_FLAGS_MASK, flags, mask, COXMATCH_16BIT) {};
 	coxmatch_ofx_capwap_flags(
 			coxmatch const& oxm) :
 				coxmatch(oxm) {};

@@ -61,10 +61,22 @@ cetherswitch::run(
 	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
 	cetherswitch sw(versionbitmap);
 
+	rofl::csocket::socket_type_t socket_type = rofl::csocket::SOCKET_TYPE_PLAIN;
+	if (env_parser.is_arg_set("cert-and-key-file")) {
+		socket_type = rofl::csocket::SOCKET_TYPE_OPENSSL;
+	}
+
 	//We must now specify the parameters for allowing datapaths to connect
-	rofl::cparams socket_params = rofl::csocket::get_default_params(rofl::csocket::SOCKET_TYPE_PLAIN);
+	rofl::cparams socket_params = rofl::csocket::get_default_params(socket_type);
 	socket_params.set_param(rofl::csocket::PARAM_KEY_LOCAL_PORT).set_string() = std::string("6653");
-	sw.add_dpt_listening(0, rofl::csocket::SOCKET_TYPE_PLAIN, socket_params);
+
+	if (env_parser.is_arg_set("cert-and-key-file")) {
+		socket_params.set_param(rofl::csocket::PARAM_SSL_KEY_VERIFY_MODE).set_string(std::string("NONE"));
+		socket_params.set_param(rofl::csocket::PARAM_SSL_KEY_CA_FILE).set_string(env_parser.get_arg("cert-and-key-file"));
+		socket_params.set_param(rofl::csocket::PARAM_SSL_KEY_CERT).set_string(env_parser.get_arg("cert-and-key-file"));
+		socket_params.set_param(rofl::csocket::PARAM_SSL_KEY_PRIVATE_KEY).set_string(env_parser.get_arg("cert-and-key-file"));
+	}
+	sw.add_dpt_listening(0, socket_type, socket_params);
 
 	while (keep_on_running) {
 		try {
