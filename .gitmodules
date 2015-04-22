@@ -1,0 +1,6 @@
+[submodule "rofl-common"]
+	path = common
+	url = https://github.com/bisdn/rofl-common.git
+[submodule "rofl-datapath"]
+	path = datapath
+	url = https://github.com/bisdn/rofl-datapath.git

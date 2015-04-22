@@ -1,7 +1,0 @@
-MAINTAINERCLEANFILES = Makefile.in
-
-SUBDIRS = actions matches
-
-noinst_LTLIBRARIES = libopenflow_experimental.la
-libopenflow_experimental_la_SOURCES=
-libopenflow_experimental_la_LIBADD= actions/libopenflow_experimental_actions.la matches/libopenflow_experimental_matches.la
