@@ -6,10 +6,23 @@ The Revised OpenFlow Library (ROFL) helps you adding OpenFlow support to your so
 
 This is a meta-repository that contains all the ROFL libraries. Refer to each library for more details on how to build and install.
 
-TODO
-====
+Compilation
+===========
 
-Script to compile all?
+To compile the libraries initialize all submodules like:
+
+	git submodule update --init --recursive
+
+And for each of them proceed according to their README to install them.
+
+More information, documentation and support
+===========================================
+
+* http://www.roflibs.org/
+* http://www.roflibs.org/doc/
+
+For getting support or participate in the discussions, join the mailing list rofl-devel@roflibs.org at https://lists.roflibs.org/mailman
+
 
 Authorship
 ==========
